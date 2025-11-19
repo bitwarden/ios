@@ -18,9 +18,9 @@ public enum LoginTOTPState: Equatable, Sendable {
         switch self {
         case let .codeKeyPair(_, key),
              let .key(key):
-            return key
+            key
         case .none:
-            return nil
+            nil
         }
     }
 
@@ -29,10 +29,10 @@ public enum LoginTOTPState: Equatable, Sendable {
     var codeModel: TOTPCodeModel? {
         switch self {
         case let .codeKeyPair(code, _):
-            return code
+            code
         case .key,
              .none:
-            return nil
+            nil
         }
     }
 
@@ -42,9 +42,9 @@ public enum LoginTOTPState: Equatable, Sendable {
         switch self {
         case let .codeKeyPair(_, key),
              let .key(key):
-            return key.rawAuthenticatorKey
+            key.rawAuthenticatorKey
         case .none:
-            return nil
+            nil
         }
     }
 
@@ -56,7 +56,7 @@ public enum LoginTOTPState: Equatable, Sendable {
     ///
     init(
         authKeyModel: TOTPKeyModel,
-        codeModel: TOTPCodeModel? = nil
+        codeModel: TOTPCodeModel? = nil,
     ) {
         if let code = codeModel {
             self = .codeKeyPair(code, key: authKeyModel)

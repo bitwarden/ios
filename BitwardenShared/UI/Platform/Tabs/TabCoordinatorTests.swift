@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import SwiftUI
 import TestHelpers
 import XCTest
@@ -37,7 +39,7 @@ class TabCoordinatorTests: BitwardenTestCase {
             settingsDelegate: settingsDelegate,
             tabNavigator: tabNavigator,
             vaultDelegate: vaultDelegate,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
     }
 
@@ -95,7 +97,7 @@ class TabCoordinatorTests: BitwardenTestCase {
             settingsDelegate: MockSettingsCoordinatorDelegate(),
             tabNavigator: tabNavigator,
             vaultDelegate: MockVaultCoordinatorDelegate(),
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
         XCTAssertNotNil(subject.rootNavigator)
 

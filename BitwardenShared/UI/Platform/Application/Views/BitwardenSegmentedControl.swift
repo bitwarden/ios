@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: BitwardenSegmentedControl
@@ -24,34 +26,51 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
     // MARK: View
 
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(selections) { selection in
-                let isSelected = self.selection.id == selection.id
-                Button {
-                    // Don't update the selection if this segment is already selected.
-                    guard !isSelected else { return }
-                    self.selection = selection
-                } label: {
-                    Text(selection.localizedName)
-                        .styleGuide(.callout, weight: .semibold)
+        if #available(iOS 26, *) {
+            Picker(
+                selection: $selection,
+            ) {
+                ForEach(selections) { type in
+                    Text(type.localizedName)
+                        .tag(type)
+                        .selectionDisabled(isSelectionDisabled(type))
+                        .accessibilityIdentifier(type.accessibilityId)
                 }
-                .accessibility(if: isSelected, addTraits: .isSelected)
-                .accessibilityIdentifier(selection.accessibilityId)
-                .buttonStyle(SegmentButtonStyle(isSelected: isSelected))
-                .disabled(isSelectionDisabled(selection))
-                .matchedGeometryEffect(id: selection, in: segmentedControl)
+            } label: {
+                EmptyView()
             }
+            .pickerStyle(.segmented)
+            .glassEffect()
+        } else {
+            HStack(spacing: 0) {
+                ForEach(selections) { selection in
+                    let isSelected = self.selection.id == selection.id
+                    Button {
+                        // Don't update the selection if this segment is already selected.
+                        guard !isSelected else { return }
+                        self.selection = selection
+                    } label: {
+                        Text(selection.localizedName)
+                            .styleGuide(.callout, weight: .semibold)
+                    }
+                    .accessibility(if: isSelected, addTraits: .isSelected)
+                    .accessibilityIdentifier(selection.accessibilityId)
+                    .buttonStyle(SegmentButtonStyle(isSelected: isSelected))
+                    .disabled(isSelectionDisabled(selection))
+                    .matchedGeometryEffect(id: selection, in: segmentedControl)
+                }
+            }
+            .background(
+                Capsule()
+                    .strokeBorder(SharedAsset.Colors.strokeSegmentedNavigation.swiftUIColor, lineWidth: 0.5)
+                    .background(Capsule().fill(SharedAsset.Colors.backgroundSecondary.swiftUIColor))
+                    .padding(2)
+                    .matchedGeometryEffect(id: selection, in: segmentedControl, isSource: false),
+            )
+            .animation(.default, value: selection)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+            .clipShape(Capsule())
         }
-        .background(
-            Capsule()
-                .strokeBorder(Asset.Colors.strokeSegmentedNavigation.swiftUIColor, lineWidth: 0.5)
-                .background(Capsule().fill(Asset.Colors.backgroundSecondary.swiftUIColor))
-                .padding(2)
-                .matchedGeometryEffect(id: selection, in: segmentedControl, isSource: false)
-        )
-        .animation(.default, value: selection)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        .clipShape(Capsule())
     }
 
     // MARK: Initialization
@@ -66,7 +85,7 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
     init(
         isSelectionDisabled: @escaping (T) -> Bool = { _ in false },
         selection: Binding<T>,
-        selections: [T]
+        selections: [T],
     ) {
         self.isSelectionDisabled = isSelectionDisabled
         _selection = selection
@@ -88,10 +107,10 @@ private struct SegmentButtonStyle: ButtonStyle {
 
     /// The color of the foreground elements in the button.
     var foregroundColor: Color {
-        guard isEnabled else { return Asset.Colors.buttonFilledDisabledForeground.swiftUIColor }
-        return isSelected ?
-            Asset.Colors.textInteraction.swiftUIColor :
-            Asset.Colors.textSecondary.swiftUIColor
+        guard isEnabled else { return SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor }
+        return isSelected
+            ? SharedAsset.Colors.textInteraction.swiftUIColor
+            : SharedAsset.Colors.textSecondary.swiftUIColor
     }
 
     // MARK: ButtonStyle
@@ -116,7 +135,7 @@ private struct SegmentButtonStyle: ButtonStyle {
 
     BitwardenSegmentedControl(
         selection: $selection,
-        selections: GeneratorType.allCases
+        selections: GeneratorType.allCases,
     )
     .padding()
 }

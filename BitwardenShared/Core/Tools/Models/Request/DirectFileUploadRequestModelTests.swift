@@ -15,7 +15,7 @@ class DirectFileUploadRequestModelTests: BitwardenTestCase {
         let subject = DirectFileUploadRequestModel(
             data: data,
             date: date,
-            fileName: fileName
+            fileName: fileName,
         )
 
         XCTAssertEqual(
@@ -24,9 +24,9 @@ class DirectFileUploadRequestModelTests: BitwardenTestCase {
                 .file(
                     data: data,
                     name: "data",
-                    fileName: fileName
+                    fileName: fileName,
                 ),
-            ]
+            ],
         )
         XCTAssertEqual(subject.boundary, "--BWMobileFormBoundary420420000.0")
     }

@@ -1,5 +1,6 @@
 import AuthenticatorBridgeKit
 import BitwardenKit
+import BitwardenResources
 import Combine
 import Foundation
 
@@ -53,7 +54,7 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///   - items: The list of items that need updated TOTP codes.
     /// - Returns: A list of items with updated TOTP codes.
     ///
-    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem]
+    func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem]
 
     /// Create a temporary shared item based on a `AuthenticatorItemView` for sharing with the BWPM app.
     /// This method will store it as a temporary item in the shared store.
@@ -79,7 +80,7 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///            which will be notified as details of the item change
     ///
     func authenticatorItemDetailsPublisher(
-        id: String
+        id: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<AuthenticatorItemView?, Error>>
 
     /// A publisher for the list of a user's items, which returns a list of sections
@@ -96,7 +97,7 @@ protocol AuthenticatorItemRepository: AnyObject {
     /// - Returns: A publisher searching for the user's ciphers.
     ///
     func searchItemListPublisher(
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>>
 }
 
@@ -156,7 +157,7 @@ class DefaultAuthenticatorItemRepository {
         errorReporter: ErrorReporter,
         sharedItemService: AuthenticatorBridgeItemService,
         timeProvider: TimeProvider,
-        totpService: TOTPService
+        totpService: TOTPService,
     ) {
         self.application = application
         self.authenticatorItemService = authenticatorItemService
@@ -183,7 +184,7 @@ class DefaultAuthenticatorItemRepository {
     ///
     private func combinedSections(
         localSections: [ItemListSection],
-        sharedItems: [AuthenticatorBridgeItemDataView]
+        sharedItems: [AuthenticatorBridgeItemDataView],
     ) async -> [ItemListSection] {
         guard await isPasswordManagerSyncActive() else {
             return localSections
@@ -193,7 +194,7 @@ class DefaultAuthenticatorItemRepository {
             sections.append(ItemListSection(
                 id: "SyncError",
                 items: [.syncError()],
-                name: ""
+                name: "",
             ))
             return sections
         }
@@ -204,7 +205,7 @@ class DefaultAuthenticatorItemRepository {
                 [item.accountEmail, item.accountDomain]
                     .compactMap { $0?.nilIfEmpty }
                     .joined(separator: " | ")
-            }
+            },
         )
 
         var sections = localSections
@@ -229,7 +230,7 @@ class DefaultAuthenticatorItemRepository {
     /// - Returns: A list of the sections to display in the item list
     ///
     private func itemListSections(
-        from authenticatorItems: [AuthenticatorItem]
+        from authenticatorItems: [AuthenticatorItem],
     ) async throws -> [ItemListSection] {
         let items = try await authenticatorItems.asyncMap { item in
             try await self.cryptographyService.decrypt(item)
@@ -326,14 +327,10 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func isPasswordManagerSyncActive() async -> Bool {
-        guard await configService.getFeatureFlag(.enablePasswordManagerSync),
-              await sharedItemService.isSyncOn() else {
-            return false
-        }
-        return true
+        await sharedItemService.isSyncOn()
     }
 
-    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
+    func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
         try await items.asyncMap { item in
             let keyModel: TOTPKeyModel?
             switch item.itemType {
@@ -366,7 +363,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             id: item.id,
             name: item.name,
             totpKey: item.totpKey,
-            username: item.username
+            username: item.username,
         ))
     }
 
@@ -378,7 +375,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     // MARK: Publishers
 
     func authenticatorItemDetailsPublisher(
-        id: String
+        id: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<AuthenticatorItemView?, Error>> {
         try await authenticatorItemService.authenticatorItemsPublisher()
             .asyncTryMap { items -> AuthenticatorItemView? in
@@ -394,7 +391,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func searchItemListPublisher(
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
         try await itemListSectionPublisher().map { sections -> [ItemListItem] in
             let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -404,12 +401,23 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             return sections.flatMap(\.items)
                 .filter { item in
                     item.name.lowercased()
-                        .folding(options: .diacriticInsensitive, locale: nil)
+                        .folding(options: .diacriticInsensitive, locale: .current)
                         .contains(query)
                 }
                 .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
         .eraseToAnyPublisher()
         .values
+    }
+}
+
+extension DefaultAuthenticatorItemRepository: TOTPRefreshingRepository {
+    // MARK: Types
+
+    /// The type os item in the list to be refreshed.
+    typealias Item = ItemListItem
+
+    func refreshTOTPCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
+        try await refreshTotpCodes(for: items)
     }
 } // swiftlint:disable:this file_length

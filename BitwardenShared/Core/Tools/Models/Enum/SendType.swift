@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - SendType
@@ -17,7 +19,7 @@ public enum SendType: Int, CaseIterable, Codable, Equatable, Identifiable, Menua
 
     // MARK: Properties
 
-    var accessibilityId: String {
+    public var accessibilityId: String {
         switch self {
         case .text: "SendTextButton"
         case .file: "SendFileButton"

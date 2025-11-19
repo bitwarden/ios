@@ -31,19 +31,19 @@ class HTTPRequestTests: XCTestCase {
                 "Content-Type": "application/json",
                 "Authorization": "🔒",
             ],
-            body: "top secret".data(using: .utf8)!
+            body: "top secret".data(using: .utf8)!,
         )
 
         try XCTAssertEqual(
             String(data: XCTUnwrap(subject.body), encoding: .utf8),
-            "top secret"
+            "top secret",
         )
         XCTAssertEqual(
             subject.headers,
             [
                 "Content-Type": "application/json",
                 "Authorization": "🔒",
-            ]
+            ],
         )
         XCTAssertEqual(subject.method, .post)
         XCTAssertEqual(subject.url, URL(string: "https://example.com/json")!)
@@ -53,12 +53,12 @@ class HTTPRequestTests: XCTestCase {
     func test_init_request() throws {
         let subject = try HTTPRequest(
             request: TestRequest(),
-            baseURL: URL(string: "https://example.com/")!
+            baseURL: URL(string: "https://example.com/")!,
         )
 
         XCTAssertEqual(
             try String(data: XCTUnwrap(subject.body), encoding: .utf8),
-            "body data"
+            "body data",
         )
         XCTAssertEqual(subject.headers, ["Content-Type": "application/json"])
         XCTAssertEqual(subject.method, .get)

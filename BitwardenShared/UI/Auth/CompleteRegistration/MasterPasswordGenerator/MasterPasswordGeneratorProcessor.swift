@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - MasterPasswordGeneratorProcessor
 
 /// The processor used to manage state and handle actions for the generate master password screen.
@@ -5,7 +8,7 @@
 class MasterPasswordGeneratorProcessor: StateProcessor<
     MasterPasswordGeneratorState,
     MasterPasswordGeneratorAction,
-    MasterPasswordGeneratorEffect
+    MasterPasswordGeneratorEffect,
 > {
     // MARK: Types
 
@@ -35,7 +38,7 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         delegate: MasterPasswordUpdateDelegate?,
-        services: Services
+        services: Services,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

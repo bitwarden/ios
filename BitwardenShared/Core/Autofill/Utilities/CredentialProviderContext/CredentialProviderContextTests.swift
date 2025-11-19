@@ -3,48 +3,48 @@ import XCTest
 
 @testable import BitwardenShared
 
-class CredentialProviderContextTests: BitwardenTestCase {
+class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `getter:authCompletionRoute` the corresponding route depending on the context mode.
     func test_authCompletionRoute() {
         XCTAssertNil(
             DefaultCredentialProviderContext(.autofillCredential(.fixture(), userInteraction: false))
-                .authCompletionRoute
+                .authCompletionRoute,
         )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.autofillVaultList([]))
                 .authCompletionRoute,
-            AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList),
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(
-                .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false)
-            ).authCompletionRoute
+                .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
+            ).authCompletionRoute,
         )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.autofillFido2VaultList([], MockPasskeyCredentialRequestParameters()))
                 .authCompletionRoute,
-            AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList),
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(
-                .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false)
-            ).authCompletionRoute
+                .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false),
+            ).authCompletionRoute,
         )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.autofillText).authCompletionRoute,
-            AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList),
         )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.configureAutofill)
                 .authCompletionRoute,
-            AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
+            AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension)),
         )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .authCompletionRoute,
-            AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList),
         )
     }
 
@@ -52,39 +52,39 @@ class CredentialProviderContextTests: BitwardenTestCase {
     func test_configuring() {
         XCTAssertTrue(
             DefaultCredentialProviderContext(.configureAutofill)
-                .configuring
+                .configuring,
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(.autofillCredential(.fixture(), userInteraction: false))
-                .configuring
+                .configuring,
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(.autofillVaultList([]))
-                .configuring
+                .configuring,
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(
-                .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false)
-            ).configuring
+                .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
+            ).configuring,
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(.autofillFido2VaultList([], MockPasskeyCredentialRequestParameters()))
-                .configuring
+                .configuring,
         )
         XCTAssertFalse(
-            DefaultCredentialProviderContext(.autofillText).configuring
+            DefaultCredentialProviderContext(.autofillText).configuring,
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(
                 .autofillOTPCredential(
                     MockOneTimeCodeCredentialIdentity(),
-                    userInteraction: false
-                )
-            ).configuring
+                    userInteraction: false,
+                ),
+            ).configuring,
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
-                .configuring
+                .configuring,
         )
     }
 
@@ -112,7 +112,7 @@ class CredentialProviderContextTests: BitwardenTestCase {
         }
 
         let context4 = DefaultCredentialProviderContext(
-            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false)
+            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
         )
         if case .autofillFido2Credential = context4.extensionMode {
             XCTAssert(true)
@@ -121,7 +121,7 @@ class CredentialProviderContextTests: BitwardenTestCase {
         }
 
         let context5 = DefaultCredentialProviderContext(
-            .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+            .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters()),
         )
         if case .autofillFido2VaultList = context5.extensionMode {
             XCTAssert(true)
@@ -139,8 +139,8 @@ class CredentialProviderContextTests: BitwardenTestCase {
         let context7 = DefaultCredentialProviderContext(
             .autofillOTPCredential(
                 MockOneTimeCodeCredentialIdentity(),
-                userInteraction: false
-            )
+                userInteraction: false,
+            ),
         )
         if case .autofillOTPCredential = context7.extensionMode {
             XCTAssert(true)
@@ -167,28 +167,28 @@ class CredentialProviderContextTests: BitwardenTestCase {
     func test_passwordCredentialIdentity_nil() {
         XCTAssertNil(
             DefaultCredentialProviderContext(.autofillVaultList([]))
-                .passwordCredentialIdentity
+                .passwordCredentialIdentity,
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(
-                .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false)
-            ).passwordCredentialIdentity
+                .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
+            ).passwordCredentialIdentity,
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.autofillFido2VaultList([], MockPasskeyCredentialRequestParameters()))
-                .passwordCredentialIdentity
+                .passwordCredentialIdentity,
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.autofillText)
-                .passwordCredentialIdentity
+                .passwordCredentialIdentity,
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.configureAutofill)
-                .passwordCredentialIdentity
+                .passwordCredentialIdentity,
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
-                .passwordCredentialIdentity
+                .passwordCredentialIdentity,
         )
     }
 
@@ -196,7 +196,7 @@ class CredentialProviderContextTests: BitwardenTestCase {
     func test_flowFailedBecauseUserInteractionRequired_default() {
         XCTAssertFalse(
             DefaultCredentialProviderContext(.autofillCredential(.fixture(), userInteraction: true))
-                .flowFailedBecauseUserInteractionRequired
+                .flowFailedBecauseUserInteractionRequired,
         )
     }
 
@@ -213,22 +213,22 @@ class CredentialProviderContextTests: BitwardenTestCase {
         XCTAssertFalse(subject1False.flowWithUserInteraction)
 
         let subject2True = DefaultCredentialProviderContext(
-            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: true)
+            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: true),
         )
         XCTAssertTrue(subject2True.flowWithUserInteraction)
 
         let subject2False = DefaultCredentialProviderContext(
-            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false)
+            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
         )
         XCTAssertFalse(subject2False.flowWithUserInteraction)
 
         let subjectOTPCredentialTrue = DefaultCredentialProviderContext(
-            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: true)
+            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: true),
         )
         XCTAssertTrue(subjectOTPCredentialTrue.flowWithUserInteraction)
 
         let subjectOTPCredentialFalse = DefaultCredentialProviderContext(
-            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false)
+            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false),
         )
         XCTAssertFalse(subjectOTPCredentialFalse.flowWithUserInteraction)
 
@@ -259,7 +259,7 @@ class CredentialProviderContextTests: BitwardenTestCase {
             ASCredentialServiceIdentifier.fixture(),
         ]
         let subject = DefaultCredentialProviderContext(
-            .autofillFido2VaultList(expectedIdentifiers, MockPasskeyCredentialRequestParameters())
+            .autofillFido2VaultList(expectedIdentifiers, MockPasskeyCredentialRequestParameters()),
         )
         XCTAssertEqual(subject.serviceIdentifiers, expectedIdentifiers)
     }
@@ -273,7 +273,7 @@ class CredentialProviderContextTests: BitwardenTestCase {
         XCTAssertEqual(subject1.serviceIdentifiers, expectedIdentifiers)
 
         let subject2 = DefaultCredentialProviderContext(
-            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false)
+            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
         )
         XCTAssertEqual(subject2.serviceIdentifiers, expectedIdentifiers)
 
@@ -286,13 +286,110 @@ class CredentialProviderContextTests: BitwardenTestCase {
         let subject5 = DefaultCredentialProviderContext(
             .autofillOTPCredential(
                 MockOneTimeCodeCredentialIdentity(),
-                userInteraction: false
-            )
+                userInteraction: false,
+            ),
         )
         XCTAssertEqual(subject5.serviceIdentifiers, expectedIdentifiers)
 
         let subject6 = DefaultCredentialProviderContext(.autofillText)
         XCTAssertEqual(subject6.serviceIdentifiers, expectedIdentifiers)
+    }
+
+    /// `getter:uri` returns the URI with https prefix when service identifier is a domain.
+    func test_uri_domain() {
+        let serviceIdentifier = ASCredentialServiceIdentifier.fixture(
+            identifier: "example.com",
+            type: .domain,
+        )
+        let subject = DefaultCredentialProviderContext(.autofillVaultList([serviceIdentifier]))
+        XCTAssertEqual(subject.uri, "https://example.com")
+    }
+
+    /// `getter:uri` returns the URI as-is when service identifier is a URL.
+    func test_uri_url() {
+        let serviceIdentifier = ASCredentialServiceIdentifier.fixture(
+            identifier: "https://example.com/path",
+            type: .URL,
+        )
+        let subject = DefaultCredentialProviderContext(.autofillVaultList([serviceIdentifier]))
+        XCTAssertEqual(subject.uri, "https://example.com/path")
+    }
+
+    /// `getter:uri` returns the first service identifier when multiple identifiers exist.
+    func test_uri_multipleServiceIdentifiers() {
+        let identifiers = [
+            ASCredentialServiceIdentifier.fixture(identifier: "first.com", type: .domain),
+            ASCredentialServiceIdentifier.fixture(identifier: "second.com", type: .domain),
+            ASCredentialServiceIdentifier.fixture(identifier: "third.com", type: .domain),
+        ]
+        let subject = DefaultCredentialProviderContext(.autofillVaultList(identifiers))
+        XCTAssertEqual(subject.uri, "https://first.com")
+    }
+
+    /// `getter:uri` returns relying party identifier as fallback for autofillFido2VaultList
+    /// when service identifiers are empty, normalized with HTTPS prefix.
+    func test_uri_autofillFido2VaultList_relyingPartyFallback() {
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "passkey.example.com")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
+        XCTAssertEqual(subject.uri, "https://passkey.example.com")
+    }
+
+    /// `getter:uri` returns relying party identifier normalized, preserving existing HTTPS scheme.
+    func test_uri_autofillFido2VaultList_relyingPartyWithHttpsScheme() {
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "https://passkey.example.com")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
+        XCTAssertEqual(subject.uri, "https://passkey.example.com")
+    }
+
+    /// `getter:uri` returns the service identifier URI when available for autofillFido2VaultList,
+    /// ignoring the relying party identifier.
+    func test_uri_autofillFido2VaultList_withServiceIdentifiers() {
+        let serviceIdentifier = ASCredentialServiceIdentifier.fixture(
+            identifier: "actual.example.com",
+            type: .domain,
+        )
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "fallback.example.com")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([serviceIdentifier], parameters))
+        XCTAssertEqual(subject.uri, "https://actual.example.com")
+    }
+
+    /// `getter:uri` returns nil when autofillFido2VaultList has empty service identifiers
+    /// and empty relying party identifier.
+    func test_uri_autofillFido2VaultList_emptyRelyingParty() {
+        let parameters = MockPasskeyCredentialRequestParameters(relyingPartyIdentifier: "")
+        let subject = DefaultCredentialProviderContext(.autofillFido2VaultList([], parameters))
+        XCTAssertNil(subject.uri)
+    }
+
+    /// `getter:uri` returns nil when no service identifiers and not autofillFido2VaultList mode.
+    func test_uri_nil() {
+        let subject1 = DefaultCredentialProviderContext(.autofillCredential(.fixture(), userInteraction: false))
+        XCTAssertNil(subject1.uri)
+
+        let subject2 = DefaultCredentialProviderContext(
+            .autofillFido2Credential(MockPasskeyCredentialRequest(), userInteraction: false),
+        )
+        XCTAssertNil(subject2.uri)
+
+        let subject3 = DefaultCredentialProviderContext(.configureAutofill)
+        XCTAssertNil(subject3.uri)
+
+        let subject4 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
+        XCTAssertNil(subject4.uri)
+
+        let subject5 = DefaultCredentialProviderContext(
+            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false),
+        )
+        XCTAssertNil(subject5.uri)
+
+        let subject6 = DefaultCredentialProviderContext(.autofillText)
+        XCTAssertNil(subject6.uri)
+    }
+
+    /// `getter:uri` returns nil when service identifiers are empty for autofillVaultList.
+    func test_uri_autofillVaultList_empty() {
+        let subject = DefaultCredentialProviderContext(.autofillVaultList([]))
+        XCTAssertNil(subject.uri)
     }
 }
 

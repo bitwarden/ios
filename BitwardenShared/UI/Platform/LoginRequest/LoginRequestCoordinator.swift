@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A coordinator that manages navigation for the login request view.
 ///
 final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
@@ -28,7 +30,7 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
     ///
     init(
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.services = services
         self.stackNavigator = stackNavigator
@@ -62,7 +64,7 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: LoginRequestState(request: loginRequest)
+            state: LoginRequestState(request: loginRequest),
         )
         let view = LoginRequestView(store: Store(processor: processor))
         stackNavigator?.replace(view)

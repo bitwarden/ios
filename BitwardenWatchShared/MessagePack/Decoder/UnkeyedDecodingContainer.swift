@@ -94,7 +94,7 @@ extension _MessagePackDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
         default:
             let context = DecodingError.Context(
                 codingPath: codingPath,
-                debugDescription: "cannot decode nil for index: \(currentIndex)"
+                debugDescription: "cannot decode nil for index: \(currentIndex)",
             )
             throw DecodingError.typeMismatch(Any?.self, context)
         }
@@ -109,7 +109,7 @@ extension _MessagePackDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
                 "",
                 false,
                 true,
-                (userInfo[MessagePackDecoder.dataSpecKey] as? DataSpecBuilder)?.copy() as? DataSpecBuilder
+                (userInfo[MessagePackDecoder.dataSpecKey] as? DataSpecBuilder)?.copy() as? DataSpecBuilder,
             )
         }
 
@@ -137,7 +137,7 @@ extension _MessagePackDecoder.UnkeyedContainer: UnkeyedDecodingContainer {
     }
 
     func nestedContainer<NestedKey>(
-        keyedBy _: NestedKey.Type
+        keyedBy _: NestedKey.Type,
     ) throws -> KeyedDecodingContainer<NestedKey>where NestedKey: CodingKey {
         try checkCanDecodeValue()
         defer { self.currentIndex += 1 }
@@ -169,7 +169,7 @@ extension _MessagePackDecoder.UnkeyedContainer {
                     currDS.name,
                     currDS.isObj,
                     currDS.isArray,
-                    currDS.dataSpecBuilder?.copy() as? DataSpecBuilder
+                    currDS.dataSpecBuilder?.copy() as? DataSpecBuilder,
                 )
             }
         }
@@ -207,7 +207,7 @@ extension _MessagePackDecoder.UnkeyedContainer {
             let container = _MessagePackDecoder.KeyedContainer<AnyCodingKey>(
                 data: data.suffix(from: startIndex),
                 codingPath: nestedCodingPath,
-                userInfo: userInfo
+                userInfo: userInfo,
             )
             container.currentSpec = currDataSpec
             _ = container.nestedContainers // FIXME:
@@ -222,7 +222,7 @@ extension _MessagePackDecoder.UnkeyedContainer {
                 let container = _MessagePackDecoder.KeyedContainer<AnyCodingKey>(
                     data: data.suffix(from: startIndex),
                     codingPath: nestedCodingPath,
-                    userInfo: objUserInfo
+                    userInfo: objUserInfo,
                 )
                 container.currentSpec = currDataSpec
                 _ = container.nestedContainers // FIXME:
@@ -239,7 +239,7 @@ extension _MessagePackDecoder.UnkeyedContainer {
             let container = _MessagePackDecoder.UnkeyedContainer(
                 data: data.suffix(from: startIndex),
                 codingPath: nestedCodingPath,
-                userInfo: arrUserInfo
+                userInfo: arrUserInfo,
             )
             container.currentSpec = currDataSpec
             _ = container.nestedContainers // FIXME:
@@ -257,7 +257,7 @@ extension _MessagePackDecoder.UnkeyedContainer {
         let container = _MessagePackDecoder.SingleValueContainer(
             data: data.subdata(in: range),
             codingPath: codingPath,
-            userInfo: userInfo
+            userInfo: userInfo,
         )
         container.currentSpec = currDataSpec
 

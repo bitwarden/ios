@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 
 /// A helper class to handle when a cipher is selected for autofill.
@@ -35,7 +37,7 @@ class AutofillHelper {
     init(
         appExtensionDelegate: AppExtensionDelegate?,
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
-        services: Services
+        services: Services,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
@@ -56,13 +58,13 @@ class AutofillHelper {
                 presentMasterPasswordRepromptAlert {
                     await self.handleCipherForAutofillAfterRepromptIfRequired(
                         cipherListView: cipherListView,
-                        showToast: showToast
+                        showToast: showToast,
                     )
                 }
             } else {
                 await handleCipherForAutofillAfterRepromptIfRequired(
                     cipherListView: cipherListView,
-                    showToast: showToast
+                    showToast: showToast,
                 )
             }
         } catch {
@@ -101,15 +103,15 @@ class AutofillHelper {
     ///
     private func handleCipherForAutofillAfterRepromptIfRequired(
         cipherListView: CipherListView,
-        showToast: @escaping (String) -> Void
+        showToast: @escaping (String) -> Void,
     ) async {
         do {
             guard let cipherId = cipherListView.id,
                   let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
                 services.errorReporter.log(
                     error: BitwardenError.dataError(
-                        "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired."
-                    )
+                        "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired.",
+                    ),
                 )
                 coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                 return
@@ -131,13 +133,13 @@ class AutofillHelper {
 
             await services.eventService.collect(
                 eventType: .cipherClientAutofilled,
-                cipherId: cipherView.id
+                cipherId: cipherView.id,
             )
 
             appExtensionDelegate?.completeAutofillRequest(
                 username: username,
                 password: password,
-                fields: fields
+                fields: fields,
             )
         } catch {
             services.errorReporter.log(error: error)

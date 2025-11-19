@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -8,9 +9,23 @@ import OSLog
 
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
 protocol VaultListSectionsBuilder { // sourcery: AutoMockable
-    /// Adds a section with trash (deleted) items.
+    /// Adds passwords and Fido2 items combined for Autofill vault list in multiple sections.
+    /// - Parameter searchText: The text query to search ciphers.
+    /// - Parameter rpID: The relying party identifier of the Fido2 request.
     /// - Returns: The builder for fluent code.
-    func addTrashSection() -> VaultListSectionsBuilder
+    func addAutofillCombinedMultipleSection(searchText: String?, rpID: String?) -> VaultListSectionsBuilder
+
+    /// Adds a section with passwords and Fido2 items for Autofill vault list in a combined single section.
+    /// - Returns: The builder for fluent code.
+    func addAutofillCombinedSingleSection() -> VaultListSectionsBuilder
+
+    /// Adds a section with passwords items for Autofill vault list.
+    /// - Returns: The builder for fluent code.
+    func addAutofillPasswordsSection() -> VaultListSectionsBuilder
+
+    /// Adds the list of IDs for ciphers which failed to decrypt.
+    /// - Returns: The builder for fluent code.
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder
 
     /// Adds a section with available collections or that correspond under the `nestedCollectionId` if passed.
     /// - Parameter nestedCollectionId: Filters the collections that are under the specified ID, if any.
@@ -30,20 +45,36 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// - Returns: The builder for fluent code.
     func addGroupSection() -> VaultListSectionsBuilder
 
+    /// Adds a section with search results items.
+    /// - Parameter options: The vault list options configured.
+    /// - Returns: The builder for fluent code.
+    func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder
+
     /// Adds a section with TOTP items.
     /// - Returns: The builder for fluent code.
     func addTOTPSection() -> VaultListSectionsBuilder
+
+    /// Adds a section with trash (deleted) items.
+    /// - Returns: The builder for fluent code.
+    func addTrashSection() -> VaultListSectionsBuilder
 
     /// Adds a section with items types.
     /// - Returns: The builder for fluent code.
     func addTypesSection() -> VaultListSectionsBuilder
 
-    /// Builds and returns the sections.
-    /// - Returns: The built sections.
-    func build() -> [VaultListSection]
+    /// Builds and returns the vault list data.
+    /// - Returns: The built vault list data.
+    func build() -> VaultListData
 }
 
 extension VaultListSectionsBuilder {
+    /// Adds passwords and Fido2 items combined for Autofill vault list in multiple sections.
+    /// - Parameter rpID: The relying party identifier of the Fido2 request.
+    /// - Returns: The builder for fluent code.
+    func addAutofillCombinedMultipleSection(rpID: String?) -> VaultListSectionsBuilder {
+        addAutofillCombinedMultipleSection(searchText: nil, rpID: rpID)
+    }
+
     /// Adds a section with available collections.
     /// - Returns: The builder for fluent code.
     func addCollectionsSection() async throws -> VaultListSectionsBuilder {
@@ -60,41 +91,103 @@ extension VaultListSectionsBuilder {
 // MARK: - DefaultVaultListSectionsBuilder
 
 /// The default vault list sections builder.
-class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
+class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+    /// The helper functions for collections.
+    let collectionHelper: CollectionHelper
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
     let preparedData: VaultListPreparedData
-    /// The sections to build.
-    private var sections: [VaultListSection] = []
+    /// The vault list data to build.
+    private var vaultListData = VaultListData()
 
     // MARK: Init
 
     /// Initializes a `DefaultVaultListSectionsBuilder`.
     /// - Parameters:
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - collectionHelper: The helper functions for collections.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - preparedData: `VaultListPreparedData` to be used as input to build the sections where the caller
     ///   decides which to include depending on the builder methods called.
     init(
         clientService: ClientService,
+        collectionHelper: CollectionHelper,
         errorReporter: ErrorReporter,
-        withData preparedData: VaultListPreparedData
+        withData preparedData: VaultListPreparedData,
     ) {
         self.clientService = clientService
+        self.collectionHelper = collectionHelper
         self.errorReporter = errorReporter
         self.preparedData = preparedData
     }
 
     // MARK: Methods
 
-    func addTrashSection() -> VaultListSectionsBuilder {
-        let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
-        sections.append(VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash))
+    func addAutofillCombinedMultipleSection(searchText: String?, rpID: String?) -> VaultListSectionsBuilder {
+        if !preparedData.fido2Items.isEmpty, let rpID {
+            vaultListData.sections.append(VaultListSection(
+                id: Localizations.passkeysForX(searchText ?? rpID),
+                items: preparedData.fido2Items.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: Localizations.passkeysForX(searchText ?? rpID),
+            ))
+        }
+
+        if !preparedData.groupItems.isEmpty {
+            let passwordsSectionName = if let rpID {
+                Localizations.passwordsForX(rpID)
+            } else if let searchText {
+                Localizations.passwordsForX(searchText)
+            } else {
+                Localizations.passwords
+            }
+
+            vaultListData.sections.append(VaultListSection(
+                id: passwordsSectionName,
+                items: preparedData.groupItems.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: passwordsSectionName,
+            ))
+        }
+
+        return self
+    }
+
+    func addAutofillCombinedSingleSection() -> VaultListSectionsBuilder {
+        guard !preparedData.groupItems.isEmpty || !preparedData.fido2Items.isEmpty else {
+            return self
+        }
+
+        let items = preparedData.groupItems + preparedData.fido2Items
+        vaultListData.sections.append(VaultListSection(
+            id: Localizations.chooseALoginToSaveThisPasskeyTo,
+            items: items.sorted(using: VaultListItem.defaultSortDescriptor),
+            name: Localizations.chooseALoginToSaveThisPasskeyTo,
+        ))
+        return self
+    }
+
+    func addAutofillPasswordsSection() -> VaultListSectionsBuilder {
+        guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
+            return self
+        }
+
+        let matchingItems = preparedData.exactMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+            + preparedData.fuzzyMatchItems.sorted(using: VaultListItem.defaultSortDescriptor)
+
+        vaultListData.sections.append(VaultListSection(
+            id: "AutofillPasswords",
+            items: matchingItems,
+            name: "",
+        ))
+        return self
+    }
+
+    func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
+        vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
         return self
     }
 
@@ -103,9 +196,10 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             return self
         }
 
-        let collectionTree = try await clientService.vault().collections()
+        let collections = try await clientService.vault().collections()
             .decryptList(collections: preparedData.collections)
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+
+        let collectionTree = try await collectionHelper.order(collections)
             .asNestedNodes()
 
         let nestedCollections = if let nestedCollectionId {
@@ -120,7 +214,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             let collection = collectionNode.node
             guard let collectionId = collection.id else {
                 self.errorReporter.log(
-                    error: BitwardenError.dataError("Received a collection from the API with a missing ID.")
+                    error: BitwardenError.dataError("Received a collection from the API with a missing ID."),
                 )
                 return nil
             }
@@ -128,33 +222,31 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                 id: collectionId,
                 itemType: .group(
                     .collection(id: collectionId, name: collectionNode.name, organizationId: collection.organizationId),
-                    preparedData.collectionsCount[collectionId, default: 0]
-                )
+                    preparedData.collectionsCount[collectionId, default: 0],
+                ),
             )
         }
 
         if !collectionItems.isEmpty {
-            sections.append(VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections))
+            vaultListData.sections.append(
+                VaultListSection(id: "Collections", items: collectionItems, name: Localizations.collections),
+            )
         }
         return self
     }
 
     func addFavoritesSection() -> VaultListSectionsBuilder {
         if !preparedData.favorites.isEmpty {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "Favorites",
                 items: preparedData.favorites.sorted(using: VaultListItem.defaultSortDescriptor),
-                name: Localizations.favorites
+                name: Localizations.favorites,
             ))
         }
         return self
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
-        guard !preparedData.folders.isEmpty else {
-            return self
-        }
-
         let folderTree = try await clientService.vault().folders()
             .decryptList(folders: preparedData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -172,7 +264,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             .compactMap { folderNode in
                 guard let folderId = folderNode.node.id else {
                     self.errorReporter.log(
-                        error: BitwardenError.dataError("Received a folder from the API with a missing ID.")
+                        error: BitwardenError.dataError("Received a folder from the API with a missing ID."),
                     )
                     return nil
                 }
@@ -180,8 +272,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
                     id: folderId,
                     itemType: .group(.folder(
                         id: folderId,
-                        name: folderNode.name
-                    ), preparedData.foldersCount[folderId, default: 0])
+                        name: folderNode.name,
+                    ), preparedData.foldersCount[folderId, default: 0]),
                 )
             }
 
@@ -192,20 +284,22 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
             foldersVaultListItems.append(
                 VaultListItem(
                     id: "NoFolderFolderItem",
-                    itemType: .group(.noFolder, preparedData.noFolderItems.count)
-                )
+                    itemType: .group(.noFolder, preparedData.noFolderItems.count),
+                ),
             )
         }
 
         if !foldersVaultListItems.isEmpty {
-            sections.append(VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders))
+            vaultListData.sections.append(
+                VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders),
+            )
         }
 
         if showNoFolderCipherGroup, !preparedData.noFolderItems.isEmpty {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "NoFolder",
                 items: preparedData.noFolderItems.sorted(using: VaultListItem.defaultSortDescriptor),
-                name: Localizations.folderNone
+                name: Localizations.folderNone,
             ))
         }
 
@@ -214,65 +308,109 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 
     func addGroupSection() -> VaultListSectionsBuilder {
         if !preparedData.groupItems.isEmpty {
-            sections.append(
+            vaultListData.sections.append(
                 VaultListSection(
                     id: "Items",
                     items: preparedData
                         .groupItems
                         .sorted(using: VaultListItem.defaultSortDescriptor),
-                    name: Localizations.items
-                )
+                    name: Localizations.items,
+                ),
             )
         }
         return self
     }
 
+    func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder {
+        guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
+            return self
+        }
+
+        let matchingItems = preparedData.exactMatchItems + preparedData.fuzzyMatchItems
+
+        var sectionID = "SearchResults"
+        var sectionName = ""
+
+        if options.contains(.isInPickerMode) {
+            sectionID = Localizations.matchingItems
+            sectionName = Localizations.matchingItems
+        }
+
+        vaultListData.sections.append(
+            VaultListSection(
+                id: sectionID,
+                items: matchingItems.sorted(using: VaultListItem.defaultSortDescriptor),
+                name: sectionName,
+            ),
+        )
+        return self
+    }
+
     func addTOTPSection() -> VaultListSectionsBuilder {
         if preparedData.totpItemsCount > 0 {
-            sections.append(VaultListSection(
+            vaultListData.sections.append(VaultListSection(
                 id: "TOTP",
                 items: [
                     VaultListItem(
                         id: "Types.VerificationCodes",
-                        itemType: .group(.totp, preparedData.totpItemsCount)
+                        itemType: .group(.totp, preparedData.totpItemsCount),
                     ),
                 ],
-                name: Localizations.totp
+                name: Localizations.totp,
             ))
         }
         return self
     }
 
-    func addTypesSection() -> VaultListSectionsBuilder {
-        let types = [
-            VaultListItem(
-                id: "Types.Logins",
-                itemType: .group(.login, preparedData.countPerCipherType[.login, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.Cards",
-                itemType: .group(.card, preparedData.countPerCipherType[.card, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.Identities",
-                itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.SecureNotes",
-                itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0])
-            ),
-            VaultListItem(
-                id: "Types.SSHKeys",
-                itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0])
-            ),
-        ]
-
-        sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
+    func addTrashSection() -> VaultListSectionsBuilder {
+        let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
+        vaultListData.sections.append(
+            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
+        )
         return self
     }
 
-    func build() -> [VaultListSection] {
-        sections
+    func addTypesSection() -> VaultListSectionsBuilder {
+        var types = [
+            VaultListItem(
+                id: "Types.Logins",
+                itemType: .group(.login, preparedData.countPerCipherType[.login, default: 0]),
+            ),
+        ]
+
+        let cardCount = preparedData.countPerCipherType[.card, default: 0]
+        if preparedData.restrictedOrganizationIds.isEmpty || cardCount != 0 {
+            types.append(
+                VaultListItem(
+                    id: "Types.Cards",
+                    itemType: .group(.card, cardCount),
+                ),
+            )
+        }
+
+        types.append(
+            contentsOf: [
+                VaultListItem(
+                    id: "Types.Identities",
+                    itemType: .group(.identity, preparedData.countPerCipherType[.identity, default: 0]),
+                ),
+                VaultListItem(
+                    id: "Types.SecureNotes",
+                    itemType: .group(.secureNote, preparedData.countPerCipherType[.secureNote, default: 0]),
+                ),
+                VaultListItem(
+                    id: "Types.SSHKeys",
+                    itemType: .group(.sshKey, preparedData.countPerCipherType[.sshKey, default: 0]),
+                ),
+            ],
+        )
+
+        vaultListData.sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
+        return self
+    }
+
+    func build() -> VaultListData {
+        vaultListData
     }
 }
 
@@ -281,6 +419,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder {
 /// Metadata helper object to hold temporary prepared (grouped, filtered, counted) data
 /// the builder can then use to build the list sections.
 struct VaultListPreparedData {
+    var cipherDecryptionFailureIds: [Uuid] = []
     var ciphersDeletedCount: Int = 0
     var collections: [Collection] = []
     var collectionsCount: [Uuid: Int] = [:]
@@ -291,10 +430,15 @@ struct VaultListPreparedData {
         .secureNote: 0,
         .sshKey: 0,
     ]
+    var exactMatchItems: [VaultListItem] = []
     var favorites: [VaultListItem] = []
+    var fido2Items: [VaultListItem] = []
     var folders: [Folder] = []
     var foldersCount: [Uuid: Int] = [:]
+    var fuzzyMatchItems: [VaultListItem] = []
     var groupItems: [VaultListItem] = []
     var noFolderItems: [VaultListItem] = []
+    /// Organization Ids with `.restrictItemTypes` policy enabled.
+    var restrictedOrganizationIds: [String] = []
     var totpItemsCount: Int = 0
-}
+} // swiftlint:disable:this file_length

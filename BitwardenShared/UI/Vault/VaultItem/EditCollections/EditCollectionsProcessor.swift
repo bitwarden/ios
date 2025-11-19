@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - EditCollectionsProcessorDelegate
 
 /// A delegate of `EditCollectionsProcessor` that is notified when the user successfully moves
@@ -17,7 +20,7 @@ protocol EditCollectionsProcessorDelegate: AnyObject {
 class EditCollectionsProcessor: StateProcessor<
     EditCollectionsState,
     EditCollectionsAction,
-    EditCollectionsEffect
+    EditCollectionsEffect,
 > {
     // MARK: Types
 
@@ -51,7 +54,7 @@ class EditCollectionsProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: EditCollectionsProcessorDelegate?,
         services: Services,
-        state: EditCollectionsState
+        state: EditCollectionsState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -85,8 +88,15 @@ class EditCollectionsProcessor: StateProcessor<
     ///
     private func fetchCipherOptions() async {
         do {
-            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
+            let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
                 .filter { $0.organizationId == state.cipher.organizationId }
+
+            state.collections = collections.filter { collection in
+                guard let collectionId = collection.id else {
+                    return false
+                }
+                return collection.type != .defaultUserCollection || state.collectionIds.contains(collectionId)
+            }
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -99,8 +109,8 @@ class EditCollectionsProcessor: StateProcessor<
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.selectOneCollection
-                )
+                    message: Localizations.selectOneCollection,
+                ),
             )
             return
         }

@@ -46,8 +46,7 @@ protocol AuthAPIService {
     /// - Parameter requestModel The access code used in the request
     /// - Returns: The new pending login requests.
     ///
-    func initiateLoginWithDevice(_ requestModel: LoginWithDeviceRequestModel
-    ) async throws -> LoginRequest
+    func initiateLoginWithDevice(_ requestModel: LoginWithDeviceRequestModel) async throws -> LoginRequest
 
     /// Queries the API to pre-validate single-sign on for the requested organization identifier.
     ///

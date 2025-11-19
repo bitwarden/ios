@@ -20,7 +20,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             PolicyOptionType.requireLower.rawValue: .bool(true),
             PolicyOptionType.enforceOnLogin.rawValue: .bool(true),
         ],
-        type: .masterPassword
+        type: .masterPassword,
     )
 
     let policies: [PolicyResponseModel] = [
@@ -33,12 +33,12 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             PolicyOptionType.minutes.rawValue: .int(60),
             PolicyOptionType.action.rawValue: .string("lock"),
         ],
-        type: .maximumVaultTimeout
+        type: .maximumVaultTimeout,
     )
 
     let maximumTimeoutPolicyNoAction = Policy.fixture(
         data: [PolicyOptionType.minutes.rawValue: .int(60)],
-        type: .maximumVaultTimeout
+        type: .maximumVaultTimeout,
     )
 
     let passwordGeneratorPolicy = Policy.fixture(
@@ -55,7 +55,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             PolicyOptionType.useSpecial.rawValue: .bool(true),
             PolicyOptionType.useUpper.rawValue: .bool(false),
         ],
-        type: .passwordGenerator
+        type: .passwordGenerator,
     )
 
     // MARK: Setup & Teardown
@@ -72,7 +72,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             configService: configService,
             organizationService: organizationService,
             policyDataStore: policyDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -128,10 +128,10 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                         PolicyOptionType.minLength.rawValue: .int(20),
                         PolicyOptionType.minNumbers.rawValue: .int(5),
                     ],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
                 passwordGeneratorPolicy,
-            ]
+            ],
         )
 
         var options = PasswordGenerationOptions()
@@ -152,8 +152,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 special: true,
                 type: .passphrase,
                 uppercase: nil,
-                overridePasswordType: true
-            )
+                overridePasswordType: true,
+            ),
         )
     }
 
@@ -170,16 +170,16 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                         PolicyOptionType.overridePasswordType.rawValue:
                             .string(PasswordGeneratorType.password.rawValue),
                     ],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
                 .fixture(
                     data: [
                         PolicyOptionType.overridePasswordType.rawValue:
                             .string(PasswordGeneratorType.passphrase.rawValue),
                     ],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
-            ]
+            ],
         )
 
         var options = PasswordGenerationOptions()
@@ -227,8 +227,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 special: true,
                 type: .passphrase,
                 uppercase: nil,
-                overridePasswordType: true
-            )
+                overridePasswordType: true,
+            ),
         )
     }
 
@@ -241,7 +241,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             [
                 .fixture(
                     data: [:],
-                    type: .passwordGenerator
+                    type: .passwordGenerator,
                 ),
             ])
 
@@ -266,7 +266,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             minSpecial: 5,
             special: false,
             type: .password,
-            uppercase: true
+            uppercase: true,
         )
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
 
@@ -285,8 +285,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 special: true,
                 type: .passphrase,
                 uppercase: true,
-                overridePasswordType: true
-            )
+                overridePasswordType: true,
+            ),
         )
     }
 
@@ -333,9 +333,9 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             [
                 .fixture(
                     data: [PolicyOptionType.disableHideEmail.rawValue: .bool(true)],
-                    type: .sendOptions
+                    type: .sendOptions,
                 ),
-            ]
+            ],
         )
 
         let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
@@ -360,9 +360,9 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             [
                 .fixture(
                     data: [PolicyOptionType.disableHideEmail.rawValue: .bool(false)],
-                    type: .sendOptions
+                    type: .sendOptions,
                 ),
-            ]
+            ],
         )
 
         let isDisabled = await subject.isSendHideEmailDisabledByPolicy()
@@ -413,6 +413,22 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertEqual(policyValues?.value, 60)
         XCTAssertNil(policyValues?.action)
+    }
+
+    /// `organizationsApplyingPolicyToUser(_:)` returns the organization IDs which apply the policy.
+    func test_organizationsApplyingPolicyToUser() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
+            .fixture(enabled: true, organizationId: "org-2", type: .twoFactorAuthentication),
+        ])
+
+        let organizations = await subject.organizationsApplyingPolicyToUser(.twoFactorAuthentication)
+        XCTAssertEqual(organizations, ["org-2"])
     }
 
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user.
@@ -573,7 +589,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         try await subject.replacePolicies(
             [.fixture(type: .twoFactorAuthentication)],
-            userId: "1"
+            userId: "1",
         )
 
         policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
@@ -645,27 +661,15 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(policies.isEmpty)
     }
 
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user when the
-    /// organization user is exempt from policies.
+    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the restricted cipher types when the user is admin.
     func test_getOrganizationIdsForRestricItemTypesPolicy_organizationExempt() async {
-        stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
-        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
-
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertTrue(policies.isEmpty)
-    }
-
-    /// `getOrganizationIdsForRestricItemTypesPolicy()` returns policy when the policy applies to the user when the
-    /// organization user is `admin`.
-    func test_getOrganizationIdsForRestricItemTypesPolicy_organizationNotExemptWhenPolicyIsRemoveUnlockWithPin() async {
         let result: Policy = .fixture(type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
         policyDataStore.fetchPoliciesResult = .success([result])
 
-        let policies = await subject.getOrganizationIdsForRestricItemTypesPolicy()
-        XCTAssertTrue(policies.isEmpty)
+        let twoFactorPolicies: [String] = await subject.getOrganizationIdsForRestricItemTypesPolicy()
+        XCTAssertEqual(twoFactorPolicies, [result.organizationId])
     }
 
     /// `getOrganizationIdsForRestricItemTypesPolicy()` returns the policies that apply to the user when the
@@ -702,61 +706,90 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(policies.isEmpty)
     }
 
-    /// `passesRestrictItemTypesPolicy(cipher:)` returns `true` when the `.removeCardPolicy` is enabled
-    /// and cipher passes restricted organization ids.
-    @MainActor
-    func test_passesRestrictItemTypesPolicy_cipherPassesRestrictedOrganizationIds() async {
-        configService.featureFlagsBool[.removeCardPolicy] = true
-        let result: Policy = .fixture(organizationId: "1", type: .restrictItemTypes)
+    /// `getRestrictedItemCipherTypes()` returns the restricted cipher types that apply to the user.
+    func test_getRestrictedItemCipherTypes() async {
+        let result: Policy = .fixture(type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "1")])
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([result])
 
-        let passes = await subject.passesRestrictItemTypesPolicy(cipher: .fixture(
-            organizationId: "2",
-            type: .card(.fixture())
-        ))
-        XCTAssertTrue(passes)
+        let restrictedTypes: [CipherType] = await subject.getRestrictedItemCipherTypes()
+        XCTAssertEqual(restrictedTypes, [.card])
     }
 
-    /// `passesRestrictItemTypesPolicy(cipher:)` returns `false` when the `.removeCardPolicy` is enabled
-    /// and cipher doesn't pass restricted organization ids.
-    @MainActor
-    func test_passesRestrictItemTypesPolicy_cipherOrganizationPartOfRestrictedOnes() async {
-        configService.featureFlagsBool[.removeCardPolicy] = true
-        let result: Policy = .fixture(organizationId: "2", type: .restrictItemTypes)
+    /// `getRestrictedItemCipherTypes()` returns the restricted cipher types that apply to the user when one
+    /// organization has the policy enabled but not another.
+    func test_getRestrictedItemCipherTypes_multipleOrganizations() async {
+        let result: Policy = .fixture(enabled: true, organizationId: "org-2", type: .restrictItemTypes)
         stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(id: "1"),
-            .fixture(id: "2"),
-            .fixture(id: "3"),
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1"), .fixture(id: "org-2")])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
+            result,
         ])
-        policyDataStore.fetchPoliciesResult = .success([result])
 
-        let passes = await subject.passesRestrictItemTypesPolicy(cipher: .fixture(
-            organizationId: "2",
-            type: .card(.fixture())
-        ))
-        XCTAssertFalse(passes)
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertEqual(restrictedTypes, [.card])
     }
 
-    /// `passesRestrictItemTypesPolicy(cipher:)` returns `true` when the `.removeCardPolicy` is not enabled.
-    @MainActor
-    func test_passesRestrictItemTypesPolicy_removeCardPolicyDisabled() async {
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        let result: Policy = .fixture(organizationId: "2", type: .restrictItemTypes)
+    /// `getRestrictedItemCipherTypes()` returns empty array when there are no organizations.
+    func test_getRestrictedItemCipherTypes_noOrganizations() async {
         stateService.activeAccount = .fixture()
-        organizationService.fetchAllOrganizationsResult = .success([
-            .fixture(id: "1"),
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-        ])
+        organizationService.fetchAllOrganizationsResult = .success([])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when there are no policies.
+    func test_getRestrictedItemCipherTypes_noPolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns the restricted cipher types when the user is admin.
+    func test_getRestrictedItemCipherTypes_organizationExempt() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertEqual(restrictedTypes, [.card])
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when the organization doesn't use policies.
+    func test_getRestrictedItemCipherTypes_organizationDoesNotUsePolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(usePolicies: false)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns restricted cipher types even if the organization is disabled.
+    func test_getRestrictedItemCipherTypes_organizationNotEnabled() async {
+        let result: Policy = .fixture(type: .restrictItemTypes)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(enabled: false)])
         policyDataStore.fetchPoliciesResult = .success([result])
 
-        let passes = await subject.passesRestrictItemTypesPolicy(cipher: .fixture(
-            organizationId: "2",
-            type: .card(.fixture())
-        ))
-        XCTAssertTrue(passes)
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertEqual(restrictedTypes, [.card])
+    }
+
+    /// `getRestrictedItemCipherTypes()` returns empty array when the user is only invited to the organization.
+    func test_getRestrictedItemCipherTypes_organizationInvited() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .invited)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .restrictItemTypes)])
+
+        let restrictedTypes = await subject.getRestrictedItemCipherTypes()
+        XCTAssertTrue(restrictedTypes.isEmpty)
     }
 } // swiftlint:disable:this file_length

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - ImportItemsProcessor
@@ -27,7 +29,7 @@ final class ImportItemsProcessor: StateProcessor<ImportItemsState, ImportItemsAc
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
-        services: Services
+        services: Services,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -76,21 +78,20 @@ extension ImportItemsProcessor: FileSelectionDelegate {
     func fileSelectionCompleted(fileName: String, data: Data) {
         Task {
             do {
-                let importFileFormat: ImportFileFormat
-                switch state.fileFormat {
+                let importFileFormat: ImportFileFormat = switch state.fileFormat {
                 case .bitwardenJson:
-                    importFileFormat = .bitwardenJson
+                    .bitwardenJson
                 case .googleQr:
-                    importFileFormat = .googleProtobuf
+                    .googleProtobuf
                 case .lastpassJson:
-                    importFileFormat = .lastpassJson
+                    .lastpassJson
                 case .raivoJson:
-                    importFileFormat = .raivoJson
+                    .raivoJson
                 case .twoFasJason:
-                    importFileFormat = .twoFasJson
+                    .twoFasJson
                 }
                 try await services.importItemsService.importItems(data: data, format: importFileFormat)
-                state.toast = Toast(text: Localizations.itemsImported)
+                state.toast = Toast(title: Localizations.itemsImported)
             } catch TwoFasImporterError.passwordProtectedFile {
                 coordinator.showAlert(.twoFasPasswordProtected())
             } catch DecodingError.dataCorrupted {
@@ -127,7 +128,7 @@ extension ImportItemsProcessor: FileSelectionDelegate {
             keyPath: codingPath.map(\.stringValue).joined(separator: "."),
             action: { [weak self] in
                 self?.state.url = ExternalLinksConstants.helpAndFeedback
-            }
+            },
         ))
     }
 }
@@ -135,7 +136,7 @@ extension ImportItemsProcessor: FileSelectionDelegate {
 extension ImportItemsProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteAutomaticCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        key: String
+        key: String,
     ) {
         let dismissAction = DismissAction(action: { [weak self] in
             Task {
@@ -148,7 +149,7 @@ extension ImportItemsProcessor: AuthenticatorKeyCaptureDelegate {
     func parseAndValidateAutomaticCaptureKey(_ key: String) async {
         do {
             try await services.importItemsService.importItems(data: key.data(using: .utf8)!, format: .googleProtobuf)
-            state.toast = Toast(text: Localizations.itemsImported)
+            state.toast = Toast(title: Localizations.itemsImported)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -158,14 +159,14 @@ extension ImportItemsProcessor: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
         name: String,
-        sendToBitwarden: Bool
+        sendToBitwarden: Bool,
     ) {}
 
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {}
 
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     ) {}
 }

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Combine
 import SwiftUI
 
@@ -28,7 +29,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private lazy var regionHelper = RegionHelper(
         coordinator: coordinator,
         delegate: self,
-        stateService: services.stateService
+        stateService: services.stateService,
     )
 
     // MARK: Initialization
@@ -43,7 +44,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: LandingState
+        state: LandingState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -74,7 +75,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         case .regionPressed:
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.loggingInOn,
-                currentRegion: state.region
+                currentRegion: state.region,
             )
         }
     }
@@ -82,11 +83,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     override func receive(_ action: LandingAction) {
         switch action {
         case .createAccountPressed:
-            if state.emailVerificationFeatureFlag {
-                coordinator.navigate(to: .startRegistration, context: self)
-            } else {
-                coordinator.navigate(to: .createAccount)
-            }
+            coordinator.navigate(to: .startRegistration, context: self)
         case let .emailChanged(newValue):
             state.email = newValue
         case let .profileSwitcher(profileAction):
@@ -111,18 +108,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func refreshConfig() async {
         await services.configService.getConfig(
             forceRefresh: true,
-            isPreAuth: true
-        )
-        await loadFeatureFlag()
-    }
-
-    /// Sets the feature flag value to be used.
-    ///
-    private func loadFeatureFlag() async {
-        state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
-            FeatureFlag.emailVerification,
-            defaultValue: false,
-            isPreAuth: true
+            isPreAuth: true,
         )
     }
 
@@ -193,6 +179,10 @@ extension LandingProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         await coordinator.handleEvent(authEvent)
     }
@@ -201,8 +191,12 @@ extension LandingProcessor: ProfileSwitcherHandler {
         // No-Op for the landing processor.
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }
 
@@ -221,12 +215,6 @@ extension LandingProcessor: SelfHostedProcessorDelegate {
 extension LandingProcessor: StartRegistrationDelegate {
     func didChangeRegion() async {
         await regionHelper.loadRegion()
-    }
-
-    func switchToLegacyCreateAccountFlow() {
-        coordinator.navigate(to: .dismissWithAction(DismissAction {
-            self.coordinator.navigate(to: .createAccount)
-        }))
     }
 }
 

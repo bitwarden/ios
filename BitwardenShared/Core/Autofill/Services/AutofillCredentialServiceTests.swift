@@ -11,6 +11,7 @@ import XCTest
 class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appContextHelper: MockAppContextHelper!
     var autofillCredentialServiceDelegate: MockAutofillCredentialServiceDelegate!
     var cipherService: MockCipherService!
     var clientService: MockClientService!
@@ -33,6 +34,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     override func setUp() {
         super.setUp()
 
+        appContextHelper = MockAppContextHelper()
         autofillCredentialServiceDelegate = MockAutofillCredentialServiceDelegate()
         cipherService = MockCipherService()
         clientService = MockClientService()
@@ -50,6 +52,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAutofillCredentialService(
+            appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             credentialIdentityFactory: credentialIdentityFactory,
@@ -62,7 +65,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             stateService: stateService,
             timeProvider: timeProvider,
             totpService: totpService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
 
         // Wait for the `DefaultAutofillCredentialService.init` task to sync the initial set of
@@ -75,6 +78,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     override func tearDown() async throws {
         try await super.tearDown()
 
+        appContextHelper = nil
         autofillCredentialServiceDelegate = nil
         cipherService = nil
         clientService = nil
@@ -110,7 +114,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     /// the specified ID.
     func test_provideCredential() async throws {
         cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com"))
+            .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com")),
         )
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked["1"] = false
@@ -118,7 +122,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let credential = try await subject.provideCredential(
             for: "1",
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
+            repromptPasswordValidated: false,
         )
 
         XCTAssertEqual(credential.password, "password123")
@@ -137,7 +141,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
 
@@ -146,7 +150,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
 
@@ -155,7 +159,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -169,7 +173,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -180,7 +184,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             self?.vaultTimeoutService.isClientLocked["1"] = false
         }
         cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com"))
+            .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com")),
         )
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked["1"] = true
@@ -189,7 +193,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let credential = try await subject.provideCredential(
             for: "1",
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
+            repromptPasswordValidated: false,
         )
 
         XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -205,7 +209,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             self?.vaultTimeoutService.isClientLocked["1"] = false
         }
         cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com"))
+            .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com")),
         )
         stateService.activeAccount = .fixture()
         stateService.manuallyLockedAccounts["1"] = true
@@ -216,7 +220,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -231,16 +235,16 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .fixture(
                 login: .fixture(
                     password: "password123",
-                    username: "user@bitwarden.com"
+                    username: "user@bitwarden.com",
                 ),
-                reprompt: .password
-            )
+                reprompt: .password,
+            ),
         )
         await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
             _ = try await subject.provideCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -251,8 +255,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .fixture(login: .fixture(
                 password: "password123",
                 username: "user@bitwarden.com",
-                totp: "totp"
-            ))
+                totp: "totp",
+            )),
         )
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked["1"] = false
@@ -260,7 +264,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let credential = try await subject.provideCredential(
             for: "1",
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
+            repromptPasswordValidated: false,
         )
 
         XCTAssertEqual(credential.password, "password123")
@@ -276,8 +280,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .fixture(login: .fixture(
                 password: "password123",
                 username: "user@bitwarden.com",
-                totp: "totp"
-            ))
+                totp: "totp",
+            )),
         )
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked["1"] = false
@@ -286,7 +290,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let credential = try await subject.provideCredential(
             for: "1",
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
+            repromptPasswordValidated: false,
         )
 
         XCTAssertEqual(credential.password, "password123")
@@ -304,7 +308,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -337,7 +341,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let result = try await subject.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -368,10 +372,10 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             selectedCredential: .fixture(
                 cipherView: .fixture(
                     login: .fixture(
-                        totp: "totp"
-                    )
-                )
-            )
+                        totp: "totp",
+                    ),
+                ),
+            ),
         )
         totpService.copyTotpIfPossibleError = BitwardenTestError.example
 
@@ -393,7 +397,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let result = try await subject.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -442,7 +446,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let result = try await subject.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
 
         XCTAssertTrue(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -477,7 +481,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideFido2Credential(
                 for: passkeyRequest,
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             )
         }
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -512,7 +516,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let result = try await subject.provideFido2Credential(
             for: passkeyRequest,
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
 
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -546,7 +550,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideFido2Credential(
                 for: passkeyRequest,
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             )
         }
     }
@@ -570,7 +574,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideFido2Credential(
                 for: passkeyRequest,
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             )
         }
     }
@@ -594,7 +598,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideFido2Credential(
                 for: passkeyRequest,
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             )
         }
     }
@@ -622,7 +626,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         PublicKeyCredentialDescriptor(
                             ty: "public-key",
                             id: credentialId,
-                            transports: nil
+                            transports: nil,
                         )
                     }
                     && !request.options.rk
@@ -633,7 +637,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         let result = try await subject.provideFido2Credential(
             for: passkeyParameters,
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
         XCTAssertEqual(fido2UserInterfaceHelper.userVerificationPreferenceSetup, .preferred)
 
@@ -662,7 +666,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.provideFido2Credential(
                 for: passkeyParameters,
-                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             )
         }
     }
@@ -672,7 +676,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     @available(iOS 18.0, *)
     func test_provideOTPCredential() async throws {
         cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(totp: "totpKey"))
+            .fixture(login: .fixture(totp: "totpKey")),
         )
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked["1"] = false
@@ -681,7 +685,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let credential = try await subject.provideOTPCredential(
             for: "1",
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
+            repromptPasswordValidated: false,
         )
 
         XCTAssertEqual(credential.code, "123456")
@@ -699,7 +703,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
 
@@ -708,7 +712,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
 
@@ -717,7 +721,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -733,7 +737,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -746,7 +750,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             self?.vaultTimeoutService.isClientLocked["1"] = false
         }
         cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(totp: "totpKey"))
+            .fixture(login: .fixture(totp: "totpKey")),
         )
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked["1"] = true
@@ -756,7 +760,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let credential = try await subject.provideOTPCredential(
             for: "1",
             autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-            repromptPasswordValidated: false
+            repromptPasswordValidated: false,
         )
 
         XCTAssertEqual(credential.code, "123456")
@@ -771,7 +775,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             self?.vaultTimeoutService.isClientLocked["1"] = false
         }
         cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(totp: "totpKey"))
+            .fixture(login: .fixture(totp: "totpKey")),
         )
         stateService.activeAccount = .fixture()
         stateService.manuallyLockedAccounts["1"] = true
@@ -782,7 +786,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
         XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
@@ -798,16 +802,16 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         cipherService.fetchCipherResult = .success(
             .fixture(
                 login: .fixture(
-                    totp: "totpKey"
+                    totp: "totpKey",
                 ),
-                reprompt: .password
-            )
+                reprompt: .password,
+            ),
         )
         await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -823,7 +827,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -833,7 +837,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     @available(iOS 18.0, *)
     func test_provideOTPCredential_throwsGeneratingTOTPCode() async throws {
         cipherService.fetchCipherResult = .success(
-            .fixture(login: .fixture(totp: "totpKey"))
+            .fixture(login: .fixture(totp: "totpKey")),
         )
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked["1"] = false
@@ -843,7 +847,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             _ = try await subject.provideOTPCredential(
                 for: "1",
                 autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                repromptPasswordValidated: false
+                repromptPasswordValidated: false,
             )
         }
     }
@@ -857,8 +861,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 login: .fixture(
                     password: "password123",
                     uris: [.fixture(uri: "bitwarden.com")],
-                    username: "user@bitwarden.com"
-                )
+                    username: "user@bitwarden.com",
+                ),
             ),
             .fixture(id: "2", type: .identity),
             .fixture(
@@ -866,35 +870,35 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 login: .fixture(
                     password: "123321",
                     uris: [.fixture(uri: "example.com")],
-                    username: "user@example.com"
-                )
+                    username: "user@example.com",
+                ),
             ),
             .fixture(deletedDate: .now, id: "4", type: .login),
         ])
         credentialIdentityFactory.createCredentialIdentitiesMocker
             .withResult { cipher in
                 if cipher.id == "1" {
-                    return [
+                    [
                         .password(
                             PasswordCredentialIdentity(
                                 id: "1",
                                 uri: "bitwarden.com",
-                                username: "user@bitwarden.com"
-                            )
+                                username: "user@bitwarden.com",
+                            ),
                         ),
                     ]
                 } else if cipher.id == "3" {
-                    return [
+                    [
                         .password(
                             PasswordCredentialIdentity(
                                 id: "3",
                                 uri: "example.com",
-                                username: "user@example.com"
-                            )
+                                username: "user@example.com",
+                            ),
                         ),
                     ]
                 } else {
-                    return []
+                    []
                 }
             }
 
@@ -906,7 +910,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             [
                 .password(PasswordCredentialIdentity(id: "1", uri: "bitwarden.com", username: "user@bitwarden.com")),
                 .password(PasswordCredentialIdentity(id: "3", uri: "example.com", username: "user@example.com")),
-            ]
+            ],
         )
     }
 
@@ -919,8 +923,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 login: .fixture(
                     password: "password123",
                     uris: [.fixture(uri: "bitwarden.com")],
-                    username: "user@bitwarden.com"
-                )
+                    username: "user@bitwarden.com",
+                ),
             ),
             .fixture(id: "2", type: .identity),
             .fixture(
@@ -930,8 +934,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         .fixture(),
                     ],
                     uris: [.fixture(uri: "example.com")],
-                    username: "user@example.com"
-                )
+                    username: "user@example.com",
+                ),
             ),
             .fixture(deletedDate: .now, id: "4", type: .login),
         ])
@@ -945,8 +949,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         PasswordCredentialIdentity(
                             id: "1",
                             uri: "bitwarden.com",
-                            username: "user@bitwarden.com"
-                        )
+                            username: "user@bitwarden.com",
+                        ),
                     ),
                 ]
             }
@@ -959,9 +963,10 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         cipherId: "3",
                         rpId: "myApp.com",
                         userNameForUi: "MyUser",
-                        userHandle: Data(repeating: 3, count: 45)
+                        userHandle: Data(repeating: 3, count: 45),
+                        hasCounter: false,
                     ),
-                ]
+                ],
             )
 
         vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
@@ -974,8 +979,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     PasswordCredentialIdentity(
                         id: "1",
                         uri: "bitwarden.com",
-                        username: "user@bitwarden.com"
-                    )
+                        username: "user@bitwarden.com",
+                    ),
                 ),
                 .passkey(
                     PasskeyCredentialIdentity(
@@ -983,10 +988,10 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         recordIdentifier: "3",
                         relyingPartyIdentifier: "myApp.com",
                         userHandle: Data(repeating: 3, count: 45),
-                        userName: "MyUser"
-                    )
+                        userName: "MyUser",
+                    ),
                 ),
-            ]
+            ],
         )
     }
 
@@ -1004,9 +1009,9 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     password: "password123",
                     uris: [.fixture(uri: "bitwarden.com")],
                     username: "user@bitwarden.com",
-                    totp: "something"
+                    totp: "something",
                 ),
-                name: "MyCipher"
+                name: "MyCipher",
             ),
             .fixture(id: "2", type: .identity),
             .fixture(
@@ -1016,8 +1021,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         .fixture(),
                     ],
                     uris: [.fixture(uri: "example.com")],
-                    username: "user@example.com"
-                )
+                    username: "user@example.com",
+                ),
             ),
             .fixture(deletedDate: .now, id: "4", type: .login),
         ])
@@ -1031,15 +1036,15 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         PasswordCredentialIdentity(
                             id: "1",
                             uri: "bitwarden.com",
-                            username: "user@bitwarden.com"
-                        )
+                            username: "user@bitwarden.com",
+                        ),
                     ),
                     .oneTimeCode(
                         OneTimeCodeCredentialIdentity(
                             label: "MyCipher",
                             recordIdentifier: "1",
-                            serviceIdentifier: "bitwarden.com"
-                        )
+                            serviceIdentifier: "bitwarden.com",
+                        ),
                     ),
                 ]
             }
@@ -1052,9 +1057,10 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         cipherId: "3",
                         rpId: "myApp.com",
                         userNameForUi: "MyUser",
-                        userHandle: Data(repeating: 3, count: 45)
+                        userHandle: Data(repeating: 3, count: 45),
+                        hasCounter: false,
                     ),
-                ]
+                ],
             )
 
         vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
@@ -1067,15 +1073,15 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     PasswordCredentialIdentity(
                         id: "1",
                         uri: "bitwarden.com",
-                        username: "user@bitwarden.com"
-                    )
+                        username: "user@bitwarden.com",
+                    ),
                 ),
                 .oneTimeCode(
                     OneTimeCodeCredentialIdentity(
                         label: "MyCipher",
                         recordIdentifier: "1",
-                        serviceIdentifier: "bitwarden.com"
-                    )
+                        serviceIdentifier: "bitwarden.com",
+                    ),
                 ),
                 .passkey(
                     PasskeyCredentialIdentity(
@@ -1083,10 +1089,10 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                         recordIdentifier: "3",
                         relyingPartyIdentifier: "myApp.com",
                         userHandle: Data(repeating: 3, count: 45),
-                        userName: "MyUser"
-                    )
+                        userName: "MyUser",
+                    ),
                 ),
-            ]
+            ],
         )
     }
 
@@ -1122,8 +1128,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 login: .fixture(
                     password: "password123",
                     uris: [.fixture(uri: "bitwarden.com")],
-                    username: "user@bitwarden.com"
-                )
+                    username: "user@bitwarden.com",
+                ),
             ),
         ])
         credentialIdentityFactory.createCredentialIdentitiesMocker
@@ -1132,8 +1138,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     PasswordCredentialIdentity(
                         id: "1",
                         uri: "bitwarden.com",
-                        username: "user@bitwarden.com"
-                    )
+                        username: "user@bitwarden.com",
+                    ),
                 ),
             ])
 
@@ -1159,8 +1165,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 login: .fixture(
                     password: "password123",
                     uris: [.fixture(uri: "bitwarden.com")],
-                    username: "user@bitwarden.com"
-                )
+                    username: "user@bitwarden.com",
+                ),
             ),
         ])
         credentialIdentityFactory.createCredentialIdentitiesMocker
@@ -1169,8 +1175,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     PasswordCredentialIdentity(
                         id: "1",
                         uri: "bitwarden.com",
-                        username: "user@bitwarden.com"
-                    )
+                        username: "user@bitwarden.com",
+                    ),
                 ),
             ])
 
@@ -1199,8 +1205,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 login: .fixture(
                     password: "password123",
                     uris: [.fixture(uri: "bitwarden.com")],
-                    username: "user@bitwarden.com"
-                )
+                    username: "user@bitwarden.com",
+                ),
             ),
         ])
         credentialIdentityFactory.createCredentialIdentitiesMocker
@@ -1209,8 +1215,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     PasswordCredentialIdentity(
                         id: "1",
                         uri: "bitwarden.com",
-                        username: "user@bitwarden.com"
-                    )
+                        username: "user@bitwarden.com",
+                    ),
                 ),
             ])
 

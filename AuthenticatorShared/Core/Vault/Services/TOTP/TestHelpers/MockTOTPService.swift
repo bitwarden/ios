@@ -4,7 +4,7 @@ import Foundation
 
 class MockTOTPService: TOTPService {
     var getTotpCodeResult: Result<TOTPCodeModel, Error> = .success(
-        TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30)
+        TOTPCodeModel(code: "123456", codeGenerationDate: .now, period: 30),
     )
     var getTotpCodeConfig: TOTPKeyModel?
 

@@ -10,7 +10,7 @@ class HTTPResponseTests: XCTestCase {
             statusCode: 200,
             headers: [:],
             body: Data(),
-            requestID: UUID()
+            requestID: UUID(),
         )
 
         XCTAssertEqual(subject.body, Data())
@@ -27,14 +27,14 @@ class HTTPResponseTests: XCTestCase {
                 url: URL(string: "https://example.com")!,
                 statusCode: 200,
                 httpVersion: nil,
-                headerFields: ["Content-Type": "application/json"]
+                headerFields: ["Content-Type": "application/json"],
             )),
-            request: .default
+            request: .default,
         )
 
         XCTAssertEqual(
             try String(data: XCTUnwrap(subject.body), encoding: .utf8),
-            "response body"
+            "response body",
         )
         XCTAssertEqual(subject.headers, ["Content-Type": "application/json"])
         XCTAssertEqual(subject.statusCode, 200)
@@ -47,21 +47,21 @@ class HTTPResponseTests: XCTestCase {
             url: URL(string: "https://example.com")!,
             mimeType: nil,
             expectedContentLength: 0,
-            textEncodingName: nil
+            textEncodingName: nil,
         )
 
         XCTAssertThrowsError(
             try HTTPResponse(
                 data: Data(),
                 response: urlResponse,
-                request: .default
+                request: .default,
             ),
-            "Expected a HTTPResponseError.invalidResponse error to be thrown"
+            "Expected a HTTPResponseError.invalidResponse error to be thrown",
         ) { error in
             XCTAssertTrue(error is HTTPResponseError)
             XCTAssertEqual(
                 error as? HTTPResponseError,
-                HTTPResponseError.invalidResponse(urlResponse)
+                HTTPResponseError.invalidResponse(urlResponse),
             )
         }
     }

@@ -32,7 +32,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     init(
         coordinator: AnyCoordinator<DebugMenuRoute, Void>,
         services: Services,
-        state: DebugMenuState
+        state: DebugMenuState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -48,9 +48,9 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         case .generateCrash:
             preconditionFailure("Generated crash from debug view.")
         case .generateErrorReport:
-            services.errorReporter.log(error: BitwardenSdk.BitwardenError.E(
-                message: "Generated error report from debug view.")
-            )
+            services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
+                message: "Generated error report from debug view.",
+            )))
             services.errorReporter.log(error: KeychainServiceError.osStatusError(1))
         }
     }
@@ -64,7 +64,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         case let .toggleFeatureFlag(flag, newValue):
             await services.configService.toggleDebugFeatureFlag(
                 name: flag,
-                newValue: newValue
+                newValue: newValue,
             )
             state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
         }

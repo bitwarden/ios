@@ -12,7 +12,7 @@ extension AttachmentView {
         key: String? = nil,
         size: String? = nil,
         sizeName: String? = nil,
-        url: String? = nil
+        url: String? = nil,
     ) -> AttachmentView {
         .init(
             id: id,
@@ -20,13 +20,14 @@ extension AttachmentView {
             size: size,
             sizeName: sizeName,
             fileName: fileName,
-            key: key
+            key: key,
         )
     }
 }
 
 extension Cipher {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [Attachment]? = nil,
         card: Card? = nil,
         collectionIds: [String] = [],
@@ -52,7 +53,7 @@ extension Cipher {
         secureNote: SecureNote? = nil,
         sshKey: SshKey? = nil,
         type: BitwardenSdk.CipherType = .login,
-        viewPassword: Bool = true
+        viewPassword: Bool = true,
     ) -> Cipher {
         Cipher(
             id: id,
@@ -80,7 +81,8 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 }
@@ -106,8 +108,9 @@ extension CipherListView {
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
-        localData: LocalDataView? = nil
+        localData: LocalDataView? = nil,
     ) -> CipherListView {
         .init(
             id: id,
@@ -129,8 +132,9 @@ extension CipherListView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
+            archivedDate: archivedDate,
             copyableFields: copyableFields,
-            localData: localData
+            localData: localData,
         )
     }
 
@@ -154,8 +158,9 @@ extension CipherListView {
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        archivedDate: DateTime? = nil,
         copyableFields: [CopyableCipherFields] = [],
-        localData: LocalDataView? = nil
+        localData: LocalDataView? = nil,
     ) -> CipherListView {
         .init(
             id: id,
@@ -177,14 +182,16 @@ extension CipherListView {
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate,
+            archivedDate: archivedDate,
             copyableFields: copyableFields,
-            localData: localData
+            localData: localData,
         )
     }
 }
 
 extension CipherView {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         card: CardView? = nil,
         collectionIds: [String] = [],
@@ -210,7 +217,7 @@ extension CipherView {
         secureNote: SecureNoteView? = nil,
         sshKey: SshKeyView? = nil,
         type: BitwardenSdk.CipherType = .login,
-        viewPassword: Bool = true
+        viewPassword: Bool = true,
     ) -> CipherView {
         CipherView(
             id: id,
@@ -238,11 +245,13 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 
     static func cardFixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         card: CardView = CardView.fixture(),
         collectionIds: [String] = [],
@@ -263,7 +272,7 @@ extension CipherView {
         permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-        viewPassword: Bool = true
+        viewPassword: Bool = true,
     ) -> CipherView {
         CipherView(
             id: id,
@@ -291,11 +300,13 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 
     static func loginFixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentView]? = nil,
         collectionIds: [String] = [],
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
@@ -316,7 +327,7 @@ extension CipherView {
         permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-        viewPassword: Bool = true
+        viewPassword: Bool = true,
     ) -> CipherView {
         CipherView(
             id: id,
@@ -344,19 +355,20 @@ extension CipherView {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 
     static func totpFixture(
         id: String = "8675",
         name: String = "Bitwarden",
-        totp: String = "1234"
+        totp: String = "1234",
     ) -> CipherView {
         .loginFixture(
             id: id,
             login: .fixture(totp: totp),
-            name: name
+            name: name,
         )
     }
 }
@@ -369,7 +381,9 @@ extension Collection {
         externalId: String = "",
         hidePasswords: Bool = false,
         manage: Bool = false,
-        readOnly: Bool = false
+        readOnly: Bool = false,
+        defaultUserCollectionEmail: String? = nil,
+        type: BitwardenSdk.CollectionType = .sharedCollection,
     ) -> Collection {
         Collection(
             id: id,
@@ -378,7 +392,9 @@ extension Collection {
             externalId: externalId,
             hidePasswords: hidePasswords,
             readOnly: readOnly,
-            manage: manage
+            manage: manage,
+            defaultUserCollectionEmail: defaultUserCollectionEmail,
+            type: type,
         )
     }
 }
@@ -390,7 +406,7 @@ extension BitwardenSdk.CardView {
         code: String? = nil,
         expMonth: String? = nil,
         expYear: String? = nil,
-        number: String? = nil
+        number: String? = nil,
     ) -> BitwardenSdk.CardView {
         BitwardenSdk.CardView(
             cardholderName: cardholderName,
@@ -398,7 +414,7 @@ extension BitwardenSdk.CardView {
             expYear: expYear,
             code: code,
             brand: brand,
-            number: number
+            number: number,
         )
     }
 }
@@ -407,11 +423,12 @@ extension CollectionView {
     static func fixture(
         externalId: String = "",
         hidePasswords: Bool = false,
-        id: String = "collection-view-1",
+        id: String? = "collection-view-1",
         name: String = "",
         organizationId: String = "",
         manage: Bool = false,
-        readOnly: Bool = false
+        readOnly: Bool = false,
+        type: BitwardenSdk.CollectionType = .sharedCollection,
     ) -> CollectionView {
         CollectionView(
             id: id,
@@ -420,7 +437,8 @@ extension CollectionView {
             externalId: externalId,
             hidePasswords: hidePasswords,
             readOnly: readOnly,
-            manage: manage
+            manage: manage,
+            type: type,
         )
     }
 }
@@ -439,7 +457,7 @@ extension Fido2Credential {
         rpName: String? = nil,
         userDisplayName: String? = nil,
         userHandle: String? = nil,
-        userName: String? = nil
+        userName: String? = nil,
     ) -> Fido2Credential {
         Fido2Credential(
             credentialId: credentialId,
@@ -454,7 +472,7 @@ extension Fido2Credential {
             rpName: rpName,
             userDisplayName: userDisplayName,
             discoverable: discoverable,
-            creationDate: creationDate
+            creationDate: creationDate,
         )
     }
 }
@@ -465,14 +483,16 @@ extension BitwardenSdk.Fido2CredentialAutofillView {
         cipherId: String = "1",
         rpId: String = "myApp.com",
         userNameForUi: String? = nil,
-        userHandle: Data = Data(capacity: 64)
+        userHandle: Data = Data(capacity: 64),
+        hasCounter: Bool = false,
     ) -> BitwardenSdk.Fido2CredentialAutofillView {
         .init(
             credentialId: credentialId,
             cipherId: cipherId,
             rpId: rpId,
             userNameForUi: userNameForUi,
-            userHandle: userHandle
+            userHandle: userHandle,
+            hasCounter: hasCounter,
         )
     }
 }
@@ -483,14 +503,16 @@ extension Fido2CredentialListView {
         rpId: String = "myApp.com",
         userHandle: String? = nil,
         userName: String? = nil,
-        userDisplayName: String? = nil
+        userDisplayName: String? = nil,
+        counter: String = "0",
     ) -> Fido2CredentialListView {
         .init(
             credentialId: credentialId,
             rpId: rpId,
             userHandle: userHandle,
             userName: userName,
-            userDisplayName: userDisplayName
+            userDisplayName: userDisplayName,
+            counter: counter,
         )
     }
 }
@@ -509,7 +531,7 @@ extension Fido2CredentialView {
         rpName: String? = nil,
         userDisplayName: String? = nil,
         userHandle: String? = nil,
-        userName: String? = nil
+        userName: String? = nil,
     ) -> Fido2CredentialView {
         Fido2CredentialView(
             credentialId: credentialId,
@@ -524,7 +546,7 @@ extension Fido2CredentialView {
             rpName: rpName,
             userDisplayName: userDisplayName,
             discoverable: discoverable,
-            creationDate: creationDate
+            creationDate: creationDate,
         )
     }
 }
@@ -534,13 +556,13 @@ extension BitwardenSdk.FieldView {
         name: String? = "Name",
         value: String? = "1",
         type: BitwardenSdk.FieldType = BitwardenSdk.FieldType.hidden,
-        linkedId: BitwardenSdk.LinkedIdType? = nil
+        linkedId: BitwardenSdk.LinkedIdType? = nil,
     ) -> BitwardenSdk.FieldView {
         BitwardenSdk.FieldView(
             name: name,
             value: value,
             type: type,
-            linkedId: linkedId
+            linkedId: linkedId,
         )
     }
 }
@@ -564,7 +586,7 @@ extension BitwardenSdk.IdentityView {
         ssn: String? = nil,
         username: String? = nil,
         passportNumber: String? = nil,
-        licenseNumber: String? = nil
+        licenseNumber: String? = nil,
     ) -> BitwardenSdk.IdentityView {
         BitwardenSdk.IdentityView(
             title: title,
@@ -584,7 +606,7 @@ extension BitwardenSdk.IdentityView {
             ssn: ssn,
             username: username,
             passportNumber: passportNumber,
-            licenseNumber: licenseNumber
+            licenseNumber: licenseNumber,
         )
     }
 }
@@ -597,7 +619,7 @@ extension BitwardenSdk.Login {
         passwordRevisionDate: Date? = nil,
         uris: [LoginUri]? = nil,
         username: String? = nil,
-        totp: String? = nil
+        totp: String? = nil,
     ) -> BitwardenSdk.Login {
         BitwardenSdk.Login(
             username: username,
@@ -606,7 +628,7 @@ extension BitwardenSdk.Login {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
-            fido2Credentials: fido2Credentials
+            fido2Credentials: fido2Credentials,
         )
     }
 }
@@ -617,14 +639,14 @@ extension BitwardenSdk.LoginListView {
         hasFido2: Bool = false,
         username: String? = nil,
         totp: EncString? = nil,
-        uris: [LoginUriView]? = nil
+        uris: [LoginUriView]? = nil,
     ) -> LoginListView {
         .init(
             fido2Credentials: fido2Credentials,
             hasFido2: hasFido2,
             username: username,
             totp: totp,
-            uris: uris
+            uris: uris,
         )
     }
 }
@@ -637,7 +659,7 @@ extension BitwardenSdk.LoginView {
         uris: [LoginUriView]? = nil,
         username: String? = nil,
         totp: String? = nil,
-        autofillOnPageLoad: Bool? = nil
+        autofillOnPageLoad: Bool? = nil,
     ) -> BitwardenSdk.LoginView {
         BitwardenSdk.LoginView(
             username: username,
@@ -646,7 +668,7 @@ extension BitwardenSdk.LoginView {
             uris: uris,
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
-            fido2Credentials: fido2Credentials
+            fido2Credentials: fido2Credentials,
         )
     }
 }
@@ -655,12 +677,12 @@ extension BitwardenSdk.LoginUri {
     static func fixture(
         uri: String? = "https://example.com",
         match: BitwardenSdk.UriMatchType? = nil,
-        uriChecksum: String? = nil
+        uriChecksum: String? = nil,
     ) -> LoginUri {
         LoginUri(
             uri: uri,
             match: match,
-            uriChecksum: uriChecksum
+            uriChecksum: uriChecksum,
         )
     }
 }
@@ -669,12 +691,12 @@ extension BitwardenSdk.LoginUriView {
     static func fixture(
         uri: String? = "https://example.com",
         match: BitwardenSdk.UriMatchType? = nil,
-        uriChecksum: String? = nil
+        uriChecksum: String? = nil,
     ) -> LoginUriView {
         LoginUriView(
             uri: uri,
             match: match,
-            uriChecksum: uriChecksum
+            uriChecksum: uriChecksum,
         )
     }
 }
@@ -683,7 +705,7 @@ extension BitwardenSdk.SshKey {
     static func fixture(
         privateKey: String = "privateKey",
         publicKey: String = "publicKey",
-        fingerprint: String = "fingerprint"
+        fingerprint: String = "fingerprint",
     ) -> SshKey {
         SshKey(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
     }
@@ -693,7 +715,7 @@ extension BitwardenSdk.SshKeyView {
     static func fixture(
         privateKey: String = "privateKey",
         publicKey: String = "publicKey",
-        fingerprint: String = "fingerprint"
+        fingerprint: String = "fingerprint",
     ) -> SshKeyView {
         SshKeyView(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
     }
@@ -702,11 +724,11 @@ extension BitwardenSdk.SshKeyView {
 extension PasswordHistoryView {
     static func fixture(
         password: String = "",
-        lastUsedDate: Date = Date(year: 2024, month: 1, day: 1)
+        lastUsedDate: Date = Date(year: 2024, month: 1, day: 1),
     ) -> PasswordHistoryView {
         PasswordHistoryView(
             password: password,
-            lastUsedDate: lastUsedDate
+            lastUsedDate: lastUsedDate,
         )
     }
 }

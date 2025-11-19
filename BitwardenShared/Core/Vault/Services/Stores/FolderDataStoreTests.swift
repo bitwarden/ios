@@ -51,7 +51,7 @@ class FolderDataStoreTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             fetchFolders(userId: "1"),
-            folders.filter { $0.id != "2" }
+            folders.filter { $0.id != "2" },
         )
     }
 
@@ -74,7 +74,7 @@ class FolderDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { values in
                     publishedValues.append(values)
-                }
+                },
             )
         defer { publisher.cancel() }
 

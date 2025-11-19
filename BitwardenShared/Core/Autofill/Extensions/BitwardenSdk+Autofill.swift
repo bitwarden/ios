@@ -16,14 +16,14 @@ extension GetAssertionRequest {
                 PublicKeyCredentialDescriptor(
                     ty: "public-key",
                     id: credentialId,
-                    transports: nil
+                    transports: nil,
                 )
             },
             options: Options(
                 rk: false,
-                uv: BitwardenSdk.Uv(preference: fido2RequestParameters.userVerificationPreference)
+                uv: BitwardenSdk.Uv(preference: fido2RequestParameters.userVerificationPreference),
             ),
-            extensions: nil
+            extensions: nil,
         )
     }
 
@@ -40,14 +40,14 @@ extension GetAssertionRequest {
                 PublicKeyCredentialDescriptor(
                     ty: "public-key",
                     id: credentialIdentity.credentialID,
-                    transports: nil
+                    transports: nil,
                 ),
             ],
             options: Options(
                 rk: false,
-                uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference)
+                uv: BitwardenSdk.Uv(preference: passkeyRequest.userVerificationPreference),
             ),
-            extensions: nil
+            extensions: nil,
         )
     }
 }

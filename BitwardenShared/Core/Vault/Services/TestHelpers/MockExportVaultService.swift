@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 import Foundation
 import TestHelpers
 import XCTest
@@ -9,6 +10,7 @@ class MockExportVaultService: ExportVaultService {
     var didClearFiles = false
     var exportVaultContentsFormat: ExportFileType?
     var exportVaultContentResult: Result<String, Error> = .failure(BitwardenTestError.example)
+    var fetchAllCiphersToExportResult: Result<[BitwardenSdk.Cipher], Error> = .success([])
     var mockFileName: String = "mockExport.json"
     var writeToFileResult: Result<URL, Error> = .failure(BitwardenTestError.example)
 
@@ -21,9 +23,13 @@ class MockExportVaultService: ExportVaultService {
         return try exportVaultContentResult.get()
     }
 
+    func fetchAllCiphersToExport() async throws -> [BitwardenSdk.Cipher] {
+        try fetchAllCiphersToExportResult.get()
+    }
+
     func generateExportFileName(
         prefix: String?,
-        extension fileExtension: String
+        extension fileExtension: String,
     ) -> String {
         mockFileName
     }

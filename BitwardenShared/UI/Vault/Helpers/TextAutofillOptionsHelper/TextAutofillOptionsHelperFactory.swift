@@ -22,11 +22,11 @@ struct DefaultTextAutofillOptionsHelperFactory: TextAutofillOptionsHelperFactory
     // MARK: Methods
 
     func create(cipherView: CipherView) -> TextAutofillOptionsHelper {
-        return switch cipherView.type {
+        switch cipherView.type {
         case .login:
             LoginTextAutofillOptionsHelper(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             )
         case .secureNote:
             SecureNoteTextAutofillOptionsHelper()

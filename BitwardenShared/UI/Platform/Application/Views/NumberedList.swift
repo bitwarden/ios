@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - NumberedList
@@ -45,7 +46,7 @@ extension NumberedList {
                     HStack(spacing: 12) {
                         Text(String(index + 1))
                             .styleGuide(.title2, weight: .bold)
-                            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                             .frame(minWidth: 24, alignment: .center)
                             .padding(.leading, 12)
 
@@ -60,7 +61,7 @@ extension NumberedList {
                     }
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
@@ -76,6 +77,6 @@ extension NumberedList {
         NumberedListRow(title: "Grapes 🍇")
     }
     .padding()
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

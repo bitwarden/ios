@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - CheckEmailProcessor
 
 /// The processor used to manage state and handle actions for the check email screen.
@@ -18,7 +20,7 @@ class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Voi
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-        state: CheckEmailState
+        state: CheckEmailState,
     ) {
         self.coordinator = coordinator
         super.init(state: state)

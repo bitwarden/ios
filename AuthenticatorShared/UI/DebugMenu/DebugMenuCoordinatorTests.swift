@@ -24,9 +24,9 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
         subject = DebugMenuCoordinator(
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingsStore,
-                configService: configService
+                configService: configService,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

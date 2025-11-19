@@ -22,9 +22,7 @@ struct IdentityTokenErrorModel: Codable {
 
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
-        case captchaBypassToken
         case masterPasswordPolicy
-        case siteCode = "hcaptchaSitekey"
         case ssoToken = "ssoEmail2faSessionToken"
         case twoFactorProvidersData = "twoFactorProviders2"
         case error
@@ -35,9 +33,6 @@ struct IdentityTokenErrorModel: Codable {
 
     // MARK: Properties
 
-    /// The captcha bypass token to use on subsequent requests to bypass captcha.
-    let captchaBypassToken: String?
-
     /// The error type.
     let error: String?
 
@@ -46,9 +41,6 @@ struct IdentityTokenErrorModel: Codable {
 
     /// The master password policies that the org has enabled.
     let masterPasswordPolicy: MasterPasswordPolicyResponseModel?
-
-    /// The site code used to access hCaptcha.
-    let siteCode: String?
 
     /// The user's SSO token.
     let ssoToken: String?
@@ -120,7 +112,7 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
         duo: Duo? = nil,
         organizationDuo: Duo? = nil,
         yubikey: Yubikey? = nil,
-        webAuthn: WebAuthn? = nil
+        webAuthn: WebAuthn? = nil,
     ) {
         self.authenticator = authenticator
         self.email = email

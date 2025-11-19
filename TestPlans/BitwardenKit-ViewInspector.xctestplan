@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "3F8B9C2A-5D4E-4F1B-9A8C-7E6D5C4B3A2F",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "27C53FBF98252CF56973FD34",
+        "name" : "BitwardenKitViewInspectorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

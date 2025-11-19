@@ -51,7 +51,7 @@ struct UpdateSendRequest: Request {
             notes: send.notes,
             password: send.password,
             text: send.text.map(SendTextModel.init),
-            type: SendType(sendType: send.type)
+            type: SendType(sendType: send.type),
         )
         sendId = id
     }

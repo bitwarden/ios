@@ -6,6 +6,8 @@ class MockSyncService: SyncService {
     weak var delegate: SyncServiceDelegate?
     var didFetchSync = false
     var fetchSyncForceSync: Bool?
+    var fetchSyncHandler: (() -> Void)?
+    var fetchSyncIsPeriodic: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
     var deleteCipherData: SyncCipherNotification?
@@ -29,9 +31,11 @@ class MockSyncService: SyncService {
     var needsSyncResult: Result<Bool, Error> = .success(false)
     var needsSyncOnlyCheckLocalData: Bool = false
 
-    func fetchSync(forceSync: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         didFetchSync = true
         fetchSyncForceSync = forceSync
+        fetchSyncIsPeriodic = isPeriodic
+        fetchSyncHandler?()
         try fetchSyncResult.get()
     }
 

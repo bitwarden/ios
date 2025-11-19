@@ -7,7 +7,7 @@ extension JSONDecoder.KeyDecodingStrategy {
 
             if let firstChar = key.stringValue.first {
                 key.stringValue.replaceSubrange(
-                    ...key.stringValue.startIndex, with: String(firstChar).lowercased()
+                    ...key.stringValue.startIndex, with: String(firstChar).lowercased(),
                 )
             }
             return key

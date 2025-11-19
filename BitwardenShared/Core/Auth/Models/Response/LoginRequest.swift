@@ -59,7 +59,7 @@ public struct LoginRequest: JSONResponse, Equatable, Sendable {
         let expirationDate = Calendar.current.date(
             byAdding: .minute,
             value: Constants.loginRequestTimeoutMinutes,
-            to: creationDate
+            to: creationDate,
         ) ?? Date()
         return expirationDate < Date()
     }

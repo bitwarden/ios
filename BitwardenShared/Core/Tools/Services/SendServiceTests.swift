@@ -28,7 +28,7 @@ class SendServiceTests: BitwardenTestCase {
             fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: sendDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -74,10 +74,10 @@ class SendServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: .init(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(
@@ -99,10 +99,10 @@ class SendServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: .init(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
         XCTAssertEqual(sendDataStore.upsertSendUserId, "ID")
     }
@@ -148,7 +148,7 @@ class SendServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(
             client.requests[2].url.absoluteString,
-            "https://example.com/api/sends/fc483c22-443c-11ee-be56-0242ac120002"
+            "https://example.com/api/sends/fc483c22-443c-11ee-be56-0242ac120002",
         )
         XCTAssertEqual(client.requests[2].method, .delete)
     }
@@ -182,10 +182,10 @@ class SendServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: .init(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
@@ -207,10 +207,10 @@ class SendServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: .init(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
         XCTAssertEqual(sendDataStore.upsertSendUserId, "ID")
     }
@@ -314,7 +314,7 @@ class SendServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             sendDataStore.upsertSendValue?.id,
-            "fc483c22-443c-11ee-be56-0242ac120002"
+            "fc483c22-443c-11ee-be56-0242ac120002",
         )
         XCTAssertEqual(sendDataStore.upsertSendUserId, "USER_ID")
     }
@@ -418,10 +418,10 @@ class SendServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: .init(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
@@ -443,10 +443,10 @@ class SendServiceTests: BitwardenTestCase {
                 revisionDate: Date(year: 2023, month: 8, day: 1, hour: 21, minute: 33, second: 31),
                 text: .init(
                     hidden: false,
-                    text: "encrypted text"
+                    text: "encrypted text",
                 ),
-                type: .text
-            )
+                type: .text,
+            ),
         )
         XCTAssertEqual(sendDataStore.upsertSendUserId, "ID")
     }

@@ -26,7 +26,7 @@ struct CipherListView: View {
                                     .background(
                                         RoundedRectangle(cornerRadius: 5)
                                             .foregroundColor(Color.ui.avatarItemBackground)
-                                            .frame(width: geometry.size.width + 10, height: 50)
+                                            .frame(width: geometry.size.width + 10, height: 50),
                                     )
                                     .padding(0)
                             }
@@ -112,13 +112,13 @@ struct CipherListView: View {
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundColor(Color.ui.primary)
                         .frame(width: maxWidth,
-                               alignment: .leading)
+                               alignment: .leading),
                 )
         }
         .background(
             RoundedRectangle(cornerRadius: 5)
                 .foregroundColor(Color.black)
-                .frame(width: maxWidth, height: 60)
+                .frame(width: maxWidth, height: 60),
         )
         .padding(0)
     }
@@ -132,7 +132,7 @@ struct ContentView_Previews: PreviewProvider {
         v.viewModel.user = UserDTO(
             email: "testing@test.com",
             id: "zxc",
-            name: "Tester"
+            name: "Tester",
         )
         return v
     }

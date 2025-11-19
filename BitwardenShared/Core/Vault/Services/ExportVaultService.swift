@@ -38,10 +38,18 @@ protocol ExportVaultService: AnyObject {
 
     /// Creates the file contents for an exported vault of a given file type.
     ///
-    /// - Parameter format: The format to use for vault export.
+    /// - Parameters:
+    ///   - format: The format of the exported file.
+    ///
     /// - Returns: A string representing the file content.
     ///
     func exportVaultFileContents(format: ExportFileType) async throws -> String
+
+    /// Fetches all the ciphers to export for the current user.
+    ///
+    /// - Returns: The ciphers to export belonging to the current user.
+    ///
+    func fetchAllCiphersToExport() async throws -> [Cipher]
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -50,7 +58,7 @@ protocol ExportVaultService: AnyObject {
     /// - Returns: A string representing the file name.
     func generateExportFileName(
         prefix: String?,
-        extension fileExtension: String
+        extension fileExtension: String,
     ) -> String
 
     /// Writes content to file with a provided name and returns a URL for the file.
@@ -68,6 +76,7 @@ extension ExportVaultService {
     ///
     /// - Parameters:
     ///    - format: The format of the exported file.
+    ///    - restrictedTypes: An array of `CipherType` that should be excluded from the export.
     ///
     /// - Returns: A URL for the exported vault file.
     ///
@@ -103,6 +112,9 @@ class DefultExportVaultService: ExportVaultService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The error reporter used by this service.
     private let errorReporter: ErrorReporter
 
@@ -115,6 +127,9 @@ class DefultExportVaultService: ExportVaultService {
     /// The time provider used by this service.
     private let timeProvider: TimeProvider
 
+    /// The service used by the application to manage the policy.
+    private let policyService: PolicyService
+
     // MARK: Initialization
 
     /// Initializes a new instance of the `DefaultExportVaultService`.
@@ -125,25 +140,31 @@ class DefultExportVaultService: ExportVaultService {
     /// - Parameters:
     ///   - cipherService: The service for managing ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service for handling errors.
     ///   - folderService: The service for managing folders.
+    ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The provider for current time, used in file naming and data timestamps.
     ///
     init(
         cipherService: CipherService,
         clientService: ClientService,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
+        policyService: PolicyService,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.configService = configService
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.stateService = stateService
         self.timeProvider = timeProvider
+        self.policyService = policyService
     }
 
     // MARK: Methods
@@ -164,9 +185,8 @@ class DefultExportVaultService: ExportVaultService {
     func exportVaultFileContents(format: ExportFileType) async throws -> String {
         var exportFormat: BitwardenSdk.ExportFormat
         let folders = try await folderService.fetchAllFolders()
-        var ciphers = try await cipherService.fetchAllCiphers()
-            .filter { $0.deletedDate == nil }
-            .filter { $0.organizationId == nil }
+        var ciphers = try await fetchAllCiphersToExport()
+
         switch format {
         case .csv:
             exportFormat = .csv
@@ -185,13 +205,23 @@ class DefultExportVaultService: ExportVaultService {
         return try await clientService.exporters().exportVault(
             folders: folders,
             ciphers: ciphers,
-            format: exportFormat
+            format: exportFormat,
         )
+    }
+
+    func fetchAllCiphersToExport() async throws -> [Cipher] {
+        let restrictedTypes = await policyService.getRestrictedItemCipherTypes()
+
+        return try await cipherService.fetchAllCiphers().filter { cipher in
+            cipher.deletedDate == nil
+                && cipher.organizationId == nil
+                && !restrictedTypes.contains(BitwardenShared.CipherType(type: cipher.type))
+        }
     }
 
     func generateExportFileName(
         prefix: String?,
-        extension fileExtension: String
+        extension fileExtension: String,
     ) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMddHHmmss"
@@ -203,7 +233,7 @@ class DefultExportVaultService: ExportVaultService {
 
     func writeToFile(
         name fileName: String,
-        content fileContent: String
+        content fileContent: String,
     ) throws -> URL {
         // Get the exports directory.
         let exportsDirectoryURL = try FileManager.default.exportedVaultURL()
@@ -213,7 +243,7 @@ class DefultExportVaultService: ExportVaultService {
             try FileManager.default.createDirectory(
                 at: exportsDirectoryURL,
                 withIntermediateDirectories: true,
-                attributes: nil
+                attributes: nil,
             )
         }
 

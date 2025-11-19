@@ -14,7 +14,7 @@ struct LogoutAllAccountsIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let errorReporter = ErrorReporterFactory.makeDefaultErrorReporter()
         let services = ServiceContainer.shared(
-            errorReporter: { errorReporter }
+            errorReporter: { errorReporter },
         )
         let appIntentMediator = services.getAppIntentMediator()
 

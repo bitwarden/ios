@@ -1,9 +1,10 @@
 import BitwardenSdk
 import XCTest
 
+import BitwardenResources
 @testable import BitwardenShared
 
-class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `toFido2CredentialIdentity()` returns the converted `ASPasskeyCredentialIdentity`.
@@ -13,7 +14,8 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftli
             cipherId: "1",
             rpId: "myApp.com",
             userNameForUi: "username",
-            userHandle: Data(repeating: 1, count: 16)
+            userHandle: Data(repeating: 1, count: 16),
+            hasCounter: false,
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(
@@ -21,7 +23,7 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftli
                 && identity.userName == subject.userNameForUi
                 && identity.credentialID == subject.credentialId
                 && identity.userHandle == subject.userHandle
-                && identity.recordIdentifier == subject.cipherId
+                && identity.recordIdentifier == subject.cipherId,
         )
     }
 
@@ -33,7 +35,8 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftli
             cipherId: "1",
             rpId: "myApp.com",
             userNameForUi: nil,
-            userHandle: Data(repeating: 1, count: 16)
+            userHandle: Data(repeating: 1, count: 16),
+            hasCounter: false,
         )
         let identity = subject.toFido2CredentialIdentity()
         XCTAssertTrue(
@@ -41,7 +44,7 @@ class Fido2CredentialAutofillViewExtensionsTests: BitwardenTestCase { // swiftli
                 && identity.userName == Localizations.unknownAccount
                 && identity.credentialID == subject.credentialId
                 && identity.userHandle == subject.userHandle
-                && identity.recordIdentifier == subject.cipherId
+                && identity.recordIdentifier == subject.cipherId,
         )
     }
 }

@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -30,9 +32,9 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
-                watchService: watchService
+                watchService: watchService,
             ),
-            state: OtherSettingsState()
+            state: OtherSettingsState(),
         )
     }
 

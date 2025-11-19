@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -45,9 +46,10 @@ public protocol SendRepository: AnyObject {
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
     ///
-    /// - Parameter forceSync: Whether the sync should be forced.
-    ///
-    func fetchSync(forceSync: Bool) async throws
+    /// - Parameters:
+    ///   - forceSync: Whether the sync should be forced.
+    ///   - isPeriodic: Whether the sync is periodic to take into account the minimum interval.
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws
 
     /// Performs an API request to remove the password on the provided send.
     ///
@@ -78,7 +80,7 @@ public protocol SendRepository: AnyObject {
     ///
     func searchSendPublisher(
         searchText: String,
-        type: SendType?
+        type: SendType?,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>>
 
     /// A publisher for all the sends in the user's account.
@@ -100,7 +102,7 @@ public protocol SendRepository: AnyObject {
     /// - Returns: A publisher for the list of sends in the user's account.
     ///
     func sendTypeListPublisher(
-        type: SendType
+        type: SendType,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>>
 }
 
@@ -111,7 +113,7 @@ extension SendRepository {
     /// - Returns: A publisher for the user's sends.
     ///
     func searchSendPublisher(
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         try await searchSendPublisher(searchText: searchText, type: nil)
     }
@@ -158,7 +160,7 @@ class DefaultSendRepository: SendRepository {
         organizationService: OrganizationService,
         sendService: SendService,
         stateService: StateService,
-        syncService: SyncService
+        syncService: SyncService,
     ) {
         self.clientService = clientService
         self.environmentService = environmentService
@@ -224,10 +226,10 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: API Methods
 
-    func fetchSync(forceSync: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
         if !forceSync || allowSyncOnRefresh {
-            try await syncService.fetchSync(forceSync: forceSync)
+            try await syncService.fetchSync(forceSync: forceSync, isPeriodic: isPeriodic)
         }
     }
 
@@ -235,7 +237,7 @@ class DefaultSendRepository: SendRepository {
 
     func searchSendPublisher(
         searchText: String,
-        type: SendType?
+        type: SendType?,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
             .lowercased()
@@ -258,13 +260,13 @@ class DefaultSendRepository: SendRepository {
             // Search the sends.
             activeSends.forEach { sendView in
                 if sendView.name.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) {
+                    .folding(options: .diacriticInsensitive, locale: .current).contains(query) {
                     matchedSends.append(sendView)
                 } else if sendView.text?.text?.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    .folding(options: .diacriticInsensitive, locale: .current).contains(query) == true {
                     lowPriorityMatchedSends.append(sendView)
                 } else if sendView.file?.fileName.lowercased()
-                    .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
+                    .folding(options: .diacriticInsensitive, locale: .current).contains(query) == true {
                     lowPriorityMatchedSends.append(sendView)
                 }
             }
@@ -286,7 +288,7 @@ class DefaultSendRepository: SendRepository {
     }
 
     func sendTypeListPublisher(
-        type: SendType
+        type: SendType,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         try await sendService.sendsPublisher()
             .asyncTryMap { sends in
@@ -323,11 +325,10 @@ class DefaultSendRepository: SendRepository {
         }
 
         let fileSendsCount = sends
-            .filter { $0.type == .file }
-            .count
+            .count(where: { $0.type == .file })
+
         let textSendsCount = sends
-            .filter { $0.type == .text }
-            .count
+            .count(where: { $0.type == .text })
 
         let types = [
             SendListItem(id: "Types.Text", itemType: .group(.text, textSendsCount)),
@@ -340,12 +341,12 @@ class DefaultSendRepository: SendRepository {
             SendListSection(
                 id: "Types",
                 items: types,
-                name: Localizations.types
+                name: Localizations.types,
             ),
             SendListSection(
                 id: "AllSends",
                 items: allItems,
-                name: Localizations.allSends
+                name: Localizations.allSends,
             ),
         ]
     }
@@ -360,7 +361,7 @@ class DefaultSendRepository: SendRepository {
     ///
     private func sendListItems(
         type: SendType,
-        from sends: [Send]
+        from sends: [Send],
     ) async throws -> [SendListItem] {
         let sendType = BitwardenSdk.SendType(type: type)
         let sends = try await sends.asyncMap { send in

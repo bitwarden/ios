@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import UIKit
 
 extension GeneratorState {
@@ -86,23 +88,23 @@ extension GeneratorState {
             var id: String {
                 switch self {
                 case let .emailWebsite(website):
-                    return website
+                    website
                 case let .generatedValue(field):
-                    return field.id
+                    field.id
                 case let .menuEmailType(field):
-                    return field.id
+                    field.id
                 case let .menuUsernameGeneratorType(field):
-                    return field.id
+                    field.id
                 case let .menuUsernameForwardedEmailService(field):
-                    return field.id
+                    field.id
                 case let .slider(field):
-                    return field.id
+                    field.id
                 case let .stepper(field):
-                    return field.id
+                    field.id
                 case let .text(field):
-                    return field.id
+                    field.id
                 case let .toggle(field):
-                    return field.id
+                    field.id
                 }
             }
         }
@@ -150,8 +152,8 @@ extension GeneratorState {
                 keyPath: keyPath,
                 options: UsernameEmailType.allCases,
                 selection: self[keyPath: keyPath],
-                title: Localizations.emailType
-            )
+                title: Localizations.emailType,
+            ),
         ))
     }
 
@@ -162,7 +164,7 @@ extension GeneratorState {
     ///
     func generatedValueField(keyPath: WritableKeyPath<GeneratorState, String>) -> FormField<Self> {
         FormField(fieldType: .generatedValue(
-            GeneratedValueField(keyPath: keyPath, value: self[keyPath: keyPath])
+            GeneratedValueField(keyPath: keyPath, value: self[keyPath: keyPath]),
         ))
     }
 
@@ -183,7 +185,7 @@ extension GeneratorState {
         sliderAccessibilityId: String? = nil,
         sliderValueAccessibilityId: String? = nil,
         title: String,
-        step: Double
+        step: Double,
     ) -> FormField<Self> {
         FormField(fieldType: .slider(
             SliderField(
@@ -193,8 +195,8 @@ extension GeneratorState {
                 sliderValueAccessibilityId: sliderValueAccessibilityId,
                 step: step,
                 title: title,
-                value: self[keyPath: keyPath]
-            )
+                value: self[keyPath: keyPath],
+            ),
         ))
     }
 
@@ -211,7 +213,7 @@ extension GeneratorState {
         accessibilityId: String? = nil,
         keyPath: WritableKeyPath<GeneratorState, Int>,
         range: ClosedRange<Int>,
-        title: String
+        title: String,
     ) -> FormField<Self> {
         FormField(fieldType: .stepper(
             StepperField(
@@ -219,8 +221,8 @@ extension GeneratorState {
                 keyPath: keyPath,
                 range: range,
                 title: title,
-                value: self[keyPath: keyPath]
-            )
+                value: self[keyPath: keyPath],
+            ),
         ))
     }
 
@@ -250,7 +252,7 @@ extension GeneratorState {
         keyPath: WritableKeyPath<GeneratorState, String>,
         passwordVisibilityAccessibilityId: String? = nil,
         textContentType: UITextContentType? = nil,
-        title: String
+        title: String,
     ) -> FormField<Self> {
         FormField(fieldType: .text(
             FormTextField(
@@ -264,8 +266,8 @@ extension GeneratorState {
                 passwordVisibilityAccessibilityId: passwordVisibilityAccessibilityId,
                 textContentType: textContentType,
                 title: title,
-                value: self[keyPath: keyPath]
-            )
+                value: self[keyPath: keyPath],
+            ),
         ))
     }
 
@@ -285,7 +287,7 @@ extension GeneratorState {
         accessibilityLabel: String? = nil,
         isDisabled: Bool = false,
         keyPath: WritableKeyPath<GeneratorState, Bool>,
-        title: String
+        title: String,
     ) -> FormField<Self> {
         FormField(fieldType: .toggle(
             ToggleField(
@@ -294,8 +296,8 @@ extension GeneratorState {
                 isDisabled: isDisabled,
                 isOn: self[keyPath: keyPath],
                 keyPath: keyPath,
-                title: title
-            )
+                title: title,
+            ),
         ))
     }
 }

@@ -29,7 +29,7 @@ public protocol SharedKeychainRepository {
     /// - Returns: The time the user should be automatically logged out. If `nil`, then the user should not be.
     ///
     func getAccountAutoLogoutTime(
-        userId: String
+        userId: String,
     ) async throws -> Date?
 
     /// Sets when a user account should automatically log out.
@@ -40,7 +40,7 @@ public protocol SharedKeychainRepository {
     ///
     func setAccountAutoLogoutTime(
         _ value: Date?,
-        userId: String
+        userId: String,
     ) async throws
 }
 
@@ -94,7 +94,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     ///
     public func setAccountAutoLogoutTime(
         _ value: Date?,
-        userId: String
+        userId: String,
     ) async throws {
         try await storage.setValue(value, for: .accountAutoLogout(userId: userId))
     }

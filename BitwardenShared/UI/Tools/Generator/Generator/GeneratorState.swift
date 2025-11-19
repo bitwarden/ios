@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // swiftlint:disable file_length
 
 // MARK: - GeneratorType
@@ -21,14 +24,14 @@ public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Send
         localizedName
     }
 
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .passphrase:
-            return Localizations.passphrase
+            Localizations.passphrase
         case .password:
-            return Localizations.password
+            Localizations.password
         case .username:
-            return Localizations.username
+            Localizations.username
         }
     }
 }
@@ -90,7 +93,7 @@ struct GeneratorState: Equatable {
             .generatorStep4,
             .generatorStep5,
             .generatorStep6,
-        ]
+        ],
     )
 
     /// If account is eligible for learn generator action card.
@@ -137,7 +140,7 @@ struct GeneratorState: Equatable {
         let generatorGroup = FormSectionGroup(
             fields: [generatedValueField(keyPath: \.generatedValue)],
             id: "GeneratorGroup",
-            showInContentBlock: false
+            showInContentBlock: false,
         )
 
         let optionGroups: [FormSectionGroup<Self>] = switch generatorType {
@@ -153,13 +156,13 @@ struct GeneratorState: Equatable {
             FormSection(
                 groups: [generatorGroup],
                 id: "Generator",
-                title: nil
+                title: nil,
             ),
 
             FormSection<Self>(
                 groups: optionGroups,
                 id: "Generator Options",
-                title: Localizations.options
+                title: Localizations.options,
             ),
         ]
     }
@@ -223,14 +226,13 @@ struct GeneratorState: Equatable {
     /// Updates the state to show a toast for the value that was copied.
     ///
     mutating func showCopiedValueToast() {
-        let valueCopied: String
-        switch generatorType {
+        let valueCopied: String = switch generatorType {
         case .passphrase:
-            valueCopied = Localizations.passphrase
+            Localizations.passphrase
         case .password:
-            valueCopied = Localizations.password
+            Localizations.password
         case .username:
-            valueCopied = Localizations.username
+            Localizations.username
         }
         toast = Toast(title: Localizations.valueHasBeenCopied(valueCopied))
     }
@@ -247,27 +249,27 @@ extension GeneratorState {
                         accessibilityId: "NumberOfWordsStepper",
                         keyPath: \.passwordState.numberOfWords,
                         range: 3 ... 20,
-                        title: Localizations.numberOfWords
+                        title: Localizations.numberOfWords,
                     ),
                     textField(
                         accessibilityId: "WordSeparatorEntry",
                         keyPath: \.passwordState.wordSeparator,
-                        title: Localizations.wordSeparator
+                        title: Localizations.wordSeparator,
                     ),
                     toggleField(
                         accessibilityId: "CapitalizePassphraseToggle",
                         isDisabled: policyOptions?.capitalize != nil,
                         keyPath: \.passwordState.capitalize,
-                        title: Localizations.capitalize
+                        title: Localizations.capitalize,
                     ),
                     toggleField(
                         accessibilityId: "IncludeNumbersToggle",
                         isDisabled: policyOptions?.includeNumber != nil,
                         keyPath: \.passwordState.includeNumber,
-                        title: Localizations.includeNumber
+                        title: Localizations.includeNumber,
                     ),
                 ],
-                id: "PassphraseGroup"
+                id: "PassphraseGroup",
             ),
         ]
     }
@@ -284,55 +286,55 @@ extension GeneratorState {
                         sliderAccessibilityId: "PasswordLengthSlider",
                         sliderValueAccessibilityId: "PasswordLengthLabel",
                         title: Localizations.length,
-                        step: 1
+                        step: 1,
                     ),
                     toggleField(
                         accessibilityId: "UppercaseAtoZToggle",
                         accessibilityLabel: Localizations.uppercaseAtoZ,
                         isDisabled: policyOptions?.uppercase != nil,
                         keyPath: \.passwordState.containsUppercase,
-                        title: "A-Z"
+                        title: "A-Z",
                     ),
                     toggleField(
                         accessibilityId: "LowercaseAtoZToggle",
                         accessibilityLabel: Localizations.lowercaseAtoZ,
                         isDisabled: policyOptions?.lowercase != nil,
                         keyPath: \.passwordState.containsLowercase,
-                        title: "a-z"
+                        title: "a-z",
                     ),
                     toggleField(
                         accessibilityId: "NumbersZeroToNineToggle",
                         accessibilityLabel: Localizations.numbersZeroToNine,
                         isDisabled: policyOptions?.number != nil,
                         keyPath: \.passwordState.containsNumbers,
-                        title: "0-9"
+                        title: "0-9",
                     ),
                     toggleField(
                         accessibilityId: "SpecialCharactersToggle",
                         accessibilityLabel: Localizations.specialCharacters,
                         isDisabled: policyOptions?.special != nil,
                         keyPath: \.passwordState.containsSpecial,
-                        title: "!@#$%^&*"
+                        title: "!@#$%^&*",
                     ),
                     stepperField(
                         accessibilityId: "MinNumberValueLabel",
                         keyPath: \.passwordState.minimumNumber,
                         range: 0 ... 5,
-                        title: Localizations.minNumbers
+                        title: Localizations.minNumbers,
                     ),
                     stepperField(
                         accessibilityId: "MinSpecialValueLabel",
                         keyPath: \.passwordState.minimumSpecial,
                         range: 0 ... 5,
-                        title: Localizations.minSpecial
+                        title: Localizations.minSpecial,
                     ),
                     toggleField(
                         accessibilityId: "AvoidAmbiguousCharsToggle",
                         keyPath: \.passwordState.avoidAmbiguous,
-                        title: Localizations.avoidAmbiguousCharacters
+                        title: Localizations.avoidAmbiguousCharacters,
                     ),
                 ],
-                id: "PasswordGroup"
+                id: "PasswordGroup",
             ),
         ]
     }
@@ -351,11 +353,11 @@ extension GeneratorState {
                         keyPath: \.usernameState.usernameGeneratorType,
                         options: UsernameGeneratorType.allCases,
                         selection: usernameState.usernameGeneratorType,
-                        title: Localizations.usernameType
+                        title: Localizations.usernameType,
                     ))),
                 ],
-                id: "UsernameTypeGroup"
-            )
+                id: "UsernameTypeGroup",
+            ),
         )
 
         switch usernameState.usernameGeneratorType {
@@ -366,7 +368,7 @@ extension GeneratorState {
                     keyboardType: .URL,
                     keyPath: \.usernameState.domain,
                     textContentType: .URL,
-                    title: Localizations.domainNameRequiredParenthesis
+                    title: Localizations.domainNameRequiredParenthesis,
                 ),
             ]
 
@@ -388,12 +390,12 @@ extension GeneratorState {
                                 keyPath: \.usernameState.forwardedEmailService,
                                 options: ForwardedEmailServiceType.allCases,
                                 selection: usernameState.forwardedEmailService,
-                                title: Localizations.service
-                            )
+                                title: Localizations.service,
+                            ),
                         )),
                     ],
-                    id: "ServiceTypeGroup"
-                )
+                    id: "ServiceTypeGroup",
+                ),
             )
 
             var fields = [FormField<Self>]()
@@ -405,46 +407,44 @@ extension GeneratorState {
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.addyIOAPIAccessToken,
                         passwordVisibilityAccessibilityId: "ShowForwardedEmailApiSecretButton",
-                        title: Localizations.apiAccessToken
+                        title: Localizations.apiAccessToken,
                     ),
                     textField(
                         accessibilityId: "AnonAddyDomainNameEntry",
                         keyPath: \.usernameState.addyIODomainName,
-                        title: Localizations.domainNameRequiredParenthesis
+                        title: Localizations.domainNameRequiredParenthesis,
                     ),
                 ])
-                if usernameState.addyIOSelfHostServerUrlEnabled {
-                    fields.append(contentsOf: [
-                        textField(
-                            accessibilityId: "AnonAddySelfHosteUrlEntry",
-                            keyPath: \.usernameState.addyIOSelfHostServerUrl,
-                            title: Localizations.selfHostServerURL
-                        ),
-                    ])
-                }
+                fields.append(contentsOf: [
+                    textField(
+                        accessibilityId: "AnonAddySelfHosteUrlEntry",
+                        keyPath: \.usernameState.addyIOSelfHostServerUrl,
+                        title: Localizations.selfHostServerURL,
+                    ),
+                ])
             case .duckDuckGo:
                 fields.append(
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.duckDuckGoAPIKey,
-                        title: Localizations.apiKeyRequiredParenthesis
-                    )
+                        title: Localizations.apiKeyRequiredParenthesis,
+                    ),
                 )
             case .fastmail:
                 fields.append(
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.fastmailAPIKey,
-                        title: Localizations.apiKeyRequiredParenthesis
-                    )
+                        title: Localizations.apiKeyRequiredParenthesis,
+                    ),
                 )
             case .firefoxRelay:
                 fields.append(
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.firefoxRelayAPIAccessToken,
-                        title: Localizations.apiAccessToken
-                    )
+                        title: Localizations.apiAccessToken,
+                    ),
                 )
             case .forwardEmail:
                 fields.append(contentsOf: [
@@ -453,12 +453,12 @@ extension GeneratorState {
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.forwardEmailAPIToken,
                         passwordVisibilityAccessibilityId: "ShowForwardedEmailApiSecretButton",
-                        title: Localizations.apiKeyRequiredParenthesis
+                        title: Localizations.apiKeyRequiredParenthesis,
                     ),
                     textField(
                         accessibilityId: "ForwardEmailDomainNameEntry",
                         keyPath: \.usernameState.forwardEmailDomainName,
-                        title: Localizations.domainNameRequiredParenthesis
+                        title: Localizations.domainNameRequiredParenthesis,
                     ),
                 ])
             case .simpleLogin:
@@ -466,18 +466,16 @@ extension GeneratorState {
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.simpleLoginAPIKey,
-                        title: Localizations.apiKeyRequiredParenthesis
-                    )
+                        title: Localizations.apiKeyRequiredParenthesis,
+                    ),
                 )
-                if usernameState.simpleLoginSelfHostServerUrlEnabled {
-                    fields.append(contentsOf: [
-                        textField(
-                            accessibilityId: "SimpleLoginSelfHosteUrlEntry",
-                            keyPath: \.usernameState.simpleLoginSelfHostServerUrl,
-                            title: Localizations.selfHostServerURL
-                        ),
-                    ])
-                }
+                fields.append(contentsOf: [
+                    textField(
+                        accessibilityId: "SimpleLoginSelfHosteUrlEntry",
+                        keyPath: \.usernameState.simpleLoginSelfHostServerUrl,
+                        title: Localizations.selfHostServerURL,
+                    ),
+                ])
             }
 
             groups.append(FormSectionGroup(fields: fields, id: "ForwardedEmailGroup"))
@@ -488,7 +486,7 @@ extension GeneratorState {
                     keyboardType: .emailAddress,
                     keyPath: \.usernameState.email,
                     textContentType: .emailAddress,
-                    title: Localizations.emailRequiredParenthesis
+                    title: Localizations.emailRequiredParenthesis,
                 ),
             ]
 
@@ -505,12 +503,12 @@ extension GeneratorState {
                 toggleField(
                     accessibilityId: "CapitalizeRandomWordUsernameToggle",
                     keyPath: \.usernameState.capitalize,
-                    title: Localizations.capitalize
+                    title: Localizations.capitalize,
                 ),
                 toggleField(
                     accessibilityId: "IncludeNumberRandomWordUsernameToggle",
                     keyPath: \.usernameState.includeNumber,
-                    title: Localizations.includeNumber
+                    title: Localizations.includeNumber,
                 ),
             ]
             groups.append(FormSectionGroup(fields: fields, id: "RandomWordGroup"))
@@ -526,41 +524,41 @@ extension GuidedTourStepState {
     static let generatorStep1 = GuidedTourStepState(
         arrowHorizontalPosition: .left,
         spotlightShape: .rectangle(cornerRadius: 25),
-        title: Localizations.useTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames
+        title: Localizations.useTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames,
     )
 
     /// The second step of the learn generator guided tour.
     static let generatorStep2 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 25),
-        title: Localizations.passphrasesAreOftenEasierToRememberDescriptionLong
+        title: Localizations.passphrasesAreOftenEasierToRememberDescriptionLong,
     )
 
     /// The third step of the learn generator guided tour.
     static let generatorStep3 = GuidedTourStepState(
         arrowHorizontalPosition: .right,
         spotlightShape: .rectangle(cornerRadius: 25),
-        title: Localizations.uniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts
+        title: Localizations.uniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts,
     )
 
     /// The fourth step of the learn generator guided tour.
     static let generatorStep4 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.useTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements
+        title: Localizations.useTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements,
     )
 
     /// The fifth step of the learn generator guided tour.
     static let generatorStep5 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .circle,
-        title: Localizations.useThisButtonToGenerateANewUniquePassword
+        title: Localizations.useThisButtonToGenerateANewUniquePassword,
     )
 
     /// The sixth step of the learn generator guided tour.
     static let generatorStep6 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.afterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite
+        title: Localizations.afterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite,
     )
 }

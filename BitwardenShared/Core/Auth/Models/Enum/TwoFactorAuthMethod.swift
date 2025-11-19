@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - TwoFactorAuthMethod
 
 /// An enum listing the types of two-factor authentication methods.

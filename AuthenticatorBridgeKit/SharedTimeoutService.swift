@@ -47,7 +47,7 @@ public final class DefaultSharedTimeoutService: SharedTimeoutService {
 
     public init(
         sharedKeychainRepository: SharedKeychainRepository,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.sharedKeychainRepository = sharedKeychainRepository
         self.timeProvider = timeProvider
@@ -67,7 +67,7 @@ public final class DefaultSharedTimeoutService: SharedTimeoutService {
     public func updateTimeout(
         forUserId userId: String,
         lastActiveDate: Date?,
-        timeoutLength: SessionTimeoutValue
+        timeoutLength: SessionTimeoutValue,
     ) async throws {
         guard let lastActiveDate else {
             try await clearTimeout(forUserId: userId)

@@ -26,20 +26,20 @@ final class ExportItemsServiceTests: BitwardenTestCase {
                 .init(
                     year: 2024,
                     month: 02,
-                    day: 14
-                )
-            )
+                    day: 14,
+                ),
+            ),
         )
 
         importService = DefaultImportItemsService(
             authenticatorItemRepository: authItemRepository,
-            errorReporter: errorReporter
+            errorReporter: errorReporter,
         )
 
         subject = DefaultExportItemsService(
             authenticatorItemRepository: authItemRepository,
             errorReporter: errorReporter,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -65,7 +65,7 @@ final class ExportItemsServiceTests: BitwardenTestCase {
                 id: "One",
                 name: "Name",
                 totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden",
-                username: "person@example.com"
+                username: "person@example.com",
             ),
         ]
         authItemRepository.fetchAllAuthenticatorItemsResult = .success(items)
@@ -92,14 +92,14 @@ final class ExportItemsServiceTests: BitwardenTestCase {
                 id: "One",
                 name: "Name",
                 totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden",
-                username: "person@example.com"
+                username: "person@example.com",
             ),
             AuthenticatorItemView(
                 favorite: true,
                 id: "Two",
                 name: "Steam",
                 totpKey: "steam://EXAMPLE",
-                username: "person@example.com"
+                username: "person@example.com",
             ),
         ]
         authItemRepository.fetchAllAuthenticatorItemsResult = .success(items)

@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -43,16 +44,16 @@ class ImportCXFStateTests: BitwardenTestCase {
     /// `getter:mainIcon` returns the appropriate value depending on the `status`.
     func test_mainIcon() {
         subject.status = .start
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.fileUpload24.name)
+        XCTAssertEqual(subject.mainIcon.name, SharedAsset.Icons.fileUpload24.name)
 
         subject.status = .importing
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.fileUpload24.name)
+        XCTAssertEqual(subject.mainIcon.name, SharedAsset.Icons.fileUpload24.name)
 
         subject.status = .success(totalImportedCredentials: 1, importedResults: [])
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.checkCircle24.name)
+        XCTAssertEqual(subject.mainIcon.name, SharedAsset.Icons.checkCircle24.name)
 
         subject.status = .failure(message: "")
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.circleX16.name)
+        XCTAssertEqual(subject.mainIcon.name, SharedAsset.Icons.circleX16.name)
     }
 
     /// `getter:message` returns the appropriate value depending on the `status`.
@@ -64,7 +65,7 @@ class ImportCXFStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.pleaseDoNotCloseTheApp)
 
         subject.status = .success(totalImportedCredentials: 1, importedResults: [])
-        XCTAssertEqual(subject.message, Localizations.itemsSuccessfullyImported(1))
+        XCTAssertEqual(subject.message, Localizations.xItemsSuccessfullyImported(1))
 
         subject.status = .failure(message: "Something went wrong")
         XCTAssertEqual(subject.message, "Something went wrong")

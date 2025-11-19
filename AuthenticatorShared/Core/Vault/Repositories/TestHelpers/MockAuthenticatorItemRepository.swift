@@ -21,6 +21,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     var pmSyncEnabled = false
 
+    var refreshTOTPCodesCalled = true
     var refreshTotpCodesResult: Result<[ItemListItem], Error> = .success([])
     var refreshedTotpTime: Date?
     var refreshedTotpCodes: [ItemListItem] = []
@@ -63,9 +64,10 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
         pmSyncEnabled
     }
 
-    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
+    func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
         refreshedTotpTime = timeProvider.presentTime
         refreshedTotpCodes = items
+        refreshTOTPCodesCalled = true
         return try refreshTotpCodesResult.get()
     }
 
@@ -82,7 +84,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func authenticatorItemDetailsPublisher(
-        id: String
+        id: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<AuthenticatorItemView?, Error>> {
         authenticatorItemDetailsSubject.eraseToAnyPublisher().values
     }
@@ -92,7 +94,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     }
 
     func searchItemListPublisher(
-        searchText: String
+        searchText: String,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListItem], Error>> {
         searchItemListSubject.eraseToAnyPublisher().values
     }

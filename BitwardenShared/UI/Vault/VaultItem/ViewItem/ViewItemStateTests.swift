@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -14,11 +15,11 @@ class ViewItemStateTests: BitwardenTestCase {
                 CipherItemState(
                     existing: .fixture(
                         id: "id",
-                        reprompt: .password
+                        reprompt: .password,
                     ),
-                    hasPremium: true
-                )!
-            )
+                    hasPremium: true,
+                )!,
+            ),
         )
         XCTAssertTrue(subject.canClone)
     }
@@ -31,11 +32,11 @@ class ViewItemStateTests: BitwardenTestCase {
                     existing: .fixture(
                         id: "id",
                         organizationId: "1234123",
-                        reprompt: .password
+                        reprompt: .password,
                     ),
-                    hasPremium: true
-                )!
-            )
+                    hasPremium: true,
+                )!,
+            ),
         )
         XCTAssertFalse(subject.canClone)
     }
@@ -43,7 +44,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// `canEdit` returns `true` for a cipher that isn't deleted.
     func test_canEdit() throws {
         let subject = try ViewItemState(loadingState: .data(
-            XCTUnwrap(CipherItemState(existing: .fixture(), hasPremium: false))
+            XCTUnwrap(CipherItemState(existing: .fixture(), hasPremium: false)),
         ))
         XCTAssertTrue(subject.canEdit)
     }
@@ -51,7 +52,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// `canEdit` returns `false` for a cipher that is deleted.
     func test_canEdit_deleted() throws {
         let subject = try ViewItemState(loadingState: .data(
-            XCTUnwrap(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: false))
+            XCTUnwrap(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: false)),
         ))
         XCTAssertFalse(subject.canEdit)
     }
@@ -59,27 +60,27 @@ class ViewItemStateTests: BitwardenTestCase {
     /// `navigationTitle` returns the navigation title for the view based on the cipher type.
     func test_navigationTitle_loaded() throws {
         let subjectCard = try ViewItemState(
-            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .card), hasPremium: false)))
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .card), hasPremium: false))),
         )
         XCTAssertEqual(subjectCard.navigationTitle, Localizations.viewCard)
 
         let subjectIdentity = try ViewItemState(
-            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .identity), hasPremium: false)))
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .identity), hasPremium: false))),
         )
         XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.viewIdentity)
 
         let subjectLogin = try ViewItemState(
-            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .login), hasPremium: false)))
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .login), hasPremium: false))),
         )
         XCTAssertEqual(subjectLogin.navigationTitle, Localizations.viewLogin)
 
         let subjectSecureNote = try ViewItemState(
-            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .secureNote), hasPremium: false)))
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .secureNote), hasPremium: false))),
         )
         XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.viewNote)
 
         let subjectSSHKey = try ViewItemState(
-            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .sshKey), hasPremium: false)))
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .sshKey), hasPremium: false))),
         )
         XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.viewSSHKey)
     }
@@ -88,38 +89,5 @@ class ViewItemStateTests: BitwardenTestCase {
     func test_navigationTitle_loading() {
         let subject = ViewItemState()
         XCTAssertEqual(subject.navigationTitle, "")
-    }
-
-    /// `restrictCipherItemDeletionFlagEnabled` default value is false.
-    func test_restrictCipherItemDeletionFlagEnabled() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .password
-                    ),
-                    hasPremium: true
-                )!
-            )
-        )
-        XCTAssertFalse(subject.restrictCipherItemDeletionFlagEnabled)
-    }
-
-    /// `restrictCipherItemDeletionFlagEnabled` is correctly initialized.
-    func test_restrictCipherItemDeletionFlagEnabled_value() {
-        let subject = ViewItemState(
-            loadingState: .data(
-                CipherItemState(
-                    existing: .fixture(
-                        id: "id",
-                        reprompt: .password
-                    ),
-                    hasPremium: true
-                )!
-            ),
-            restrictCipherItemDeletionFlagEnabled: true
-        )
-        XCTAssertTrue(subject.restrictCipherItemDeletionFlagEnabled)
     }
 }

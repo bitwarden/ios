@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -10,7 +12,7 @@ struct EditAuthenticatorItemView: View {
     @ObservedObject var store: Store<
         EditAuthenticatorItemState,
         EditAuthenticatorItemAction,
-        EditAuthenticatorItemEffect
+        EditAuthenticatorItemEffect,
     >
 
     // MARK: View
@@ -26,7 +28,7 @@ struct EditAuthenticatorItemView: View {
             .task { await store.perform(.appeared) }
             .toast(store.binding(
                 get: \.toast,
-                send: EditAuthenticatorItemAction.toastShown
+                send: EditAuthenticatorItemAction.toastShown,
             ))
     }
 
@@ -49,7 +51,7 @@ struct EditAuthenticatorItemView: View {
         .dismissKeyboardImmediately()
         .background(
             Asset.Colors.backgroundSecondary.swiftUIColor
-                .ignoresSafeArea()
+                .ignoresSafeArea(),
         )
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -60,8 +62,8 @@ struct EditAuthenticatorItemView: View {
                 title: Localizations.name,
                 text: store.binding(
                     get: \.issuer,
-                    send: EditAuthenticatorItemAction.issuerChanged
-                )
+                    send: EditAuthenticatorItemAction.issuerChanged,
+                ),
             )
             .accessibilityIdentifier("EditItemNameField")
 
@@ -69,14 +71,14 @@ struct EditAuthenticatorItemView: View {
                 title: Localizations.key,
                 text: store.binding(
                     get: \.secret,
-                    send: EditAuthenticatorItemAction.secretChanged
+                    send: EditAuthenticatorItemAction.secretChanged,
                 ),
                 accessibilityIdentifier: "EditItemKeyField",
                 passwordVisibilityAccessibilityId: "EditKeyVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.isSecretVisible,
-                    send: EditAuthenticatorItemAction.toggleSecretVisibilityChanged
-                )
+                    send: EditAuthenticatorItemAction.toggleSecretVisibilityChanged,
+                ),
             )
             .textFieldConfiguration(.password)
 
@@ -84,15 +86,15 @@ struct EditAuthenticatorItemView: View {
                 title: Localizations.username,
                 text: store.binding(
                     get: \.accountName,
-                    send: EditAuthenticatorItemAction.accountNameChanged
-                )
+                    send: EditAuthenticatorItemAction.accountNameChanged,
+                ),
             )
             .textFieldConfiguration(.username)
             .accessibilityIdentifier("EditItemUsernameField")
 
             Toggle(Localizations.favorite, isOn: store.binding(
                 get: \.isFavorited,
-                send: EditAuthenticatorItemAction.favoriteChanged
+                send: EditAuthenticatorItemAction.favoriteChanged,
             ))
             .toggleStyle(.bitwarden)
             .accessibilityIdentifier("EditItemFavoriteToggle")
@@ -107,7 +109,7 @@ struct EditAuthenticatorItemView: View {
                 Text(Localizations.advanced)
                     .styleGuide(.body)
 
-                Asset.Images.downAngle.swiftUIImage
+                SharedAsset.Icons.chevronDown16.swiftUIImage
                     .imageStyle(.accessoryIcon)
                     .rotationEffect(store.state.isAdvancedExpanded ? Angle(degrees: 180) : .zero)
             }
@@ -123,8 +125,8 @@ struct EditAuthenticatorItemView: View {
             options: TotpTypeOptions.allCases,
             selection: store.binding(
                 get: \.totpType,
-                send: EditAuthenticatorItemAction.totpTypeChanged
-            )
+                send: EditAuthenticatorItemAction.totpTypeChanged,
+            ),
         )
 
         if store.state.totpType == .totp {
@@ -133,8 +135,8 @@ struct EditAuthenticatorItemView: View {
                 options: TOTPCryptoHashAlgorithm.allCases,
                 selection: store.binding(
                     get: \.algorithm,
-                    send: EditAuthenticatorItemAction.algorithmChanged
-                )
+                    send: EditAuthenticatorItemAction.algorithmChanged,
+                ),
             )
 
             BitwardenMenuField(
@@ -142,8 +144,8 @@ struct EditAuthenticatorItemView: View {
                 options: TotpPeriodOptions.allCases,
                 selection: store.binding(
                     get: \.period,
-                    send: EditAuthenticatorItemAction.periodChanged
-                )
+                    send: EditAuthenticatorItemAction.periodChanged,
+                ),
             )
 
             StepperFieldView(
@@ -152,11 +154,11 @@ struct EditAuthenticatorItemView: View {
                     keyPath: \.digits,
                     range: 5 ... 10,
                     title: Localizations.numberOfDigits,
-                    value: store.state.digits
+                    value: store.state.digits,
                 ),
                 action: { newValue in
                     store.send(.digitsChanged(newValue))
-                }
+                },
             )
         }
 
@@ -193,7 +195,7 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                             accountName: "Account",
                             algorithm: .sha1,
                             configuration: .existing(
-                                authenticatorItemView: AuthenticatorItemView.fixture()
+                                authenticatorItemView: AuthenticatorItemView.fixture(),
                             ),
                             digits: 6,
                             id: "1",
@@ -207,14 +209,14 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                                 codeModel: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                                    period: 30
-                                )
+                                    period: 30,
+                                ),
                             ),
-                            totpType: .totp
+                            totpType: .totp,
                         )
-                        .editState
-                    )
-                )
+                        .editState,
+                    ),
+                ),
             )
         }.previewDisplayName("Advanced Closed")
 
@@ -226,7 +228,7 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                             accountName: "Account",
                             algorithm: .sha1,
                             configuration: .existing(
-                                authenticatorItemView: AuthenticatorItemView.fixture()
+                                authenticatorItemView: AuthenticatorItemView.fixture(),
                             ),
                             digits: 6,
                             id: "1",
@@ -241,14 +243,14 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                                 codeModel: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                                    period: 30
-                                )
+                                    period: 30,
+                                ),
                             ),
-                            totpType: .totp
+                            totpType: .totp,
                         )
-                        .editState
-                    )
-                )
+                        .editState,
+                    ),
+                ),
             )
         }.previewDisplayName("Advanced Open, TOTP")
 
@@ -260,7 +262,7 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                             accountName: "Account",
                             algorithm: .sha1,
                             configuration: .existing(
-                                authenticatorItemView: AuthenticatorItemView.fixture()
+                                authenticatorItemView: AuthenticatorItemView.fixture(),
                             ),
                             digits: 6,
                             id: "1",
@@ -275,14 +277,14 @@ struct EditAuthenticatorItemView_Previews: PreviewProvider {
                                 codeModel: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                                    period: 30
-                                )
+                                    period: 30,
+                                ),
                             ),
-                            totpType: .steam
+                            totpType: .steam,
                         )
-                        .editState
-                    )
-                )
+                        .editState,
+                    ),
+                ),
             )
         }.previewDisplayName("Advanced Open, Steam")
     }

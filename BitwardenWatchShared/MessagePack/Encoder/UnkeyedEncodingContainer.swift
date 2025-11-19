@@ -42,7 +42,7 @@ extension _MessagePackEncoder.UnkeyedContainer: UnkeyedEncodingContainer {
     }
 
     func nestedContainer<NestedKey>(
-        keyedBy _: NestedKey.Type
+        keyedBy _: NestedKey.Type,
     ) -> KeyedEncodingContainer<NestedKey>where NestedKey: CodingKey {
         let container = _MessagePackEncoder.KeyedContainer<NestedKey>(codingPath: nestedCodingPath, userInfo: userInfo)
         storage.append(container)

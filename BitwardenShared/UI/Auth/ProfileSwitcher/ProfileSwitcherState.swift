@@ -67,7 +67,7 @@ struct ProfileSwitcherState: Equatable {
         allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool = false,
-        showPlaceholderToolbarIcon: Bool = false
+        showPlaceholderToolbarIcon: Bool = false,
     ) {
         self.accounts = accounts
         self.activeAccountId = activeAccountId
@@ -82,7 +82,7 @@ struct ProfileSwitcherState: Equatable {
     static func empty(
         allowLockAndLogout: Bool = false,
         shouldAlwaysHideAddAccount: Bool = false,
-        showPlaceholderToolbarIcon: Bool = false
+        showPlaceholderToolbarIcon: Bool = false,
     ) -> Self {
         ProfileSwitcherState(
             accounts: [],
@@ -90,7 +90,7 @@ struct ProfileSwitcherState: Equatable {
             allowLockAndLogout: allowLockAndLogout,
             isVisible: false,
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
-            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
+            showPlaceholderToolbarIcon: showPlaceholderToolbarIcon,
         )
     }
 

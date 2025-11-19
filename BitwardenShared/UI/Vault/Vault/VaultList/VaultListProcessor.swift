@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -11,14 +12,14 @@ import SwiftUI
 final class VaultListProcessor: StateProcessor<
     VaultListState,
     VaultListAction,
-    VaultListEffect
+    VaultListEffect,
 > {
     // MARK: Types
 
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
-        & HasConfigService
+        & HasChangeKdfService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -34,6 +35,10 @@ final class VaultListProcessor: StateProcessor<
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// Whether the cipher decryption failure alert was shown to the user, if the vault has any
+    /// ciphers which failed to decrypt.
+    private(set) var hasShownCipherDecryptionFailureAlert = false
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
@@ -63,7 +68,7 @@ final class VaultListProcessor: StateProcessor<
         masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultListState,
-        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper,
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
@@ -100,16 +105,16 @@ final class VaultListProcessor: StateProcessor<
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
-                }
+                },
             )
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault()
+            await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
-            state.searchResults = await searchVault(for: text)
+            await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
         case .streamFlightRecorderLog:
@@ -141,14 +146,7 @@ final class VaultListProcessor: StateProcessor<
         case .disappeared:
             reviewPromptTask?.cancel()
         case let .itemPressed(item):
-            switch item.itemType {
-            case let .cipher(cipherListView, _):
-                navigateToViewItem(cipherListView: cipherListView, id: item.id)
-            case let .group(group, _):
-                coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
-            case let .totp(_, model):
-                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
-            }
+            handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -203,11 +201,29 @@ extension VaultListProcessor {
 
     /// Called when the vault list appears on screen.
     private func appeared() async {
-        await refreshVault()
+        await refreshVault(syncWithPeriodicCheck: true)
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+    }
+
+    /// Checks if the user needs to update their KDF settings.
+    private func checkIfForceKdfUpdateRequired() async {
+        guard await services.changeKdfService.needsKdfUpdateToMinimums() else { return }
+
+        coordinator.showAlert(.updateEncryptionSettings { password in
+            self.coordinator.showLoadingOverlay(title: Localizations.updating)
+            defer { self.coordinator.hideLoadingOverlay() }
+
+            do {
+                try await self.services.changeKdfService.updateKdfToMinimums(password: password)
+                self.coordinator.showToast(Localizations.encryptionSettingsUpdated)
+            } catch {
+                self.services.errorReporter.log(error: error)
+                await self.coordinator.showErrorAlert(error: error)
+            }
+        })
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -251,8 +267,41 @@ extension VaultListProcessor {
     /// Dismisses the flight recorder toast banner for the active user.
     ///
     private func dismissFlightRecorderToastBanner() async {
-        state.isFlightRecorderToastBannerVisible = false
         await services.flightRecorder.setFlightRecorderBannerDismissed()
+    }
+
+    /// If the vault has ciphers which failed to decrypt, and the cipher decryption failure alert
+    /// hasn't been shown yet, notify the user that a cipher(s) failed to decrypt.
+    ///
+    /// - Parameter cipherIds: The list of identifiers for ciphers which failed to decrypt.
+    ///
+    private func handleCipherDecryptionFailures(cipherIds: [Uuid]) {
+        guard !cipherIds.isEmpty, !hasShownCipherDecryptionFailureAlert else { return }
+        coordinator.showAlert(.cipherDecryptionFailure(cipherIds: cipherIds, isFromCipherTap: false) { stringToCopy in
+            self.services.pasteboardService.copy(stringToCopy)
+        })
+        hasShownCipherDecryptionFailureAlert = true
+    }
+
+    /// Handles the primary action for when a `VaultListItem` is tapped in the list.
+    ///
+    /// - Parameter item: The `VaultListItem` that was tapped.
+    ///
+    private func handleItemTapped(_ item: VaultListItem) {
+        switch item.itemType {
+        case let .cipher(cipherListView, _):
+            if cipherListView.isDecryptionFailure, let cipherId = cipherListView.id {
+                coordinator.showAlert(.cipherDecryptionFailure(cipherIds: [cipherId]) { stringToCopy in
+                    self.services.pasteboardService.copy(stringToCopy)
+                })
+            } else {
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
+            }
+        case let .group(group, _):
+            coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
+        case let .totp(_, model):
+            navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
+        }
     }
 
     /// Entry point to handling things around push notifications.
@@ -284,7 +333,9 @@ extension VaultListProcessor {
 
     /// Refreshes the vault's contents.
     ///
-    private func refreshVault() async {
+    /// - Parameter syncWithPeriodicCheck: Whether the sync should take into consideration
+    /// the periodic check.
+    private func refreshVault(syncWithPeriodicCheck: Bool) async {
         do {
             let takingTimeTask = Task {
                 try await Task.sleep(forSeconds: 5)
@@ -296,11 +347,21 @@ extension VaultListProcessor {
                 state.toast = nil
                 takingTimeTask.cancel()
             }
-            guard let sections = try await services.vaultRepository.fetchSync(
+
+            try await services.vaultRepository.fetchSync(
                 forceSync: false,
-                filter: state.vaultFilterType
-            ) else { return }
-            state.loadingState = .data(sections)
+                filter: state.vaultFilterType,
+                isPeriodic: syncWithPeriodicCheck,
+            )
+
+            if try await services.vaultRepository.isVaultEmpty() {
+                // Normally after syncing the database will publish the contents of the vault which is
+                // used to transition from the loading to loaded state. If the vault is empty, nothing
+                // will be published by the database, so it needs to be manually updated.
+                state.loadingState = .data([])
+            }
+
+            await checkIfForceKdfUpdateRequired()
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
@@ -316,7 +377,7 @@ extension VaultListProcessor {
                     // If the vault needs a sync and there were no cached items,
                     // show the full screen error view.
                     state.loadingState = .error(
-                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
                     )
                 }
             } else {
@@ -353,31 +414,33 @@ extension VaultListProcessor {
                 } catch {
                     self.services.errorReporter.log(error: error)
                 }
-            }
+            },
         )
     }
 
-    /// Searches the vault using the provided string, and returns any matching results.
+    /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
-    /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
-    private func searchVault(for searchText: String) async -> [VaultListItem] {
+    private func searchVault(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
+            state.searchResults = []
+            return
         }
         do {
-            let result = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType)
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: state.searchVaultFilterType,
+                    searchText: searchText,
+                ),
             )
-            for try await ciphers in result {
-                return ciphers
+            for try await vaultListData in publisher {
+                let items = vaultListData.sections.first?.items ?? []
+                state.searchResults = items
             }
         } catch {
             services.errorReporter.log(error: error)
         }
-        return []
     }
 
     /// Sets the user's import logins progress.
@@ -422,7 +485,6 @@ extension VaultListProcessor {
     /// Streams the user's account setup progress.
     ///
     private func streamAccountSetupProgress() async {
-        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
@@ -436,8 +498,7 @@ extension VaultListProcessor {
     ///
     private func streamFlightRecorderLog() async {
         for await log in await services.flightRecorder.activeLogPublisher().values {
-            state.activeFlightRecorderLog = log
-            state.isFlightRecorderToastBannerVisible = !(log?.isBannerDismissed ?? true)
+            state.flightRecorderToastBanner.activeLog = log
         }
     }
 
@@ -455,10 +516,17 @@ extension VaultListProcessor {
     /// Streams the user's vault list.
     private func streamVaultList() async {
         do {
-            for try await value in try await services.vaultRepository
-                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
+            for try await vaultList in try await services.vaultRepository
+                .vaultListPublisher(
+                    filter: VaultListFilter(
+                        filterType: state.vaultFilterType,
+                        options: [.addTOTPGroup, .addTrashGroup],
+                    ),
+                ) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
+
+                let value = vaultList.sections
 
                 // If the data is empty, check to ensure that a sync is not needed.
                 if !needsSync || !value.isEmpty {
@@ -481,6 +549,8 @@ extension VaultListProcessor {
                     await services.stateService.setLearnNewLoginActionCardStatus(.complete)
                     await services.stateService.setLearnGeneratorActionCardStatus(.complete)
                 }
+                // Alert the user of any cipher decryption failures.
+                handleCipherDecryptionFailures(cipherIds: vaultList.cipherDecryptionFailureIds)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -514,7 +584,7 @@ enum MoreOptionsAction: Equatable {
         value: String,
         requiresMasterPasswordReprompt: Bool,
         logEvent: EventType?,
-        cipherId: String?
+        cipherId: String?,
     )
 
     /// Generate and copy the TOTP code for the given `totpKey`.
@@ -568,11 +638,19 @@ extension VaultListProcessor: ProfileSwitcherHandler {
         await coordinator.handleEvent(authAction)
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func showAddAccount() {
         coordinator.navigate(to: .addAccount)
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }

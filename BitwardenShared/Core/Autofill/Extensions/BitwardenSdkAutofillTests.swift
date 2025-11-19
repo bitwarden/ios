@@ -32,9 +32,9 @@ class GetAssertionRequestTests: BitwardenTestCase {
                 PublicKeyCredentialDescriptor(
                     ty: "public-key",
                     id: credentialId,
-                    transports: nil
+                    transports: nil,
                 )
-            }
+            },
         )
     }
 
@@ -60,9 +60,9 @@ class GetAssertionRequestTests: BitwardenTestCase {
                 PublicKeyCredentialDescriptor(
                     ty: "public-key",
                     id: credentialIdentity.credentialID,
-                    transports: nil
+                    transports: nil,
                 ),
-            ]
+            ],
         )
     }
 }
@@ -81,12 +81,12 @@ class MakeCredentialRequestTests: BitwardenTestCase {
             user: PublicKeyCredentialUserEntity(
                 id: Data(repeating: 1, count: 32),
                 displayName: "userDisplay",
-                name: "user"
+                name: "user",
             ),
             pubKeyCredParams: [PublicKeyCredentialParameters(ty: "public-key", alg: -7)],
             excludeList: nil,
             options: Options(rk: true, uv: .preferred),
-            extensions: nil
+            extensions: nil,
         )
 
         let expectedResult =
@@ -116,18 +116,18 @@ class MakeCredentialRequestTests: BitwardenTestCase {
             user: PublicKeyCredentialUserEntity(
                 id: Data(repeating: 1, count: 32),
                 displayName: "userDisplay",
-                name: "user"
+                name: "user",
             ),
             pubKeyCredParams: [PublicKeyCredentialParameters(ty: "public-key", alg: -7)],
             excludeList: [
                 PublicKeyCredentialDescriptor(
                     ty: "public-key",
                     id: Data(repeating: 1, count: 32),
-                    transports: ["transport"]
+                    transports: ["transport"],
                 ),
             ],
             options: Options(rk: true, uv: .preferred),
-            extensions: "some extension"
+            extensions: "some extension",
         )
 
         // swiftlint:disable line_length
@@ -161,7 +161,7 @@ class MakeCredentialResultTests: BitwardenTestCase {
         let result = MakeCredentialResult(
             authenticatorData: Data(repeating: 1, count: 40),
             attestationObject: Data(repeating: 2, count: 42),
-            credentialId: Data(repeating: 3, count: 32)
+            credentialId: Data(repeating: 3, count: 32),
         )
 
         let expectedResult =
@@ -184,7 +184,7 @@ class UvTests: BitwardenTestCase {
     func test_init_discouraged() throws {
         XCTAssertEqual(
             Uv(preference: ASAuthorizationPublicKeyCredentialUserVerificationPreference.discouraged),
-            Uv.discouraged
+            Uv.discouraged,
         )
     }
 
@@ -192,7 +192,7 @@ class UvTests: BitwardenTestCase {
     func test_init_preferred() throws {
         XCTAssertEqual(
             Uv(preference: ASAuthorizationPublicKeyCredentialUserVerificationPreference.preferred),
-            Uv.preferred
+            Uv.preferred,
         )
     }
 
@@ -200,7 +200,7 @@ class UvTests: BitwardenTestCase {
     func test_init_required() throws {
         XCTAssertEqual(
             Uv(preference: ASAuthorizationPublicKeyCredentialUserVerificationPreference.required),
-            Uv.required
+            Uv.required,
         )
     }
 
@@ -208,7 +208,7 @@ class UvTests: BitwardenTestCase {
     func test_init_unknown() throws {
         XCTAssertEqual(
             Uv(preference: ASAuthorizationPublicKeyCredentialUserVerificationPreference(rawValue: "unknown value")),
-            Uv.required
+            Uv.required,
         )
     }
 }

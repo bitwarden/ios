@@ -11,7 +11,7 @@ extension EnvironmentURLData {
         icons: URL? = nil,
         identity: URL? = nil,
         notifications: URL? = nil,
-        webVault: URL? = nil
+        webVault: URL? = nil,
     ) -> EnvironmentURLData {
         EnvironmentURLData(
             api: api,
@@ -20,7 +20,7 @@ extension EnvironmentURLData {
             icons: icons,
             identity: identity,
             notifications: notifications,
-            webVault: webVault
+            webVault: webVault,
         )
     }
 }

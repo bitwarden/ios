@@ -1,3 +1,4 @@
+import BitwardenResources
 import LocalAuthentication
 import OSLog
 
@@ -14,7 +15,7 @@ protocol BiometricsService: AnyObject {
     ///
     func evaluateBiometricPolicy(
         _ suppliedContext: LAContext?,
-        for biometricAuthStatus: BiometricAuthorizationStatus
+        for biometricAuthStatus: BiometricAuthorizationStatus,
     ) async -> Bool
 
     /// Returns the status for device BiometricAuthenticationType.
@@ -52,7 +53,7 @@ extension BiometricsService {
 class DefaultBiometricsService: BiometricsService {
     func evaluateBiometricPolicy(
         _ suppliedContext: LAContext?,
-        for biometricAuthStatus: BiometricAuthorizationStatus
+        for biometricAuthStatus: BiometricAuthorizationStatus,
     ) async -> Bool {
         // First check if the existing status can be evaluated.
         guard case .authorized = biometricAuthStatus else {
@@ -66,7 +67,7 @@ class DefaultBiometricsService: BiometricsService {
         do {
             let result = try await authContext.evaluatePolicy(
                 .deviceOwnerAuthenticationWithBiometrics,
-                localizedReason: Localizations.useBiometricsToUnlock
+                localizedReason: Localizations.useBiometricsToUnlock,
             )
             return result
         } catch {
@@ -128,7 +129,7 @@ class DefaultBiometricsService: BiometricsService {
     ///
     func errorStatus(
         biometricAuthType: BiometricAuthenticationType?,
-        error: Error
+        error: Error,
     ) -> BiometricAuthorizationStatus {
         guard let biometricAuthType else {
             // Biometrics are not available on the device.

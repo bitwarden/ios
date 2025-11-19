@@ -29,7 +29,7 @@ public class AuthenticatorBridgeItemData: NSManagedObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        authenticatorItem: AuthenticatorBridgeItemDataModel
+        authenticatorItem: AuthenticatorBridgeItemDataModel,
     ) throws {
         self.init(context: context)
         id = authenticatorItem.id
@@ -54,7 +54,7 @@ extension AuthenticatorBridgeItemData: ManagedUserObject {
             #keyPath(AuthenticatorBridgeItemData.userId),
             userId,
             #keyPath(AuthenticatorBridgeItemData.id),
-            id
+            id,
         )
     }
 

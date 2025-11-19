@@ -8,9 +8,6 @@ public enum AuthRoute: Equatable {
     /// A route to the autofill setup screen.
     case autofillSetup
 
-    /// A route to the captcha screen.
-    case captcha(url: URL, callbackUrlScheme: String)
-
     /// A route to show the check email screen.
     case checkEmail(email: String)
 
@@ -33,19 +30,16 @@ public enum AuthRoute: Equatable {
     case completeRegistrationFromAppLink(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool
+        fromEmail: Bool,
     )
 
-    /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
+    /// Dismisses the auth flow because the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
 
     /// Dismisses the auth flow.
     /// - Parameters:
     ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked..
     case completeWithRehydration(_ rehydratableTarget: RehydratableTarget)
-
-    /// A route to the create account screen.
-    case createAccount
 
     /// A route that dismisses a presented sheet.
     case dismiss
@@ -167,7 +161,7 @@ public enum AuthRoute: Equatable {
         _ unlockMethod: TwoFactorUnlockMethod?,
         _ authMethodsData: AuthMethodsData,
         _ orgIdentifier: String?,
-        _ deviceVerificationRequired: Bool? = nil
+        _ deviceVerificationRequired: Bool? = nil,
     )
 
     /// A route to the update master password screen.
@@ -186,11 +180,15 @@ public enum AuthRoute: Equatable {
         Account,
         animated: Bool,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
     )
 
     /// A route to the vault unlock setup screen.
     case vaultUnlockSetup(AccountSetupFlow)
+
+    /// A route to display the profile switcher.
+    ///
+    case viewProfileSwitcher
 
     /// A route to the WebAuthn two factor authentication.
     ///
@@ -204,7 +202,7 @@ public enum AuthRoute: Equatable {
         rpid: String,
         challenge: Data,
         allowCredentialIDs: [Data],
-        userVerificationPreference: String
+        userVerificationPreference: String,
     )
 
     /// A route to the WebAuthn two-factor authentication webpage for self-hosted users.

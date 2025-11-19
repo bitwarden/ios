@@ -1,0 +1,104 @@
+import BitwardenResources
+import SwiftUI
+
+/// A view that displays a button for use as an accessory to a field.
+///
+public struct AccessoryButton: View {
+    // MARK: Types
+
+    /// A type that wraps a synchrounous or asynchrounous block that is executed by this button.
+    ///
+    enum Action {
+        /// An action run synchrounously.
+        case sync(() -> Void)
+
+        /// An action run asynchrounously.
+        case async(() async -> Void)
+    }
+
+    // MARK: Properties
+
+    /// The accessibility label of the button.
+    var accessibilityLabel: String
+
+    /// The accessibility label of the button.
+    var accessibilityIdentifier: String = ""
+
+    /// The action to perform when the user interacts with this button.
+    var action: Action
+
+    /// The image to display in the button.
+    var asset: SharedImageAsset
+
+    public var body: some View {
+        switch action {
+        case let .async(action):
+            AsyncButton(action: action) {
+                asset.swiftUIImage
+                    .resizable()
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.accessory)
+            .accessibilityLabel(Text(accessibilityLabel))
+            .accessibilityIdentifier(accessibilityIdentifier)
+        case let .sync(action):
+            Button(action: action) {
+                asset.swiftUIImage
+                    .resizable()
+                    .frame(width: 24, height: 24)
+            }
+            .buttonStyle(.accessory)
+            .accessibilityLabel(Text(accessibilityLabel))
+            .accessibilityIdentifier(accessibilityIdentifier)
+        }
+    }
+
+    // MARK: Initialization
+
+    /// Initializes a `AccessoryButton` which styles a button for display as an accessory to a
+    /// field.
+    ///
+    /// - Parameters:
+    ///   - asset: The image to display in the button.
+    ///   - accessibilityLabel: The accessibility label of the button.
+    ///   - action: The action to perform when the user triggers the button.
+    ///
+    public init(
+        asset: SharedImageAsset,
+        accessibilityLabel: String,
+        accessibilityIdentifier: String = "",
+        action: @escaping () -> Void,
+    ) {
+        self.accessibilityLabel = accessibilityLabel
+        self.action = .sync(action)
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.asset = asset
+    }
+
+    /// Initializes a `AccessoryButton` which styles a button for display as an accessory to a
+    /// field.
+    ///
+    /// - Parameters:
+    ///   - asset: The image to display in the button.
+    ///   - accessibilityLabel: The accessibility label of the button.
+    ///   - accessibilityIdentifier: The accessibility identifier of the button.
+    ///   - action: The action to perform when the user triggers the button.
+    ///
+    public init(
+        asset: SharedImageAsset,
+        accessibilityLabel: String,
+        accessibilityIdentifier: String = "",
+        action: @escaping () async -> Void,
+    ) {
+        self.accessibilityLabel = accessibilityLabel
+        self.action = .async(action)
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.asset = asset
+    }
+}
+
+// MARK: Previews
+
+#Preview {
+    AccessoryButton(asset: SharedAsset.Icons.copy24, accessibilityLabel: Localizations.copy) {}
+}

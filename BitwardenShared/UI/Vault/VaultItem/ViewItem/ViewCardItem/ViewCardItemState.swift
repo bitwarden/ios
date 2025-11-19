@@ -15,6 +15,9 @@ protocol ViewCardItemState: Equatable, Sendable {
     /// The number of the card.
     var cardNumber: String { get }
 
+    /// The formatted card number with spaces every 4 digits.
+    var formattedCardNumber: String { get }
+
     /// The security code of the card.
     var cardSecurityCode: String { get }
 

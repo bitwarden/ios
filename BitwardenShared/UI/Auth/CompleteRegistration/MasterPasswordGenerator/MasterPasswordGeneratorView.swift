@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - MasterPasswordGeneratorView
@@ -11,7 +13,7 @@ struct MasterPasswordGeneratorView: View {
     @ObservedObject var store: Store<
         MasterPasswordGeneratorState,
         MasterPasswordGeneratorAction,
-        MasterPasswordGeneratorEffect
+        MasterPasswordGeneratorEffect,
     >
 
     // MARK: View
@@ -27,7 +29,7 @@ struct MasterPasswordGeneratorView: View {
         .scrollView()
         .navigationBar(
             title: Localizations.generateMasterPassword,
-            titleDisplayMode: .inline
+            titleDisplayMode: .inline,
         )
         .toolbar {
             saveToolbarItem {
@@ -45,12 +47,12 @@ struct MasterPasswordGeneratorView: View {
     private var passwordText: some View {
         PasswordText(
             password: store.state.generatedPassword,
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
         .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -60,7 +62,7 @@ struct MasterPasswordGeneratorView: View {
             await store.perform(.generate)
         } label: {
             HStack(spacing: 8) {
-                Image(decorative: Asset.Images.generate16)
+                Image(decorative: SharedAsset.Icons.generate16)
 
                 Text(Localizations.generate)
             }
@@ -73,7 +75,7 @@ struct MasterPasswordGeneratorView: View {
         VStack(alignment: .center, spacing: 0) {
             Text(Localizations.writeThisPasswordDownAndKeepItSomewhereSafe)
                 .styleGuide(.footnote)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .multilineTextAlignment(.center)
 
             Button {
@@ -81,7 +83,7 @@ struct MasterPasswordGeneratorView: View {
             } label: {
                 Text(Localizations.learnAboutOtherWaysToPreventAccountLockout)
                     .styleGuide(.footnote, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                     .multilineTextAlignment(.leading)
             }
         }
@@ -95,9 +97,9 @@ struct MasterPasswordGeneratorView: View {
     MasterPasswordGeneratorView(
         store: Store(
             processor: StateProcessor(
-                state: MasterPasswordGeneratorState(generatedPassword: "Imma-Little-Teapot2")
-            )
-        )
+                state: MasterPasswordGeneratorState(generatedPassword: "Imma-Little-Teapot2"),
+            ),
+        ),
     )
 }
 #endif

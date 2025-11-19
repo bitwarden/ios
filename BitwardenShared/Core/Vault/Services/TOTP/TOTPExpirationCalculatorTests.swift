@@ -12,10 +12,10 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                 .init(
                     code: "",
                     codeGenerationDate: .distantPast,
-                    period: 30
+                    period: 30,
                 ),
-                timeProvider: MockTimeProvider(.currentTime)
-            )
+                timeProvider: MockTimeProvider(.currentTime),
+            ),
         )
     }
 
@@ -25,20 +25,20 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                 .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
-                    period: 30
+                    period: 30,
                 ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 30)))
-            )
+                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 30))),
+            ),
         )
         XCTAssertTrue(
             TOTPExpirationCalculator.hasCodeExpired(
                 .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
-                    period: 30
+                    period: 30,
                 ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 31)))
-            )
+                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 31))),
+            ),
         )
     }
 
@@ -48,20 +48,20 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                 .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 15),
-                    period: 30
+                    period: 30,
                 ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 15)))
-            )
+                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 15))),
+            ),
         )
         XCTAssertFalse(
             TOTPExpirationCalculator.hasCodeExpired(
                 .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 0),
-                    period: 30
+                    period: 30,
                 ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 29)))
-            )
+                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 29))),
+            ),
         )
     }
 
@@ -71,18 +71,18 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                 totpCode: .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let current = VaultListItem.fixtureTOTP(
             totp: .fixture(
                 totpCode: .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 31),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let expectation = [
             true: [
@@ -102,11 +102,11 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                             year: 2024,
                             month: 1,
                             day: 1,
-                            second: 31
-                        )
-                    )
-                )
-            )
+                            second: 31,
+                        ),
+                    ),
+                ),
+            ),
         )
     }
 
@@ -114,9 +114,9 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
         XCTAssertEqual(
             TOTPExpirationCalculator.remainingSeconds(
                 for: Date(year: 2024, month: 1, day: 1, second: 29, nanosecond: 90_000_000),
-                using: 30
+                using: 30,
             ),
-            1
+            1,
         )
     }
 }

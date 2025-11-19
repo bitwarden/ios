@@ -90,7 +90,7 @@ extension DataStore: SendDataStore {
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \SendData.id, ascending: true)]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.first.map(Send.init) }
         .eraseToAnyPublisher()
@@ -102,7 +102,7 @@ extension DataStore: SendDataStore {
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \SendData.id, ascending: true)]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.map(Send.init) }
         .eraseToAnyPublisher()
@@ -113,7 +113,7 @@ extension DataStore: SendDataStore {
         let insertRequest = try SendData.batchInsertRequest(objects: sends, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 

@@ -170,7 +170,7 @@ class DefaultCipherService: CipherService {
         cipherAPIService: CipherAPIService,
         cipherDataStore: CipherDataStore,
         fileAPIService: FileAPIService,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.cipherAPIService = cipherAPIService
         self.cipherDataStore = cipherDataStore
@@ -184,11 +184,10 @@ extension DefaultCipherService {
         let userId = try await stateService.getActiveAccountId()
 
         // Add the cipher in the backend.
-        var response: CipherDetailsResponseModel
-        if cipher.collectionIds.isEmpty {
-            response = try await cipherAPIService.addCipher(cipher, encryptedFor: encryptedFor)
+        var response: CipherDetailsResponseModel = if cipher.collectionIds.isEmpty {
+            try await cipherAPIService.addCipher(cipher, encryptedFor: encryptedFor)
         } else {
-            response = try await cipherAPIService.addCipherWithCollections(cipher, encryptedFor: encryptedFor)
+            try await cipherAPIService.addCipherWithCollections(cipher, encryptedFor: encryptedFor)
         }
 
         // The API doesn't return the collectionIds, so manually add them back.
@@ -207,7 +206,7 @@ extension DefaultCipherService {
         let userId = try await stateService.getActiveAccountId()
 
         // Delete attachment from the backend.
-        _ = try await cipherAPIService.deleteAttachment(withID: attachmentId, cipherId: cipherId)
+        let response = try await cipherAPIService.deleteAttachment(withID: attachmentId, cipherId: cipherId)
 
         // Remove the attachment from the cipher.
         guard let cipher = try await cipherDataStore.fetchCipher(withId: cipherId, userId: userId) else { return nil }
@@ -215,7 +214,10 @@ extension DefaultCipherService {
         if let index = attachments.firstIndex(where: { $0.id == attachmentId }) {
             attachments.remove(at: index)
         }
-        let updatedCipher = cipher.update(attachments: attachments)
+        let updatedCipher = cipher.update(
+            attachments: attachments,
+            revisionDate: response.cipher.revisionDate,
+        )
 
         // Update the cipher in local storage.
         try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
@@ -288,7 +290,7 @@ extension DefaultCipherService {
             cipherId: cipherId,
             fileName: attachment.attachment.fileName,
             fileSize: Int(attachment.attachment.size ?? ""),
-            key: attachment.attachment.key
+            key: attachment.attachment.key,
         )
 
         // Upload the attachment data to the server.
@@ -298,7 +300,7 @@ extension DefaultCipherService {
             data: attachment.contents,
             fileName: attachment.attachment.fileName ?? "",
             type: response.fileUploadType,
-            url: response.url
+            url: response.url,
         )
 
         // The API doesn't return the collectionIds, so manually add them back.

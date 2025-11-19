@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -54,6 +55,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     typealias Module = AddEditFolderModule
         & AuthModule
         & ExportCXFModule
+        & FlightRecorderModule
         & ImportLoginsModule
         & LoginRequestModule
         & NavigatorBuilderModule
@@ -69,9 +71,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasEventService
         & HasExportCXFCiphersRepository
         & HasExportVaultService
         & HasFlightRecorder
+        & HasLanguageStateService
         & HasNotificationCenterService
         & HasPasteboardService
         & HasPolicyService
@@ -114,7 +118,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         delegate: SettingsCoordinatorDelegate?,
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.module = module
@@ -150,8 +154,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
-        case .enableFlightRecorder:
-            showEnableFlightRecorder()
         case .appearance:
             showAppearance()
         case .appExtension:
@@ -172,8 +174,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVaultToApp()
         case .exportVaultToFile:
             showExportVaultToFile()
-        case .flightRecorderLogs:
-            showFlightRecorderLogs()
+        case let .flightRecorder(route):
+            showFlightRecorder(route: route)
         case .folders:
             showFolders()
         case .importLogins:
@@ -192,8 +194,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showSettings(presentationMode: presentationMode)
         case let .shareURL(url):
             showShareSheet([url])
-        case let .shareURLs(urls):
-            showShareSheet(urls)
         case .vault:
             showVault()
         case .vaultUnlockSetup:
@@ -213,7 +213,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = AboutProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AboutState()
+            state: AboutState(),
         )
 
         let view = AboutView(store: Store(processor: processor))
@@ -229,7 +229,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             coordinator: asAnyCoordinator(),
             services: services,
             state: AccountSecurityState(),
-            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
+            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services),
         )
 
         let view = AccountSecurityView(store: Store(processor: processor))
@@ -257,7 +257,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = AppearanceProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AppearanceState()
+            state: AppearanceState(),
         )
 
         let view = AppearanceView(store: Store(processor: processor))
@@ -271,7 +271,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showAppExtension() {
         let processor = AppExtensionProcessor(
             coordinator: asAnyCoordinator(),
-            state: AppExtensionState()
+            state: AppExtensionState(),
         )
         let view = AppExtensionView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
@@ -289,14 +289,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         extensionItem.attachments = [
             NSItemProvider(
                 item: "" as NSString,
-                typeIdentifier: Constants.UTType.appExtensionSetup
+                typeIdentifier: Constants.UTType.appExtensionSetup,
             ),
         ]
         let viewController = UIActivityViewController(activityItems: [extensionItem], applicationActivities: nil)
         viewController.completionWithItemsHandler = { activityType, completed, _, _ in
             delegate?.didDismissExtensionSetup(
                 enabled: completed &&
-                    activityType?.rawValue == Bundle.main.appExtensionIdentifier
+                    activityType?.rawValue == Bundle.main.appExtensionIdentifier,
             )
         }
         stackNavigator?.present(viewController)
@@ -311,7 +311,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let coordinator = module.makeAuthCoordinator(
             delegate: nil,
             rootNavigator: nil,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         coordinator.navigate(to: route)
     }
@@ -322,7 +322,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = AutoFillProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AutoFillState()
+            state: AutoFillState(),
         )
         let view = AutoFillView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
@@ -336,20 +336,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = DeleteAccountProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: DeleteAccountState()
+            state: DeleteAccountState(),
         )
         stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
-    }
-
-    /// Shows the enable flight recorder screen.
-    ///
-    private func showEnableFlightRecorder() {
-        let processor = EnableFlightRecorderProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: EnableFlightRecorderState()
-        )
-        stackNavigator?.present(EnableFlightRecorderView(store: Store(processor: processor)))
     }
 
     /// Shows the share sheet to share one or more items.
@@ -365,13 +354,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///
     @MainActor
     private func showExportVault() async {
-        #if SUPPORTS_CXP
-        let cxpEnabled = true
-        #else
-        let cxpEnabled = false
-        #endif
-
-        guard cxpEnabled, await services.configService.getFeatureFlag(.cxpExportMobile) else {
+        guard await services.configService.getFeatureFlag(.cxpExportMobile) else {
             navigate(to: .exportVaultToFile)
             return
         }
@@ -388,7 +371,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showExportVaultToFile() {
         let processor = ExportVaultProcessor(
             coordinator: asAnyCoordinator(),
-            services: services
+            services: services,
         )
         stackNavigator?.present(ExportVaultView(store: Store(processor: processor)))
     }
@@ -398,22 +381,21 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showExportVaultToApp() {
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeExportCXFCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         stackNavigator?.present(navigationController)
     }
 
-    /// Shows the flight recorder logs screen.
+    /// Shows a flight recorder view.
     ///
-    private func showFlightRecorderLogs() {
-        let processor = FlightRecorderLogsProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: FlightRecorderLogsState()
-        )
-        let view = FlightRecorderLogsView(store: Store(processor: processor), timeProvider: services.timeProvider)
-        stackNavigator?.present(view)
+    /// - Parameter route: A `FlightRecorderRoute` to navigate to.
+    ///
+    private func showFlightRecorder(route: FlightRecorderRoute) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFlightRecorderCoordinator(stackNavigator: stackNavigator)
+        coordinator.start()
+        coordinator.navigate(to: route)
     }
 
     /// Shows the folders screen.
@@ -422,7 +404,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = FoldersProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: FoldersState()
+            state: FoldersState(),
         )
         let view = FoldersView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
@@ -437,7 +419,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         navigationController.modalPresentationStyle = .overFullScreen
         let coordinator = module.makeImportLoginsCoordinator(
             delegate: self,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         coordinator.navigate(to: .importLogins(.settings))
@@ -465,7 +447,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = OtherSettingsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: OtherSettingsState()
+            state: OtherSettingsState(),
         )
         let view = OtherSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
@@ -479,7 +461,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         guard let stackNavigator else { return }
         let coordinator = module.makePasswordAutoFillCoordinator(
             delegate: nil,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         coordinator.start()
         coordinator.navigate(to: .passwordAutofill(mode: .settings))
@@ -491,7 +473,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = PendingRequestsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: PendingRequestsState()
+            state: PendingRequestsState(),
         )
         stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
     }
@@ -503,7 +485,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: SelectLanguageState(currentLanguage: currentLanguage)
+            state: SelectLanguageState(currentLanguage: currentLanguage),
         )
         stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
     }
@@ -515,7 +497,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             coordinator: asAnyCoordinator(),
             delegate: self,
             services: services,
-            state: SettingsState(presentationMode: presentationMode)
+            state: SettingsState(presentationMode: presentationMode),
         )
         let view = SettingsView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: false)
@@ -527,7 +509,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let processor = VaultSettingsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultSettingsState()
+            state: VaultSettingsState(),
         )
         let view = VaultSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)

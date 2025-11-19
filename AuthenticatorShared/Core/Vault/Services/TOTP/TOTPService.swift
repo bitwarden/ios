@@ -44,7 +44,7 @@ class DefaultTOTPService {
     init(
         clientService: ClientService,
         errorReporter: ErrorReporter,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.clientService = clientService
         self.errorReporter = errorReporter
@@ -56,7 +56,7 @@ extension DefaultTOTPService: TOTPService {
     func getTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
         try await clientService.vault().generateTOTPCode(
             for: key.rawAuthenticatorKey,
-            date: timeProvider.presentTime
+            date: timeProvider.presentTime,
         )
     }
 

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - FileSelectionModule
 
 /// An object that builds coordinators for the file selection flow.
@@ -13,19 +15,19 @@ protocol FileSelectionModule {
     ///
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<FileSelectionRoute, Void>
 }
 
 extension DefaultAppModule: FileSelectionModule {
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<FileSelectionRoute, Void> {
         FileSelectionCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

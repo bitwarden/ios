@@ -55,7 +55,7 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
     ///
     init(
         timeProvider: any TimeProvider,
-        onExpiration: (([VaultListItem]) -> Void)?
+        onExpiration: (([VaultListItem]) -> Void)?,
     ) {
         self.timeProvider = timeProvider
         self.onExpiration = onExpiration
@@ -64,7 +64,7 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
             repeats: true,
             block: { _ in
                 self.checkForExpirations()
-            }
+            },
         )
     }
 
@@ -97,7 +97,7 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
         itemsByInterval.forEach { period, items in
             let sortedItems: [Bool: [VaultListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
                 items,
-                timeProvider: timeProvider
+                timeProvider: timeProvider,
             )
             expired.append(contentsOf: sortedItems[true] ?? [])
             notExpired[period] = sortedItems[false]

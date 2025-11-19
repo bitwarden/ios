@@ -33,7 +33,7 @@ struct ImportCiphersRequest: Request {
     init(
         ciphers: [Cipher],
         folders: [Folder] = [],
-        folderRelationships: [(key: Int, value: Int)] = []
+        folderRelationships: [(key: Int, value: Int)] = [],
     ) throws {
         guard !ciphers.isEmpty else {
             throw BitwardenError.dataError("There are no ciphers to import.")
@@ -42,7 +42,7 @@ struct ImportCiphersRequest: Request {
         requestModel = ImportCiphersRequestModel(
             ciphers: ciphers.map { CipherRequestModel(cipher: $0) },
             folders: folders.map { FolderWithIdRequestModel(folder: $0) },
-            folderRelationships: folderRelationships.map { FolderRelationship(key: $0.key, value: $0.value) }
+            folderRelationships: folderRelationships.map { FolderRelationship(key: $0.key, value: $0.value) },
         )
     }
 }

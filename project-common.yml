@@ -1,0 +1,27 @@
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: 15.0
+    watchOS: 8.0
+  groupSortPosition: top
+  usesTabs: false
+  indentWidth: 4
+  tabWidth: 4
+include:
+  - path: Configs/local-sdk.yml
+    relativePaths: false
+    enable: ${LOCAL_SDK}
+packages:
+  BitwardenSdk:
+    url: https://github.com/bitwarden/sdk-swift
+    revision: 8266e167ae8e80f1bf1e9ab96ee5a4d46162c059 # 1.0.0-2742-fc75b90
+    branch: unstable
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 11.14.0
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    exactVersion: 1.18.4
+  ViewInspector:
+    url: https://github.com/nalexn/ViewInspector
+    exactVersion: 0.10.3

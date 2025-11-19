@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -57,7 +58,7 @@ struct ViewLoginItemView: View {
         BitwardenField(title: Localizations.password, titleAccessibilityIdentifier: "ItemName") {
             PasswordText(password: password, isPasswordVisible: store.state.isPasswordVisible)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .accessibilityIdentifier("LoginPasswordEntry")
         } accessoryContent: {
             if store.state.canViewPassword {
@@ -68,7 +69,7 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: password, field: .password))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
@@ -93,11 +94,11 @@ struct ViewLoginItemView: View {
     @ViewBuilder private var premiumSubscriptionRequired: some View {
         BitwardenField(
             title: Localizations.authenticatorKey,
-            titleAccessibilityIdentifier: "ItemName"
+            titleAccessibilityIdentifier: "ItemName",
         ) {
             Text(Localizations.premiumSubscriptionRequired)
                 .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .accessibilityIdentifier("ItemValue")
         }
         .accessibilityElement(children: .contain)
@@ -110,12 +111,12 @@ struct ViewLoginItemView: View {
         BitwardenTextValueField(
             title: Localizations.username,
             value: username,
-            valueAccessibilityIdentifier: "LoginUsernameEntry"
+            valueAccessibilityIdentifier: "LoginUsernameEntry",
         ) {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
             } label: {
-                Asset.Images.copy24.swiftUIImage
+                SharedAsset.Icons.copy24.swiftUIImage
                     .imageStyle(.accessoryIcon24)
             }
             .accessibilityLabel(Localizations.copy)
@@ -131,10 +132,7 @@ struct ViewLoginItemView: View {
     private func passkeyRow(_ fido2Credential: Fido2Credential) -> some View {
         BitwardenTextValueField(
             title: Localizations.passkey,
-            value: Localizations.createdXY(
-                fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
-                fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-            )
+            value: Localizations.createdX(fido2Credential.creationDate.dateTimeDisplay),
         )
         .accessibilityIdentifier("LoginPasskeyEntry")
         .accessibilityElement(children: .contain)
@@ -153,7 +151,7 @@ struct ViewLoginItemView: View {
                 Text(model.displayCode)
                     .styleGuide(.bodyMonospaced)
                     .multilineTextAlignment(.leading)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("LoginTotpEntry")
             },
             accessoryContent: {
@@ -164,17 +162,17 @@ struct ViewLoginItemView: View {
                         Task {
                             await store.perform(.totpCodeExpired)
                         }
-                    }
+                    },
                 )
                 Button {
                     store.send(.copyPressed(value: model.code, field: .totp))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CopyTotpValueButton")
-            }
+            },
         )
         .accessibilityElement(children: .contain)
     }

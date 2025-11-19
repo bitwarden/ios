@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 
 // MARK: - UpdateMasterPasswordState
@@ -54,8 +55,8 @@ struct UpdateMasterPasswordState: Equatable, Sendable {
 
     /// The message to display for why the user's password needs to be updated.
     var updateMasterPasswordWarning: String {
-        forcePasswordResetReason == .weakMasterPasswordOnLogin ?
-            Localizations.updateWeakMasterPasswordWarning :
-            Localizations.updateMasterPasswordWarning
+        forcePasswordResetReason == .weakMasterPasswordOnLogin
+            ? Localizations.updateWeakMasterPasswordWarning
+            : Localizations.updateMasterPasswordWarning
     }
 }

@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - ExportItemsProcessor
@@ -27,7 +28,7 @@ final class ExportItemsProcessor: StateProcessor<ExportItemsState, ExportItemsAc
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
-        services: Services
+        services: Services,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -64,12 +65,11 @@ final class ExportItemsProcessor: StateProcessor<ExportItemsState, ExportItemsAc
 
     /// Shows the alert to confirm the items export.
     private func confirmExportItems() {
-        let exportFormat: ExportFileType
-        switch state.fileFormat {
+        let exportFormat: ExportFileType = switch state.fileFormat {
         case .csv:
-            exportFormat = .csv
+            .csv
         case .json:
-            exportFormat = .json
+            .json
         }
 
         coordinator.showAlert(.confirmExportItems {

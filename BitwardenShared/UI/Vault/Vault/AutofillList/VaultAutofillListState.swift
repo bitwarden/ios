@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -58,6 +60,6 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// Whether to show the add item button.
     var showAddItemButton: Bool {
-        !isAutofillingTotpList && !isAutofillingTextToInsertList && excludedCredentialIdFound == nil
+        !isAutofillingTotpList && excludedCredentialIdFound == nil
     }
 }

@@ -8,7 +8,7 @@ public extension Sequence {
     ///   - operation: The closure to run on each element.
     ///
     func asyncForEach(
-        _ operation: (Element) async throws -> Void
+        _ operation: (Element) async throws -> Void,
     ) async rethrows {
         for element in self {
             try await operation(element)
@@ -20,7 +20,7 @@ public extension Sequence {
     /// - Parameter transform: An asynchronous function mapping the sequence element.
     ///
     func asyncMap<T>(
-        _ transform: (Element) async throws -> T
+        _ transform: (Element) async throws -> T,
     ) async rethrows -> [T] {
         var values = [T]()
 

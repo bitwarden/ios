@@ -22,7 +22,7 @@ extension Send {
         password: String? = nil,
         revisionDate: Date = Date(year: 2024, month: 01, day: 01),
         text: SendTextModel? = nil,
-        type: BitwardenShared.SendType = .text
+        type: BitwardenShared.SendType = .text,
     ) -> Send {
         self.init(
             id: id,
@@ -40,7 +40,7 @@ extension Send {
             hideEmail: hideEmail,
             revisionDate: revisionDate,
             deletionDate: deletionDate,
-            expirationDate: expirationDate
+            expirationDate: expirationDate,
         )
     }
 }
@@ -50,13 +50,13 @@ extension SendFileModel {
         id: String? = nil,
         fileName: String = "fileName",
         size: String? = nil,
-        sizeName: String? = nil
+        sizeName: String? = nil,
     ) -> SendFileModel {
         SendFileModel(
             fileName: fileName,
             id: id,
             size: size,
-            sizeName: sizeName
+            sizeName: sizeName,
         )
     }
 }
@@ -64,11 +64,11 @@ extension SendFileModel {
 extension SendTextModel {
     static func fixture(
         hidden: Bool = false,
-        text: String = "text"
+        text: String = "text",
     ) -> SendTextModel {
         SendTextModel(
             hidden: hidden,
-            text: text
+            text: text,
         )
     }
 }

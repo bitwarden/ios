@@ -18,7 +18,7 @@ class HTTPServiceTests: XCTestCase {
 
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
-            client: client
+            client: client,
         )
     }
 
@@ -54,7 +54,7 @@ class HTTPServiceTests: XCTestCase {
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
             client: client,
-            requestHandlers: [requestHandlerA, requestHandlerB]
+            requestHandlers: [requestHandlerA, requestHandlerB],
         )
 
         let httpResponse = HTTPResponse.success()
@@ -67,7 +67,7 @@ class HTTPServiceTests: XCTestCase {
             [
                 "RequestHandlerA": "🔑",
                 "RequestHandlerB": "🔒",
-            ]
+            ],
         )
 
         XCTAssertNotNil(requestHandlerA.handledRequest)
@@ -85,7 +85,7 @@ class HTTPServiceTests: XCTestCase {
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
             client: client,
-            responseHandlers: [responseHandlerA, responseHandlerB]
+            responseHandlers: [responseHandlerA, responseHandlerB],
         )
 
         let httpResponse = HTTPResponse.success()
@@ -113,7 +113,7 @@ class HTTPServiceTests: XCTestCase {
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
             client: client,
-            tokenProvider: tokenProvider
+            tokenProvider: tokenProvider,
         )
 
         client.result = .success(.success())
@@ -132,7 +132,7 @@ class HTTPServiceTests: XCTestCase {
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
             client: client,
-            tokenProvider: tokenProvider
+            tokenProvider: tokenProvider,
         )
 
         client.results = [
@@ -158,7 +158,7 @@ class HTTPServiceTests: XCTestCase {
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
             client: client,
-            tokenProvider: tokenProvider
+            tokenProvider: tokenProvider,
         )
 
         client.results = [
@@ -184,7 +184,7 @@ class HTTPServiceTests: XCTestCase {
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
             client: client,
-            tokenProvider: tokenProvider
+            tokenProvider: tokenProvider,
         )
 
         client.result = .success(.failure(statusCode: 500))
@@ -202,7 +202,7 @@ class HTTPServiceTests: XCTestCase {
         subject = HTTPService(
             baseURL: URL(string: "https://example.com")!,
             client: client,
-            tokenProvider: tokenProvider
+            tokenProvider: tokenProvider,
         )
 
         client.results = [

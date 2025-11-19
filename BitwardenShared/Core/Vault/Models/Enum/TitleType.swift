@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 /// An enum that describes how a Identity title should be matched.
 ///
 enum TitleType: String, Codable, Equatable, Hashable, Menuable {

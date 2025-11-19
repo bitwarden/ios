@@ -1,0 +1,84 @@
+name: 'macOS Runner Tuneup'
+description: 'Optimizes macOS GitHub runners by disabling resource-heavy background processes'
+author: 'Bitwarden'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Optimize macOS Runner
+      shell: bash
+      run: |
+        echo "🚀 Starting macOS Runner Tuneup..."
+        echo "=================================="
+
+        echo "🔍 Disabling Spotlight..."
+        sudo mdutil -a -i off # disables indexing on all volumes
+        sudo mdutil -a -d # disables spotlight activity on all volumes
+
+        echo "🔍 Disabling Spotlight Knowledge Daemon..."
+        sudo launchctl disable system/com.apple.spotlightknowledged || true
+        sudo pkill -SIGKILL spotlightknowledged || true
+
+        echo "🛑 Disabling metadata services..."
+        sudo launchctl disable system/com.apple.metadata.mds || true
+        sudo launchctl disable system/com.apple.metadata.mds.index || true
+        sudo launchctl disable system/com.apple.metadata.mds.scan || true
+
+        echo "📦 Stopping metadata services..."
+        sudo launchctl bootout system/com.apple.metadata.mds || true
+        sudo launchctl bootout system/com.apple.metadata.mds.index || true
+        sudo launchctl bootout system/com.apple.metadata.mds.scan || true
+        sudo launchctl bootout system/com.apple.metadata.mdwrite || true
+
+        echo "⚡ Killing metadata processes..."
+        sudo pkill -SIGKILL -f "Metadata.framework/Versions/A/Support/mds" || true
+        sudo pkill -SIGKILL Spotlight || true
+        echo "✅ Spotlight disabled!"
+
+        echo "💥 Disabling ReportCrash..."
+        sudo launchctl disable system/com.apple.ReportCrash || true
+        sudo launchctl disable system/com.apple.ReportCrash.Root || true
+
+        echo "💥 Unloading ReportCrash..."
+        sudo launchctl bootout system/com.apple.ReportCrash || true
+        sudo launchctl bootout system/com.apple.ReportCrash.Root || true
+
+        sudo defaults write com.apple.CrashReporter DialogType none  || true
+        echo "✅ ReportCrash disabled!"
+
+        echo "🌱 Disabling EcosystemD..."
+        sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.ecosystemd.plist || true
+        sudo pkill -SIGKILL -f "ecosystemd" || true
+        echo "✅ EcosystemD disabled!"
+
+        echo "🌱 Disabling EcosystemAnalyticsD..."
+        sudo launchctl bootout system/com.apple.ecosystemanalyticsd || true
+        echo "✅ EcosystemAnalyticsD disabled!"
+
+        echo "🌱 Disabling SubmitDiagInfo..."
+        sudo defaults write /Library/Preferences/com.apple.SubmitDiagInfo AutoSubmit -bool false || true
+
+        echo "🌍 Disabling location services..."
+        sudo defaults write /Library/Preferences/com.apple.locationd.plist LocationServicesEnabled -int 0 || true
+
+        echo "🔍 Disabling Siri..."
+        sudo defaults write com.apple.assistant.support Assistant\ Enabled -bool false || true
+        sudo defaults write com.apple.Siri StatusMenuVisible -bool false || true
+
+        echo "🔒 Disabling iCloud analytics and usage tracking..."
+        sudo defaults write com.apple.UsageTracking CoreDonationsEnabled -bool false || true
+        sudo defaults write com.apple.UsageTracking UDCAutomationEnabled -bool false || true
+
+        echo "🔍 Disabling Spotlight suggestions..."
+        sudo defaults write com.apple.lookup.shared LookupSuggestionsDisabled -bool true || true
+
+        echo "📊 Process Information After Tuning"
+        echo "=================================="
+        echo "🧠 Sorted by memory usage:"
+        head -n20 < <(ps -emo pid,pcpu,pmem,comm)
+        echo ""
+        echo "🔥  Sorted by CPU usage:"
+        head -n20 < <(ps -ero pid,pcpu,pmem,comm)
+        echo ""
+        echo "🎉 macOS Runner Tuneup Complete!"
+

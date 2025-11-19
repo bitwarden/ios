@@ -1,3 +1,4 @@
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -46,7 +47,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
 extension VaultListItem {
     /// What's used to sort `VaultListItem`s depending on its item type.
     var sortValue: String {
-        return switch itemType {
+        switch itemType {
         case let .cipher(cipherListView, _):
             cipherListView.name
         case .group:
@@ -95,45 +96,45 @@ extension VaultListItem {
     }
 
     /// An image asset for this item that can be used in the UI.
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch itemType {
         case let .cipher(cipherItem, fido2CredentialAutofillView):
             switch cipherItem.type {
             case .card:
-                Asset.Images.card24
+                SharedAsset.Icons.card24
             case .identity:
-                Asset.Images.idCard24
+                SharedAsset.Icons.idCard24
             case .login:
-                fido2CredentialAutofillView != nil ? Asset.Images.passkey24 : Asset.Images.globe24
+                fido2CredentialAutofillView != nil ? SharedAsset.Icons.passkey24 : SharedAsset.Icons.globe24
             case .secureNote:
-                Asset.Images.file24
+                SharedAsset.Icons.file24
             case .sshKey:
-                Asset.Images.key24
+                SharedAsset.Icons.key24
             }
         case let .group(group, _):
             switch group {
             case .card:
-                Asset.Images.card24
+                SharedAsset.Icons.card24
             case .collection:
-                Asset.Images.collections24
+                SharedAsset.Icons.collections24
             case .folder,
                  .noFolder:
-                Asset.Images.folder24
+                SharedAsset.Icons.folder24
             case .identity:
-                Asset.Images.idCard24
+                SharedAsset.Icons.idCard24
             case .login:
-                Asset.Images.globe24
+                SharedAsset.Icons.globe24
             case .secureNote:
-                Asset.Images.file24
+                SharedAsset.Icons.file24
             case .sshKey:
-                Asset.Images.key24
+                SharedAsset.Icons.key24
             case .totp:
-                Asset.Images.clock24
+                SharedAsset.Icons.clock24
             case .trash:
-                Asset.Images.trash24
+                SharedAsset.Icons.trash24
             }
         case .totp:
-            Asset.Images.clock24
+            SharedAsset.Icons.clock24
         }
     }
 
@@ -143,18 +144,18 @@ extension VaultListItem {
         case let .cipher(cipherItem, _):
             switch cipherItem.type {
             case .card:
-                return "CardCipherIcon"
+                "CardCipherIcon"
             case .identity:
-                return "IdentityCipherIcon"
+                "IdentityCipherIcon"
             case .login:
-                return "LoginCipherIcon"
+                "LoginCipherIcon"
             case .secureNote:
-                return "SecureNoteCipherIcon"
+                "SecureNoteCipherIcon"
             case .sshKey:
-                return "SSHKeyCipherIcon"
+                "SSHKeyCipherIcon"
             }
         default:
-            return ""
+            ""
         }
     }
 
@@ -180,11 +181,11 @@ extension VaultListItem {
     var loginListView: BitwardenSdk.LoginListView? {
         switch itemType {
         case let .cipher(cipherView, _):
-            return cipherView.type.loginListView
+            cipherView.type.loginListView
         case .group:
-            return nil
+            nil
         case let .totp(_, totpModel):
-            return totpModel.cipherListView.type.loginListView
+            totpModel.cipherListView.type.loginListView
         }
     }
 

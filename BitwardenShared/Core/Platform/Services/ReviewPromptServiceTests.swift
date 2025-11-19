@@ -19,7 +19,7 @@ class ReviewPromptServiceTests: BitwardenTestCase {
         subject = DefaultReviewPromptService(
             appVersion: "1.0",
             identityStore: identityStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -38,7 +38,7 @@ class ReviewPromptServiceTests: BitwardenTestCase {
         stateService.reviewPromptData = ReviewPromptData(
             userActions: [
                 UserActionItem(userAction: .addedNewItem, count: 3),
-            ]
+            ],
         )
 
         await subject.clearUserActions()
@@ -53,9 +53,9 @@ class ReviewPromptServiceTests: BitwardenTestCase {
             userActions: [
                 UserActionItem(
                     userAction: .addedNewItem,
-                    count: 3
+                    count: 3,
                 ),
-            ]
+            ],
         )
         let isEligible = await subject.isEligibleForReviewPrompt()
 
@@ -70,9 +70,9 @@ class ReviewPromptServiceTests: BitwardenTestCase {
             userActions: [
                 UserActionItem(
                     userAction: .addedNewItem,
-                    count: 3
+                    count: 3,
                 ),
-            ]
+            ],
         )
         let isEligible = await subject.isEligibleForReviewPrompt()
 
@@ -85,35 +85,35 @@ class ReviewPromptServiceTests: BitwardenTestCase {
         stateService.reviewPromptData = ReviewPromptData(
             userActions: [
                 UserActionItem(userAction: .addedNewItem, count: 3),
-            ]
+            ],
         )
         let isEligibleViaNewItem = await subject.isEligibleForReviewPrompt()
         XCTAssertTrue(
             isEligibleViaNewItem,
-            "User should be eligible for review prompt after adding 3 new items."
+            "User should be eligible for review prompt after adding 3 new items.",
         )
 
         stateService.reviewPromptData = ReviewPromptData(
             userActions: [
                 UserActionItem(userAction: .createdNewSend, count: 3),
-            ]
+            ],
         )
         let isEligibleViaNewSend = await subject.isEligibleForReviewPrompt()
         XCTAssertTrue(
             isEligibleViaNewSend,
-            "User should be eligible for review prompt after creating 3 new sends."
+            "User should be eligible for review prompt after creating 3 new sends.",
         )
 
         stateService.reviewPromptData = ReviewPromptData(
             userActions: [
                 UserActionItem(userAction: .copiedOrInsertedGeneratedValue, count: 3),
-            ]
+            ],
         )
 
         let isEligibleViaCopy = await subject.isEligibleForReviewPrompt()
         XCTAssertTrue(
             isEligibleViaCopy,
-            "User should be eligible for review prompt after 3 copying or inserting generated values."
+            "User should be eligible for review prompt after 3 copying or inserting generated values.",
         )
 
         stateService.reviewPromptData = ReviewPromptData(
@@ -121,12 +121,12 @@ class ReviewPromptServiceTests: BitwardenTestCase {
                 UserActionItem(userAction: .copiedOrInsertedGeneratedValue, count: 2),
                 UserActionItem(userAction: .addedNewItem, count: 1),
                 UserActionItem(userAction: .createdNewSend, count: 2),
-            ]
+            ],
         )
         let isEligible = await subject.isEligibleForReviewPrompt()
         XCTAssertFalse(
             isEligible,
-            "User shouldn't be eligible if none of the user actions was repeated 3 times."
+            "User shouldn't be eligible if none of the user actions was repeated 3 times.",
         )
     }
 
@@ -147,7 +147,7 @@ class ReviewPromptServiceTests: BitwardenTestCase {
         stateService.reviewPromptData = ReviewPromptData(
             userActions: [
                 UserActionItem(userAction: action, count: 3),
-            ]
+            ],
         )
 
         await subject.trackUserAction(action)
@@ -166,7 +166,7 @@ class ReviewPromptServiceTests: BitwardenTestCase {
             reviewPromptShownForVersion: "1.0",
             userActions: [
                 UserActionItem(userAction: action, count: 3),
-            ]
+            ],
         )
 
         await subject.trackUserAction(action)

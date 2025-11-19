@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import UIKit
 
 // MARK: - TabRoute
@@ -13,8 +15,8 @@ public enum TabRoute: Equatable, Hashable {
 
     public var accessibilityIdentifier: String {
         switch self {
-        case .itemList: return "VerificationCodesTabButton"
-        case .settings: return "SettingsTabButton"
+        case .itemList: "VerificationCodesTabButton"
+        case .settings: "SettingsTabButton"
         }
     }
 }
@@ -24,29 +26,29 @@ public enum TabRoute: Equatable, Hashable {
 extension TabRoute: TabRepresentable {
     public var image: UIImage? {
         switch self {
-        case .itemList: return Asset.Images.recoveryCodes.image
-        case .settings: return Asset.Images.gearFilled.image
+        case .itemList: SharedAsset.Icons.recoveryCodes.image
+        case .settings: SharedAsset.Icons.gearFilled24.image
         }
     }
 
     public var index: Int {
         switch self {
-        case .itemList: return 0
-        case .settings: return 1
+        case .itemList: 0
+        case .settings: 1
         }
     }
 
     public var selectedImage: UIImage? {
         switch self {
-        case .itemList: return Asset.Images.recoveryCodes.image
-        case .settings: return Asset.Images.gearFilled.image
+        case .itemList: SharedAsset.Icons.recoveryCodes.image
+        case .settings: SharedAsset.Icons.gearFilled24.image
         }
     }
 
     public var title: String {
         switch self {
-        case .itemList: return Localizations.verificationCodes
-        case .settings: return Localizations.settings
+        case .itemList: Localizations.verificationCodes
+        case .settings: Localizations.settings
         }
     }
 }

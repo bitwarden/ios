@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - BitwardenTextView
@@ -35,7 +37,7 @@ struct BitwardenTextView: View {
     var body: some View {
         contentView()
             .padding(.leading, 16)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .onTapGesture {
                 isFocused = true
@@ -72,7 +74,7 @@ struct BitwardenTextView: View {
             text: $text,
             calculatedHeight: $textViewHeight,
             isEditable: isEditable,
-            isFocused: $isFocused
+            isFocused: $isFocused,
         )
         .frame(minHeight: textViewHeight)
         .accessibilityLabel(title ?? "")
@@ -98,12 +100,12 @@ struct BitwardenTextView: View {
                 span
                 multiple
                 lines.
-                """
-            )
+                """,
+            ),
         )
     }
     .fixedSize(horizontal: false, vertical: true)
     .padding()
-    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

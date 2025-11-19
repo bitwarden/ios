@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExportVaultView
@@ -31,7 +33,7 @@ struct ExportVaultView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: ExportVaultAction.toastShown
+            send: ExportVaultAction.toastShown,
         ))
         .toolbar {
             cancelToolbarItem {
@@ -67,8 +69,8 @@ struct ExportVaultView: View {
             options: ExportFormatType.allCases,
             selection: store.binding(
                 get: \.fileFormat,
-                send: ExportVaultAction.fileFormatTypeChanged
-            )
+                send: ExportVaultAction.fileFormatTypeChanged,
+            ),
         )
     }
 
@@ -79,34 +81,34 @@ struct ExportVaultView: View {
                 title: Localizations.filePassword,
                 text: store.binding(
                     get: \.filePasswordText,
-                    send: ExportVaultAction.filePasswordTextChanged
+                    send: ExportVaultAction.filePasswordTextChanged,
                 ),
                 footer: Localizations.filePasswordDescription,
                 accessibilityIdentifier: "FilePasswordEntry",
                 passwordVisibilityAccessibilityId: "FilePasswordVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.isFilePasswordVisible,
-                    send: ExportVaultAction.toggleFilePasswordVisibility
-                )
+                    send: ExportVaultAction.toggleFilePasswordVisibility,
+                ),
             )
             .textFieldConfiguration(.password)
 
             PasswordStrengthIndicator(
-                passwordStrengthScore: store.state.filePasswordStrengthScore
+                passwordStrengthScore: store.state.filePasswordStrengthScore,
             )
 
             BitwardenTextField(
                 title: Localizations.confirmFilePassword,
                 text: store.binding(
                     get: \.filePasswordConfirmationText,
-                    send: ExportVaultAction.filePasswordConfirmationTextChanged
+                    send: ExportVaultAction.filePasswordConfirmationTextChanged,
                 ),
                 accessibilityIdentifier: "FilePasswordEntry",
                 passwordVisibilityAccessibilityId: "FilePasswordVisibilityToggle",
                 isPasswordVisible: store.binding(
                     get: \.isFilePasswordVisible,
-                    send: ExportVaultAction.toggleFilePasswordVisibility
-                )
+                    send: ExportVaultAction.toggleFilePasswordVisibility,
+                ),
             )
             .textFieldConfiguration(.password)
         }
@@ -118,7 +120,7 @@ struct ExportVaultView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(Localizations.sendVerificationCodeToEmail)
                     .styleGuide(.subheadline, weight: .semibold)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
 
                 AsyncButton(Localizations.sendCode) {
                     await store.perform(.sendCodeTapped)
@@ -133,15 +135,15 @@ struct ExportVaultView: View {
             title: store.state.masterPasswordOrOtpTitle,
             text: store.binding(
                 get: \.masterPasswordOrOtpText,
-                send: ExportVaultAction.masterPasswordOrOtpTextChanged
+                send: ExportVaultAction.masterPasswordOrOtpTextChanged,
             ),
             footer: store.state.masterPasswordOrOtpFooter,
             accessibilityIdentifier: "MasterPasswordEntry",
             passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
             isPasswordVisible: store.binding(
                 get: \.isMasterPasswordOrOtpVisible,
-                send: ExportVaultAction.toggleMasterPasswordOrOtpVisibility
-            )
+                send: ExportVaultAction.toggleMasterPasswordOrOtpVisibility,
+            ),
         )
         .textFieldConfiguration(.password)
     }
@@ -161,8 +163,8 @@ struct ExportVaultView: View {
     ExportVaultView(
         store: Store(
             processor: StateProcessor(
-                state: ExportVaultState(disableIndividualVaultExport: true)
-            )
-        )
+                state: ExportVaultState(disableIndividualVaultExport: true),
+            ),
+        ),
     )
 }

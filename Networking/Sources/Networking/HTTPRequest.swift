@@ -36,7 +36,7 @@ public struct HTTPRequest: Equatable, Sendable {
         method: HTTPMethod = .get,
         headers: [String: String] = [:],
         body: Data? = nil,
-        requestID: UUID = UUID()
+        requestID: UUID = UUID(),
     ) {
         self.body = body
         self.headers = headers
@@ -77,7 +77,7 @@ public extension HTTPRequest {
             url: url,
             method: request.method,
             headers: headers,
-            body: request.body?.encode()
+            body: request.body?.encode(),
         )
     }
 }

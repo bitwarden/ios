@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 /// An enum describing the type of data contained in a cipher.
 ///
 public enum CipherType: Int, Codable, Sendable {
@@ -49,13 +52,13 @@ extension CipherType: CaseIterable {
 }
 
 extension CipherType: Menuable {
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
-        case .card: return Localizations.typeCard
-        case .identity: return Localizations.typeIdentity
-        case .login: return Localizations.typeLogin
-        case .secureNote: return Localizations.typeSecureNote
-        case .sshKey: return Localizations.sshKey
+        case .card: Localizations.typeCard
+        case .identity: Localizations.typeIdentity
+        case .login: Localizations.typeLogin
+        case .secureNote: Localizations.typeSecureNote
+        case .sshKey: Localizations.sshKey
         }
     }
 }
@@ -68,9 +71,9 @@ extension CipherType {
     var allowedFieldTypes: [FieldType] {
         switch self {
         case .card, .identity, .login:
-            return [.text, .hidden, .boolean, .linked]
+            [.text, .hidden, .boolean, .linked]
         case .secureNote, .sshKey:
-            return [.text, .hidden, .boolean]
+            [.text, .hidden, .boolean]
         }
     }
 }

@@ -9,18 +9,17 @@ extension APITestData {
     static let nilResponse = APITestData(data: "".data(using: .utf8)!)
     static let identityTokenSuccess = loadFromJsonBundle(resource: "IdentityTokenSuccess")
     static let identityTokenWithMasterPasswordPolicy = loadFromJsonBundle(
-        resource: "IdentityTokenWithMasterPasswordPolicy"
+        resource: "IdentityTokenWithMasterPasswordPolicy",
     )
     static let identityTokenSuccessTwoFactorToken = loadFromJsonBundle(resource: "IdentityTokenSuccessTwoFactorToken")
-    static let identityTokenCaptchaError = loadFromJsonBundle(resource: "IdentityTokenCaptchaFailure")
     static let identityTokenKeyConnector = loadFromJsonBundle(resource: "IdentityTokenKeyConnector")
     static let identityTokenKeyConnectorMasterPassword = loadFromJsonBundle(
-        resource: "IdentityTokenKeyConnectorMasterPassword"
+        resource: "IdentityTokenKeyConnectorMasterPassword",
     )
     static let identityTokenNoMasterPassword = loadFromJsonBundle(resource: "IdentityTokenNoMasterPassword")
     static let identityTokenRefresh = loadFromJsonBundle(resource: "identityTokenRefresh")
     static let identityTokenRefreshInvalidGrantError = loadFromJsonBundle(
-        resource: "IdentityTokenRefreshInvalidGrantError"
+        resource: "IdentityTokenRefreshInvalidGrantError",
     )
     static let identityTokenRefreshStubError = loadFromJsonBundle(resource: "IdentityTokenRefreshStubError")
     static let identityTokenTrustedDevice = loadFromJsonBundle(resource: "IdentityTokenTrustedDevice")
@@ -28,6 +27,6 @@ extension APITestData {
     static let preValidateSingleSignOn = loadFromJsonBundle(resource: "preValidateSingleSignOn")
     static let identityTokenNewDeviceError = loadFromJsonBundle(resource: "IdentityTokenNewDeviceError")
     static let identityTokenEncryptionKeyMigrationError = loadFromJsonBundle(
-        resource: "IdentityTokenEncryptionKeyMigrationError"
+        resource: "IdentityTokenEncryptionKeyMigrationError",
     )
 }

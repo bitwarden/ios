@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -12,7 +13,7 @@ struct ItemListItemRowView: View {
     var store: Store<
         ItemListItemRowState,
         ItemListItemRowAction,
-        ItemListItemRowEffect
+        ItemListItemRowEffect,
     >
 
     /// The `TimeProvider` used to calculate TOTP expiration.
@@ -24,7 +25,7 @@ struct ItemListItemRowView: View {
                 decorativeImage(
                     store.state.item,
                     iconBaseURL: store.state.iconBaseURL,
-                    showWebIcons: store.state.showWebIcons
+                    showWebIcons: store.state.showWebIcons,
                 )
                 .frame(width: 22, height: 22)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
@@ -36,7 +37,7 @@ struct ItemListItemRowView: View {
                         totpCodeRow(
                             name: store.state.item.name,
                             accountName: store.state.item.accountName,
-                            model: totpCodeModel
+                            model: totpCodeModel,
                         )
                     } else {
                         EmptyView()
@@ -64,11 +65,11 @@ struct ItemListItemRowView: View {
     ///
     @ViewBuilder
     private func decorativeImage(_ item: ItemListItem, iconBaseURL: URL?, showWebIcons: Bool) -> some View {
-        placeholderDecorativeImage(Asset.Images.globe)
+        placeholderDecorativeImage(SharedAsset.Icons.globe24)
     }
 
     /// The placeholder image for the decorative image.
-    private func placeholderDecorativeImage(_ icon: ImageAsset) -> some View {
+    private func placeholderDecorativeImage(_ icon: SharedImageAsset) -> some View {
         Image(decorative: icon)
             .resizable()
             .scaledToFit()
@@ -104,7 +105,7 @@ struct ItemListItemRowView: View {
         TOTPCountdownTimerView(
             timeProvider: timeProvider,
             totpCode: model,
-            onExpiration: nil
+            onExpiration: nil,
         )
         Text(model.displayCode)
             .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
@@ -128,17 +129,17 @@ struct ItemListItemRowView: View {
                                 totpCode: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: Date(),
-                                    period: 30
-                                )
-                            )
-                        )
+                                    period: 30,
+                                ),
+                            ),
+                        ),
                     ),
                     hasDivider: true,
-                    showWebIcons: true
-                )
-            )
+                    showWebIcons: true,
+                ),
+            ),
         ),
-        timeProvider: PreviewTimeProvider()
+        timeProvider: PreviewTimeProvider(),
     )
 }
 
@@ -157,17 +158,17 @@ struct ItemListItemRowView: View {
                                 totpCode: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: Date(),
-                                    period: 30
-                                )
-                            )
-                        )
+                                    period: 30,
+                                ),
+                            ),
+                        ),
                     ),
                     hasDivider: true,
-                    showWebIcons: true
-                )
-            )
+                    showWebIcons: true,
+                ),
+            ),
         ),
-        timeProvider: PreviewTimeProvider()
+        timeProvider: PreviewTimeProvider(),
     )
 }
 
@@ -186,17 +187,17 @@ struct ItemListItemRowView: View {
                                 totpCode: TOTPCodeModel(
                                     code: "123456",
                                     codeGenerationDate: Date(),
-                                    period: 30
-                                )
-                            )
-                        )
+                                    period: 30,
+                                ),
+                            ),
+                        ),
                     ),
                     hasDivider: true,
-                    showWebIcons: true
-                )
-            )
+                    showWebIcons: true,
+                ),
+            ),
         ),
-        timeProvider: PreviewTimeProvider()
+        timeProvider: PreviewTimeProvider(),
     )
 }
 
@@ -211,16 +212,16 @@ struct ItemListItemRow_Previews: PreviewProvider {
                                 state: ItemListItemRowState(
                                     item: item,
                                     hasDivider: true,
-                                    showWebIcons: true
-                                )
-                            )
+                                    showWebIcons: true,
+                                ),
+                            ),
                         ),
-                        timeProvider: PreviewTimeProvider()
+                        timeProvider: PreviewTimeProvider(),
                     )
                 }
             }
         }.previewDisplayName(
-            "Digits without account"
+            "Digits without account",
         )
         NavigationView {
             VStack(spacing: 4) {
@@ -231,16 +232,16 @@ struct ItemListItemRow_Previews: PreviewProvider {
                                 state: ItemListItemRowState(
                                     item: item,
                                     hasDivider: true,
-                                    showWebIcons: true
-                                )
-                            )
+                                    showWebIcons: true,
+                                ),
+                            ),
                         ),
-                        timeProvider: PreviewTimeProvider()
+                        timeProvider: PreviewTimeProvider(),
                     )
                 }
             }
         }.previewDisplayName(
-            "Digits with account"
+            "Digits with account",
         )
     }
 }

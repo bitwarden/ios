@@ -12,7 +12,7 @@ extension BitwardenSdk.FieldView {
             name: customFieldState.name,
             value: customFieldState.value,
             type: BitwardenSdk.FieldType(fieldType: customFieldState.type),
-            linkedId: customFieldState.linkedIdType?.rawValue
+            linkedId: customFieldState.linkedIdType?.rawValue,
         )
     }
 }

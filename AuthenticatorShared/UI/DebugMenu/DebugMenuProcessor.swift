@@ -30,7 +30,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     init(
         coordinator: AnyCoordinator<DebugMenuRoute, Void>,
         services: Services,
-        state: DebugMenuState
+        state: DebugMenuState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -55,7 +55,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         case let .toggleFeatureFlag(flag, newValue):
             await services.configService.toggleDebugFeatureFlag(
                 name: flag,
-                newValue: newValue
+                newValue: newValue,
             )
             state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
         }

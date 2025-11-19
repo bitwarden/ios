@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 // MARK: - RegionType
 
@@ -7,18 +8,18 @@ extension RegionType {
     /// The name for this region, localized.
     var localizedName: String {
         switch self {
-        case .europe: return Localizations.eu
-        case .selfHosted: return Localizations.selfHosted
-        case .unitedStates: return Localizations.us
+        case .europe: Localizations.eu
+        case .selfHosted: Localizations.selfHosted
+        case .unitedStates: Localizations.us
         }
     }
 
     /// A description of the base url for this region.
     var baseURLDescription: String {
         switch self {
-        case .europe: return "bitwarden.eu"
-        case .selfHosted: return Localizations.selfHosted
-        case .unitedStates: return "bitwarden.com"
+        case .europe: "bitwarden.eu"
+        case .selfHosted: Localizations.selfHosted
+        case .unitedStates: "bitwarden.com"
         }
     }
 
@@ -26,20 +27,20 @@ extension RegionType {
     var defaultURLs: EnvironmentURLData? {
         switch self {
         case .europe:
-            return .defaultEU
+            .defaultEU
         case .unitedStates:
-            return .defaultUS
+            .defaultUS
         case .selfHosted:
-            return nil
+            nil
         }
     }
 
     /// The name to be used by the error reporter.
     var errorReporterName: String {
         switch self {
-        case .europe: return "EU"
-        case .selfHosted: return "Self-Hosted"
-        case .unitedStates: return "US"
+        case .europe: "EU"
+        case .selfHosted: "Self-Hosted"
+        case .unitedStates: "US"
         }
     }
 }

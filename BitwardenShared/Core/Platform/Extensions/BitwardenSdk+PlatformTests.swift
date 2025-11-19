@@ -8,11 +8,13 @@ import XCTest
 class BitwardenErrorTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `getter:errorUserInfo` gets the appropriate user info based on the message of the error `E`
+    /// `getter:errorUserInfo` gets the appropriate user info based on the message
+    /// of the internal `BitwardenSdk.BitwardenError`.
     func test_errorUserInfo() {
-        let expectedMessage = "expectedMessage"
-        let error = BitwardenSdk.BitwardenError.E(message: expectedMessage)
-        let userInfo = error.errorUserInfo
-        XCTAssertEqual(userInfo["Message"] as? String, expectedMessage)
+        let expectedMessage = "Crypto(BitwardenSdk.CryptoError.Fingerprint(message: \"internal error\"))"
+        let error = BitwardenSdk.BitwardenError.Crypto(CryptoError.Fingerprint(message: "internal error"))
+        let nsError = error as NSError
+        let userInfo = nsError.userInfo
+        XCTAssertEqual(userInfo["SpecificError"] as? String, expectedMessage)
     }
 }

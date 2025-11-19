@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -17,7 +18,6 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
-    var captchaService: MockCaptchaService!
     var configService: MockConfigService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
@@ -32,7 +32,6 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
-        captchaService = MockCaptchaService()
         configService = MockConfigService()
         client = MockHTTPClient()
         coordinator = MockCoordinator()
@@ -47,12 +46,11 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 appSettingsStore: appSettingsStore,
                 authRepository: authRepository,
                 authService: authService,
-                captchaService: captchaService,
                 configService: configService,
                 errorReporter: errorReporter,
-                httpClient: client
+                httpClient: client,
             ),
-            state: LoginState()
+            state: LoginState(),
         )
     }
 
@@ -62,7 +60,6 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         appSettingsStore = nil
         authRepository = nil
         authService = nil
-        captchaService = nil
         configService = nil
         client = nil
         coordinator = nil
@@ -71,38 +68,6 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     // MARK: Tests
-
-    /// `captchaCompleted()` makes the login requests again, this time with a captcha token.
-    @MainActor
-    func test_captchaCompleted() {
-        subject.state.masterPassword = "Test"
-        subject.captchaCompleted(token: "token")
-        authRepository.unlockWithPasswordResult = .success(())
-        authRepository.activeAccount = .fixture()
-        waitFor(!coordinator.events.isEmpty)
-
-        XCTAssertEqual(authService.loginWithMasterPasswordCaptchaToken, "token")
-
-        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
-    }
-
-    /// `captchaErrored(error:)` records an error.
-    @MainActor
-    func test_captchaErrored() {
-        subject.captchaErrored(error: BitwardenTestError.example)
-
-        waitFor(!coordinator.alertShown.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
-    @MainActor
-    func test_captchaErrored_cancelled() {
-        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
-        subject.captchaErrored(error: error)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-    }
 
     /// `perform(_:)` with `.appeared` and an error occurs does not update the login with button visibility.
     @MainActor
@@ -131,9 +96,9 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     featureStates: [:],
                     gitHash: "75238191",
                     server: .init(name: "Vaultwarden", url: "example.com"),
-                    version: "2024.4.0"
-                )
-            )
+                    version: "2024.4.0",
+                ),
+            ),
         )
         subject.state.isLoginWithDeviceVisible = false
         client.results = [
@@ -148,8 +113,8 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             coordinator.alertShown.last,
             .networkResponseError(
                 BitwardenTestError.example,
-                isOfficialBitwardenServer: false
-            )
+                isOfficialBitwardenServer: false,
+            ),
         )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
@@ -165,9 +130,9 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     featureStates: [:],
                     gitHash: "75238191",
                     server: .init(name: "Vaultwarden", url: "example.com"),
-                    version: "2024.4.0"
-                )
-            )
+                    version: "2024.4.0",
+                ),
+            ),
         )
         subject.state.isLoginWithDeviceVisible = false
 
@@ -176,15 +141,15 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             errorDescription: "an error occured",
             errorModel: .init(
                 message: "message",
-                object: "object"
-            )
+                object: "object",
+            ),
         )
 
         client.results = [
             .httpFailure(
                 ServerError.validationError(
-                    validationErrorResponse: validationResponse
-                )
+                    validationErrorResponse: validationResponse,
+                ),
             ),
         ]
 
@@ -197,12 +162,12 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             coordinator.alertShown.last,
             .networkResponseError(
                 ServerError.validationError(validationErrorResponse: validationResponse),
-                isOfficialBitwardenServer: false
-            )
+                isOfficialBitwardenServer: false,
+            ),
         )
         XCTAssertEqual(
             errorReporter.errors.last as? ServerError,
-            .validationError(validationErrorResponse: validationResponse)
+            .validationError(validationErrorResponse: validationResponse),
         )
     }
 
@@ -262,7 +227,6 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
         XCTAssertFalse(authService.loginWithMasterPasswordIsNewAccount)
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -287,7 +251,6 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
         XCTAssertTrue(authService.loginWithMasterPasswordIsNewAccount)
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -312,7 +275,6 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Password1234!")
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
 
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -321,80 +283,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authRepository.unlockVaultPassword, "Password1234!")
     }
 
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha error occurs navigates to the `.captcha`
-    /// route.
-    @MainActor
-    func test_perform_loginWithMasterPasswordPressed_captchaError() async {
-        subject.state.masterPassword = "Test"
-        authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
-        )
-
-        await subject.perform(.loginWithMasterPasswordPressed)
-
-        XCTAssertEqual(captchaService.callbackUrlSchemeGets, 1)
-        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
-
-        XCTAssertEqual(coordinator.routes.last, .captcha(url: .example, callbackUrlScheme: "callback"))
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
-    }
-
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha flow error records the error.
-    @MainActor
-    func test_perform_loginWithMasterPasswordPressed_captchaFlowError() async {
-        subject.state.masterPassword = "Test"
-        authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
-        )
-        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.loginWithMasterPasswordPressed)
-
-        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
-        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
-
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha flow error shows an unofficial server error.
-    @MainActor
-    func test_perform_loginWithMasterPasswordPressed_captchaFlowError_unofficialServer() async {
-        configService.configMocker.withResult(
-            ServerConfig(
-                date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-                responseModel: ConfigResponseModel(
-                    environment: nil,
-                    featureStates: [:],
-                    gitHash: "75238191",
-                    server: .init(name: "Vaultwarden", url: "example.com"),
-                    version: "2024.4.0"
-                )
-            )
-        )
-        subject.state.masterPassword = "Test"
-        authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
-        )
-        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.loginWithMasterPasswordPressed)
-
-        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
-        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
-
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .networkResponseError(
-                BitwardenTestError.example,
-                isOfficialBitwardenServer: false
-            )
-        )
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` records non captcha errors.
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` records errors.
     @MainActor
     func test_perform_loginWithMasterPasswordPressed_error() async throws {
         subject.state.masterPassword = "Test"
@@ -419,9 +308,9 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     featureStates: [:],
                     gitHash: "75238191",
                     server: .init(name: "Vaultwarden", url: "example.com"),
-                    version: "2024.4.0"
-                )
-            )
+                    version: "2024.4.0",
+                ),
+            ),
         )
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
@@ -433,8 +322,8 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             coordinator.alertShown.last,
             .networkResponseError(
                 BitwardenTestError.example,
-                isOfficialBitwardenServer: false
-            )
+                isOfficialBitwardenServer: false,
+            ),
         )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
@@ -451,7 +340,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
         XCTAssertEqual(
             coordinator.alertShown.last,
-            .encryptionKeyMigrationRequiredAlert(environmentUrl: "bitwarden.com")
+            .encryptionKeyMigrationRequiredAlert(environmentUrl: "bitwarden.com"),
         )
     }
 
@@ -462,8 +351,8 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             coordinator.alertShown.last,
             .inputValidationAlert(error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.masterPassword)
-            ))
+                message: Localizations.validationFieldRequired(Localizations.masterPassword),
+            )),
         )
     }
 
@@ -474,7 +363,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.state.masterPassword = "Test"
         subject.state.username = "test@bitwarden.com"
         authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.newDeviceNotVerified
+            IdentityTokenRequestError.newDeviceNotVerified,
         )
 
         await subject.perform(.loginWithMasterPasswordPressed)
@@ -484,7 +373,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .password("Test"),
             AuthMethodsData(email: Email(email: "test@bitwarden.com")),
             nil,
-            true
+            true,
         ))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
@@ -496,7 +385,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil),
         )
 
         await subject.perform(.loginWithMasterPasswordPressed)
@@ -530,7 +419,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(coordinator.routes.last, .loginWithDevice(
             email: "example@email.com",
             authRequestType: AuthRequestType.authenticateAndUnlock,
-            isAuthenticated: false
+            isAuthenticated: false,
         ))
     }
 

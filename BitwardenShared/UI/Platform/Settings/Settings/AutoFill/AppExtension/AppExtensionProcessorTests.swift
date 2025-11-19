@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
@@ -18,7 +19,7 @@ class AppExtensionProcessorTests: BitwardenTestCase {
 
         subject = AppExtensionProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            state: AppExtensionState()
+            state: AppExtensionState(),
         )
     }
 

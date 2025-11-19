@@ -4,6 +4,7 @@ import Foundation
 
 extension CipherDetailsResponseModel {
     static func fixture(
+        archivedDate: Date? = nil,
         attachments: [AttachmentResponseModel]? = nil,
         card: CipherCardModel? = nil,
         collectionIds: [String] = [],
@@ -28,9 +29,10 @@ extension CipherDetailsResponseModel {
         secureNote: CipherSecureNoteModel? = nil,
         sshKey: CipherSSHKeyModel? = nil,
         type: CipherType = .login,
-        viewPassword: Bool = false
+        viewPassword: Bool = false,
     ) -> CipherDetailsResponseModel {
         self.init(
+            archivedDate: archivedDate,
             attachments: attachments,
             card: card,
             collectionIds: collectionIds,
@@ -55,7 +57,7 @@ extension CipherDetailsResponseModel {
             secureNote: secureNote,
             sshKey: sshKey,
             type: type,
-            viewPassword: viewPassword
+            viewPassword: viewPassword,
         )
     }
 }

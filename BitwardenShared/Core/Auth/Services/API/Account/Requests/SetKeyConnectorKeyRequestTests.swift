@@ -12,10 +12,10 @@ class SetKeyConnectorKeyRequestTests: BitwardenTestCase {
             key: "key",
             keys: KeysRequestModel(
                 encryptedPrivateKey: "encrypted-private-key",
-                publicKey: "public-key"
+                publicKey: "public-key",
             ),
-            orgIdentifier: "org-id"
-        )
+            orgIdentifier: "org-id",
+        ),
     )
 
     // MARK: Tests
@@ -36,7 +36,7 @@ class SetKeyConnectorKeyRequestTests: BitwardenTestCase {
               },
               "orgIdentifier" : "org-id"
             }
-            """
+            """,
         )
     }
 

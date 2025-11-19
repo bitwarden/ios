@@ -49,9 +49,9 @@ class SyncServiceTests: BitwardenTestCase {
                 Date(
                     year: 2024,
                     month: 2,
-                    day: 14
-                )
-            )
+                    day: 14,
+                ),
+            ),
         )
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -69,7 +69,7 @@ class SyncServiceTests: BitwardenTestCase {
             stateService: stateService,
             syncAPIService: APIService(client: client),
             timeProvider: timeProvider,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
         subject.delegate = syncServiceDelegate
     }
@@ -128,9 +128,9 @@ class SyncServiceTests: BitwardenTestCase {
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: false,
                     keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: ""),
-                    trustedDeviceOption: nil
-                )
-            )
+                    trustedDeviceOption: nil,
+                ),
+            ),
         )
 
         try await subject.fetchSync(forceSync: false)
@@ -194,7 +194,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
-            timeProvider.presentTime
+            timeProvider.presentTime,
         )
     }
 
@@ -220,7 +220,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
-            priorSyncDate
+            priorSyncDate,
         )
     }
 
@@ -239,11 +239,11 @@ class SyncServiceTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
-            timeProvider.presentTime
+            timeProvider.presentTime,
         )
     }
 
-    /// `fetchSync()` syncs if the last sync time is greater than 30 minutes ago and the account has
+    /// `fetchSync()` syncs if the last sync time is greater than 30 minutes ago, is periodic and the account has
     /// newer revisions.
     func test_fetchSync_needsSync_lastSyncTime_older30MinsWithRevisions() async throws {
         client.results = [
@@ -253,33 +253,33 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 1))
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
-            lastSync
+            lastSync,
         )
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertNotNil(cipherService.replaceCiphersCiphers)
 
         try XCTAssertEqual(
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
-            timeProvider.presentTime
+            timeProvider.presentTime,
         )
     }
 
-    /// `fetchSync()` doesn't sync if the last sync time is greater than 30 minutes but fetching
+    /// `fetchSync()` doesn't sync if the last sync time is greater than 30 minutes, is periodic but fetching
     /// the account revision date fails.
     func test_fetchSync_needsSync_lastSyncTime_older30Mins_revisionsError() async throws {
         let lastSyncTime = try XCTUnwrap(
-            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 1))
+            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 1)),
         )
         client.result = .httpFailure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
         stateService.lastSyncTimeByUserId["1"] = lastSyncTime
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(cipherService.replaceCiphersCiphers)
@@ -287,7 +287,7 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(stateService.lastSyncTimeByUserId["1"], lastSyncTime)
     }
 
-    /// `fetchSync()` doesn't syncs if the last sync time is greater than 30 minutes ago but the
+    /// `fetchSync()` doesn't syncs if the last sync time is greater than 30 minutes ago, is periodic but the
     /// account doesn't have newer revisions.
     func test_fetchSync_needsSync_lastSyncTime_older30MinsWithoutRevisions() async throws {
         let lastRevision = try XCTUnwrap(timeProvider.presentTime.addingTimeInterval(-24 * 60 * 60))
@@ -298,34 +298,59 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 60))
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
-            lastSync
+            lastSync,
         )
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(cipherService.replaceCiphersCiphers)
 
         try XCTAssertEqual(
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
-            timeProvider.presentTime
+            timeProvider.presentTime,
         )
     }
 
-    /// `fetchSync()` doesn't sync if the last sync time is within the last 30 minutes.
+    /// `fetchSync()` doesn't sync if the last sync time is within the last 30 minutes and is periodic.
     func test_fetchSync_needsSync_lastSyncTime_newer30Mins() async throws {
         client.result = .httpSuccess(testData: .syncWithCipher)
         stateService.activeAccount = .fixture()
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
-            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1))
+            timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1)),
         )
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
-        try await subject.fetchSync(forceSync: false)
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertTrue(client.requests.isEmpty)
         XCTAssertNil(cipherService.replaceCiphersCiphers)
+    }
+
+    /// `fetchSync()` syncs if the last sync time is not greater than 30 minutes ago, is not periodic
+    /// and the account has newer revisions.
+    func test_fetchSync_notPeriodicNotOlder30MinsWithRevisions() async throws {
+        client.results = [
+            .httpSuccess(testData: .accountRevisionDate(timeProvider.presentTime)),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+        stateService.activeAccount = .fixture()
+        let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1))
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            lastSync,
+        )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: false)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
+            timeProvider.presentTime,
+        )
     }
 
     /// `fetchSync()` syncs if there's no existing last sync time.
@@ -369,7 +394,7 @@ class SyncServiceTests: BitwardenTestCase {
                                 rpName: "encrypted rpName",
                                 userDisplayName: "encrypted userDisplayName",
                                 userHandle: "encrypted userHandle",
-                                userName: "encrypted userName"
+                                userName: "encrypted userName",
                             ),
                         ],
                         password: "encrypted password",
@@ -378,17 +403,17 @@ class SyncServiceTests: BitwardenTestCase {
                             CipherLoginUriModel(
                                 match: nil,
                                 uri: "encrypted uri",
-                                uriChecksum: "encrypted uri checksum"
+                                uriChecksum: "encrypted uri checksum",
                             ),
                         ],
-                        username: "encrypted username"
+                        username: "encrypted username",
                     ),
                     name: "encrypted name",
                     revisionDate: date,
                     type: .login,
-                    viewPassword: true
+                    viewPassword: true,
                 ),
-            ]
+            ],
         )
         XCTAssertEqual(cipherService.replaceCiphersUserId, "1")
     }
@@ -406,21 +431,78 @@ class SyncServiceTests: BitwardenTestCase {
                 CollectionDetailsResponseModel.fixture(
                     id: "f96de98e-618a-4886-b396-66b92a385325",
                     name: "Engineering",
-                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
                 ),
                 CollectionDetailsResponseModel.fixture(
                     id: "1a102336-fbfd-4d63-bd7b-8a953a1bcdb3",
                     name: "Engineering/Apple",
-                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
                 ),
                 CollectionDetailsResponseModel.fixture(
                     id: "a468e453-7141-49cf-bb15-58448c2b27b9",
                     name: "Design",
-                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf"
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
                 ),
-            ]
+                CollectionDetailsResponseModel.fixture(
+                    id: "bf4df591-e8e4-4dc1-837c-40ced4405bf5",
+                    name: "Design",
+                    organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+                    defaultUserCollectionEmail: nil,
+                    type: CollectionType.sharedCollection,
+                ),
+            ],
         )
         XCTAssertEqual(collectionService.replaceCollectionsUserId, "1")
+    }
+
+    /// `fetchSync()` check if absent optional properties are initialized correctly.
+    func test_fetcSync_collections_optionalPropertiesAbsent() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        let parsedCollection = try XCTUnwrap(
+            collectionService.replaceCollectionsCollections?.first(
+                where: { $0.id == "a468e453-7141-49cf-bb15-58448c2b27b9" },
+            ),
+        )
+
+        XCTAssertEqual(
+            parsedCollection,
+            CollectionDetailsResponseModel.fixture(
+                id: "a468e453-7141-49cf-bb15-58448c2b27b9",
+                name: "Design",
+                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+                defaultUserCollectionEmail: nil,
+                type: CollectionType.sharedCollection,
+            ),
+        )
+    }
+
+    /// `fetchSync()` check if optional properties are initialized correctly.
+    func test_fetcSync_collections_optionalPropertiesPresent() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphersCollections)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        let parsedCollection = try XCTUnwrap(
+            collectionService.replaceCollectionsCollections?.first(
+                where: { $0.id == "bf4df591-e8e4-4dc1-837c-40ced4405bf5" },
+            ),
+        )
+
+        XCTAssertEqual(
+            parsedCollection,
+            CollectionDetailsResponseModel.fixture(
+                id: "bf4df591-e8e4-4dc1-837c-40ced4405bf5",
+                name: "Design",
+                organizationId: "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+                defaultUserCollectionEmail: nil,
+                type: CollectionType.sharedCollection,
+            ),
+        )
     }
 
     /// `fetchSync()` updates the user's profile.
@@ -439,11 +521,41 @@ class SyncServiceTests: BitwardenTestCase {
                 key: "key",
                 organizations: [],
                 privateKey: "private key",
-                securityStamp: "stamp"
-            )
+                securityStamp: "stamp",
+            ),
         )
         XCTAssertEqual(stateService.updateProfileUserId, "1")
         XCTAssertEqual(stateService.usesKeyConnector["1"], false)
+        XCTAssertNil(stateService.accountEncryptionKeys["1"]?.accountKeys)
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedPrivateKey, "private key")
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "key")
+    }
+
+    /// `fetchSync()` updates the user's profile when it has account keys.
+    func test_fetchSync_profileWithAccountKeys() async throws {
+        client.result = .httpSuccess(testData: .syncWithAccountKeysV2Profile)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(
+            stateService.updateProfileResponse,
+            .fixture(
+                accountKeys: .fixtureFilled(),
+                culture: "en-US",
+                email: "user@bitwarden.com",
+                id: "c8aa1e36-4427-11ee-be56-0242ac120002",
+                key: "key",
+                organizations: [],
+                privateKey: "private key",
+                securityStamp: "stamp",
+            ),
+        )
+        XCTAssertEqual(stateService.updateProfileUserId, "1")
+        XCTAssertEqual(stateService.usesKeyConnector["1"], false)
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.accountKeys, .fixtureFilled())
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedPrivateKey, "WRAPPED_PRIVATE_KEY")
+        XCTAssertEqual(stateService.accountEncryptionKeys["1"]?.encryptedUserKey, "key")
     }
 
     /// `fetchSync()` notifies the sync service delegate if the user needs to be migrated to Key
@@ -519,9 +631,9 @@ class SyncServiceTests: BitwardenTestCase {
                     revisionDate: Date(timeIntervalSince1970: 1_690_925_611.636),
                     text: SendTextModel(
                         hidden: false,
-                        text: "encrypted text"
+                        text: "encrypted text",
                     ),
-                    type: .text
+                    type: .text,
                 ),
                 SendResponseModel.fixture(
                     accessId: "access id",
@@ -530,15 +642,15 @@ class SyncServiceTests: BitwardenTestCase {
                         fileName: "test.txt",
                         id: "1",
                         size: "123",
-                        sizeName: "123 KB"
+                        sizeName: "123 KB",
                     ),
                     id: "d7a7e48c-443f-11ee-be56-0242ac120002",
                     key: "encrypted key",
                     name: "encrypted name",
                     revisionDate: Date(timeIntervalSince1970: 1_691_625_600),
-                    type: .file
+                    type: .file,
                 ),
-            ]
+            ],
         )
         XCTAssertEqual(sendService.replaceSendsUserId, "1")
     }
@@ -556,8 +668,8 @@ class SyncServiceTests: BitwardenTestCase {
                 equivalentDomains: [["example.com", "test.com"]],
                 globalEquivalentDomains: [
                     GlobalDomains(domains: ["apple.com", "icloud.com"], excluded: false, type: 1),
-                ]
-            )
+                ],
+            ),
         )
     }
 
@@ -574,9 +686,9 @@ class SyncServiceTests: BitwardenTestCase {
                 FolderResponseModel(
                     id: "3270afb7-e3d7-495a-8867-c66cf272f795",
                     name: "Social",
-                    revisionDate: Date(year: 2023, month: 10, day: 9, hour: 3, minute: 44, second: 59)
+                    revisionDate: Date(year: 2023, month: 10, day: 9, hour: 3, minute: 44, second: 59),
                 ),
-            ]
+            ],
         )
         XCTAssertEqual(folderService.replaceFoldersUserId, "1")
     }
@@ -622,7 +734,7 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(policyService.replacePoliciesPolicies.count, 4)
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[0],
-            .fixture(enabled: false, id: "policy-0", organizationId: "org-1", type: .twoFactorAuthentication)
+            .fixture(enabled: false, id: "policy-0", organizationId: "org-1", type: .twoFactorAuthentication),
         )
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[1],
@@ -639,12 +751,12 @@ class SyncServiceTests: BitwardenTestCase {
                 enabled: true,
                 id: "policy-1",
                 organizationId: "org-1",
-                type: .masterPassword
-            )
+                type: .masterPassword,
+            ),
         )
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[2],
-            .fixture(enabled: false, id: "policy-3", organizationId: "org-1", type: .onlyOrg)
+            .fixture(enabled: false, id: "policy-3", organizationId: "org-1", type: .onlyOrg),
         )
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[3],
@@ -653,10 +765,27 @@ class SyncServiceTests: BitwardenTestCase {
                 enabled: true,
                 id: "policy-8",
                 organizationId: "org-1",
-                type: .resetPassword
-            )
+                type: .resetPassword,
+            ),
         )
         XCTAssertEqual(policyService.replacePoliciesUserId, "1")
+    }
+
+    /// `fetchSync()` updates the user's master password unlock decryption options.
+    func test_fetchSync_userDecryptionOptions() async throws {
+        client.result = .httpSuccess(testData: .syncWithUserDecryption)
+        stateService.activeAccount = .fixture()
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(
+            stateService.masterPasswordUnlockByUserId["1"],
+            MasterPasswordUnlockResponseModel(
+                kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+                masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                salt: "user@bitwarden.com",
+            ),
+        )
     }
 
     /// `fetchSync()` throws an error if the request fails.
@@ -679,7 +808,7 @@ class SyncServiceTests: BitwardenTestCase {
             id: "id",
             organizationId: nil,
             revisionDate: nil,
-            userId: "1"
+            userId: "1",
         )
         try await subject.deleteCipher(data: notification)
         XCTAssertEqual(cipherService.deleteCipherWithLocalStorageId, "id")
@@ -697,13 +826,13 @@ class SyncServiceTests: BitwardenTestCase {
         let notification = SyncFolderNotification(
             id: "id",
             revisionDate: nil,
-            userId: "1"
+            userId: "1",
         )
         try await subject.deleteFolder(data: notification)
         XCTAssertEqual(folderService.deleteFolderWithLocalStorageId, "id")
         XCTAssertEqual(
             cipherService.updateCipherWithLocalStorageCiphers,
-            [.fixture(folderId: nil, id: "1")]
+            [.fixture(folderId: nil, id: "1")],
         )
     }
 
@@ -714,7 +843,7 @@ class SyncServiceTests: BitwardenTestCase {
         let notification = SyncSendNotification(
             id: "id",
             revisionDate: nil,
-            userId: "1"
+            userId: "1",
         )
         try await subject.deleteSend(data: notification)
         XCTAssertEqual(sendService.deleteSendWithLocalStorageId, "id")
@@ -729,7 +858,7 @@ class SyncServiceTests: BitwardenTestCase {
             id: "id",
             organizationId: nil,
             revisionDate: nil,
-            userId: "1"
+            userId: "1",
         )
         try await subject.fetchUpsertSyncCipher(data: notification)
         XCTAssertEqual(cipherService.syncCipherWithServerId, "id")
@@ -742,7 +871,7 @@ class SyncServiceTests: BitwardenTestCase {
         let notification = SyncFolderNotification(
             id: "id",
             revisionDate: nil,
-            userId: "1"
+            userId: "1",
         )
         try await subject.fetchUpsertSyncFolder(data: notification)
         XCTAssertEqual(folderService.syncFolderWithServerId, "id")
@@ -755,7 +884,7 @@ class SyncServiceTests: BitwardenTestCase {
         let notification = SyncSendNotification(
             id: "id",
             revisionDate: nil,
-            userId: "1"
+            userId: "1",
         )
         try await subject.fetchUpsertSyncSend(data: notification)
         XCTAssertEqual(sendService.syncSendWithServerId, "id")
@@ -767,7 +896,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 1))
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
-            lastSync
+            lastSync,
         )
         let needsSync = try await subject.needsSync(for: "1", onlyCheckLocalData: true)
         XCTAssertTrue(needsSync)

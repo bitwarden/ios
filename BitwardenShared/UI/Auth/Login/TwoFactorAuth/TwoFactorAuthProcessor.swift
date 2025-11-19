@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKit
+import BitwardenResources
 import CryptoKit
 import Foundation
 
@@ -19,7 +20,6 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
 
     typealias Services = HasAuthRepository
         & HasAuthService
-        & HasCaptchaService
         & HasEnvironmentService
         & HasErrorReporter
         & HasNFCReaderService
@@ -44,7 +44,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: TwoFactorAuthState
+        state: TwoFactorAuthState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -116,27 +116,6 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         }
     }
 
-    /// Generates the items needed and authenticates with the captcha flow.
-    ///
-    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
-    ///   with hCaptcha.
-    ///
-    private func launchCaptchaFlow(with siteKey: String) async {
-        do {
-            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
-            coordinator.navigate(
-                to: .captcha(
-                    url: url,
-                    callbackUrlScheme: services.captchaService.callbackUrlScheme
-                ),
-                context: self
-            )
-        } catch {
-            await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
-        }
-    }
-
     /// Listens for a Yubikey NFC tag.
     private func listenForNFC() async {
         do {
@@ -154,7 +133,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     }
 
     /// Attempt to login.
-    private func login(captchaToken: String? = nil) async {
+    private func login() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -175,22 +154,17 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 code: code,
                 method: state.authMethod,
                 remember: state.isRememberMeOn,
-                captchaToken: captchaToken
             )
 
             try await tryToUnlockVault(unlockMethod)
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
-        } catch let IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode) {
-            await launchCaptchaFlow(with: hCaptchaSiteCode)
         } catch IdentityTokenRequestError.newDeviceNotVerified {
             coordinator.showAlert(.defaultAlert(title: Localizations.invalidVerificationCode))
         } catch let authError as AuthError {
             if authError == .requireSetPassword,
                let orgId = state.orgIdentifier {
                 coordinator.navigate(to: .setMasterPassword(organizationIdentifier: orgId))
-            } else if authError == .requireUpdatePassword {
-                coordinator.navigate(to: .updateMasterPassword)
             } else if authError == .requireDecryptionOptions,
                       let orgId = state.orgIdentifier {
                 coordinator.navigate(to: .showLoginDecryptionOptions(organizationIdentifier: orgId))
@@ -221,7 +195,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.verificationEmailNotSent
+                message: Localizations.verificationEmailNotSent,
             ))
             services.errorReporter.log(error: error)
         }
@@ -267,8 +241,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                         account,
                         animated: false,
                         attemptAutomaticBiometricUnlock: true,
-                        didSwitchAccountAutomatically: false
-                    )
+                        didSwitchAccountAutomatically: false,
+                    ),
                 )
                 coordinator.navigate(to: .dismiss)
             case let .keyConnector(keyConnectorUrl):
@@ -277,7 +251,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 }
                 try await services.authRepository.unlockVaultWithKeyConnectorKey(
                     keyConnectorURL: keyConnectorUrl,
-                    orgIdentifier: orgIdentifier
+                    orgIdentifier: orgIdentifier,
                 )
                 await coordinator.handleEvent(.didCompleteAuth)
             }
@@ -296,31 +270,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             try await services.authRepository.unlockVaultFromLoginWithDevice(
                 privateKey: privateKey,
                 key: key,
-                masterPasswordHash: masterPasswordHash
+                masterPasswordHash: masterPasswordHash,
             )
-        }
-    }
-}
-
-// MARK: CaptchaFlowDelegate
-
-extension TwoFactorAuthProcessor: CaptchaFlowDelegate {
-    func captchaCompleted(token: String) {
-        Task {
-            await login(captchaToken: token)
-        }
-    }
-
-    func captchaErrored(error: Error) {
-        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
-
-        services.errorReporter.log(error: error)
-
-        // Show the alert after a delay to ensure it doesn't try to display over the
-        // closing captcha view.
-        Task { @MainActor in
-            try await Task.sleep(forSeconds: UI.duration(0.6))
-            await coordinator.showErrorAlert(error: error)
         }
     }
 }
@@ -381,14 +332,14 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
               let authURL = URL(string: authURLValue) else {
             state.toast = Toast(
                 // swiftlint:disable:next line_length
-                title: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance
+                title: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance,
             )
             return
         }
 
         coordinator.navigate(
             to: .duoAuthenticationFlow(authURL),
-            context: self
+            context: self,
         )
     }
 
@@ -489,10 +440,10 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                                 data: webAuthnProvider,
                                 headerText: Localizations.fido2Title,
                                 buttonText: Localizations.fido2AuthenticateWebAuthn,
-                                returnButtonText: Localizations.fido2ReturnToApp
-                            )
+                                returnButtonText: Localizations.fido2ReturnToApp,
+                            ),
                         ),
-                        context: self
+                        context: self,
                     )
                 } else {
                     try coordinator.navigate(
@@ -507,7 +458,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                                           return idData
                                       },
                                       userVerificationPreference: userVerificationPreference),
-                        context: self
+                        context: self,
                     )
                 }
             } else {
@@ -516,7 +467,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         } catch {
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.thereWasAnErrorStartingWebAuthnTwoFactorAuthentication
+                message: Localizations.thereWasAnErrorStartingWebAuthnTwoFactorAuthentication,
             ))
             services.errorReporter.log(error: error)
         }
@@ -529,7 +480,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         data: WebAuthn,
         headerText: String,
         buttonText: String,
-        returnButtonText: String
+        returnButtonText: String,
     ) throws -> URL {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys // for consistency
@@ -540,7 +491,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
             btnText: buttonText,
             callbackUri: URL(string: callbackUrlString)!,
             data: String(data: encoder.encode(data), encoding: .utf8)!,
-            headerText: headerText
+            headerText: headerText,
         )
         let jsonData = try encoder.encode(connectorData)
         let base64string = jsonData.base64EncodedString()

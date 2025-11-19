@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -11,6 +12,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var exportService: MockExportVaultService!
     var policyService: MockPolicyService!
     var subject: ExportVaultProcessor!
@@ -23,18 +25,20 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         exportService = MockExportVaultService()
         policyService = MockPolicyService()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
             errorReporter: errorReporter,
+            eventService: eventService,
             exportVaultService: exportService,
-            policyService: policyService
+            policyService: policyService,
         )
 
         subject = ExportVaultProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: services
+            services: services,
         )
     }
 
@@ -44,6 +48,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository = nil
         coordinator = nil
         errorReporter = nil
+        eventService = nil
         exportService = nil
         policyService = nil
         subject = nil
@@ -145,6 +150,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertEqual(exportService.exportVaultContentsFormat, .encryptedJson(password: "file password"))
         XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
+        XCTAssertEqual(eventService.collectEventType, .userClientExportedVault)
     }
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
@@ -190,9 +196,9 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             coordinator.alertShown.last,
             .inputValidationAlert(
                 error: InputValidationError(
-                    message: Localizations.validationFieldRequired(Localizations.filePassword)
-                )
-            )
+                    message: Localizations.validationFieldRequired(Localizations.filePassword),
+                ),
+            ),
         )
     }
 
@@ -208,9 +214,9 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             coordinator.alertShown.last,
             .inputValidationAlert(
                 error: InputValidationError(
-                    message: Localizations.validationFieldRequired(Localizations.confirmFilePassword)
-                )
-            )
+                    message: Localizations.validationFieldRequired(Localizations.confirmFilePassword),
+                ),
+            ),
         )
     }
 
@@ -223,9 +229,9 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             coordinator.alertShown.last,
             .inputValidationAlert(
                 error: InputValidationError(
-                    message: Localizations.validationFieldRequired(Localizations.masterPassword)
-                )
-            )
+                    message: Localizations.validationFieldRequired(Localizations.masterPassword),
+                ),
+            ),
         )
     }
 
@@ -272,6 +278,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         try await confirmationAlert.tapAction(title: Localizations.exportVault)
 
         XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
+        XCTAssertEqual(eventService.collectEventType, .userClientExportedVault)
     }
 
     /// `.receive()` with  `.exportVaultTapped` clears the user's master password after exporting
@@ -296,6 +303,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertTrue(subject.state.filePasswordConfirmationText.isEmpty)
         XCTAssertNil(subject.state.filePasswordStrengthScore)
         XCTAssertTrue(subject.state.masterPasswordOrOtpText.isEmpty)
+        XCTAssertEqual(eventService.collectEventType, .userClientExportedVault)
     }
 
     /// `receive()` with `.exportVaultTapped` verifies the user's OTP code and exports the vault if
@@ -323,8 +331,8 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_receive_exportVaultTapped_noMasterPassword_otpVerificationFailure() async throws {
         authRepository.verifyOtpResult = .failure(
             ServerError.error(
-                errorResponse: ErrorResponseModel(validationErrors: nil, message: "")
-            )
+                errorResponse: ErrorResponseModel(validationErrors: nil, message: ""),
+            ),
         )
         subject.state.hasMasterPassword = false
         subject.state.masterPasswordOrOtpText = "otp"

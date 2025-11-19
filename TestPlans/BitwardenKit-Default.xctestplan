@@ -1,0 +1,66 @@
+{
+  "configurations" : [
+    {
+      "id" : "C6E9A4F7-3D8B-4C5E-9A2F-7B6D5E4C3A2B",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testExecutionOrdering" : "random",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "9F7BDC2FAE9BA6BFD0EBF905",
+        "name" : "NetworkingTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "11D20029373CEF56CBBCF0AA",
+        "name" : "AuthenticatorBridgeKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "192455E6FB7EBDE8BAB85489",
+        "name" : "BitwardenKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "0F0F8167EDD3A9370CA429CE",
+        "name" : "BitwardenKitSnapshotTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "27C53FBF98252CF56973FD34",
+        "name" : "BitwardenKitViewInspectorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

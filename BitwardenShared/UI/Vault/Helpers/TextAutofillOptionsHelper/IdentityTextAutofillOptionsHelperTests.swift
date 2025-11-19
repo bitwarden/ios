@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
@@ -37,9 +38,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -58,7 +59,7 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
     func test_getTextAutofillOptions_emptyNotIdentity() async {
         let cipher = CipherView.fixture(
             identity: nil,
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         XCTAssertTrue(options.isEmpty)
@@ -74,9 +75,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -100,9 +101,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -126,9 +127,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -152,9 +153,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -178,9 +179,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: nil,
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -204,9 +205,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -230,9 +231,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: nil
+                passportNumber: nil,
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -256,9 +257,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: ""
+                passportNumber: "",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -282,9 +283,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: nil,
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -308,9 +309,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "",
                 phone: "123456789",
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -334,9 +335,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: nil,
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -360,9 +361,9 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
                 email: "email@example.com",
                 phone: nil,
                 ssn: "SSN",
-                passportNumber: "Passport"
+                passportNumber: "Passport",
             ),
-            type: .identity
+            type: .identity,
         )
         let options = await subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)

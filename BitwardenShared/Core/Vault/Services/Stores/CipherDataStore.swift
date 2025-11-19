@@ -110,7 +110,7 @@ extension DataStore: CipherDataStore {
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CipherData.id, ascending: true)]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.map(Cipher.init) }
         .eraseToAnyPublisher()
@@ -121,7 +121,7 @@ extension DataStore: CipherDataStore {
         let insertRequest = try CipherData.batchInsertRequest(objects: ciphers, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 

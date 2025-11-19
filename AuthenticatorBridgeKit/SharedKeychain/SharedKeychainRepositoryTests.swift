@@ -17,7 +17,7 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
     override func setUp() {
         storage = MockSharedKeychainStorage()
         subject = DefaultSharedKeychainRepository(
-            storage: storage
+            storage: storage,
         )
     }
 

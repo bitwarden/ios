@@ -9,15 +9,15 @@ class PolicyTypeTests: BitwardenTestCase {
     func test_init_decoder() {
         XCTAssertEqual(
             try JSONDecoder().decode(PolicyType.self, from: #"0"#.data(using: .utf8)!),
-            PolicyType.twoFactorAuthentication
+            PolicyType.twoFactorAuthentication,
         )
         XCTAssertEqual(
             try JSONDecoder().decode(PolicyType.self, from: #"1"#.data(using: .utf8)!),
-            PolicyType.masterPassword
+            PolicyType.masterPassword,
         )
         XCTAssertEqual(
             try JSONDecoder().decode(PolicyType.self, from: #"10"#.data(using: .utf8)!),
-            PolicyType.disablePersonalVaultExport
+            PolicyType.disablePersonalVaultExport,
         )
     }
 
@@ -25,11 +25,11 @@ class PolicyTypeTests: BitwardenTestCase {
     func test_init_decoder_invalidValue() {
         XCTAssertEqual(
             try JSONDecoder().decode(PolicyType.self, from: #"-1"#.data(using: .utf8)!),
-            PolicyType.unknown
+            PolicyType.unknown,
         )
         XCTAssertEqual(
             try JSONDecoder().decode(PolicyType.self, from: #"9999"#.data(using: .utf8)!),
-            PolicyType.unknown
+            PolicyType.unknown,
         )
     }
 }

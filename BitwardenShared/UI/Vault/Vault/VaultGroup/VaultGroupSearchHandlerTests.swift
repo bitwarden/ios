@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -16,11 +18,11 @@ final class VaultGroupSearchHandlerTests: BitwardenTestCase {
         processor = MockProcessor(
             state: VaultGroupState(
                 searchVaultFilterType: .allVaults,
-                vaultFilterType: .allVaults
-            )
+                vaultFilterType: .allVaults,
+            ),
         )
         subject = VaultGroupSearchHandler(
-            store: Store(processor: processor)
+            store: Store(processor: processor),
         )
     }
 
@@ -41,8 +43,8 @@ final class VaultGroupSearchHandlerTests: BitwardenTestCase {
         subject.updateSearchResults(for: searchController)
         XCTAssertTrue(
             processor.dispatchedActions.contains(
-                .searchTextChanged("The Answer")
-            )
+                .searchTextChanged("The Answer"),
+            ),
         )
     }
 
@@ -56,8 +58,8 @@ final class VaultGroupSearchHandlerTests: BitwardenTestCase {
         subject.updateSearchResults(for: searchController)
         XCTAssertTrue(
             processor.dispatchedActions.contains(
-                .searchTextChanged("")
-            )
+                .searchTextChanged(""),
+            ),
         )
     }
 
@@ -71,8 +73,8 @@ final class VaultGroupSearchHandlerTests: BitwardenTestCase {
         subject.updateSearchResults(for: searchController)
         XCTAssertTrue(
             processor.dispatchedActions.contains(
-                .searchTextChanged("")
-            )
+                .searchTextChanged(""),
+            ),
         )
     }
 }

@@ -15,9 +15,9 @@ enum LoadingState<T: Equatable>: Equatable {
     var data: T? {
         switch self {
         case let .data(data):
-            return data
+            data
         case let .loading(maybeData):
-            return maybeData
+            maybeData
         }
     }
 }

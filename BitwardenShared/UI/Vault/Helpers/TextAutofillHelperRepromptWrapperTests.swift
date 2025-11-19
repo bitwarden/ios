@@ -32,7 +32,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
             authRepository: authRepository,
             errorReporter: errorReporter,
             textAutofillHelper: textAutofillHelper,
-            userVerificationHelper: userVerificationHelper
+            userVerificationHelper: userVerificationHelper,
         )
         subject.setTextAutofillHelperDelegate(textAutofillHelperDelegate)
     }
@@ -55,11 +55,11 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     func test_handleCipherForAutofill_noReprompt() async throws {
         try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
-            reprompt: .none
+            reprompt: .none,
         ))
         XCTAssertEqual(
             textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id,
-            "1"
+            "1",
         )
         XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
     }
@@ -70,11 +70,11 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         authRepository.hasMasterPasswordResult = .success(false)
         try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
-            reprompt: .password
+            reprompt: .password,
         ))
         XCTAssertEqual(
             textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id,
-            "1"
+            "1",
         )
         XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
     }
@@ -87,11 +87,11 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         userVerificationHelper.verifyMasterPasswordResult = .success(.verified)
         try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
-            reprompt: .password
+            reprompt: .password,
         ))
         XCTAssertEqual(
             textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id,
-            "1"
+            "1",
         )
         XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
@@ -104,7 +104,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
         try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
-            reprompt: .password
+            reprompt: .password,
         ))
         XCTAssertNil(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id)
         XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
@@ -118,7 +118,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         userVerificationHelper.verifyMasterPasswordResult = .success(.unableToPerform)
         try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
-            reprompt: .password
+            reprompt: .password,
         ))
         XCTAssertNil(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id)
         XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
@@ -132,7 +132,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
         try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
-            reprompt: .password
+            reprompt: .password,
         ))
         XCTAssertNil(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id)
         XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
@@ -147,7 +147,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.handleCipherForAutofill(cipherListView: .fixture(
                 id: "1",
-                reprompt: .password
+                reprompt: .password,
             ))
         }
         XCTAssertNil(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id)
@@ -161,7 +161,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.handleCipherForAutofill(cipherListView: .fixture(
                 id: "1",
-                reprompt: .password
+                reprompt: .password,
             ))
         }
         XCTAssertNil(textAutofillHelper.handleCipherForAutofillCalledWithCipher?.id)

@@ -12,6 +12,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     var clientBuilder: MockClientBuilder!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var sdkRepositoryFactory: MockSdkRepositoryFactory!
     var stateService: MockStateService!
     var subject: DefaultClientService!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -24,12 +25,15 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         clientBuilder = MockClientBuilder()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        sdkRepositoryFactory = MockSdkRepositoryFactory()
+        sdkRepositoryFactory.makeCipherRepositoryReturnValue = MockSdkCipherRepository()
         stateService = MockStateService()
         subject = DefaultClientService(
             clientBuilder: clientBuilder,
             configService: configService,
             errorReporter: errorReporter,
-            stateService: stateService
+            sdkRepositoryFactory: sdkRepositoryFactory,
+            stateService: stateService,
         )
         vaultTimeoutService = MockVaultTimeoutService()
     }
@@ -40,6 +44,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         clientBuilder = nil
         configService = nil
         errorReporter = nil
+        sdkRepositoryFactory = nil
         stateService = nil
         subject = nil
         vaultTimeoutService = nil
@@ -116,8 +121,8 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         ))
 
         _ = try await subject.auth(for: "1")
@@ -125,7 +130,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            ["enableCipherKeyEncryption": true]
+            ["enableCipherKeyEncryption": true],
         )
     }
 
@@ -141,8 +146,8 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.1.0"
-            )
+                version: "2024.1.0",
+            ),
         ))
 
         _ = try await subject.auth(for: "1")
@@ -150,7 +155,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            ["enableCipherKeyEncryption": false]
+            ["enableCipherKeyEncryption": false],
         )
     }
 
@@ -166,8 +171,8 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         ))
 
         _ = try await subject.auth(for: "1")
@@ -175,7 +180,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            ["enableCipherKeyEncryption": false]
+            ["enableCipherKeyEncryption": false],
         )
     }
 
@@ -189,8 +194,8 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.6.0"
-            )
+                version: "2024.6.0",
+            ),
         ))
         clientBuilder.setupClientOnCreation = { client in
             client.platformClient.loadFlagsError = BitwardenTestError.example
@@ -211,8 +216,19 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            [:]
+            [:],
         )
+    }
+
+    /// `client(for:)` registers the SDK cipher repository.
+    func test_client_registersCipherRepository() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        let auth = try await subject.auth()
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertIdentical(auth, client.authClient)
+        XCTAssertTrue(sdkRepositoryFactory.makeCipherRepositoryCalled)
+        XCTAssertNotNil(client.platformClient.stateMock.registerCipherRepositoryReceivedStore)
     }
 
     /// `configPublisher` loads flags into the SDK.
@@ -230,10 +246,10 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                         featureStates: ["cipher-key-encryption": .bool(true)],
                         gitHash: "75238191",
                         server: nil,
-                        version: "2024.4.0"
-                    )
-                )
-            )
+                        version: "2024.4.0",
+                    ),
+                ),
+            ),
         )
 
         try await waitForAsync {
@@ -256,15 +272,15 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238199",
                 server: nil,
-                version: "2024.1.0"
-            )
+                version: "2024.1.0",
+            ),
         ))
 
         _ = try await subject.auth(for: "1")
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            ["enableCipherKeyEncryption": false]
+            ["enableCipherKeyEncryption": false],
         )
 
         configService.configSubject.send(
@@ -278,10 +294,10 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                         featureStates: [:],
                         gitHash: "75238191",
                         server: nil,
-                        version: "2024.4.0"
-                    )
-                )
-            )
+                        version: "2024.4.0",
+                    ),
+                ),
+            ),
         )
 
         try await waitForAsync {
@@ -302,10 +318,10 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                         featureStates: ["cipher-key-encryption": .bool(true)],
                         gitHash: "75238191",
                         server: nil,
-                        version: "2024.4.0"
-                    )
-                )
-            )
+                        version: "2024.4.0",
+                    ),
+                ),
+            ),
         )
 
         try await waitForAsync {
@@ -329,10 +345,10 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                         featureStates: [:],
                         gitHash: "75238191",
                         server: nil,
-                        version: "2024.4.0"
-                    )
-                )
-            )
+                        version: "2024.4.0",
+                    ),
+                ),
+            ),
         )
 
         XCTAssertTrue(clientBuilder.clients.isEmpty)
@@ -352,10 +368,10 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                         featureStates: [:],
                         gitHash: "75238191",
                         server: nil,
-                        version: "2024.4.0"
-                    )
-                )
-            )
+                        version: "2024.4.0",
+                    ),
+                ),
+            ),
         )
 
         XCTAssertTrue(clientBuilder.clients.isEmpty)
@@ -368,8 +384,8 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             MetaServerConfig(
                 isPreAuth: false,
                 userId: "1",
-                serverConfig: nil
-            )
+                serverConfig: nil,
+            ),
         )
 
         try await waitForAsync {
@@ -379,7 +395,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
             client.platformClient.featureFlags,
-            [:]
+            [:],
         )
     }
 

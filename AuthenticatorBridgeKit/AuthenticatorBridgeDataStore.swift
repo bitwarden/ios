@@ -1,5 +1,5 @@
 import BitwardenKit
-import CoreData
+@preconcurrency import CoreData
 
 // MARK: - AuthenticatorStoreType
 
@@ -20,8 +20,11 @@ public enum AuthenticatorBridgeStoreType {
 private let authenticatorBridgeModelName = "Bitwarden-Authenticator"
 
 /// A data store that manages persisting data across app launches in Core Data.
+/// This is currently marked `@unchecked Sendable` because of how we ensure thread safety of the `backgroundContext`
+/// property. Once we have a minimum version of iOS 16 or higher, we can migrate to the `Synchronization` framework
+/// and make this more properly `Sendable`.
 ///
-public class AuthenticatorBridgeDataStore {
+public final nonisolated class AuthenticatorBridgeDataStore: @unchecked Sendable {
     // MARK: Type Properties
 
     /// The managed object model representing the entities in the database schema. CoreData throws
@@ -41,12 +44,29 @@ public class AuthenticatorBridgeDataStore {
 
     // MARK: Properties
 
+    /// A thread-safe lock for `backgroundContext`. Once we have a minimum of iOS 16, we can use an
+    /// `OSAllocatedUnfairLock` instead.
+    private let _backgroundContextLock = DispatchQueue(label: "backgroundContext.lock")
+
+    /// A private backing for `backgroundContext`. The `backgroundContext` variable provides thread-safe access, and
+    /// is what should be used. Once we have a minimum of iOS 16, this can be converted to an `OSAllocatedUnfairLock`,
+    /// and remove the need for the additional `_backgroundContextLock`.
+    private var _backgroundContext: NSManagedObjectContext?
+
     /// A managed object context which executes on a background queue.
-    private(set) lazy var backgroundContext: NSManagedObjectContext = {
-        let context = persistentContainer.newBackgroundContext()
-        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        return context
-    }()
+    /// This is the thread-safe version of the backing variable `_backgroundContext`,
+    /// and initializes that property lazily.
+    public var backgroundContext: NSManagedObjectContext {
+        _backgroundContextLock.sync {
+            if let context = _backgroundContext {
+                return context
+            }
+            let newContext = persistentContainer.newBackgroundContext()
+            newContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            _backgroundContext = newContext
+            return newContext
+        }
+    }
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
@@ -66,13 +86,13 @@ public class AuthenticatorBridgeDataStore {
     public init(
         errorReporter: ErrorReporter,
         groupIdentifier: String,
-        storeType: AuthenticatorBridgeStoreType = .persisted
+        storeType: AuthenticatorBridgeStoreType = .persisted,
     ) {
         self.errorReporter = errorReporter
 
         persistentContainer = NSPersistentContainer(
             name: authenticatorBridgeModelName,
-            managedObjectModel: Self.managedObjectModel
+            managedObjectModel: Self.managedObjectModel,
         )
         let storeDescription: NSPersistentStoreDescription
         switch storeType {
@@ -105,7 +125,7 @@ public class AuthenticatorBridgeDataStore {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: request,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }
@@ -118,7 +138,7 @@ public class AuthenticatorBridgeDataStore {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchInsertRequest: request,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }
@@ -132,13 +152,13 @@ public class AuthenticatorBridgeDataStore {
     ///
     public func executeBatchReplace(
         deleteRequest: NSBatchDeleteRequest,
-        insertRequest: NSBatchInsertRequest
+        insertRequest: NSBatchInsertRequest,
     ) async throws {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: deleteRequest,
                 batchInsertRequest: insertRequest,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }

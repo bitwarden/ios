@@ -25,7 +25,7 @@ final class TOTPServiceTests: BitwardenTestCase {
         subject = DefaultTOTPService(
             clientService: clientService,
             errorReporter: errorReporter,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
@@ -60,11 +60,11 @@ final class TOTPServiceTests: BitwardenTestCase {
 
     func test_default_getTOTPConfiguration_failure() {
         XCTAssertThrowsError(
-            try subject.getTOTPConfiguration(key: "1234")
+            try subject.getTOTPConfiguration(key: "1234"),
         ) { error in
             XCTAssertEqual(
                 error as? TOTPServiceError,
-                .invalidKeyFormat
+                .invalidKeyFormat,
             )
         }
     }

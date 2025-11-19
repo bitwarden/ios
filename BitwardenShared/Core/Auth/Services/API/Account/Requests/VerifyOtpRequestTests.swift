@@ -32,7 +32,7 @@ class VerifyOtpRequestTests: BitwardenTestCase {
             {
               "otp" : "OTP"
             }
-            """
+            """,
         )
     }
 

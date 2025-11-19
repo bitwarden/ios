@@ -27,19 +27,19 @@ class URLSessionHTTPClientTests: XCTestCase {
             url: URL(string: "https://example.com")!,
             statusCode: 200,
             httpVersion: nil,
-            headerFields: ["Content-Type": "application/json"]
+            headerFields: ["Content-Type": "application/json"],
         )!
 
         URLProtocolMocking.mock(
             HTTPRequest.default.url,
-            with: .success((urlResponse, "response data".data(using: .utf8)!))
+            with: .success((urlResponse, "response data".data(using: .utf8)!)),
         )
 
         let httpResponse = try await subject.send(.default)
 
         XCTAssertEqual(
             try String(data: XCTUnwrap(httpResponse.body), encoding: .utf8),
-            "response data"
+            "response data",
         )
         XCTAssertEqual(httpResponse.headers, ["Content-Type": "application/json"])
         XCTAssertEqual(httpResponse.statusCode, 200)
@@ -52,12 +52,12 @@ class URLSessionHTTPClientTests: XCTestCase {
             url: URL(string: "https://example.com")!,
             statusCode: 500,
             httpVersion: nil,
-            headerFields: nil
+            headerFields: nil,
         )!
 
         URLProtocolMocking.mock(
             HTTPRequest.default.url,
-            with: .success((urlResponse, Data()))
+            with: .success((urlResponse, Data())),
         )
 
         let httpResponse = try await subject.send(.default)
@@ -72,7 +72,7 @@ class URLSessionHTTPClientTests: XCTestCase {
     func test_send_error() async throws {
         URLProtocolMocking.mock(
             HTTPRequest.default.url,
-            with: .failure(NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut, userInfo: nil))
+            with: .failure(NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut, userInfo: nil)),
         )
 
         do {

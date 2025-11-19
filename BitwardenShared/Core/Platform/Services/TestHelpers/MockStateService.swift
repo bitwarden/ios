@@ -1,11 +1,13 @@
 import BitwardenKit
 import BitwardenKitMocks
+import struct BitwardenSdk.EnrollPinResponse
 import Combine
 import Foundation
 
 @testable import BitwardenShared
 
-class MockStateService: StateService { // swiftlint:disable:this type_body_length
+class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:disable:this type_body_length
+    var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
@@ -62,6 +64,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastUserShouldConnectToWatch = false
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
+    var masterPasswordUnlockByUserId = [String: MasterPasswordUnlockResponseModel]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
@@ -69,6 +72,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
     var pinProtectedUserKeyError: Error?
     var pinProtectedUserKeyValue = [String: String]()
+    var pinProtectedUserKeyEnvelopeError: Error?
+    var pinProtectedUserKeyEnvelopeValue = [String: String]()
+    var pinUnlockRequiresPasswordAfterRestartValue = false // swiftlint:disable:this identifier_name
     var preAuthEnvironmentURLs: EnvironmentURLData?
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var preAuthServerConfig: ServerConfig?
@@ -84,6 +90,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
     // swiftlint:disable:next identifier_name
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
+    var setAccountKdfByUserId = [String: KdfConfig]()
     var setAccountSetupAutofillCalled = false
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
@@ -130,6 +137,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
+    }
+
+    func getAccessTokenExpirationDate(userId: String) async -> Date? {
+        accessTokenExpirationDateByUserId[userId]
     }
 
     func didAccountSwitchInExtension() async throws -> Bool {
@@ -236,8 +247,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return connectToWatchByUserId[userId] ?? false
     }
 
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
-        let userId = try unwrapUserId(userId)
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType {
+        guard let userId = try? unwrapUserId(userId) else {
+            return .domain
+        }
         return defaultUriMatchTypeByUserId[userId] ?? .domain
     }
 
@@ -427,6 +440,20 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return pinProtectedUserKeyValue[userId] ?? nil
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String? {
+        if let pinProtectedUserKeyEnvelopeError { throw pinProtectedUserKeyEnvelopeError }
+        let userId = try unwrapUserId(userId)
+        return pinProtectedUserKeyEnvelopeValue[userId] ?? nil
+    }
+
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool {
+        pinUnlockRequiresPasswordAfterRestartValue
+    }
+
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async {
+        accessTokenExpirationDateByUserId[userId] = expirationDate
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountEncryptionKeys[userId] = encryptionKeys
@@ -435,6 +462,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws {
         setAccountHasBeenUnlockedInteractivelyHasBeenCalled = true
         try setAccountHasBeenUnlockedInteractivelyResult.get()
+    }
+
+    func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws {
+        setAccountKdfByUserId[userId] = kdfConfig
+    }
+
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String,
+    ) async {
+        masterPasswordUnlockByUserId[userId] = masterPasswordUnlock
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
@@ -482,7 +520,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setAppRehydrationState(
         _ rehydrationState: BitwardenShared.AppRehydrationState?,
-        userId: String?
+        userId: String?,
     ) async throws {
         if let setAppRehydrationStateError {
             throw setAppRehydrationStateError
@@ -619,20 +657,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         pendingAppIntentActions = actions
     }
 
-    func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
-        requirePasswordAfterRestart: Bool
-    ) async throws {
+    func setPinKeys(enrollPinResponse: EnrollPinResponse, requirePasswordAfterRestart: Bool) async throws {
         let userId = try unwrapUserId(nil)
-        pinProtectedUserKeyValue[userId] = pinProtectedUserKey
-        encryptedPinByUserId[userId] = encryptedPin
+        pinProtectedUserKeyEnvelopeValue[userId] = enrollPinResponse.pinProtectedUserKeyEnvelope
+        encryptedPinByUserId[userId] = enrollPinResponse.userKeyEncryptedPin
 
         if requirePasswordAfterRestart {
             accountVolatileData[
                 userId,
-                default: AccountVolatileData()
-            ].pinProtectedUserKey = pinProtectedUserKey
+                default: AccountVolatileData(),
+            ].pinProtectedUserKey = enrollPinResponse.pinProtectedUserKeyEnvelope
         }
     }
 
@@ -640,7 +674,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         let userId = try unwrapUserId(nil)
         accountVolatileData[
             userId,
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].pinProtectedUserKey = pin
     }
 

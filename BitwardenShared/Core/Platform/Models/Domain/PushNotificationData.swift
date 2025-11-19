@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - PushNotificationData
@@ -62,10 +63,30 @@ struct SyncFolderNotification: Codable, Equatable {
 
 // MARK: - UserNotification
 
-/// Additional information that can be contained in the push notification payload for certain types of notifications.
-struct UserNotification: Codable, Equatable {
+/// Additional information that can be contained in the logout push notification payload.
+struct LogoutNotification: Codable, Equatable {
+    // MARK: Types
+
+    /// The reason why a user is being logged out.
+    enum PushNotificationLogOutReason: Int, Codable, DefaultValueProvider {
+        /// The logout was triggered by a KDF setting change.
+        case kdfChange = 0
+
+        /// An unknown or unimplemented reason.
+        case unknown = -1
+
+        static var defaultValue: Self {
+            .unknown
+        }
+    }
+
+    // MARK: Properties
+
     /// The date of the notification.
     let date: Date?
+
+    /// The reason why the user is being logged out.
+    @DefaultValue var reason: PushNotificationLogOutReason
 
     /// The user id that needs to be updated.
     let userId: String

@@ -33,9 +33,9 @@ class ExportCXFCoordinatorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 exportCXFCiphersRepository: exportCXFCiphersRepository,
                 stateService: stateService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

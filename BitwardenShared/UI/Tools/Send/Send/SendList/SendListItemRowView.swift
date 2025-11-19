@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import SwiftUI
 
@@ -11,13 +13,13 @@ struct SendListItemRowState: Equatable {
     var accessibilityIdentifier: String {
         switch item.itemType {
         case .send:
-            return "SendCell"
+            "SendCell"
         case let .group(type, _):
             switch type {
             case .text:
-                return "SendTextFilter"
+                "SendTextFilter"
             case .file:
-                return "SendFileFilter"
+                "SendFileFilter"
             }
         }
     }
@@ -112,7 +114,7 @@ struct SendListItemRowView: View {
         HStack(spacing: 16) {
             Image(decorative: item.icon)
                 .scaledFrame(width: 22, height: 22)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .padding(.vertical, 19)
 
             switch item.itemType {
@@ -134,13 +136,13 @@ struct SendListItemRowView: View {
     private func groupLabel(for sendType: SendType, count: Int) -> some View {
         Text(sendType.localizedName)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
         Spacer()
 
         Text("\(count)")
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
     }
 
     /// An options menu to display for a send.
@@ -183,8 +185,8 @@ struct SendListItemRowView: View {
             }
 
         } label: {
-            Asset.Images.ellipsisHorizontal24.swiftUIImage
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
         }
         .accessibilityIdentifier("SendOptionsButton")
     }
@@ -200,7 +202,7 @@ struct SendListItemRowView: View {
                 Text(sendView.name)
                     .styleGuide(.body)
                     .lineLimit(1)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier("SendNameLabel")
 
                 iconStack(for: sendView)
@@ -209,7 +211,7 @@ struct SendListItemRowView: View {
             Text(sendView.deletionDate.dateTimeDisplay)
                 .styleGuide(.subheadline)
                 .lineLimit(1)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .accessibilityIdentifier("SendDateLabel")
         }
         .padding(.vertical, 9)
@@ -218,15 +220,15 @@ struct SendListItemRowView: View {
     }
 
     private func icons(
-        for sendView: SendView
+        for sendView: SendView,
     ) -> [[SendListItemIcon]] {
         var icons: [SendListItemIcon] = []
         if sendView.disabled {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "DisabledSendIcon",
-                    asset: Asset.Images.warning16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.warning16.swiftUIImage,
+                ),
             )
         }
 
@@ -234,8 +236,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PasswordProtectedSendIcon",
-                    asset: Asset.Images.key16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.key16.swiftUIImage,
+                ),
             )
         }
 
@@ -244,8 +246,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "MaxAccessSendIcon",
-                    asset: Asset.Images.doNot16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.doNot16.swiftUIImage,
+                ),
             )
         }
 
@@ -253,8 +255,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "ExpiredSendIcon",
-                    asset: Asset.Images.clock16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.clock16.swiftUIImage,
+                ),
             )
         }
 
@@ -262,8 +264,8 @@ struct SendListItemRowView: View {
             icons.append(
                 SendListItemIcon(
                     accessibilityID: "PendingDeletionSendIcon",
-                    asset: Asset.Images.trash16.swiftUIImage
-                )
+                    asset: SharedAsset.Icons.trash16.swiftUIImage,
+                ),
             )
         }
 
@@ -282,7 +284,7 @@ struct SendListItemRowView: View {
                     ForEachIndexed(row, id: \.self) { _, image in
                         image.asset
                             .scaledFrame(width: 16, height: 16)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .accessibilityIdentifier(image.accessibilityID)
                     }
                 }
@@ -317,20 +319,20 @@ struct SendListItemIcon: Hashable {
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.text, 42)),
-                        hasDivider: true
-                    )
-                )
-            )
+                        hasDivider: true,
+                    ),
+                ),
+            ),
         )
         SendListItemRowView(
             store: Store(
                 processor: StateProcessor(
                     state: SendListItemRowState(
                         item: SendListItem(id: "1", itemType: .group(.file, 42)),
-                        hasDivider: true
-                    )
-                )
-            )
+                        hasDivider: true,
+                    ),
+                ),
+            ),
         )
         SendListItemRowView(
             store: Store(
@@ -347,13 +349,13 @@ struct SendListItemIcon: Hashable {
                                 accessCount: 1,
                                 disabled: true,
                                 deletionDate: Date(),
-                                expirationDate: Date().advanced(by: -1)
-                            ))
+                                expirationDate: Date().advanced(by: -1),
+                            )),
                         ),
-                        hasDivider: true
-                    )
-                )
-            )
+                        hasDivider: true,
+                    ),
+                ),
+            ),
         )
         SendListItemRowView(
             store: Store(
@@ -365,13 +367,13 @@ struct SendListItemIcon: Hashable {
                                 id: "4",
                                 name: "No Status",
                                 deletionDate: Date().advanced(by: 100),
-                                expirationDate: Date().advanced(by: 100)
-                            ))
+                                expirationDate: Date().advanced(by: 100),
+                            )),
                         ),
-                        hasDivider: false
-                    )
-                )
-            )
+                        hasDivider: false,
+                    ),
+                ),
+            ),
         )
     }
 }

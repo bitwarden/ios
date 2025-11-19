@@ -21,8 +21,8 @@ extension ServiceContainer {
         autofillCredentialService: AutofillCredentialService = MockAutofillCredentialService(),
         biometricsRepository: BiometricsRepository = MockBiometricsRepository(),
         biometricsService: BiometricsService = MockBiometricsService(),
-        captchaService: CaptchaService = MockCaptchaService(),
         cameraService: CameraService = MockCameraService(),
+        changeKdfService: ChangeKdfService = MockChangeKdfService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
@@ -39,6 +39,7 @@ extension ServiceContainer {
         httpClient: HTTPClient = MockHTTPClient(),
         keychainRepository: KeychainRepository = MockKeychainRepository(),
         keychainService: KeychainService = MockKeychainService(),
+        languageStateService: LanguageStateService = MockLanguageStateService(),
         localAuthService: LocalAuthService = MockLocalAuthService(),
         migrationService: MigrationService = MockMigrationService(),
         nfcReaderService: NFCReaderService = MockNFCReaderService(),
@@ -65,12 +66,12 @@ extension ServiceContainer {
         userVerificationHelperFactory: UserVerificationHelperFactory = MockUserVerificationHelperFactory(),
         vaultRepository: VaultRepository = MockVaultRepository(),
         vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService(),
-        watchService: WatchService = MockWatchService()
+        watchService: WatchService = MockWatchService(),
     ) -> ServiceContainer {
         ServiceContainer(
             apiService: APIService(
                 client: httpClient,
-                environmentService: environmentService
+                environmentService: environmentService,
             ),
             appContextHelper: appContextHelper,
             appIdService: AppIdService(appSettingStore: appSettingsStore),
@@ -83,8 +84,8 @@ extension ServiceContainer {
             autofillCredentialService: autofillCredentialService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
-            captchaService: captchaService,
             cameraService: cameraService,
+            changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -100,6 +101,7 @@ extension ServiceContainer {
             importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            languageStateService: languageStateService,
             localAuthService: localAuthService,
             migrationService: migrationService,
             nfcReaderService: nfcReaderService,
@@ -126,7 +128,7 @@ extension ServiceContainer {
             userVerificationHelperFactory: userVerificationHelperFactory,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
-            watchService: watchService
+            watchService: watchService,
         )
     }
 }

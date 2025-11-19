@@ -64,13 +64,12 @@ class AutofillAppExtensionDelegateTests: BitwardenTestCase {
     func test_rpID() async throws {
         let expectedRpID = "myApp.com"
         subject.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters(
-            relyingPartyIdentifier: expectedRpID
+            relyingPartyIdentifier: expectedRpID,
         ))
         XCTAssertEqual(subject.rpID, expectedRpID)
 
         subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
-            credentialIdentity: .fixture(relyingPartyIdentifier: expectedRpID))
-        )
+            credentialIdentity: .fixture(relyingPartyIdentifier: expectedRpID)))
         XCTAssertEqual(subject.rpID, expectedRpID)
 
         subject.extensionMode = .autofillVaultList([])

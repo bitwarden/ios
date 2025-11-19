@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -22,15 +23,15 @@ struct VaultItemSelectionView: View {
         }
         .navigationBar(
             title: Localizations.itemsForUri(store.state.ciphersMatchingName ?? "--"),
-            titleDisplayMode: .inline
+            titleDisplayMode: .inline,
         )
         .searchable(
             text: store.binding(
                 get: \.searchText,
-                send: VaultItemSelectionAction.searchTextChanged
+                send: VaultItemSelectionAction.searchTextChanged,
             ),
             placement: .navigationBarDrawer(displayMode: .always),
-            prompt: Localizations.search
+            prompt: Localizations.search,
         )
         .toolbar {
             cancelToolbarItem {
@@ -42,8 +43,8 @@ struct VaultItemSelectionView: View {
                     store: store.child(
                         state: \.profileSwitcherState,
                         mapAction: VaultItemSelectionAction.profileSwitcher,
-                        mapEffect: VaultItemSelectionEffect.profileSwitcher
-                    )
+                        mapEffect: VaultItemSelectionEffect.profileSwitcher,
+                    ),
                 )
             }
         }
@@ -57,8 +58,8 @@ struct VaultItemSelectionView: View {
             store: store.child(
                 state: \.profileSwitcherState,
                 mapAction: VaultItemSelectionAction.profileSwitcher,
-                mapEffect: VaultItemSelectionEffect.profileSwitcher
-            )
+                mapEffect: VaultItemSelectionEffect.profileSwitcher,
+            ),
         )
     }
 }
@@ -75,7 +76,7 @@ private struct VaultItemSelectionSearchableView: View {
     /// The message to display when there's no search results.
     var emptyViewMessage: String {
         Localizations.thereAreNoItemsInYourVaultThatMatchX(
-            store.state.ciphersMatchingName ?? "--"
+            store.state.ciphersMatchingName ?? "--",
         ) + "\n" + Localizations.searchForAnItemOrAddANewItem
     }
 
@@ -138,11 +139,11 @@ private struct VaultItemSelectionSearchableView: View {
         .toast(
             store.binding(
                 get: \.toast,
-                send: VaultItemSelectionAction.toastShown
+                send: VaultItemSelectionAction.toastShown,
             ),
-            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
-        .background(Color(asset: Asset.Colors.backgroundPrimary).ignoresSafeArea())
+        .background(Color(asset: SharedAsset.Colors.backgroundPrimary).ignoresSafeArea())
     }
 
     // MARK: Private Views
@@ -153,7 +154,7 @@ private struct VaultItemSelectionSearchableView: View {
         if store.state.vaultListSections.isEmpty {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.items.swiftUIImage,
-                message: emptyViewMessage
+                message: emptyViewMessage,
             ) {
                 Button {
                     store.send(.addTapped)
@@ -161,10 +162,10 @@ private struct VaultItemSelectionSearchableView: View {
                     Label {
                         Text(Localizations.newItem)
                     } icon: {
-                        Asset.Images.plus16.swiftUIImage
+                        SharedAsset.Icons.plus16.swiftUIImage
                             .imageStyle(.accessoryIcon16(
-                                color: Asset.Colors.buttonFilledForeground.swiftUIColor,
-                                scaleWithFont: true
+                                color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
+                                scaleWithFont: true,
                             ))
                     }
                 }
@@ -211,7 +212,7 @@ private struct VaultItemSelectionSearchableView: View {
                     vaultListItemView(item, hasDivider: store.state.searchResults.last != item)
                 }
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         }
     }
 
@@ -228,18 +229,18 @@ private struct VaultItemSelectionSearchableView: View {
                             iconBaseURL: state.iconBaseURL,
                             item: item,
                             hasDivider: hasDivider,
-                            showWebIcons: state.showWebIcons
+                            showWebIcons: state.showWebIcons,
                         )
                     },
                     mapAction: nil, // No actions are supported (TOTP copy is handled by the more pressed effect).
                     mapEffect: { effect in
                         switch effect {
                         case .morePressed:
-                            return .morePressed(item)
+                            .morePressed(item)
                         }
-                    }
+                    },
                 ),
-                timeProvider: CurrentTime()
+                timeProvider: CurrentTime(),
             )
         }
     }
@@ -251,7 +252,7 @@ private struct VaultItemSelectionSearchableView: View {
 #Preview("Empty") {
     NavigationView {
         VaultItemSelectionView(store: Store(processor: StateProcessor(
-            state: VaultItemSelectionState(iconBaseURL: nil, totpKeyModel: .fixtureExample)
+            state: VaultItemSelectionState(iconBaseURL: nil, totpKeyModel: .fixtureExample),
         )))
     }
 }
@@ -265,10 +266,10 @@ private struct VaultItemSelectionSearchableView: View {
                         iconBaseURL: nil,
                         searchResults: [.init(id: "1", itemType: .cipher(.fixture()))],
                         searchText: "Search",
-                        totpKeyModel: .fixtureExample
-                    )
-                )
-            )
+                        totpKeyModel: .fixtureExample,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -279,44 +280,44 @@ private struct VaultItemSelectionSearchableView: View {
             .fixture(
                 id: "1",
                 login: .fixture(username: "user@bitwarden.com"),
-                name: "Apple"
+                name: "Apple",
             ),
             .fixture(
                 id: "2",
                 login: .fixture(username: "user@bitwarden.com"),
-                name: "Bitwarden"
+                name: "Bitwarden",
             ),
             .fixture(
                 id: "3",
-                name: "Company XYZ"
+                name: "Company XYZ",
             ),
             .fixture(
                 id: "4",
                 login: .fixture(username: "user@bitwarden.com"),
-                name: "Apple"
+                name: "Apple",
             ),
             .fixture(
                 id: "5",
                 login: .fixture(username: "user@bitwarden.com"),
-                name: "Bitwarden"
+                name: "Bitwarden",
             ),
             .fixture(
                 id: "6",
-                name: "Company XYZ"
+                name: "Company XYZ",
             ),
             .fixture(
                 id: "7",
                 login: .fixture(username: "user@bitwarden.com"),
-                name: "Apple"
+                name: "Apple",
             ),
             .fixture(
                 id: "8",
                 login: .fixture(username: "user@bitwarden.com"),
-                name: "Bitwarden"
+                name: "Bitwarden",
             ),
             .fixture(
                 id: "9",
-                name: "Company XYZ"
+                name: "Company XYZ",
             ),
         ]
         VaultItemSelectionView(
@@ -329,12 +330,12 @@ private struct VaultItemSelectionSearchableView: View {
                             VaultListSection(
                                 id: Localizations.matchingItems,
                                 items: ciphers.compactMap(VaultListItem.init),
-                                name: Localizations.matchingItems
+                                name: Localizations.matchingItems,
                             ),
-                        ]
-                    )
-                )
-            )
+                        ],
+                    ),
+                ),
+            ),
         )
     }
 }

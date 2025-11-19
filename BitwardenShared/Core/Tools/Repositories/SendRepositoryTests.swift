@@ -42,7 +42,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
-            syncService: syncService
+            syncService: syncService,
         )
     }
 
@@ -171,9 +171,23 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(forceSync: true)
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
 
         XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
+    }
+
+    /// `fetchSync(forceSync:)` while not periodic, manual refresh is allowed does perform a sync
+    /// without periodic behavior.
+    func test_fetchSync_manualRefreshAllowed_successNotPeriodic() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.allowSyncOnRefresh = ["1": true]
+        syncService.fetchSyncResult = .success(())
+
+        try await subject.fetchSync(forceSync: true, isPeriodic: false)
+
+        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
     }
 
     /// `fetchSync(forceSync:)` while manual refresh is not allowed does not perform a sync.
@@ -182,7 +196,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = [:]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(forceSync: true)
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
 
         XCTAssertFalse(syncService.didFetchSync)
     }
@@ -193,9 +207,10 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows {
-            try await subject.fetchSync(forceSync: true)
+            try await subject.fetchSync(forceSync: true, isPeriodic: true)
         }
         XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
     }
 
     /// `removePassword(from:)` successfully encrypts the send view and uses the send service to
@@ -232,13 +247,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 id: "1",
                 name: "Shakespeare quote",
-                text: .fixture(text: "To be or not to be?")
+                text: .fixture(text: "To be or not to be?"),
             ),
             .fixture(id: "2", name: "Cactus"),
             .fixture(
                 file: .fixture(fileName: "grumpy_cat.png"),
                 id: "3",
-                name: "A picture of a cute cát"
+                name: "A picture of a cute cát",
             ),
         ]
         let sendView = SendView(send: sendService.sendsSubject.value[2])
@@ -257,13 +272,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 id: "1",
                 name: "Shakespeare quote",
-                text: .fixture(text: "To be or not to be?")
+                text: .fixture(text: "To be or not to be?"),
             ),
             .fixture(id: "2", name: "Cactus"),
             .fixture(
                 file: .fixture(fileName: "grumpy_cat.png"),
                 id: "3",
-                name: "A picture of a cute cat"
+                name: "A picture of a cute cat",
             ),
         ]
         let sendView = SendView(send: sendService.sendsSubject.value[0])
@@ -282,13 +297,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 id: "1",
                 name: "Shakespeare quote",
-                text: .fixture(text: "To be or not to be?")
+                text: .fixture(text: "To be or not to be?"),
             ),
             .fixture(id: "2", name: "Cactus"),
             .fixture(
                 file: .fixture(fileName: "grumpy_cat.png"),
                 id: "3",
-                name: "A picture of a cute cat"
+                name: "A picture of a cute cat",
             ),
         ]
         let sendView = SendView(send: sendService.sendsSubject.value[2])
@@ -321,12 +336,12 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .fixture(
                 name: "encrypted name",
                 text: .init(hidden: false, text: "encrypted text"),
-                type: .text
+                type: .text,
             ),
             .fixture(
                 file: .init(fileName: "test.txt", id: "1", size: "123", sizeName: "123 KB"),
                 name: "encrypted name",
-                type: .file
+                type: .file,
             ),
         ])
 

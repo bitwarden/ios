@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SettingsProcessorDelegate
 
 /// A delegate of `SettingsProcessor` that is notified when the settings tab badge needs to be updated.
@@ -50,7 +52,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         delegate: SettingsProcessorDelegate,
         services: Services,
-        state: SettingsState
+        state: SettingsState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

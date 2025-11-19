@@ -1,5 +1,6 @@
 import XCTest
 
+import BitwardenResources
 @testable import BitwardenShared
 
 // MARK: - CXFCredentialsResultTests

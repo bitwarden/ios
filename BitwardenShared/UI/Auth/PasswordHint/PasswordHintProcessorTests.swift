@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Networking
 import TestHelpers
 import XCTest
@@ -28,7 +29,7 @@ class PasswordHintProcessorTests: BitwardenTestCase {
         subject = PasswordHintProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
     }
 

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - FoldersView
@@ -16,7 +18,7 @@ struct FoldersView: View {
         VStack(alignment: .leading, spacing: 16) {
             if store.state.folders.isEmpty {
                 empty
-                    .background(Color(asset: Asset.Colors.backgroundPrimary))
+                    .background(Color(asset: SharedAsset.Colors.backgroundPrimary))
             } else {
                 folders
                     .scrollView()
@@ -34,9 +36,9 @@ struct FoldersView: View {
         .toast(
             store.binding(
                 get: \.toast,
-                send: FoldersAction.toastShown
+                send: FoldersAction.toastShown,
             ),
-            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
     }
 
@@ -62,7 +64,7 @@ struct FoldersView: View {
                         first.name.localizedStandardCompare(second.name) == .orderedAscending
                     }
                 },
-                id: \.id
+                id: \.id,
             ) { folder in
                 SettingsListItem(folder.name, nameAccessibilityID: "FolderName") {
                     guard let id = folder.id else { return }
@@ -85,12 +87,12 @@ struct FoldersView: View {
                         .init(
                             id: String(id),
                             name: "Test Folder",
-                            revisionDate: .now
+                            revisionDate: .now,
                         )
-                    }
-                )
-            )
-        )
+                    },
+                ),
+            ),
+        ),
     )
 }
 #endif

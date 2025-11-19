@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
@@ -42,6 +43,13 @@ protocol StateService: AnyObject {
     /// - Returns: Whether the active account has access to premium features.
     ///
     func doesActiveAccountHavePremium() async -> Bool
+
+    /// Gets the access token's expiration date for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the access token expiration date.
+    /// - Returns: The user's access token expiration date.
+    ///
+    func getAccessTokenExpirationDate(userId: String) async -> Date?
 
     /// Gets the account for an id.
     ///
@@ -167,7 +175,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
     /// - Returns: The default URI match type value.
     ///
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType
 
     /// Gets the disable auto-copy TOTP value for an account.
     ///
@@ -438,10 +446,35 @@ protocol StateService: AnyObject {
 
     /// The pin protected user key.
     ///
+    /// - Note: This is being replaced by ``pinProtectedUserKeyEnvelope(userId:)``.
+    ///
     /// - Parameter userId: The user ID associated with the pin protected user key.
     /// - Returns: The user's pin protected user key.
     ///
     func pinProtectedUserKey(userId: String?) async throws -> String?
+
+    /// The pin protected user key envelope.
+    ///
+    /// - Parameter userId: The user ID associated with the pin protected user key envelope.
+    /// - Returns: The user's pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String?
+
+    /// Whether pin unlock requires the user to enter their master password or use biometrics after
+    /// an app restart.
+    ///
+    /// - Returns: Whether pin unlock the user to enter their master password or use biometrics
+    ///     after an app restart.
+    ///
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool
+
+    /// Sets the access token's expiration date for an account.
+    ///
+    /// - Parameters:
+    ///   - expirationDate: The user's access token expiration date.
+    ///   - userId: The user ID associated with the access token expiration date.
+    ///
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async
 
     /// Sets the account encryption keys for an account.
     ///
@@ -456,6 +489,25 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///   - value: Whether the user has unlocked their account in the current session.
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
+
+    /// Sets the KDF config for an account.
+    ///
+    /// - Parameters:
+    ///   - kdfConfig: The account's KDF config.
+    ///   - userId: The user ID of the account to set the KDF config for.
+    ///
+    func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws
+
+    /// Sets the master password unlock data for an account.
+    ///
+    /// - Parameters:
+    ///   - masterPasswordUnlock: The account master password unlock data.
+    ///   - userId: The user ID of the account to associate with the master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String,
+    ) async
 
     /// Sets the user's progress for setting up autofill.
     ///
@@ -661,14 +713,12 @@ protocol StateService: AnyObject {
     /// Set's the pin keys.
     ///
     /// - Parameters:
-    ///   - encryptedPin: The user's encrypted pin.
-    ///   - pinProtectedUserKey: The user's pin protected user key.
+    ///   - enrollPinResponse: The user's pin keys from enrolling a pin.
     ///   - requirePasswordAfterRestart: Whether to require password after app restart.
     ///
     func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
-        requirePasswordAfterRestart: Bool
+        enrollPinResponse: EnrollPinResponse,
+        requirePasswordAfterRestart: Bool,
     ) async throws
 
     /// Sets the pin protected user key to memory.
@@ -852,6 +902,14 @@ extension StateService {
         await setPendingAppIntentActions(actions: actions)
     }
 
+    /// Gets the access token's expiration date for the active account.
+    ///
+    /// - Returns: The user's access token expiration date.
+    ///
+    func getAccessTokenExpirationDate() async throws -> Date? {
+        try await getAccessTokenExpirationDate(userId: getActiveAccountId())
+    }
+
     /// Gets the account encryptions keys for the active account.
     ///
     /// - Returns: The account encryption keys.
@@ -962,8 +1020,8 @@ extension StateService {
     ///
     /// - Returns: The default URI match type value.
     ///
-    func getDefaultUriMatchType() async throws -> UriMatchType {
-        try await getDefaultUriMatchType(userId: nil)
+    func getDefaultUriMatchType() async -> UriMatchType {
+        await getDefaultUriMatchType(userId: nil)
     }
 
     /// Gets the disable auto-copy TOTP value for the active account.
@@ -1132,6 +1190,22 @@ extension StateService {
         try await pinProtectedUserKey(userId: nil)
     }
 
+    /// The pin protected user key envelope.
+    ///
+    /// - Returns: The pin protected user key envelope.
+    ///
+    func pinProtectedUserKeyEnvelope() async throws -> String? {
+        try await pinProtectedUserKeyEnvelope(userId: nil)
+    }
+
+    /// Sets the access token's expiration date for the active account.
+    ///
+    /// - Parameter expirationDate: The user's access token expiration date.
+    ///
+    func setAccessTokenExpirationDate(_ expirationDate: Date?) async throws {
+        try await setAccessTokenExpirationDate(expirationDate, userId: getActiveAccountId())
+    }
+
     /// Sets the account encryption keys for the active account.
     ///
     /// - Parameter encryptionKeys: The account encryption keys.
@@ -1144,6 +1218,23 @@ extension StateService {
     /// - Parameter value: Whether the user has unlocked their account in the current session
     func setAccountHasBeenUnlockedInteractively(value: Bool) async throws {
         try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
+    }
+
+    /// Sets the KDF config for the active account.
+    ///
+    /// - Parameter kdfConfig: The account's KDF config.
+    ///
+    func setAccountKdf(_ kdfConfig: KdfConfig) async throws {
+        try await setAccountKdf(kdfConfig, userId: getActiveAccountId())
+    }
+
+    /// Sets the master password unlock data for the active account.
+    ///
+    /// - Parameter masterPasswordUnlock: The account master password unlock data.
+    ///
+    func setAccountMasterPasswordUnlock(_ masterPasswordUnlock: MasterPasswordUnlockResponseModel) async throws {
+        let userId = try await getActiveAccountId()
+        await setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
     }
 
     /// Sets the active user's progress for setting up autofill.
@@ -1349,6 +1440,9 @@ enum StateServiceError: LocalizedError {
     /// There are no known accounts.
     case noAccounts
 
+    /// There isn't an account with the specified user ID.
+    case noAccountForUserId
+
     /// There isn't an active account.
     case noActiveAccount
 
@@ -1375,7 +1469,7 @@ enum StateServiceError: LocalizedError {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disable:this type_body_length
+actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService, LanguageStateService { // swiftlint:disable:this type_body_length line_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -1442,7 +1536,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
-        keychainRepository: KeychainRepository
+        keychainRepository: KeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
@@ -1474,6 +1568,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         accountVolatileData[userId]?.pinProtectedUserKey = nil
         appSettingsStore.setEncryptedPin(nil, userId: userId)
         appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
+        appSettingsStore.setPinProtectedUserKeyEnvelope(key: nil, userId: userId)
     }
 
     func deleteAccount() async throws {
@@ -1510,6 +1605,10 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         }
     }
 
+    func getAccessTokenExpirationDate(userId: String) -> Date? {
+        appSettingsStore.accessTokenExpirationDate(userId: userId)
+    }
+
     func getAccount(userId: String?) throws -> Account {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1528,8 +1627,9 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             throw StateServiceError.noEncryptedPrivateKey
         }
         return AccountEncryptionKeys(
+            accountKeys: appSettingsStore.accountKeys(userId: userId),
             encryptedPrivateKey: encryptedPrivateKey,
-            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId)
+            encryptedUserKey: appSettingsStore.encryptedUserKey(userId: userId),
         )
     }
 
@@ -1597,9 +1697,14 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return appSettingsStore.connectToWatch(userId: userId)
     }
 
-    func getDefaultUriMatchType(userId: String?) async throws -> UriMatchType {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+    func getDefaultUriMatchType(userId: String?) async -> UriMatchType {
+        do {
+            let userId = try userId ?? getActiveAccountUserId()
+            return appSettingsStore.defaultUriMatchType(userId: userId) ?? .domain
+        } catch {
+            errorReporter.log(error: error)
+            return .domain
+        }
     }
 
     func getDisableAutoTotpCopy(userId: String?) async throws -> Bool {
@@ -1827,9 +1932,11 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             state.activeUserId = state.accounts.first?.key
         }
 
+        appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
+        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
@@ -1845,8 +1952,35 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
     }
 
+    func pinProtectedUserKeyEnvelope(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        let key = accountVolatileData[userId]?.pinProtectedUserKey
+            ?? appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId)
+        return key
+    }
+
+    func pinUnlockRequiresPasswordAfterRestart() async throws -> Bool {
+        let userId = try getActiveAccountUserId()
+        return appSettingsStore.pinProtectedUserKeyEnvelope(userId: userId) == nil
+            && appSettingsStore.pinProtectedUserKey(userId: userId) == nil
+    }
+
+    func setAccessTokenExpirationDate(_ expirationDate: Date?, userId: String) async {
+        appSettingsStore.setAccessTokenExpirationDate(expirationDate, userId: userId)
+    }
+
+    func setAccountKdf(_ kdfConfig: KdfConfig, userId: String) async throws {
+        try updateAccountProfile(userId: userId) { profile in
+            profile.kdfType = kdfConfig.kdfType
+            profile.kdfIterations = kdfConfig.iterations
+            profile.kdfMemory = kdfConfig.memory
+            profile.kdfParallelism = kdfConfig.parallelism
+        }
+    }
+
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountKeys(encryptionKeys.accountKeys, userId: userId)
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
         appSettingsStore.setEncryptedUserKey(key: encryptionKeys.encryptedUserKey, userId: userId)
     }
@@ -1855,8 +1989,29 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let userId = try userId ?? getActiveAccountUserId()
         accountVolatileData[
             userId,
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].hasBeenUnlockedInteractively = value
+    }
+
+    func setAccountMasterPasswordUnlock(
+        _ masterPasswordUnlock: MasterPasswordUnlockResponseModel,
+        userId: String,
+    ) async {
+        guard var state = appSettingsStore.state,
+              var profile = state.accounts[userId]?.profile
+        else {
+            return
+        }
+        var userDecryptionOptions = profile.userDecryptionOptions
+            ?? UserDecryptionOptions(
+                hasMasterPassword: true,
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            )
+        userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
+        profile.userDecryptionOptions = userDecryptionOptions
+        state.accounts[userId]?.profile = profile
+        appSettingsStore.state = state
     }
 
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
@@ -2013,22 +2168,28 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     }
 
     func setPinKeys(
-        encryptedPin: String,
-        pinProtectedUserKey: String,
-        requirePasswordAfterRestart: Bool
+        enrollPinResponse: EnrollPinResponse,
+        requirePasswordAfterRestart: Bool,
     ) async throws {
+        let userId = try getActiveAccountUserId()
         if requirePasswordAfterRestart {
-            try await setPinProtectedUserKeyToMemory(pinProtectedUserKey)
+            try await setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
         } else {
-            try appSettingsStore.setPinProtectedUserKey(key: pinProtectedUserKey, userId: getActiveAccountUserId())
+            appSettingsStore.setPinProtectedUserKeyEnvelope(
+                key: enrollPinResponse.pinProtectedUserKeyEnvelope,
+                userId: userId,
+            )
         }
-        try appSettingsStore.setEncryptedPin(encryptedPin, userId: getActiveAccountUserId())
+        appSettingsStore.setEncryptedPin(enrollPinResponse.userKeyEncryptedPin, userId: userId)
+
+        // Remove any legacy pin protected user keys.
+        appSettingsStore.setPinProtectedUserKey(key: nil, userId: userId)
     }
 
     func setPinProtectedUserKeyToMemory(_ pinProtectedUserKey: String) async throws {
         try accountVolatileData[
             getActiveAccountUserId(),
-            default: AccountVolatileData()
+            default: AccountVolatileData(),
         ].pinProtectedUserKey = pinProtectedUserKey
     }
 
@@ -2039,7 +2200,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
         appSettingsStore.setAccountCreationEnvironmentURLs(
             environmentURLData: urls,
-            email: email
+            email: email,
         )
     }
 
@@ -2215,6 +2376,21 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return activeUserId
     }
 
+    /// Updates the account's profile.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account to update.
+    ///   - updateProfile: A closure that allows making updates to the account's profile. Any
+    ///     updates made to the profile will be saved when the closure returns.
+    ///
+    private func updateAccountProfile(userId: String, updateProfile: (inout Account.AccountProfile) -> Void) throws {
+        guard var state = appSettingsStore.state else { throw StateServiceError.noAccounts }
+        guard var profile = state.accounts[userId]?.profile else { throw StateServiceError.noAccountForUserId }
+        updateProfile(&profile)
+        state.accounts[userId]?.profile = profile
+        appSettingsStore.state = state
+    }
+
     /// Updates the settings badge publisher by determining the settings badge count for the user.
     ///
     /// - Parameter userId: The user ID whose settings badge count should be updated.
@@ -2224,9 +2400,9 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
         var badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
-            .compactMap { $0 }
-            .filter { $0 != .complete }
-            .count
+            .compactMap(\.self)
+            .count(where: { $0 != .complete })
+
         if importLoginsSetupProgress == .setUpLater {
             badgeCount += 1
         }
@@ -2234,7 +2410,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
             importLoginsSetupProgress: importLoginsSetupProgress,
-            vaultUnlockSetupProgress: vaultUnlockSetupProgress
+            vaultUnlockSetupProgress: vaultUnlockSetupProgress,
         )
     }
 }

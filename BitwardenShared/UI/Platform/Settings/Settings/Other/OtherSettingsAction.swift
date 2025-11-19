@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - OtherSettingsAction
 
 /// Actions handled by the `OtherSettingsProcessor`.

@@ -1,3 +1,4 @@
+import BitwardenResources
 import Foundation
 
 // MARK: - ImportCXFState
@@ -32,7 +33,7 @@ struct ImportCXFState: Equatable, Sendable {
 
     /// The title of the main button.
     var mainButtonTitle: String {
-        return switch status {
+        switch status {
         case .start:
             Localizations.continue
         case .importing:
@@ -45,26 +46,26 @@ struct ImportCXFState: Equatable, Sendable {
     }
 
     /// The main icon to be displayed.
-    var mainIcon: ImageAsset {
-        return switch status {
+    var mainIcon: SharedImageAsset {
+        switch status {
         case .importing, .start:
-            Asset.Images.fileUpload24
+            SharedAsset.Icons.fileUpload24
         case .success:
-            Asset.Images.checkCircle24
+            SharedAsset.Icons.checkCircle24
         case .failure:
-            Asset.Images.circleX16
+            SharedAsset.Icons.circleX16
         }
     }
 
     /// The message to display on the page header.
     var message: String {
-        return switch status {
+        switch status {
         case .start:
             Localizations.startImportCXFDescriptionLong
         case .importing:
             Localizations.pleaseDoNotCloseTheApp
         case let .success(total, _):
-            Localizations.itemsSuccessfullyImported(total)
+            Localizations.xItemsSuccessfullyImported(total)
         case let .failure(message):
             message
         }
@@ -75,7 +76,7 @@ struct ImportCXFState: Equatable, Sendable {
 
     /// The title to display on the page header.
     var title: String {
-        return switch status {
+        switch status {
         case .start:
             Localizations.importPasswords
         case .importing:
@@ -89,7 +90,7 @@ struct ImportCXFState: Equatable, Sendable {
 
     /// Whether to show the cancel button.
     var showCancelButton: Bool {
-        return switch status {
+        switch status {
         case .importing, .success:
             false
         case .failure, .start:

@@ -48,6 +48,12 @@ protocol StateService: AnyObject {
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
 
+    /// Gets the data for the flight recorder.
+    ///
+    /// - Returns: The flight recorder data.
+    ///
+    func getFlightRecorderData() async -> FlightRecorderData?
+
     /// Gets the user's encryption secret key.
     ///
     /// - Returns: The user's encryption secret key.
@@ -94,7 +100,11 @@ protocol StateService: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
-    /// Sets the user's encryption secreet key.
+    /// Sets the data for the flight recorder.
+    ///
+    func setFlightRecorderData(_ data: FlightRecorderData?) async
+
+    /// Sets the user's encryption secret key.
     ///
     /// - Parameters:
     ///   - key: The key to set
@@ -144,7 +154,7 @@ enum StateServiceError: Error {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService, ConfigStateService {
+actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService, LanguageStateService {
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -182,7 +192,7 @@ actor DefaultStateService: StateService, ConfigStateService {
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        dataStore: DataStore
+        dataStore: DataStore,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
@@ -204,6 +214,10 @@ actor DefaultStateService: StateService, ConfigStateService {
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        appSettingsStore.flightRecorderData
     }
 
     func getPreAuthServerConfig() async -> ServerConfig? {
@@ -239,6 +253,10 @@ actor DefaultStateService: StateService, ConfigStateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        appSettingsStore.flightRecorderData = data
     }
 
     func setPreAuthServerConfig(config: ServerConfig) async {

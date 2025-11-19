@@ -13,7 +13,7 @@ protocol KeychainService: AnyObject {
     /// - Returns: The SecAccessControl.
     ///
     func accessControl(
-        for flags: SecAccessControlCreateFlags
+        for flags: SecAccessControlCreateFlags,
     ) throws -> SecAccessControl
 
     /// Adds a set of attributes.
@@ -64,14 +64,14 @@ class DefaultKeychainService: KeychainService {
     // MARK: Methods
 
     func accessControl(
-        for flags: SecAccessControlCreateFlags
+        for flags: SecAccessControlCreateFlags,
     ) throws -> SecAccessControl {
         var error: Unmanaged<CFError>?
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
             flags,
-            &error
+            &error,
         )
 
         guard let accessControl,

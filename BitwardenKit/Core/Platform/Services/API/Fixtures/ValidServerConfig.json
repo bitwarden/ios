@@ -31,8 +31,7 @@
         "AC-1795_updated-subscription-status-section": true,
         "unassigned-items-banner": true,
         "AC-1218-delete-provider": false,
-        "test-local-feature-flag": true,
-        "test-remote-feature-flag": true
+        "test-feature-flag": true
     },
     "object": "config"
 }

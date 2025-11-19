@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordText
@@ -17,7 +18,7 @@ struct PasswordText: View {
         (
             isPasswordVisible
                 ? Text(colorCodedText(for: password))
-                : Text(String(repeating: "•", count: Constants.hiddenPasswordLength))
+                : Text(String(repeating: "•", count: Constants.hiddenPasswordLength)),
         )
         .styleGuide(.bodyMonospaced)
     }
@@ -37,11 +38,11 @@ struct PasswordText: View {
     private func colorCodedText(for value: String) -> AttributedString {
         value.reduce(into: AttributedString()) { partialResult, character in
             let foregroundColor: Color = if character.isNumber {
-                Asset.Colors.textCodeBlue.swiftUIColor
+                SharedAsset.Colors.textCodeBlue.swiftUIColor
             } else if character.isSymbol || character.isPunctuation {
-                Asset.Colors.textCodePink.swiftUIColor
+                SharedAsset.Colors.textCodePink.swiftUIColor
             } else {
-                Asset.Colors.textPrimary.swiftUIColor
+                SharedAsset.Colors.textPrimary.swiftUIColor
             }
 
             // Add a zero-width space (U+200B) after each character to ensure text will wrap on any
@@ -58,27 +59,27 @@ struct PasswordText: View {
     VStack(spacing: 16) {
         PasswordText(
             password: "1234",
-            isPasswordVisible: false
+            isPasswordVisible: false,
         )
 
         PasswordText(
             password: "Password1234!",
-            isPasswordVisible: false
+            isPasswordVisible: false,
         )
 
         PasswordText(
             password: "Password1234!",
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
 
         PasswordText(
             password: "!@#$%^&*()_+-=.<>,:;\"'?/\\|`~",
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
 
         PasswordText(
             password: "1234567890",
-            isPasswordVisible: true
+            isPasswordVisible: true,
         )
     }
 }

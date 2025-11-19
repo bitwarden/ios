@@ -17,7 +17,7 @@ class GuidedTourViewStateTests: BitwardenTestCase {
                 .loginStep1,
                 .loginStep2,
                 .loginStep3,
-            ]
+            ],
         )
     }
 

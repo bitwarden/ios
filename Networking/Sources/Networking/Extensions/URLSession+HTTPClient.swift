@@ -20,7 +20,7 @@ extension URLSession: HTTPClient {
                         for: .applicationSupportDirectory,
                         in: .userDomainMask,
                         appropriateFor: nil,
-                        create: true
+                        create: true,
                     )
                     .appendingPathComponent("temp")
                     .appendingPathComponent(url.lastPathComponent)
@@ -35,7 +35,7 @@ extension URLSession: HTTPClient {
                     // Copy the newly downloaded file to the temporary url.
                     try FileManager.default.copyItem(
                         at: url,
-                        to: temporaryURL
+                        to: temporaryURL,
                     )
 
                     continuation.resume(with: .success(temporaryURL))

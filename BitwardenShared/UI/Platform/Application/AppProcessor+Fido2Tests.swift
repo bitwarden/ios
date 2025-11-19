@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import AuthenticationServices
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import Foundation
@@ -72,8 +73,8 @@ class AppProcessorFido2Tests: BitwardenTestCase {
                 stateService: stateService,
                 syncService: syncService,
                 vaultRepository: vaultRepository,
-                vaultTimeoutService: vaultTimeoutService
-            )
+                vaultTimeoutService: vaultTimeoutService,
+            ),
         )
         subject.coordinator = coordinator.asAnyCoordinator()
     }
@@ -159,7 +160,7 @@ class AppProcessorFido2Tests: BitwardenTestCase {
             signature: Data(repeating: 1, count: 32),
             clientDataHash: passkeyRequest.clientDataHash,
             authenticatorData: Data(repeating: 1, count: 40),
-            credentialID: Data(repeating: 1, count: 32)
+            credentialID: Data(repeating: 1, count: 32),
         )
 
         autofillCredentialService.provideFido2CredentialResult = .success(expectedAssertionResult)

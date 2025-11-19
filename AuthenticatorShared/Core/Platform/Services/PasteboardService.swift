@@ -48,7 +48,7 @@ class DefaultPasteboardService: PasteboardService {
     ///
     init(
         errorReporter: ErrorReporter,
-        pasteboard: UIPasteboard = .general
+        pasteboard: UIPasteboard = .general,
     ) {
         self.errorReporter = errorReporter
         self.pasteboard = pasteboard
@@ -61,7 +61,7 @@ class DefaultPasteboardService: PasteboardService {
         if clearClipboardValue == .never {
             pasteboard.setItems(
                 [[UTType.utf8PlainText.identifier: string]],
-                options: [.localOnly: true]
+                options: [.localOnly: true],
             )
         } else {
             // Set the expiration date if the clear clipboard preference is not never.
@@ -71,7 +71,7 @@ class DefaultPasteboardService: PasteboardService {
                 options: [
                     .localOnly: true,
                     .expirationDate: expirationDate,
-                ]
+                ],
             )
         }
     }

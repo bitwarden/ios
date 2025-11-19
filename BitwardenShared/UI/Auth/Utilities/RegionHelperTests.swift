@@ -1,4 +1,6 @@
 import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import XCTest
 
@@ -25,7 +27,7 @@ class RegionHelperTests: BitwardenTestCase {
         subject = RegionHelper(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: regionDelegate,
-            stateService: stateService
+            stateService: stateService,
         )
         subject.delegate = regionDelegate
     }

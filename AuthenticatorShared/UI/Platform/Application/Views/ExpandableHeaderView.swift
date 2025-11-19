@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExpandableHeaderView
@@ -49,7 +51,7 @@ struct ExpandableHeaderView<Content: View>: View {
             HStack(spacing: 8) {
                 SectionHeaderView("\(title) (\(count))")
 
-                Asset.Images.chevronDown.swiftUIImage
+                SharedAsset.Icons.chevronDown16.swiftUIImage
                     .imageStyle(.accessoryIcon(scaleWithFont: true))
                     .rotationEffect(isExpanded ? Angle(degrees: 180) : .zero)
             }
@@ -76,7 +78,7 @@ struct ExpandableHeaderView<Content: View>: View {
         title: String,
         count: Int,
         buttonAccessibilityIdentifier: String = "ExpandSectionButton",
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: () -> Content,
     ) {
         self.buttonAccessibilityIdentifier = buttonAccessibilityIdentifier
         self.content = content()

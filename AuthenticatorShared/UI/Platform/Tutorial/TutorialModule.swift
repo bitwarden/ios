@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - TutorialModule
 
 /// An object that builds tutorial coordinators
@@ -11,7 +13,7 @@ protocol TutorialModule {
     /// - Returns: A coordinator
     ///
     func makeTutorialCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<TutorialRoute, TutorialEvent>
 }
 
@@ -20,7 +22,7 @@ extension DefaultAppModule: TutorialModule {
         TutorialCoordinator(
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

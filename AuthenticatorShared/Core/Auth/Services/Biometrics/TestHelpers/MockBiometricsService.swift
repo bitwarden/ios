@@ -10,7 +10,7 @@ class MockBiometricsService: BiometricsService {
 
     func evaluateBiometricPolicy(
         _ suppliedContext: LAContext?,
-        for biometricAuthStatus: BiometricAuthorizationStatus
+        for biometricAuthStatus: BiometricAuthorizationStatus,
     ) async -> Bool {
         evaluationResult
     }

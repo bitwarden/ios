@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
@@ -34,10 +35,10 @@ class SSHKeyTextAutofillOptionsHelperTests: BitwardenTestCase {
             sshKey: .fixture(
                 privateKey: "privateKey",
                 publicKey: "publicKey",
-                fingerprint: "fingerprint"
+                fingerprint: "fingerprint",
             ),
             type: .sshKey,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -55,7 +56,7 @@ class SSHKeyTextAutofillOptionsHelperTests: BitwardenTestCase {
         let cipher = CipherView.fixture(
             sshKey: nil,
             type: .sshKey,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         XCTAssertTrue(options.isEmpty)
@@ -68,10 +69,10 @@ class SSHKeyTextAutofillOptionsHelperTests: BitwardenTestCase {
             sshKey: .fixture(
                 privateKey: "",
                 publicKey: "publicKey",
-                fingerprint: "fingerprint"
+                fingerprint: "fingerprint",
             ),
             type: .sshKey,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -90,10 +91,10 @@ class SSHKeyTextAutofillOptionsHelperTests: BitwardenTestCase {
             sshKey: .fixture(
                 privateKey: "privateKey",
                 publicKey: "",
-                fingerprint: "fingerprint"
+                fingerprint: "fingerprint",
             ),
             type: .sshKey,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -112,10 +113,10 @@ class SSHKeyTextAutofillOptionsHelperTests: BitwardenTestCase {
             sshKey: .fixture(
                 privateKey: "privateKey",
                 publicKey: "publicKey",
-                fingerprint: ""
+                fingerprint: "",
             ),
             type: .sshKey,
-            viewPassword: true
+            viewPassword: true,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -134,10 +135,10 @@ class SSHKeyTextAutofillOptionsHelperTests: BitwardenTestCase {
             sshKey: .fixture(
                 privateKey: "privateKey",
                 publicKey: "publicKey",
-                fingerprint: "fingerprint"
+                fingerprint: "fingerprint",
             ),
             type: .sshKey,
-            viewPassword: false
+            viewPassword: false,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)

@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -51,10 +52,10 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 settingsRepository: settingsRepository,
                 stateService: stateService,
                 twoStepLoginService: twoStepLoginService,
-                vaultTimeoutService: vaultTimeoutService
+                vaultTimeoutService: vaultTimeoutService,
             ),
             state: AccountSecurityState(),
-            vaultUnlockSetupHelper: vaultUnlockSetupHelper
+            vaultUnlockSetupHelper: vaultUnlockSetupHelper,
         )
     }
 
@@ -113,11 +114,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .thirtyMinutes,
                 .oneHour,
                 .custom(-100),
-            ]
+            ],
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 0, Localizations.logOut)
+            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 0, Localizations.logOut),
         )
     }
 
@@ -145,7 +146,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .thirtyMinutes,
                 .oneHour,
                 .custom(-100),
-            ]
+            ],
         )
         XCTAssertEqual(subject.state.policyTimeoutMessage, Localizations.vaultTimeoutPolicyInEffect(1, 1))
     }
@@ -169,11 +170,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 .thirtyMinutes,
                 .oneHour,
                 .custom(-100),
-            ]
+            ],
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 1, Localizations.lock)
+            Localizations.vaultTimeoutPolicyWithActionInEffect(1, 1, Localizations.lock),
         )
     }
 
@@ -216,7 +217,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_loadData_biometricsValue() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
         biometricsRepository.biometricUnlockStatus = .success(
-            biometricUnlockStatus
+            biometricUnlockStatus,
         )
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
@@ -249,7 +250,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_loadData_isAuthenticatorSyncEnabled() async {
         stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
 
         stateService.syncToAuthenticatorByUserId[Account.fixture().profile.userId] = false
         await subject.perform(.loadData)
@@ -258,21 +258,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         stateService.syncToAuthenticatorByUserId[Account.fixture().profile.userId] = true
         await subject.perform(.loadData)
         XCTAssertTrue(subject.state.isAuthenticatorSyncEnabled)
-    }
-
-    /// `perform(_:)` with `.loadData` updates the state. The processor should update
-    /// `shouldShowAuthenticatorSyncSection` based on the value of the `enableAuthenticatorSync`
-    /// feature flag.
-    @MainActor
-    func test_perform_loadData_shouldShowAuthenticatorSync() async {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
-        await subject.perform(.loadData)
-        XCTAssertTrue(subject.state.shouldShowAuthenticatorSyncSection)
-
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        await subject.perform(.loadData)
-        XCTAssertFalse(subject.state.shouldShowAuthenticatorSyncSection)
     }
 
     /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if biometrics are enabled.
@@ -391,15 +376,14 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(
             alert,
             Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred
-            )
+                title: Localizations.anErrorHasOccurred,
+            ),
         )
     }
 
     /// `perform(_:)` with `.toggleSyncWithAuthenticator` disables authenticator sync and updates the state.
     @MainActor
     func test_perform_toggleSyncWithAuthenticator_disable() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         stateService.activeAccount = .fixture()
         subject.state.isAuthenticatorSyncEnabled = true
 
@@ -414,7 +398,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// updates the state, and attempts a sync.
     @MainActor
     func test_perform_toggleSyncWithAuthenticator_enable() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         stateService.activeAccount = .fixture()
         subject.state.isAuthenticatorSyncEnabled = false
 
@@ -445,7 +428,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false
+            enabled: false,
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(false))
@@ -468,7 +451,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.sessionTimeoutAction = .lock
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false
+            enabled: false,
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(false))
@@ -488,7 +471,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: true
+            enabled: true,
         )
 
         await subject.perform(.toggleUnlockWithBiometrics(true))

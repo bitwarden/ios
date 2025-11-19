@@ -43,7 +43,7 @@ extension DataStore: PolicyDataStore {
         let insertRequest = try PolicyData.batchInsertRequest(objects: policies, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 }

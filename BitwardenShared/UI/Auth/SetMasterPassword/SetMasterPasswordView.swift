@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SetMasterPasswordView
@@ -15,7 +17,7 @@ struct SetMasterPasswordView: View {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.lock,
                 title: Localizations.chooseYourMasterPassword,
-                message: store.state.explanationText
+                message: store.state.explanationText,
             )
             .padding(.top, 12)
 
@@ -34,15 +36,15 @@ struct SetMasterPasswordView: View {
                     title: Localizations.masterPasswordRequired,
                     text: store.binding(
                         get: \.masterPassword,
-                        send: SetMasterPasswordAction.masterPasswordChanged
+                        send: SetMasterPasswordAction.masterPasswordChanged,
                     ),
                     footer: Localizations.theMasterPasswordIsThePasswordYouUseToAccessYourVault,
                     accessibilityIdentifier: "NewPasswordField",
                     passwordVisibilityAccessibilityId: "NewPasswordVisibilityToggle",
                     isPasswordVisible: store.binding(
                         get: \.isMasterPasswordRevealed,
-                        send: SetMasterPasswordAction.revealMasterPasswordFieldPressed
-                    )
+                        send: SetMasterPasswordAction.revealMasterPasswordFieldPressed,
+                    ),
                 )
                 .textFieldConfiguration(.password)
 
@@ -50,14 +52,14 @@ struct SetMasterPasswordView: View {
                     title: Localizations.retypeMasterPasswordRequired,
                     text: store.binding(
                         get: \.masterPasswordRetype,
-                        send: SetMasterPasswordAction.masterPasswordRetypeChanged
+                        send: SetMasterPasswordAction.masterPasswordRetypeChanged,
                     ),
                     accessibilityIdentifier: "RetypePasswordField",
                     passwordVisibilityAccessibilityId: "RetypePasswordVisibilityToggle",
                     isPasswordVisible: store.binding(
                         get: \.isMasterPasswordRevealed,
-                        send: SetMasterPasswordAction.revealMasterPasswordFieldPressed
-                    )
+                        send: SetMasterPasswordAction.revealMasterPasswordFieldPressed,
+                    ),
                 )
                 .textFieldConfiguration(.password)
 
@@ -65,13 +67,13 @@ struct SetMasterPasswordView: View {
                     title: Localizations.masterPasswordHint,
                     text: store.binding(
                         get: \.masterPasswordHint,
-                        send: SetMasterPasswordAction.masterPasswordHintChanged
+                        send: SetMasterPasswordAction.masterPasswordHintChanged,
                     ),
                     accessibilityIdentifier: "MasterPasswordHintLabel",
                     footerContent: {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
-                                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                                 .styleGuide(.footnote)
 
                             Button {
@@ -82,12 +84,12 @@ struct SetMasterPasswordView: View {
                             .buttonStyle(.bitwardenBorderless)
                         }
                         .padding(.vertical, 12)
-                    }
+                    },
                 )
             }
         }
         .scrollView()
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -124,9 +126,9 @@ struct SetMasterPasswordView: View {
         SetMasterPasswordView(
             store: Store(
                 processor: StateProcessor(
-                    state: SetMasterPasswordState(organizationIdentifier: "")
-                )
-            )
+                    state: SetMasterPasswordState(organizationIdentifier: ""),
+                ),
+            ),
         )
     }
 }

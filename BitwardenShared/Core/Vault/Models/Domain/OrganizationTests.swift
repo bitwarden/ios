@@ -32,7 +32,7 @@ class OrganizationTests: XCTestCase {
         XCTAssertTrue(Organization.fixture(type: .owner).isExemptFromPolicies)
         XCTAssertTrue(Organization.fixture(permissions: .fixture(managePolicies: true)).isExemptFromPolicies)
         XCTAssertTrue(
-            Organization.fixture(permissions: .fixture(managePolicies: true), type: .admin).isExemptFromPolicies
+            Organization.fixture(permissions: .fixture(managePolicies: true), type: .admin).isExemptFromPolicies,
         )
 
         XCTAssertFalse(Organization.fixture(type: .manager).isExemptFromPolicies)

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 
 /// Helper for user verification flows.
 ///
@@ -56,7 +57,7 @@ class DefaultUserVerificationHelper {
     init(
         authRepository: AuthRepository,
         errorReporter: ErrorReporter,
-        localAuthService: LocalAuthService
+        localAuthService: LocalAuthService,
     ) {
         self.authRepository = authRepository
         self.errorReporter = errorReporter
@@ -97,7 +98,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                     } catch {
                         continuation.resume(throwing: error)
                     }
-                }
+                },
             ))
         }
     }
@@ -110,7 +111,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
 
         do {
             let isValid = try await localAuthService.evaluateDeviceOwnerPolicy(
-                reason: reason
+                reason: reason,
             )
             return isValid ? .verified : .notVerified
         } catch LocalAuthError.cancelled {
@@ -138,7 +139,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                                 .defaultAlert(title: Localizations.invalidMasterPassword),
                                 onDismissed: {
                                     continuation.resume(returning: .notVerified)
-                                }
+                                },
                             )
                             return
                         }
@@ -147,7 +148,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                         errorReporter.log(error: error)
                         continuation.resume(returning: .unableToPerform)
                     }
-                }
+                },
             )
 
             Task {
@@ -176,7 +177,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                                 .defaultAlert(title: Localizations.invalidPIN),
                                 onDismissed: {
                                     continuation.resume(returning: .notVerified)
-                                }
+                                },
                             )
                             return
                         }
@@ -186,7 +187,7 @@ extension DefaultUserVerificationHelper: UserVerificationHelper {
                         errorReporter.log(error: error)
                         continuation.resume(returning: .unableToPerform)
                     }
-                }
+                },
             )
 
             Task {
@@ -225,7 +226,7 @@ protocol UserVerificationDelegate: AnyObject {
     ///
     /// - Parameter alert: The alert to show.
     ///
-    func showAlert(_ alert: Alert)
+    func showAlert(_ alert: BitwardenKit.Alert)
 
     /// Shows an alert to the user
     ///
@@ -233,5 +234,5 @@ protocol UserVerificationDelegate: AnyObject {
     ///   - alert: The alert to show.
     ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
-    func showAlert(_ alert: Alert, onDismissed: (() -> Void)?)
+    func showAlert(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?)
 }

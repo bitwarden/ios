@@ -63,11 +63,11 @@ extension DefaultEnvironmentService {
 
     var region: RegionType {
         if environmentURLs.baseURL == EnvironmentURLData.defaultUS.base {
-            return .unitedStates
+            .unitedStates
         } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
-            return .europe
+            .europe
         } else {
-            return .selfHosted
+            .selfHosted
         }
     }
 

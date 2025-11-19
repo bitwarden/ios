@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -34,7 +35,7 @@ class AppCoordinatorFido2Tests: BitwardenTestCase {
             appExtensionDelegate: appExtensionDelegate,
             module: module,
             rootNavigator: rootNavigator,
-            services: services
+            services: services,
         )
     }
 
@@ -55,7 +56,7 @@ class AppCoordinatorFido2Tests: BitwardenTestCase {
     func test_handleEvent_didStartTransparentController() async throws {
         appExtensionDelegate.extensionMode = .autofillFido2Credential(
             MockPasskeyCredentialRequest(),
-            userInteraction: true
+            userInteraction: true,
         )
         appExtensionDelegate.authCompletionRoute = nil
         router.routeForEvent = { _ in .completeWithNeverUnlockKey }

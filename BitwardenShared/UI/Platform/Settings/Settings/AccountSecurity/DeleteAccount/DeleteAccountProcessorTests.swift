@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -28,9 +29,9 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 errorReporter: errorReporter,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: DeleteAccountState()
+            state: DeleteAccountState(),
         )
     }
 
@@ -100,9 +101,9 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
             ServerError.error(
                 errorResponse: ErrorResponseModel(
                     validationErrors: ["": ["User verification failed."]],
-                    message: ""
-                )
-            )
+                    message: "",
+                ),
+            ),
         )
 
         await subject.perform(.deleteAccount)
@@ -127,9 +128,9 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
             ServerError.error(
                 errorResponse: ErrorResponseModel(
                     validationErrors: ["": ["User verification failed."]],
-                    message: ""
-                )
-            )
+                    message: "",
+                ),
+            ),
         )
 
         await subject.perform(.deleteAccount)
@@ -154,9 +155,9 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
                 errorResponse: ErrorResponseModel(
                     // swiftlint:disable:next line_length
                     validationErrors: ["": ["Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user."]],
-                    message: ""
-                )
-            )
+                    message: "",
+                ),
+            ),
         )
 
         await subject.perform(.deleteAccount)
@@ -179,8 +180,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         let error = ServerError.error(
             errorResponse: ErrorResponseModel(
                 validationErrors: ["": ["Example error"]],
-                message: "Example message"
-            )
+                message: "Example message",
+            ),
         )
 
         authRepository.deleteAccountResult = .failure(error)
@@ -257,7 +258,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
             coordinator.loadingOverlaysShown,
-            [LoadingOverlayState(title: Localizations.deletingYourAccount)]
+            [LoadingOverlayState(title: Localizations.deletingYourAccount)],
         )
         XCTAssertTrue(authRepository.deleteAccountCalled)
     }

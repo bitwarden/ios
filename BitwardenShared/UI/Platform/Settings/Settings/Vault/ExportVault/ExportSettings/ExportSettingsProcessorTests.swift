@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -16,7 +17,7 @@ class ExportSettingsProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
 
         subject = ExportSettingsProcessor(
-            coordinator: coordinator.asAnyCoordinator()
+            coordinator: coordinator.asAnyCoordinator(),
         )
     }
 

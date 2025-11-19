@@ -47,13 +47,13 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                 foldersCount: [
                     "1": 20,
                     "2": 5,
-                ]
-            )
+                ],
+            ),
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -77,13 +77,13 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                 foldersCount: [
                     "1": 20,
                     "2": 5,
-                ]
-            )
+                ],
+            ),
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -92,7 +92,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         }
         XCTAssertEqual(
             errorReporter.errors.first as? NSError,
-            BitwardenError.dataError("Received a folder from the API with a missing ID.")
+            BitwardenError.dataError("Received a folder from the API with a missing ID."),
         )
     }
 
@@ -111,13 +111,13 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                 foldersCount: [
                     "3": 15,
                     "4": 6,
-                ]
-            )
+                ],
+            ),
         )
 
-        let sections = try await subject.addFoldersSection(nestedFolderId: "2").build()
+        let vaultListData = try await subject.addFoldersSection(nestedFolderId: "2").build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[3]: sub1 (15)
@@ -144,18 +144,44 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
                     .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
                     .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
-                ]
-            )
+                ],
+            ),
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
               - Group[1]: folder1 (20)
               - Group[3]: folder3 (0)
+            Section[NoFolder]: No Folder
+              - Cipher: Cipher1
+              - Cipher: Cipher2
+              - Cipher: Cipher3
+            """
+        }
+    }
+
+    /// `addFoldersSection(:)` adds the "No Folder" section even when there are no
+    /// other folders.
+    func test_addFoldersSection_noFolderWithEmptyFolders() async throws {
+        setUpSubject(
+            withData: VaultListPreparedData(
+                folders: [],
+                noFolderItems: [
+                    .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
+                    .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
+                    .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
+                ],
+            ),
+        )
+
+        let vaultListData = try await subject.addFoldersSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
             Section[NoFolder]: No Folder
               - Cipher: Cipher1
               - Cipher: Cipher2
@@ -183,13 +209,13 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     .fixture(cipherListView: .fixture(id: "1", name: "Cipher1")),
                     .fixture(cipherListView: .fixture(id: "2", name: "Cipher2")),
                     .fixture(cipherListView: .fixture(id: "3", name: "Cipher3")),
-                ]
-            )
+                ],
+            ),
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -206,7 +232,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         var noFolderItems: [VaultListItem] = []
         for cipherIndex in 1 ... 101 {
             noFolderItems.append(
-                .fixture(cipherListView: .fixture(id: "\(cipherIndex)", name: "Cipher\(cipherIndex)"))
+                .fixture(cipherListView: .fixture(id: "\(cipherIndex)", name: "Cipher\(cipherIndex)")),
             )
         }
         setUpSubject(
@@ -220,13 +246,13 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
                     "1": 20,
                     "2": 5,
                 ],
-                noFolderItems: noFolderItems
-            )
+                noFolderItems: noFolderItems,
+            ),
         )
 
-        let sections = try await subject.addFoldersSection().build()
+        let vaultListData = try await subject.addFoldersSection().build()
 
-        assertInlineSnapshot(of: sections.dump(), as: .lines) {
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[Folders]: Folders
               - Group[2]: afolder2 (5)
@@ -241,10 +267,13 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
 
     /// Sets up the subject with the appropriate `VaultListPreparedData`.
     func setUpSubject(withData: VaultListPreparedData) {
+        let collectionHelper = MockCollectionHelper()
+        collectionHelper.orderClosure = { collections in collections }
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
+            collectionHelper: collectionHelper,
             errorReporter: errorReporter,
-            withData: withData
+            withData: withData,
         )
     }
 }

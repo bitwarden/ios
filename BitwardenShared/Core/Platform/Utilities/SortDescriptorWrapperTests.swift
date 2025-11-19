@@ -35,7 +35,7 @@ class SortDescriptorWrapperTests: BitwardenTestCase {
         let sortDescriptor = SortDescriptorWrapper<FooToSort>(
             \.optionalSortValue,
             comparator: .localizedStandard,
-            order: .reverse
+            order: .reverse,
         )
         let values = [
             FooToSort(sortValue: "", optionalSortValue: "one value"),

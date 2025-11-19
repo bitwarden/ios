@@ -1,4 +1,5 @@
 import AuthenticatorShared
+import BitwardenKit
 import SnapshotTesting
 import SwiftUI
 import TestHelpers

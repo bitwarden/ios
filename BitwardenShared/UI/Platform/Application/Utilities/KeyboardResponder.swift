@@ -11,12 +11,12 @@ final class KeyboardResponder: ObservableObject {
 
     /// A publisher when the keyboard will hide.
     var keyboardWillHideNotification = NotificationCenter.default.publisher(
-        for: UIResponder.keyboardWillHideNotification
+        for: UIResponder.keyboardWillHideNotification,
     )
 
     /// A publisher when the keyboard will show.
     var keyboardWillShowNotification = NotificationCenter.default.publisher(
-        for: UIResponder.keyboardWillShowNotification
+        for: UIResponder.keyboardWillShowNotification,
     )
 
     // MARK: Initializer

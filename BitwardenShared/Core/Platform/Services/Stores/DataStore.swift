@@ -98,7 +98,7 @@ class DataStore {
                     PolicyData.deleteByUserIdRequest(userId: userId),
                     SendData.deleteByUserIdRequest(userId: userId),
                     DomainData.deleteByUserIdRequest(userId: userId),
-                ]
+                ],
             )
         }
     }
@@ -119,7 +119,7 @@ class DataStore {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequests: requests,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }
@@ -136,7 +136,7 @@ class DataStore {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: deleteRequest,
                 batchInsertRequest: insertRequest,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }

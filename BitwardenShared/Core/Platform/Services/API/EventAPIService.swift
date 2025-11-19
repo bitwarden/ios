@@ -18,11 +18,11 @@ extension APIService: EventAPIService {
             EventRequestModel(
                 type: event.type,
                 cipherId: event.cipherId,
-                date: event.date
+                date: event.date,
             )
         }
         _ = try await eventsService.send(
-            EventRequest(requestBody: models)
+            EventRequest(requestBody: models),
         )
     }
 }

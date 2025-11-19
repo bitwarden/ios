@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -47,14 +49,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             pasteboardService: pasteboardService,
             rehydrationHelper: rehydrationHelper,
             stateService: stateService,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
         subject = ViewItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             itemId: "id",
             services: services,
-            state: ViewItemState()
+            state: ViewItemState(),
         )
     }
 
@@ -83,7 +85,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             subject.state.toast,
-            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization"))
+            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization")),
         )
     }
 
@@ -111,24 +113,24 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             pasteboardService: pasteboardService,
             rehydrationHelper: rehydrationHelper,
             stateService: stateService,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
         subject = ViewItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             itemId: "id",
             services: services,
-            state: ViewItemState()
+            state: ViewItemState(),
         )
         waitFor(
             !rehydrationHelper.rehydratableTargets.isEmpty
-                && rehydrationHelper.rehydratableTargets[0] is ViewItemProcessor
+                && rehydrationHelper.rehydratableTargets[0] is ViewItemProcessor,
         )
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
-    func test_perform_appeared() {
+    func test_perform_appeared() { // swiftlint:disable:this function_body_length
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.showWebIcons = true
@@ -138,6 +140,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             CollectionView.fixture(id: "2"),
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
+        let cipherOwnershipOptions: [CipherOwner] = [
+            .personal(email: "user@bitwarden.com"),
+            .organization(id: "1", name: "Test Organization"),
+        ]
+        vaultRepository.fetchCipherOwnershipOptions = cipherOwnershipOptions
 
         let cipherItem = CipherView.fixture(
             id: "id",
@@ -148,11 +155,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 uris: nil,
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             name: "Name",
             notes: "Notes",
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
@@ -167,14 +174,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         var expectedState = CipherItemState(
             existing: cipherItem,
             hasPremium: true,
-            iconBaseURL: URL(string: "https://example.com/icons")!
+            iconBaseURL: URL(string: "https://example.com/icons")!,
         )!
 
         expectedState.allUserCollections = collections
+        expectedState.ownershipOptions = cipherOwnershipOptions
 
         XCTAssertNotNil(subject.streamCipherDetailsTask)
         XCTAssertTrue(subject.state.hasPremiumFeatures)
-        XCTAssertFalse(subject.state.restrictCipherItemDeletionFlagEnabled)
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
 
@@ -214,7 +221,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             subject.state.loadingState,
-            .loading(nil)
+            .loading(nil),
         )
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -226,7 +233,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         stateService.activeAccount = account
 
         let cipherItem = CipherView.loginFixture(
-            id: "id"
+            id: "id",
         )
         vaultRepository.doesActiveAccountHavePremiumResult = false
         vaultRepository.cipherDetailsSubject.send(cipherItem)
@@ -241,7 +248,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let expectedState = CipherItemState(
             existing: cipherItem,
             hasPremium: false,
-            iconBaseURL: URL(string: "https://example.com/icons")!
+            iconBaseURL: URL(string: "https://example.com/icons")!,
         )!
 
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
@@ -271,11 +278,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 uris: nil,
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             name: "Name",
             notes: "Notes",
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.cipherDetailsSubject.send(cipherItem)
         vaultRepository.fetchFolderResult = .success(.fixture(id: "1", name: "FolderTest"))
@@ -290,7 +297,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         var expectedState = CipherItemState(
             existing: cipherItem,
             hasPremium: true,
-            iconBaseURL: URL(string: "https://example.com/icons")!
+            iconBaseURL: URL(string: "https://example.com/icons")!,
         )!
 
         expectedState.allUserCollections = collections
@@ -323,12 +330,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 uris: nil,
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             name: "Name",
             notes: "Notes",
             organizationId: "1",
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.cipherDetailsSubject.send(cipherItem)
         vaultRepository.fetchOrganizationResult = .success(.fixture(name: "OrgTest"))
@@ -343,7 +350,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         var expectedState = CipherItemState(
             existing: cipherItem,
             hasPremium: true,
-            iconBaseURL: URL(string: "https://example.com/icons")!
+            iconBaseURL: URL(string: "https://example.com/icons")!,
         )!
 
         expectedState.allUserCollections = collections
@@ -378,12 +385,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 uris: nil,
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             name: "Name",
             notes: "Notes",
             organizationId: "1",
-            viewPassword: true
+            viewPassword: true,
         )
         vaultRepository.cipherDetailsSubject.send(cipherItem)
         vaultRepository.fetchOrganizationResult = .success(.fixture(name: "OrgTest"))
@@ -398,7 +405,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         var expectedState = CipherItemState(
             existing: cipherItem,
             hasPremium: true,
-            iconBaseURL: URL(string: "https://example.com/icons")!
+            iconBaseURL: URL(string: "https://example.com/icons")!,
         )!
 
         expectedState.allUserCollections = collections
@@ -408,25 +415,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
-    }
-
-    /// `perform(_:)` with `.appeared` loads feature flag value for .restrictCipherItemDeletion.
-    @MainActor
-    func test_perform_appeared_restrictItemDeletion() {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        configService.featureFlagsBool = [
-            .restrictCipherItemDeletion: true,
-        ]
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
-
-        XCTAssertTrue(subject.state.restrictCipherItemDeletionFlagEnabled)
     }
 
     /// `perform` with `.checkPasswordPressed` records any errors.
@@ -457,7 +445,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         ))
     }
 
@@ -478,7 +466,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         ))
     }
 
@@ -519,7 +507,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
-            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle card action without loaded data")
+            ViewItemProcessor.ActionError.dataNotLoaded("Cannot handle card action without loaded data"),
         )
     }
 
@@ -531,17 +519,17 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             login: nil,
             name: "name",
             revisionDate: Date(),
-            type: .login
+            type: .login,
         )
         let cipherState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
-            ViewItemProcessor.ActionError.nonCardTypeToggle("Cannot handle card action on non-card type")
+            ViewItemProcessor.ActionError.nonCardTypeToggle("Cannot handle card action on non-card type"),
         )
     }
 
@@ -552,7 +540,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let cipherView = CipherView.cardFixture(id: "123")
         var cipherState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.cardItemAction(.toggleCodeVisibilityChanged(true)))
@@ -568,7 +556,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let cipherView = CipherView.cardFixture(id: "123")
         var cipherState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.cardItemAction(.toggleNumberVisibilityChanged(true)))
@@ -583,7 +571,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let cipherView = CipherView.cardFixture(id: "123")
         let cipherState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
 
@@ -622,7 +610,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
     }
 
-    /// `recieve` with `.copyPressed` doesn't copy if the data isn't loaded.
+    /// `receive` with `.copyPressed` doesn't copy if the data isn't loaded.
     @MainActor
     func test_receive_copyPressed_notLoaded() {
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
@@ -638,25 +626,25 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             linkedIdType: nil,
             name: "name 1",
             type: .hidden,
-            value: "value 1"
+            value: "value 1",
         )
         let customField2 = CustomFieldState(
             isPasswordVisible: false,
             linkedIdType: nil,
             name: "name 2",
             type: .hidden,
-            value: "value 2"
+            value: "value 2",
         )
         let customField3 = CustomFieldState(
             isPasswordVisible: false,
             linkedIdType: nil,
             name: "name 3",
             type: .hidden,
-            value: "value 3"
+            value: "value 3",
         )
         var cipherState = CipherItemState(
             existing: CipherView.loginFixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         cipherState.customFieldsState.customFields = [
             customField1,
@@ -664,7 +652,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             customField3,
         ]
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
 
@@ -689,14 +677,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             linkedIdType: nil,
             name: "name 2",
             type: .hidden,
-            value: "value 2"
+            value: "value 2",
         )
         subject.state.loadingState = .loading(nil)
         subject.receive(.customFieldVisibilityPressed(customField))
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
             ViewItemProcessor.ActionError
-                .dataNotLoaded("Cannot toggle password for non-loaded item.")
+                .dataNotLoaded("Cannot toggle password for non-loaded item."),
         )
     }
 
@@ -732,11 +720,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_deletePressed_genericError() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
         struct TestError: Error, Equatable {}
@@ -762,11 +750,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_deletePressed_genericError_permanentDelete() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
         struct TestError: Error, Equatable {}
@@ -792,11 +780,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_deletePressed_showsPermanentDeleteConfirmationAlert() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
         await subject.perform(.deletePressed)
@@ -811,11 +799,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_deletePressed_showsSoftDeleteConfirmationAlert() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
         vaultRepository.softDeleteCipherResult = .success(())
@@ -831,11 +819,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_deletePressed_success() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(id: "123"),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
         vaultRepository.softDeleteCipherResult = .success(())
@@ -866,11 +854,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_deletePressed_success_permanent_delete() async throws {
         let cipherState = CipherItemState(
             existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
         vaultRepository.softDeleteCipherResult = .success(())
@@ -895,79 +883,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemDeletedCalled)
     }
 
-    /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
-    /// generic error alert if restoring fails.
-    @MainActor
-    func test_perform_restorePressed_genericError() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState)
-        )
-        subject.state = state
-        struct TestError: Error, Equatable {}
-        vaultRepository.restoreCipherResult = .failure(TestError())
-        await subject.perform(.restorePressed)
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
-        XCTAssertNil(alert?.message)
-
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
-
-        // Ensure the generic error alert is displayed.
-        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
-        XCTAssertEqual(errorAlert as? TestError, TestError())
-        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
-    }
-
-    /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
-    /// toast if restoring succeeds.
-    @MainActor
-    func test_perform_restorePressed_success() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState)
-        )
-        subject.state = state
-        vaultRepository.softDeleteCipherResult = .success(())
-        await subject.perform(.restorePressed)
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
-        XCTAssertNil(alert?.message)
-
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
-
-        XCTAssertNil(errorReporter.errors.first)
-        // Ensure the cipher is deleted and the view is dismissed.
-        XCTAssertEqual(vaultRepository.restoredCipher.last?.id, "123")
-        var dismissAction: DismissAction?
-        if case let .dismiss(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
-        XCTAssertTrue(delegate.itemRestoredCalled)
-    }
-
     /// `perform(_:)` with `.toggleDisplayMultipleCollections` doesn't update the state if
     /// loadingState is not `.data(:)`
     @MainActor
     func test_perform_toggleDisplayMultipleCollectionsNoAction() async throws {
         let state = ViewItemState(
-            loadingState: .loading(nil)
+            loadingState: .loading(nil),
         )
         subject.state = state
 
@@ -982,11 +903,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_toggleDisplayMultipleCollectionsNoCollectionIds() async throws {
         let cipherState = CipherItemState(
             existing: .fixture(),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
 
@@ -1005,11 +926,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_toggleDisplayMultipleCollectionsNoCollectionToDisplay() async throws {
         let cipherState = CipherItemState(
             existing: .fixture(collectionIds: ["1", "2"]),
-            hasPremium: false
+            hasPremium: false,
         )!
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
 
@@ -1029,7 +950,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_toggleDisplayMultipleCollectionsFromOneToMany() async throws {
         var cipherState = CipherItemState(
             existing: .fixture(collectionIds: ["1", "2", "4"]),
-            hasPremium: false
+            hasPremium: false,
         )!
         cipherState.allUserCollections = [
             .fixture(id: "1"),
@@ -1040,7 +961,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         ]
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
 
@@ -1063,7 +984,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_toggleDisplayMultipleCollectionsFromManyToOne() async throws {
         var cipherState = CipherItemState(
             existing: .fixture(collectionIds: ["2", "3", "5"]),
-            hasPremium: false
+            hasPremium: false,
         )!
         cipherState.allUserCollections = [
             .fixture(id: "1"),
@@ -1075,7 +996,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         cipherState.isShowingMultipleCollections = true
 
         let state = ViewItemState(
-            loadingState: .data(cipherState)
+            loadingState: .data(cipherState),
         )
         subject.state = state
 
@@ -1203,14 +1124,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 uris: nil,
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             name: "name",
-            revisionDate: Date()
+            revisionDate: Date(),
         )
         let loginState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         subject.state.loadingState = .data(loginState)
 
@@ -1241,9 +1162,9 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             XCTUnwrap(
                 CipherItemState(
                     existing: cipher,
-                    hasPremium: false
-                )
-            )
+                    hasPremium: false,
+                ),
+            ),
         )
 
         subject.receive(.morePressed(.clone))
@@ -1264,9 +1185,9 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             XCTUnwrap(
                 CipherItemState(
                     existing: cipher,
-                    hasPremium: false
-                )
-            )
+                    hasPremium: false,
+                ),
+            ),
         )
 
         subject.receive(.morePressed(.clone))
@@ -1295,9 +1216,9 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             XCTUnwrap(
                 CipherItemState(
                     existing: cipher,
-                    hasPremium: true
-                )
-            )
+                    hasPremium: true,
+                ),
+            ),
         )
 
         subject.receive(.morePressed(.editCollections))
@@ -1316,7 +1237,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
         XCTAssertEqual(
             errorReporter.errors.last as? ViewItemProcessor.ActionError,
-            .dataNotLoaded("Cannot perform action on cipher until it's loaded.")
+            .dataNotLoaded("Cannot perform action on cipher until it's loaded."),
         )
     }
 
@@ -1329,15 +1250,82 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             XCTUnwrap(
                 CipherItemState(
                     existing: cipher,
-                    hasPremium: false
-                )
-            )
+                    hasPremium: false,
+                ),
+            ),
         )
 
         subject.receive(.morePressed(.moveToOrganization))
 
         XCTAssertEqual(coordinator.routes.last, .moveToOrganization(cipher))
         XCTAssertTrue(coordinator.contexts.last as? ViewItemProcessor === subject)
+    }
+
+    /// `receive(_:)` with `.morePressed(.restore)` presents the confirmation alert before restoring
+    /// the item and displays generic error alert if restoring fails.
+    @MainActor
+    func test_receive_morePressed_restore_genericError() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+        struct TestError: Error, Equatable {}
+        vaultRepository.restoreCipherResult = .failure(TestError())
+        subject.receive(.morePressed(.restore))
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
+        XCTAssertNil(alert?.message)
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        // Ensure the generic error alert is displayed.
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
+        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `receive(_:)` with `.morePressed(.restore)` presents the confirmation alert before restoring
+    /// the item and displays toast if restoring succeeds.
+    @MainActor
+    func test_receive_morePressed_restore_success() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        subject.receive(.morePressed(.restore))
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
+        XCTAssertNil(alert?.message)
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is deleted and the view is dismissed.
+        XCTAssertEqual(vaultRepository.restoredCipher.last?.id, "123")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemRestoredCalled)
     }
 
     /// `receive` with `.passwordHistoryPressed` navigates to the password history view.
@@ -1364,7 +1352,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
             ViewItemProcessor.ActionError
-                .dataNotLoaded("Cannot toggle password for non-loaded item.")
+                .dataNotLoaded("Cannot toggle password for non-loaded item."),
         )
     }
 
@@ -1376,18 +1364,18 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             login: nil,
             name: "name",
             revisionDate: Date(),
-            type: .card
+            type: .card,
         )
         let cipherState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
         XCTAssertEqual(
             errorReporter.errors.first as? ViewItemProcessor.ActionError,
             ViewItemProcessor.ActionError
-                .nonLoginPasswordToggle("Cannot toggle password for non-login item.")
+                .nonLoginPasswordToggle("Cannot toggle password for non-login item."),
         )
     }
 
@@ -1404,14 +1392,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 uris: nil,
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             name: "name",
-            revisionDate: Date()
+            revisionDate: Date(),
         )
         var cipherState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         subject.state.loadingState = .data(cipherState)
         subject.receive(.passwordVisibilityPressed)
@@ -1439,7 +1427,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             errorReporter.errors.last as? ViewItemProcessor.ActionError,
-            .dataNotLoaded("Cannot handle SSH key action without loaded data")
+            .dataNotLoaded("Cannot handle SSH key action without loaded data"),
         )
     }
 
@@ -1449,7 +1437,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_sshKeyItemAction_privateKeyVisibilityPressedNotSshKeyTypeLogsError() async throws {
         var cipherItemState = CipherItemState(
             existing: .fixture(),
-            hasPremium: true
+            hasPremium: true,
         )!
         cipherItemState.type = .login
         subject.state.loadingState = .data(cipherItemState)
@@ -1458,7 +1446,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(
             errorReporter.errors.last as? ViewItemProcessor.ActionError,
-            .nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type")
+            .nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type"),
         )
     }
 
@@ -1509,22 +1497,22 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 uris: nil,
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             name: "name",
             reprompt: reprompt,
-            revisionDate: Date()
+            revisionDate: Date(),
         )
         var cipherItemState = CipherItemState(
             existing: cipherView,
-            hasPremium: true
+            hasPremium: true,
         )!
         cipherItemState.type = .sshKey
         cipherItemState.sshKeyState = SSHKeyItemState(
             isPrivateKeyVisible: false,
             privateKey: "privateKey",
             publicKey: "publicKey",
-            keyFingerprint: "fingerprint"
+            keyFingerprint: "fingerprint",
         )
         subject.state.loadingState = .data(cipherItemState)
     }

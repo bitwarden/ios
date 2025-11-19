@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AboutView
@@ -25,7 +27,7 @@ struct AboutView: View {
 
             copyrightNotice
         }
-        .animation(.default, value: store.state.flightRecorderActiveLog)
+        .animation(.default, value: store.state.flightRecorderState.activeLog)
         .scrollView()
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
         .task {
@@ -33,7 +35,7 @@ struct AboutView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: AboutAction.toastShown
+            send: AboutAction.toastShown,
         ))
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
@@ -53,48 +55,20 @@ struct AboutView: View {
     private var copyrightNotice: some View {
         Text(store.state.copyrightText)
             .styleGuide(.caption2)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
     }
 
     /// The section for the flight recorder.
     @ViewBuilder private var flightRecorderSection: some View {
-        ContentBlock(dividerLeadingPadding: 16) {
-            BitwardenToggle(
-                isOn: store.bindingAsync(
-                    get: { $0.flightRecorderActiveLog != nil },
-                    perform: AboutEffect.toggleFlightRecorder
-                ),
-                accessibilityIdentifier: "FlightRecorderSwitch",
-                accessibilityLabel: store.state.flightRecorderToggleAccessibilityLabel
-            ) {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 8) {
-                        Text(Localizations.flightRecorder)
-
-                        Button {
-                            openURL(ExternalLinksConstants.flightRecorderHelp)
-                        } label: {
-                            Asset.Images.questionCircle16.swiftUIImage
-                                .scaledFrame(width: 16, height: 16)
-                                .accessibilityLabel(Localizations.learnMore)
-                        }
-                        .buttonStyle(.fieldLabelIcon)
-                    }
-
-                    if let log = store.state.flightRecorderActiveLog {
-                        Text(Localizations.loggingEndsOnDateAtTime(log.formattedEndDate, log.formattedEndTime))
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                            .styleGuide(.subheadline)
-                    }
-                }
-            }
-
-            SettingsListItem(Localizations.viewRecordedLogs) {
-                store.send(.viewFlightRecorderLogsTapped)
-            }
-        }
+        FlightRecorderSettingsSectionView(
+            store: store.child(
+                state: \.flightRecorderState,
+                mapAction: { .flightRecorder($0) },
+                mapEffect: { .flightRecorder($0) },
+            ),
+        )
     }
 
     /// The section of miscellaneous about items.
@@ -111,7 +85,7 @@ struct AboutView: View {
             SettingsListItem(store.state.version) {
                 store.send(.versionTapped)
             } trailingContent: {
-                Asset.Images.copy24.swiftUIImage
+                SharedAsset.Icons.copy24.swiftUIImage
                     .imageStyle(.rowIcon)
             }
         }
@@ -124,9 +98,9 @@ struct AboutView: View {
                 Localizations.submitCrashLogs,
                 isOn: store.binding(
                     get: \.isSubmitCrashLogsToggleOn,
-                    send: AboutAction.toggleSubmitCrashLogs
+                    send: AboutAction.toggleSubmitCrashLogs,
                 ),
-                accessibilityIdentifier: "SubmitCrashLogsSwitch"
+                accessibilityIdentifier: "SubmitCrashLogsSwitch",
             )
         }
     }
@@ -142,7 +116,7 @@ struct AboutView: View {
         SettingsListItem(name) {
             store.send(action)
         } trailingContent: {
-            Asset.Images.externalLink24.swiftUIImage
+            SharedAsset.Icons.externalLink24.swiftUIImage
                 .imageStyle(.rowIcon)
         }
     }
@@ -152,9 +126,9 @@ struct AboutView: View {
 
 #Preview {
     AboutView(store: Store(processor: StateProcessor(state: AboutState(
-        flightRecorderActiveLog: FlightRecorderData.LogMetadata(
+        flightRecorderState: FlightRecorderSettingsSectionState(activeLog: FlightRecorderData.LogMetadata(
             duration: .eightHours,
-            startDate: Date(timeIntervalSinceNow: 60 * 60 * -4)
-        )
+            startDate: Date(timeIntervalSinceNow: 60 * 60 * -4),
+        )),
     ))))
 }

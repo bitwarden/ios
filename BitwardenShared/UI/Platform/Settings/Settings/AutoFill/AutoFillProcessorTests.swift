@@ -1,8 +1,11 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable:next type_body_length
 class AutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -30,9 +33,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: AutoFillState()
+            state: AutoFillState(),
         )
     }
 
@@ -74,13 +77,13 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.fetchSettingValues` fetches the setting values to display and updates the state.
     @MainActor
     func test_perform_fetchSettingValues() async {
-        settingsRepository.getDefaultUriMatchTypeResult = .success(.exact)
+        settingsRepository.getDefaultUriMatchTypeResult = .exact
         settingsRepository.getDisableAutoTotpCopyResult = .success(false)
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .exact)
         XCTAssertTrue(subject.state.isCopyTOTPToggleOn)
 
-        settingsRepository.getDefaultUriMatchTypeResult = .success(.regularExpression)
+        settingsRepository.getDefaultUriMatchTypeResult = .regularExpression
         settingsRepository.getDisableAutoTotpCopyResult = .success(true)
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .regularExpression)
@@ -134,9 +137,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_defaultUriMatchTypeChanged() {
         subject.receive(.defaultUriMatchTypeChanged(.host))
-
-        XCTAssertEqual(subject.state.defaultUriMatchType, .host)
         waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .host)
+        XCTAssertEqual(subject.state.defaultUriMatchType, .host)
         XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .host)
     }
 
@@ -189,5 +191,159 @@ class AutoFillProcessorTests: BitwardenTestCase {
         waitFor(!errorReporter.errors.isEmpty)
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noActiveAccount)
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.regularExpression)` shows an alert to confirm the change
+    /// Confirming it updates the `defaultUriMatchType`
+    @MainActor
+    func test_receive_regularExpressionUriMatchTypeSelected_confirm() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
+            message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ],
+        ))
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .regularExpression)
+        XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .regularExpression)
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.regularExpression)` shows an alert to confirm the change
+    /// Canceling it keeps the `defaultUriMatchType` value
+    @MainActor
+    func test_receive_advancedUriMatchTypeSelected_cancel() async throws {
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+        subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseX(Localizations.regEx),
+            message: Localizations.regularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ],
+        ))
+        try await alert.tapAction(title: Localizations.cancel)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+    }
+
+    /// `receive(_:)` with `.regularExpression` shows an alert for navigating to the web vault
+    /// When `Learn more` is tapped on the alert navigates the user to the web app
+    @MainActor
+    func test_receive_regularExpressionUriMatchTypeSelected_learnMore() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.regularExpression))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .regularExpression)
+        let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertEqual(alertLearnMore, Alert(
+            title: Localizations.keepYourCredentialsSecure,
+            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.regEx),
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in },
+            ],
+        ))
+
+        try await alertLearnMore.tapAction(title: Localizations.learnMore)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.startsWith)` shows an alert to confirm the change
+    /// Confirming it updates the `defaultUriMatchType`
+    @MainActor
+    func test_receive_startsWithUriMatchTypeSelected_confirm() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.startsWith))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseX(Localizations.startsWith),
+            message: Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ],
+        ))
+        try await alert.tapAction(title: Localizations.yes)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .startsWith)
+        XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .startsWith)
+    }
+
+    /// Receiving `.defaultUriMatchTypeChanged(.startsWith)` shows an alert to confirm the change
+    /// Canceling it keeps the `defaultUriMatchType` value
+    @MainActor
+    func test_receive_startsWithUriMatchTypeSelected_cancel() async throws {
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+        subject.receive(.defaultUriMatchTypeChanged(.startsWith))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, Alert(
+            title: Localizations.areYouSureYouWantToUseX(Localizations.startsWith),
+            message: Localizations.startsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.yes, style: .default) { _ in },
+            ],
+        ))
+        try await alert.tapAction(title: Localizations.cancel)
+
+        XCTAssertEqual(subject.state.defaultUriMatchType, .domain)
+    }
+
+    /// `receive(_:)` with `.startsWith` shows an alert for navigating to the web vault
+    /// When `Learn more` is tapped on the alert navigates the user to the web app
+    @MainActor
+    func test_receive_startsWithUriMatchTypeSelected_learnMore() async throws {
+        subject.receive(.defaultUriMatchTypeChanged(.startsWith))
+        try await waitForAsync {
+            !self.coordinator.alertShown.isEmpty
+        }
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        waitFor(settingsRepository.updateDefaultUriMatchTypeValue == .startsWith)
+        let alertLearnMore = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertEqual(alertLearnMore, Alert(
+            title: Localizations.keepYourCredentialsSecure,
+            message: Localizations.learnMoreAboutHowToKeepCredentialsSecureWhenUsingX(Localizations.startsWith),
+            alertActions: [
+                AlertAction(title: Localizations.close, style: .cancel),
+                AlertAction(title: Localizations.learnMore, style: .default) { _ in },
+            ],
+        ))
+
+        try await alertLearnMore.tapAction(title: Localizations.learnMore)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.uriMatchDetections)
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearUrl)
+        XCTAssertNil(subject.state.url)
     }
 }

@@ -22,9 +22,9 @@ class UpdateCipherPreferenceRequestTests: BitwardenTestCase {
             try UpdateCipherPreferenceRequest(
                 cipher: .fixture(
                     id: nil,
-                    revisionDate: Date(year: 2023, month: 10, day: 31)
-                )
-            )
+                    revisionDate: Date(year: 2023, month: 10, day: 31),
+                ),
+            ),
         ) { error in
             XCTAssertEqual(error as? CipherAPIServiceError, .updateMissingId)
         }
@@ -34,8 +34,8 @@ class UpdateCipherPreferenceRequestTests: BitwardenTestCase {
     func test_init_fail_empty() throws {
         XCTAssertThrowsError(
             try UpdateCipherPreferenceRequest(
-                cipher: .fixture(id: "", revisionDate: Date(year: 2023, month: 10, day: 31))
-            )
+                cipher: .fixture(id: "", revisionDate: Date(year: 2023, month: 10, day: 31)),
+            ),
         ) { error in
             XCTAssertEqual(error as? CipherAPIServiceError, .updateMissingId)
         }
@@ -47,8 +47,8 @@ class UpdateCipherPreferenceRequestTests: BitwardenTestCase {
             cipher: .fixture(
                 folderId: "folderId",
                 id: "123",
-                revisionDate: Date(year: 2023, month: 10, day: 31)
-            )
+                revisionDate: Date(year: 2023, month: 10, day: 31),
+            ),
         ))
         assertInlineSnapshot(of: subject?.body as UpdateCipherPreferenceRequestModel?, as: .json) {
             """
@@ -65,8 +65,8 @@ class UpdateCipherPreferenceRequestTests: BitwardenTestCase {
         subject = try UpdateCipherPreferenceRequest(
             cipher: .fixture(
                 id: "123",
-                revisionDate: Date(year: 2023, month: 10, day: 31)
-            )
+                revisionDate: Date(year: 2023, month: 10, day: 31),
+            ),
         )
         XCTAssertEqual(subject?.method, .put)
     }
@@ -76,8 +76,8 @@ class UpdateCipherPreferenceRequestTests: BitwardenTestCase {
         subject = try UpdateCipherPreferenceRequest(
             cipher: .fixture(
                 id: "123",
-                revisionDate: Date(year: 2023, month: 10, day: 31)
-            )
+                revisionDate: Date(year: 2023, month: 10, day: 31),
+            ),
         )
         XCTAssertEqual(subject?.path, "/ciphers/123/partial")
     }

@@ -8,7 +8,8 @@ extension SyncResponseModel {
         folders: [FolderResponseModel] = [],
         policies: [PolicyResponseModel] = [],
         profile: ProfileResponseModel? = nil,
-        sends: [SendResponseModel] = []
+        sends: [SendResponseModel] = [],
+        userDecryption: UserDecryptionResponseModel? = nil,
     ) -> SyncResponseModel {
         self.init(
             ciphers: ciphers,
@@ -17,7 +18,8 @@ extension SyncResponseModel {
             folders: folders,
             policies: policies,
             profile: profile,
-            sends: sends
+            sends: sends,
+            userDecryption: userDecryption,
         )
     }
 }

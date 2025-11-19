@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExportCXFView
@@ -18,7 +20,7 @@ struct ExportCXFView: View {
                 image: Image(decorative: store.state.mainIcon),
                 style: .largeTextTintedIcon,
                 title: store.state.title,
-                message: store.state.message
+                message: store.state.message,
             )
             .padding(.horizontal, 30)
             .frame(maxWidth: .infinity)
@@ -48,7 +50,7 @@ struct ExportCXFView: View {
         }
         .padding(.top, 8)
         .frame(maxWidth: .infinity)
-        .scrollView(backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor)
+        .scrollView(backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .safeAreaInset(edge: .bottom) {
             VStack {
                 if store.state.showMainButton {
@@ -66,7 +68,7 @@ struct ExportCXFView: View {
                 .accessibilityIdentifier("CancelButton")
             }
             .padding(.horizontal, 12)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         }
         .transition(.opacity)
         .animation(.easeInOut, value: store.state.status)
@@ -105,9 +107,9 @@ struct ExportCXFView: View {
     ExportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ExportCXFState()
-            )
-        )
+                state: ExportCXFState(),
+            ),
+        ),
     )
     .navStackWrapped
 }
@@ -122,11 +124,11 @@ struct ExportCXFView: View {
                             CXFCredentialsResult(count: 13, type: .password),
                             CXFCredentialsResult(count: 7, type: .passkey),
                             CXFCredentialsResult(count: 10, type: .card),
-                        ]
-                    )
-                )
-            )
-        )
+                        ],
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 
@@ -136,11 +138,11 @@ struct ExportCXFView: View {
             processor: StateProcessor(
                 state: ExportCXFState(
                     status: .failure(
-                        message: "Something went wrong"
-                    )
-                )
-            )
-        )
+                        message: "Something went wrong",
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 

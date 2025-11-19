@@ -14,7 +14,7 @@ protocol KeyConnectorService {
     ///
     func convertNewUserToKeyConnector(
         keyConnectorUrl: URL,
-        orgIdentifier: String
+        orgIdentifier: String,
     ) async throws
 
     /// Returns the managing organization that requires the use of Key Connector for the user.
@@ -99,7 +99,7 @@ class DefaultKeyConnectorService {
         keyConnectorAPIService: KeyConnectorAPIService,
         organizationService: OrganizationService,
         stateService: StateService,
-        tokenService: TokenService
+        tokenService: TokenService,
     ) {
         self.accountAPIService = accountAPIService
         self.clientService = clientService
@@ -116,7 +116,7 @@ extension DefaultKeyConnectorService: KeyConnectorService {
 
         try await keyConnectorAPIService.postMasterKeyToKeyConnector(
             key: keyConnectorResponse.masterKey,
-            keyConnectorUrl: keyConnectorUrl
+            keyConnectorUrl: keyConnectorUrl,
         )
 
         let account = try await stateService.getActiveAccount()
@@ -125,15 +125,16 @@ extension DefaultKeyConnectorService: KeyConnectorService {
                 kdfConfig: account.kdf,
                 key: keyConnectorResponse.encryptedUserKey,
                 keys: KeysRequestModel(keyPair: keyConnectorResponse.keys),
-                orgIdentifier: orgIdentifier
-            )
+                orgIdentifier: orgIdentifier,
+            ),
         )
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: keyConnectorResponse.keys.private,
-                encryptedUserKey: keyConnectorResponse.encryptedUserKey
-            )
+                encryptedUserKey: keyConnectorResponse.encryptedUserKey,
+            ),
         )
     }
 
@@ -164,12 +165,12 @@ extension DefaultKeyConnectorService: KeyConnectorService {
             userKeyEncrypted: encryptedUserKey,
             password: password,
             kdf: account.kdf.sdkKdf,
-            email: account.profile.email
+            email: account.profile.email,
         ))
 
         try await keyConnectorAPIService.postMasterKeyToKeyConnector(
             key: masterKey,
-            keyConnectorUrl: keyConnectorUrl
+            keyConnectorUrl: keyConnectorUrl,
         )
         try await accountAPIService.convertToKeyConnector()
 
@@ -177,9 +178,12 @@ extension DefaultKeyConnectorService: KeyConnectorService {
     }
 
     func userNeedsMigration() async throws -> Bool {
-        let isExternal = try await tokenService.getIsExternal()
-        let usesKeyConnector = try await stateService.getUsesKeyConnector()
-        let organization = try await getManagingOrganization()
-        return isExternal && !usesKeyConnector && organization != nil
+        guard try await tokenService.getIsExternal() else {
+            return false
+        }
+        guard try await stateService.getUsesKeyConnector() == false else {
+            return false
+        }
+        return try await getManagingOrganization() != nil
     }
 }

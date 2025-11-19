@@ -18,6 +18,8 @@ public protocol CredentialProviderContext {
     var flowWithUserInteraction: Bool { get }
     /// The `ASCredentialServiceIdentifier` array depending on the `ExtensionMode`.
     var serviceIdentifiers: [ASCredentialServiceIdentifier] { get }
+    /// The URI of the credential to autofill.
+    var uri: String? { get }
 }
 
 /// Default implementation of `CredentialProviderContext`.
@@ -25,23 +27,23 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     public var authCompletionRoute: AppRoute? {
         switch extensionMode {
         case .autofillCredential:
-            return nil
+            nil
         case .autofillOTP:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .autofillOTPCredential:
-            return nil
+            nil
         case .autofillText:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .autofillVaultList:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .autofillFido2Credential:
-            return nil
+            nil
         case .autofillFido2VaultList:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         case .configureAutofill:
-            return AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
+            AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
         case .registerFido2Credential:
-            return AppRoute.vault(.autofillList)
+            AppRoute.vault(.autofillList)
         }
     }
 
@@ -59,13 +61,13 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     public var flowWithUserInteraction: Bool {
         switch extensionMode {
         case let .autofillCredential(_, userInteraction):
-            return userInteraction
+            userInteraction
         case let .autofillFido2Credential(_, userInteraction):
-            return userInteraction
+            userInteraction
         case let .autofillOTPCredential(_, userInteraction):
-            return userInteraction
+            userInteraction
         default:
-            return true
+            true
         }
     }
 
@@ -77,7 +79,7 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     }
 
     public var serviceIdentifiers: [ASCredentialServiceIdentifier] {
-        return switch extensionMode {
+        switch extensionMode {
         case let .autofillOTP(serviceIdentifiers):
             serviceIdentifiers
         case let .autofillVaultList(serviceIdentifiers):
@@ -86,6 +88,34 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             serviceIdentifiers
         default:
             []
+        }
+    }
+
+    public var uri: String? {
+        guard let serviceIdentifier = serviceIdentifiers.first else {
+            // WORKAROUND: iOS does not consistently send `serviceIdentifiers` in the Fido2 + Passwords
+            // vault list flow (.autofillFido2VaultList). As a fallback, we use the `relyingPartyIdentifier`
+            // as the URI for filtering, which provides similar functionality.
+            //
+            // This fallback should be retained even if Apple fixes the primary issue, as it ensures
+            // resilience against future OS regressions and edge cases.
+            //
+            // Related: iOS Autofill API behavior - serviceIdentifiers may be empty in certain contexts.
+            if case let .autofillFido2VaultList(_, passkeyParameters) = extensionMode,
+               !passkeyParameters.relyingPartyIdentifier.isEmpty {
+                return passkeyParameters.relyingPartyIdentifier.httpsNormalized()
+            }
+
+            return nil
+        }
+
+        return switch serviceIdentifier.type {
+        case .domain:
+            "https://" + serviceIdentifier.identifier
+        case .URL:
+            serviceIdentifier.identifier
+        @unknown default:
+            serviceIdentifier.identifier
         }
     }
 

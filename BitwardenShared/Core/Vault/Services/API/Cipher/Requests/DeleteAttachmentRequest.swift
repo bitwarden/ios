@@ -6,7 +6,7 @@ import Networking
 /// Data model for performing a delete attachment request.
 ///
 struct DeleteAttachmentRequest: Request {
-    typealias Response = EmptyResponse
+    typealias Response = DeleteAttachmentResponse
 
     // MARK: Properties
 

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LandingView
@@ -9,7 +11,7 @@ struct LandingView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject public var store: Store<LandingState, LandingAction, LandingEffect>
+    @ObservedObject var store: Store<LandingState, LandingAction, LandingEffect>
 
     var body: some View {
         ZStack {
@@ -18,8 +20,10 @@ struct LandingView: View {
         }
         .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                profileSwitcherToolbarItem
+            ToolbarItem(placement: .topBarLeading) {
+                if !store.state.profileSwitcherState.accounts.isEmpty {
+                    profileSwitcherToolbarItem
+                }
             }
         }
         .task {
@@ -27,7 +31,7 @@ struct LandingView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: LandingAction.toastShown
+            send: LandingAction.toastShown,
         ))
     }
 
@@ -45,8 +49,8 @@ struct LandingView: View {
                 },
                 mapEffect: { effect in
                     .profileSwitcher(effect)
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -62,8 +66,8 @@ struct LandingView: View {
                 },
                 mapEffect: { profileEffect in
                     .profileSwitcher(profileEffect)
-                }
-            )
+                },
+            ),
         )
     }
 
@@ -76,7 +80,7 @@ struct LandingView: View {
                 Image(decorative: Asset.Images.logo)
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity, maxHeight: 34)
                     .padding(.horizontal, 12)
 
@@ -96,7 +100,7 @@ struct LandingView: View {
             Text(Localizations.logInToBitwarden)
                 .styleGuide(.title2, weight: .semibold)
                 .multilineTextAlignment(.center)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .frame(maxWidth: .infinity)
 
             VStack(spacing: 8) {
@@ -104,18 +108,18 @@ struct LandingView: View {
                     title: Localizations.emailAddress,
                     text: store.binding(
                         get: \.email,
-                        send: LandingAction.emailChanged
+                        send: LandingAction.emailChanged,
                     ),
                     accessibilityIdentifier: "LoginEmailAddressEntry",
                     footerContent: {
                         RegionSelector(
                             selectorLabel: Localizations.loggingInOn,
-                            regionName: store.state.region.baseURLDescription
+                            regionName: store.state.region.baseURLDescription,
                         ) {
                             await store.perform(.regionPressed)
                         }
                         .padding(.vertical, 14)
-                    }
+                    },
                 )
                 .textFieldConfiguration(.email)
                 .onSubmit {
@@ -125,7 +129,7 @@ struct LandingView: View {
 
                 BitwardenToggle(Localizations.rememberMe, isOn: store.binding(
                     get: { $0.isRememberMeOn },
-                    send: { .rememberMeChanged($0) }
+                    send: { .rememberMeChanged($0) },
                 ))
                 .accessibilityIdentifier("RememberMeSwitch")
                 .contentBlock()
@@ -141,12 +145,12 @@ struct LandingView: View {
             HStack(spacing: 4) {
                 Spacer()
                 Text(Localizations.newAroundHere)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 Button(Localizations.createAccount) {
                     store.send(.createAccountPressed)
                 }
                 .accessibilityIdentifier("CreateAccountButton")
-                .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                 Spacer()
             }
             .styleGuide(.footnote)
@@ -154,7 +158,7 @@ struct LandingView: View {
             Button {
                 store.send(.showPreLoginSettings)
             } label: {
-                Label(Localizations.appSettings, image: Asset.Images.cog16.swiftUIImage)
+                Label(Localizations.appSettings, image: SharedAsset.Icons.cog16.swiftUIImage)
             }
             .buttonStyle(.bitwardenBorderless)
             .frame(maxWidth: .infinity, alignment: .center)
@@ -172,10 +176,10 @@ struct LandingView: View {
                 processor: StateProcessor(
                     state: LandingState(
                         email: "",
-                        isRememberMeOn: false
-                    )
-                )
-            )
+                        isRememberMeOn: false,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -187,10 +191,10 @@ struct LandingView: View {
                 processor: StateProcessor(
                     state: LandingState(
                         email: "email@example.com",
-                        isRememberMeOn: true
-                    )
-                )
-            )
+                        isRememberMeOn: true,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -203,10 +207,10 @@ struct LandingView: View {
                     state: LandingState(
                         email: "",
                         isRememberMeOn: false,
-                        profileSwitcherState: ProfileSwitcherState.singleAccountHidden
-                    )
-                )
-            )
+                        profileSwitcherState: ProfileSwitcherState.singleAccountHidden,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -219,10 +223,10 @@ struct LandingView: View {
                     state: LandingState(
                         email: "",
                         isRememberMeOn: false,
-                        profileSwitcherState: ProfileSwitcherState.singleAccount
-                    )
-                )
-            )
+                        profileSwitcherState: ProfileSwitcherState.singleAccount,
+                    ),
+                ),
+            ),
         )
     }
 }

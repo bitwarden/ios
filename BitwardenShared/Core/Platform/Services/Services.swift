@@ -2,8 +2,6 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenSdk
 
-// swiftlint:disable file_length
-
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
     & HasAccountAPIService
@@ -20,6 +18,7 @@ typealias Services = HasAPIService
     & HasCameraService
     & HasCaptchaService
     & HasClientCertificateService
+    & HasChangeKdfService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
@@ -35,6 +34,7 @@ typealias Services = HasAPIService
     & HasFlightRecorder
     & HasGeneratorRepository
     & HasImportCiphersRepository
+    & HasLanguageStateService
     & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
@@ -88,13 +88,6 @@ protocol HasAppContextHelper {
 protocol HasAppIdService {
     /// The service used by the application to manage the app's ID.
     var appIdService: AppIdService { get }
-}
-
-/// Protocol for an object that provides an `AppInfoService`.
-///
-protocol HasAppInfoService {
-    /// The service used by the application to get info about the app and device it's running on.
-    var appInfoService: AppInfoService { get }
 }
 
 /// Protocol for an object that provides an `AppSettingsStore`.
@@ -153,11 +146,11 @@ protocol HasCameraService {
     var cameraService: CameraService { get }
 }
 
-/// Protocol for an object that provides a `CaptchaService`.
+/// Protocol for an object that provides a `ChangeKdfService`.
 ///
-protocol HasCaptchaService {
-    /// The service used by the application to generate captcha related artifacts.
-    var captchaService: CaptchaService { get }
+protocol HasChangeKdfService {
+    /// The service used to change the user's KDF settings.
+    var changeKdfService: ChangeKdfService { get }
 }
 
 /// Protocol for an object that provides a `ClientCertificateService`.
@@ -174,39 +167,11 @@ protocol HasClientService {
     var clientService: ClientService { get }
 }
 
-/// Protocol for an object that provides a `ConfigService`.
-///
-protocol HasConfigService {
-    /// The service to get server-specified configuration.
-    var configService: ConfigService { get }
-}
-
 /// Protocol for an object that provides a `DeviceAPIService`.
 ///
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
-}
-
-/// Protocol for an object that provides an `EnvironmentService`.
-///
-protocol HasEnvironmentService {
-    /// The service used by the application to manage the environment settings.
-    var environmentService: EnvironmentService { get }
-}
-
-/// Protocol for an object that provides an `ErrorReportBuilder`.
-///
-protocol HasErrorReportBuilder {
-    /// A helper for building an error report containing the details of an error that occurred.
-    var errorReportBuilder: ErrorReportBuilder { get }
-}
-
-/// Protocol for an object that provides an `ErrorReporter`.
-///
-protocol HasErrorReporter {
-    /// The service used by the application to report non-fatal errors.
-    var errorReporter: ErrorReporter { get }
 }
 
 /// Protocol for an object that provides an `EventService`.
@@ -250,13 +215,6 @@ protocol HasFido2UserInterfaceHelper {
 protocol HasFileAPIService {
     /// The service used by the application to make file-related API requests.
     var fileAPIService: FileAPIService { get }
-}
-
-/// Protocol for an object that provides a `FlightRecorder`.
-///
-protocol HasFlightRecorder {
-    /// The service used by the application for recording temporary debug logs.
-    var flightRecorder: FlightRecorder { get }
 }
 
 /// Protocol for an object that provides a `GeneratorRepository`.
@@ -381,13 +339,6 @@ protocol HasSystemDevice {
 protocol HasTextAutofillHelperFactory {
     /// Helper to create `TextAutofillHelper`s`.
     var textAutofillHelperFactory: TextAutofillHelperFactory { get }
-}
-
-/// Protocol for an object that provides a `TimeProvider`.
-///
-protocol HasTimeProvider {
-    /// Provides the present time for TOTP Code Calculation.
-    var timeProvider: TimeProvider { get }
 }
 
 /// Protocol for an object that provides a `TOTPExpirationManagerFactory`.

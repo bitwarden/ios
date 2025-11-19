@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - VaultSettingsProcessor
 
 /// The processor used to manage state and handle actions for the `VaultSettingsView`.
@@ -5,8 +7,7 @@
 final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSettingsAction, VaultSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasEnvironmentService
+    typealias Services = HasEnvironmentService
         & HasErrorReporter
         & HasStateService
 
@@ -30,7 +31,7 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: VaultSettingsState
+        state: VaultSettingsState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -57,8 +58,8 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:
-            coordinator.showAlert(.importItemsAlert(importUrl:
-                services.environmentService.importItemsURL.absoluteString
+            coordinator.showAlert(.importItemsAlert(
+                importUrl: services.environmentService.importItemsURL.absoluteString,
             ) {
                 self.state.url = self.services.environmentService.importItemsURL
             })
@@ -83,7 +84,6 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
     /// Streams the state of the badges in the settings tab.
     ///
     private func streamSettingsBadge() async {
-        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.badgeState = badgeState

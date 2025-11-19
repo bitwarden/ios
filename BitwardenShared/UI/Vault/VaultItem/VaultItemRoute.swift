@@ -22,7 +22,7 @@ enum VaultItemRoute: Equatable, Hashable {
         hasPremium: Bool = false,
         newCipherOptions: NewCipherOptions? = nil,
         organizationId: String? = nil,
-        type: CipherType
+        type: CipherType,
     )
 
     /// A route to view the attachments.

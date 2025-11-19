@@ -69,7 +69,7 @@ enum Base32 {
         return Octets(
             octet1Index: octetIndex,
             octet2Index: overhangsOctet ? octetIndex + 1 : nil,
-            bitOffset: octetBitOffset
+            bitOffset: octetBitOffset,
         )
     }
 
@@ -192,7 +192,7 @@ enum Base32 {
     ///                        by default)
     /// - returns:             `String` containing the Base32 encoded data
     ///
-    public static func encode(data: Data, padding: Bool = false) -> String {
+    static func encode(data: Data, padding: Bool = false) -> String {
         let mapped = dataTo5BitValueArray(data: data).map { inputBits -> String in
             encodingTable[Int(inputBits)]
         }
@@ -217,7 +217,7 @@ enum Base32 {
     /// - returns:             `Data` containing the Base32 encoded data
     /// - throws:              if the string is not a valid base32 string (or correct size if padded)
     ///
-    public static func decode(string encodedString: String, padded: Bool = false) throws -> Data {
+    static func decode(string encodedString: String, padded: Bool = false) throws -> Data {
         // Verify string size is a multiple of 8 if we expect padding
         if padded {
             guard encodedString.count % 8 == 0 else {

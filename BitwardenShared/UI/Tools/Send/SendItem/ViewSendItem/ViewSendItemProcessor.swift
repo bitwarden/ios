@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - ViewSendItemProcessor
 
 /// The processor used to manage state and handle actions for the view send item screen.
@@ -29,7 +32,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
     init(
         coordinator: AnyCoordinator<SendItemRoute, AuthAction>,
         services: Services,
-        state: ViewSendItemState
+        state: ViewSendItemState,
     ) {
         self.coordinator = coordinator
         self.services = services

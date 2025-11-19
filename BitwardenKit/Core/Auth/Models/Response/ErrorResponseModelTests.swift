@@ -8,7 +8,7 @@ import XCTest
 class ErrorResponseModelTests: BitwardenTestCase {
     /// Tests that `singleMessage()` returns the validation error's message.
     func test_singleMessage() throws {
-        let json = APITestData.createAccountAccountAlreadyExists.data
+        let json = APITestData.registerFinishAccountAlreadyExists.data
         let decoder = JSONDecoder()
         let subject = try decoder.decode(ErrorResponseModel.self, from: json)
         XCTAssertEqual(subject.singleMessage(), "Email 'j@a.com' is already taken.")

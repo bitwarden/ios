@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import UIKit
 
 // MARK: - TabRoute
@@ -24,13 +26,13 @@ extension TabRoute: TabRepresentable {
     public var image: UIImage? {
         switch self {
         case .generator:
-            Asset.Images.TabBar.generatorIdle.image
+            SharedAsset.Icons.TabBar.generatorIdle.image
         case .send:
-            Asset.Images.TabBar.sendIdle.image
+            SharedAsset.Icons.TabBar.sendIdle.image
         case .settings:
-            Asset.Images.TabBar.settingsIdle.image
+            SharedAsset.Icons.TabBar.settingsIdle.image
         case .vault:
-            Asset.Images.TabBar.vaultIdle.image
+            SharedAsset.Icons.TabBar.vaultIdle.image
         }
     }
 
@@ -50,13 +52,13 @@ extension TabRoute: TabRepresentable {
     public var selectedImage: UIImage? {
         switch self {
         case .generator:
-            Asset.Images.TabBar.generatorActive.image
+            SharedAsset.Icons.TabBar.generatorActive.image
         case .send:
-            Asset.Images.TabBar.sendActive.image
+            SharedAsset.Icons.TabBar.sendActive.image
         case .settings:
-            Asset.Images.TabBar.settingsActive.image
+            SharedAsset.Icons.TabBar.settingsActive.image
         case .vault:
-            Asset.Images.TabBar.vaultActive.image
+            SharedAsset.Icons.TabBar.vaultActive.image
         }
     }
 

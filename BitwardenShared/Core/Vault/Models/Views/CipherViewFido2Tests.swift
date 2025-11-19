@@ -28,7 +28,7 @@ class CipherViewFido2Tests: BitwardenTestCase {
     func test_hasFido2Credentials_withFido2Credentials() {
         let subject = CipherView.fixture(
             login: LoginView.fixture(fido2Credentials: [Fido2Credential.fixture()]),
-            type: .login
+            type: .login,
         )
         XCTAssertTrue(subject.hasFido2Credentials)
     }

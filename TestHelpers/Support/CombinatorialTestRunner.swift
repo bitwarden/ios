@@ -18,7 +18,7 @@ enum CombinatorialTestRunner {
     static func runCombined<T, U>(
         values1: [T],
         values2: [U],
-        run: (T, U) -> Void
+        run: (T, U) -> Void,
     ) {
         for val1 in values1 {
             for val2 in values2 {
@@ -37,7 +37,7 @@ enum CombinatorialTestRunner {
         values1: [T],
         values2: [U],
         values3: [V],
-        run: (T, U, V) -> Void
+        run: (T, U, V) -> Void,
     ) {
         for val1 in values1 {
             for val2 in values2 {
@@ -60,7 +60,7 @@ enum CombinatorialTestRunner {
         values2: [U],
         values3: [V],
         values4: [W],
-        run: (T, U, V, W) -> Void
+        run: (T, U, V, W) -> Void,
     ) {
         for val1 in values1 {
             for val2 in values2 {

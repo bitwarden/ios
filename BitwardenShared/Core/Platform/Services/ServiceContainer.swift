@@ -34,7 +34,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let appIdService: AppIdService
 
     /// The service used by the application to get info about the app and device it's running on.
-    let appInfoService: AppInfoService
+    public let appInfoService: AppInfoService
 
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
@@ -60,11 +60,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used to obtain device biometrics status & data.
     let biometricsService: BiometricsService
 
-    /// The service used by the application to generate captcha related artifacts.
-    let captchaService: CaptchaService
-
     /// The service used by the application to manage camera use.
     let cameraService: CameraService
+
+    /// The service used to change the user's KDF settings.
+    let changeKdfService: ChangeKdfService
 
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
@@ -73,16 +73,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let clientCertificateService: ClientCertificateService
 
     /// The service to get server-specified configuration
-    let configService: ConfigService
+    public let configService: ConfigService
 
     /// The service used by the application to manage the environment settings.
-    let environmentService: EnvironmentService
+    public let environmentService: EnvironmentService
 
     /// A helper for building an error report containing the details of an error that occurred.
-    let errorReportBuilder: ErrorReportBuilder
+    public let errorReportBuilder: ErrorReportBuilder
 
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    public let errorReporter: ErrorReporter
 
     /// The service used to record and send events.
     let eventService: EventService
@@ -101,7 +101,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
     /// The service used by the application for recording temporary debug logs.
-    let flightRecorder: FlightRecorder
+    public let flightRecorder: FlightRecorder
 
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
@@ -114,6 +114,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
+
+    /// The state service that handles language state.
+    public let languageStateService: LanguageStateService
 
     /// The service used by the application to evaluate local auth policies.
     let localAuthService: LocalAuthService
@@ -167,7 +170,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let textAutofillHelperFactory: TextAutofillHelperFactory
 
     /// Provides the present time for TOTP Code Calculation.
-    let timeProvider: TimeProvider
+    public let timeProvider: TimeProvider
 
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
@@ -216,8 +219,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - biometricsRepository: The repository to manage biometric unlock policies and access
     ///     controls for the user.
     ///   - biometricsService: The service used to obtain device biometrics status & data.
-    ///   - captchaService: The service used by the application to create captcha related artifacts.
     ///   - cameraService: The service used by the application to manage camera use.
+    ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - clientCertificateService: The service used by the application to manage client certificates
     ///     for mTLS authentication.
@@ -238,6 +241,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   in Credential Exhange flow.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
+    ///   - languageStateService: The service for handling language state.
     ///   - localAuthService: The service used by the application to evaluate local auth policies.
     ///   - migrationService: The serviced used to perform app data migrations.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
@@ -279,8 +283,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         autofillCredentialService: AutofillCredentialService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
-        captchaService: CaptchaService,
         cameraService: CameraService,
+        changeKdfService: ChangeKdfService,
         clientService: ClientService,
         clientCertificateService: ClientCertificateService,
         configService: ConfigService,
@@ -297,6 +301,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         importCiphersRepository: ImportCiphersRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
+        languageStateService: LanguageStateService,
         localAuthService: LocalAuthService,
         migrationService: MigrationService,
         nfcReaderService: NFCReaderService,
@@ -323,7 +328,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         userVerificationHelperFactory: UserVerificationHelperFactory,
         vaultRepository: VaultRepository,
         vaultTimeoutService: VaultTimeoutService,
-        watchService: WatchService
+        watchService: WatchService,
     ) {
         self.apiService = apiService
         self.appContextHelper = appContextHelper
@@ -337,8 +342,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.autofillCredentialService = autofillCredentialService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
-        self.captchaService = captchaService
         self.cameraService = cameraService
+        self.changeKdfService = changeKdfService
         self.clientService = clientService
         self.clientCertificateService = clientCertificateService
         self.configService = configService
@@ -355,6 +360,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.importCiphersRepository = importCiphersRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
+        self.languageStateService = languageStateService
         self.localAuthService = localAuthService
         self.migrationService = migrationService
         self.nfcReaderService = nfcReaderService
@@ -397,11 +403,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         appContext: AppContext = .mainApp,
         application: Application? = nil,
         errorReporter: ErrorReporter,
-        nfcReaderService: NFCReaderService? = nil
+        nfcReaderService: NFCReaderService? = nil,
     ) {
         let appContextHelper = DefaultAppContextHelper(appContext: appContext)
         let appSettingsStore = DefaultAppSettingsStore(
-            userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
+            userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
         let appInfoService = DefaultAppInfoService()
@@ -412,7 +418,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let keychainRepository = DefaultKeychainRepository(
             appIdService: appIdService,
-            keychainService: keychainService
+            keychainService: keychainService,
         )
         let timeProvider = CurrentTime()
 
@@ -422,44 +428,41 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appSettingsStore: appSettingsStore,
             dataStore: dataStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository
+            keychainRepository: keychainRepository,
         )
 
         let flightRecorder = DefaultFlightRecorder(
             appInfoService: appInfoService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
         errorReporter.add(logger: flightRecorder)
 
         let rehydrationHelper = DefaultRehydrationHelper(
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let environmentService = DefaultEnvironmentService(errorReporter: errorReporter, stateService: stateService)
         let collectionService = DefaultCollectionService(collectionDataStore: dataStore, stateService: stateService)
         let settingsService = DefaultSettingsService(settingsDataStore: dataStore, stateService: stateService)
-        let tokenService = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
-
-        let clientCertificateService = DefaultClientCertificateService(
-            stateService: stateService
+        let tokenService = DefaultTokenService(
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            stateService: stateService,
         )
-
-        // Create certificate-aware HTTP client
-        let certificateHttpClient = CertificateHTTPClient(certificateService: clientCertificateService)
         let apiService = APIService(
             client: certificateHttpClient,
             environmentService: environmentService,
             flightRecorder: flightRecorder,
             stateService: stateService,
-            tokenService: tokenService
+            tokenService: tokenService,
         )
         let errorReportBuilder = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
             appInfoService: appInfoService,
-            stateService: stateService
         )
 
         let configService = DefaultConfigService(
@@ -467,54 +470,60 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             configApiService: apiService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
-        )
-
-        let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
-        let clientService = DefaultClientService(
-            clientBuilder: clientBuilder,
-            configService: configService,
-            errorReporter: errorReporter,
-            stateService: stateService
-        )
-
-        let biometricsService = DefaultBiometricsService()
-        let biometricsRepository = DefaultBiometricsRepository(
-            biometricsService: biometricsService,
-            keychainService: keychainRepository,
-            stateService: stateService
-        )
-
-        let localAuthService = DefaultLocalAuthService()
-
-        let captchaService = DefaultCaptchaService(environmentService: environmentService, stateService: stateService)
-        let notificationCenterService = DefaultNotificationCenterService()
-
-        let folderService = DefaultFolderService(
-            folderAPIService: apiService,
-            folderDataStore: dataStore,
-            stateService: stateService
-        )
-
-        let organizationService = DefaultOrganizationService(
-            clientService: clientService,
-            errorReporter: errorReporter,
-            organizationDataStore: dataStore,
-            stateService: stateService
-        )
-
-        let policyService = DefaultPolicyService(
-            configService: configService,
-            organizationService: organizationService,
-            policyDataStore: dataStore,
-            stateService: stateService
+            timeProvider: timeProvider,
         )
 
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
             cipherDataStore: dataStore,
             fileAPIService: apiService,
-            stateService: stateService
+            stateService: stateService,
+        )
+
+        let clientBuilder = DefaultClientBuilder(
+            errorReporter: errorReporter,
+            tokenProvider: tokenService,
+        )
+        let clientService = DefaultClientService(
+            clientBuilder: clientBuilder,
+            configService: configService,
+            errorReporter: errorReporter,
+            sdkRepositoryFactory: DefaultSdkRepositoryFactory(
+                cipherDataStore: dataStore,
+                errorReporter: errorReporter,
+            ),
+            stateService: stateService,
+        )
+
+        let biometricsService = DefaultBiometricsService()
+        let biometricsRepository = DefaultBiometricsRepository(
+            biometricsService: biometricsService,
+            keychainService: keychainRepository,
+            stateService: stateService,
+        )
+
+        let localAuthService = DefaultLocalAuthService()
+
+        let notificationCenterService = DefaultNotificationCenterService()
+
+        let folderService = DefaultFolderService(
+            folderAPIService: apiService,
+            folderDataStore: dataStore,
+            stateService: stateService,
+        )
+
+        let organizationService = DefaultOrganizationService(
+            clientService: clientService,
+            errorReporter: errorReporter,
+            organizationDataStore: dataStore,
+            stateService: stateService,
+        )
+
+        let policyService = DefaultPolicyService(
+            configService: configService,
+            organizationService: organizationService,
+            policyDataStore: dataStore,
+            stateService: stateService,
         )
 
         let eventService = DefaultEventService(
@@ -523,23 +532,25 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             eventAPIService: apiService,
             organizationService: organizationService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let exportVaultService = DefultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             folderService: folderService,
+            policyService: policyService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let sendService = DefaultSendService(
             fileAPIService: apiService,
             sendAPIService: apiService,
             sendDataStore: dataStore,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let watchService = DefaultWatchService(
@@ -548,7 +559,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             errorReporter: errorReporter,
             organizationService: organizationService,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let keyConnectorService = DefaultKeyConnectorService(
@@ -557,35 +568,36 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keyConnectorAPIService: apiService,
             organizationService: organizationService,
             stateService: stateService,
-            tokenService: tokenService
+            tokenService: tokenService,
         )
 
         let sharedKeychainStorage = DefaultSharedKeychainStorage(
             keychainService: keychainService,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
         )
 
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage
+            storage: sharedKeychainStorage,
         )
 
         let sharedTimeoutService = DefaultSharedTimeoutService(
             sharedKeychainRepository: sharedKeychainRepository,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let vaultTimeoutService = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
 
         let reviewPromptService = DefaultReviewPromptService(
             appVersion: Bundle.main.appVersion,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let syncService = DefaultSyncService(
@@ -602,7 +614,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             syncAPIService: apiService,
             timeProvider: timeProvider,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
 
         let trustDeviceService = DefaultTrustDeviceService(
@@ -610,20 +622,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authAPIService: apiService,
             clientService: clientService,
             keychainRepository: keychainRepository,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let totpService = DefaultTOTPService(
             clientService: clientService,
             pasteboardService: pasteboardService,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let authService = DefaultAuthService(
@@ -638,7 +650,17 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             policyService: policyService,
             stateService: stateService,
             systemDevice: UIDevice.current,
-            trustDeviceService: trustDeviceService
+            trustDeviceService: trustDeviceService,
+        )
+
+        let changeKdfService = DefaultChangeKdfService(
+            accountAPIService: apiService,
+            clientService: clientService,
+            configService: configService,
+            errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
+            stateService: stateService,
+            syncService: syncService,
         )
 
         let authRepository = DefaultAuthRepository(
@@ -646,10 +668,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appContextHelper: appContextHelper,
             authService: authService,
             biometricsRepository: biometricsRepository,
+            changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             keychainService: keychainRepository,
             keyConnectorService: keyConnectorService,
             organizationAPIService: apiService,
@@ -658,13 +682,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             policyService: policyService,
             stateService: stateService,
             trustDeviceService: trustDeviceService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
 
         let pendingAppIntentActionMediator = DefaultPendingAppIntentActionMediator(
             authRepository: authRepository,
             errorReporter: errorReporter,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let migrationService = DefaultMigrationService(
@@ -672,23 +696,25 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
-            keychainService: keychainService
+            keychainService: keychainService,
         )
 
         let notificationService = DefaultNotificationService(
             appIdService: appIdService,
             authRepository: authRepository,
             authService: authService,
+            configService: configService,
             errorReporter: errorReporter,
             notificationAPIService: apiService,
+            refreshableApiService: apiService,
             stateService: stateService,
-            syncService: syncService
+            syncService: syncService,
         )
 
         let generatorRepository = DefaultGeneratorRepository(
             clientService: clientService,
             dataStore: dataStore,
-            stateService: stateService
+            stateService: stateService,
         )
 
         let sendRepository = DefaultSendRepository(
@@ -697,7 +723,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             organizationService: organizationService,
             sendService: sendService,
             stateService: stateService,
-            syncService: syncService
+            syncService: syncService,
         )
 
         let settingsRepository = DefaultSettingsRepository(
@@ -706,38 +732,62 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             pasteboardService: pasteboardService,
             stateService: stateService,
             syncService: syncService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
+        )
+
+        let collectionHelper = DefaultCollectionHelper(organizationService: organizationService)
+
+        let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
+            fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
+                authRepository: authRepository,
+                stateService: stateService,
+                userVerificationHelper: DefaultUserVerificationHelper(
+                    authRepository: authRepository,
+                    errorReporter: errorReporter,
+                    localAuthService: localAuthService,
+                ),
+                userVerificationRunner: DefaultUserVerificationRunner(),
+            ),
         )
 
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             collectionService: collectionService,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             folderService: folderService,
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
-                errorReporter: errorReporter
+                collectionHelper: collectionHelper,
+                errorReporter: errorReporter,
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
+                cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
+                    settingsService: settingsService,
+                    stateService: stateService,
+                ),
                 ciphersClientWrapperService: DefaultCiphersClientWrapperService(
                     clientService: clientService,
-                    errorReporter: errorReporter
+                    errorReporter: errorReporter,
                 ),
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 policyService: policyService,
                 stateService: stateService,
                 vaultListPreparedDataBuilderFactory: DefaultVaultListPreparedDataBuilderFactory(
+                    cipherService: cipherService,
                     clientService: clientService,
                     errorReporter: errorReporter,
                     stateService: stateService,
-                    timeProvider: timeProvider
-                )
-            )
+                    timeProvider: timeProvider,
+                ),
+            ),
         )
 
         let vaultRepository = DefaultVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
+            collectionHelper: collectionHelper,
             collectionService: collectionService,
             configService: configService,
             environmentService: environmentService,
@@ -750,20 +800,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             syncService: syncService,
             timeProvider: timeProvider,
             vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
-            vaultTimeoutService: vaultTimeoutService
-        )
-
-        let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
-            fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(
-                authRepository: authRepository,
-                stateService: stateService,
-                userVerificationHelper: DefaultUserVerificationHelper(
-                    authRepository: authRepository,
-                    errorReporter: errorReporter,
-                    localAuthService: localAuthService
-                ),
-                userVerificationRunner: DefaultUserVerificationRunner()
-            )
+            vaultTimeoutService: vaultTimeoutService,
         )
 
         #if DEBUG
@@ -772,20 +809,21 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 cipherService: cipherService,
                 clientService: clientService,
                 errorReporter: errorReporter,
-                syncService: syncService
-            )
+                syncService: syncService,
+            ),
         )
         #else
         let fido2CredentialStore = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
-            syncService: syncService
+            syncService: syncService,
         )
         #endif
 
         let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(
+            appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             credentialIdentityFactory: credentialIdentityFactory,
@@ -797,7 +835,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             timeProvider: timeProvider,
             totpService: totpService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
 
         let credentialManagerFactory = DefaultCredentialManagerFactory()
@@ -808,9 +846,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             credentialManagerFactory: credentialManagerFactory,
             cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             importCiphersService: DefaultImportCiphersService(
-                importCiphersAPIService: apiService
+                importCiphersAPIService: apiService,
             ),
-            syncService: syncService
+            syncService: syncService,
         )
 
         let exportCXFCiphersRepository = DefaultExportCXFCiphersRepository(
@@ -819,13 +857,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             credentialManagerFactory: credentialManagerFactory,
             cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             errorReporter: errorReporter,
-            stateService: stateService
+            exportVaultService: exportVaultService,
+            stateService: stateService,
         )
 
         let userVerificationHelperFactory = DefaultUserVerificationHelperFactory(
             authRepository: authRepository,
             errorReporter: errorReporter,
-            localAuthService: localAuthService
+            localAuthService: localAuthService,
         )
 
         let textAutofillHelperFactory = DefaultTextAutofillHelperFactory(
@@ -833,37 +872,51 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             eventService: eventService,
             userVerificationHelperFactory: userVerificationHelperFactory,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
 
         let authenticatorDataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
             groupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-            storeType: .persisted
+            storeType: .persisted,
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
         )
 
         let authBridgeItemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: sharedCryptographyService,
             dataStore: authenticatorDataStore,
             sharedKeychainRepository: sharedKeychainRepository,
-            sharedTimeoutService: sharedTimeoutService
+            sharedTimeoutService: sharedTimeoutService,
         )
 
+        // Note: `DefaultAuthenticatorSyncService` gets it's own `ClientService` that's separate
+        // from what the rest of the app uses. That ensures its vault unlock and syncing doesn't
+        // affect anything outside of authenticator syncing.
+        let authenticatorClientService = DefaultClientService(
+            clientBuilder: clientBuilder,
+            configService: configService,
+            errorReporter: errorReporter,
+            sdkRepositoryFactory: DefaultSdkRepositoryFactory(
+                cipherDataStore: dataStore,
+                errorReporter: errorReporter,
+            ),
+            stateService: stateService,
+        )
         let authenticatorSyncService = DefaultAuthenticatorSyncService(
             authBridgeItemService: authBridgeItemService,
-            authRepository: authRepository,
+            authenticatorClientService: authenticatorClientService,
             cipherDataStore: dataStore,
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
             stateService: stateService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
         Task { await authenticatorSyncService.start() }
 
@@ -880,8 +933,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             autofillCredentialService: autofillCredentialService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
-            captchaService: captchaService,
             cameraService: DefaultCameraService(),
+            changeKdfService: changeKdfService,
             clientService: clientService,
             clientCertificateService: clientCertificateService,
             configService: configService,
@@ -898,6 +951,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            languageStateService: stateService,
             localAuthService: localAuthService,
             migrationService: migrationService,
             nfcReaderService: nfcReaderService ?? NoopNFCReaderService(),
@@ -924,7 +978,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             userVerificationHelperFactory: userVerificationHelperFactory,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
-            watchService: watchService
+            watchService: watchService,
         )
     }
 
@@ -942,7 +996,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         appContext: AppContext = .mainApp,
         application: Application? = nil,
         errorReporter: () -> ErrorReporter,
-        nfcReaderService: () -> NFCReaderService? = { nil }
+        nfcReaderService: () -> NFCReaderService? = { nil },
     ) -> ServiceContainer {
         if let sharedInstance {
             return sharedInstance
@@ -952,7 +1006,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appContext: appContext,
             application: application,
             errorReporter: errorReporter(),
-            nfcReaderService: nfcReaderService()
+            nfcReaderService: nfcReaderService(),
         )
         sharedInstance = serviceContainer
         return serviceContainer
@@ -995,7 +1049,7 @@ extension ServiceContainer {
             configService: configService,
             errorReporter: errorReporter,
             generatorRepository: generatorRepository,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 }

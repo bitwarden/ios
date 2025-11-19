@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -12,7 +13,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.card.collectionId)
         XCTAssertEqual(
             VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").collectionId,
-            "1234"
+            "1234",
         )
         XCTAssertNil(VaultListGroup.folder(id: "4321", name: "Folder 📁").collectionId)
         XCTAssertNil(VaultListGroup.identity.collectionId)
@@ -41,7 +42,7 @@ class VaultListGroupTests: BitwardenTestCase {
     func test_folderId() {
         XCTAssertNil(VaultListGroup.card.folderId)
         XCTAssertNil(
-            VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").folderId
+            VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").folderId,
         )
         XCTAssertEqual(VaultListGroup.folder(id: "4321", name: "Folder 📁").folderId, "4321")
         XCTAssertNil(VaultListGroup.identity.folderId)
@@ -57,7 +58,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.card.name, "Card")
         XCTAssertEqual(
             VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").name,
-            "Collection 🗂️"
+            "Collection 🗂️",
         )
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").name, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
@@ -73,7 +74,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.card.navigationTitle, Localizations.cards)
         XCTAssertEqual(
             VaultListGroup.collection(id: "", name: "Collection 🗂️", organizationId: "1").navigationTitle,
-            "Collection 🗂️"
+            "Collection 🗂️",
         )
         XCTAssertEqual(VaultListGroup.folder(id: "", name: "Folder 📁").navigationTitle, "Folder 📁")
         XCTAssertEqual(VaultListGroup.identity.navigationTitle, Localizations.identities)
@@ -89,7 +90,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.card.organizationId)
         XCTAssertEqual(
             VaultListGroup.collection(id: "1234", name: "Collection 🗂️", organizationId: "ABCD").organizationId,
-            "ABCD"
+            "ABCD",
         )
         XCTAssertNil(VaultListGroup.folder(id: "4321", name: "Folder 📁").organizationId)
         XCTAssertNil(VaultListGroup.identity.organizationId)

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ManualEntryView
@@ -14,7 +16,7 @@ struct ManualEntryView: View {
         content
             .navigationBar(
                 title: Localizations.authenticatorKey,
-                titleDisplayMode: .inline
+                titleDisplayMode: .inline,
             )
             .toolbar {
                 cancelToolbarItem {
@@ -23,7 +25,7 @@ struct ManualEntryView: View {
 
                 saveToolbarItem {
                     store.send(
-                        ManualEntryAction.addPressed(code: store.state.authenticatorKey)
+                        ManualEntryAction.addPressed(code: store.state.authenticatorKey),
                     )
                 }
             }
@@ -40,7 +42,7 @@ struct ManualEntryView: View {
                 Text(Localizations.onceTheKeyIsSuccessfullyEntered)
                     .styleGuide(.body)
             }
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
             .padding(.horizontal, 12)
 
@@ -48,16 +50,16 @@ struct ManualEntryView: View {
                 title: Localizations.authenticatorKey,
                 text: store.binding(
                     get: \.authenticatorKey,
-                    send: ManualEntryAction.authenticatorKeyChanged
+                    send: ManualEntryAction.authenticatorKeyChanged,
                 ),
-                accessibilityIdentifier: "AddTOTPManuallyField"
+                accessibilityIdentifier: "AddTOTPManuallyField",
             )
 
             footerButtonContainer
         }
         .background(
-            Asset.Colors.backgroundPrimary.swiftUIColor
-                .ignoresSafeArea()
+            SharedAsset.Colors.backgroundPrimary.swiftUIColor
+                .ignoresSafeArea(),
         )
         .padding(.top, 12)
         .scrollView()
@@ -70,13 +72,13 @@ struct ManualEntryView: View {
             VStack(alignment: .center, spacing: 0.0, content: {
                 Text(Localizations.cannotAddAuthenticatorKey)
                     .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
 
                 AsyncButton {
                     await store.perform(.scanCodePressed)
                 } label: {
                     Text(Localizations.scanQRCode)
-                        .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                         .styleGuide(.callout)
                 }
                 .buttonStyle(InlineButtonStyle())
@@ -107,9 +109,9 @@ struct ManualEntryView_Previews: PreviewProvider {
             ManualEntryView(
                 store: Store(
                     processor: StateProcessor(
-                        state: PreviewState().manualEntryState
-                    )
-                )
+                        state: PreviewState().manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Empty")
@@ -121,10 +123,10 @@ struct ManualEntryView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: PreviewState(
-                            authenticatorKey: "manualEntry"
-                        ).manualEntryState
-                    )
-                )
+                            authenticatorKey: "manualEntry",
+                        ).manualEntryState,
+                    ),
+                ),
             )
         }
         .previewDisplayName("Text Added")

@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - ItemListModule
@@ -13,18 +14,18 @@ protocol ItemListModule {
     /// - Returns: A coordinator that can navigate to an `ItemListRoute`
     ///
     func makeItemListCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent>
 }
 
 extension DefaultAppModule: ItemListModule {
     func makeItemListCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
         ItemListCoordinator(
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

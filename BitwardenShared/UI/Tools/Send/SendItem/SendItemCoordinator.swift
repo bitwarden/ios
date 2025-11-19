@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import OSLog
 import Photos
@@ -8,14 +9,16 @@ import SwiftUI
 
 /// A coordinator that manages navigation in the send tab.
 ///
-final class SendItemCoordinator: Coordinator, HasStackNavigator {
+final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcherDisplayable {
     // MARK: Types
 
     typealias Module = FileSelectionModule
         & NavigatorBuilderModule
+        & ProfileSwitcherModule
         & SendItemModule
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
@@ -57,7 +60,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         delegate: SendItemDelegate,
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.module = module
@@ -92,6 +95,12 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             showShareSheet(for: [url])
         case let .view(sendView):
             showViewItem(for: sendView)
+        case .viewProfileSwitcher:
+            guard let handler = context as? ProfileSwitcherHandler else { return }
+            showProfileSwitcher(
+                handler: handler,
+                module: module,
+            )
         }
     }
 
@@ -140,7 +149,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         let processor = AddEditSendItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
         let view = AddEditSendItemView(store: Store(processor: processor))
         stackNavigator?.replace(view)
@@ -157,7 +166,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             let processor = AddEditSendItemProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: state
+                state: state,
             )
             let view = AddEditSendItemView(store: Store(processor: processor))
             stackNavigator.replace(view)
@@ -174,12 +183,12 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showFileSelection(
         route: FileSelectionRoute,
-        delegate: FileSelectionDelegate
+        delegate: FileSelectionDelegate,
     ) {
         guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         coordinator.start()
         coordinator.navigate(to: route)
@@ -193,7 +202,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     private func showShareSheet(for items: [Any]) {
         let viewController = UIActivityViewController(
             activityItems: items,
-            applicationActivities: nil
+            applicationActivities: nil,
         )
         stackNavigator?.present(viewController)
     }
@@ -207,7 +216,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         let processor = ViewSendItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
         stackNavigator?.replace(ViewSendItemView(store: Store(processor: processor)))
     }

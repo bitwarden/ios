@@ -8,7 +8,7 @@ protocol UserVerificationRunner {
     /// Executes the `verifyFunction` and if needed it's repeated until maximum number of attempts is reached.
     ///
     func verifyWithAttempts(
-        verifyFunction: () async throws -> UserVerificationResult
+        verifyFunction: () async throws -> UserVerificationResult,
     ) async throws -> UserVerificationResult
 
     /// Performs the verifications in `verifyFunctions` continuing
@@ -16,7 +16,7 @@ protocol UserVerificationRunner {
     /// i.e. the result is `UserVerificationResult.cantPerform`
     ///
     func verifyInQueue(
-        verifyFunctions: [() async throws -> UserVerificationResult]
+        verifyFunctions: [() async throws -> UserVerificationResult],
     ) async throws -> UserVerificationResult
 }
 
@@ -26,7 +26,7 @@ protocol UserVerificationRunner {
 ///
 class DefaultUserVerificationRunner: UserVerificationRunner {
     func verifyWithAttempts(
-        verifyFunction: () async throws -> UserVerificationResult
+        verifyFunction: () async throws -> UserVerificationResult,
     ) async throws -> UserVerificationResult {
         var attempts = 0
         var result: UserVerificationResult
@@ -39,7 +39,7 @@ class DefaultUserVerificationRunner: UserVerificationRunner {
     }
 
     func verifyInQueue(
-        verifyFunctions: [() async throws -> UserVerificationResult]
+        verifyFunctions: [() async throws -> UserVerificationResult],
     ) async throws -> UserVerificationResult {
         for verifyFunction in verifyFunctions {
             let result = try await verifyFunction()

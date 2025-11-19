@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -37,9 +38,9 @@ class ImportCXFProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter,
                 importCiphersRepository: importCiphersRepository,
                 policyService: policyService,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: state
+            state: state,
         )
     }
 
@@ -75,7 +76,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// policy applies to user.
     @MainActor
     func test_perform_appearedPersonalOwnership() async throws {
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             throw XCTSkip("CXP Import feature is not available on this device")
         }
 
@@ -97,7 +98,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// policy doesn't apply to user.
     @MainActor
     func test_perform_appearedFeatureFlagEnabled() async throws {
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             throw XCTSkip("CXP Import feature is not available on this device")
         }
 
@@ -201,10 +202,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.mainButtonTapped` with `.start` status but no data found.
     @MainActor
     func test_perform_mainButtonTappedStartNoDataFound() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         subject.state.status = .start
         subject.state.credentialImportToken = UUID(uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec")
 
@@ -229,10 +226,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.mainButtonTapped` with `.start` status but data encoding failed.
     @MainActor
     func test_perform_mainButtonTappedStartDataEncodingFailed() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         subject.state.status = .start
         subject.state.credentialImportToken = UUID(uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec")
 
@@ -257,10 +250,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.mainButtonTapped` with `.start` status but throws error.
     @MainActor
     func test_perform_mainButtonTappedStartThrowing() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         subject.state.status = .start
         subject.state.credentialImportToken = UUID(uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec")
 
@@ -288,10 +277,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// Performs `.perform(.mainButtonTapped)` to start import and checks everything went good.
     @MainActor
     private func perform_mainButtonTapped_startImport() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         let expectedResults = [
             CXFCredentialsResult(count: 12, type: .password),
             CXFCredentialsResult(count: 7, type: .passkey),
@@ -316,28 +301,18 @@ class ImportCXFProcessorTests: BitwardenTestCase {
         XCTAssertEqual(results, expectedResults)
     }
 
-    /// Checks whether the appropriate compiler is being used to have the code available.
-    /// - Returns: `true` if the compiler is correct, `false`otherwise.
-    private func checkCompiler() throws -> Bool {
-        #if SUPPORTS_CXP
-        return true
-        #else
-        throw XCTSkip("CXP Import works only from 6.0.3 compiler.")
-        #endif
-    }
-
     /// Checks whether the alert is shown when not in the correct iOS version for CXF Import to work.
     @MainActor
     private func checkAlertShownWhenNotInCorrectIOSVersion() -> Bool {
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             XCTAssertEqual(
                 coordinator.alertShown,
                 [
                     .defaultAlert(
                         title: Localizations.importError,
-                        message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice
+                        message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice,
                     ),
-                ]
+                ],
             )
             return false
         }

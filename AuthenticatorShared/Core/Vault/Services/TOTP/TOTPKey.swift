@@ -34,11 +34,11 @@ enum TOTPKey: Equatable {
     var digits: Int {
         switch self {
         case .base32:
-            return 6
+            6
         case let .otpAuthUri(model):
-            return model.digits
+            model.digits
         case .steamUri:
-            return 5
+            5
         }
     }
 
@@ -61,9 +61,9 @@ enum TOTPKey: Equatable {
         switch self {
         case let .base32(key),
              let .steamUri(key):
-            return key
+            key
         case let .otpAuthUri(model):
-            return model.secret
+            model.secret
         }
     }
 
@@ -74,9 +74,9 @@ enum TOTPKey: Equatable {
         switch self {
         case .base32,
              .steamUri:
-            return 30
+            30
         case let .otpAuthUri(model):
-            return model.period
+            model.period
         }
     }
 

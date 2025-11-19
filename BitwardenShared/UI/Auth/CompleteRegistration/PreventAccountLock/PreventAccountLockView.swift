@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PreventAccountLockView
@@ -18,15 +20,15 @@ struct PreventAccountLockView: View {
 
             ContentBlock(dividerLeadingPadding: 48) {
                 rowView(
-                    image: Asset.Images.lightbulb24,
+                    image: SharedAsset.Icons.lightbulb24,
                     title: Localizations.createAHint,
-                    subtitle: Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt
+                    subtitle: Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt,
                 )
 
                 rowView(
-                    image: Asset.Images.pencil24,
+                    image: SharedAsset.Icons.pencil24,
                     title: Localizations.writeYourPasswordDown,
-                    subtitle: Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe
+                    subtitle: Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe,
                 )
             }
         }
@@ -52,7 +54,7 @@ struct PreventAccountLockView: View {
                 .styleGuide(.body)
                 .multilineTextAlignment(.center)
         }
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .padding(.top, 8)
     }
 
@@ -66,23 +68,23 @@ struct PreventAccountLockView: View {
     ///
     @ViewBuilder
     private func rowView(
-        image: ImageAsset,
+        image: SharedImageAsset,
         title: String,
-        subtitle: String? = nil
+        subtitle: String? = nil,
     ) -> some View {
         HStack(spacing: 12) {
             Image(decorative: image)
-                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .styleGuide(.body, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
                 if let subtitle {
                     Text(subtitle)
                         .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                 }
             }
         }
@@ -98,9 +100,9 @@ struct PreventAccountLockView: View {
         PreventAccountLockView(
             store: Store(
                 processor: StateProcessor(
-                    state: ()
-                )
-            )
+                    state: (),
+                ),
+            ),
         )
     }
 }

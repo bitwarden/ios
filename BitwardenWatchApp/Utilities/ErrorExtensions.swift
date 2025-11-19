@@ -7,16 +7,16 @@ public extension Error {
     var legibleDescription: String {
         switch errorType {
         case .swiftError(.enum?), .swiftLocalizedError(_, .enum?):
-            return "\(type(of: self)).\(self)"
+            "\(type(of: self)).\(self)"
         case .swiftError(.class?), .swiftLocalizedError(_, .class?):
-            return "\(type(of: self))"
+            "\(type(of: self))"
         case .swiftError, .swiftLocalizedError:
-            return String(describing: self)
+            String(describing: self)
         case let .nsError(nsError, domain, code):
             if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError {
-                return "\(domain)(\(code), \(underlyingError.domain)(\(underlyingError.code)))"
+                "\(domain)(\(code), \(underlyingError.domain)(\(underlyingError.code)))"
             } else {
-                return "\(domain)(\(code))"
+                "\(domain)(\(code))"
             }
         }
     }
@@ -25,21 +25,21 @@ public extension Error {
     var legibleLocalizedDescription: String {
         switch errorType {
         case .swiftError:
-            return "\(theOperationCouldNotBeCompleted) (\(legibleDescription))"
+            "\(theOperationCouldNotBeCompleted) (\(legibleDescription))"
         case let .swiftLocalizedError(msg, _):
-            return msg
+            msg
         case .nsError(_, "kCLErrorDomain", 0):
-            return "The location could not be determined."
+            "The location could not be determined."
         // ^^ Apple don’t provide a localized description for this
         case let .nsError(nsError, domain, code):
             if !localizedDescription.hasPrefix(theOperationCouldNotBeCompleted) {
-                return localizedDescription
+                localizedDescription
                 // FIXME: ^^ for non-EN
             } else if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? Error {
-                return underlyingError.legibleLocalizedDescription
+                underlyingError.legibleLocalizedDescription
             } else {
                 // usually better than the localizedDescription, but not pretty
-                return "\(theOperationCouldNotBeCompleted) (\(domain).\(code))"
+                "\(theOperationCouldNotBeCompleted) (\(domain).\(code))"
             }
         }
     }

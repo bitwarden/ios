@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -35,7 +37,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     init(
         coordinator: AnyCoordinator<SendRoute, Void>,
         services: Services,
-        state: SendListState
+        state: SendListState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -68,7 +70,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .removePassword(sendView):
                 let alert = Alert.confirmationDestructive(
                     title: Localizations.areYouSureRemoveSendPassword,
-                    destructiveTitle: Localizations.remove
+                    destructiveTitle: Localizations.remove,
                 ) { [weak self] in
                     await self?.removePassword(sendView)
                 }
@@ -139,7 +141,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func refresh() async {
         do {
-            try await services.sendRepository.fetchSync(forceSync: false)
+            try await services.sendRepository.fetchSync(forceSync: false, isPeriodic: false)
         } catch {
             await coordinator.showErrorAlert(error: error) {
                 await self.refresh()
@@ -202,7 +204,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                             SendListSection(
                                 id: type.localizedName,
                                 items: sends,
-                                name: Localizations.sends
+                                name: Localizations.sends,
                             ),
                         ])
                     }
@@ -215,7 +217,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                         // If a sync is needed and there are no sends in the user's vault, it could
                         // mean the initial sync hasn't completed so sync first.
                         do {
-                            try await services.sendRepository.fetchSync(forceSync: false)
+                            try await services.sendRepository.fetchSync(forceSync: false, isPeriodic: true)
                             state.loadingState = .data(sections)
                         } catch {
                             services.errorReporter.log(error: error)
@@ -243,7 +245,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         do {
             let result = try await services.sendRepository.searchSendPublisher(
                 searchText: searchText,
-                type: state.type
+                type: state.type,
             )
             for try await sends in result {
                 state.searchResults = sends

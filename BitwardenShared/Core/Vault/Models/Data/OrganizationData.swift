@@ -31,7 +31,7 @@ class OrganizationData: NSManagedObject, ManagedUserObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        organization: ProfileOrganizationResponseModel
+        organization: ProfileOrganizationResponseModel,
     ) {
         self.init(context: context)
         id = organization.id
@@ -66,7 +66,7 @@ extension OrganizationData {
             #keyPath(OrganizationData.userId),
             userId,
             #keyPath(OrganizationData.id),
-            id
+            id,
         )
     }
 }

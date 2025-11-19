@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - FloatingActionMenu
@@ -23,7 +25,15 @@ struct FloatingActionMenu<Content: View>: View {
             image.imageStyle(.floatingActionButton)
         }
         .accessibilitySortPriority(1)
-        .buttonStyle(CircleButtonStyle(diameter: 50))
+        .apply { view in
+            if #available(iOS 17, *) {
+                view.buttonStyle(CircleButtonStyle(diameter: 50))
+            } else {
+                // Prior to iOS 17, applying a custom button style to a Menu component has no effect,
+                // so a custom menu style is needed instead.
+                view.menuStyle(CircleMenuStyle(diameter: 50))
+            }
+        }
     }
 
     // MARK: Initialization
@@ -45,7 +55,7 @@ struct FloatingActionMenu<Content: View>: View {
 #if DEBUG
 #Preview {
     VStack {
-        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+        FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
             Button("Item 1") {}
             Button("Item 2") {}
             Button("Item 3") {}

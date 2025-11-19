@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 // MARK: - PasswordHistoryCoordinator
@@ -30,7 +31,7 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
     ///
     init(
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.services = services
         self.stackNavigator = stackNavigator
@@ -59,7 +60,7 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
         let processor = PasswordHistoryListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: PasswordHistoryListState(source: source)
+            state: PasswordHistoryListState(source: source),
         )
         let view = PasswordHistoryListView(store: Store(processor: processor))
         stackNavigator?.replace(view)

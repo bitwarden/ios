@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsView
@@ -23,7 +25,7 @@ struct SettingsView: View {
 
                 largeNavigationTitleToolbarItem(
                     Localizations.settings,
-                    hidden: store.state.presentationMode != .tab
+                    hidden: store.state.presentationMode != .tab,
                 )
             }
     }
@@ -32,8 +34,8 @@ struct SettingsView: View {
 
     /// The chevron shown in the settings list item.
     private var chevron: some View {
-        Image(asset: Asset.Images.chevronRight16)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+        Image(asset: SharedAsset.Icons.chevronRight16)
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
     }
 
     /// The settings items.
@@ -59,7 +61,7 @@ struct SettingsView: View {
     private var aboutRow: some View {
         SettingsListItem(
             Localizations.about,
-            icon: Asset.Images.informationCircle24
+            icon: SharedAsset.Icons.informationCircle24,
         ) {
             store.send(.aboutPressed)
         } trailingContent: {
@@ -73,7 +75,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.accountSecurity,
             badgeValue: store.state.accountSecurityBadgeValue,
-            icon: Asset.Images.locked24
+            icon: SharedAsset.Icons.locked24,
         ) {
             store.send(.accountSecurityPressed)
         } trailingContent: {
@@ -84,7 +86,7 @@ struct SettingsView: View {
 
     /// The appearance settings row.
     private var appearanceRow: some View {
-        SettingsListItem(Localizations.appearance, icon: Asset.Images.paintBrush) {
+        SettingsListItem(Localizations.appearance, icon: SharedAsset.Icons.paintBrush) {
             store.send(.appearancePressed)
         } trailingContent: {
             chevron
@@ -97,7 +99,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.autofill,
             badgeValue: store.state.autofillBadgeValue,
-            icon: Asset.Images.checkCircle24
+            icon: SharedAsset.Icons.checkCircle24,
         ) {
             store.send(.autoFillPressed)
         } trailingContent: {
@@ -108,7 +110,7 @@ struct SettingsView: View {
 
     /// The other settings row.
     private var otherRow: some View {
-        SettingsListItem(Localizations.other, icon: Asset.Images.other) {
+        SettingsListItem(Localizations.other, icon: SharedAsset.Icons.other) {
             store.send(.otherPressed)
         } trailingContent: {
             chevron
@@ -121,7 +123,7 @@ struct SettingsView: View {
         SettingsListItem(
             Localizations.vault,
             badgeValue: store.state.vaultBadgeValue,
-            icon: Asset.Images.vaultSettings
+            icon: SharedAsset.Icons.vaultSettings,
         ) {
             store.send(.vaultPressed)
         } trailingContent: {

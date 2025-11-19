@@ -11,6 +11,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = ItemListModule
+        & NavigatorBuilderModule
         & SettingsModule
 
     // MARK: Properties
@@ -55,7 +56,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         errorReporter: ErrorReporter,
         module: Module,
         rootNavigator: RootNavigator,
-        tabNavigator: TabNavigator
+        tabNavigator: TabNavigator,
     ) {
         self.errorReporter = errorReporter
         self.module = module
@@ -85,16 +86,16 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         rootNavigator.show(child: tabNavigator)
 
-        let itemListNavigator = UINavigationController()
+        let itemListNavigator = module.makeNavigationController()
         itemListNavigator.navigationBar.prefersLargeTitles = true
         itemListCoordinator = module.makeItemListCoordinator(
-            stackNavigator: itemListNavigator
+            stackNavigator: itemListNavigator,
         )
 
-        let settingsNavigator = UINavigationController()
+        let settingsNavigator = module.makeNavigationController()
         settingsNavigator.navigationBar.prefersLargeTitles = true
         let settingsCoordinator = module.makeSettingsCoordinator(
-            stackNavigator: settingsNavigator
+            stackNavigator: settingsNavigator,
         )
         settingsCoordinator.start()
         self.settingsCoordinator = settingsCoordinator
@@ -108,5 +109,12 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         tabsAndNavigators.forEach { key, value in
             (value as? UINavigationController)?.tabBarItem.accessibilityIdentifier = key.accessibilityIdentifier
         }
+    }
+
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
+        errorReporter.log(error: BitwardenError.generalError(
+            type: "TabCoordinator: `showErrorAlert` Not Supported",
+            message: "`showErrorAlert(error:tryAgain:onDismissed:)` is not supported from TabCoordinator.",
+        ))
     }
 }

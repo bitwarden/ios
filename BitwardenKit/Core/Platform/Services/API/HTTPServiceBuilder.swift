@@ -32,7 +32,7 @@ public class HTTPServiceBuilder {
     public init(
         client: HTTPClient,
         defaultHeadersRequestHandler: DefaultHeadersRequestHandler,
-        loggers: [HTTPLogger]
+        loggers: [HTTPLogger],
     ) {
         self.client = client
         self.defaultHeadersRequestHandler = defaultHeadersRequestHandler
@@ -51,7 +51,7 @@ public class HTTPServiceBuilder {
     ///
     public func makeService(
         baseURLGetter: @escaping @Sendable () -> URL,
-        tokenProvider: TokenProvider? = nil
+        tokenProvider: TokenProvider? = nil,
     ) -> HTTPService {
         HTTPService(
             baseURLGetter: baseURLGetter,
@@ -59,7 +59,7 @@ public class HTTPServiceBuilder {
             loggers: loggers,
             requestHandlers: [defaultHeadersRequestHandler],
             responseHandlers: [responseValidationHandler],
-            tokenProvider: tokenProvider
+            tokenProvider: tokenProvider,
         )
     }
 }

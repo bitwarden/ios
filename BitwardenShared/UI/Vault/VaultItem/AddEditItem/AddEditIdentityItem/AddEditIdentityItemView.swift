@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AddEditIdentityItemView
@@ -53,9 +55,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.address1,
                     text: store.binding(
                         get: \.address1,
-                        send: AddEditIdentityItemAction.address1Changed
+                        send: AddEditIdentityItemAction.address1Changed,
                     ),
-                    accessibilityIdentifier: "IdentityAddressOneEntry"
+                    accessibilityIdentifier: "IdentityAddressOneEntry",
                 )
                 .focused($focusedField, equals: .address1)
                 .onSubmit { focusNextField($focusedField) }
@@ -64,9 +66,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.address2,
                     text: store.binding(
                         get: \.address2,
-                        send: AddEditIdentityItemAction.address2Changed
+                        send: AddEditIdentityItemAction.address2Changed,
                     ),
-                    accessibilityIdentifier: "IdentityAddressTwoEntry"
+                    accessibilityIdentifier: "IdentityAddressTwoEntry",
                 )
                 .focused($focusedField, equals: .address2)
                 .onSubmit { focusNextField($focusedField) }
@@ -75,9 +77,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.address3,
                     text: store.binding(
                         get: \.address3,
-                        send: AddEditIdentityItemAction.address3Changed
+                        send: AddEditIdentityItemAction.address3Changed,
                     ),
-                    accessibilityIdentifier: "IdentityAddressThreeEntry"
+                    accessibilityIdentifier: "IdentityAddressThreeEntry",
                 )
                 .focused($focusedField, equals: .address3)
                 .onSubmit { focusNextField($focusedField) }
@@ -86,9 +88,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.cityTown,
                     text: store.binding(
                         get: \.cityOrTown,
-                        send: AddEditIdentityItemAction.cityOrTownChanged
+                        send: AddEditIdentityItemAction.cityOrTownChanged,
                     ),
-                    accessibilityIdentifier: "IdentityCityEntry"
+                    accessibilityIdentifier: "IdentityCityEntry",
                 )
                 .focused($focusedField, equals: .city)
                 .onSubmit { focusNextField($focusedField) }
@@ -97,9 +99,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.stateProvince,
                     text: store.binding(
                         get: \.state,
-                        send: AddEditIdentityItemAction.stateChanged
+                        send: AddEditIdentityItemAction.stateChanged,
                     ),
-                    accessibilityIdentifier: "IdentityStateEntry"
+                    accessibilityIdentifier: "IdentityStateEntry",
                 )
                 .focused($focusedField, equals: .state)
                 .onSubmit { focusNextField($focusedField) }
@@ -108,9 +110,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.zipPostalCode,
                     text: store.binding(
                         get: \.postalCode,
-                        send: AddEditIdentityItemAction.postalCodeChanged
+                        send: AddEditIdentityItemAction.postalCodeChanged,
                     ),
-                    accessibilityIdentifier: "IdentityPostalCodeEntry"
+                    accessibilityIdentifier: "IdentityPostalCodeEntry",
                 )
                 .focused($focusedField, equals: .zipcode)
                 .onSubmit { focusNextField($focusedField) }
@@ -119,9 +121,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.country,
                     text: store.binding(
                         get: \.country,
-                        send: AddEditIdentityItemAction.countryChanged
+                        send: AddEditIdentityItemAction.countryChanged,
                     ),
-                    accessibilityIdentifier: "IdentityCountryEntry"
+                    accessibilityIdentifier: "IdentityCountryEntry",
                 )
                 .focused($focusedField, equals: .country)
                 .onSubmit { focusNextField($focusedField) }
@@ -137,9 +139,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.email,
                     text: store.binding(
                         get: \.email,
-                        send: AddEditIdentityItemAction.emailChanged
+                        send: AddEditIdentityItemAction.emailChanged,
                     ),
-                    accessibilityIdentifier: "IdentityEmailEntry"
+                    accessibilityIdentifier: "IdentityEmailEntry",
                 )
                 .textFieldConfiguration(.email)
                 .focused($focusedField, equals: .email)
@@ -149,9 +151,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.phone,
                     text: store.binding(
                         get: \.phone,
-                        send: AddEditIdentityItemAction.phoneNumberChanged
+                        send: AddEditIdentityItemAction.phoneNumberChanged,
                     ),
-                    accessibilityIdentifier: "IdentityPhoneEntry"
+                    accessibilityIdentifier: "IdentityPhoneEntry",
                 )
                 .textFieldConfiguration(.numeric(.telephoneNumber))
                 .focused($focusedField, equals: .phone)
@@ -168,9 +170,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.ssn,
                     text: store.binding(
                         get: \.socialSecurityNumber,
-                        send: AddEditIdentityItemAction.socialSecurityNumberChanged
+                        send: AddEditIdentityItemAction.socialSecurityNumberChanged,
                     ),
-                    accessibilityIdentifier: "IdentitySsnEntry"
+                    accessibilityIdentifier: "IdentitySsnEntry",
                 )
                 .focused($focusedField, equals: .ssn)
                 .onSubmit { focusNextField($focusedField) }
@@ -179,9 +181,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.passportNumber,
                     text: store.binding(
                         get: \.passportNumber,
-                        send: AddEditIdentityItemAction.passportNumberChanged
+                        send: AddEditIdentityItemAction.passportNumberChanged,
                     ),
-                    accessibilityIdentifier: "IdentityPassportNumberEntry"
+                    accessibilityIdentifier: "IdentityPassportNumberEntry",
                 )
                 .focused($focusedField, equals: .passport)
                 .onSubmit { focusNextField($focusedField) }
@@ -190,9 +192,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.licenseNumber,
                     text: store.binding(
                         get: \.licenseNumber,
-                        send: AddEditIdentityItemAction.licenseNumberChanged
+                        send: AddEditIdentityItemAction.licenseNumberChanged,
                     ),
-                    accessibilityIdentifier: "IdentityLicenseNumberEntry"
+                    accessibilityIdentifier: "IdentityLicenseNumberEntry",
                 )
                 .focused($focusedField, equals: .license)
                 .onSubmit { focusNextField($focusedField) }
@@ -210,17 +212,17 @@ struct AddEditIdentityItemView: View {
                     options: DefaultableType<TitleType>.allCases,
                     selection: store.binding(
                         get: \.title,
-                        send: AddEditIdentityItemAction.titleChanged
-                    )
+                        send: AddEditIdentityItemAction.titleChanged,
+                    ),
                 )
 
                 BitwardenTextField(
                     title: Localizations.firstName,
                     text: store.binding(
                         get: \.firstName,
-                        send: AddEditIdentityItemAction.firstNameChanged
+                        send: AddEditIdentityItemAction.firstNameChanged,
                     ),
-                    accessibilityIdentifier: "IdentityFirstNameEntry"
+                    accessibilityIdentifier: "IdentityFirstNameEntry",
                 )
                 .focused($focusedField, equals: .firstName)
                 .onSubmit { focusNextField($focusedField) }
@@ -229,9 +231,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.middleName,
                     text: store.binding(
                         get: \.middleName,
-                        send: AddEditIdentityItemAction.middleNameChanged
+                        send: AddEditIdentityItemAction.middleNameChanged,
                     ),
-                    accessibilityIdentifier: "IdentityMiddleNameEntry"
+                    accessibilityIdentifier: "IdentityMiddleNameEntry",
                 )
                 .focused($focusedField, equals: .middleName)
                 .onSubmit { focusNextField($focusedField) }
@@ -240,9 +242,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.lastName,
                     text: store.binding(
                         get: \.lastName,
-                        send: AddEditIdentityItemAction.lastNameChanged
+                        send: AddEditIdentityItemAction.lastNameChanged,
                     ),
-                    accessibilityIdentifier: "IdentityLastNameEntry"
+                    accessibilityIdentifier: "IdentityLastNameEntry",
                 )
                 .focused($focusedField, equals: .lastName)
                 .onSubmit { focusNextField($focusedField) }
@@ -251,9 +253,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.username,
                     text: store.binding(
                         get: \.userName,
-                        send: AddEditIdentityItemAction.userNameChanged
+                        send: AddEditIdentityItemAction.userNameChanged,
                     ),
-                    accessibilityIdentifier: "IdentityUsernameEntry"
+                    accessibilityIdentifier: "IdentityUsernameEntry",
                 )
                 .textFieldConfiguration(.username)
                 .focused($focusedField, equals: .username)
@@ -263,9 +265,9 @@ struct AddEditIdentityItemView: View {
                     title: Localizations.company,
                     text: store.binding(
                         get: \.company,
-                        send: AddEditIdentityItemAction.companyChanged
+                        send: AddEditIdentityItemAction.companyChanged,
                     ),
-                    accessibilityIdentifier: "IdentityCompanyEntry"
+                    accessibilityIdentifier: "IdentityCompanyEntry",
                 )
                 .focused($focusedField, equals: .company)
                 .onSubmit { focusNextField($focusedField) }
@@ -284,14 +286,14 @@ struct AddEditIdentityItemView: View {
                 AddEditIdentityItemView(
                     store: Store(
                         processor: StateProcessor(
-                            state: IdentityItemState()
-                        )
-                    )
+                            state: IdentityItemState(),
+                        ),
+                    ),
                 )
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
         .ignoresSafeArea()
     }
 }

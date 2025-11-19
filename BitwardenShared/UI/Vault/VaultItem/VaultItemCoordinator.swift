@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -67,7 +68,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         appExtensionDelegate: AppExtensionDelegate?,
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.module = module
@@ -92,7 +93,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             hasPremium,
             newCipherOptions,
             organizationId,
-            type
+            type,
         ):
             showAddItem(
                 for: group,
@@ -100,7 +101,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 newCipherOptions: newCipherOptions,
                 organizationId: organizationId,
                 type: type,
-                delegate: context as? CipherItemOperationDelegate
+                delegate: context as? CipherItemOperationDelegate,
             )
         case let .attachments(cipher):
             showAttachments(for: cipher)
@@ -185,7 +186,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         newCipherOptions: NewCipherOptions?,
         organizationId: String?,
         type: CipherType,
-        delegate: CipherItemOperationDelegate?
+        delegate: CipherItemOperationDelegate?,
     ) {
         let state = CipherItemState(
             addItem: type,
@@ -197,14 +198,14 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             password: newCipherOptions?.password,
             totpKeyString: newCipherOptions?.totpKey,
             uri: newCipherOptions?.uri,
-            username: newCipherOptions?.username
+            username: newCipherOptions?.username,
         )
         let processor = AddEditItemProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: state
+            state: state,
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
@@ -219,7 +220,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let processor = AttachmentsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: AttachmentsState(cipher: cipher)
+            state: AttachmentsState(cipher: cipher),
         )
         stackNavigator?.present(AttachmentsView(store: Store(processor: processor)))
     }
@@ -232,7 +233,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
 
@@ -251,12 +252,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showCloneItem(
         for cipherView: CipherView,
         delegate: CipherItemOperationDelegate?,
-        hasPremium: Bool
+        hasPremium: Bool,
     ) {
         guard let stackNavigator else { return }
         let state = CipherItemState(
             cloneItem: cipherView,
-            hasPremium: hasPremium
+            hasPremium: hasPremium,
         )
         if stackNavigator.isEmpty {
             let processor = AddEditItemProcessor(
@@ -264,7 +265,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,
                 services: services,
-                state: state
+                state: state,
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -272,7 +273,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         } else {
             presentChildVaultItemCoordinator(
                 route: .cloneItem(cipher: cipherView, hasPremium: hasPremium),
-                context: delegate
+                context: delegate,
             )
         }
     }
@@ -284,7 +285,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: EditCollectionsState(cipher: cipher)
+            state: EditCollectionsState(cipher: cipher),
         )
         stackNavigator?.present(EditCollectionsView(store: Store(processor: processor)))
     }
@@ -301,7 +302,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         if stackNavigator.isEmpty {
             guard let state = CipherItemState(
                 existing: cipherView,
-                hasPremium: hasPremium
+                hasPremium: hasPremium,
             ) else { return }
 
             let processor = AddEditItemProcessor(
@@ -309,7 +310,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,
                 services: services,
-                state: state
+                state: state,
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -327,12 +328,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     private func showFileSelection(
         route: FileSelectionRoute,
-        delegate: FileSelectionDelegate
+        delegate: FileSelectionDelegate,
     ) {
         guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         coordinator.start()
         coordinator.navigate(to: route)
@@ -349,7 +350,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showGenerator(
         for type: GeneratorType,
         emailWebsite: String?,
-        delegate: GeneratorCoordinatorDelegate
+        delegate: GeneratorCoordinatorDelegate,
     ) {
         let navigationController = module.makeNavigationController()
         if type != .username {
@@ -359,7 +360,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         }
         let coordinator = module.makeGeneratorCoordinator(
             delegate: delegate,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .generator(staticType: type, emailWebsite: emailWebsite))
@@ -374,7 +375,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .manualKeyEntry, context: nil)
@@ -388,7 +389,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: MoveToOrganizationState(cipher: cipher)
+            state: MoveToOrganizationState(cipher: cipher),
         )
         stackNavigator?.present(MoveToOrganizationView(store: Store(processor: processor)))
     }
@@ -426,12 +427,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             delegate: delegate,
             itemId: id,
             services: services,
-            state: ViewItemState()
+            state: ViewItemState(),
         )
         let store = Store(processor: processor)
         let view = ViewItemView(
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
         stackNavigator?.replace(view)
     }
@@ -441,17 +442,4 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
 extension VaultItemCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
-}
-
-// MARK: - View Extension
-
-extension View {
-    @ViewBuilder var navStackWrapped: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
-            NavigationStack { self }
-        } else {
-            NavigationView { self }
-                .navigationViewStyle(.stack)
-        }
-    }
 }

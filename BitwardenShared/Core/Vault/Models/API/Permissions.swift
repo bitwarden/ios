@@ -16,7 +16,7 @@ extension Permissions {
     init() {
         self.init(
             managePolicies: false,
-            manageResetPassword: false
+            manageResetPassword: false,
         )
     }
 }

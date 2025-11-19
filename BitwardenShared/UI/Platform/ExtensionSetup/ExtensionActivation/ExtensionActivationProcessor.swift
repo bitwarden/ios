@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExtensionActivationProcessor
 
 /// The processor used to manage state and handle actions for the extension activation screen.
@@ -5,11 +7,13 @@
 class ExtensionActivationProcessor: StateProcessor<
     ExtensionActivationState,
     ExtensionActivationAction,
-    Void
+    ExtensionActivationEffect,
 > {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasAutofillCredentialService
+        & HasConfigService
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -31,7 +35,7 @@ class ExtensionActivationProcessor: StateProcessor<
     init(
         appExtensionDelegate: AppExtensionDelegate?,
         services: Services,
-        state: ExtensionActivationState
+        state: ExtensionActivationState,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.services = services
@@ -39,6 +43,13 @@ class ExtensionActivationProcessor: StateProcessor<
     }
 
     // MARK: Methods
+
+    override func perform(_ effect: ExtensionActivationEffect) async {
+        switch effect {
+        case .appeared:
+            await services.autofillCredentialService.updateCredentialsInStore()
+        }
+    }
 
     override func receive(_ action: ExtensionActivationAction) {
         switch action {

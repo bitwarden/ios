@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 import Networking
 
@@ -5,6 +6,9 @@ import Networking
 ///
 struct CipherDetailsResponseModel: JSONResponse, Equatable {
     // MARK: Properties
+
+    /// The date the cipher was archived.
+    let archivedDate: Date?
 
     /// The cipher's list of attachments.
     let attachments: [AttachmentResponseModel]?

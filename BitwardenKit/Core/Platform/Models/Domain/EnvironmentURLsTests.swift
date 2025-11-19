@@ -8,7 +8,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default US.
     func test_init_environmentURLData_defaultUS() {
         let subject = EnvironmentURLs(
-            environmentURLData: EnvironmentURLData.defaultUS
+            environmentURLData: EnvironmentURLData.defaultUS,
         )
         XCTAssertEqual(
             subject,
@@ -24,15 +24,15 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor")!,
-                webVaultURL: URL(string: "https://vault.bitwarden.com")!
-            )
+                webVaultURL: URL(string: "https://vault.bitwarden.com")!,
+            ),
         )
     }
 
     /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default EU.
     func test_init_environmentURLData_defaultEU() {
         let subject = EnvironmentURLs(
-            environmentURLData: EnvironmentURLData.defaultEU
+            environmentURLData: EnvironmentURLData.defaultEU,
         )
         XCTAssertEqual(
             subject,
@@ -48,8 +48,8 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://vault.bitwarden.eu/#/send")!,
                 settingsURL: URL(string: "https://vault.bitwarden.eu/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor")!,
-                webVaultURL: URL(string: "https://vault.bitwarden.eu")!
-            )
+                webVaultURL: URL(string: "https://vault.bitwarden.eu")!,
+            ),
         )
     }
 
@@ -57,7 +57,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
     /// `.unitedStates` nor `.europe` region type.
     func test_init_environmentURLData_baseURL() {
         let subject = EnvironmentURLs(
-            environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com")!)
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com")!),
         )
         XCTAssertEqual(
             subject,
@@ -73,15 +73,15 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
-                webVaultURL: URL(string: "https://example.com")!
-            )
+                webVaultURL: URL(string: "https://example.com")!,
+            ),
         )
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined EU URLs if the base URL matches the EU environment.
     func test_init_environmentURLData_baseURL_europe() {
         let subject = EnvironmentURLs(
-            environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!)
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!),
         )
         XCTAssertEqual(
             subject,
@@ -97,15 +97,15 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://vault.bitwarden.eu/#/send")!,
                 settingsURL: URL(string: "https://vault.bitwarden.eu/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor")!,
-                webVaultURL: URL(string: "https://vault.bitwarden.eu")!
-            )
+                webVaultURL: URL(string: "https://vault.bitwarden.eu")!,
+            ),
         )
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined US URLs if the base URL matches the US environment.
     func test_init_environmentURLData_baseURL_unitedStates() {
         let subject = EnvironmentURLs(
-            environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!),
         )
         XCTAssertEqual(
             subject,
@@ -121,15 +121,15 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor")!,
-                webVaultURL: URL(string: "https://vault.bitwarden.com")!
-            )
+                webVaultURL: URL(string: "https://vault.bitwarden.com")!,
+            ),
         )
     }
 
     /// `init(environmentURLData:)` sets the URLs from the base URL which includes a trailing slash.
     func test_init_environmentURLData_baseURLWithTrailingSlash() {
         let subject = EnvironmentURLs(
-            environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com/")!)
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com/")!),
         )
         XCTAssertEqual(
             subject,
@@ -145,8 +145,8 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
-                webVaultURL: URL(string: "https://example.com/")!
-            )
+                webVaultURL: URL(string: "https://example.com/")!,
+            ),
         )
     }
 
@@ -158,8 +158,8 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 events: URL(string: "https://events.example.com")!,
                 icons: URL(string: "https://icons.example.com")!,
                 identity: URL(string: "https://identity.example.com")!,
-                webVault: URL(string: "https://example.com")!
-            )
+                webVault: URL(string: "https://example.com")!,
+            ),
         )
         XCTAssertEqual(
             subject,
@@ -175,8 +175,8 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
-                webVaultURL: URL(string: "https://example.com")!
-            )
+                webVaultURL: URL(string: "https://example.com")!,
+            ),
         )
     }
 
@@ -197,8 +197,8 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com")!,
-                webVaultURL: URL(string: "https://vault.bitwarden.com")!
-            )
+                webVaultURL: URL(string: "https://vault.bitwarden.com")!,
+            ),
         )
     }
 }

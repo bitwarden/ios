@@ -5,7 +5,7 @@ extension APITestData {
     // MARK: Account Revision Date
 
     static func accountRevisionDate( // swiftlint:disable:this type_contents_order
-        _ date: Date = Date(timeIntervalSince1970: 1_704_067_200)
+        _ date: Date = Date(timeIntervalSince1970: 1_704_067_200),
     ) -> APITestData {
         APITestData(data: Data(String(date.timeIntervalSince1970 * 1000).utf8))
     }
@@ -13,8 +13,6 @@ extension APITestData {
     // MARK: Create Account
 
     static let createAccountAccountAlreadyExists = loadFromJsonBundle(resource: "CreateAccountAccountAlreadyExists")
-    static let createAccountCaptchaFailure = loadFromJsonBundle(resource: "CreateAccountCaptchaFailure")
-    static let createAccountEmailExceedsMaxLength = loadFromJsonBundle(resource: "CreateAccountEmailExceedsMaxLength")
     static let createAccountHintTooLong = loadFromJsonBundle(resource: "CreateAccountHintTooLong")
     static let createAccountInvalidEmailFormat = loadFromJsonBundle(resource: "CreateAccountInvalidEmailFormat")
     static let createAccountNilValidationErrors = loadFromJsonBundle(resource: "CreateAccountNilValidationErrors")

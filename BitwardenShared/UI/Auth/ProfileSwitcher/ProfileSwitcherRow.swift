@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ProfileSwitcherRow
@@ -56,18 +58,18 @@ struct ProfileSwitcherRow: View {
                             Text(title)
                                 .styleGuide(.body)
                                 .accessibilityIdentifier("AccountEmailLabel")
-                                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                             if let hostSubtitle {
                                 Text(hostSubtitle)
                                     .styleGuide(.subheadline)
                                     .accessibilityIdentifier("AccountHostUrlLabel")
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             }
                             if let statusSubtitle {
                                 Text(statusSubtitle)
                                     .styleGuide(.subheadline, isItalic: true)
                                     .accessibilityIdentifier("AccountStatusLabel")
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             }
                         }
                         .lineLimit(1)
@@ -85,7 +87,7 @@ struct ProfileSwitcherRow: View {
             }
             .padding([.leading], 16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     /// A row divider view
@@ -94,7 +96,7 @@ struct ProfileSwitcherRow: View {
             Rectangle()
                 .frame(height: 1.0)
                 .frame(maxWidth: .infinity)
-                .foregroundColor(Asset.Colors.strokeDivider.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.strokeDivider.swiftUIColor)
         } else {
             EmptyView()
         }
@@ -108,12 +110,12 @@ struct ProfileSwitcherRow: View {
             profileSwitcherIcon(
                 color: account.color,
                 initials: account.userInitials,
-                textColor: account.profileIconTextColor
+                textColor: account.profileIconTextColor,
             )
             .accessibilityLabel(Localizations.account)
         case .addAccount:
-            Asset.Images.plus16.swiftUIImage
-                .imageStyle(.accessoryIcon16(color: Asset.Colors.iconSecondary.swiftUIColor))
+            SharedAsset.Icons.plus16.swiftUIImage
+                .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconSecondary.swiftUIColor))
                 .padding(4)
         }
     }
@@ -128,9 +130,9 @@ struct ProfileSwitcherRow: View {
         switch store.state.rowType {
         case let .active(account),
              let .alternate(account):
-            return account.email
+            account.email
         case .addAccount:
-            return Localizations.addAccount
+            Localizations.addAccount
         }
     }
 
@@ -139,9 +141,9 @@ struct ProfileSwitcherRow: View {
         switch store.state.rowType {
         case let .active(account),
              let .alternate(account):
-            return account.webVault
+            account.webVault
         case .addAccount:
-            return nil
+            nil
         }
     }
 
@@ -150,9 +152,9 @@ struct ProfileSwitcherRow: View {
         switch store.state.rowType {
         case .active,
              .addAccount:
-            return nil
+            nil
         case let .alternate(account):
-            return switch (account.isUnlocked, account.isLoggedOut) {
+            switch (account.isUnlocked, account.isLoggedOut) {
             case (true, false):
                 Localizations.accountUnlocked.lowercased()
             case (false, false):
@@ -167,15 +169,15 @@ struct ProfileSwitcherRow: View {
     private var trailingIcon: Image? {
         switch store.state.rowType {
         case .active:
-            return Asset.Images.checkCircle24.swiftUIImage
+            SharedAsset.Icons.checkCircle24.swiftUIImage
         case let .alternate(account):
             if account.isUnlocked {
-                return Asset.Images.unlocked24.swiftUIImage
+                SharedAsset.Icons.unlocked24.swiftUIImage
             } else {
-                return Asset.Images.locked24.swiftUIImage
+                SharedAsset.Icons.locked24.swiftUIImage
             }
         case .addAccount:
-            return nil
+            nil
         }
     }
 
@@ -183,11 +185,11 @@ struct ProfileSwitcherRow: View {
     private var trailingIconColor: Color {
         switch store.state.rowType {
         case .active:
-            Asset.Colors.iconPrimary.swiftUIColor
+            SharedAsset.Colors.iconPrimary.swiftUIColor
         case .alternate:
-            Asset.Colors.textSecondary.swiftUIColor
+            SharedAsset.Colors.textSecondary.swiftUIColor
         case .addAccount:
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            SharedAsset.Colors.backgroundSecondary.swiftUIColor
         }
     }
 
@@ -200,7 +202,7 @@ struct ProfileSwitcherRow: View {
     @ViewBuilder
     private func accountRow(
         for profileSwitcherItem: ProfileSwitcherItem,
-        isSelected: Bool
+        isSelected: Bool,
     ) -> some View {
         AsyncButton {} label: {
             rowContents
@@ -209,8 +211,8 @@ struct ProfileSwitcherRow: View {
                         .pressed(
                             isSelected
                                 ? .active(profileSwitcherItem)
-                                : .alternate(profileSwitcherItem)
-                        )
+                                : .alternate(profileSwitcherItem),
+                        ),
                     )
                 }
                 .onLongPressGesture(if: store.state.allowLockAndLogout) {
@@ -218,8 +220,8 @@ struct ProfileSwitcherRow: View {
                         .longPressed(
                             isSelected
                                 ? .active(profileSwitcherItem)
-                                : .alternate(profileSwitcherItem)
-                        )
+                                : .alternate(profileSwitcherItem),
+                        ),
                     )
                 }
         }
@@ -231,25 +233,25 @@ struct ProfileSwitcherRow: View {
         .conditionalAccessibilityAsyncAction(
             if: store.state.allowLockAndLogout && profileSwitcherItem.canBeLocked
                 && profileSwitcherItem.isUnlocked,
-            named: Localizations.lock
+            named: Localizations.lock,
         ) {
             await store.perform(.accessibility(.lock(profileSwitcherItem)))
         }
         .conditionalAccessibilityAction(
             if: store.state.allowLockAndLogout && !profileSwitcherItem.isLoggedOut,
-            named: Localizations.logOut
+            named: Localizations.logOut,
         ) {
             store.send(.accessibility(.logout(profileSwitcherItem)))
         }
         .conditionalAccessibilityAction(
             if: store.state.allowLockAndLogout && profileSwitcherItem.isLoggedOut,
-            named: Localizations.remove
+            named: Localizations.remove,
         ) {
             store.send(.accessibility(.remove(profileSwitcherItem)))
         }
         .accessibility(
             if: isSelected,
-            addTraits: .isSelected
+            addTraits: .isSelected,
         )
     }
 
@@ -270,10 +272,10 @@ struct ProfileSwitcherRow: View {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .active(.fixtureUnlocked)
-                    )
-                )
-            )
+                        rowType: .active(.fixtureUnlocked),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -285,10 +287,10 @@ struct ProfileSwitcherRow: View {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .active(.fixtureLocked)
-                    )
-                )
-            )
+                        rowType: .active(.fixtureLocked),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -301,10 +303,10 @@ struct ProfileSwitcherRow: View {
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
                         showDivider: false,
-                        rowType: .active(.fixtureLocked)
-                    )
-                )
-            )
+                        rowType: .active(.fixtureLocked),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -316,10 +318,10 @@ struct ProfileSwitcherRow: View {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .alternate(.fixtureUnlocked)
-                    )
-                )
-            )
+                        rowType: .alternate(.fixtureUnlocked),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -331,10 +333,10 @@ struct ProfileSwitcherRow: View {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .alternate(.fixtureLocked)
-                    )
-                )
-            )
+                        rowType: .alternate(.fixtureLocked),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -346,10 +348,10 @@ struct ProfileSwitcherRow: View {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .alternate(.fixtureLoggedOut)
-                    )
-                )
-            )
+                        rowType: .alternate(.fixtureLoggedOut),
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -361,10 +363,10 @@ struct ProfileSwitcherRow: View {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: false,
-                        rowType: .addAccount
-                    )
-                )
-            )
+                        rowType: .addAccount,
+                    ),
+                ),
+            ),
         )
     }
 }

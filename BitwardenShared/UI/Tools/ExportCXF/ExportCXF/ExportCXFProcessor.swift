@@ -1,4 +1,6 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - ExportCXFProcessor
@@ -10,6 +12,7 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     typealias Services = HasConfigService
         & HasErrorReporter
+        & HasEventService
         & HasExportCXFCiphersRepository
         & HasPolicyService
         & HasStateService
@@ -40,7 +43,7 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
         coordinator: AnyCoordinator<ExportCXFRoute, Void>,
         delegate: ExportCXFProcessorDelegate?,
         services: Services,
-        state: ExportCXFState
+        state: ExportCXFState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -99,13 +102,11 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     /// Starts the export process.
     private func startExport() async {
-        #if SUPPORTS_CXP
-
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             coordinator.showAlert(
                 .defaultAlert(
-                    title: Localizations.exportingFailed
-                )
+                    title: Localizations.exportingFailed,
+                ),
             )
             return
         }
@@ -122,23 +123,22 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
             coordinator.hideLoadingOverlay()
             try await services.exportCXFCiphersRepository.exportCredentials(
                 data: data,
-                presentationAnchor: { delegate.presentationAnchorForASCredentialExportManager() }
+                presentationAnchor: { await delegate.presentationAnchorForASCredentialExportManager() },
             )
             coordinator.navigate(to: .dismiss)
+            await services.eventService.collect(eventType: .userClientExportedVault)
         } catch ASAuthorizationError.failed {
             coordinator
                 .showAlert(
                     .defaultAlert(
                         title: Localizations.exportingFailed,
-                        message: Localizations.youMayNeedToEnableDevicePasscodeOrBiometrics
-                    )
+                        message: Localizations.youMayNeedToEnableDevicePasscodeOrBiometrics,
+                    ),
                 )
         } catch {
             state.status = .failure(message: Localizations.thereHasBeenAnIssueExportingItems)
             services.errorReporter.log(error: error)
         }
-
-        #endif
     }
 
     /// Shows the alert confirming the user wants to export items later.
@@ -161,5 +161,6 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 protocol ExportCXFProcessorDelegate: AnyObject {
     /// Returns an `ASPresentationAnchor` to be used when creating an `ASCredentialExportManager`.
     /// - Returns: An `ASPresentationAnchor`.
-    func presentationAnchorForASCredentialExportManager() -> ASPresentationAnchor
+    @MainActor
+    func presentationAnchorForASCredentialExportManager() async -> ASPresentationAnchor
 }

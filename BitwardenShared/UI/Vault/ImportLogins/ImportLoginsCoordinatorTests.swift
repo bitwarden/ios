@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
@@ -24,7 +25,7 @@ class ImportLoginsCoordinatorTests: BitwardenTestCase {
             delegate: delegate,
             module: module,
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

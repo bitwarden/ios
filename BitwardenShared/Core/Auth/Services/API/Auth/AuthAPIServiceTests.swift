@@ -38,8 +38,8 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 deviceIdentifier: "2",
                 key: "key",
                 masterPasswordHash: nil,
-                requestApproved: true
-            )
+                requestApproved: true,
+            ),
         )
 
         XCTAssertEqual(response, .fixture())
@@ -61,36 +61,15 @@ class AuthAPIServiceTests: BitwardenTestCase {
         let response = try await subject.getIdentityToken(
             IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "username", password: "password"),
-                captchaToken: nil,
                 deviceInfo: .fixture(),
-                loginRequestId: nil
-            )
+                loginRequestId: nil,
+            ),
         )
 
         XCTAssertEqual(
             response,
-            IdentityTokenResponseModel.fixture()
+            IdentityTokenResponseModel.fixture(),
         )
-    }
-
-    /// `getIdentityToken()` throws a `.captchaRequired` error when a `400` http response with the correct data
-    /// is returned.
-    func test_getIdentityToken_captchaError() async throws {
-        client.result = .httpFailure(
-            statusCode: 400,
-            data: APITestData.identityTokenCaptchaError.data
-        )
-
-        await assertAsyncThrows(error: IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "1234")) {
-            _ = try await subject.getIdentityToken(
-                IdentityTokenRequestModel(
-                    authenticationMethod: .password(username: "username", password: "password"),
-                    captchaToken: nil,
-                    deviceInfo: .fixture(),
-                    loginRequestId: nil
-                )
-            )
-        }
     }
 
     /// `getIdentityToken()` throws a `.newDeviceNotVerified` error when a `400` http response with the correct data
@@ -98,17 +77,16 @@ class AuthAPIServiceTests: BitwardenTestCase {
     func test_getIdentityToken_newDeviceNotVerified() async throws {
         client.result = .httpFailure(
             statusCode: 400,
-            data: APITestData.identityTokenNewDeviceError.data
+            data: APITestData.identityTokenNewDeviceError.data,
         )
 
         await assertAsyncThrows(error: IdentityTokenRequestError.newDeviceNotVerified) {
             _ = try await subject.getIdentityToken(
                 IdentityTokenRequestModel(
                     authenticationMethod: .password(username: "username", password: "password"),
-                    captchaToken: nil,
                     deviceInfo: .fixture(),
-                    loginRequestId: nil
-                )
+                    loginRequestId: nil,
+                ),
             )
         }
     }
@@ -141,7 +119,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
             deviceIdentifier: "",
             accessCode: "",
             type: AuthRequestType.authenticateAndUnlock,
-            fingerprintPhrase: ""
+            fingerprintPhrase: "",
         ))
 
         XCTAssertEqual(response, .fixture())
@@ -156,7 +134,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
 
         XCTAssertEqual(
             response,
-            PreValidateSingleSignOnResponse(token: "BWUserPrefix_longincomprehensiblegibberishhere")
+            PreValidateSingleSignOnResponse(token: "BWUserPrefix_longincomprehensiblegibberishhere"),
         )
     }
 
@@ -172,8 +150,8 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 accessToken: "ACCESS_TOKEN",
                 expiresIn: 3600,
                 tokenType: "Bearer",
-                refreshToken: "REFRESH_TOKEN"
-            )
+                refreshToken: "REFRESH_TOKEN",
+            ),
         )
     }
 }

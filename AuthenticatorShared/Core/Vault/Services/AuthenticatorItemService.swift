@@ -69,7 +69,7 @@ class DefaultAuthenticatorItemService {
     ///   - authenticatorItemDataStore: The data store for persisted items
     ///
     init(
-        authenticatorItemDataStore: AuthenticatorItemDataStore
+        authenticatorItemDataStore: AuthenticatorItemDataStore,
     ) {
         self.authenticatorItemDataStore = authenticatorItemDataStore
     }

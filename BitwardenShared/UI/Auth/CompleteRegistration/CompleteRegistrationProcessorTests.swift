@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Networking
 import TestHelpers
 import XCTest
@@ -47,12 +48,12 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
-                stateService: stateService
+                stateService: stateService,
             ),
             state: CompleteRegistrationState(
                 emailVerificationToken: "emailVerificationToken",
-                userEmail: "example@email.com"
-            )
+                userEmail: "example@email.com",
+            ),
         )
     }
 
@@ -106,8 +107,8 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator.alertShown[0],
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
-            )
+                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded,
+            ),
         )
         XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, nil)
     }
@@ -147,7 +148,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             .httpFailure(
                 statusCode: 400,
                 headers: [:],
-                data: APITestData.verifyEmailTokenExpiredLink.data
+                data: APITestData.verifyEmailTokenExpiredLink.data,
             ),
         ]
         subject.state.fromEmail = true
@@ -175,10 +176,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.emailVerified))
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(
-            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+            string: "https://example.com/identity/accounts/register/verification-email-clicked",
         ))
         XCTAssertEqual(client.requests[1].url, URL(
-            string: "https://example.com/identity/accounts/register/verification-email-clicked"
+            string: "https://example.com/identity/accounts/register/verification-email-clicked",
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -187,7 +188,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.verifying),
                 LoadingOverlayState(title: Localizations.verifying),
-            ]
+            ],
         )
     }
 
@@ -200,13 +201,12 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         client.results = [
             .httpFailure(URLError(.timedOut) as Error),
-            .httpSuccess(testData: .createAccountRequest),
+            .httpSuccess(testData: .registerFinishRequest),
         ]
 
         await subject.perform(.completeRegistration)
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
@@ -220,7 +220,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -231,7 +231,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_checkPasswordAndCompleteRegistration_exposedWeak_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 1)
 
-        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -247,7 +247,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -256,7 +256,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -267,7 +267,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_checkPasswordAndCompleteRegistration_exposedStrong_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 3)
 
-        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -283,7 +283,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -292,7 +292,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -305,10 +305,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             isCheckDataBreachesToggleOn: false,
             passwordText: "unexposed123",
             passwordStrengthScore: 2,
-            retypePasswordText: "unexposed123"
+            retypePasswordText: "unexposed123",
         )
 
-        client.results = [.httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -323,7 +323,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -339,10 +339,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             isCheckDataBreachesToggleOn: true,
             passwordText: "unexposed123",
             passwordStrengthScore: 2,
-            retypePasswordText: "unexposed123"
+            retypePasswordText: "unexposed123",
         )
 
-        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpSuccess(testData: .hibpLeakedPasswords), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -358,7 +358,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in },
-            ]
+            ],
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -367,7 +367,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -378,7 +378,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountAccountAlreadyExists.data
+            body: APITestData.registerFinishAccountAlreadyExists.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -399,7 +399,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_completeRegistration_emptyPassword() async {
         subject.state = .fixture(passwordText: "", retypePasswordText: "")
 
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
 
         await subject.perform(.completeRegistration)
 
@@ -418,7 +418,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountHintTooLong.data
+            body: APITestData.registerFinishHintTooLong.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -441,7 +441,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.createAccountInvalidEmailFormat.data
+            body: APITestData.registerFinishInvalidEmailFormat.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -462,7 +462,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_completeRegistration_loginError() async throws {
         authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
         subject.state = .fixture()
 
         await subject.perform(.completeRegistration)
@@ -476,7 +476,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator.loadingOverlaysShown,
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
         XCTAssertEqual(coordinator.routes.count, 1)
         guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
@@ -493,7 +493,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_completeRegistration_unlockError() async throws {
         authRepository.unlockWithPasswordResult = .failure(BitwardenTestError.example)
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
         subject.state = .fixture()
 
         await subject.perform(.completeRegistration)
@@ -507,7 +507,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             coordinator.loadingOverlaysShown,
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
         XCTAssertEqual(coordinator.routes.count, 1)
         guard case let .dismissWithAction(dismissAction) = coordinator.routes.first else {
@@ -527,7 +527,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.state = .fixture()
 
         let urlError = URLError(.notConnectedToInternet)
-        client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -537,7 +537,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         await alertWithRetry.retry()
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
 
         XCTAssertEqual(client.requests.count, 2)
@@ -551,7 +550,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -560,7 +559,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_completeRegistration_passwordsDontMatch() async {
         subject.state = .fixture(passwordText: "123456789012", retypePasswordText: "123456789000")
 
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
 
         await subject.perform(.completeRegistration)
 
@@ -574,7 +573,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     func test_perform_completeRegistration_passwordsTooShort() async {
         subject.state = .fixture(passwordText: "123", retypePasswordText: "123")
 
-        client.result = .httpSuccess(testData: .createAccountRequest)
+        client.result = .httpSuccess(testData: .registerFinishRequest)
 
         await subject.perform(.completeRegistration)
 
@@ -591,7 +590,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.state = .fixture()
 
         let urlError = URLError(.timedOut)
-        client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
+        client.results = [.httpFailure(urlError), .httpSuccess(testData: .registerFinishRequest)]
 
         await subject.perform(.completeRegistration)
 
@@ -601,7 +600,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         await alertWithRetry.retry()
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
-        XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
         XCTAssertEqual(authService.loginWithMasterPasswordUsername, "email@example.com")
         XCTAssertTrue(authService.loginWithMasterPasswordIsNewAccount)
 
@@ -616,7 +614,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 

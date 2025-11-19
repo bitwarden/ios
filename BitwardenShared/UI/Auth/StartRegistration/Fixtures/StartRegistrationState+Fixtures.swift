@@ -9,13 +9,13 @@ extension StartRegistrationState {
         emailText: String = "example@email.com",
         isReceiveMarketingToggleOn: Bool = true,
         nameText: String = "name",
-        region: RegionType = .unitedStates
+        region: RegionType = .unitedStates,
     ) -> Self {
         StartRegistrationState(
             emailText: emailText,
             isReceiveMarketingToggleOn: isReceiveMarketingToggleOn,
             nameText: nameText,
-            region: region
+            region: region,
         )
     }
 }

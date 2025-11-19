@@ -1,5 +1,3 @@
-import SnapshotTesting
-import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -25,13 +23,13 @@ class VaultGroupStateTests: BitwardenTestCase {
 
         let subjectCollection = VaultGroupState(
             group: .collection(id: "1", name: "Collection", organizationId: ""),
-            vaultFilterType: .myVault
+            vaultFilterType: .myVault,
         )
         XCTAssertEqual(subjectCollection.newItemButtonType, .menu)
 
         let subjectFolder = VaultGroupState(
             group: .folder(id: "1", name: "Folder"),
-            vaultFilterType: .myVault
+            vaultFilterType: .myVault,
         )
         XCTAssertEqual(subjectFolder.newItemButtonType, .menu)
 

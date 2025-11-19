@@ -23,8 +23,8 @@ class DomainNameTests: BitwardenTestCase {
             DomainName.DataSet(
                 exceptions: Set(["city.kobe.jp"]),
                 normals: Set(["com", "co.uk", "com.ai"]),
-                wildcards: Set(["compute.amazonaws.com"])
-            )
+                wildcards: Set(["compute.amazonaws.com"]),
+            ),
         )
     }
 
@@ -53,8 +53,8 @@ class DomainNameTests: BitwardenTestCase {
             DomainName.DataSet(
                 exceptions: Set(["city.kobe.jp"]),
                 normals: Set(["com", "co.uk", "com.ai"]),
-                wildcards: Set(["compute.amazonaws.com"])
-            )
+                wildcards: Set(["compute.amazonaws.com"]),
+            ),
         )
     }
 
@@ -66,11 +66,11 @@ class DomainNameTests: BitwardenTestCase {
         // Exception: !city.kobe.jp
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://example.city.kobe.jp"))),
-            "example.city.kobe.jp"
+            "example.city.kobe.jp",
         )
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://sub.example.city.kobe.jp"))),
-            "example.city.kobe.jp"
+            "example.city.kobe.jp",
         )
     }
 
@@ -92,20 +92,20 @@ class DomainNameTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://example.com"))),
-            "example.com"
+            "example.com",
         )
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://sub.example.com"))),
-            "example.com"
+            "example.com",
         )
 
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://example.co.uk"))),
-            "example.co.uk"
+            "example.co.uk",
         )
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://sub.example.co.uk"))),
-            "example.co.uk"
+            "example.co.uk",
         )
     }
 
@@ -114,11 +114,11 @@ class DomainNameTests: BitwardenTestCase {
         // Wildcard: *.compute.amazonaws.com
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://sub.example.compute.amazonaws.com"))),
-            "sub.example.compute.amazonaws.com"
+            "sub.example.compute.amazonaws.com",
         )
         try XCTAssertEqual(
             DomainName.parseBaseDomain(url: XCTUnwrap(URL(string: "https://foo.sub.example.compute.amazonaws.com"))),
-            "sub.example.compute.amazonaws.com"
+            "sub.example.compute.amazonaws.com",
         )
     }
 
@@ -133,16 +133,16 @@ class DomainNameTests: BitwardenTestCase {
             DomainName.DomainNameResult(
                 topLevelDomain: "city.kobe.jp",
                 secondLevelDomain: "example",
-                subDomain: ""
-            )
+                subDomain: "",
+            ),
         )
         try XCTAssertEqual(
             DomainName.parseURL(XCTUnwrap(URL(string: "https://sub.example.city.kobe.jp"))),
             DomainName.DomainNameResult(
                 topLevelDomain: "city.kobe.jp",
                 secondLevelDomain: "example",
-                subDomain: "sub"
-            )
+                subDomain: "sub",
+            ),
         )
 
         try XCTAssertNil(DomainName.parseURL(XCTUnwrap(URL(string: "https://city.kobe.jp"))))
@@ -158,16 +158,16 @@ class DomainNameTests: BitwardenTestCase {
             DomainName.DomainNameResult(
                 topLevelDomain: "com",
                 secondLevelDomain: "example",
-                subDomain: ""
-            )
+                subDomain: "",
+            ),
         )
         try XCTAssertEqual(
             DomainName.parseURL(XCTUnwrap(URL(string: "https://sub.example.com"))),
             DomainName.DomainNameResult(
                 topLevelDomain: "com",
                 secondLevelDomain: "example",
-                subDomain: "sub"
-            )
+                subDomain: "sub",
+            ),
         )
 
         try XCTAssertEqual(
@@ -175,16 +175,16 @@ class DomainNameTests: BitwardenTestCase {
             DomainName.DomainNameResult(
                 topLevelDomain: "co.uk",
                 secondLevelDomain: "example",
-                subDomain: ""
-            )
+                subDomain: "",
+            ),
         )
         try XCTAssertEqual(
             DomainName.parseURL(XCTUnwrap(URL(string: "https://sub.example.co.uk"))),
             DomainName.DomainNameResult(
                 topLevelDomain: "co.uk",
                 secondLevelDomain: "example",
-                subDomain: "sub"
-            )
+                subDomain: "sub",
+            ),
         )
     }
 
@@ -199,16 +199,16 @@ class DomainNameTests: BitwardenTestCase {
             DomainName.DomainNameResult(
                 topLevelDomain: "example.compute.amazonaws.com",
                 secondLevelDomain: "sub",
-                subDomain: ""
-            )
+                subDomain: "",
+            ),
         )
         try XCTAssertEqual(
             DomainName.parseURL(XCTUnwrap(URL(string: "https://foo.sub.example.compute.amazonaws.com"))),
             DomainName.DomainNameResult(
                 topLevelDomain: "example.compute.amazonaws.com",
                 secondLevelDomain: "sub",
-                subDomain: "foo"
-            )
+                subDomain: "foo",
+            ),
         )
 
         try XCTAssertNil(DomainName.parseURL(XCTUnwrap(URL(string: "https://compute.amazonaws.com"))))

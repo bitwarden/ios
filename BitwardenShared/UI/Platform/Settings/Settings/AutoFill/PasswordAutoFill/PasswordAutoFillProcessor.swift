@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - PasswordAutoFillProcessor
@@ -34,7 +35,7 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     init(
         coordinator: AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>,
         services: Services,
-        state: PasswordAutoFillState
+        state: PasswordAutoFillState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -51,7 +52,7 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
             coordinator?.showAlert(
                 .setUpAutoFillLater { [weak self] in
                     await self?.turnOnLaterFlow()
-                }
+                },
             )
         }
     }

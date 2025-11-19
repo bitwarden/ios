@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -44,9 +45,9 @@ struct VaultItemSelectionState: Equatable {
     var ciphersMatchingName: String? {
         switch totpKeyModel.totpKey {
         case let .otpAuthUri(otpAuthModel):
-            return otpAuthModel.issuer ?? otpAuthModel.accountName
+            otpAuthModel.issuer ?? otpAuthModel.accountName
         case .standard, .steamUri:
-            return nil
+            nil
         }
     }
 }

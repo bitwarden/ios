@@ -1,0 +1,1 @@
+bit warden, authenticator, totp, 2fa, authentication codes, two factor authentication, mfa

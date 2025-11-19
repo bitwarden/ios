@@ -15,7 +15,7 @@ class ResendNewDeviceOtpRequestTests: BitwardenTestCase {
 
         subject = ResendNewDeviceOtpRequest(model: .init(
             email: "email",
-            masterPasswordHash: ""
+            masterPasswordHash: "",
         ))
     }
 

@@ -43,7 +43,7 @@ class TOTPCountdownTimer: ObservableObject {
     private var durationFractionRemaining: CGFloat {
         let value = TOTPExpirationCalculator.timeRemaining(
             for: timeProvider.presentTime,
-            using: TimeInterval(period)
+            using: TimeInterval(period),
         ) / TimeInterval(period)
         return min(max(0.0, value), 1.0)
     }
@@ -73,7 +73,7 @@ class TOTPCountdownTimer: ObservableObject {
         timeProvider: any TimeProvider,
         timerInterval: TimeInterval,
         totpCode: TOTPCodeModel,
-        onExpiration: (() -> Void)?
+        onExpiration: (() -> Void)?,
     ) {
         totpCodeMode = totpCode
         self.timeProvider = timeProvider
@@ -84,7 +84,7 @@ class TOTPCountdownTimer: ObservableObject {
             repeats: true,
             block: { _ in
                 self.updateCountdown()
-            }
+            },
         )
     }
 
@@ -110,7 +110,7 @@ class TOTPCountdownTimer: ObservableObject {
         }
         if TOTPExpirationCalculator.hasCodeExpired(
             totpCodeMode,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         ) {
             onExpiration?()
             timer?.invalidate()

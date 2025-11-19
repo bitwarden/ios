@@ -1,3 +1,4 @@
+import BitwardenKit
 import XCTest
 
 @testable import AuthenticatorShared
@@ -165,6 +166,30 @@ class AppSettingsStoreTests: BitwardenTestCase {
         XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "none")
     }
 
+    /// `flightRecorderData` returns `nil` if there isn't any previously stored flight recorder data.
+    func test_flightRecorderData_isInitiallyNil() {
+        XCTAssertNil(subject.flightRecorderData)
+    }
+
+    /// `flightRecorderData` can be used to get and set the flight recorder data.
+    func test_flightRecorderData_withValue() throws {
+        let flightRecorderData = FlightRecorderData(
+            activeLog: FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
+            inactiveLogs: [],
+        )
+        subject.flightRecorderData = flightRecorderData
+
+        let data = try XCTUnwrap(
+            userDefaults.string(forKey: "bwaPreferencesStorage:flightRecorderData")?
+                .data(using: .utf8),
+        )
+        let decodedData = try JSONDecoder().decode(FlightRecorderData.self, from: data)
+        XCTAssertEqual(decodedData, flightRecorderData)
+
+        subject.flightRecorderData = nil
+        XCTAssertNil(userDefaults.string(forKey: "bwaPreferencesStorage:flightRecorderData"))
+    }
+
     /// `hasSeenDefaultSaveOptionPrompt` returns `false` if there isn't a 'defaultSaveOption` value stored, and `true`
     /// when there is a value stored.
     func test_hasSeenDefaultSaveOptionPrompt() {
@@ -202,8 +227,7 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
         // Stores with the hashed value:
         XCTAssertTrue(userDefaults.bool(
-            forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName.hexSHA256Hash)")
-        )
+            forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName.hexSHA256Hash)"))
 
         // A new account that we've not synced before defaults to `false`
         XCTAssertFalse(subject.hasSyncedAccount(name: "New Account"))

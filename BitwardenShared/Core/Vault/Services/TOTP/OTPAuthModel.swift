@@ -47,7 +47,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
         issuer: String? = nil,
         key: String,
         period: Int,
-        uri: String
+        uri: String,
     ) {
         self.accountName = accountName
         self.algorithm = algorithm
@@ -93,7 +93,7 @@ public struct OTPAuthModel: Equatable, Hashable, Sendable {
             issuer: issuer,
             key: secret,
             period: period,
-            uri: otpAuthKey
+            uri: otpAuthKey,
         )
     }
 }

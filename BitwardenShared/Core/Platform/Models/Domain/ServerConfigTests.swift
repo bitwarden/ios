@@ -15,7 +15,7 @@ final class ServerConfigTests: BitwardenTestCase {
             featureStates: [:],
             gitHash: "123",
             server: nil,
-            version: "2024.2.0"
+            version: "2024.2.0",
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
@@ -30,7 +30,7 @@ final class ServerConfigTests: BitwardenTestCase {
             featureStates: [:],
             gitHash: "123",
             server: nil,
-            version: "2024.3.15"
+            version: "2024.3.15",
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
@@ -45,7 +45,7 @@ final class ServerConfigTests: BitwardenTestCase {
             featureStates: [:],
             gitHash: "123",
             server: nil,
-            version: "2023.1.28"
+            version: "2023.1.28",
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)
@@ -59,7 +59,7 @@ final class ServerConfigTests: BitwardenTestCase {
             featureStates: [:],
             gitHash: "123",
             server: nil,
-            version: "20asdfasdf24.2.0"
+            version: "20asdfasdf24.2.0",
         )
 
         let subject = ServerConfig(date: Date(), responseModel: model)

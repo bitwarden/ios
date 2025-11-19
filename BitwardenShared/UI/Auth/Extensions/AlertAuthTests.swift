@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -11,7 +12,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
             .fixture(email: "test@example.com", isUnlocked: true, webVault: "secureVault.example.com"),
             lockAction: { actions.append(Localizations.lock) },
             logoutAction: { actions.append(Localizations.logOut) },
-            removeAccountAction: { actions.append(Localizations.removeAccount) }
+            removeAccountAction: { actions.append(Localizations.removeAccount) },
         )
 
         XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
@@ -42,7 +43,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
             .fixture(email: "test@example.com", isLoggedOut: true, webVault: "secureVault.example.com"),
             lockAction: { actions.append(Localizations.lock) },
             logoutAction: { actions.append(Localizations.logOut) },
-            removeAccountAction: { actions.append(Localizations.removeAccount) }
+            removeAccountAction: { actions.append(Localizations.removeAccount) },
         )
 
         XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
@@ -68,11 +69,11 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
                 email: "test@example.com",
                 isLoggedOut: false,
                 isUnlocked: true,
-                webVault: "secureVault.example.com"
+                webVault: "secureVault.example.com",
             ),
             lockAction: {},
             logoutAction: {},
-            removeAccountAction: {}
+            removeAccountAction: {},
         )
 
         XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
@@ -121,7 +122,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(subject.title, Localizations.warning)
         XCTAssertEqual(
             subject.message,
-            Localizations.unlockingMayFailDueToInsufficientMemoryDecreaseYourKDFMemorySettingsToResolve
+            Localizations.unlockingMayFailDueToInsufficientMemoryDecreaseYourKDFMemorySettingsToResolve,
         )
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.alertActions.count, 2)
@@ -232,7 +233,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
 
         let uiTextField = try XCTUnwrap(controller.textFields?.first)
         let submitAction = try XCTUnwrap(
-            controller.actions.first(where: { $0.title == Localizations.submit })
+            controller.actions.first(where: { $0.title == Localizations.submit }),
         )
 
         uiTextField.text = String(repeating: "1", count: Constants.minimumPinLength - 1)
@@ -285,7 +286,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         let subject = Alert.enterPINCode(
             onCancelled: { () in expectation.fulfill() },
             settingUp: false,
-            completion: { _ in }
+            completion: { _ in },
         )
 
         try await subject.tapAction(title: Localizations.cancel)
@@ -304,7 +305,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(subject.title, Localizations.removeAccount)
         XCTAssertEqual(
             subject.message,
-            Localizations.removeAccountConfirmation + "\n\n" + "user@bitwarden.com\nvault.bitwarden.com"
+            Localizations.removeAccountConfirmation + "\n\n" + "user@bitwarden.com\nvault.bitwarden.com",
         )
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.alertActions.count, 2)

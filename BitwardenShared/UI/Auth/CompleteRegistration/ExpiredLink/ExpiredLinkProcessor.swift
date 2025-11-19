@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExpiredLinkProcessor
 
 /// The processor used to manage state and handle actions for the passwort hint screen.
@@ -18,7 +20,7 @@ class ExpiredLinkProcessor: StateProcessor<ExpiredLinkState, ExpiredLinkAction, 
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
-        state: ExpiredLinkState
+        state: ExpiredLinkState,
     ) {
         self.coordinator = coordinator
         super.init(state: state)

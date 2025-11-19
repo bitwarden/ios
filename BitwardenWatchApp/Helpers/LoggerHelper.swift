@@ -40,11 +40,11 @@ class Log {
         filename: String = #file,
         line: Int = #line,
         column: Int = #column,
-        funcName: String = #function
+        funcName: String = #function,
     ) {
         if isLoggingEnabled {
             print(
-                "\(Date().toString()) Error [\(sourceFileName(filePath: filename))]:\(line) \(column) \(funcName) -> \(object)"
+                "\(Date().toString()) Error [\(sourceFileName(filePath: filename))]:\(line) \(column) \(funcName) -> \(object)",
             )
         }
     }

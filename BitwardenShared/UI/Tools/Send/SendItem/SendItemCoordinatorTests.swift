@@ -31,9 +31,9 @@ class SendItemCoordinatorTests: BitwardenTestCase {
             module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                sendRepository: sendRepository
+                sendRepository: sendRepository,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -67,9 +67,9 @@ class SendItemCoordinatorTests: BitwardenTestCase {
             to: .add(
                 content: .file(
                     fileName: "test file",
-                    fileData: Data("test data".utf8)
-                )
-            )
+                    fileData: Data("test data".utf8),
+                ),
+            ),
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -92,7 +92,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
         XCTAssertEqual(
             view.store.state.mode,
-            .shareExtension(.empty())
+            .shareExtension(.empty()),
         )
         XCTAssertEqual(view.store.state.type, .text)
         XCTAssertEqual(view.store.state.text, "test")
@@ -198,6 +198,24 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? ViewSendItemView)
         XCTAssertEqual(view.store.state.sendView, sendView)
+    }
+
+    /// `navigate(to:)` with `.viewProfileSwitcher` opens the profile switcher.
+    @MainActor
+    func test_navigate_viewProfileSwitcher() throws {
+        let handler = MockProfileSwitcherHandler()
+        subject.navigate(to: .viewProfileSwitcher, context: handler)
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+    }
+
+    /// `navigate(to:)` with `.viewProfileSwitcher` does not open the profile switcher if there isn't a handler.
+    @MainActor
+    func test_navigate_viewProfileSwitcher_noHandler() throws {
+        subject.navigate(to: .viewProfileSwitcher, context: nil)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 
     /// `handle(_:)` calls `handle(_:)` on the delegate.

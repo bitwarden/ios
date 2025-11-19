@@ -11,14 +11,14 @@ class RaivoImporter {
                 digits: Int(item.digits) ?? 6,
                 issuer: item.issuer.nilIfEmpty,
                 period: Int(item.timer) ?? 30,
-                secret: item.secret
+                secret: item.secret,
             )
             return AuthenticatorItemView(
                 favorite: Bool(item.pinned) ?? false,
                 id: UUID().uuidString,
                 name: item.issuer,
                 totpKey: otp.otpAuthUri,
-                username: item.account.nilIfEmpty
+                username: item.account.nilIfEmpty,
             )
         }
     }

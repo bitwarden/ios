@@ -31,7 +31,7 @@ class FolderData: NSManagedObject, ManagedObject, CodableModelData {
     convenience init(
         context: NSManagedObjectContext,
         userId: String,
-        folder: Folder
+        folder: Folder,
     ) {
         self.init(context: context)
         id = folder.id

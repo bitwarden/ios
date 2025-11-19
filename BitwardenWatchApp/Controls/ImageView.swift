@@ -16,7 +16,7 @@ struct ImageView<PlaceholderView: View>: View {
         withURL url: String,
         maxWidth mw: CGFloat,
         maxHeight mh: CGFloat,
-        @ViewBuilder _ placeholder: () -> PlaceholderView
+        @ViewBuilder _ placeholder: () -> PlaceholderView,
     ) {
         imageLoader = ImageLoader(urlString: url)
         imgMaxWidth = mw

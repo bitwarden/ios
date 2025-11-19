@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 /// Protocol for a helper that is used to get the options available for autofilling.
@@ -8,7 +9,7 @@ protocol TextAutofillOptionsHelper {
     /// - Returns: The localized option title and the value to insert if that's selected.
     func getTextAutofillOptions(cipherView: CipherView) async -> [(
         localizedOption: String,
-        textToInsert: String
+        textToInsert: String,
     )]
 }
 

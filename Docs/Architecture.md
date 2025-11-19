@@ -1,6 +1,11 @@
 # Architecture
 
 - [Overview](#overview)
+  - [Password Manager App Targets](#password-manager-app-targets)
+  - [Authenticator App Targets](#authenticator-app-targets)
+  - [Shared Frameworks](#shared-frameworks)
+  - [Test Helpers](#test-helpers)
+  - [Architecture Structure](#architecture-structure)
 - [Core Layer](#core-layer)
   - [Models](#models)
   - [Data Stores](#data-stores)
@@ -16,28 +21,51 @@
   - [View](#view)
   - [Actions and Effects](#actions-and-effects)
   - [Example](#example)
-- [Tests](#tests)
-  - [Overview](#overview-1)
-  - [Strategies](#strategies)
+- [Test Architecture](#test-architecture)
+  - [Testing Philosophy](#testing-philosophy)
+  - [Test Layer Alignment](#test-layer-alignment)
+  - [Testing Strategies by Component Type](#testing-strategies-by-component-type)
+  - [Test Organization](#test-organization)
+  - [Dependency Mocking](#dependency-mocking)
+  - [Test Isolation](#test-isolation)
 
 ## Overview
 
-The Bitwarden app is composed of the following targets:
+The iOS repository contains two main apps: Bitwarden Password Manager and Bitwarden Authenticator.
 
-- `Bitwarden`: The main iOS app. 
-- `BitwardenActionExtension`: An [Action extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Action.html) that can be accessed via the system share sheet "Autofill with Bitwarden" option. 
+### Password Manager App Targets
+
+- `Bitwarden`: The main iOS Password Manager app.
+- `BitwardenActionExtension`: An [Action extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Action.html) that can be accessed via the system share sheet "Autofill with Bitwarden" option.
 - `BitwardenAutoFillExtension`: An AutoFill Credential Provider extension which allows Bitwarden to offer up credentials for [Password AutoFill](https://developer.apple.com/documentation/security/password_autofill/).
-- `BitwardenShareExtension`: A [Share extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html) that allows creating text or file sends via the system share sheet. 
+- `BitwardenShareExtension`: A [Share extension](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/Share.html) that allows creating text or file sends via the system share sheet.
 - `BitwardenWatchApp`: The companion watchOS app.
+- `BitwardenShared`: The main Password Manager framework containing the Core and UI layers shared between the app and extensions.
 
-Additionally, the following top-level folders provide shared functionality between the targets:
+### Authenticator App Targets
 
-- `BitwardenShared`: A framework that is shared between the app and extensions.
+- `Authenticator`: The main iOS Authenticator app.
+- `AuthenticatorShared`: The main Authenticator framework containing the Core and UI layers.
+
+### Shared Frameworks
+
+- `BitwardenKit`: A shared framework providing common functionality across apps.
+- `BitwardenResources`: A framework containing shared resources (assets, localizations, etc.).
+- `AuthenticatorBridgeKit`: A framework for communication between the Password Manager and Authenticator apps.
 - `BitwardenWatchShared`: Models and encoding/decoding logic for communicating between the iOS and watchOS apps.
-- `GlobalTestHelpers`: Shared functionality between the app's test targets. 
-- `Networking`: A local Swift package that implements the app's networking layer on top of `URLSession`. 
+- `Networking`: A local Swift package that implements the app's networking layer on top of `URLSession`.
 
-Most of the app's functionality is implemented in the `BitwardenShared` target. The files within this target are split up between two top-level folders, `Core` and `UI`. Each of these folders is then subdivided into the following folders:
+### Test Helpers
+
+- `GlobalTestHelpers`: Shared functionality between the app's test targets.
+- `BitwardenKitMocks`: Mock implementations for BitwardenKit components.
+- `AuthenticatorBridgeKitMocks`: Mock implementations for AuthenticatorBridgeKit components.
+- `TestHelpers`: Additional test utilities and helpers.
+- `ViewInspectorTestHelpers`: ViewInspector-specific test helpers for UI testing.
+
+### Architecture Structure
+
+Most of the app's functionality is implemented in the `BitwardenShared` and `AuthenticatorShared` frameworks. The files within these frameworks are mainly split up between two top-level folders, `Core` and `UI`. Each of these folders is then subdivided into the following folders:
 
 - `Auth`
 - `Autofill`
@@ -45,7 +73,7 @@ Most of the app's functionality is implemented in the `BitwardenShared` target. 
 - `Tools`
 - `Vault`
 
-These folders align with the [CODEOWNERS](../.github/CODEOWNERS) file for the project; no additional direct subfolders of `Core` or `UI` should be added. While this top-level structure is deliberately inflexible, the folder structure within the subfolders are not specifically prescribed.
+These folders align with the [CODEOWNERS](../.github/CODEOWNERS) file for the project. One **MUST** not add additional direct subfolders to `Core` or `UI`. While this top-level structure is deliberately inflexible, the folder structure within the subfolders are not specifically prescribed.
 
 The responsibilities of the core layer are to manage the storage and retrieval of data from low-level sources (such as from the network, persistence, or Bitwarden SDK) and to expose them in a more ready-to-consume manner by the UI layer via "repository" and "service" classes. The UI layer is then responsible for any final processing of this data for display in the UI as well as receiving events from the UI and updating the tracked state accordingly.
 
@@ -55,7 +83,7 @@ The core layer is where all the UI-independent data is stored and retrieved. It 
 
 ### Models
 
-The lowest level of the core layer are the data model objects. These are the raw sources of data that include data retrieved or sent via network requests, data persisted with [CoreData](https://developer.apple.com/documentation/coredata/), and data that is used to interact with the [Bitwarden SDK](https://github.com/bitwarden/sdk).
+The lowest level of the core layer are the data model objects. These are the raw sources of data that include data retrieved or sent via network requests, data persisted with [CoreData](https://developer.apple.com/documentation/coredata/), and data that is used to interact with the [Bitwarden SDK](https://github.com/bitwarden/sdk-internal).
 
 The models are roughly organized based on their use and type:
 
@@ -310,14 +338,67 @@ struct ExampleView: View {
 
 </details>
 
-## Tests
+## Test Architecture
 
-### Overview
+### Testing Philosophy
 
-Every type containing logic should be tested. Test files should be named `<TypeToTest>Tests.swift`. A test file should exist in the same folder as the type being tested. For example, [AppProcessorTests](../BitwardenShared/UI/Platform/Application/AppProcessorTests.swift) is in the same folder as [AppProcessor](../BitwardenShared/UI/Platform/Application/AppProcessor.swift). This makes it convenient to switch between these files or open them side-by-side.
+The test architecture mirrors the layered structure of the application, ensuring that each layer can be tested in isolation through dependency injection and protocol-based abstractions.
 
-### Strategies
+### Test Layer Alignment
 
-- **Unit**: Unit tests compose the majority of tests in the suite. These are written using [XCTest](https://developer.apple.com/documentation/xctest) assertions and should be used to test all logic portions within a type.
-- **View**: In a SwiftUI view test, [ViewInspector](https://github.com/nalexn/ViewInspector) is used to test any user interactions within the view. This is commonly used to assert that tapping a button sends an action or effect to the processor, but it can also be used to test other view interactions.
-- **Snapshot**: In addition to using [ViewInspector](https://github.com/nalexn/ViewInspector) to interact with a view under test, [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) is used to take snapshots of the view to test for visual changes from one test run to another. The resulting snapshot images are stored in the repository and are compared against on future test runs. Any visual differences on future test runs will result in a failing test. Snapshot tests are usually recorded in light mode, dark mode, and with a large dynamic type size. ⚠️ These tests are done using an **iPhone 16 Pro (18.1)** simulator, otherwise tests may fail because of subtle differences between iOS versions.
+#### Core Layer Testing
+
+Tests for the core layer focus on data integrity, business logic, and repository/service behavior:
+
+- **Repositories**: Test data synthesis from multiple sources, error handling, and asynchronous operations
+- **Services**: Test discrete responsibilities and interactions with lower-level stores
+- **Data Stores**: Test persistence operations (CoreData, Keychain, UserDefaults)
+- **Models**: Test data transformations, encoding/decoding, and domain logic
+
+Core layer tests should use mocked dependencies to isolate the system under test from external services.
+
+#### UI Layer Testing
+
+Tests for the UI layer validate the unidirectional data flow and state management:
+
+- **Processors**: Test state mutations in response to actions, effect handling, and coordinator navigation requests
+- **Coordinators**: Test route handling and child coordinator creation using mocked modules
+- **Views**: Test UI rendering based on state and user interaction handling
+- **State**: Test state equality and state transformations
+
+UI layer tests leverage the `Store` abstraction to verify the connection between processors and views.
+
+### Testing Strategies by Component Type
+
+The architecture employs three complementary testing strategies:
+
+1. **Logic Testing**: Unit tests validate business logic, state management, and data transformations using protocol mocks
+2. **Interaction Testing**: View inspector tests verify user interactions send correct actions/effects through the store
+3. **Visual Testing**: Snapshot tests capture visual regressions across different display modes and accessibility settings
+
+### Test Organization
+
+Test files are co-located with the code they test, maintaining the same folder structure as the main codebase. This organization:
+
+- Makes it easy to find tests for a given type
+- Ensures tests evolve alongside the code
+- Reinforces the architectural boundaries (Auth, Autofill, Platform, Tools, Vault)
+
+### Dependency Mocking
+
+The architecture's use of protocol composition in the `Services` typealias enables comprehensive mocking:
+
+- All services and repositories are defined as protocols
+- Mock implementations are generated using Sourcery's `AutoMockable` annotation
+- Coordinators can be tested with mocked modules to verify navigation logic
+- Processors can be tested with mocked services to verify state management
+
+### Test Isolation
+
+Each architectural layer can be tested independently:
+
+- **Core layer** tests mock network responses, SDK interactions, and persistence layers
+- **UI layer** tests mock repositories and services from the core layer
+- **Integration points** between layers are tested by verifying protocol conformance
+
+This isolation enables fast, reliable tests that pinpoint failures to specific architectural components.

@@ -16,7 +16,7 @@ protocol LocalAuthService: AnyObject {
     func evaluateDeviceOwnerPolicy(
         _ suppliedContext: LAContext?,
         for deviceAuthStatus: DeviceAuthenticationStatus,
-        reason localizedReason: String
+        reason localizedReason: String,
     ) async throws -> Bool
 
     /// Returns the status for user device authentication.
@@ -47,7 +47,7 @@ extension LocalAuthService {
     /// - Throws: Throws `LAError.Code.userCancel` if cancelled
     func evaluateDeviceOwnerPolicy(
         _ suppliedContext: LAContext? = nil,
-        reason localizedReason: String
+        reason localizedReason: String,
     ) async throws -> Bool {
         let initialStatus = getDeviceAuthStatus(suppliedContext)
         return try await evaluateDeviceOwnerPolicy(suppliedContext, for: initialStatus, reason: localizedReason)
@@ -67,7 +67,7 @@ class DefaultLocalAuthService: LocalAuthService {
             }
 
             guard let laError = error as? LAError else {
-                // A non LAError occured
+                // A non LAError occurred
                 Logger.application.log("Other error: \(error.localizedDescription)")
                 return .unknownError(error.localizedDescription)
             }
@@ -91,7 +91,7 @@ class DefaultLocalAuthService: LocalAuthService {
     func evaluateDeviceOwnerPolicy(
         _ suppliedContext: LAContext?,
         for deviceAuthStatus: DeviceAuthenticationStatus,
-        reason localizedReason: String
+        reason localizedReason: String,
     ) async throws -> Bool {
         guard case .authorized = deviceAuthStatus else {
             return false
@@ -102,7 +102,7 @@ class DefaultLocalAuthService: LocalAuthService {
         do {
             let result = try await authContext.evaluatePolicy(
                 .deviceOwnerAuthentication,
-                localizedReason: localizedReason
+                localizedReason: localizedReason,
             )
             return result
         } catch LAError.userCancel {

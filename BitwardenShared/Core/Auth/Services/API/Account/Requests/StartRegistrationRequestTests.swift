@@ -20,8 +20,8 @@ class StartRegistrationRequestTests: BitwardenTestCase {
             body: StartRegistrationRequestModel(
                 email: "example@email.com",
                 name: "key",
-                receiveMarketingEmails: true
-            )
+                receiveMarketingEmails: true,
+            ),
         )
     }
 
@@ -48,11 +48,11 @@ class StartRegistrationRequestTests: BitwardenTestCase {
         XCTAssertNotNil(subject.body)
     }
 
-    /// `validate(_:)` with a `400` status code but no captcha error does not throw a validation error.
+    /// `validate(_:)` with a `400` status code does not throw a validation error.
     func test_validate_with400() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: Data("example data".utf8)
+            body: Data("example data".utf8),
         )
 
         XCTAssertNoThrow(try subject.validate(response))
@@ -61,7 +61,7 @@ class StartRegistrationRequestTests: BitwardenTestCase {
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(
-            body: APITestData.startRegistrationSuccess.data
+            body: APITestData.startRegistrationSuccess.data,
         )
 
         XCTAssertNoThrow(try subject.validate(response))

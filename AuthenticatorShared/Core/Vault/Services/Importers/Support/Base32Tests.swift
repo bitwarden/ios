@@ -104,16 +104,16 @@ class Base32Tests: XCTestCase {
         XCTAssertEqual(
             try Base32.decode(
                 string: "O5UGC5BAORUGKIJAI5CVIICPKVKCAT2GEBEEKUSFEATCAKY",
-                padded: false
+                padded: false,
             ),
-            "what the! GET OUT OF HERE & +".data(using: .ascii)!
+            "what the! GET OUT OF HERE & +".data(using: .ascii)!,
         )
         XCTAssertEqual(
             try Base32.decode(
                 string: "O5UGC5BAORUGKIJAI5CVIICPKVKCAT2GEBEEKUSFEATCAKY=",
-                padded: true
+                padded: true,
             ),
-            "what the! GET OUT OF HERE & +".data(using: .ascii)!
+            "what the! GET OUT OF HERE & +".data(using: .ascii)!,
         )
     }
 

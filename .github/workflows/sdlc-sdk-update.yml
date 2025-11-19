@@ -1,0 +1,238 @@
+name: SDLC / SDK Update
+run-name: "SDK ${{inputs.run-mode == 'Update' && format('Update - {0}', inputs.sdk-version) || format('Test #{0} - {1}', inputs.pr-id, inputs.sdk-version)}}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-mode:
+        description: "Run Mode"
+        type: choice
+        options:
+          - Test # used for testing sdk-internal repo PRs
+          - Update # opens a PR in this repo updating the SDK
+        default: Update
+      sdk-version:
+        description: "SDK Version"
+        required: true
+        default: "1.0.0-283-7b5d9db"
+      sdk-swift-ref:
+          description: "sdk-swift repo git ref"
+          required: true
+          default: "c2817139d7da49037841215d37a2f931525bf0fc"
+      pr-id:
+        description: "Pull Request ID (Test mode only)"
+
+env:
+  _BOT_NAME: "bw-ghapp[bot]"
+  _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
+  _SDK_DEPENDENCY_NAME: "BitwardenSdk"
+
+jobs:
+  update:
+    name: Update and PR
+    if: ${{ inputs.run-mode == 'Update' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Log inputs to job summary
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-pull-requests: write
+          permission-actions: read
+          permission-contents: write
+
+      - name: Check out repo
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Switch to branch
+        id: switch-branch
+        run: |
+          BRANCH_NAME="sdlc/sdk-update"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+          if git switch "$BRANCH_NAME"; then
+            echo "✅ Switched to existing branch: $BRANCH_NAME"
+            echo "updating_existing_branch=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "📝 Creating new branch: $BRANCH_NAME"
+            git switch -c "$BRANCH_NAME"
+            echo "updating_existing_branch=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prevent updating the branch when the last committer isn't the bot
+        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+        run: |
+          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "$_BRANCH_NAME")
+
+          echo "Latest commit author in branch ($_BRANCH_NAME): $LATEST_COMMIT_AUTHOR"
+          echo "Expected bot email: $_BOT_EMAIL"
+
+          if [ "$LATEST_COMMIT_AUTHOR" != "$_BOT_EMAIL" ]; then
+            echo "::error::Branch $_BRANCH_NAME has a commit not made by the bot." \
+              "This indicates manual changes have been made to the branch," \
+              "PR has to be merged or closed before running this workflow again."
+            echo "👀 Fetching existing PR..."
+            gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty'
+            EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty')
+            if [ -z "$EXISTING_PR" ]; then
+              echo "::error::Couldn't find an existing PR for branch $_BRANCH_NAME."
+              exit 1
+            fi
+            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
+            echo "## ❌ Merge or close: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "✅ Branch tip commit was made by the bot. Safe to proceed."
+
+      # Using main to retrieve the changelog on consecutive updates of the same PR.
+      - name: Get current SDK version from main branch
+        id: get-current-sdk
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          SDK_SWIFT_REF=$(git show origin/main:project-common.yml | yq '.packages.BitwardenSdk.revision')
+          if [ -z "$SDK_SWIFT_REF" ]; then
+            echo "::error::Failed to get current SDK version from main branch."
+            exit 1
+          fi
+
+          echo "👀 sdk-swift ref: $SDK_SWIFT_REF"
+
+          COMMIT_MESSAGE=$(gh api "repos/bitwarden/sdk-swift/commits/$SDK_SWIFT_REF" --jq '.commit.message')
+          echo "👀 sdk-swift ref commit message: \"$COMMIT_MESSAGE\""
+          SDK_INTERNAL_REF=$(echo "$COMMIT_MESSAGE" | grep -oE '[a-f0-9]{40}' | head -n1)
+          if [ -z "$SDK_INTERNAL_REF" ]; then
+            echo "::error::Failed to parse sdk-internal ref from commit message."
+            exit 1
+          fi
+
+          echo ""
+          echo "📋 Current sdk-swift ref (from main): $SDK_SWIFT_REF"
+          echo "📋 Current sdk-internal ref (parsed from commit): $SDK_INTERNAL_REF"
+          echo "sdk-swift-ref=$SDK_SWIFT_REF" >> "$GITHUB_OUTPUT"
+          echo "sdk-internal-ref=$SDK_INTERNAL_REF" >> "$GITHUB_OUTPUT"
+
+      - name: Detect downgrade and prevent updating to the current version
+        id: detect-downgrade
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _CURRENT_SDK_SWIFT_REF: ${{ steps.get-current-sdk.outputs.sdk-swift-ref }}
+          _NEW_SDK_SWIFT_REF: ${{ inputs.sdk-swift-ref }}
+        run: |
+          if [ "$_CURRENT_SDK_SWIFT_REF" = "$_NEW_SDK_SWIFT_REF" ]; then
+            echo "::error::Provided sdk-swift ref is the same as the current version in main."
+            exit 1
+          fi
+
+          COMPARE_RESULT=$(gh api "repos/bitwarden/sdk-swift/compare/$_CURRENT_SDK_SWIFT_REF...$_NEW_SDK_SWIFT_REF" --jq '.status')
+
+          if [ "$COMPARE_RESULT" = "behind" ]; then
+            echo "::warning::The new SDK version ($_NEW_SDK_SWIFT_REF) is older than the current version ($_CURRENT_SDK_SWIFT_REF)"
+            echo "downgrading=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "✅ New SDK version is newer - proceeding with update"
+            echo "downgrading=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update SDK Version
+        env:
+          _SDK_VERSION: ${{ inputs.sdk-version }}
+          _SDK_SWIFT_REF: ${{ inputs.sdk-swift-ref }}
+        run: |
+          ./Scripts/update-sdk-version.sh "$_SDK_DEPENDENCY_NAME" "$_SDK_SWIFT_REF" "$_SDK_VERSION"
+
+      - name: Create branch and commit
+        env:
+          _SDK_VERSION: ${{ inputs.sdk-version }}
+          _SDK_SWIFT_REF: ${{ inputs.sdk-swift-ref }}
+          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+        run: |
+          echo "👀 Committing SDK version update..."
+          _SDK_SWIFT_REF_SHORT="${_SDK_SWIFT_REF:0:7}"
+
+          git config user.name "$_BOT_NAME"
+          git config user.email "$_BOT_EMAIL"
+
+          git add project-common.yml
+          git add Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved
+          git commit -m "SDK Update - $_SDK_SWIFT_REF_SHORT ($_SDK_VERSION)"
+          git push origin "$_BRANCH_NAME"
+
+      - name: Create or Update Pull Request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          _NEW_SDK_VERSION: ${{ inputs.sdk-version }}
+          _NEW_SDK_SWIFT_REF: ${{ inputs.sdk-swift-ref }}
+          _OLD_SDK_SWIFT_REF: ${{ steps.get-current-sdk.outputs.sdk-swift-ref }}
+          _OLD_SDK_INTERNAL_REF: ${{ steps.get-current-sdk.outputs.sdk-internal-ref }}
+          _DOWNGRADING: ${{ steps.detect-downgrade.outputs.downgrading }}
+        run: |
+          _NEW_SDK_INTERNAL_REF=$(echo "$_NEW_SDK_VERSION" | cut -d'-' -f3-)
+          PR_BODY="Updates the SDK from \`$_OLD_SDK_SWIFT_REF\` to \`$_NEW_SDK_SWIFT_REF\`"
+
+          if [ "$_DOWNGRADING" = "true" ]; then
+            PR_BODY="$PR_BODY\n\n## :warning: Downgrading SDK to an older version. :warning:"
+            PR_TITLE_ACTION="Downgrade"
+          else
+            CHANGELOG=$(./Scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$_OLD_SDK_INTERNAL_REF" "$_NEW_SDK_INTERNAL_REF")
+            PR_BODY="$PR_BODY\n\n## What's Changed\n\n$CHANGELOG"
+            PR_TITLE_ACTION="Update"
+          fi
+
+          EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty')
+          _NEW_SDK_SWIFT_REF_SHORT="${_NEW_SDK_SWIFT_REF:0:7}"
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "🔄 Updating existing PR #$EXISTING_PR..."
+            echo -e "$PR_BODY" | gh pr edit "$EXISTING_PR" \
+              --title "$PR_TITLE_ACTION SDK to $_NEW_SDK_SWIFT_REF_SHORT ($_NEW_SDK_VERSION)" \
+              --body-file -
+            PR_URL="https://github.com/${{ github.repository }}/pull/$EXISTING_PR"
+            echo "## ✅ Updated PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "📝 Creating new PR..."
+            PR_URL=$(echo -e "$PR_BODY" | gh pr create \
+              --title "$PR_TITLE_ACTION SDK to $_NEW_SDK_SWIFT_REF_SHORT ($_NEW_SDK_VERSION)" \
+              --body-file - \
+              --base main \
+              --head "$_BRANCH_NAME" \
+              --label "automated-pr" \
+              --label "t:ci")
+            echo "## 🚀 Created PR: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi

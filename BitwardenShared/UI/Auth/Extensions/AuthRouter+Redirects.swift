@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: AuthRouterRedirects
 
 extension AuthRouter {
@@ -72,7 +74,7 @@ extension AuthRouter {
                 activeAccount,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
+                didSwitchAccountAutomatically: true,
             )
             // Handle any vault unlock redirects for this active account.
             return await handleAndRoute(event)
@@ -108,7 +110,7 @@ extension AuthRouter {
             activeAccount,
             animated: false,
             attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: userId != activeAccount.profile.userId
+            didSwitchAccountAutomatically: userId != activeAccount.profile.userId,
         )
         // Handle any vault unlock redirects for this active account.
         return await handleAndRoute(event)
@@ -128,8 +130,8 @@ extension AuthRouter {
                         activeAccount,
                         animated: false,
                         attemptAutomaticBiometricUnlock: false,
-                        didSwitchAccountAutomatically: false
-                    )
+                        didSwitchAccountAutomatically: false,
+                    ),
                 )
             } else {
                 return .landing
@@ -143,8 +145,8 @@ extension AuthRouter {
                     activeAccount,
                     animated: false,
                     attemptAutomaticBiometricUnlock: false,
-                    didSwitchAccountAutomatically: false
-                )
+                    didSwitchAccountAutomatically: false,
+                ),
             )
         }
         return await handleAndRoute(
@@ -152,8 +154,8 @@ extension AuthRouter {
                 activeAccount,
                 animated: false,
                 attemptAutomaticBiometricUnlock: false,
-                didSwitchAccountAutomatically: false
-            )
+                didSwitchAccountAutomatically: false,
+            ),
         )
     }
 
@@ -164,7 +166,7 @@ extension AuthRouter {
     ///
     func logoutRedirect( // swiftlint:disable:this function_body_length
         userId: String?,
-        userInitiated: Bool
+        userInitiated: Bool,
     ) async -> AuthRoute {
         let previouslyActiveAccount = try? await services.authRepository.getAccount(for: nil)
         guard let accountToLogOut = try? await services.authRepository.getAccount(for: userId) else {
@@ -174,8 +176,8 @@ extension AuthRouter {
                         previouslyActiveAccount,
                         animated: false,
                         attemptAutomaticBiometricUnlock: false,
-                        didSwitchAccountAutomatically: false
-                    )
+                        didSwitchAccountAutomatically: false,
+                    ),
                 )
             } else if userInitiated,
                       let accounts = try? await services.stateService.getAccounts(),
@@ -188,7 +190,7 @@ extension AuthRouter {
         do {
             try await services.authRepository.logout(
                 userId: accountToLogOut.profile.userId,
-                userInitiated: userInitiated
+                userInitiated: userInitiated,
             )
             if let previouslyActiveAccount,
                accountToLogOut.profile.userId != previouslyActiveAccount.profile.userId {
@@ -197,8 +199,8 @@ extension AuthRouter {
                         previouslyActiveAccount,
                         animated: false,
                         attemptAutomaticBiometricUnlock: false,
-                        didSwitchAccountAutomatically: false
-                    )
+                        didSwitchAccountAutomatically: false,
+                    ),
                 )
             }
             if userInitiated,
@@ -216,8 +218,8 @@ extension AuthRouter {
                         previouslyActiveAccount,
                         animated: false,
                         attemptAutomaticBiometricUnlock: true,
-                        didSwitchAccountAutomatically: false
-                    )
+                        didSwitchAccountAutomatically: false,
+                    ),
                 )
             } else {
                 return .landing
@@ -252,7 +254,7 @@ extension AuthRouter {
             activeAccount,
             animated: false,
             attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: false
+            didSwitchAccountAutomatically: false,
         )
 
         // Redirect the vault unlock screen if needed.
@@ -293,7 +295,7 @@ extension AuthRouter {
                     activeAccount,
                     animated: false,
                     attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
+                    didSwitchAccountAutomatically: false,
                 )
 
                 return await handleAndRoute(event)
@@ -325,7 +327,7 @@ extension AuthRouter {
             if let currentActiveAccount = try? await services.authRepository.getAccount(),
                currentActiveAccount.profile.userId != userId {
                 try await services.vaultTimeoutService.setLastActiveTime(
-                    userId: currentActiveAccount.profile.userId
+                    userId: currentActiveAccount.profile.userId,
                 )
             }
 
@@ -335,7 +337,7 @@ extension AuthRouter {
                 activeAccount,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: isAutomatic
+                didSwitchAccountAutomatically: isAutomatic,
             )
             return await handleAndRoute(event)
         } catch {
@@ -358,7 +360,7 @@ extension AuthRouter {
         _ activeAccount: Account,
         animated: Bool,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
     ) async -> AuthRoute {
         let userId = activeAccount.profile.userId
         do {
@@ -383,7 +385,7 @@ extension AuthRouter {
                     activeAccount,
                     animated: animated,
                     attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically,
                 )
             }
         } catch {
@@ -393,7 +395,7 @@ extension AuthRouter {
                 activeAccount,
                 animated: animated,
                 attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                didSwitchAccountAutomatically: didSwitchAccountAutomatically,
             )
         }
     }

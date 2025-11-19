@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -33,7 +34,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
     init(
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         services: Services,
-        state: AttachmentsState
+        state: AttachmentsState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -86,7 +87,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             coordinator.showLoadingOverlay(title: Localizations.deleting)
             let updatedCipher = try await services.vaultRepository.deleteAttachment(
                 withId: attachmentId,
-                cipherId: cipherId
+                cipherId: cipherId,
             )
 
             // Update the view and display the toast.
@@ -131,7 +132,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             guard state.hasPremium else {
                 return coordinator.showAlert(.defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.premiumRequired
+                    message: Localizations.premiumRequired,
                 ))
             }
 
@@ -139,7 +140,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             guard let fileSize = state.fileData?.count, fileSize < Constants.maxFileSize else {
                 return coordinator.showAlert(.defaultAlert(
                     title: Localizations.anErrorHasOccurred,
-                    message: Localizations.maxFileSize
+                    message: Localizations.maxFileSize,
                 ))
             }
 
@@ -149,7 +150,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             let updatedCipherView = try await services.vaultRepository.saveAttachment(
                 cipherView: cipherView,
                 fileData: data,
-                fileName: name
+                fileName: name,
             )
 
             // Update the view, reset the inputs, and display the toast.

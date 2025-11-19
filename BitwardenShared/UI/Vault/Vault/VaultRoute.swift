@@ -23,7 +23,7 @@ public enum VaultRoute: Equatable, Hashable {
         group: VaultListGroup? = nil,
         newCipherOptions: NewCipherOptions? = nil,
         organizationId: String? = nil,
-        type: CipherType
+        type: CipherType,
     )
 
     /// A route to the autofill list screen.
@@ -85,4 +85,8 @@ public enum VaultRoute: Equatable, Hashable {
     ///     already been completed.
     ///
     case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
+
+    /// A route to display the profile switcher.
+    ///
+    case viewProfileSwitcher
 }

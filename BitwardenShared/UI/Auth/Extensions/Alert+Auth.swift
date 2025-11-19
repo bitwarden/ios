@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - Alert+Auth
@@ -74,7 +75,7 @@ extension Alert {
             message: Localizations.acceptPoliciesError,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -92,7 +93,7 @@ extension Alert {
         _ item: ProfileSwitcherItem,
         lockAction: @escaping () async -> Void,
         logoutAction: @escaping () async -> Void,
-        removeAccountAction: @escaping () async -> Void
+        removeAccountAction: @escaping () async -> Void,
     ) -> Alert {
         var alertActions = [AlertAction]()
 
@@ -101,8 +102,8 @@ extension Alert {
                 AlertAction(
                     title: Localizations.lock,
                     style: .default,
-                    handler: { _, _ in await lockAction() }
-                )
+                    handler: { _, _ in await lockAction() },
+                ),
             )
         }
 
@@ -111,16 +112,16 @@ extension Alert {
                 AlertAction(
                     title: Localizations.removeAccount,
                     style: .default,
-                    handler: { _, _ in await removeAccountAction() }
-                )
+                    handler: { _, _ in await removeAccountAction() },
+                ),
             )
         } else {
             alertActions.append(
                 AlertAction(
                     title: Localizations.logOut,
                     style: .default,
-                    handler: { _, _ in await logoutAction() }
-                )
+                    handler: { _, _ in await logoutAction() },
+                ),
             )
         }
 
@@ -128,7 +129,7 @@ extension Alert {
             title: [item.email, item.webVault].joined(separator: "\n"),
             message: nil,
             preferredStyle: .actionSheet,
-            alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+            alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)],
         )
     }
 
@@ -144,7 +145,7 @@ extension Alert {
             message: Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden(environmentUrl),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
@@ -165,7 +166,7 @@ extension Alert {
                     await continueAction()
                 },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -176,7 +177,7 @@ extension Alert {
     ///
     static func leaveOrganizationConfirmation(
         orgName: String,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.leaveOrganization,
@@ -184,7 +185,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -194,7 +195,7 @@ extension Alert {
     /// - Returns: An alert that is displayed to confirm the user wants to log out of the account.
     ///
     static func logoutConfirmation(
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.logOut,
@@ -202,7 +203,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -215,7 +216,7 @@ extension Alert {
     ///
     static func logoutConfirmation(
         _ profile: ProfileSwitcherItem,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.logOut,
@@ -224,7 +225,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -234,7 +235,7 @@ extension Alert {
     /// - Returns: An alert that is displayed to confirm the key connector domain.
     static func keyConnectorConfirmation(
         keyConnectorUrl: URL,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.confirmKeyConnectorDomain,
@@ -242,7 +243,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -253,7 +254,7 @@ extension Alert {
     static func masterPasswordInvalid() -> Alert {
         defaultAlert(
             title: Localizations.masterPasswordPolicyValidationTitle,
-            message: Localizations.masterPasswordPolicyValidationMessage
+            message: Localizations.masterPasswordPolicyValidationMessage,
         )
     }
 
@@ -267,7 +268,7 @@ extension Alert {
     ///
     static func passwordStrengthAlert(
         _ alertType: PasswordStrengthAlertType,
-        _ action: @escaping () async -> Void
+        _ action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: alertType.title,
@@ -277,7 +278,7 @@ extension Alert {
                 AlertAction(title: Localizations.yes, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -290,7 +291,7 @@ extension Alert {
     ///
     static func removeAccountConfirmation(
         _ profile: ProfileSwitcherItem,
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.removeAccount,
@@ -299,7 +300,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
     }
 
@@ -318,7 +319,7 @@ extension Alert {
                 AlertAction(title: Localizations.confirm, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -339,7 +340,7 @@ extension Alert {
                 AlertAction(title: Localizations.confirm, style: .default) { _ in
                     await action()
                 },
-            ]
+            ],
         )
     }
 
@@ -351,7 +352,7 @@ extension Alert {
     ///     when adding a new account.
     ///
     static func switchToExistingAccount(
-        action: @escaping () async -> Void
+        action: @escaping () async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.accountAlreadyAdded,
@@ -359,7 +360,7 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
-            ]
+            ],
         )
     }
 
@@ -372,7 +373,7 @@ extension Alert {
     static func enterPINCode(
         onCancelled: (() -> Void)? = nil,
         settingUp: Bool = true,
-        completion: @MainActor @escaping (String) async -> Void
+        completion: @MainActor @escaping (String) async -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.enterPIN,
@@ -390,7 +391,7 @@ extension Alert {
                     shouldEnableAction: { textFields in
                         guard let pin = textFields.first(where: { $0.id == "pin" })?.text else { return false }
                         return pin.count >= Constants.minimumPinLength
-                    }
+                    },
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in
                     onCancelled?()
@@ -401,9 +402,9 @@ extension Alert {
                     id: "pin",
                     autocapitalizationType: .none,
                     autocorrectionType: .no,
-                    keyboardType: .numberPad
+                    keyboardType: .numberPad,
                 ),
-            ]
+            ],
         )
     }
 } // swiftlint:disable:this file_length

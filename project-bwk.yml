@@ -4,39 +4,15 @@ fileGroups:
 configs:
   Debug: debug
   Release: release
-options:
-  createIntermediateGroups: true
-  deploymentTarget:
-    iOS: 15.0
-    watchOS: 8.0
-  groupSortPosition: top
-  usesTabs: false
-  indentWidth: 4
-  tabWidth: 4
+include:
+  - path: project-common.yml
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
-include:
-  - path: Configs/local-sdk.yml
-    relativePaths: false
-    enable: ${LOCAL_SDK}
 packages:
-  BitwardenSdk:
-    url: https://github.com/bitwarden/sdk-swift
-    revision: 0c3baf9d372cd941146616a3d842b78c96a1170f
-    branch: unstable
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.14.0
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0
-  SnapshotTesting:
-    url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.4
-  ViewInspector:
-    url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.1
 schemes:
   AuthenticatorBridgeKit:
     build:
@@ -52,10 +28,24 @@ schemes:
       targets:
         BitwardenKit: all
         BitwardenKitTests: [test]
+        BitwardenKitSnapshotTests: [test]
+        BitwardenKitViewInspectorTests: [test]
     test:
       gatherCoverageData: true
       targets:
         - BitwardenKitTests
+        - BitwardenKitSnapshotTests
+        - BitwardenKitViewInspectorTests
+      testPlans:
+        - path: TestPlans/BitwardenKit-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/BitwardenKit-Unit.xctestplan
+        - path: TestPlans/BitwardenKit-Snapshot.xctestplan
+        - path: TestPlans/BitwardenKit-ViewInspector.xctestplan
+  BitwardenResources:
+    build:
+      targets:
+        BitwardenResources: all
   Networking:
     build:
       targets:
@@ -76,6 +66,7 @@ targets:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: AuthenticatorBridgeKit/Info.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: AuthenticatorBridgeKit
         excludes:
@@ -92,6 +83,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: AuthenticatorBridgeKit
         includes:
@@ -112,6 +104,7 @@ targets:
       base:
         ENABLE_TESTING_SEARCH_PATHS: YES
         INFOPLIST_FILE: AuthenticatorBridgeKit/MocksInfo.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: AuthenticatorBridgeKit
         includes:
@@ -139,13 +132,28 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/__Snapshots__/*"
+          - "**/Sourcery/Generated/*"
+          - "**/sourcery.yml"
       - path: BitwardenKit
         includes:
           - "**/__Snapshots__/*"
           - "**/GoogleService-Info.*.plist"
+          - "**/sourcery.yml"
         buildPhase: none
     dependencies:
+      - package: SwiftUIIntrospect
+      - target: BitwardenResources
       - target: Networking
+    preBuildScripts:
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenKit/Sourcery/Generated/AutoMockable.generated.swift
   BitwardenKitMocks:
     type: framework
     platform: iOS
@@ -158,6 +166,8 @@ targets:
         includes:
           - "**/Fixtures/*"
           - "**/Mocks/*"
+      - path: BitwardenKit/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
     dependencies:
       - target: BitwardenKit
       - target: TestHelpers
@@ -172,11 +182,84 @@ targets:
         includes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
     dependencies:
+      - target: AuthenticatorBridgeKitMocks
       - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
     randomExecutionOrder: true
+  BitwardenKitSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - target: AuthenticatorBridgeKitMocks
+      - target: BitwardenKit
+      - target: BitwardenKitMocks
+      - target: TestHelpers
+      - package: SnapshotTesting
+    randomExecutionOrder: true
+  BitwardenKitViewInspectorTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - target: AuthenticatorBridgeKitMocks
+      - target: BitwardenKit
+      - target: BitwardenKitMocks
+      - target: TestHelpers
+      - target: ViewInspectorTestHelpers
+      - package: ViewInspector
+    randomExecutionOrder: true
+  BitwardenResources:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenResources-Debug.xcconfig
+      Release: Configs/BitwardenResources-Release.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: BitwardenResources/Info.plist
+    sources:
+      - path: BitwardenResources
+      - path: BitwardenResources/Generated/Fonts.swift
+        optional: true
+      - path: BitwardenResources/Generated/Localizations.swift
+        optional: true
+      - path: BitwardenResources/Generated/SharedAssets.swift
+        optional: true
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen-bwr.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/BitwardenResources/Generated/Fonts.swift
+          - $(SRCROOT)/BitwardenResources/Generated/Localizations.swift
+          - $(SRCROOT)/BitwardenResources/Generated/SharedAssets.swift
   Networking:
     type: framework
     platform: iOS
@@ -219,4 +302,15 @@ targets:
     dependencies:
       - target: Networking
       - package: SnapshotTesting
+  ViewInspectorTestHelpers:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        GENERATE_INFOPLIST_FILE: YES
+    sources:
+      - path: ViewInspectorTestHelpers
+    dependencies:
+      - package: ViewInspector
 

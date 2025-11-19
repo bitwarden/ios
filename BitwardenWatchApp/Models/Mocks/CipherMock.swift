@@ -7,60 +7,60 @@ enum CipherMock {
             login: LoginDTO(
                 totp: "otpauth://account?period=10&secret=LLLLLLLLLLLLLLLL",
                 uris: cipherLoginUris,
-                username: "test@testing.com"
+                username: "test@testing.com",
             ),
             name: "MySite",
-            userId: "123123"
+            userId: "123123",
         ),
         CipherDTO(
             id: "1",
             login: LoginDTO(
                 totp: "LLLLLLLLLLLLLLLL",
                 uris: cipherLoginUris,
-                username: "thisisatest@testing.com"
+                username: "thisisatest@testing.com",
             ),
             name: "GitHub",
-            userId: "123123"
+            userId: "123123",
         ),
         CipherDTO(
             id: "2",
             login: LoginDTO(
                 totp: "otpauth://account?period=10&digits=8&algorithm=sha256&secret=LLLLLLLLLLLLLLLL",
                 uris: cipherLoginUris,
-                username: nil
+                username: nil,
             ),
             name: "No user",
-            userId: "123123"
+            userId: "123123",
         ),
         CipherDTO(
             id: "3",
             login: LoginDTO(
                 totp: "otpauth://account?period=10&digits=7&algorithm=sha512&secret=LLLLLLLLLLLLLLLL",
                 uris: cipherLoginUris,
-                username: "longtestemail000000@fastmailasdfasdf.com"
+                username: "longtestemail000000@fastmailasdfasdf.com",
             ),
             name: "Site 2",
-            userId: "123123"
+            userId: "123123",
         ),
         CipherDTO(
             id: "4",
             login: LoginDTO(
                 totp: "steam://LLLLLLLLLLLLLLLL",
                 uris: cipherLoginUris,
-                username: "user3"
+                username: "user3",
             ),
             name: "Really long name for a site that is used for a totp",
-            userId: "123123"
+            userId: "123123",
         ),
         CipherDTO(
             id: "5",
             login: LoginDTO(
                 totp: "steam://LLLLLLLLLLLLLLLL",
                 uris: cipherLoginUris,
-                username: "u"
+                username: "u",
             ),
             name: "Short",
-            userId: "123123"
+            userId: "123123",
         ),
     ]
 

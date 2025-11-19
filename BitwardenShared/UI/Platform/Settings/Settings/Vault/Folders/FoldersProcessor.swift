@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - FoldersProcessor
@@ -30,7 +32,7 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: FoldersState
+        state: FoldersState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -73,7 +75,7 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
     }
 }
 
-// MARK: - CaptchaFlowDelegate
+// MARK: - AddEditFolderDelegate
 
 extension FoldersProcessor: AddEditFolderDelegate {
     /// Show the toast that the folder was successfully added.

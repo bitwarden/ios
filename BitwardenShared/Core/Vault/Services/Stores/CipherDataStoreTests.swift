@@ -52,7 +52,7 @@ class CipherDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { values in
                     publishedValues.append(values)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -82,7 +82,7 @@ class CipherDataStoreTests: BitwardenTestCase {
 
         try XCTAssertEqual(
             fetchCiphers(userId: "1"),
-            ciphers.filter { $0.id != "2" }
+            ciphers.filter { $0.id != "2" },
         )
     }
 

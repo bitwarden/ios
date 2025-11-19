@@ -23,7 +23,7 @@ class MockClientService: ClientService {
         generators: MockGeneratorClient = MockGeneratorClient(),
         platform: MockPlatformClientService = MockPlatformClientService(),
         sends: MockSendClient = MockSendClient(),
-        vault: MockVaultClientService = MockVaultClientService()
+        vault: MockVaultClientService = MockVaultClientService(),
     ) {
         mockAuth = auth
         mockCrypto = crypto

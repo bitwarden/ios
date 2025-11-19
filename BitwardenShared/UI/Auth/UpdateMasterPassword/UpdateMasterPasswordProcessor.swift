@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -9,7 +10,7 @@ import Foundation
 class UpdateMasterPasswordProcessor: StateProcessor<
     UpdateMasterPasswordState,
     UpdateMasterPasswordAction,
-    UpdateMasterPasswordEffect
+    UpdateMasterPasswordEffect,
 > {
     // MARK: Types
 
@@ -41,7 +42,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: UpdateMasterPasswordState
+        state: UpdateMasterPasswordState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -91,7 +92,6 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         let alert = Alert.logoutConfirmation { [weak self] in
             guard let self else { return }
             await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: true)))
-            coordinator.navigate(to: .dismiss)
         }
         coordinator.showAlert(alert)
     }
@@ -142,7 +142,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                     email: services.authRepository.getAccount().profile.email,
                     isPreAuth: false,
                     masterPassword: state.masterPassword,
-                    policy: state.masterPasswordPolicy
+                    policy: state.masterPasswordPolicy,
                 )
                 guard !isInvalid else {
                     coordinator.showAlert(.masterPasswordInvalid())
@@ -167,12 +167,11 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 currentPassword: state.currentMasterPassword,
                 newPassword: state.masterPassword,
                 passwordHint: state.masterPasswordHint,
-                reason: forcePasswordResetReason
+                reason: forcePasswordResetReason,
             )
 
             coordinator.hideLoadingOverlay()
-            coordinator.navigate(to: .dismiss)
-            await coordinator.handleEvent(.didCompleteAuth)
+            await coordinator.handleEvent(.action(.logout(userId: nil, userInitiated: false)))
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
@@ -193,7 +192,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 state.passwordStrengthScore = try await services.authRepository.passwordStrength(
                     email: state.userEmail,
                     password: state.masterPassword,
-                    isPreAuth: false
+                    isPreAuth: false,
                 )
             } catch {
                 services.errorReporter.log(error: error)

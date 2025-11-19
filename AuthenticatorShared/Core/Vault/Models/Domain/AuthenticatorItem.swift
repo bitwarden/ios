@@ -36,14 +36,14 @@ extension AuthenticatorItem {
         id: String = "ID",
         name: String = "Example",
         totpKey: String? = "example",
-        username: String? = "person@example.com"
+        username: String? = "person@example.com",
     ) -> AuthenticatorItem {
         AuthenticatorItem(
             favorite: favorite,
             id: id,
             name: name,
             totpKey: totpKey,
-            username: username
+            username: username,
         )
     }
 }
@@ -64,14 +64,14 @@ extension AuthenticatorItemView {
         id: String = "ID",
         name: String = "Example",
         totpKey: String? = "example",
-        username: String? = "person@example.com"
+        username: String? = "person@example.com",
     ) -> AuthenticatorItemView {
         AuthenticatorItemView(
             favorite: favorite,
             id: id,
             name: name,
             totpKey: totpKey,
-            username: username
+            username: username,
         )
     }
 }

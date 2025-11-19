@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - SendDeletionDateType
@@ -30,12 +32,12 @@ enum SendDeletionDateType: Menuable {
 
     var localizedName: String {
         switch self {
-        case .oneHour: Localizations.oneHour
-        case .oneDay: Localizations.oneDay
-        case .twoDays: Localizations.twoDays
-        case .threeDays: Localizations.threeDays
-        case .sevenDays: Localizations.sevenDays
-        case .thirtyDays: Localizations.thirtyDays
+        case .oneHour: Localizations.xHours(1)
+        case .oneDay: Localizations.xDays(1)
+        case .twoDays: Localizations.xDays(2)
+        case .threeDays: Localizations.xDays(3)
+        case .sevenDays: Localizations.xDays(7)
+        case .thirtyDays: Localizations.xDays(30)
         case let .custom(customDate): customDate.dateTimeDisplay
         }
     }

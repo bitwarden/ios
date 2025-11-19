@@ -1,4 +1,5 @@
 import AVFoundation
+import BitwardenKit
 import SwiftUI
 
 // MARK: - AuthenticatorKeyCaptureDelegate
@@ -16,7 +17,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     ///
     func didCompleteCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
-        with value: String
+        with value: String,
     )
 
     /// Called when the scan flow requests the scan code screen.
@@ -24,7 +25,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// - Parameters:
     ///   - coordinator: The coordinator sending the action.
     func showCameraScan(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     )
 
     /// Called when the scan flow requests the manual entry screen.
@@ -32,7 +33,7 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// - Parameters:
     ///   - coordinator: The coordinator sending the action.
     func showManualEntry(
-        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>
+        _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
     )
 }
 
@@ -77,7 +78,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         appExtensionDelegate: AppExtensionDelegate?,
         delegate: AuthenticatorKeyCaptureDelegate?,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
@@ -98,13 +99,13 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(
         to route: AuthenticatorKeyCaptureRoute,
-        context: AnyObject?
+        context: AnyObject?,
     ) {
         switch route {
         case let .complete(value):
             delegate?.didCompleteCapture(
                 asAnyCoordinator(),
-                with: value.content
+                with: value.content,
             )
         case let .dismiss(onDismiss):
             stackNavigator?.dismiss(completion: {
@@ -113,7 +114,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         case let .addManual(entry: authKey):
             delegate?.didCompleteCapture(
                 asAnyCoordinator(),
-                with: authKey
+                with: authKey,
             )
         case .manualKeyEntry:
             guard let stackNavigator else { return }
@@ -162,12 +163,12 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         let processor = ScanCodeProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: .init()
+            state: .init(),
         )
         let store = Store(processor: processor)
         let view = ScanCodeView(
             cameraSession: session,
-            store: store
+            store: store,
         )
         stackNavigator?.replace(view)
     }
@@ -181,11 +182,11 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             coordinator: asAnyCoordinator(),
             services: services,
             state: DefaultEntryState(
-                deviceSupportsCamera: deviceSupportsCamera
-            )
+                deviceSupportsCamera: deviceSupportsCamera,
+            ),
         )
         let view = ManualEntryView(
-            store: Store(processor: processor)
+            store: Store(processor: processor),
         )
         stackNavigator?.replace(view)
     }

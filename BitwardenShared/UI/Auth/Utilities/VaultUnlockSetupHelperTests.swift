@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -28,8 +30,8 @@ class VaultUnlockSetupHelperTests: BitwardenTestCase {
                 authRepository: authRepository,
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
-                stateService: stateService
-            )
+                stateService: stateService,
+            ),
         )
     }
 
@@ -135,7 +137,7 @@ class VaultUnlockSetupHelperTests: BitwardenTestCase {
             if alert == .unlockWithPINCodeAlert(biometricType: .faceID, action: { _ in }) {
                 XCTAssertEqual(
                     alert.message,
-                    Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID)
+                    Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID),
                 )
                 Task {
                     try? await alert.tapAction(title: Localizations.no)
@@ -274,7 +276,7 @@ class VaultUnlockSetupHelperTests: BitwardenTestCase {
             [
                 .enterPINCode { _ in },
                 .defaultAlert(title: Localizations.anErrorHasOccurred),
-            ]
+            ],
         )
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
@@ -309,7 +311,7 @@ class VaultUnlockSetupHelperTests: BitwardenTestCase {
                 .enterPINCode { _ in },
                 .unlockWithPINCodeAlert(biometricType: nil) { _ in },
                 .defaultAlert(title: Localizations.anErrorHasOccurred),
-            ]
+            ],
         )
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }

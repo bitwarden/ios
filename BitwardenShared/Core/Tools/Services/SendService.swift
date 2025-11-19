@@ -115,7 +115,7 @@ class DefaultSendService: SendService {
         fileAPIService: FileAPIService,
         sendAPIService: SendAPIService,
         sendDataStore: SendDataStore,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.fileAPIService = fileAPIService
         self.sendAPIService = sendAPIService
@@ -137,7 +137,7 @@ extension DefaultSendService {
                 fileId: response.sendResponse.file?.id ?? "",
                 fileName: send.file?.fileName ?? "",
                 sendId: response.sendResponse.id,
-                url: response.url
+                url: response.url,
             )
         } catch {
             // If the file upload fails for any reason, bail out on saving this send by deleting it

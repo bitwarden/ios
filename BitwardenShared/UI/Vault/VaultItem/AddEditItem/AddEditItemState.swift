@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -14,6 +16,9 @@ protocol AddEditItemState: Sendable {
 
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
+
+    /// Whether or not this item can be moved to an organization.
+    var canMoveToOrganization: Bool { get }
 
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
@@ -84,6 +89,9 @@ protocol AddEditItemState: Sendable {
     /// The organization ID of the cipher, if the cipher is owned by an organization.
     var organizationId: String? { get }
 
+    /// The organization IDs that have `.personalOwnership` policy applied.
+    var organizationsWithPersonalOwnershipPolicy: [String] { get set }
+
     /// The owner of this item.
     var owner: CipherOwner? { get set }
 
@@ -95,9 +103,6 @@ protocol AddEditItemState: Sendable {
 
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
-
-    /// A flag indicating if cipher permissions should be used.
-    var restrictCipherItemDeletionFlagEnabled: Bool { get set }
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
@@ -111,6 +116,9 @@ protocol AddEditItemState: Sendable {
     /// When this item was last updated.
     var updatedDate: Date { get set }
 
+    /// The url to open in the device's web browser.
+    var url: URL? { get set }
+
     /// Toggles whether the cipher is included in the specified collection.
     ///
     /// - Parameters:
@@ -118,6 +126,16 @@ protocol AddEditItemState: Sendable {
     ///   - collectionId: The identifier of the collection.
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
+
+    /// Selects the `.defaultUserCollection` if needed, mainly checking the organization policies apply.
+    mutating func selectDefaultCollectionIfNeeded()
+
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
+    /// preserve any additional UI properties on the state.
+    ///
+    /// - Parameter cipherView: The updated `CipherView`.
+    ///
+    mutating func update(from cipherView: CipherView)
 }
 
 /// extension for `GuidedTourStepState` to provide states for learn new login guided tour.
@@ -126,20 +144,20 @@ extension GuidedTourStepState {
     static let loginStep1 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .circle,
-        title: Localizations.useThisButtonToGenerateANewUniquePassword
+        title: Localizations.useThisButtonToGenerateANewUniquePassword,
     )
 
     /// The second step of the learn new login guided tour.
     static let loginStep2 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong,
     )
 
     /// The third step of the learn new login guided tour.
     static let loginStep3 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
+        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount,
     )
 }

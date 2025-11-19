@@ -18,8 +18,8 @@ class MockAuthClient: AuthClientProtocol {
         KeyConnectorResponse(
             masterKey: "masterKey",
             encryptedUserKey: "encryptedUserKey",
-            keys: RsaKeyPair(public: "public", private: "private")
-        )
+            keys: RsaKeyPair(public: "public", private: "private"),
+        ),
     )
 
     var makeRegisterKeysEmail: String?
@@ -28,7 +28,7 @@ class MockAuthClient: AuthClientProtocol {
     var makeRegisterKeysResult: Result<RegisterKeyResponse, Error> = .success(RegisterKeyResponse(
         masterPasswordHash: "masterPasswordHash",
         encryptedUserKey: "encryptedUserKey",
-        keys: RsaKeyPair(public: "public", private: "private")
+        keys: RsaKeyPair(public: "public", private: "private"),
     ))
 
     var makeRegisterTdeKeysEmail: String?
@@ -43,9 +43,9 @@ class MockAuthClient: AuthClientProtocol {
                 deviceKey: "deviceKey",
                 protectedUserKey: "protectedUserKey",
                 protectedDevicePrivateKey: "protectedDevicePrivateKey",
-                protectedDevicePublicKey: "protectedDevicePublicKey"
-            )
-        )
+                protectedDevicePublicKey: "protectedDevicePublicKey",
+            ),
+        ),
     )
 
     var newAuthRequestEmail: String?
@@ -54,8 +54,8 @@ class MockAuthClient: AuthClientProtocol {
             privateKey: "private",
             publicKey: "public",
             fingerprint: "fingerprint",
-            accessCode: "12345"
-        )
+            accessCode: "12345",
+        ),
     )
     var passwordStrengthResult = UInt8(2)
     var passwordStrengthPassword: String?
@@ -82,8 +82,8 @@ class MockAuthClient: AuthClientProtocol {
             deviceKey: "DEVICE_KEY",
             protectedUserKey: "USER_KEY",
             protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
-            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY"
-        )
+            protectedDevicePublicKey: "DEVICE_PUBLIC_KEY",
+        ),
     )
 
     func approveAuthRequest(publicKey: String) throws -> UnsignedSharedKey {
@@ -116,7 +116,7 @@ class MockAuthClient: AuthClientProtocol {
     func makeRegisterTdeKeys(
         email: String,
         orgPublicKey: String,
-        rememberDevice: Bool
+        rememberDevice: Bool,
     ) throws -> BitwardenSdk.RegisterTdeKeyResponse {
         makeRegisterTdeKeysEmail = email
         makeRegisterTdeKeysOrgPublicKey = orgPublicKey

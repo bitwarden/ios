@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - DeleteAccountView
@@ -32,20 +34,20 @@ struct DeleteAccountView: View {
     @ViewBuilder var viewContent: some View {
         HStack(spacing: 12) {
             Image(decorative: store.state.mainIcon)
-                .foregroundColor(Color(asset: Asset.Colors.error))
+                .foregroundColor(Color(asset: SharedAsset.Colors.error))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(store.state.title)
-                    .foregroundColor(Color(asset: Asset.Colors.error))
+                    .foregroundColor(Color(asset: SharedAsset.Colors.error))
                     .styleGuide(
                         .headline,
                         weight: .semibold,
                         includeLinePadding: false,
-                        includeLineSpacing: false
+                        includeLineSpacing: false,
                     )
 
                 Text(store.state.description)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                     .styleGuide(.subheadline)
             }
         }

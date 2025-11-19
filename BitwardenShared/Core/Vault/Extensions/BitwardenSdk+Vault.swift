@@ -2,6 +2,7 @@
 // swiftlint:disable file_length
 
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - DataMappingError
@@ -23,7 +24,7 @@ extension AttachmentRequestModel {
         self.init(
             fileName: attachment.fileName,
             key: attachment.key,
-            size: attachment.size
+            size: attachment.size,
         )
     }
 }
@@ -36,7 +37,7 @@ extension AttachmentResponseModel {
             key: attachment.key,
             size: attachment.size,
             sizeName: attachment.sizeName,
-            url: attachment.url
+            url: attachment.url,
         )
     }
 }
@@ -51,7 +52,7 @@ extension CipherCardModel {
             code: card.code,
             expMonth: card.expMonth,
             expYear: card.expYear,
-            number: card.number
+            number: card.number,
         )
     }
 }
@@ -60,6 +61,7 @@ extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
         self.init(
+            archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
@@ -84,7 +86,7 @@ extension CipherDetailsResponseModel {
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
             type: BitwardenShared.CipherType(type: cipher.type),
-            viewPassword: cipher.viewPassword
+            viewPassword: cipher.viewPassword,
         )
     }
 }
@@ -95,7 +97,7 @@ extension CipherFieldModel {
             linkedId: field.linkedId.flatMap(LinkedIdType.init),
             name: field.name,
             type: FieldType(fieldType: field.type),
-            value: field.value
+            value: field.value,
         )
     }
 }
@@ -120,7 +122,7 @@ extension CipherIdentityModel {
             ssn: identity.ssn,
             state: identity.state,
             title: identity.title,
-            username: identity.username
+            username: identity.username,
         )
     }
 }
@@ -140,7 +142,7 @@ extension CipherLoginFido2Credential {
             rpName: credential.rpName,
             userDisplayName: credential.userDisplayName,
             userHandle: credential.userHandle,
-            userName: credential.userName
+            userName: credential.userName,
         )
     }
 }
@@ -154,7 +156,7 @@ extension CipherLoginModel {
             passwordRevisionDate: login.passwordRevisionDate,
             totp: login.totp,
             uris: login.uris?.map(CipherLoginUriModel.init),
-            username: login.username
+            username: login.username,
         )
     }
 }
@@ -164,7 +166,7 @@ extension CipherLoginUriModel {
         self.init(
             match: loginUri.match.map(UriMatchType.init),
             uri: loginUri.uri,
-            uriChecksum: loginUri.uriChecksum
+            uriChecksum: loginUri.uriChecksum,
         )
     }
 }
@@ -173,7 +175,7 @@ extension CipherPasswordHistoryModel {
     init(passwordHistory: BitwardenSdk.PasswordHistory) {
         self.init(
             lastUsedDate: passwordHistory.lastUsedDate,
-            password: passwordHistory.password
+            password: passwordHistory.password,
         )
     }
 }
@@ -209,7 +211,7 @@ extension CipherSSHKeyModel {
         self.init(
             keyFingerprint: sshKey.fingerprint,
             privateKey: sshKey.privateKey,
-            publicKey: sshKey.publicKey
+            publicKey: sshKey.publicKey,
         )
     }
 }
@@ -299,7 +301,7 @@ extension BitwardenSdk.Attachment {
             size: model.size,
             sizeName: model.sizeName,
             fileName: model.fileName,
-            key: model.key
+            key: model.key,
         )
     }
 }
@@ -312,7 +314,7 @@ extension BitwardenSdk.Card {
             expYear: model.expYear,
             code: model.code,
             brand: model.brand,
-            number: model.number
+            number: model.number,
         )
     }
 }
@@ -352,7 +354,8 @@ extension BitwardenSdk.Cipher {
             passwordHistory: model.passwordHistory?.map(PasswordHistory.init),
             creationDate: model.creationDate,
             deletedDate: model.deletedDate,
-            revisionDate: model.revisionDate
+            revisionDate: model.revisionDate,
+            archivedDate: model.archivedDate,
         )
     }
 }
@@ -364,9 +367,9 @@ extension BitwardenSdk.CipherListViewType {
     var isCard: Bool {
         switch self {
         case .card:
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 
@@ -374,9 +377,9 @@ extension BitwardenSdk.CipherListViewType {
     var isLogin: Bool {
         switch self {
         case .login:
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 
@@ -413,7 +416,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
                 ],
                 totp: nil,
                 autofillOnPageLoad: nil,
-                fido2Credentials: nil
+                fido2Credentials: nil,
             ),
             identity: nil,
             card: nil,
@@ -431,7 +434,8 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             passwordHistory: nil,
             creationDate: timeProvider.presentTime,
             deletedDate: nil,
-            revisionDate: timeProvider.presentTime
+            revisionDate: timeProvider.presentTime,
+            archivedDate: nil,
         )
     }
 }
@@ -481,7 +485,7 @@ extension BitwardenSdk.Fido2Credential: @retroactive Identifiable, @unchecked @r
             rpName: model.rpName,
             userDisplayName: model.userDisplayName,
             discoverable: model.discoverable,
-            creationDate: model.creationDate
+            creationDate: model.creationDate,
         )
     }
 }
@@ -496,7 +500,7 @@ extension BitwardenSdk.Field {
             name: model.name,
             value: model.value,
             type: BitwardenSdk.FieldType(fieldType: model.type),
-            linkedId: model.linkedId?.rawValue
+            linkedId: model.linkedId?.rawValue,
         )
     }
 }
@@ -536,7 +540,7 @@ extension BitwardenSdk.Identity {
             ssn: model.ssn,
             username: model.username,
             passportNumber: model.passportNumber,
-            licenseNumber: model.licenseNumber
+            licenseNumber: model.licenseNumber,
         )
     }
 }
@@ -550,7 +554,7 @@ extension BitwardenSdk.Login {
             uris: model.uris?.map(LoginUri.init),
             totp: model.totp,
             autofillOnPageLoad: model.autofillOnPageLoad,
-            fido2Credentials: model.fido2Credentials?.map(Fido2Credential.init)
+            fido2Credentials: model.fido2Credentials?.map(Fido2Credential.init),
         )
     }
 }
@@ -560,7 +564,7 @@ extension BitwardenSdk.LoginUri {
         self.init(
             uri: model.uri,
             match: model.match.map(BitwardenSdk.UriMatchType.init),
-            uriChecksum: model.uriChecksum
+            uriChecksum: model.uriChecksum,
         )
     }
 }
@@ -573,7 +577,7 @@ extension BitwardenSdk.PasswordHistory {
     init(cipherPasswordHistoryModel model: CipherPasswordHistoryModel) {
         self.init(
             password: model.password,
-            lastUsedDate: model.lastUsedDate
+            lastUsedDate: model.lastUsedDate,
         )
     }
 
@@ -584,7 +588,7 @@ extension BitwardenSdk.PasswordHistory {
         }
         self.init(
             password: password,
-            lastUsedDate: lastUsedDate
+            lastUsedDate: lastUsedDate,
         )
     }
 }
@@ -615,7 +619,7 @@ extension BitwardenSdk.SshKey {
         self.init(
             privateKey: model.privateKey,
             publicKey: model.publicKey,
-            fingerprint: model.keyFingerprint
+            fingerprint: model.keyFingerprint,
         )
     }
 }
@@ -645,14 +649,27 @@ extension CollectionDetailsResponseModel {
     init(collection: Collection) throws {
         guard let id = collection.id else { throw DataMappingError.missingId }
         self.init(
+            defaultUserCollectionEmail: collection.defaultUserCollectionEmail,
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             id: id,
             manage: collection.manage,
             name: collection.name,
             organizationId: collection.organizationId,
-            readOnly: collection.readOnly
+            readOnly: collection.readOnly,
+            type: BitwardenShared.CollectionType(type: collection.type),
         )
+    }
+}
+
+extension CollectionType {
+    init(type: BitwardenSdk.CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
     }
 }
 
@@ -674,8 +691,21 @@ extension BitwardenSdk.Collection {
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
             readOnly: model.readOnly,
-            manage: model.manage ?? !model.readOnly
+            manage: model.manage ?? !model.readOnly,
+            defaultUserCollectionEmail: model.defaultUserCollectionEmail,
+            type: BitwardenSdk.CollectionType(type: model.type),
         )
+    }
+}
+
+extension BitwardenSdk.CollectionType {
+    init(type: CollectionType) {
+        switch type {
+        case .sharedCollection:
+            self = .sharedCollection
+        case .defaultUserCollection:
+            self = .defaultUserCollection
+        }
     }
 }
 
@@ -688,7 +718,7 @@ extension BitwardenSdk.Folder {
         self.init(
             id: model.id,
             name: model.name,
-            revisionDate: model.revisionDate
+            revisionDate: model.revisionDate,
         )
     }
 
@@ -701,17 +731,17 @@ extension BitwardenSdk.Folder {
         self.init(
             id: id,
             name: name,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
         )
     }
 }
 
 extension BitwardenSdk.FolderView: Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
-    static var defaultValueLocalizedName: String {
+    public static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }
 
-    var localizedName: String {
+    public var localizedName: String {
         name
     }
 }

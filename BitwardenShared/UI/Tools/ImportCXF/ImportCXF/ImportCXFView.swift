@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ImportCXFView
@@ -19,14 +21,14 @@ struct ImportCXFView: View {
                     image: Image(decorative: store.state.mainIcon),
                     style: .largeTextTintedIcon,
                     title: store.state.title,
-                    message: store.state.message
+                    message: store.state.message,
                 )
                 switch store.state.status {
                 case .start:
                     EmptyView()
                 case .importing:
                     ProgressView(value: store.state.progress)
-                        .tint(Asset.Colors.tintPrimary.swiftUIColor)
+                        .tint(SharedAsset.Colors.tintPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity)
                         .scaleEffect(x: 1, y: 3, anchor: .center)
                         .accessibilityIdentifier("ImportProgress")
@@ -44,7 +46,7 @@ struct ImportCXFView: View {
             }
             .padding(.top, 8)
             .frame(maxWidth: .infinity)
-            .scrollView(backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor)
+            .scrollView(backgroundColor: SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             .safeAreaInset(edge: .bottom) {
                 VStack {
                     if store.state.showMainButton {
@@ -64,7 +66,7 @@ struct ImportCXFView: View {
                     }
                 }
                 .padding(.horizontal, 12)
-                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
             }
         }
         .transition(.opacity)
@@ -111,10 +113,10 @@ struct ImportCXFView: View {
             processor: StateProcessor(
                 state: ImportCXFState(
                     progress: 0.3,
-                    status: .importing
-                )
-            )
-        )
+                    status: .importing,
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 
@@ -129,11 +131,11 @@ struct ImportCXFView: View {
                             CXFCredentialsResult(count: 13, type: .password),
                             CXFCredentialsResult(count: 7, type: .passkey),
                             CXFCredentialsResult(count: 10, type: .card),
-                        ]
-                    )
-                )
-            )
-        )
+                        ],
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 
@@ -143,11 +145,11 @@ struct ImportCXFView: View {
             processor: StateProcessor(
                 state: ImportCXFState(
                     status: .failure(
-                        message: "Something went wrong"
-                    )
-                )
-            )
-        )
+                        message: "Something went wrong",
+                    ),
+                ),
+            ),
+        ),
     ).navStackWrapped
 }
 

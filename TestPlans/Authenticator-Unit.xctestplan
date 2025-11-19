@@ -1,0 +1,55 @@
+{
+  "configurations" : [
+    {
+      "id" : "F6C3A8E5-9D4B-4F7C-8A9E-6B5D4F3C2E1A",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      },
+      {
+        "key" : "SKIP_SIMULATOR_CHECK_FOR_TESTS",
+        "value" : "true"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "11D20029373CEF56CBBCF0AA",
+        "name" : "AuthenticatorBridgeKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "F78877F8DDC2314213F71321",
+        "name" : "AuthenticatorTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "9A8D5254F0C841E3546E43BF",
+        "name" : "AuthenticatorSharedTests"
+      }
+    }
+  ],
+  "version" : 1
+}

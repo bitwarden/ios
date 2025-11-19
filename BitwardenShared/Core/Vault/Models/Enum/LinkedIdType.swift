@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// An enum describing the fields that a custom cipher field can be linked to.
 ///
 enum LinkedIdType: UInt32, Codable {
@@ -203,7 +205,7 @@ extension LinkedIdType {
 // MARK: - Identifiable
 
 extension LinkedIdType: Identifiable {
-    public var id: String {
+    var id: String {
         "\(rawValue)"
     }
 }

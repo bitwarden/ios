@@ -1,13 +1,4 @@
 output_dir: AuthenticatorShared/UI/Platform/Application/Support/Generated/
-strings:
-  inputs: AuthenticatorShared/UI/Platform/Application/Support/Localizations/en.lproj
-  outputs:
-    - templateName: structured-swift5
-      output: Localizations.swift
-      params:
-        enumName: Localizations
-        publicAccess: true
-        lookupFunction: UI.localizationFunction(key:table:fallbackValue:)
 xcassets:
   inputs:
     - AuthenticatorShared/UI/Platform/Application/Support/Colors.xcassets

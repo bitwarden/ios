@@ -26,13 +26,6 @@ protocol AccountAPIService {
     ///
     func convertToKeyConnector() async throws
 
-    /// Creates an API call for when the user submits an account creation form.
-    ///
-    /// - Parameter body: The body to be included in the request.
-    /// - Returns: Data returned from the `CreateAccountRequest`.
-    ///
-    func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel
-
     /// Creates an API call for deleting the user's account.
     ///
     /// - Parameter body: The body to be included in the request.
@@ -91,6 +84,13 @@ protocol AccountAPIService {
     ///
     func setPassword(_ requestModel: SetPasswordRequestModel) async throws
 
+    /// Performs the API request to update the user's KDF settings.
+    ///
+    /// - Parameter requestModel: The request model containing the details needed to update the
+    ///     user's KDF settings.
+    ///
+    func updateKdf(_ requestModel: UpdateKdfRequestModel) async throws
+
     /// Performs the API request to update the user's password.
     ///
     /// - Parameter requestModel: The request model used to send the request.
@@ -146,11 +146,6 @@ extension APIService: AccountAPIService {
         _ = try await apiService.send(ConvertToKeyConnectorRequest())
     }
 
-    func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
-        let request = CreateAccountRequest(body: body)
-        return try await identityService.send(request)
-    }
-
     func deleteAccount(body: DeleteAccountRequestModel) async throws -> EmptyResponse {
         let request = DeleteAccountRequest(body: body)
         return try await apiService.send(request)
@@ -192,6 +187,10 @@ extension APIService: AccountAPIService {
         try await identityService.send(StartRegistrationRequest(body: requestModel))
     }
 
+    func updateKdf(_ requestModel: UpdateKdfRequestModel) async throws {
+        _ = try await apiService.send(UpdateKdfRequest(requestModel: requestModel))
+    }
+
     func updatePassword(_ requestModel: UpdatePasswordRequestModel) async throws {
         _ = try await apiService.send(UpdatePasswordRequest(requestModel: requestModel))
     }
@@ -204,8 +203,8 @@ extension APIService: AccountAPIService {
         let request = VerifyEmailTokenRequest(
             requestModel: VerifyEmailTokenRequestModel(
                 email: email,
-                emailVerificationToken: emailVerificationToken
-            )
+                emailVerificationToken: emailVerificationToken,
+            ),
         )
         _ = try await identityService.send(request)
     }

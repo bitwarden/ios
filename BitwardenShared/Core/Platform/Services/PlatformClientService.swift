@@ -17,6 +17,9 @@ protocol PlatformClientService: AnyObject {
     /// - Parameter flags: Flags to load.
     func loadFlags(_ flags: [String: Bool]) throws
 
+    /// Returns an object to handle state.
+    func state() -> StateClientProtocol
+
     /// Fingerprint using logged in user's public key
     /// - Parameter material: Fingerprint material to use
     /// - Returns: User fingerprint
@@ -36,6 +39,10 @@ extension PlatformClient: PlatformClientService {
 
     func loadFlags(_ flags: [String: Bool]) throws {
         try loadFlags(flags: flags)
+    }
+
+    func state() -> StateClientProtocol {
+        state() as StateClient
     }
 
     func userFingerprint(material fingerprintMaterial: String) throws -> String {

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 import OSLog
 
@@ -9,7 +10,7 @@ import OSLog
 final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this type_body_length
     AccountSecurityState,
     AccountSecurityAction,
-    AccountSecurityEffect
+    AccountSecurityEffect,
 > {
     // MARK: Types
 
@@ -48,7 +49,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: AccountSecurityState,
-        vaultUnlockSetupHelper: VaultUnlockSetupHelper
+        vaultUnlockSetupHelper: VaultUnlockSetupHelper,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -71,8 +72,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         case .lockVault:
             await coordinator.handleEvent(
                 .authAction(
-                    .lockVault(userId: nil, isManuallyLocking: true)
-                )
+                    .lockVault(userId: nil, isManuallyLocking: true),
+                ),
             )
         case .streamSettingsBadge:
             await streamSettingsBadge()
@@ -161,7 +162,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     private func loadData() async {
         do {
             state.removeUnlockWithPinPolicyEnabled = await services.policyService.policyAppliesToUser(
-                .removeUnlockWithPin
+                .removeUnlockWithPin,
             )
 
             state.biometricUnlockStatus = await loadBiometricUnlockPreference()
@@ -169,11 +170,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             if try await services.authRepository.isPinUnlockAvailable() {
                 state.isUnlockWithPINCodeOn = true
             }
-            state.shouldShowAuthenticatorSyncSection =
-                await services.configService.getFeatureFlag(.enableAuthenticatorSync)
-            if state.shouldShowAuthenticatorSyncSection {
-                state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
-            }
+
+            state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
 
             if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
                 await completeAccountSetupVaultUnlockIfNeeded()
@@ -270,7 +268,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
                     // show an alert, and set their timeout value equal to the policy max.
                     guard value.rawValue <= state.policyTimeoutValue else {
                         try await services.authRepository.setVaultTimeout(
-                            value: SessionTimeoutValue(rawValue: state.policyTimeoutValue)
+                            value: SessionTimeoutValue(rawValue: state.policyTimeoutValue),
                         )
                         coordinator.showAlert(.timeoutExceedsPolicyLengthAlert())
                         return
@@ -315,8 +313,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         coordinator.showAlert(.logoutConfirmation {
             await self.coordinator.handleEvent(
                 .authAction(
-                    .logout(userId: nil, userInitiated: true)
-                )
+                    .logout(userId: nil, userInitiated: true),
+                ),
             )
         })
     }
@@ -335,7 +333,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     private func setBioMetricAuth(_ enabled: Bool) async {
         let biometricUnlockStatus = await vaultUnlockSetupHelper.setBiometricUnlock(
             enabled: enabled,
-            showAlert: coordinator.showAlert
+            showAlert: coordinator.showAlert,
         )
         state.biometricUnlockStatus = biometricUnlockStatus ?? .notAvailable
 
@@ -367,7 +365,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     private func toggleUnlockWithPIN(_ isOn: Bool) async {
         state.isUnlockWithPINCodeOn = await vaultUnlockSetupHelper.setPinUnlock(
             enabled: isOn,
-            showAlert: coordinator.showAlert
+            showAlert: coordinator.showAlert,
         )
 
         // Refresh vault timeout action in case the user doesn't have a password and the pin was disabled.

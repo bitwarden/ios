@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SendItemModule
 
 /// An object that builds coordinators for the send item flow.
@@ -13,20 +15,20 @@ protocol SendItemModule {
     ///
     func makeSendItemCoordinator(
         delegate: SendItemDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SendItemRoute, AuthAction>
 }
 
 extension DefaultAppModule: SendItemModule {
     func makeSendItemCoordinator(
         delegate: SendItemDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SendItemRoute, AuthAction> {
         SendItemCoordinator(
             delegate: delegate,
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

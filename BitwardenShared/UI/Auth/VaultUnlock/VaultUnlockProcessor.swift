@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import OSLog
 
 /// The processor used to manage state and handle actions for the vault unlock screen.
@@ -6,7 +7,7 @@ import OSLog
 class VaultUnlockProcessor: StateProcessor<
     VaultUnlockState,
     VaultUnlockAction,
-    VaultUnlockEffect
+    VaultUnlockEffect,
 > {
     // MARK: Types
 
@@ -44,7 +45,7 @@ class VaultUnlockProcessor: StateProcessor<
         appExtensionDelegate: AppExtensionDelegate?,
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: VaultUnlockState
+        state: VaultUnlockState,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
@@ -157,9 +158,9 @@ class VaultUnlockProcessor: StateProcessor<
             .action(
                 .logout(
                     userId: nil,
-                    userInitiated: userInitiated
-                )
-            )
+                    userInitiated: userInitiated,
+                ),
+            ),
         )
     }
 
@@ -219,7 +220,7 @@ class VaultUnlockProcessor: StateProcessor<
         } catch {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: state.unlockMethod == .pin ? Localizations.invalidPIN : Localizations.invalidMasterPassword
+                message: state.unlockMethod == .pin ? Localizations.invalidPIN : Localizations.invalidMasterPassword,
             )
             Logger.processor.error("Error unlocking vault: \(error)")
             state.unsuccessfulUnlockAttemptsCount += 1
@@ -256,7 +257,7 @@ class VaultUnlockProcessor: StateProcessor<
         } catch BiometricsServiceError.getAuthKeyFailed {
             services.errorReporter.log(error: BitwardenError.generalError(
                 type: "VaultUnlock: Get Biometrics Auth Key Failed",
-                message: "Biometrics auth is enabled but key was unable to be found. Disabling biometric unlock."
+                message: "Biometrics auth is enabled but key was unable to be found. Disabling biometric unlock.",
             ))
             try? await services.authRepository.allowBioMetricUnlock(false)
 
@@ -279,7 +280,7 @@ class VaultUnlockProcessor: StateProcessor<
             services.errorReporter.log(error: BitwardenError.generalError(
                 type: "VaultUnlock: Biometrics Unlock Error",
                 message: "A biometrics error occurred.",
-                error: error
+                error: error,
             ))
 
             state.unsuccessfulUnlockAttemptsCount += 1
@@ -327,6 +328,10 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         await coordinator.handleEvent(authEvent)
     }
@@ -335,7 +340,11 @@ extension VaultUnlockProcessor: ProfileSwitcherHandler {
         coordinator.navigate(to: .landing)
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }

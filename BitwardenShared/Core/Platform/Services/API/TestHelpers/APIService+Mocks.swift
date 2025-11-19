@@ -10,7 +10,7 @@ extension APIService {
         client: HTTPClient,
         environmentService: EnvironmentService = MockEnvironmentService(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
-        stateService: StateService = MockStateService()
+        stateService: StateService = MockStateService(),
     ) {
         self.init(
             accountTokenProvider: accountTokenProvider,
@@ -18,7 +18,7 @@ extension APIService {
             environmentService: environmentService,
             flightRecorder: flightRecorder,
             stateService: stateService,
-            tokenService: MockTokenService()
+            tokenService: MockTokenService(),
         )
     }
 }

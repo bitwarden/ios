@@ -17,6 +17,7 @@ class MockCipherDataStore: CipherDataStore {
 
     var fetchCipherId: String?
     var fetchCipherResult: Cipher?
+    var fetchCipherUserId: String?
 
     var cipherSubjectByUserId: [String: CurrentValueSubject<[Cipher], Error>] = [:]
 
@@ -45,8 +46,9 @@ class MockCipherDataStore: CipherDataStore {
         return try fetchAllCiphersResult.get()
     }
 
-    func fetchCipher(withId id: String, userId _: String) async -> Cipher? {
+    func fetchCipher(withId id: String, userId: String) async -> Cipher? {
         fetchCipherId = id
+        fetchCipherUserId = userId
         return fetchCipherResult
     }
 

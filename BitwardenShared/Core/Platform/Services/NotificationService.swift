@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 import OSLog
 import UserNotifications
@@ -25,7 +26,7 @@ protocol NotificationService {
     func messageReceived(
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
-        notificationTapped: Bool?
+        notificationTapped: Bool?,
     ) async
 
     /// Gets the notification authorization for the device.
@@ -92,11 +93,17 @@ class DefaultNotificationService: NotificationService {
     /// The service used by the application to handle authentication tasks.
     private let authService: AuthService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
     /// The API service used to make notification requests.
     private let notificationAPIService: NotificationAPIService
+
+    /// The API service used to refresh tokens.
+    private let refreshableApiService: RefreshableAPIService
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -112,24 +119,30 @@ class DefaultNotificationService: NotificationService {
     ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
+    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - notificationAPIService: The API service used to make notification requests.
+    ///   - refreshableApiService: The API service used to refresh tokens.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
         appIdService: AppIdService,
         authRepository: AuthRepository,
         authService: AuthService,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         notificationAPIService: NotificationAPIService,
+        refreshableApiService: RefreshableAPIService,
         stateService: StateService,
-        syncService: SyncService
+        syncService: SyncService,
     ) {
         self.appIdService = appIdService
         self.authRepository = authRepository
         self.authService = authService
+        self.configService = configService
         self.errorReporter = errorReporter
         self.notificationAPIService = notificationAPIService
+        self.refreshableApiService = refreshableApiService
         self.stateService = stateService
         self.syncService = syncService
     }
@@ -162,14 +175,14 @@ class DefaultNotificationService: NotificationService {
     func messageReceived( // swiftlint:disable:this function_body_length cyclomatic_complexity
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
-        notificationTapped: Bool?
+        notificationTapped: Bool?,
     ) async {
         do {
             // First attempt to decode the message as a response.
             if await handleLoginRequestResponse(
                 message,
                 notificationDismissed: notificationDismissed,
-                notificationTapped: notificationTapped
+                notificationTapped: notificationTapped,
             ) { return }
 
             // Proceed to treat the message as new notification.
@@ -207,9 +220,19 @@ class DefaultNotificationService: NotificationService {
                  .syncVault:
                 try await syncService.fetchSync(forceSync: false)
             case .syncOrgKeys:
+                try await refreshableApiService.refreshAccessToken()
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
-                guard let data: UserNotification = notificationData.data() else { return }
+                guard let data: LogoutNotification = notificationData.data() else { return }
+
+                if data.reason == .kdfChange,
+                   // TODO: PM-26960 Remove user ID check with noLogoutOnKdfChange feature flag.
+                   data.userId == userId,
+                   await configService.getFeatureFlag(.noLogoutOnKdfChange) {
+                    // Don't log the user out for KDF changes.
+                    break
+                }
+
                 try await authRepository.logout(userId: data.userId, userInitiated: true)
                 // Only route to landing page if the current active user was logged out.
                 if data.userId == userId {
@@ -286,7 +309,7 @@ class DefaultNotificationService: NotificationService {
         // Assemble the data to add to the in-app banner notification.
         let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
             timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
-            userId: loginSourceAccount.profile.userId
+            userId: loginSourceAccount.profile.userId,
         ))
 
         // Create an in-app banner notification to tell the user about the login request.
@@ -302,7 +325,7 @@ class DefaultNotificationService: NotificationService {
             identifier: "dismissableCategory",
             actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
             intentIdentifiers: [],
-            options: [.customDismissAction]
+            options: [.customDismissAction],
         )
         UNUserNotificationCenter.current().setNotificationCategories([category])
         let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
@@ -331,13 +354,13 @@ class DefaultNotificationService: NotificationService {
     private func handleLoginRequestResponse(
         _ message: [AnyHashable: Any],
         notificationDismissed: Bool?,
-        notificationTapped: Bool?
+        notificationTapped: Bool?,
     ) async -> Bool {
         if let content = message["notificationData"] as? String,
            let jsonData = content.data(using: .utf8),
            let loginRequestData = try? JSONDecoder.pascalOrSnakeCaseDecoder.decode(
                LoginRequestPushNotification.self,
-               from: jsonData
+               from: jsonData,
            ) {
             if notificationDismissed == true {
                 await handleNotificationDismissed()
@@ -375,4 +398,4 @@ class DefaultNotificationService: NotificationService {
             errorReporter.log(error: error)
         }
     }
-}
+} // swiftlint:disable:this file_length

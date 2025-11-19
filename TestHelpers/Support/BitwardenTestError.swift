@@ -13,7 +13,7 @@ public enum BitwardenTestError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .example:
-            return "An example error used to test throwing capabilities."
+            "An example error used to test throwing capabilities."
         }
     }
 }

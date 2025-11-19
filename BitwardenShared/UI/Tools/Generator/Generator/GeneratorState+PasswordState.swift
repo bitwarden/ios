@@ -106,7 +106,7 @@ extension GeneratorState.PasswordState {
             numWords: UInt8(numberOfWords),
             wordSeparator: wordSeparator,
             capitalize: capitalize,
-            includeNumber: includeNumber
+            includeNumber: includeNumber,
         )
     }
 
@@ -123,7 +123,7 @@ extension GeneratorState.PasswordState {
             minLowercase: containsLowercase ? 1 : nil,
             minUppercase: containsUppercase ? 1 : nil,
             minNumber: containsNumbers ? UInt8(minimumNumber) : nil,
-            minSpecial: containsSpecial ? UInt8(minimumSpecial) : nil
+            minSpecial: containsSpecial ? UInt8(minimumSpecial) : nil,
         )
     }
 
@@ -150,7 +150,7 @@ extension GeneratorState.PasswordState {
             special: containsSpecial,
             type: type,
             uppercase: containsUppercase,
-            wordSeparator: wordSeparator
+            wordSeparator: wordSeparator,
         )
     }
 }

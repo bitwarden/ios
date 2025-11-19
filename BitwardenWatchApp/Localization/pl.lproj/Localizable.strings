@@ -1,8 +1,8 @@
 "ThereAreNoItemsToList" = "Brak elementów do wyświetlenia";
 "ToViewVerificationCodesUpgradeToPremium" = "Aby wyświetlić kody weryfikacyjne, ulepsz konto do wersji premium";
-"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Dodaj uwierzytelnianie dwuskładnikowe do elementu, aby wyświetlić kody weryfikacyjne";
+"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Dodaj logowanie dwustopniowe do elementu, aby wyświetlić kody weryfikacyjne";
 "LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "Zaloguj się do Bitwarden na swoim iPhonie, aby wyświetlić kody weryfikacyjne";
-"SyncingItemsContainingVerificationCodes" = "Synchronizowanie elementów zawierających kody weryfikacyjne";
+"SyncingItemsContainingVerificationCodes" = "Synchronizacja elementów zawierających kody weryfikacyjne";
 "UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "Odblokuj Bitwarden na iPhonie, aby wyświetlić kody weryfikacyjne";
 "SetUpBitwardenToViewItemsContainingVerificationCodes" = "Skonfiguruj Bitwarden, aby wyświetlić elementy zawierające kody weryfikacyjne";
 "Search" = "Szukaj";

@@ -12,7 +12,7 @@ class ImportCiphersRequestTests: BitwardenTestCase {
         let subject = try ImportCiphersRequest(
             ciphers: [.fixture(name: "cipherTest")],
             folders: [.fixture(name: "folderTest")],
-            folderRelationships: [(1, 1)]
+            folderRelationships: [(1, 1)],
         )
         XCTAssertEqual(subject.body?.ciphers[0].name, "cipherTest")
         XCTAssertEqual(subject.body?.folders[0].name, "folderTest")
@@ -23,7 +23,7 @@ class ImportCiphersRequestTests: BitwardenTestCase {
     /// `init(ciphers:folders:folderRelationships:)` initializes the request successfully.
     func test_init_throws() throws {
         XCTAssertThrowsError(_ = try ImportCiphersRequest(
-            ciphers: []
+            ciphers: [],
         ))
     }
 

@@ -12,7 +12,7 @@ extension CompleteRegistrationState {
         passwordText: String = "password1234",
         passwordStrengthScore: UInt8 = 3,
         userEmail: String = "email@example.com",
-        retypePasswordText: String = "password1234"
+        retypePasswordText: String = "password1234",
     ) -> Self {
         CompleteRegistrationState(
             arePasswordsVisible: arePasswordsVisible,
@@ -22,7 +22,7 @@ extension CompleteRegistrationState {
             passwordText: passwordText,
             passwordStrengthScore: passwordStrengthScore,
             retypePasswordText: retypePasswordText,
-            userEmail: userEmail
+            userEmail: userEmail,
         )
     }
 }

@@ -69,7 +69,7 @@ extension DataStore: AuthenticatorItemDataStore {
     func deleteAuthenticatorItem(id: String, userId: String) async throws {
         try await backgroundContext.performAndSave {
             let results = try self.backgroundContext.fetch(
-                AuthenticatorItemData.fetchByIdRequest(id: id, userId: userId)
+                AuthenticatorItemData.fetchByIdRequest(id: id, userId: userId),
             )
             for result in results {
                 self.backgroundContext.delete(result)
@@ -98,7 +98,7 @@ extension DataStore: AuthenticatorItemDataStore {
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorItemData.id, ascending: true)]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.map(AuthenticatorItem.init) }
         .eraseToAnyPublisher()
@@ -109,7 +109,7 @@ extension DataStore: AuthenticatorItemDataStore {
         let insertRequest = try AuthenticatorItemData.batchInsertRequest(objects: authenticatorItems, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 
@@ -118,7 +118,7 @@ extension DataStore: AuthenticatorItemDataStore {
             _ = try AuthenticatorItemData(
                 context: self.backgroundContext,
                 userId: userId,
-                authenticatorItem: authenticatorItem
+                authenticatorItem: authenticatorItem,
             )
         }
     }

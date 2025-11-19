@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -30,10 +31,10 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
-                stateService: stateService
+                stateService: stateService,
             ),
             state: VaultUnlockSetupState(accountSetupFlow: .createAccount),
-            vaultUnlockSetupHelper: vaultUnlockSetupHelper
+            vaultUnlockSetupHelper: vaultUnlockSetupHelper,
         )
     }
 
@@ -161,7 +162,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         subject.state.biometricsStatus = .available(.faceID, enabled: true)
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: false
+            enabled: false,
         )
 
         await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: false))
@@ -175,7 +176,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     func test_perform_toggleUnlockMethod_biometrics_enable() async {
         vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
             .faceID,
-            enabled: true
+            enabled: true,
         )
 
         await subject.perform(.toggleUnlockMethod(.biometrics(.faceID), newValue: true))

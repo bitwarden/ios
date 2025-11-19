@@ -29,14 +29,14 @@ class GoogleImporter {
                 digits: (5 ... 10).contains(Int(item.digits)) ? Int(item.digits) : 6,
                 issuer: item.issuer.nilIfEmpty,
                 period: 30,
-                secret: secret
+                secret: secret,
             )
             return AuthenticatorItemView(
                 favorite: false,
                 id: UUID().uuidString,
                 name: item.issuer.nilIfEmpty ?? item.name,
                 totpKey: otp.otpAuthUri,
-                username: item.name.nilIfEmpty
+                username: item.name.nilIfEmpty,
             )
         }
     }

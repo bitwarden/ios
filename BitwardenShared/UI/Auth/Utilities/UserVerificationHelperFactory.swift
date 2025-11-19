@@ -22,7 +22,7 @@ struct DefaultUserVerificationHelperFactory: UserVerificationHelperFactory {
         DefaultUserVerificationHelper(
             authRepository: authRepository,
             errorReporter: errorReporter,
-            localAuthService: localAuthService
+            localAuthService: localAuthService,
         )
     }
 }

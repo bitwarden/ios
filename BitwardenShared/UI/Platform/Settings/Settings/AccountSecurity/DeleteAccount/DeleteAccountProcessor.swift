@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - DeleteAccountProcessor
@@ -34,7 +35,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: DeleteAccountState
+        state: DeleteAccountState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -86,22 +87,22 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
                     .defaultAlert(
                         title: otp != nil
                             ? Localizations.invalidVerificationCode
-                            : Localizations.invalidMasterPassword
-                    )
+                            : Localizations.invalidMasterPassword,
+                    ),
                 )
             // swiftlint:disable:next line_length
             case "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.":
                 coordinator.showAlert(
                     .defaultAlert(
-                        title: Localizations.cannotDeleteUserSoleOwnerDescriptionLong
-                    )
+                        title: Localizations.cannotDeleteUserSoleOwnerDescriptionLong,
+                    ),
                 )
             default:
                 services.errorReporter.log(error: ServerError.error(errorResponse: errorModel))
                 coordinator.showAlert(
                     .defaultAlert(
-                        title: Localizations.anErrorHasOccurred
-                    )
+                        title: Localizations.anErrorHasOccurred,
+                    ),
                 )
             }
         } catch {

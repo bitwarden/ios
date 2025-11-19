@@ -1,5 +1,5 @@
 import BitwardenKit
-import BitwardenSdk
+import BitwardenResources
 import Foundation
 
 /// A delegate of `SelfHostedProcessor` that is notified when the user saves their environment settings.
@@ -47,7 +47,7 @@ class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, Sel
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         delegate: SelfHostedProcessorDelegate?,
         services: Services,
-        state: SelfHostedState
+        state: SelfHostedState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -131,7 +131,7 @@ class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, Sel
         guard areURLsValid() else {
             coordinator.showAlert(Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.environmentPageUrlsError
+                message: Localizations.environmentPageUrlsError,
             ))
             return
         }
@@ -142,8 +142,8 @@ class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, Sel
             events: nil as URL?,
             icons: URL(string: state.iconsServerUrl)?.sanitized,
             identity: URL(string: state.identityServerUrl)?.sanitized,
-            notifications: nil as URL?,
-            webVault: URL(string: state.webVaultServerUrl)?.sanitized
+            notifications: nil,
+            webVault: URL(string: state.webVaultServerUrl)?.sanitized,
         )
         await delegate?.didSaveEnvironment(urls: urls)
         coordinator.navigate(to: .dismissPresented)

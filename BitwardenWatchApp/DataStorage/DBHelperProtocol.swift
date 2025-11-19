@@ -14,7 +14,7 @@ public protocol DBHelperProtocol {
         _ entityName: String,
         items: [Any],
         itemMapper: @escaping (Any, NSManagedObjectContext) -> [String: Any],
-        completionHandler: @escaping () -> Void
+        completionHandler: @escaping () -> Void,
     )
 }
 

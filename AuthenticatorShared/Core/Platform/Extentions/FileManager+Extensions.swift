@@ -10,7 +10,7 @@ extension FileManager {
             for: .applicationSupportDirectory,
             in: .userDomainMask,
             appropriateFor: nil,
-            create: true
+            create: true,
         )
         .appendingPathComponent("Exports", isDirectory: true)
     }

@@ -27,9 +27,9 @@ class FileSelectionCoordinatorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

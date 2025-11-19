@@ -10,7 +10,7 @@ enum TOTPServiceError: Error, Equatable, CustomNSError {
     case unableToGenerateCode(_ errorDescription: String?)
 
     /// The user-info dictionary.
-    public var errorUserInfo: [String: Any] {
+    var errorUserInfo: [String: Any] {
         switch self {
         case .invalidKeyFormat:
             return [:]

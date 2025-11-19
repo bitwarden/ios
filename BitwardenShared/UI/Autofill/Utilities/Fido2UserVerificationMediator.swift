@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - Fido2UserVerificationMediatorDelegate
@@ -25,7 +26,7 @@ protocol Fido2UserVerificationMediator: AnyObject {
     /// master password reprompt was performed and failed.
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: Fido2UserVerifiableCipherView
+        credential: Fido2UserVerifiableCipherView,
     ) async throws -> CheckUserResult
 
     /// Whether any verification method is enabled.
@@ -83,7 +84,7 @@ class DefaultFido2UserVerificationMediator {
         authRepository: AuthRepository,
         stateService: StateService,
         userVerificationHelper: UserVerificationHelper,
-        userVerificationRunner: UserVerificationRunner
+        userVerificationRunner: UserVerificationRunner,
     ) {
         self.authRepository = authRepository
         self.stateService = stateService
@@ -106,7 +107,7 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
             try await fido2UserVerificationMediatorDelegate?.onNeedsUserInteraction()
 
             let mpVerificationResult = try await userVerificationRunner.verifyWithAttempts(
-                verifyFunction: userVerificationHelper.verifyMasterPassword
+                verifyFunction: userVerificationHelper.verifyMasterPassword,
             )
             guard mpVerificationResult == .verified else {
                 throw Fido2UserVerificationError.masterPasswordRepromptFailed
@@ -126,13 +127,13 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
             return CheckUserResult(userPresent: true, userVerified: false)
         case .preferred:
             let result = try await userVerificationHelper.verifyDeviceLocalAuth(
-                reason: Localizations.userVerificationForPasskey
+                reason: Localizations.userVerificationForPasskey,
             )
             return CheckUserResult(userPresent: true, userVerified: result == .verified)
         case .required:
             let verifyDeviceLocalAuth = {
                 try await self.userVerificationHelper.verifyDeviceLocalAuth(
-                    reason: Localizations.userVerificationForPasskey
+                    reason: Localizations.userVerificationForPasskey,
                 )
             }
             let verifyPin = { try await self.userVerificationRunner.verifyWithAttempts(

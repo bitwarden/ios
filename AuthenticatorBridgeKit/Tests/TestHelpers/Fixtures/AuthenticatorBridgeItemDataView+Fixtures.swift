@@ -10,7 +10,7 @@ extension AuthenticatorBridgeItemDataView {
         id: String = UUID().uuidString,
         name: String = "Name",
         totpKey: String? = nil,
-        username: String? = nil
+        username: String? = nil,
     ) -> AuthenticatorBridgeItemDataView {
         AuthenticatorBridgeItemDataView(
             accountDomain: accountDomain,
@@ -19,7 +19,7 @@ extension AuthenticatorBridgeItemDataView {
             id: id,
             name: name,
             totpKey: totpKey,
-            username: username
+            username: username,
         )
     }
 

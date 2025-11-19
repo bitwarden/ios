@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ManualEntryProcessor
@@ -35,7 +37,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     init(
         coordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         services: Services,
-        state: ManualEntryState
+        state: ManualEntryState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -47,8 +49,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
         case .appeared:
             state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
 
-            guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
-                  await services.authenticatorItemRepository.isPasswordManagerSyncActive()
+            guard await services.authenticatorItemRepository.isPasswordManagerSyncActive()
             else {
                 state.isPasswordManagerSyncActive = false
                 break

@@ -43,7 +43,7 @@ struct DefaultTextAutofillHelperFactory: TextAutofillHelperFactory {
         errorReporter: ErrorReporter,
         eventService: EventService,
         userVerificationHelperFactory: UserVerificationHelperFactory,
-        vaultRepository: VaultRepository
+        vaultRepository: VaultRepository,
     ) {
         self.authRepository = authRepository
         self.errorReporter = errorReporter
@@ -68,11 +68,11 @@ struct DefaultTextAutofillHelperFactory: TextAutofillHelperFactory {
                 eventService: eventService,
                 textAutofillOptionsHelperFactory: DefaultTextAutofillOptionsHelperFactory(
                     errorReporter: errorReporter,
-                    vaultRepository: vaultRepository
+                    vaultRepository: vaultRepository,
                 ),
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            userVerificationHelper: userVerificationHelper
+            userVerificationHelper: userVerificationHelper,
         )
         textAutofillHelper.setTextAutofillHelperDelegate(delegate)
         return textAutofillHelper

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - LoginDecryptionOptionsView
@@ -12,7 +14,7 @@ struct LoginDecryptionOptionsView: View {
     @ObservedObject var store: Store<
         LoginDecryptionOptionsState,
         LoginDecryptionOptionsAction,
-        LoginDecryptionOptionsEffect
+        LoginDecryptionOptionsEffect,
     >
     var body: some View {
         VStack(alignment: .center, spacing: 24) {
@@ -40,11 +42,11 @@ struct LoginDecryptionOptionsView: View {
             Localizations.rememberThisDevice,
             isOn: store.binding(
                 get: \.isRememberDeviceToggleOn,
-                send: LoginDecryptionOptionsAction.toggleRememberDevice
-            )
+                send: LoginDecryptionOptionsAction.toggleRememberDevice,
+            ),
         ) {
             Text(Localizations.turnOffUsingPublicDevice)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                 .styleGuide(.footnote)
         }
         .accessibilityIdentifier("RememberThisDeviceToggle")
@@ -110,17 +112,17 @@ struct LoginDecryptionOptionsView: View {
     @ViewBuilder var loggedInAs: some View {
         VStack(alignment: .center, spacing: 2) {
             Text(Localizations.loggingInAsX(
-                store.state.email
+                store.state.email,
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
-            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             .multilineTextAlignment(.center)
 
             AsyncButton(Localizations.notYou) {
                 await store.perform(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouButton")
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
         }
         .styleGuide(.footnote)
     }
@@ -135,8 +137,8 @@ struct LoginDecryptionOptionsView: View {
             state: LoginDecryptionOptionsState(
                 shouldShowContinueButton: true,
                 email: "user@example.com",
-                shouldShowAdminApprovalButton: true
-            )
+                shouldShowAdminApprovalButton: true,
+            ),
         )))
     }
 }

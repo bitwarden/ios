@@ -16,7 +16,7 @@ public protocol SharedCryptographyService: AnyObject {
     ///     key is not in the shared repository.
     ///
     func decryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataModel]
+        _ items: [AuthenticatorBridgeItemDataModel],
     ) async throws -> [AuthenticatorBridgeItemDataView]
 
     /// Takes an array of `AuthenticatorBridgeItemDataView` with decrypted data and
@@ -28,7 +28,7 @@ public protocol SharedCryptographyService: AnyObject {
     ///     key is not in the shared repository.
     ///
     func encryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataView]
+        _ items: [AuthenticatorBridgeItemDataView],
     ) async throws -> [AuthenticatorBridgeItemDataModel]
 }
 
@@ -55,7 +55,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
     // MARK: Methods
 
     public func decryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataModel]
+        _ items: [AuthenticatorBridgeItemDataModel],
     ) async throws -> [AuthenticatorBridgeItemDataView] {
         guard !items.isEmpty else { return [] }
 
@@ -70,13 +70,13 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
                 id: item.id,
                 name: (try? decrypt(item.name, withKey: symmetricKey)) ?? "",
                 totpKey: try? decrypt(item.totpKey, withKey: symmetricKey),
-                username: try? decrypt(item.username, withKey: symmetricKey)
+                username: try? decrypt(item.username, withKey: symmetricKey),
             )
         }
     }
 
     public func encryptAuthenticatorItems(
-        _ items: [AuthenticatorBridgeItemDataView]
+        _ items: [AuthenticatorBridgeItemDataView],
     ) async throws -> [AuthenticatorBridgeItemDataModel] {
         let key = try await sharedKeychainRepository.getAuthenticatorKey()
         let symmetricKey = SymmetricKey(data: key)
@@ -89,7 +89,7 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
                 id: item.id,
                 name: encrypt(item.name, withKey: symmetricKey) ?? "",
                 totpKey: encrypt(item.totpKey, withKey: symmetricKey),
-                username: encrypt(item.username, withKey: symmetricKey)
+                username: encrypt(item.username, withKey: symmetricKey),
             )
         }
     }
@@ -106,11 +106,11 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
             return nil
         }
         let encryptedSealedBox = try AES.GCM.SealedBox(
-            combined: data
+            combined: data,
         )
         let decryptedBox = try AES.GCM.open(
             encryptedSealedBox,
-            using: key
+            using: key,
         )
         return String(data: decryptedBox, encoding: .utf8)
     }

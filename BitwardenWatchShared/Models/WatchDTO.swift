@@ -33,7 +33,7 @@ public struct WatchDTO: Codable {
         state: BWState,
         ciphers: [CipherDTO]? = nil,
         userData: UserDTO? = nil,
-        environmentData: EnvironmentUrlDTO? = nil
+        environmentData: EnvironmentUrlDTO? = nil,
     ) {
         self.state = state
         self.ciphers = ciphers

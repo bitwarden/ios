@@ -1,0 +1,66 @@
+{
+  "configurations" : [
+    {
+      "id" : "D7A3F6C4-8E2B-4D9F-8C5A-6E4B3F2D1A9C",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testExecutionOrdering" : "random",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "11D20029373CEF56CBBCF0AA",
+        "name" : "AuthenticatorBridgeKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "FFECA5139B78B2961268F363",
+        "name" : "AuthenticatorSharedSnapshotTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "9A8D5254F0C841E3546E43BF",
+        "name" : "AuthenticatorSharedTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "CF48CFC74FCC367F107BD1EF",
+        "name" : "AuthenticatorSharedViewInspectorTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "F78877F8DDC2314213F71321",
+        "name" : "AuthenticatorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

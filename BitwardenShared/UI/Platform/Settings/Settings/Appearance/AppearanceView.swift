@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AppearanceView
@@ -6,6 +8,9 @@ import SwiftUI
 ///
 struct AppearanceView: View {
     // MARK: Properties
+
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
 
     /// The store used to render the view.
     @ObservedObject var store: Store<AppearanceState, AppearanceAction, AppearanceEffect>
@@ -36,14 +41,14 @@ struct AppearanceView: View {
         } label: {
             BitwardenField(
                 title: Localizations.language,
-                footer: Localizations.languageChangeRequiresAppRestart
+                footer: Localizations.languageChangeRequiresAppRestart,
             ) {
                 Text(store.state.currentLanguage.title)
                     .styleGuide(.body)
-                    .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
                     .multilineTextAlignment(.leading)
             } accessoryContent: {
-                Asset.Images.chevronDown24.swiftUIImage
+                SharedAsset.Icons.chevronDown24.swiftUIImage
                     .imageStyle(.rowIcon)
             }
         }
@@ -58,22 +63,34 @@ struct AppearanceView: View {
             options: AppTheme.allCases,
             selection: store.binding(
                 get: \.appTheme,
-                send: AppearanceAction.appThemeChanged
-            )
+                send: AppearanceAction.appThemeChanged,
+            ),
         )
     }
 
     /// The show website icons toggle.
     private var webSiteIconsToggle: some View {
         BitwardenToggle(
-            Localizations.showWebsiteIcons,
             footer: Localizations.showWebsiteIconsDescription,
             isOn: store.binding(
                 get: \.isShowWebsiteIconsToggleOn,
-                send: AppearanceAction.toggleShowWebsiteIcons
+                send: AppearanceAction.toggleShowWebsiteIcons,
             ),
-            accessibilityIdentifier: "ShowWebsiteIconsSwitch"
-        )
+            accessibilityIdentifier: "ShowWebsiteIconsSwitch",
+        ) {
+            HStack(spacing: 8) {
+                Text(Localizations.showWebsiteIcons)
+
+                Button {
+                    openURL(ExternalLinksConstants.websiteIconsHelp)
+                } label: {
+                    SharedAsset.Icons.questionCircle16.swiftUIImage
+                        .scaledFrame(width: 16, height: 16)
+                        .accessibilityLabel(Localizations.learnMore)
+                }
+                .buttonStyle(.fieldLabelIcon)
+            }
+        }
         .contentBlock()
     }
 }

@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -14,6 +15,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var coordinator: MockCoordinator<ExportCXFRoute, Void>!
     var delegate: MockExportCXFProcessorDelegate!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var exportCXFCiphersRepository: MockExportCXFCiphersRepository!
     var policyService: MockPolicyService!
     var stackNavigator: MockStackNavigator!
@@ -30,6 +32,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = MockCoordinator<ExportCXFRoute, Void>()
         delegate = MockExportCXFProcessorDelegate()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         exportCXFCiphersRepository = MockExportCXFCiphersRepository()
         policyService = MockPolicyService()
         stackNavigator = MockStackNavigator()
@@ -41,12 +44,13 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             services: ServiceContainer.withMocks(
                 configService: configService,
                 errorReporter: errorReporter,
+                eventService: eventService,
                 exportCXFCiphersRepository: exportCXFCiphersRepository,
                 policyService: policyService,
                 stateService: stateService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: ExportCXFState()
+            state: ExportCXFState(),
         )
     }
 
@@ -57,6 +61,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = nil
         delegate = nil
         errorReporter = nil
+        eventService = nil
         exportCXFCiphersRepository = nil
         policyService = nil
         stackNavigator = nil
@@ -196,8 +201,6 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await preparesExportZeroItemsFromStatusTest(status: .failure(message: "failure"), fromAppeared: true)
     }
 
-    #if SUPPORTS_CXP
-
     /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status starts export.
     @MainActor
     func test_perform_mainButtonTappedPreparedStartsExport() async throws {
@@ -205,17 +208,17 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             CXFCredentialsResult(count: 10, type: .password),
         ])
 
-        if #available(iOS 18.2, *) {
+        if #available(iOS 26.0, *) {
             exportCXFCiphersRepository.getExportVaultDataForCXFResult =
                 .success(
-                    ASImportableAccount.fixture()
+                    ASImportableAccount.fixture(),
                 )
         }
 
         await subject.perform(.mainButtonTapped)
 
         // this should never happen in the actual app but here is a test for it as well.
-        guard #available(iOS 18.2, *) else {
+        guard #available(iOS 26.0, *) else {
             XCTAssertEqual(coordinator.alertShown.count, 1)
             XCTAssertEqual(coordinator.alertShown[0].title, Localizations.exportingFailed)
             return
@@ -225,13 +228,14 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.loadingOverlaysShown[0].title, Localizations.loading)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertEqual(eventService.collectEventType, .userClientExportedVault)
     }
 
     /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status does nothing when there's no delegate.
     @MainActor
     func test_perform_mainButtonTappedPreparedDoesNothingWhenDelegateNil() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
 
         subject = ExportCXFProcessor(
@@ -242,9 +246,9 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 errorReporter: errorReporter,
                 exportCXFCiphersRepository: exportCXFCiphersRepository,
                 stateService: stateService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: ExportCXFState()
+            state: ExportCXFState(),
         )
         subject.state.status = .prepared(itemsToExport: [
             CXFCredentialsResult(count: 10, type: .password),
@@ -261,8 +265,8 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status throws when getting export data.
     @MainActor
     func test_perform_mainButtonTappedPreparedThrowsGettingExportData() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
 
         subject.state.status = .prepared(itemsToExport: [
@@ -284,8 +288,8 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status throws when exporting credentials.
     @MainActor
     func test_perform_mainButtonTappedPreparedThrowsExportingCredentials() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
 
         subject.state.status = .prepared(itemsToExport: [
@@ -293,7 +297,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         ])
 
         exportCXFCiphersRepository.getExportVaultDataForCXFResult = .success(
-            ASImportableAccount.fixture()
+            ASImportableAccount.fixture(),
         )
         exportCXFCiphersRepository.exportCredentialsError = BitwardenTestError.example
         await subject.perform(.mainButtonTapped)
@@ -310,8 +314,8 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// when exporting credentials.
     @MainActor
     func test_perform_mainButtonTappedPreparedThrowsAuthorizationExportingCredentials() async throws {
-        guard #available(iOS 18.2, *) else {
-            throw XCTSkip("This test requires iOS 18.2")
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("This test requires iOS 26.0")
         }
 
         subject.state.status = .prepared(itemsToExport: [
@@ -319,7 +323,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         ])
 
         exportCXFCiphersRepository.getExportVaultDataForCXFResult = .success(
-            ASImportableAccount.fixture()
+            ASImportableAccount.fixture(),
         )
         exportCXFCiphersRepository.exportCredentialsError = ASAuthorizationError(.failed)
         await subject.perform(.mainButtonTapped)
@@ -327,21 +331,9 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.alertShown[0].title, Localizations.exportingFailed)
         XCTAssertEqual(
             coordinator.alertShown[0].message,
-            Localizations.youMayNeedToEnableDevicePasscodeOrBiometrics
+            Localizations.youMayNeedToEnableDevicePasscodeOrBiometrics,
         )
     }
-
-    #else
-
-    /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status does nothing.
-    @MainActor
-    func test_perform_mainButtonTappedPreparedNothing() async throws {
-        subject.state.status = .prepared(itemsToExport: [])
-        await subject.perform(.mainButtonTapped)
-        throw XCTSkip("This feature is available on iOS 18.2 or later compiling with Xcode 16.2 or later")
-    }
-
-    #endif
 
     // MARK: Private
 
@@ -349,7 +341,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func preparesExportFromStatusTest(
         status: ExportCXFState.ExportCXFStatus,
-        fromAppeared: Bool = false
+        fromAppeared: Bool = false,
     ) async throws {
         subject.state.status = status
         exportCXFCiphersRepository.getAllCiphersToExportCXFResult = .success([.fixture()])
@@ -379,7 +371,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func preparesExportFromStatusFailsTest(
         status: ExportCXFState.ExportCXFStatus,
-        fromAppeared: Bool = false
+        fromAppeared: Bool = false,
     ) async throws {
         subject.state.status = status
         exportCXFCiphersRepository.getAllCiphersToExportCXFResult = .failure(BitwardenTestError.example)
@@ -402,7 +394,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func preparesExportZeroItemsFromStatusTest(
         status: ExportCXFState.ExportCXFStatus,
-        fromAppeared: Bool = false
+        fromAppeared: Bool = false,
     ) async throws {
         subject.state.status = status
         exportCXFCiphersRepository.getAllCiphersToExportCXFResult = .success([])

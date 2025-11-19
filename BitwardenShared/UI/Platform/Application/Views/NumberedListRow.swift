@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// A view that displays a single row within a `NumberedList`.
@@ -17,12 +18,12 @@ struct NumberedListRow: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(LocalizedStringKey(title))
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
 
             if let subtitle {
                 Text(LocalizedStringKey(subtitle))
                     .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
         }
         .padding(.vertical, 12)

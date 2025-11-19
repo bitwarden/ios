@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExtensionActivationView
@@ -11,7 +13,7 @@ struct ExtensionActivationView: View {
     @ObservedObject var store: Store<
         ExtensionActivationState,
         ExtensionActivationAction,
-        Void
+        ExtensionActivationEffect,
     >
 
     /// An action that opens URLs.
@@ -30,6 +32,9 @@ struct ExtensionActivationView: View {
         .scrollView()
         .navigationTitle(store.state.navigationBarTitle)
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     // MARK: Private Views
@@ -40,7 +45,7 @@ struct ExtensionActivationView: View {
             IllustratedMessageView(
                 image: Asset.Images.autofill,
                 title: Localizations.youreAllSet,
-                message: Localizations.autoFillActivatedDescriptionLong
+                message: Localizations.autoFillActivatedDescriptionLong,
             )
             .padding(.top, 40)
 
@@ -63,11 +68,11 @@ struct ExtensionActivationView: View {
         VStack(spacing: 64) {
             VStack(spacing: 20) {
                 Text(store.state.title)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.title3)
 
                 Text(store.state.message)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.body)
             }
             .multilineTextAlignment(.center)
@@ -85,16 +90,16 @@ struct ExtensionActivationView: View {
     @ViewBuilder private var image: some View {
         switch store.state.extensionType {
         case .appExtension:
-            Image(decorative: Asset.Images.shield24)
+            Image(decorative: SharedAsset.Icons.shield24)
                 .resizable()
                 .frame(width: 70, height: 70)
                 .padding(16)
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(Asset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
+                        .strokeBorder(SharedAsset.Colors.strokeDivider.swiftUIColor, lineWidth: 1.5)
                 }
         case .autofillExtension:
-            Image(decorative: Asset.Images.check24)
+            Image(decorative: SharedAsset.Icons.check24)
                 .resizable()
                 .frame(width: 100, height: 100)
                 .foregroundStyle(.green)
@@ -111,10 +116,10 @@ struct ExtensionActivationView: View {
             store: Store(
                 processor: StateProcessor(
                     state: ExtensionActivationState(
-                        extensionType: .autofillExtension
-                    )
-                )
-            )
+                        extensionType: .autofillExtension,
+                    ),
+                ),
+            ),
         )
     }
 }
@@ -125,10 +130,10 @@ struct ExtensionActivationView: View {
             store: Store(
                 processor: StateProcessor(
                     state: ExtensionActivationState(
-                        extensionType: .appExtension
-                    )
-                )
-            )
+                        extensionType: .appExtension,
+                    ),
+                ),
+            ),
         )
     }
 }

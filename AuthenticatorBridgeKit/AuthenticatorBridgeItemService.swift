@@ -154,10 +154,10 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
 
     public func fetchTemporaryItem() async throws -> AuthenticatorBridgeItemDataView? {
         let decryptedItems = try await fetchAllForUserId(
-            DefaultAuthenticatorBridgeItemService.temporaryUserId
+            DefaultAuthenticatorBridgeItemService.temporaryUserId,
         )
         try await deleteAllForUserId(
-            DefaultAuthenticatorBridgeItemService.temporaryUserId
+            DefaultAuthenticatorBridgeItemService.temporaryUserId,
         )
 
         return decryptedItems.first
@@ -178,14 +178,14 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
                             forUserId userId: String) async throws {
         let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         try await dataStore.executeBatchInsert(
-            AuthenticatorBridgeItemData.batchInsertRequest(objects: encryptedItems, userId: userId)
+            AuthenticatorBridgeItemData.batchInsertRequest(objects: encryptedItems, userId: userId),
         )
     }
 
     public func insertTemporaryItem(_ item: AuthenticatorBridgeItemDataView) async throws {
         try await replaceAllItems(
             with: [item],
-            forUserId: DefaultAuthenticatorBridgeItemService.temporaryUserId
+            forUserId: DefaultAuthenticatorBridgeItemService.temporaryUserId,
         )
     }
 
@@ -201,11 +201,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         let deleteRequest = AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId)
         let insertRequest = try AuthenticatorBridgeItemData.batchInsertRequest(
             objects: encryptedItems,
-            userId: userId
+            userId: userId,
         )
         try await dataStore.executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 
@@ -214,13 +214,13 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         try await checkForLogout()
         let fetchRequest = AuthenticatorBridgeItemData.fetchRequest(
             predicate: NSPredicate(
-                format: "userId != %@", DefaultAuthenticatorBridgeItemService.temporaryUserId
-            )
+                format: "userId != %@", DefaultAuthenticatorBridgeItemService.temporaryUserId,
+            ),
         )
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorBridgeItemData.userId, ascending: true)]
         return FetchedResultsPublisher(
             context: dataStore.persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .map { dataItems in
             dataItems.compactMap(\.model)

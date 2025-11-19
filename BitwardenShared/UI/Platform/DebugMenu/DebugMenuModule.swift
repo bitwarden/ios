@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - DebugMenuModule
@@ -14,19 +15,19 @@ protocol DebugMenuModule {
     ///
     func makeDebugMenuCoordinator(
         delegate: DebugMenuCoordinatorDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<DebugMenuRoute, Void>
 }
 
 extension DefaultAppModule: DebugMenuModule {
     func makeDebugMenuCoordinator(
         delegate: DebugMenuCoordinatorDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<DebugMenuRoute, Void> {
         DebugMenuCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         .asAnyCoordinator()
     }

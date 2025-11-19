@@ -22,9 +22,9 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainService = MockKeychainService()
         subject = DefaultKeychainRepository(
             appIdService: AppIdService(
-                appSettingStore: appSettingsStore
+                appSettingStore: appSettingsStore,
             ),
-            keychainService: keychainService
+            keychainService: keychainService,
         )
     }
 
@@ -43,7 +43,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     func test_appSecAttrService() {
         XCTAssertEqual(
             Bundle.main.appIdentifier,
-            subject.appSecAttrService
+            subject.appSecAttrService,
         )
     }
 
@@ -52,7 +52,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     func test_appSecAttrAccessGroup() {
         XCTAssertEqual(
             Bundle.main.keychainAccessGroup,
-            subject.appSecAttrAccessGroup
+            subject.appSecAttrAccessGroup,
         )
     }
 
@@ -75,7 +75,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         try await subject.deleteUserAuthKey(for: item)
         XCTAssertEqual(
             keychainService.deleteQueries,
-            [expectedQuery]
+            [expectedQuery],
         )
     }
 
@@ -91,7 +91,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 [kSecClass: kSecClassCertificate] as CFDictionary,
                 [kSecClass: kSecClassKey] as CFDictionary,
                 [kSecClass: kSecClassIdentity] as CFDictionary,
-            ]
+            ],
         )
     }
 
@@ -109,7 +109,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(
             keychainService.deleteQueries,
-            expectedQueries
+            expectedQueries,
         )
     }
 
@@ -123,7 +123,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         try await subject.deleteDeviceKey(userId: "1")
         XCTAssertEqual(
             keychainService.deleteQueries,
-            [expectedQuery]
+            [expectedQuery],
         )
     }
 
@@ -137,7 +137,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         try await subject.deleteAuthenticatorVaultKey(userId: "1")
         XCTAssertEqual(
             keychainService.deleteQueries,
-            [expectedQuery]
+            [expectedQuery],
         )
     }
 
@@ -151,7 +151,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(
             formattedKey,
-            expectedKey
+            expectedKey,
         )
     }
 
@@ -165,7 +165,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(
             formattedKey,
-            expectedKey
+            expectedKey,
         )
     }
 
@@ -296,7 +296,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(
             queryValues,
-            expectedResult
+            expectedResult,
         )
     }
 
@@ -316,7 +316,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(
             queryValues,
-            expectedResult
+            expectedResult,
         )
     }
 
@@ -327,8 +327,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 nil,
                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
                 [],
-                nil
-            )!
+                nil,
+            )!,
         )
         keychainService.setSearchResultData(string: "ACCESS_TOKEN")
         try await subject.setAccessToken("ACCESS_TOKEN", userId: "1")
@@ -336,7 +336,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
-            "ACCESS_TOKEN"
+            "ACCESS_TOKEN",
         )
         let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
         XCTAssertEqual(protection, String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
@@ -358,8 +358,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 nil,
                 kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 [],
-                nil
-            )!
+                nil,
+            )!,
         )
         keychainService.setSearchResultData(string: "AUTHENTICATOR_VAULT_KEY")
         try await subject.setAuthenticatorVaultKey("AUTHENTICATOR_VAULT_KEY", userId: "1")
@@ -367,7 +367,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
-            "AUTHENTICATOR_VAULT_KEY"
+            "AUTHENTICATOR_VAULT_KEY",
         )
         let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
         XCTAssertEqual(protection, String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
@@ -389,8 +389,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 nil,
                 kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 [],
-                nil
-            )!
+                nil,
+            )!,
         )
         keychainService.setSearchResultData(string: "REFRESH_TOKEN")
         try await subject.setRefreshToken("REFRESH_TOKEN", userId: "1")
@@ -398,7 +398,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
-            "REFRESH_TOKEN"
+            "REFRESH_TOKEN",
         )
         let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
         XCTAssertEqual(protection, String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
@@ -437,8 +437,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 nil,
                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
                 item.accessControlFlags ?? [],
-                nil
-            )!
+                nil,
+            )!,
         )
         keychainService.addResult = .failure(addError)
         await assertAsyncThrows(error: addError) {
@@ -456,8 +456,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 nil,
                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
                 item.accessControlFlags ?? [],
-                nil
-            )!
+                nil,
+            )!,
         )
         keychainService.addResult = .success(())
         try await subject.setUserAuthKey(for: item, value: newKey)
@@ -476,8 +476,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 nil,
                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
                 item.accessControlFlags ?? [],
-                nil
-            )!
+                nil,
+            )!,
         )
         keychainService.addResult = .success(())
         try await subject.setUserAuthKey(for: item, value: newKey)

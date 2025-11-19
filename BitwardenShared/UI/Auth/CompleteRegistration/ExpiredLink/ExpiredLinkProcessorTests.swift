@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKitMocks
 import Networking
 import XCTest
 
@@ -19,7 +20,7 @@ class ExpiredLinkProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         subject = ExpiredLinkProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            state: ExpiredLinkState()
+            state: ExpiredLinkState(),
         )
     }
 

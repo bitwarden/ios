@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared

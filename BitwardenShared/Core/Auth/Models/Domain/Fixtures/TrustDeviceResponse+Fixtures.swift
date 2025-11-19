@@ -5,13 +5,13 @@ extension TrustDeviceResponse {
         deviceKey: String = "DEVICE_KEY",
         protectedUserKey: UnsignedSharedKey = "PROTECTED_USER_KEY",
         protectedDevicePrivateKey: EncString = "PRIVATE_KEY",
-        protectedDevicePublicKey: EncString = "PUBLIC_KEY"
+        protectedDevicePublicKey: EncString = "PUBLIC_KEY",
     ) -> TrustDeviceResponse {
         TrustDeviceResponse(
             deviceKey: deviceKey,
             protectedUserKey: protectedUserKey,
             protectedDevicePrivateKey: protectedDevicePrivateKey,
-            protectedDevicePublicKey: protectedDevicePublicKey
+            protectedDevicePublicKey: protectedDevicePublicKey,
         )
     }
 }

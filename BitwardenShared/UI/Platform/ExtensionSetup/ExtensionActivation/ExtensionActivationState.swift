@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - ExtensionActivationState
 
 /// An object that defines the current state of a `ExtensionActivationView`.

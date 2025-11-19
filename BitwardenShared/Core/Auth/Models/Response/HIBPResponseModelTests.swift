@@ -14,7 +14,7 @@ class HIBPResponseModelTests: BitwardenTestCase {
             statusCode: 200,
             headers: [:],
             body: APITestData.hibpLeakedPasswords.data,
-            requestID: UUID()
+            requestID: UUID(),
         ))
 
         XCTAssertEqual(
@@ -29,7 +29,7 @@ class HIBPResponseModelTests: BitwardenTestCase {
                 "32EB644B27147B66896492634584655FC2L": 1,
                 "D342A499DFD4D283D872CCF598D8A7B6039": 33288,
                 "FBD6D76BB5D2041542D7D2E3FAC5BB05593": 1957,
-            ]
+            ],
         )
     }
 }

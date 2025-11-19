@@ -17,14 +17,17 @@ protocol VaultListSectionsBuilderFactory { // sourcery: AutoMockable
 struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+    /// The helper functions for collections.
+    let collectionHelper: CollectionHelper
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
     func make(withData preparedData: VaultListPreparedData) -> VaultListSectionsBuilder {
         DefaultVaultListSectionsBuilder(
             clientService: clientService,
+            collectionHelper: collectionHelper,
             errorReporter: errorReporter,
-            withData: preparedData
+            withData: preparedData,
         )
     }
 }

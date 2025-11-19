@@ -7,7 +7,7 @@ import XCTest
 class KdfConfigProtocolTests: BitwardenTestCase {
     /// `sdkKdf` uses the number of iterations provided when creating a `.pbkdf2sha256` value.
     func test_pbkdf2sha256() {
-        let subject = KdfConfig(kdf: .pbkdf2sha256, kdfIterations: 600_000)
+        let subject = KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000)
         let sdkKdf = subject.sdkKdf
 
         switch sdkKdf {
@@ -20,7 +20,7 @@ class KdfConfigProtocolTests: BitwardenTestCase {
 
     /// `sdkKdf` uses all of the provided values when creating an `.argon2id` value.
     func test_argon2id_allValues() {
-        let subject = KdfConfig(kdf: .argon2id, kdfIterations: 600_000, kdfMemory: 32, kdfParallelism: 3)
+        let subject = KdfConfig(kdfType: .argon2id, iterations: 600_000, memory: 32, parallelism: 3)
         let sdkKdf = subject.sdkKdf
 
         switch sdkKdf {
@@ -35,7 +35,7 @@ class KdfConfigProtocolTests: BitwardenTestCase {
 
     /// `sdkKdf` uses a default value for memory when `nil` when creating an `.argon2id` value.
     func test_argon2id_nilMemory() {
-        let subject = KdfConfig(kdf: .argon2id, kdfIterations: 600_000, kdfMemory: nil, kdfParallelism: 3)
+        let subject = KdfConfig(kdfType: .argon2id, iterations: 600_000, memory: nil, parallelism: 3)
         let sdkKdf = subject.sdkKdf
 
         switch sdkKdf {
@@ -50,7 +50,7 @@ class KdfConfigProtocolTests: BitwardenTestCase {
 
     /// `sdkKdf` uses a default value for parallelism when `nil` when creating an `.argon2id` value.
     func test_argon2id_nilParallelism() {
-        let subject = KdfConfig(kdf: .argon2id, kdfIterations: 600_000, kdfMemory: 32, kdfParallelism: nil)
+        let subject = KdfConfig(kdfType: .argon2id, iterations: 600_000, memory: 32, parallelism: nil)
         let sdkKdf = subject.sdkKdf
 
         switch sdkKdf {

@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - PasswordAutoFillCoordinatorDelegate
@@ -50,7 +51,7 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
     init(
         delegate: PasswordAutoFillCoordinatorDelegate?,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.services = services
@@ -83,7 +84,7 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
         let processor = PasswordAutoFillProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: PasswordAutoFillState(mode: mode)
+            state: PasswordAutoFillState(mode: mode),
         )
         let view = PasswordAutoFillView(store: Store(processor: processor))
         stackNavigator?.push(view)

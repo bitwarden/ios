@@ -1,6 +1,7 @@
 import BitwardenKit
 import XCTest
 
+import BitwardenResources
 @testable import BitwardenShared
 
 class RegionTypeTests: BitwardenTestCase {

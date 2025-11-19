@@ -14,7 +14,7 @@ class ResponseValidationErrorModelTests: BitwardenTestCase {
         let subject = ResponseValidationErrorModel(
             error: "invalid_input",
             errorDescription: "invalid_username",
-            errorModel: ErrorModel(message: "error message", object: "error")
+            errorModel: ErrorModel(message: "error message", object: "error"),
         )
         XCTAssertEqual(subject.errorModel.message, "error message")
     }
@@ -39,7 +39,7 @@ class ResponseValidationErrorModelTests: BitwardenTestCase {
         """
         let subject = try ResponseValidationErrorModel.decoder.decode(
             ResponseValidationErrorModel.self,
-            from: XCTUnwrap(json.data(using: .utf8))
+            from: XCTUnwrap(json.data(using: .utf8)),
         )
         XCTAssertEqual(
             subject,
@@ -48,9 +48,9 @@ class ResponseValidationErrorModelTests: BitwardenTestCase {
                 errorDescription: nil,
                 errorModel: ErrorModel(
                     message: "Two-step token is invalid. Try again.",
-                    object: "error"
-                )
-            )
+                    object: "error",
+                ),
+            ),
         )
     }
 }

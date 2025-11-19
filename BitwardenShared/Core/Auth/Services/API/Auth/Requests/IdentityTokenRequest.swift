@@ -5,12 +5,6 @@ import Networking
 
 /// Errors that can occur when sending an `IdentityTokenRequest`.
 enum IdentityTokenRequestError: Error, Equatable {
-    /// Captcha is required for this login attempt.
-    ///
-    /// - Parameter hCaptchaSiteCode: The site code to use when authenticating with hCaptcha.
-    ///
-    case captchaRequired(hCaptchaSiteCode: String)
-
     /// The encryption key migration is required.
     case encryptionKeyMigrationRequired
 
@@ -21,15 +15,13 @@ enum IdentityTokenRequestError: Error, Equatable {
     ///
     /// - Parameters:
     ///   - authMethodsData: The information about the available auth methods.
-    ///   - captchaBypassToken: A captcha bypass token, which allows the user to bypass the next captcha prompt.
     ///   - masterPasswordPolicy: The master password policies that the org has enabled.
     ///   - ssoToken: The sso token, which is non-nil if the user is using single sign on.
     ///
     case twoFactorRequired(
         _ authMethodsData: AuthMethodsData,
-        _ captchaBypassToken: String?,
         _ masterPasswordPolicy: MasterPasswordPolicyResponseModel?,
-        _ ssoToken: String?
+        _ ssoToken: String?,
     )
 
     /// Two factor providers aren't configured.
@@ -50,14 +42,6 @@ struct IdentityTokenRequest: Request {
     /// The body of the request.
     var body: IdentityTokenRequestModel? {
         requestModel
-    }
-
-    /// HTTP headers to be sent in the request.
-    var headers: [String: String] {
-        guard case let .password(email, _) = requestModel.authenticationMethod else {
-            return [:]
-        }
-        return ["Auth-Email": Data(email.utf8).base64EncodedString().urlEncoded()]
     }
 
     /// The HTTP method for this request.
@@ -86,7 +70,7 @@ struct IdentityTokenRequest: Request {
         case 400:
             guard let errorModel = try? IdentityTokenErrorModel.decoder.decode(
                 IdentityTokenErrorModel.self,
-                from: response.body
+                from: response.body,
             ) else { return }
 
             if let twoFactorProvidersData = errorModel.twoFactorProvidersData {
@@ -95,13 +79,9 @@ struct IdentityTokenRequest: Request {
                 }
                 throw IdentityTokenRequestError.twoFactorRequired(
                     twoFactorProvidersData,
-                    errorModel.captchaBypassToken,
                     errorModel.masterPasswordPolicy,
-                    errorModel.ssoToken
+                    errorModel.ssoToken,
                 )
-            } else if let siteCode = errorModel.siteCode {
-                // Throw the captcha error if the captcha site key can be found.
-                throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
             } else if let error = errorModel.error,
                       error == IdentityTokenError.deviceError {
                 throw IdentityTokenRequestError.newDeviceNotVerified

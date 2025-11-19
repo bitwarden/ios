@@ -7,7 +7,7 @@ extension Attachment {
         size: String? = nil,
         sizeName: String? = nil,
         fileName: String? = nil,
-        key: String? = nil
+        key: String? = nil,
     ) -> Attachment {
         .init(
             id: id,
@@ -15,7 +15,7 @@ extension Attachment {
             size: size,
             sizeName: sizeName,
             fileName: fileName,
-            key: key
+            key: key,
         )
     }
 }

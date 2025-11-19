@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ExportItemsView
@@ -49,8 +51,8 @@ struct ExportItemsView: View {
             options: ExportFormatType.allCases,
             selection: store.binding(
                 get: \.fileFormat,
-                send: ExportItemsAction.fileFormatTypeChanged
-            )
+                send: ExportItemsAction.fileFormatTypeChanged,
+            ),
         )
     }
 }

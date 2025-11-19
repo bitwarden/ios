@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - TutorialCoordinator
@@ -11,6 +12,7 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     typealias Module = DefaultAppModule
 
     typealias Services = HasErrorReporter
+        & HasErrorAlertServices.ErrorAlertServices
         & HasStateService
 
     // MARK: Private Properties
@@ -38,7 +40,7 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -70,9 +72,16 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     private func showTutorial() {
         let processor = TutorialProcessor(
             coordinator: asAnyCoordinator(),
-            state: TutorialState()
+            state: TutorialState(),
         )
         let view = TutorialView(store: Store(processor: processor))
         stackNavigator?.push(view)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension TutorialCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+

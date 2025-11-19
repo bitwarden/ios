@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
@@ -33,7 +34,7 @@ class SecureNoteTextAutofillOptionsHelperTests: BitwardenTestCase {
         let cipher = CipherView.fixture(
             notes: "Notes",
             secureNote: SecureNoteView(type: .generic),
-            type: .secureNote
+            type: .secureNote,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         let dump = TextAutofillOptionsHelperDumper.dump(options)
@@ -48,7 +49,7 @@ class SecureNoteTextAutofillOptionsHelperTests: BitwardenTestCase {
     func test_getTextAutofillOptions_emptyNotIdentity() async {
         let cipher = CipherView.fixture(
             secureNote: nil,
-            type: .secureNote
+            type: .secureNote,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         XCTAssertTrue(options.isEmpty)
@@ -59,7 +60,7 @@ class SecureNoteTextAutofillOptionsHelperTests: BitwardenTestCase {
         let cipher = CipherView.fixture(
             notes: nil,
             secureNote: SecureNoteView(type: .generic),
-            type: .secureNote
+            type: .secureNote,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         XCTAssertTrue(options.isEmpty)
@@ -70,7 +71,7 @@ class SecureNoteTextAutofillOptionsHelperTests: BitwardenTestCase {
         let cipher = CipherView.fixture(
             notes: "",
             secureNote: SecureNoteView(type: .generic),
-            type: .secureNote
+            type: .secureNote,
         )
         let options = subject.getTextAutofillOptions(cipherView: cipher)
         XCTAssertTrue(options.isEmpty)

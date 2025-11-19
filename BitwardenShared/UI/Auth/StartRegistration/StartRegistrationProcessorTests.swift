@@ -1,6 +1,7 @@
 import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Networking
 import TestHelpers
 import XCTest
@@ -13,10 +14,8 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
-    var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var authClient: MockAuthClient!
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockStartRegistrationDelegate!
     var errorReporter: MockErrorReporter!
@@ -29,10 +28,8 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     override func setUp() {
         super.setUp()
         authRepository = MockAuthRepository()
-        captchaService = MockCaptchaService()
         client = MockHTTPClient()
         authClient = MockAuthClient()
-        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockStartRegistrationDelegate()
         environmentService = MockEnvironmentService()
@@ -44,25 +41,21 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
-                captchaService: captchaService,
                 clientService: MockClientService(auth: authClient),
-                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: StartRegistrationState()
+            state: StartRegistrationState(),
         )
     }
 
     override func tearDown() {
         super.tearDown()
         authRepository = nil
-        captchaService = nil
         authClient = nil
         client = nil
-        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -111,10 +104,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertEqual(coordinator.routes.last, .checkEmail(
-            email: "example@email.com"
+            email: "example@email.com",
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -122,7 +115,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             coordinator.loadingOverlaysShown,
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
         XCTAssertEqual(stateService.accountCreationEnvironmentURLs["example@email.com"], .defaultEU)
     }
@@ -139,10 +132,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertEqual(coordinator.routes.last, .checkEmail(
-            email: "example@email.com"
+            email: "example@email.com",
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -150,7 +143,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             coordinator.loadingOverlaysShown,
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
         XCTAssertEqual(stateService.accountCreationEnvironmentURLs["example@email.com"], .defaultEU)
     }
@@ -167,14 +160,14 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertEqual(
             coordinator.alertShown.last,
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
-            )
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation,
+            ),
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -182,7 +175,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             coordinator.loadingOverlaysShown,
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -193,7 +186,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.startRegistrationEmailAlreadyExists.data
+            body: APITestData.startRegistrationEmailAlreadyExists.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -225,7 +218,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.startRegistrationEmailExceedsMaxLength.data
+            body: APITestData.startRegistrationEmailExceedsMaxLength.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -268,7 +261,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         let requestBodyStr = try XCTUnwrap(String(data: requestBody, encoding: .utf8))
         XCTAssertFalse(
             requestBodyStr.contains("name"),
-            "Request body should not contain 'name' field when it is empty."
+            "Request body should not contain 'name' field when it is empty.",
         )
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(coordinator.alertShown.last)
@@ -282,7 +275,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.startRegistrationInvalidEmailFormat.data
+            body: APITestData.startRegistrationInvalidEmailFormat.data,
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
@@ -317,15 +310,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertEqual(
             client.requests[1].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertEqual(coordinator.routes.last, .completeRegistration(
             emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
-            userEmail: "example@email.com"
+            userEmail: "example@email.com",
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -334,7 +327,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -357,15 +350,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertEqual(
             client.requests[1].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertEqual(coordinator.routes.last, .completeRegistration(
             emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
-            userEmail: "example@email.com"
+            userEmail: "example@email.com",
         ))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -374,7 +367,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             [
                 LoadingOverlayState(title: Localizations.creatingAccount),
                 LoadingOverlayState(title: Localizations.creatingAccount),
-            ]
+            ],
         )
     }
 
@@ -404,7 +397,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -414,9 +407,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             [
                 .completeRegistration(
                     emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
-                    userEmail: "example@email.com"
+                    userEmail: "example@email.com",
                 ),
-            ]
+            ],
         )
     }
 
@@ -433,7 +426,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -443,9 +436,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             [
                 .completeRegistration(
                     emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
-                    userEmail: "email@example.com"
+                    userEmail: "email@example.com",
                 ),
-            ]
+            ],
         )
     }
 
@@ -463,7 +456,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(
             client.requests[0].url,
-            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email"),
         )
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -472,9 +465,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             [
                 .completeRegistration(
                     emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
-                    userEmail: "email@example.com"
+                    userEmail: "email@example.com",
                 ),
-            ]
+            ],
         )
     }
 
@@ -518,7 +511,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentURLsData,
-            EnvironmentURLData(base: .example)
+            EnvironmentURLData(base: .example),
         )
     }
 
@@ -593,54 +586,12 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
         XCTAssertFalse(subject.state.isReceiveMarketingToggleOn)
     }
-
-    /// `setRegion(_:_:)` doesn't notify the delegate to switch to the legacy create account flow
-    /// if the selected region supports email verification.
-    @MainActor
-    func test_setRegion_emailVerificationEnabled() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = true
-
-        await subject.setRegion(.unitedStates, .defaultUS)
-
-        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
-    }
-
-    /// `setRegion(_:_:)` notifies the delegate to switch to the legacy create account flow if the
-    /// selected region doesn't support email verification.
-    @MainActor
-    func test_setRegion_emailVerificationDisabled() async {
-        await subject.perform(.appeared)
-
-        configService.featureFlagsBoolPreAuth[.emailVerification] = false
-        await subject.setRegion(.unitedStates, .defaultUS)
-
-        XCTAssertTrue(delegate.switchToLegacyCreateAccountFlowCalled)
-    }
-
-    /// `setRegion(_:_:)` doesn't notify the delete if the selected region doesn't support email
-    /// verification but the view is no longer visible.
-    @MainActor
-    func test_setRegion_emailVerificationDisabled_viewNotVisible() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = true
-        await subject.perform(.appeared)
-        subject.receive(.disappeared)
-
-        configService.featureFlagsBoolPreAuth[.emailVerification] = false
-        await subject.setRegion(.unitedStates, .defaultUS)
-
-        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
-    }
 }
 
 class MockStartRegistrationDelegate: StartRegistrationDelegate {
     var didChangeRegionCalled: Bool = false
-    var switchToLegacyCreateAccountFlowCalled = false
 
     func didChangeRegion() async {
         didChangeRegionCalled = true
-    }
-
-    func switchToLegacyCreateAccountFlow() {
-        switchToLegacyCreateAccountFlowCalled = true
     }
 } // swiftlint:disable:this file_length

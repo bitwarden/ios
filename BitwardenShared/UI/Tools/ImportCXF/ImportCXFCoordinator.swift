@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// A coordinator that manages navigation for the Credential Exchange import flow.
@@ -32,7 +33,7 @@ class ImportCXFCoordinator: Coordinator, HasStackNavigator {
     ///
     init(
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.services = services
         self.stackNavigator = stackNavigator
@@ -42,7 +43,7 @@ class ImportCXFCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(
         to route: ImportCXFRoute,
-        context: AnyObject?
+        context: AnyObject?,
     ) {
         switch route {
         case .dismiss:
@@ -61,7 +62,7 @@ class ImportCXFCoordinator: Coordinator, HasStackNavigator {
         let processor = ImportCXFProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ImportCXFState(credentialImportToken: credentialImportToken)
+            state: ImportCXFState(credentialImportToken: credentialImportToken),
         )
 
         let view = ImportCXFView(store: Store(processor: processor))

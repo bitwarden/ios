@@ -10,12 +10,13 @@ import XCTest
 
 final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     var authBridgeItemService: MockAuthenticatorBridgeItemService!
+    var authenticatorClientService: MockClientService!
     var cipherDataStore: MockCipherDataStore!
-    var authRepository: MockAuthRepository!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var organizationService: MockOrganizationService!
     var sharedKeychainRepository: MockSharedKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultAuthenticatorSyncService!
@@ -27,27 +28,29 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         super.setUp()
 
         authBridgeItemService = MockAuthenticatorBridgeItemService()
-        authRepository = MockAuthRepository()
+        authenticatorClientService = MockClientService()
         cipherDataStore = MockCipherDataStore()
         configService = MockConfigService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        organizationService = MockOrganizationService()
         sharedKeychainRepository = MockSharedKeychainRepository()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultAuthenticatorSyncService(
             authBridgeItemService: authBridgeItemService,
-            authRepository: authRepository,
+            authenticatorClientService: authenticatorClientService,
             cipherDataStore: cipherDataStore,
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            organizationService: organizationService,
             sharedKeychainRepository: sharedKeychainRepository,
             stateService: stateService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
     }
 
@@ -56,12 +59,13 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         subject = nil
         authBridgeItemService = nil
-        authRepository = nil
+        authenticatorClientService = nil
         cipherDataStore = nil
         configService = nil
         clientService = nil
         errorReporter = nil
         keychainRepository = nil
+        organizationService = nil
         sharedKeychainRepository = nil
         stateService = nil
         vaultTimeoutService = nil
@@ -118,6 +122,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         try await waitForAsync {
             self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
         }
+        XCTAssertEqual(authenticatorClientService.mockCrypto.getUserEncryptionKeyCalled, false)
+        XCTAssertEqual(clientService.mockCrypto.getUserEncryptionKeyCalled, true)
     }
 
     /// When the user has subscribed to sync and has an unlocked vault, the
@@ -195,16 +201,16 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
             .fixture(
                 deletedDate: Date(timeIntervalSinceNow: -10000),
                 id: "Deleted",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -228,14 +234,14 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
             .fixture(
                 id: "No TOTP",
                 login: .fixture(
-                    username: "user@bitwarden.com"
-                )
+                    username: "user@bitwarden.com",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -259,8 +265,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             .fixture(
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -290,8 +296,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -482,24 +488,10 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await subject.start()
 
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: false, userId: "1")
+            VaultLockStatus(isVaultLocked: false, userId: "1"),
         )
         try await waitForAsync {
             !self.errorReporter.errors.isEmpty
-        }
-    }
-
-    /// When the sync status updates, and is enabled,
-    /// then the last active time is updated in the shared keychain.
-    ///
-    @MainActor
-    func test_determineSyncForUserId_setLastActiveTime() async throws {
-        setupInitialState()
-        await subject.start()
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-
-        try await waitForAsync {
-            self.vaultTimeoutService.lastActiveTime["1"] != nil
         }
     }
 
@@ -518,8 +510,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         try await waitForAsync {
@@ -539,8 +531,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -560,7 +552,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         for _ in 0 ..< 4 {
             async let result1: Void = stateService.syncToAuthenticatorSubject.send(("1", true))
             async let result2: Void = vaultTimeoutService.vaultLockStatusSubject.send(
-                VaultLockStatus(isVaultLocked: false, userId: "1")
+                VaultLockStatus(isVaultLocked: false, userId: "1"),
             )
             await _ = (result1, result2)
         }
@@ -570,8 +562,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         try await waitForAsync {
@@ -590,7 +582,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         vaultTimeoutService.isClientLocked["2"] = false
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: false, userId: "2")
+            VaultLockStatus(isVaultLocked: false, userId: "2"),
         )
 
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
@@ -598,8 +590,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -612,6 +604,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     ///
     @MainActor
     func test_determineSyncForUserId_unlockMultipleVaults() async throws {
+        // swiftlint:disable:previous function_body_length
         setupInitialState()
         cipherDataStore.cipherSubjectByUserId["2"] = CurrentValueSubject<[Cipher], Error>([])
         await subject.start()
@@ -621,8 +614,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -638,8 +631,13 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.username, "masked@example.com")
         await stateService.addAccount(.fixture(
             profile: .fixture(email: "different@bitwarden.com", userId: "2"),
-            settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com")))
+            settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com"))),
         ))
+        stateService.accountEncryptionKeys["2"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
+            encryptedPrivateKey: "privateKey_2",
+            encryptedUserKey: "userKey_2",
+        )
         stateService.syncToAuthenticatorByUserId["2"] = true
         vaultTimeoutService.isClientLocked["2"] = false
         stateService.syncToAuthenticatorSubject.send(("2", true))
@@ -648,8 +646,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "4321",
                 login: .fixture(
                     username: "masked2@example.com",
-                    totp: "totp2"
-                )
+                    totp: "totp2",
+                ),
             ),
         ])
 
@@ -676,7 +674,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         vaultTimeoutService.isClientLocked["1"] = false
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: false, userId: "1")
+            VaultLockStatus(isVaultLocked: false, userId: "1"),
         )
 
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
@@ -684,8 +682,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -717,7 +715,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         vaultTimeoutService.isClientLocked["1"] = true
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: true, userId: "1")
+            VaultLockStatus(isVaultLocked: true, userId: "1"),
         )
         try await Task.sleep(nanoseconds: 10_000_000)
 
@@ -726,8 +724,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -760,7 +758,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await stateService.addAccount(.fixtureAccountLogin())
         vaultTimeoutService.isClientLocked["1"] = true
         vaultTimeoutService.vaultLockStatusSubject.send(
-            VaultLockStatus(isVaultLocked: true, userId: "1")
+            VaultLockStatus(isVaultLocked: true, userId: "1"),
         )
         try await Task.sleep(nanoseconds: 10_000_000)
 
@@ -769,8 +767,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -789,7 +787,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     @MainActor
     func test_determineSyncForUserId_vaultLockedAtStartup() async throws {
         setupInitialState(vaultLocked: true)
-        let key = try await clientService.crypto().getUserEncryptionKey()
+        let key = try await authenticatorClientService.crypto().getUserEncryptionKey()
         try await keychainRepository.setAuthenticatorVaultKey(key, userId: "1")
         await subject.start()
 
@@ -799,8 +797,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -818,71 +816,29 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.username, "masked@example.com")
     }
 
-    /// When the feature flag is off, determineSyncForUserId should return early and do nothing.
-    ///
-    @MainActor
-    func test_determineSyncForUserId_featureFlagOff_doesNothing() async throws {
-        setupInitialState()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        await subject.start()
-
-        // Send a sync update (would normally trigger determineSyncForUserId)
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-
-        // Give the task some time to potentially process
-        try await Task.sleep(nanoseconds: 10_000_000)
-
-        // Assert that nothing happened
-        XCTAssertNil(sharedKeychainRepository.authenticatorKey)
-        XCTAssertNil(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"])
-        XCTAssertFalse(authBridgeItemService.replaceAllCalled)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-    }
-
     /// When the `AuthenticatorBridgeItemService` throws an error , `getTemporaryTotpItem()`  returns `nil`.
     ///
     @MainActor
     func test_getTemporaryTotpItem_error() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         authBridgeItemService.errorToThrow = BitwardenTestError.example
         let result = await subject.getTemporaryTotpItem()
         XCTAssertNil(result)
         XCTAssertFalse(errorReporter.errors.isEmpty)
     }
 
-    /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
-    ///
-    @MainActor
-    func test_getTemporaryTotpItem_featureFlagOff() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        authBridgeItemService.tempItem = AuthenticatorBridgeItemDataView(
-            accountDomain: nil,
-            accountEmail: nil,
-            favorite: false,
-            id: "id",
-            name: "name",
-            totpKey: "totpKey",
-            username: nil
-        )
-        let result = await subject.getTemporaryTotpItem()
-        XCTAssertNil(result)
-    }
-
-    /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
+    /// When there is no item, `getTemporaryTotpItem()` always returns `nil`.
     ///
     @MainActor
     func test_getTemporaryTotpItem_noItem() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         authBridgeItemService.tempItem = nil
         let result = await subject.getTemporaryTotpItem()
         XCTAssertNil(result)
     }
 
-    /// \`getTemporaryTotpItem()` returns the stored temporary item.
+    /// `getTemporaryTotpItem()` returns the stored temporary item.
     ///
     @MainActor
     func test_getTemporaryTotpItem_success() async throws {
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         let expected = AuthenticatorBridgeItemDataView(
             accountDomain: nil,
             accountEmail: nil,
@@ -890,25 +846,11 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             id: "id",
             name: "name",
             totpKey: "totpKey",
-            username: nil
+            username: nil,
         )
         authBridgeItemService.tempItem = expected
         let result = await subject.getTemporaryTotpItem()
         XCTAssertEqual(expected, result)
-    }
-
-    /// Starting the service when the feature flag is off should do nothing - no subscriptions or responses.
-    ///
-    @MainActor
-    func test_start_featureFlagOff() async throws {
-        setupInitialState()
-        configService.featureFlagsBool[.enableAuthenticatorSync] = false
-        await subject.start()
-        try sharedKeychainRepository.deleteAuthenticatorKey()
-        stateService.syncToAuthenticatorSubject.send(("1", true))
-
-        try await Task.sleep(nanoseconds: 10_000_000)
-        XCTAssertNil(sharedKeychainRepository.authenticatorKey)
     }
 
     /// If the `start()` method is called multiple times, it should only start once - i.e. only one set of listeners,
@@ -926,8 +868,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -973,8 +915,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -982,15 +924,17 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, "1234")
-        XCTAssertTrue(authRepository.unlockVaultWithAuthVaultKeyCalled)
-        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
+        XCTAssertTrue(authenticatorClientService.userClientArray.isEmpty)
     }
 
-    /// Verify that `writeCiphers()` correctly reports errors from the AuthRepository if an error occurs when
-    /// unlocking a locked vault with the AuthenticatorVaultKey.
+    /// The AuthService may not get notified about Vault locking if the user has switched accounts. Verify
+    /// that it unlocks the vault if the user has a previously stored Authenticator Vault Key, syncs ciphers, and
+    /// then re-locks the vault for a user which has organization ciphers.
     ///
     @MainActor
-    func test_writeCiphers_vaultLockedAuthRepoError() async throws {
+    func test_writeCiphers_vaultLocked_withOrgCiphers() async throws {
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
@@ -998,15 +942,52 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
         }
 
-        authRepository.unlockVaultWithAuthVaultKeyResult = .failure(BitwardenTestError.example)
+        vaultTimeoutService.isClientLocked["1"] = true
+        organizationService.fetchAllOrganizationsUserIdResult = .success([.fixture(id: "org-1", key: "key-org-1")])
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp",
+                ),
+                organizationId: "org-1",
+            ),
+        ])
+
+        try await waitForAsync { self.authBridgeItemService.storedItems["1"]?.first != nil }
+        let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
+        XCTAssertEqual(items.count, 1)
+        XCTAssertEqual(items.first?.id, "1234")
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
+        XCTAssertEqual(
+            authenticatorClientService.mockCrypto.initializeOrgCryptoRequest?.organizationKeys, ["org-1": "key-org-1"],
+        )
+        XCTAssertTrue(authenticatorClientService.userClientArray.isEmpty)
+    }
+
+    /// Verify that `writeCiphers()` correctly reports errors from unlocking a locked vault with
+    /// the AuthenticatorVaultKey.
+    ///
+    @MainActor
+    func test_writeCiphers_vaultLockedUnlockError() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
+
+        authenticatorClientService.mockCrypto.initializeUserCryptoResult = .failure(BitwardenTestError.example)
         vaultTimeoutService.isClientLocked["1"] = true
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
             .fixture(
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -1026,7 +1007,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
         }
 
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
+        authenticatorClientService.mockVault.clientCiphers.decryptResult = { _ in
             throw BitwardenTestError.example
         }
         vaultTimeoutService.isClientLocked["1"] = true
@@ -1035,8 +1016,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -1065,8 +1046,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
 
@@ -1093,37 +1074,37 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 id: "1234",
                 login: .fixture(
                     username: "masked@example.com",
-                    totp: "totp"
-                )
+                    totp: "totp",
+                ),
             ),
         ])
         try await waitForAsync {
             self.authBridgeItemService.storedItems["1"]?.first != nil
         }
         XCTAssertFalse(vaultTimeoutService.isClientLocked["1"] ?? true)
-        XCTAssertFalse(authRepository.unlockVaultWithAuthVaultKeyCalled)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeUserCryptoRequest)
+        XCTAssertNotNil(authenticatorClientService.mockCrypto.initializeOrgCryptoRequest)
     }
 
     // MARK: - Private Methods
 
-    /// Helper function that sets up testing parameters based on the flags passed in
-    ///
-    /// Note: The defaults passed in set everything up for sync to work immediately - sync on and vault unlocked.
-    /// All that is necessary is to publish the sync setting or the vault status as-is to kick off sync. Override
-    /// to turn sync off.
+    /// Helper function that sets up the common test condition of sync being turned on.
     ///
     /// - Parameters:
-    ///   - syncOn: The state of the syncToAuthenticator feature flag. Defaults to `true`. `true` means sync is enabled.
     ///   - vaultLocked: The state of the vault - `true` means the vault is locked.
     ///     `false` means the vault is unlocked. Defaults to `false`
     ///
     @MainActor
-    private func setupInitialState(syncOn: Bool = true, vaultLocked: Bool = false) {
+    private func setupInitialState(vaultLocked: Bool = false) {
         cipherDataStore.cipherSubjectByUserId["1"] = CurrentValueSubject<[Cipher], Error>([])
-        configService.featureFlagsBool[.enableAuthenticatorSync] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
-        stateService.syncToAuthenticatorByUserId["1"] = syncOn
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
+            encryptedPrivateKey: "privateKey",
+            encryptedUserKey: "userKey",
+        )
+        stateService.syncToAuthenticatorByUserId["1"] = true
         vaultTimeoutService.isClientLocked["1"] = vaultLocked
     }
 } // swiftlint:disable:this file_length

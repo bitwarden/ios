@@ -60,7 +60,7 @@ extension DataStore: CollectionDataStore {
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CollectionData.id, ascending: true)]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.map(Collection.init) }
         .eraseToAnyPublisher()
@@ -91,7 +91,7 @@ extension DataStore: CollectionDataStore {
         let insertRequest = try CollectionData.batchInsertRequest(objects: collections, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 

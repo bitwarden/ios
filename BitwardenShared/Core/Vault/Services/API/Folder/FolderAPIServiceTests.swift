@@ -45,8 +45,8 @@ class FolderAPIServiceTests: XCTestCase {
             FolderResponseModel(
                 id: "123456789",
                 name: "Something Clever",
-                revisionDate: Date(year: 2023, month: 12, day: 25)
-            )
+                revisionDate: Date(year: 2023, month: 12, day: 25),
+            ),
         )
     }
 
@@ -78,8 +78,8 @@ class FolderAPIServiceTests: XCTestCase {
             FolderResponseModel(
                 id: "123456789",
                 name: "Something Clever",
-                revisionDate: Date(year: 2023, month: 12, day: 25)
-            )
+                revisionDate: Date(year: 2023, month: 12, day: 25),
+            ),
         )
     }
 }

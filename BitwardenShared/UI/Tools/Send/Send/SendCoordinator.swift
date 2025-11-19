@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import OSLog
 import Photos
@@ -15,7 +17,8 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         & SendItemCoordinator.Module
         & SendItemModule
 
-    typealias Services = HasErrorAlertServices.ErrorAlertServices
+    typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
@@ -51,7 +54,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -101,13 +104,13 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         let processor = SendListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: SendListState(type: type)
+            state: SendListState(type: type),
         )
         let store = Store(processor: processor)
         let searchHandler = SendListSearchHandler(store: store)
         let view = SendListView(
             searchHandler: searchHandler,
-            store: store
+            store: store,
         )
 
         let viewController = UIHostingController(rootView: view)
@@ -118,7 +121,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.push(
             viewController,
             navigationTitle: type.localizedName,
-            searchController: searchController
+            searchController: searchController,
         )
     }
 
@@ -132,7 +135,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         let navigationController = module.makeNavigationController()
         let coordinator = module.makeSendItemCoordinator(
             delegate: delegate,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         coordinator.navigate(to: route)
@@ -145,7 +148,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         let processor = SendListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: SendListState()
+            state: SendListState(),
         )
         let store = Store(processor: processor)
         let view = SendListView(store: store)
@@ -159,7 +162,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     private func showShareSheet(for items: [Any]) {
         let viewController = UIActivityViewController(
             activityItems: items,
-            applicationActivities: nil
+            applicationActivities: nil,
         )
         stackNavigator?.present(viewController)
     }

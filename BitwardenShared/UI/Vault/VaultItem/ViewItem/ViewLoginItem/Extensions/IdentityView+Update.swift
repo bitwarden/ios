@@ -31,7 +31,7 @@ extension BitwardenSdk.IdentityView {
             ssn: identityState.identityView.ssn?.nilIfEmpty,
             username: identityState.userName.nilIfEmpty,
             passportNumber: identityState.passportNumber.nilIfEmpty,
-            licenseNumber: identityState.licenseNumber.nilIfEmpty
+            licenseNumber: identityState.licenseNumber.nilIfEmpty,
         )
     }
 }

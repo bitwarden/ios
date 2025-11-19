@@ -11,7 +11,7 @@ class KeyConnectorUserKeyResponseModelTests: BitwardenTestCase {
         let json = APITestData.keyConnectorUserKey.data
         let subject = try KeyConnectorUserKeyResponseModel.decoder.decode(
             KeyConnectorUserKeyResponseModel.self,
-            from: json
+            from: json,
         )
         XCTAssertEqual(subject.key, "EXsYYd2Wx4H/9dhzmINS0P30lpG8bZ44RRn/T15tVA8=")
     }

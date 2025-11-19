@@ -5,6 +5,6 @@ public extension APITestData {
     /// A valid server configuration to produce a `ConfigResponseModel`.
     static let validServerConfig = loadFromJsonBundle(
         resource: "ValidServerConfig",
-        bundle: BitwardenKitMocksBundleFinder.bundle
+        bundle: BitwardenKitMocksBundleFinder.bundle,
     )
 }

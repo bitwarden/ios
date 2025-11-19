@@ -1,5 +1,7 @@
 @testable import AuthenticatorShared
 import BitwardenKit
+import BitwardenKitMocks
+import UIKit
 
 // MARK: - MockAppModule
 
@@ -8,7 +10,9 @@ class MockAppModule:
     AuthModule,
     DebugMenuModule,
     FileSelectionModule,
+    FlightRecorderModule,
     ItemListModule,
+    NavigatorBuilderModule,
     TutorialModule,
     TabModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
@@ -17,13 +21,14 @@ class MockAppModule:
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, FileSelectionEvent>()
+    var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var tutorialCoordinator = MockCoordinator<TutorialRoute, TutorialEvent>()
 
     func makeAppCoordinator(
         appContext _: AppContext,
-        navigator _: RootNavigator
+        navigator _: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent> {
         appCoordinator.asAnyCoordinator()
     }
@@ -31,7 +36,7 @@ class MockAppModule:
     func makeAuthCoordinator(
         delegate _: AuthCoordinatorDelegate,
         rootNavigator _: RootNavigator,
-        stackNavigator _: StackNavigator
+        stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<AuthRoute, AuthEvent> {
         authCoordinator.asAnyCoordinator()
     }
@@ -41,35 +46,45 @@ class MockAppModule:
     }
 
     func makeDebugMenuCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<DebugMenuRoute, Void> {
         debugMenuCoordinator.asAnyCoordinator()
     }
 
     func makeFileSelectionCoordinator(
         delegate: FileSelectionDelegate,
-        stackNavigator _: StackNavigator
+        stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<FileSelectionRoute, FileSelectionEvent> {
         fileSelectionDelegate = delegate
         return fileSelectionCoordinator.asAnyCoordinator()
     }
 
+    func makeFlightRecorderCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        flightRecorderCoordinator.asAnyCoordinator()
+    }
+
     func makeItemListCoordinator(
-        stackNavigator _: AuthenticatorShared.StackNavigator
+        stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
         itemListCoordinator.asAnyCoordinator()
+    }
+
+    func makeNavigationController() -> UINavigationController {
+        UINavigationController()
     }
 
     func makeTabCoordinator(
         errorReporter _: ErrorReporter,
         rootNavigator _: RootNavigator,
-        tabNavigator _: TabNavigator
+        tabNavigator _: TabNavigator,
     ) -> AnyCoordinator<TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
     }
 
     func makeTutorialCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<TutorialRoute, TutorialEvent> {
         tutorialCoordinator.asAnyCoordinator()
     }

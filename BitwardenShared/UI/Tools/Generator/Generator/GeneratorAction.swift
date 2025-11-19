@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// Actions that can be processed by a `GeneratorProcessor`.
 ///
 enum GeneratorAction: Equatable {
@@ -71,10 +73,10 @@ extension GeneratorAction {
              .toggleValueChanged,
              .usernameForwardedEmailServiceChanged,
              .usernameGeneratorTypeChanged:
-            return true
+            true
         case let .textFieldFocusChanged(keyPath):
             // Only generate a new value when focus leaves the field (keyPath == nil).
-            return keyPath == nil
+            keyPath == nil
         case .copyGeneratedValue,
              .dismissPressed,
              .guidedTourViewAction,
@@ -83,7 +85,7 @@ extension GeneratorAction {
              .sliderEditingChanged,
              .textFieldIsPasswordVisibleChanged,
              .toastShown:
-            return false
+            false
         }
     }
 }

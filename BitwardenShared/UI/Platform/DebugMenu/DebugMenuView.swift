@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - DebugMenuView
@@ -66,8 +67,8 @@ struct DebugMenuView: View {
             Toggle(
                 isOn: store.bindingAsync(
                     get: { _ in flag.isEnabled },
-                    perform: { DebugMenuEffect.toggleFeatureFlag(flag.feature.rawValue, $0) }
-                )
+                    perform: { DebugMenuEffect.toggleFeatureFlag(flag.feature.rawValue, $0) },
+                ),
             ) {
                 Text(flag.feature.name)
             }
@@ -99,17 +100,13 @@ struct DebugMenuView: View {
                 state: .init(
                     featureFlags: [
                         .init(
-                            feature: .emailVerification,
-                            isEnabled: true
+                            feature: FeatureFlag(rawValue: "feature-flag"),
+                            isEnabled: true,
                         ),
-                        .init(
-                            feature: .enableAuthenticatorSync,
-                            isEnabled: false
-                        ),
-                    ]
-                )
-            )
-        )
+                    ],
+                ),
+            ),
+        ),
     )
 }
 #endif

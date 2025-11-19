@@ -17,11 +17,11 @@ class CryptoFunctionService {
     func hmac(_ data: Data, _ key: SymmetricKey, algorithm alg: CryptoHashAlgorithm) -> Data {
         switch alg {
         case .Sha1:
-            return Data(HMAC<Insecure.SHA1>.authenticationCode(for: data, using: key))
+            Data(HMAC<Insecure.SHA1>.authenticationCode(for: data, using: key))
         case .Sha256:
-            return Data(HMAC<SHA256>.authenticationCode(for: data, using: key))
+            Data(HMAC<SHA256>.authenticationCode(for: data, using: key))
         case .Sha512:
-            return Data(HMAC<SHA512>.authenticationCode(for: data, using: key))
+            Data(HMAC<SHA512>.authenticationCode(for: data, using: key))
         }
     }
 }

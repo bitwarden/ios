@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 import UIKit
@@ -13,6 +14,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     typealias Module = AuthModule
         & DebugMenuModule
         & ItemListModule
+        & NavigatorBuilderModule
         & TabModule
         & TutorialModule
 
@@ -50,7 +52,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         appContext: AppContext,
         module: Module,
         rootNavigator: RootNavigator,
-        services: Services
+        services: Services,
     ) {
         self.appContext = appContext
         self.module = module
@@ -106,11 +108,11 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: authRoute)
         } else {
             guard let rootNavigator else { return }
-            let navigationController = UINavigationController()
+            let navigationController = module.makeNavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
-                stackNavigator: navigationController
+                stackNavigator: navigationController,
             )
 
             coordinator.start()
@@ -129,11 +131,11 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
         } else {
             guard let rootNavigator else { return }
-            let tabNavigator = UITabBarController()
+            let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
                 rootNavigator: rootNavigator,
-                tabNavigator: tabNavigator
+                tabNavigator: tabNavigator,
             )
             coordinator.start()
             coordinator.navigate(to: route)
@@ -147,9 +149,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Shows the welcome tutorial.
     ///
     private func showTutorial() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeTutorialCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
 
@@ -177,7 +179,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
             animated: true,
-            completion: { feedbackGenerator.impactOccurred() }
+            completion: { feedbackGenerator.impactOccurred() },
         )
     }
     #endif
@@ -189,4 +191,10 @@ extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
         showTab(route: .itemList(.list))
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AppCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

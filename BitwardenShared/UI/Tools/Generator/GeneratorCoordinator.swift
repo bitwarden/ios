@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - GeneratorCoordinatorDelegate
@@ -69,7 +70,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         delegate: GeneratorCoordinatorDelegate?,
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.module = module
@@ -110,12 +111,12 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         let state = GeneratorState(
             generatorType: type ?? .password,
             presentationMode: type == nil ? .tab : .inPlace,
-            usernameState: GeneratorState.UsernameState(emailWebsite: emailWebsite)
+            usernameState: GeneratorState.UsernameState(emailWebsite: emailWebsite),
         )
         let processor = GeneratorProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
         let view = GeneratorView(store: Store(processor: processor))
         stackNavigator?.replace(view)

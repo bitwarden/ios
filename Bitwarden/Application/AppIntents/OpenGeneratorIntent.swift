@@ -13,7 +13,7 @@ struct OpenGeneratorIntent: ForegroundContinuableIntent {
     @MainActor
     func perform() async throws -> some IntentResult {
         let services = ServiceContainer.shared(
-            errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() }
+            errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() },
         )
         let appIntentMediator = services.getAppIntentMediator()
 

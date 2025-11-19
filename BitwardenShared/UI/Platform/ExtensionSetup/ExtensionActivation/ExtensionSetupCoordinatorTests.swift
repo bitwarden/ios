@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
@@ -20,7 +21,7 @@ class ExtensionSetupCoordinatorTests: BitwardenTestCase {
         subject = ExtensionSetupCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

@@ -15,6 +15,7 @@ class MockSendRepository: SendRepository {
 
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
+    var fetchSyncIsPeriodic: Bool?
     var fetchSyncHandler: (() -> Void)?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
@@ -84,16 +85,17 @@ class MockSendRepository: SendRepository {
         try doesActiveAccountHaveVerifiedEmailResult.get()
     }
 
-    func fetchSync(forceSync: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         fetchSyncCalled = true
         fetchSyncForceSync = forceSync
+        fetchSyncIsPeriodic = isPeriodic
         fetchSyncHandler?()
         try fetchSyncResult.get()
     }
 
     func searchSendPublisher(
         searchText: String,
-        type: BitwardenShared.SendType?
+        type: BitwardenShared.SendType?,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         searchSendSearchText = searchText
         searchSendType = type
@@ -113,7 +115,7 @@ class MockSendRepository: SendRepository {
     }
 
     func sendTypeListPublisher(
-        type: BitwardenShared.SendType
+        type: BitwardenShared.SendType,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[SendListItem], Error>> {
         sendTypeListPublisherType = type
         return sendTypeListSubject

@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - VaultUnlockSetupState
 
 /// An object that defines the current state of a `VaultUnlockSetupView`.
@@ -59,13 +61,13 @@ struct VaultUnlockSetupState: Equatable {
             case let .biometrics(type):
                 switch type {
                 case .faceID:
-                    Localizations.unlockWith(Localizations.faceID)
+                    Localizations.unlockWithFaceID
                 case .opticID:
-                    Localizations.unlockWith(Localizations.opticID)
+                    Localizations.unlockWithOpticID
                 case .touchID:
-                    Localizations.unlockWith(Localizations.touchID)
+                    Localizations.unlockWithTouchID
                 case .unknown:
-                    Localizations.unlockWithUnknownBiometrics
+                    Localizations.unlockWithBiometrics
                 }
             case .pin:
                 Localizations.unlockWithPIN
@@ -90,9 +92,9 @@ struct VaultUnlockSetupState: Equatable {
     var isBiometricUnlockOn: Bool {
         switch biometricsStatus {
         case let .available(_, enabled):
-            return enabled
+            enabled
         case nil, .notAvailable:
-            return false
+            false
         }
     }
 

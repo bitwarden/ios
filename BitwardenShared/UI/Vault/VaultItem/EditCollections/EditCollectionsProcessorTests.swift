@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import XCTest
 
@@ -28,9 +30,9 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: EditCollectionsState(cipher: .fixture(organizationId: "1"))
+            state: EditCollectionsState(cipher: .fixture(organizationId: "1")),
         )
     }
 
@@ -55,7 +57,55 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
         ]
 
         vaultRepository.fetchCollectionsResult = .success(
-            collections + [.fixture(id: "1", name: "Other Org Collection", organizationId: "555")]
+            collections + [.fixture(id: "1", name: "Other Org Collection", organizationId: "555")],
+        )
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    /// If there is a default user collection that is not selected on the cipher then it's filtered out.
+    @MainActor
+    func test_perform_fetchCipherOptionsDefaultCollectionFilteredOut() async {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design", organizationId: "1"),
+            .fixture(id: "2", name: "Engineering", organizationId: "1"),
+        ]
+
+        vaultRepository.fetchCollectionsResult = .success(
+            collections + [
+                .fixture(id: "3", name: "Other Org Collection", organizationId: "555"),
+                .fixture(id: "4", name: "My Items", organizationId: "1", type: .defaultUserCollection),
+                .fixture(id: nil, name: "Without ID", organizationId: "1"),
+            ],
+        )
+
+        await subject.perform(.fetchCipherOptions)
+
+        XCTAssertEqual(subject.state.collections, collections)
+        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    /// If there is a default user collection that is selected on the cipher then it's included
+    /// on the state collections.
+    @MainActor
+    func test_perform_fetchCipherOptionsDefaultCollectionIncluded() async {
+        let collections: [CollectionView] = [
+            .fixture(id: "1", name: "Design", organizationId: "1"),
+            .fixture(id: "2", name: "Engineering", organizationId: "1"),
+            .fixture(id: "4", name: "My Items", organizationId: "1", type: .defaultUserCollection),
+        ]
+        subject.state.collectionIds = ["4"]
+
+        vaultRepository.fetchCollectionsResult = .success(
+            collections + [
+                .fixture(id: "3", name: "Other Org Collection", organizationId: "555"),
+                .fixture(id: nil, name: "Without ID", organizationId: "1"),
+            ],
         )
 
         await subject.perform(.fetchCipherOptions)
@@ -117,8 +167,8 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
             coordinator.alertShown.last,
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.selectOneCollection
-            )
+                message: Localizations.selectOneCollection,
+            ),
         )
     }
 

@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - VaultModule
@@ -14,21 +15,21 @@ protocol VaultModule {
     ///
     func makeVaultCoordinator(
         delegate: VaultCoordinatorDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<VaultRoute, AuthAction>
 }
 
 extension DefaultAppModule: VaultModule {
     func makeVaultCoordinator(
         delegate: VaultCoordinatorDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<VaultRoute, AuthAction> {
         VaultCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

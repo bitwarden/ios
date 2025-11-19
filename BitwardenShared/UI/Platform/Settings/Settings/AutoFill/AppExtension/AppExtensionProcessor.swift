@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AppExtensionProcessorDelegate
 
 /// A delegate of the app extension setup flow that is notified when the user enables the extension.
@@ -32,7 +34,7 @@ final class AppExtensionProcessor: StateProcessor<AppExtensionState, AppExtensio
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
-        state: AppExtensionState
+        state: AppExtensionState,
     ) {
         self.coordinator = coordinator
 

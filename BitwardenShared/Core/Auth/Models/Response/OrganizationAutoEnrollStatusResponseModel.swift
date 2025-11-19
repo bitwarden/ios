@@ -4,7 +4,7 @@ import Networking
 
 /// The response returned from the API when requesting the auto-enroll status for an organization.
 ///
-struct OrganizationAutoEnrollStatusResponseModel: JSONResponse, Equatable { // swiftlint:disable:this type_name
+struct OrganizationAutoEnrollStatusResponseModel: JSONResponse, Equatable {
     // MARK: Properties
 
     /// The organization's ID.

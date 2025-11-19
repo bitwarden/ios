@@ -35,7 +35,7 @@ class MockVaultClientService: VaultClientService {
         return TOTPCodeModel(
             code: code,
             codeGenerationDate: date ?? timeProvider.presentTime,
-            period: totpPeriod
+            period: totpPeriod,
         )
     }
 
@@ -60,7 +60,7 @@ class MockClientAttachments: AttachmentsClientProtocol {
         cipher _: Cipher,
         attachment _: AttachmentView,
         encryptedFilePath: String,
-        decryptedFilePath _: String
+        decryptedFilePath _: String,
     ) throws {
         encryptedFilePaths.append(encryptedFilePath)
     }
@@ -68,7 +68,7 @@ class MockClientAttachments: AttachmentsClientProtocol {
     func encryptBuffer(
         cipher _: Cipher,
         attachment: AttachmentView,
-        buffer: Data
+        buffer: Data,
     ) throws -> AttachmentEncryptResult {
         encryptedBuffers.append(buffer)
         return AttachmentEncryptResult(attachment: Attachment(attachmentView: attachment), contents: buffer)
@@ -78,7 +78,7 @@ class MockClientAttachments: AttachmentsClientProtocol {
         cipher _: Cipher,
         attachment: AttachmentView,
         decryptedFilePath _: String,
-        encryptedFilePath _: String
+        encryptedFilePath _: String,
     ) throws -> Attachment {
         Attachment(attachmentView: attachment)
     }
@@ -92,6 +92,7 @@ class MockClientCiphers: CiphersClientProtocol {
     }
 
     var decryptFido2CredentialsResult = [BitwardenSdk.Fido2CredentialView]()
+    var decryptListWithFailuresResult: DecryptCipherListResult?
     var encryptCipherResult: Result<EncryptionContext, Error>?
     var encryptError: Error?
     var encryptedCiphers = [CipherView]()
@@ -115,19 +116,26 @@ class MockClientCiphers: CiphersClientProtocol {
         ciphers.map(CipherListView.init)
     }
 
+    func decryptListWithFailures(ciphers: [Cipher]) -> DecryptCipherListResult {
+        decryptListWithFailuresResult ?? DecryptCipherListResult(
+            successes: ciphers.map(CipherListView.init),
+            failures: [],
+        )
+    }
+
     func encrypt(cipherView: CipherView) throws -> BitwardenSdk.EncryptionContext {
         encryptedCiphers.append(cipherView)
         if let encryptError {
             throw encryptError
         }
         return try encryptCipherResult?.get() ?? EncryptionContext(
-            encryptedFor: "1", cipher: Cipher(cipherView: cipherView)
+            encryptedFor: "1", cipher: Cipher(cipherView: cipherView),
         )
     }
 
     func moveToOrganization(
         cipher: CipherView,
-        organizationId: Uuid
+        organizationId: Uuid,
     ) throws -> CipherView {
         moveToOrganizationCipher = cipher
         moveToOrganizationOrganizationId = organizationId
@@ -138,12 +146,24 @@ class MockClientCiphers: CiphersClientProtocol {
 // MARK: - MockClientCollections
 
 class MockClientCollections: CollectionsClientProtocol {
-    func decrypt(collection _: Collection) throws -> CollectionView {
-        fatalError("Not implemented yet")
+    var decryptResult: (Collection) throws -> CollectionView = { collection in
+        CollectionView(collection: collection)
+    }
+
+    var getCollectionTreeReceivedCollection = [BitwardenSdk.CollectionView]()
+    var getCollectionTreeReturnValue: BitwardenSdk.CollectionViewTree?
+
+    func decrypt(collection: Collection) throws -> CollectionView {
+        try decryptResult(collection)
     }
 
     func decryptList(collections: [Collection]) throws -> [CollectionView] {
         collections.map(CollectionView.init)
+    }
+
+    func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
+        getCollectionTreeReceivedCollection = collections
+        return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noHandle: .init())
     }
 }
 

@@ -31,7 +31,7 @@ class TextAutofillHelperRepromptWrapper: TextAutofillHelper {
         authRepository: AuthRepository,
         errorReporter: ErrorReporter,
         textAutofillHelper: TextAutofillHelper,
-        userVerificationHelper: UserVerificationHelper
+        userVerificationHelper: UserVerificationHelper,
     ) {
         self.authRepository = authRepository
         self.errorReporter = errorReporter

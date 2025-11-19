@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SelectLanguageDelegate
 
 /// The delegate for updating the parent view after a language has been selected.
@@ -14,7 +16,7 @@ protocol SelectLanguageDelegate: AnyObject {
 final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectLanguageAction, Void> {
     // MARK: Types
 
-    typealias Services = HasStateService
+    typealias Services = HasLanguageStateService
 
     // MARK: Properties
 
@@ -41,7 +43,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         delegate: SelectLanguageDelegate?,
         services: Services,
-        state: SelectLanguageState
+        state: SelectLanguageState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -70,7 +72,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
 
         // Save the value.
         state.currentLanguage = languageOption
-        services.stateService.appLanguage = languageOption
+        services.languageStateService.appLanguage = languageOption
         delegate?.languageSelected(languageOption)
 
         // Show the confirmation alert and close the view after the user clicks ok.

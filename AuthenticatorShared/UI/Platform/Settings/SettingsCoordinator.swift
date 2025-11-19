@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SettingsCoordinator
@@ -9,17 +11,23 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = FileSelectionModule
+        & FlightRecorderModule
+        & NavigatorBuilderModule
         & TutorialModule
 
-    typealias Services = HasAppSettingsStore
+    typealias Services = HasAppInfoService
+        & HasAppSettingsStore
         & HasApplication
         & HasAuthenticatorItemRepository
         & HasBiometricsRepository
         & HasCameraService
         & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasExportItemsService
+        & HasFlightRecorder
         & HasImportItemsService
+        & HasLanguageStateService
         & HasPasteboardService
         & HasStateService
         & HasTimeProvider
@@ -54,7 +62,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -77,6 +85,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case .exportItems:
             showExportItems()
+        case let .flightRecorder(flightRecorderRoute):
+            showFlightRecorder(route: flightRecorderRoute)
         case .importItems:
             showImportItems()
         case let .importItemsFileSelection(route):
@@ -121,11 +131,21 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showExportItems() {
         let processor = ExportItemsProcessor(
             coordinator: asAnyCoordinator(),
-            services: services
+            services: services,
         )
         let view = ExportItemsView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
+    }
+
+    /// Shows a flight recorder view.
+    ///
+    /// - Parameter route: A `FlightRecorderRoute` to navigate to.
+    ///
+    private func showFlightRecorder(route: FlightRecorderRoute) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFlightRecorderCoordinator(stackNavigator: stackNavigator)
+        coordinator.start()
+        coordinator.navigate(to: route)
     }
 
     /// Presents an activity controller for importing items.
@@ -133,11 +153,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showImportItems() {
         let processor = ImportItemsProcessor(
             coordinator: asAnyCoordinator(),
-            services: services
+            services: services,
         )
         let view = ImportItemsView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Presents an activity controller for importing items.
@@ -146,7 +165,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         guard let stackNavigator else { return }
         let coordinator = module.makeFileSelectionCoordinator(
             delegate: delegate,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
         coordinator.start()
         coordinator.navigate(to: route)
@@ -154,12 +173,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     }
 
     private func showImportItemsQrCode(delegate: AuthenticatorKeyCaptureDelegate) async {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
             showManualEntry: false,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
 
@@ -174,11 +193,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: SelectLanguageState(currentLanguage: currentLanguage)
+            state: SelectLanguageState(currentLanguage: currentLanguage),
         )
         let view = SelectLanguageView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the settings screen.
@@ -187,7 +205,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: SettingsState()
+            state: SettingsState(),
         )
         let view = SettingsView(store: Store(processor: processor))
         stackNavigator?.push(view)
@@ -196,11 +214,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the welcome tutorial.
     ///
     private func showTutorial() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeTutorialCoordinator(
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
         stackNavigator?.present(navigationController, overFullscreen: true)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension SettingsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

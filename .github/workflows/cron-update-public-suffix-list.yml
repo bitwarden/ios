@@ -19,22 +19,24 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: true
 
       - name: Download latest PSL list
-        run: | 
-          curl -s $SOURCE_URL -o $PSL_FILE
+        run: |
+          curl -s "$SOURCE_URL" -o "$PSL_FILE"
 
       - name: Check for changes
         id: check-changes
         run: |
-          if git diff --quiet -- $PSL_FILE; then
+          if git diff --quiet -- "$PSL_FILE"; then
             echo "✅ No changes detected, skipping..."
-            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
           echo "👀 Changes detected"
 
       - name: Create branch and commit
@@ -45,11 +47,11 @@ jobs:
           BRANCH_NAME="cron-sync-public-suffix-list/$GITHUB_RUN_NUMBER-sync"
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
-          git checkout -b $BRANCH_NAME
-          git add $PSL_FILE
+          git checkout -b "$BRANCH_NAME"
+          git add "$PSL_FILE"
           git commit -m "Update public suffix list"
-          git push origin $BRANCH_NAME
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git push origin "$BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> "$GITHUB_ENV"
           echo "🌱 Branch created: $BRANCH_NAME"
 
       - name: Create Pull Request
@@ -66,6 +68,6 @@ jobs:
             --title "Update public suffix list" \
             --body-file - \
             --base main \
-            --head $BRANCH_NAME \
+            --head "$BRANCH_NAME" \
             --label "automated-pr" \
             --label "t:ci")

@@ -1,14 +1,18 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+
+// swiftlint:disable file_length
 
 // MARK: - VaultListPreparedDataBuilderTests
 
 class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherService: MockCipherService!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
@@ -20,21 +24,24 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     override func setUp() {
         super.setUp()
 
+        cipherService = MockCipherService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
         subject = DefaultVaultListPreparedDataBuilder(
+            cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        cipherService = nil
         clientService = nil
         errorReporter = nil
         stateService = nil
@@ -43,6 +50,24 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     }
 
     // MARK: Tests
+
+    /// `addCipherDecryptionFailure(cipher:)` adds the cipher ID to the prepared data when the
+    /// cipher failed to decrypt.
+    func test_addCipherDecryptionFailure() {
+        let cipher = CipherListView(cipherDecryptFailure: .fixture(id: "1"))
+        let preparedData = subject.addCipherDecryptionFailure(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.cipherDecryptionFailureIds, ["1"])
+    }
+
+    /// `addCipherDecryptionFailure(cipher:)` doesn't add the cipher ID to the prepared data when
+    /// the cipher failed to decrypt.
+    func test_addCipherDecryptionFailure_notDecryptFailure() {
+        let cipher = CipherListView.fixture()
+        let preparedData = subject.addCipherDecryptionFailure(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.cipherDecryptionFailureIds.isEmpty)
+    }
 
     /// `addFavoriteItem(cipher:)` adds a favorite list item to the prepared data when cipher is favorite.
     func test_addFavoriteItem_succeeds() {
@@ -70,6 +95,62 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertTrue(preparedData.favorites.isEmpty)
     }
 
+    /// `addFido2Item(cipher:)` adds a Fido2 item to the prepared data when decryption succeeds
+    /// and Fido2 credentials exist.
+    func test_addFido2Item_succeeds() async {
+        let cipher = CipherListView.fixture(id: "1")
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+        clientService.mockPlatform
+            .fido2Mock
+            .decryptFido2AutofillCredentialsMocker
+            .withResult([.fixture()])
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.fido2Items.count, 1)
+        XCTAssertEqual(preparedData.fido2Items[0].id, "1")
+    }
+
+    /// `addFido2Item(cipher:)` does not add a Fido2 item when cipher id is nil.
+    func test_addFido2Item_nilCipherId() async {
+        let cipher = CipherListView.fixture(id: nil)
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.fido2Items.isEmpty)
+    }
+
+    /// `addFido2Item(cipher:)` does not add a Fido2 item when fetchCipher fails.
+    func test_addFido2Item_fetchCipherFails() async {
+        let cipher = CipherListView.fixture(id: "1")
+        cipherService.fetchCipherResult = .failure(BitwardenTestError.example)
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.fido2Items.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `addFido2Item(cipher:)` does not add a Fido2 item when decryptFido2AutofillCredentials returns empty.
+    func test_addFido2Item_emptyFido2Credentials() async {
+        let cipher = CipherListView.fixture(id: "1")
+        cipherService.fetchCipherResult = .success(.fixture(id: "1"))
+        clientService.mockPlatform
+            .fido2Mock
+            .decryptFido2AutofillCredentialsMocker
+            .withResult([])
+
+        let preparedData = await subject.addFido2Item(cipher: cipher).build()
+
+        XCTAssertTrue(preparedData.fido2Items.isEmpty)
+        guard let fido2Error = errorReporter.errors[0] as? Fido2Error else {
+            XCTFail("No Fido2 error has been thrown")
+            return
+        }
+
+        XCTAssertEqual(fido2Error, Fido2Error.decryptFido2AutofillCredentialsEmpty)
+    }
+
     /// `addFolderItem(cipher:filter:folders:)` adds a folder to the prepared data when the cipher belongs
     /// to a folder that is in the list of folders and filtering by `.myVault`.
     func test_addFolderItem_succeeds() {
@@ -78,7 +159,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -95,7 +176,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -111,7 +192,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: cipher,
                 filter: VaultListFilter(filterType: .myVault),
-                folders: [.fixture(id: "1"), .fixture(id: "2")]
+                folders: [.fixture(id: "1"), .fixture(id: "2")],
             )
             .build()
 
@@ -129,22 +210,22 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "1", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "2", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "3", folderId: "40"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .addFolderItem(
                 cipher: CipherListView.fixture(id: "4", folderId: "1"),
                 filter: filter,
-                folders: folders
+                folders: folders,
             )
             .build()
 
@@ -225,6 +306,20 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
             .build()
 
         XCTAssertEqual(preparedData.collectionsCount["1"], 1)
+    }
+
+    /// `incrementCollectionCount(cipher:)` increments the collection count for the cipher's collections
+    /// when the cipher belongs to many collections present in the prepared data.
+    func test_incrementCollectionCount_incrementsWhenCipherInManyCollection() {
+        let collections = [Collection.fixture(id: "1"), Collection.fixture(id: "2")]
+        let cipher = CipherListView.fixture(collectionIds: ["1", "2"])
+        let preparedData = subject
+            .prepareCollections(collections: collections, filterType: .allVaults)
+            .incrementCollectionCount(cipher: cipher)
+            .build()
+
+        XCTAssertEqual(preparedData.collectionsCount["1"], 1)
+        XCTAssertEqual(preparedData.collectionsCount["2"], 1)
     }
 
     /// `incrementCollectionCount(cipher:)` does not increment the collection count when the cipher
@@ -313,7 +408,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareCollections(
                 collections: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .allVaults
+                filterType: .allVaults,
             )
             .build()
 
@@ -334,7 +429,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
                     .fixture(id: "4", organizationId: "1"),
                     .fixture(id: "5", organizationId: "1"),
                 ],
-                filterType: .organization(.fixture(id: "1"))
+                filterType: .organization(.fixture(id: "1")),
             )
             .build()
 
@@ -348,7 +443,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareCollections(
                 collections: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .myVault
+                filterType: .myVault,
             )
             .build()
 
@@ -360,7 +455,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .allVaults
+                filterType: .allVaults,
             )
             .build()
 
@@ -375,14 +470,171 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         let preparedData = subject
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .myVault
+                filterType: .myVault,
             )
             .prepareFolders(
                 folders: [.fixture(id: "1"), .fixture(id: "2")],
-                filterType: .organization(.fixture())
+                filterType: .organization(.fixture()),
             )
             .build()
 
         XCTAssertTrue(preparedData.folders.isEmpty)
+    }
+
+    /// `test_prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds:)` adds restrictedOrganizationIds
+    /// to prepared data
+    func test_prepareRestrictItemsPolicyOrganizations() {
+        let restrictedOrganizationIds = ["org1", "org2"]
+        let preparedData = subject
+            .prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: restrictedOrganizationIds)
+            .build()
+        XCTAssertEqual(preparedData.restrictedOrganizationIds, restrictedOrganizationIds)
+    }
+
+    // MARK: addSearchResultItem Tests
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds an exact match item to the prepared data
+    /// when match result is exact and no group is specified.
+    func test_addSearchResultItem_exactMatch_noGroup() async {
+        let cipher = CipherListView.fixture(id: "1")
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 1)
+        XCTAssertEqual(preparedData.exactMatchItems[0].id, "1")
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds a fuzzy match item to the prepared data
+    /// when match result is fuzzy and no group is specified.
+    func test_addSearchResultItem_fuzzyMatch_noGroup() async {
+        let cipher = CipherListView.fixture(id: "2")
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "2")
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add an item to the prepared data
+    /// when match result is none.
+    func test_addSearchResultItem_noneMatch() async {
+        let cipher = CipherListView.fixture(id: "3")
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .none, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds an exact match TOTP item to the prepared data
+    /// when match result is exact and group is TOTP.
+    func test_addSearchResultItem_exactMatch_totpGroup() async {
+        let cipher = CipherListView.fixture(id: "1", type: .login(.fixture(totp: "123456")))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 1)
+        XCTAssertEqual(preparedData.exactMatchItems[0].id, "1")
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds a fuzzy match TOTP item to the prepared data
+    /// when match result is fuzzy and group is TOTP.
+    func test_addSearchResultItem_fuzzyMatch_totpGroup() async {
+        let cipher = CipherListView.fixture(id: "2", type: .login(.fixture(totp: "654321")))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "2")
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add a TOTP item when the cipher
+    /// has no TOTP configured.
+    func test_addSearchResultItem_totpGroup_noTOTP() async {
+        let cipher = CipherListView.fixture(id: "3", type: .login(.fixture(totp: nil)))
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add a TOTP item when the user
+    /// does not have premium access.
+    func test_addSearchResultItem_totpGroup_noPremiumAccess() async {
+        let cipher = CipherListView.fixture(id: "4", type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds multiple items correctly when called multiple times
+    /// with different match results.
+    func test_addSearchResultItem_multipleItems() async {
+        let cipher1 = CipherListView.fixture(id: "1")
+        let cipher2 = CipherListView.fixture(id: "2")
+        let cipher3 = CipherListView.fixture(id: "3")
+        let cipher4 = CipherListView.fixture(id: "4")
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher1, for: nil)
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher2, for: nil)
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cipher3, for: nil)
+            .addSearchResultItem(withMatchResult: .none, cipher: cipher4, for: nil)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 2)
+        XCTAssertEqual(preparedData.exactMatchItems.map(\.id), ["1", "2"])
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "3")
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` adds items for different group types correctly.
+    func test_addSearchResultItem_differentGroups() async {
+        let loginCipher = CipherListView.fixture(id: "1", type: .login(.fixture()))
+        let cardCipher = CipherListView.fixture(id: "2", type: .card(.fixture()))
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: loginCipher, for: .login)
+            .addSearchResultItem(withMatchResult: .fuzzy, cipher: cardCipher, for: .card)
+            .build()
+
+        XCTAssertEqual(preparedData.exactMatchItems.count, 1)
+        XCTAssertEqual(preparedData.exactMatchItems[0].id, "1")
+        XCTAssertEqual(preparedData.fuzzyMatchItems.count, 1)
+        XCTAssertEqual(preparedData.fuzzyMatchItems[0].id, "2")
+    }
+
+    /// `addSearchResultItem(withMatchResult:cipher:for:)` does not add an item when cipher has nil ID.
+    func test_addSearchResultItem_nilCipherId() async {
+        let cipher = CipherListView.fixture(id: nil)
+
+        let preparedData = await subject
+            .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: nil)
+            .build()
+
+        XCTAssertTrue(preparedData.exactMatchItems.isEmpty)
+        XCTAssertTrue(preparedData.fuzzyMatchItems.isEmpty)
     }
 }

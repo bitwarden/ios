@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
@@ -27,8 +28,23 @@ class APIServiceTests: BitwardenTestCase {
         let apiUnauthenticatedServiceBaseURL = subject.apiUnauthenticatedService.baseURL
         XCTAssertEqual(apiUnauthenticatedServiceBaseURL, URL(string: "https://example.com/api")!)
         XCTAssertTrue(
-            subject.apiUnauthenticatedService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+            subject.apiUnauthenticatedService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertNil(subject.apiUnauthenticatedService.tokenProvider)
+    }
+
+    /// `init(client:)` configures the API service to use `FlightRecorderHTTPLogger` for logging
+    /// API requests.
+    func test_init_configuresFlightRecorderLogger() {
+        let mockFlightRecorder = MockFlightRecorder()
+        let subject = APIService(
+            client: MockHTTPClient(),
+            environmentService: MockEnvironmentService(),
+            flightRecorder: mockFlightRecorder,
+        )
+
+        XCTAssertTrue(
+            subject.apiUnauthenticatedService.loggers.contains(where: { $0 is FlightRecorderHTTPLogger }),
+        )
     }
 }

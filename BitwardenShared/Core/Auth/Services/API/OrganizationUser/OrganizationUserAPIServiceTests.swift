@@ -36,9 +36,9 @@ class OrganizationUserAPIServiceTests: BitwardenTestCase {
                 organizationId: "ORG_ID",
                 requestModel: OrganizationUserResetPasswordEnrollmentRequestModel(
                     masterPasswordHash: "MASTER_PASSWORD_HASH",
-                    resetPasswordKey: "RESET_PASSWORD_KEY"
+                    resetPasswordKey: "RESET_PASSWORD_KEY",
                 ),
-                userId: "USER_ID"
+                userId: "USER_ID",
             )
         }
     }

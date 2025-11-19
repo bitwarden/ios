@@ -36,7 +36,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.addCipher(
             .fixture(),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
 
         XCTAssertEqual(client.requests.count, 1)
@@ -47,6 +47,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
@@ -66,7 +67,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     passwordRevisionDate: nil,
                     totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
-                    username: "encrypted username"
+                    username: "encrypted username",
                 ),
                 name: "encrypted name",
                 notes: nil,
@@ -79,8 +80,8 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 secureNote: nil,
                 sshKey: nil,
                 type: .login,
-                viewPassword: true
-            )
+                viewPassword: true,
+            ),
         )
     }
 
@@ -90,7 +91,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.addCipherWithCollections(
             .fixture(collectionIds: ["1", "2", "3"]),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
 
         XCTAssertEqual(client.requests.count, 1)
@@ -101,6 +102,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
@@ -120,7 +122,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     passwordRevisionDate: nil,
                     totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
-                    username: "encrypted username"
+                    username: "encrypted username",
                 ),
                 name: "encrypted name",
                 notes: nil,
@@ -133,21 +135,30 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 secureNote: nil,
                 sshKey: nil,
                 type: .login,
-                viewPassword: true
-            )
+                viewPassword: true,
+            ),
         )
     }
 
     /// `deleteAttachment(withID:cipherId:)` performs the delete attachment request.
     func test_deleteAttachment() async throws {
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .deleteAttachment)
 
-        _ = try await subject.deleteAttachment(withID: "456", cipherId: "123")
+        let response = try await subject.deleteAttachment(withID: "456", cipherId: "123")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .delete)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/attachment/456")
+
+        XCTAssertEqual(
+            response,
+            DeleteAttachmentResponse(
+                cipher: DeleteAttachmentResponse.DeleteAttachmentResponseCipher(
+                    revisionDate: Date(year: 2025, month: 9, day: 17),
+                ),
+            ),
+        )
     }
 
     /// `deleteCipher()` performs the delete cipher request.
@@ -208,7 +219,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             cipherId: "42",
             fileName: "The Answer",
             fileSize: 10000,
-            key: "🔑"
+            key: "🔑",
         )
 
         XCTAssertEqual(client.requests.count, 1)
@@ -221,6 +232,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
             SaveAttachmentResponse(
                 attachmentId: "1",
                 cipherResponse: CipherDetailsResponseModel(
+                    archivedDate: nil,
                     attachments: [
                         .init(
                             fileName: "2.q4Pl+Pz7D3sxr1VEKuwke",
@@ -228,7 +240,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                             key: "2.jUls4EBVWgMO9BR9aU+0WA==|H",
                             size: "5725713",
                             sizeName: "5.46 MB",
-                            url: "https://cdn.bitwarden.net/attachments/071350c"
+                            url: "https://cdn.bitwarden.net/attachments/071350c",
                         ),
                     ],
                     card: nil,
@@ -249,7 +261,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                         passwordRevisionDate: nil,
                         totp: "totp",
                         uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
-                        username: "encrypted username"
+                        username: "encrypted username",
                     ),
                     name: "encrypted name",
                     notes: nil,
@@ -262,11 +274,11 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     secureNote: nil,
                     sshKey: nil,
                     type: .login,
-                    viewPassword: true
+                    viewPassword: true,
                 ),
                 fileUploadType: .azure,
-                url: URL(string: "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc")!
-            )
+                url: URL(string: "https://bitwardenxx5keu3w.blob.core.windows.net/attachments-v2/etc")!,
+            ),
         )
     }
 
@@ -276,7 +288,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
 
         let response = try await subject.shareCipher(
             .fixture(collectionIds: ["1", "2", "3"], id: "1"),
-            encryptedFor: "1"
+            encryptedFor: "1",
         )
 
         XCTAssertEqual(client.requests.count, 1)
@@ -287,6 +299,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(
             response,
             CipherDetailsResponseModel(
+                archivedDate: nil,
                 attachments: nil,
                 card: nil,
                 collectionIds: nil,
@@ -306,7 +319,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     passwordRevisionDate: nil,
                     totp: "totp",
                     uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
-                    username: "encrypted username"
+                    username: "encrypted username",
                 ),
                 name: "encrypted name",
                 notes: nil,
@@ -319,8 +332,8 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 secureNote: nil,
                 sshKey: nil,
                 type: .login,
-                viewPassword: true
-            )
+                viewPassword: true,
+            ),
         )
     }
 

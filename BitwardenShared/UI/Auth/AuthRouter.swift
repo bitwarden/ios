@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - AuthManager
@@ -30,7 +31,7 @@ final class AuthRouter: NSObject, Router {
     ///
     init(
         isInAppExtension: Bool,
-        services: Services
+        services: Services,
     ) {
         self.isInAppExtension = isInAppExtension
         self.services = services
@@ -47,13 +48,13 @@ final class AuthRouter: NSObject, Router {
             activeAccount,
             animated,
             attemptAutomaticBiometricUnlock,
-            didSwitchAccountAutomatically
+            didSwitchAccountAutomatically,
         ):
             return await vaultUnlockRedirect(
                 activeAccount,
                 animated: animated,
                 attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                didSwitchAccountAutomatically: didSwitchAccountAutomatically,
             )
         case let .action(authAction):
             return await handleAuthAction(authAction)
@@ -65,7 +66,7 @@ final class AuthRouter: NSObject, Router {
             account,
             animated,
             attemptAutomaticBiometricUnlock,
-            didSwitchAccountAutomatically
+            didSwitchAccountAutomatically,
         ):
             guard let active = try? await services.authRepository.getAccount() else {
                 return .landing
@@ -75,19 +76,19 @@ final class AuthRouter: NSObject, Router {
                     active,
                     animated: animated,
                     attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically,
                 )
             }
             return .vaultUnlock(
                 account,
                 animated: animated,
                 attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
-                didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                didSwitchAccountAutomatically: didSwitchAccountAutomatically,
             )
         case let .didLogout(userId, userInitiated):
             return await didLogoutRedirect(
                 userId: userId,
-                userInitiated: userInitiated
+                userInitiated: userInitiated,
             )
         case .didStart:
             // Go to the initial auth route redirect.
@@ -107,13 +108,13 @@ final class AuthRouter: NSObject, Router {
     private func handleAuthAction(_ action: AuthAction) async -> AuthRoute {
         switch action {
         case let .lockVault(userId, isManuallyLocking):
-            return await lockVaultRedirect(userId: userId, isManuallyLocking: isManuallyLocking)
+            await lockVaultRedirect(userId: userId, isManuallyLocking: isManuallyLocking)
         case let .logout(userId, userInitiated):
-            return await logoutRedirect(userId: userId, userInitiated: userInitiated)
+            await logoutRedirect(userId: userId, userInitiated: userInitiated)
         case let .switchAccount(isAutomatic, userId, _):
-            return await switchAccountRedirect(
+            await switchAccountRedirect(
                 isAutomatic: isAutomatic,
-                userId: userId
+                userId: userId,
             )
         }
     }

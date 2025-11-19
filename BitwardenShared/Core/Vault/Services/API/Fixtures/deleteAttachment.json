@@ -1,0 +1,17 @@
+{
+  "cipher": {
+    "id": "a2317b11-5db0-4a0d-b55f-68fcb8acac44",
+    "userId": "c7857827-d5ea-4d72-b1a1-b4ebb64da788",
+    "organizationId": null,
+    "type": 1,
+    "favorites": null,
+    "folders": null,
+    "attachments": "{\"c7t1t240hbds9onc1nvrmqex0pn63dzx\":{\"Size\":\"3724737\",\"FileName\":\"encrypted file name\",\"Key\":\"encrypted key\",\"ContainerName\":\"attachments-v2\",\"Validated\":true,\"TempMetadata\":null}}",
+    "creationDate": "2025-09-01T00:00:00.0000000Z",
+    "revisionDate": "2025-09-17T00:00:00.0000000Z",
+    "deletedDate": null,
+    "reprompt": 0,
+    "key": null,
+    "archivedDate": null
+  }
+}

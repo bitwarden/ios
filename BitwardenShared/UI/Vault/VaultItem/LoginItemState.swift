@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -9,6 +11,9 @@ struct LoginItemState: Equatable {
 
     /// Whether the user has permissions to view the cipher's password.
     var canViewPassword: Bool = true
+
+    /// The saved value in autofill settings for the default URI match type.
+    var defaultUriMatchTypeSettingsValue: UriMatchType?
 
     /// Whether the user has permissions to edit the cipher
     var editView: Bool = true
@@ -51,6 +56,34 @@ struct LoginItemState: Equatable {
     /// The uris associated with this item. Used with autofill.
     var uris: [UriState] = [UriState()]
 
+    /// The options for URI match types ordered based on menu display.
+    var uriMatchTypeOptions: [DefaultableType<UriMatchType>] {
+        [
+            DefaultableType<UriMatchType>.default,
+            DefaultableType<UriMatchType>.custom(UriMatchType.domain),
+            DefaultableType<UriMatchType>.custom(UriMatchType.host),
+            DefaultableType<UriMatchType>.custom(UriMatchType.exact),
+            DefaultableType<UriMatchType>.custom(UriMatchType.never),
+            DefaultableType<UriMatchType>.custom(UriMatchType.startsWith),
+            DefaultableType<UriMatchType>.custom(UriMatchType.regularExpression),
+        ]
+    }
+
+    /// The option label for the default uri match type.
+    var defaultUriMatchTypeOptionLabel: String {
+        guard let defaultUriMatchTypeSettingsValue else {
+            return DefaultableType<UriMatchType>.default.localizedName
+        }
+
+        let suffix = switch defaultUriMatchTypeSettingsValue {
+        case .regularExpression: Localizations.regEx
+        case .startsWith: Localizations.startsWith
+        default: defaultUriMatchTypeSettingsValue.localizedName
+        }
+
+        return Localizations.defaultX(suffix)
+    }
+
     /// The username for this item.
     var username: String = ""
 
@@ -68,7 +101,7 @@ struct LoginItemState: Equatable {
             uris: uris.compactMap(\.loginUriView).nilIfEmpty,
             totp: authenticatorKey.nilIfEmpty,
             autofillOnPageLoad: nil,
-            fido2Credentials: nil
+            fido2Credentials: nil,
         )
     }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExportCXFModule
 
 /// An object that builds coordinators for the Credential Exchange export flow.
@@ -11,17 +13,17 @@ protocol ExportCXFModule {
     /// - Returns: A coordinator that can navigate to `ExportCXFRoute`s.
     ///
     func makeExportCXFCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ExportCXFRoute, Void>
 }
 
 extension DefaultAppModule: ExportCXFModule {
     func makeExportCXFCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ExportCXFRoute, Void> {
         ExportCXFCoordinator(
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

@@ -17,7 +17,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
         keychainService = MockSharedKeychainService()
         subject = DefaultSharedKeychainStorage(
             keychainService: keychainService,
-            sharedAppGroupIdentifier: accessGroup
+            sharedAppGroupIdentifier: accessGroup,
         )
     }
 

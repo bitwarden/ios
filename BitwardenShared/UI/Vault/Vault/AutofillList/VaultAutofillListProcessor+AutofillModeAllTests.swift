@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -8,7 +9,7 @@ import XCTest
 @testable import BitwardenShared
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_name line_length
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!
@@ -57,9 +58,9 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 stateService: stateService,
                 textAutofillHelperFactory: textAutofillHelperFactory,
                 totpExpirationManagerFactory: totpExpirationManagerFactory,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: VaultAutofillListState()
+            state: VaultAutofillListState(),
         )
     }
 
@@ -105,26 +106,26 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .identity
-                    )
-                )
+                        type: .identity,
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -135,6 +136,16 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
 
         XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
         XCTAssertFalse(subject.state.showNoResults)
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: nil,
+                mode: .all,
+                rpID: nil,
+                searchText: "bit",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
@@ -147,26 +158,26 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
 
         let task = Task {
@@ -178,7 +189,16 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
 
         XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
         XCTAssertFalse(subject.state.showNoResults)
-        XCTAssertEqual(vaultRepository.searchCipherAutofillPublisherCalledWithGroup, .card)
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .card,
+                mode: .all,
+                rpID: nil,
+                searchText: "bit",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
@@ -190,26 +210,26 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .identity
-                    )
-                )
+                        type: .identity,
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -230,26 +250,26 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
             VaultListItem(
                 id: "2",
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card(.init(brand: nil))
-                    )
-                )
+                        type: .card(.init(brand: nil)),
+                    ),
+                ),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
         subject.state.group = .card
 
         let task = Task {
@@ -270,9 +290,9 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             cipherListView: CipherListView.fixture(
                 id: "1",
                 login: .fixture(
-                    username: "user@bitwarden.com"
-                )
-            )
+                    username: "user@bitwarden.com",
+                ),
+            ),
         )!
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -286,10 +306,10 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
             cipherListView: CipherListView.fixture(
                 id: "1",
                 login: .fixture(
-                    username: "user@bitwarden.com"
+                    username: "user@bitwarden.com",
                 ),
-                name: "Test"
-            )
+                name: "Test",
+            ),
         )!
         textAutofillHelper.handleCipherForAutofillError = BitwardenTestError.example
         await subject.perform(.vaultItemTapped(vaultListItem))

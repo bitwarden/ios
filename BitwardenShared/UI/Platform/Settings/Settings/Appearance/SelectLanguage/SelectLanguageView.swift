@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SelectLanguageView
@@ -33,7 +35,7 @@ struct SelectLanguageView: View {
     @ViewBuilder
     private func checkmarkView(_ languageOption: LanguageOption) -> some View {
         if languageOption == store.state.currentLanguage {
-            Image(asset: Asset.Images.check24)
+            Image(asset: SharedAsset.Icons.check24)
                 .imageStyle(.rowIcon)
         }
     }

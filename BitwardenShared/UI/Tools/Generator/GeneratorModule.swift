@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - Generator Module
 
 /// An object that builds coordinators for the generator tab.
@@ -13,20 +15,20 @@ protocol GeneratorModule {
     ///
     func makeGeneratorCoordinator(
         delegate: GeneratorCoordinatorDelegate?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<GeneratorRoute, Void>
 }
 
 extension DefaultAppModule: GeneratorModule {
     func makeGeneratorCoordinator(
         delegate: GeneratorCoordinatorDelegate?,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         GeneratorCoordinator(
             delegate: delegate,
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

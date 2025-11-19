@@ -42,21 +42,21 @@ class APIServiceTests: BitwardenTestCase {
         let apiServiceBaseURL = subject.apiService.baseURL
         XCTAssertEqual(apiServiceBaseURL, URL(string: "https://example.com/api")!)
         XCTAssertTrue(
-            subject.apiService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+            subject.apiService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertTrue(subject.apiService.tokenProvider is AccountTokenProvider)
 
         let apiUnauthenticatedServiceBaseURL = subject.apiUnauthenticatedService.baseURL
         XCTAssertEqual(apiUnauthenticatedServiceBaseURL, URL(string: "https://example.com/api")!)
         XCTAssertTrue(
-            subject.apiUnauthenticatedService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+            subject.apiUnauthenticatedService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertNil(subject.apiUnauthenticatedService.tokenProvider)
 
         let eventsServiceBaseURL = subject.eventsService.baseURL
         XCTAssertEqual(eventsServiceBaseURL, URL(string: "https://example.com/events")!)
         XCTAssertTrue(
-            subject.eventsService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+            subject.eventsService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertTrue(subject.eventsService.tokenProvider is AccountTokenProvider)
 
@@ -67,7 +67,7 @@ class APIServiceTests: BitwardenTestCase {
         let identityServiceBaseURL = subject.identityService.baseURL
         XCTAssertEqual(identityServiceBaseURL, URL(string: "https://example.com/identity")!)
         XCTAssertTrue(
-            subject.identityService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
+            subject.identityService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }),
         )
         XCTAssertNil(subject.identityService.tokenProvider)
     }

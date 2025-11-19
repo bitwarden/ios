@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -19,11 +21,21 @@ struct VaultItemManagementMenuView: View {
     /// The flag for whether to show the move to organization options.
     let isMoveToOrganizationEnabled: Bool
 
+    /// The flag for whether to show the restore option.
+    let isRestoreEnabled: Bool
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<Void, VaultItemManagementMenuAction, VaultItemManagementMenuEffect>
 
     var body: some View {
         Menu {
+            if isRestoreEnabled {
+                Button(Localizations.restore) {
+                    store.send(.restore)
+                }
+                .accessibilityIdentifier("RestoreButton")
+            }
+
             Button(Localizations.attachments) {
                 store.send(.attachments)
             }
@@ -52,7 +64,7 @@ struct VaultItemManagementMenuView: View {
                 }
             }
         } label: {
-            Image(asset: Asset.Images.ellipsisVertical24, label: Text(Localizations.options))
+            Image(asset: SharedAsset.Icons.ellipsisVertical24, label: Text(Localizations.options))
                 .imageStyle(.toolbarIcon)
         }
         .accessibilityLabel(Localizations.options)
@@ -66,10 +78,11 @@ struct VaultItemManagementMenuView: View {
         isCollectionsEnabled: true,
         isDeleteEnabled: true,
         isMoveToOrganizationEnabled: true,
+        isRestoreEnabled: true,
         store: Store(
             processor: StateProcessor(
-                state: ()
-            )
-        )
+                state: (),
+            ),
+        ),
     )
 }

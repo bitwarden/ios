@@ -1,5 +1,7 @@
 // MARK: - CardComponent
 
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 /// An enumeration defining various components associated with credit and debit cards.
@@ -139,28 +141,28 @@ extension CardComponent.Brand: Menuable {
 
 extension CardComponent.Brand {
     /// Gets the icon corresponding to each card brand.
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch self {
         case .americanExpress:
-            Asset.Images.Cards.amex
+            SharedAsset.Icons.Cards.amex
         case .visa:
-            Asset.Images.Cards.visa
+            SharedAsset.Icons.Cards.visa
         case .mastercard:
-            Asset.Images.Cards.mastercard
+            SharedAsset.Icons.Cards.mastercard
         case .discover:
-            Asset.Images.Cards.discover
+            SharedAsset.Icons.Cards.discover
         case .dinersClub:
-            Asset.Images.Cards.dinersClub
+            SharedAsset.Icons.Cards.dinersClub
         case .jcb:
-            Asset.Images.Cards.jcb
+            SharedAsset.Icons.Cards.jcb
         case .maestro:
-            Asset.Images.Cards.maestro
+            SharedAsset.Icons.Cards.maestro
         case .unionPay:
-            Asset.Images.Cards.unionPay
+            SharedAsset.Icons.Cards.unionPay
         case .ruPay:
-            Asset.Images.Cards.ruPay
+            SharedAsset.Icons.Cards.ruPay
         case .other:
-            Asset.Images.card24
+            SharedAsset.Icons.card24
         }
     }
 }

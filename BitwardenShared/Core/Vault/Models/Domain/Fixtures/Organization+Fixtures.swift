@@ -16,7 +16,7 @@ extension Organization {
         useEvents: Bool = false,
         usePolicies: Bool = true,
         userIsManagedByOrganization: Bool = false,
-        usersGetPremium: Bool = false
+        usersGetPremium: Bool = false,
     ) -> Organization {
         Organization(
             enabled: enabled,
@@ -31,7 +31,7 @@ extension Organization {
             useEvents: useEvents,
             usePolicies: usePolicies,
             userIsManagedByOrganization: userIsManagedByOrganization,
-            usersGetPremium: usersGetPremium
+            usersGetPremium: usersGetPremium,
         )
     }
 }

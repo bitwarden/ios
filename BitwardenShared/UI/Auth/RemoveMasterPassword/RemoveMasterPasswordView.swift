@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - RemoveMasterPasswordView
@@ -16,19 +18,19 @@ struct RemoveMasterPasswordView: View {
         VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Localizations.removeMasterPasswordConfirmDomain)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.body)
                 Text(Localizations.keyConnectorOrganization)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.body)
                 Text(store.state.organizationName)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.body)
                 Text(Localizations.keyConnectorDomain)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.body)
                 Text(store.state.keyConnectorUrl)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.body)
             }
             .multilineTextAlignment(.leading)
@@ -38,7 +40,7 @@ struct RemoveMasterPasswordView: View {
                 title: Localizations.masterPassword,
                 text: store.binding(
                     get: \.masterPassword,
-                    send: RemoveMasterPasswordAction.masterPasswordChanged
+                    send: RemoveMasterPasswordAction.masterPasswordChanged,
                 ),
                 footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
@@ -46,8 +48,8 @@ struct RemoveMasterPasswordView: View {
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
-                    send: RemoveMasterPasswordAction.revealMasterPasswordFieldPressed
-                )
+                    send: RemoveMasterPasswordAction.revealMasterPasswordFieldPressed,
+                ),
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -84,10 +86,10 @@ struct RemoveMasterPasswordView: View {
                     masterPassword: "password",
                     organizationName: "Example Org",
                     organizationId: "Mock-Id",
-                    keyConnectorUrl: "www.example.com"
-                )
-            )
-        )
+                    keyConnectorUrl: "www.example.com",
+                ),
+            ),
+        ),
     )
     .navStackWrapped
 }

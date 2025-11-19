@@ -32,7 +32,7 @@ protocol AutofillCredentialService: AnyObject {
     func provideCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASPasswordCredential
 
     /// Provides a Fido2 credential for a passkey request
@@ -45,7 +45,7 @@ protocol AutofillCredentialService: AnyObject {
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential
 
     /// Provides a Fido2 credential for Fido2 request parameters.
@@ -56,7 +56,7 @@ protocol AutofillCredentialService: AnyObject {
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for fido2RequestParameters: PasskeyCredentialRequestParameters,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential
 
     /// Returns a `ASOneTimeCodeCredential` that matches the user-requested credential which can be
@@ -74,14 +74,22 @@ protocol AutofillCredentialService: AnyObject {
     func provideOTPCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential
+
+    /// Updates all credential identities in the identity store with the current list of ciphers
+    /// for the current user.
+    ///
+    func updateCredentialsInStore() async
 }
 
 /// A default implementation of an `AutofillCredentialService`.
 ///
 class DefaultAutofillCredentialService {
     // MARK: Private Properties
+
+    /// Helper to know about the app context.
+    private let appContextHelper: AppContextHelper
 
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
@@ -109,7 +117,7 @@ class DefaultAutofillCredentialService {
     private let identityStore: CredentialIdentityStore
 
     /// The last user ID that had their identities synced.
-    private var lastSyncedUserId: String?
+    private(set) var lastSyncedUserId: String?
 
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
@@ -135,6 +143,7 @@ class DefaultAutofillCredentialService {
     /// Initialize an `AutofillCredentialService`.
     ///
     /// - Parameters:
+    ///   - appContextHelper: The helper to know about the app context.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - credentialIdentityFactory: The factory to create credential identities.
@@ -151,6 +160,7 @@ class DefaultAutofillCredentialService {
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
+        appContextHelper: AppContextHelper,
         cipherService: CipherService,
         clientService: ClientService,
         credentialIdentityFactory: CredentialIdentityFactory,
@@ -163,8 +173,9 @@ class DefaultAutofillCredentialService {
         stateService: StateService,
         timeProvider: TimeProvider,
         totpService: TOTPService,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
+        self.appContextHelper = appContextHelper
         self.cipherService = cipherService
         self.clientService = clientService
         self.credentialIdentityFactory = credentialIdentityFactory
@@ -178,6 +189,10 @@ class DefaultAutofillCredentialService {
         self.timeProvider = timeProvider
         self.totpService = totpService
         self.vaultTimeoutService = vaultTimeoutService
+
+        guard appContextHelper.appContext == .mainApp else {
+            return
+        }
 
         Task {
             for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
@@ -255,7 +270,7 @@ class DefaultAutofillCredentialService {
                 let fido2Identities = try await clientService.platform().fido2()
                     .authenticator(
                         userInterface: fido2UserInterfaceHelper,
-                        credentialStore: fido2CredentialStore
+                        credentialStore: fido2CredentialStore,
                     )
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
@@ -316,11 +331,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     func provideCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASPasswordCredential {
         let cipher = try await checkUnlockAndGetCipherToProvideCredential(
             for: id,
-            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
         )
         guard cipher.type == .login,
               cipher.login != nil,
@@ -342,7 +357,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
         await eventService.collect(
             eventType: .cipherClientAutofilled,
-            cipherId: cipher.id
+            cipherId: cipher.id,
         )
 
         return ASPasswordCredential(user: username, password: password)
@@ -352,7 +367,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     func provideFido2Credential(
         for passkeyRequest: ASPasskeyCredentialRequest,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential {
         guard let credentialIdentity = passkeyRequest.credentialIdentity as? ASPasskeyCredentialIdentity else {
             throw AppProcessorError.invalidOperation
@@ -364,27 +379,27 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         }
 
         let request = GetAssertionRequest(
-            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity
+            passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
         )
 
         return try await provideFido2Credential(
             with: request,
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             rpId: credentialIdentity.relyingPartyIdentifier,
-            clientDataHash: passkeyRequest.clientDataHash
+            clientDataHash: passkeyRequest.clientDataHash,
         )
     }
 
     @available(iOS 17.0, *)
     func provideFido2Credential(
         for fido2RequestParameters: PasskeyCredentialRequestParameters,
-        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
+        fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
     ) async throws -> ASPasskeyAssertionCredential {
         try await provideFido2Credential(
             with: GetAssertionRequest(fido2RequestParameters: fido2RequestParameters),
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
             rpId: fido2RequestParameters.relyingPartyIdentifier,
-            clientDataHash: fido2RequestParameters.clientDataHash
+            clientDataHash: fido2RequestParameters.clientDataHash,
         )
     }
 
@@ -392,11 +407,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     func provideOTPCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
-        repromptPasswordValidated: Bool
+        repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential {
         let cipher = try await checkUnlockAndGetCipherToProvideCredential(
             for: id,
-            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
         )
         guard cipher.type == .login, let totpKey = cipher.login?.totp else {
             throw ASExtensionError(.credentialIdentityNotFound)
@@ -413,10 +428,19 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
         await eventService.collect(
             eventType: .cipherClientAutofilled,
-            cipherId: cipher.id
+            cipherId: cipher.id,
         )
 
         return ASOneTimeCodeCredential(code: code.code)
+    }
+
+    func updateCredentialsInStore() async {
+        do {
+            let userId = try await stateService.getActiveAccountId()
+            await replaceAllIdentities(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     // MARK: Private
@@ -429,7 +453,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     /// - Returns: The decrypted cipher to provide the credential.
     private func checkUnlockAndGetCipherToProvideCredential(
         for id: String,
-        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
     ) async throws -> CipherView {
         try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
         guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
@@ -455,13 +479,13 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         with request: GetAssertionRequest,
         fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate,
         rpId: String,
-        clientDataHash: Data
+        clientDataHash: Data,
     ) async throws -> ASPasskeyAssertionCredential {
         await fido2UserInterfaceHelper.setupDelegate(
-            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
         await fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
-            userVerificationPreference: request.options.uv
+            userVerificationPreference: request.options.uv,
         )
 
         #if DEBUG
@@ -472,7 +496,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             let assertionResult = try await clientService.platform().fido2()
                 .authenticator(
                     userInterface: fido2UserInterfaceHelper,
-                    credentialStore: fido2CredentialStore
+                    credentialStore: fido2CredentialStore,
                 )
                 .getAssertion(request: request)
 
@@ -492,7 +516,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                 signature: assertionResult.signature,
                 clientDataHash: clientDataHash,
                 authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId
+                credentialID: assertionResult.credentialId,
             )
         } catch {
             #if DEBUG

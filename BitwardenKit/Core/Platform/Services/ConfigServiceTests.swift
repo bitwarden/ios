@@ -32,7 +32,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             configApiService: configApiService,
             errorReporter: errorReporter,
             stateService: stateService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
         stateService.activeAccountId = "1"
     }
@@ -59,8 +59,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
@@ -79,8 +79,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
@@ -99,8 +99,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
@@ -125,8 +125,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
@@ -148,8 +148,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
         XCTAssertEqual(configApiService.clientRequestCount, 0)
@@ -169,8 +169,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
         XCTAssertEqual(
-            stateService.serverConfig["1"]?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue],
-            .bool(true)
+            stateService.serverConfig["1"]?.featureStates[FeatureFlag.testFeatureFlag.rawValue],
+            .bool(true),
         )
     }
 
@@ -185,8 +185,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
@@ -220,8 +220,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: true)
@@ -243,8 +243,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
@@ -270,8 +270,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
@@ -294,8 +294,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238192",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
         XCTAssertEqual(configApiService.clientRequestCount, 0)
@@ -317,69 +317,39 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
         XCTAssertEqual(
-            stateService.preAuthServerConfig?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue],
-            .bool(true)
+            stateService.preAuthServerConfig?.featureStates[FeatureFlag.testFeatureFlag.rawValue],
+            .bool(true),
         )
     }
 
-    // MARK: Tests - getConfig initial values
+    // MARK: Tests - getFeatureFlag initial values
 
-    /// `getFeatureFlag(:)` returns the initial value for local-only booleans if it is configured.
+    /// `getFeatureFlag(:)` returns the initial value for booleans if it is configured.
     func test_getFeatureFlag_initialValue_localBool() async {
         let value = await subject.getFeatureFlag(
-            .testLocalInitialBoolFlag,
+            .testInitialBoolFlag,
             defaultValue: false,
-            forceRefresh: false
+            forceRefresh: false,
         )
         XCTAssertTrue(value)
     }
 
-    /// `getFeatureFlag(:)` returns the initial value for local-only integers if it is configured.
+    /// `getFeatureFlag(:)` returns the initial value for integers if it is configured.
     func test_getFeatureFlag_initialValue_localInt() async {
         let value = await subject.getFeatureFlag(
-            .testLocalInitialIntFlag,
+            .testInitialIntFlag,
             defaultValue: 10,
-            forceRefresh: false
+            forceRefresh: false,
         )
         XCTAssertEqual(value, 42)
     }
 
-    /// `getFeatureFlag(:)` returns the initial value for local-only strings if it is configured.
+    /// `getFeatureFlag(:)` returns the initial value for strings if it is configured.
     func test_getFeatureFlag_initialValue_localString() async {
         let value = await subject.getFeatureFlag(
-            .testLocalInitialStringFlag,
+            .testInitialStringFlag,
             defaultValue: "Default",
-            forceRefresh: false
-        )
-        XCTAssertEqual(value, "Test String")
-    }
-
-    /// `getFeatureFlag(:)` returns the initial value for remote-configured booleans if it is configured.
-    func test_getFeatureFlag_initialValue_remoteBool() async {
-        let value = await subject.getFeatureFlag(
-            .testRemoteInitialBoolFlag,
-            defaultValue: false,
-            forceRefresh: false
-        )
-        XCTAssertTrue(value)
-    }
-
-    /// `getFeatureFlag(:)` returns the initial value for remote-configured integers if it is configured.
-    func test_getFeatureFlag_initialValue_remoteInt() async {
-        let value = await subject.getFeatureFlag(
-            .testRemoteInitialIntFlag,
-            defaultValue: 10,
-            forceRefresh: false
-        )
-        XCTAssertEqual(value, 42)
-    }
-
-    /// `getFeatureFlag(:)` returns the initial value for remote-configured integers if it is configured.
-    func test_getFeatureFlag_initialValue_remoteString() async {
-        let value = await subject.getFeatureFlag(
-            .testRemoteInitialStringFlag,
-            defaultValue: "Default",
-            forceRefresh: false
+            forceRefresh: false,
         )
         XCTAssertEqual(value, "Test String")
     }
@@ -392,13 +362,13 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["test-remote-feature-flag": .bool(true)],
+                featureStates: ["test-feature-flag": .bool(true)],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: false, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: false, forceRefresh: false)
         XCTAssertTrue(value)
     }
 
@@ -411,27 +381,11 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: true, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: true, forceRefresh: false)
         XCTAssertTrue(value)
-    }
-
-    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for booleans
-    func test_getFeatureFlag_bool_notRemotelyConfigured() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .bool(true)],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: false, forceRefresh: false)
-        XCTAssertFalse(value)
     }
 
     /// `getFeatureFlag(:)` can return an integer if it's in the configuration
@@ -440,13 +394,13 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["test-remote-feature-flag": .int(42)],
+                featureStates: ["test-feature-flag": .int(42)],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: 30, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: 30, forceRefresh: false)
         XCTAssertEqual(value, 42)
     }
 
@@ -459,26 +413,10 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: 30, forceRefresh: false)
-        XCTAssertEqual(value, 30)
-    }
-
-    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for integers
-    func test_getFeatureFlag_int_notRemotelyConfigured() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .int(42)],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: 30, forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: 30, forceRefresh: false)
         XCTAssertEqual(value, 30)
     }
 
@@ -488,13 +426,13 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["test-remote-feature-flag": .string("exists")],
+                featureStates: ["test-feature-flag": .string("exists")],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: "fallback", forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "exists")
     }
 
@@ -507,26 +445,10 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 featureStates: [:],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
-        let value = await subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: "fallback", forceRefresh: false)
-        XCTAssertEqual(value, "fallback")
-    }
-
-    /// `getFeatureFlag(:)` returns the default value if the feature is not remotely configurable for strings
-    func test_getFeatureFlag_string_notRemotelyConfigured() async {
-        stateService.serverConfig["1"] = ServerConfig(
-            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-            responseModel: ConfigResponseModel(
-                environment: nil,
-                featureStates: ["test-remote-feature-flag": .string("exists")],
-                gitHash: "75238191",
-                server: nil,
-                version: "2024.4.0"
-            )
-        )
-        let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: "fallback", forceRefresh: false)
+        let value = await subject.getFeatureFlag(.testFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "fallback")
     }
 
@@ -536,15 +458,15 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["test-remote-feature-flag": .bool(true)],
+                featureStates: ["test-feature-flag": .bool(true)],
                 gitHash: "75238191",
                 server: nil,
-                version: "2024.4.0"
-            )
+                version: "2024.4.0",
+            ),
         )
-        appSettingsStore.overrideDebugFeatureFlag(name: "test-remote-feature-flag", value: false)
+        appSettingsStore.overrideDebugFeatureFlag(name: "test-feature-flag", value: false)
         let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
-        let flag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "test-remote-feature-flag" })
+        let flag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "test-feature-flag" })
         XCTAssertFalse(flag?.isEnabled ?? true)
     }
 
@@ -553,12 +475,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
     func test_toggleDebugFeatureFlag() async throws {
         await subject.toggleDebugFeatureFlag(
-            name: FeatureFlag.testRemoteFeatureFlag.rawValue,
-            newValue: true
+            name: FeatureFlag.testFeatureFlag.rawValue,
+            newValue: true,
         )
         let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .testRemoteFeatureFlag })
+        let flag = try XCTUnwrap(flags.first { $0.feature == .testFeatureFlag })
         XCTAssertTrue(flag.isEnabled)
     }
 
@@ -566,7 +488,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_refreshDebugFeatureFlags() async throws {
         let flags = await subject.refreshDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .testRemoteFeatureFlag })
+        let flag = try XCTUnwrap(flags.first { $0.feature == .testFeatureFlag })
         XCTAssertFalse(flag.isEnabled)
     }
 
@@ -582,7 +504,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         userId: String?,
         gitHash: String?,
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
     ) async throws {
         var publisher = try await subject.configPublisher().makeAsyncIterator()
         let result = try await publisher.next()

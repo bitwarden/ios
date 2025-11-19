@@ -51,7 +51,7 @@ class OrganizationDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { values in
                     publishedValues.append(values)
-                }
+                },
             )
         defer { publisher.cancel() }
 
@@ -69,7 +69,7 @@ class OrganizationDataStoreTests: BitwardenTestCase {
         let fetchedOrganizations = try await subject.fetchAllOrganizations(userId: "1")
         XCTAssertEqual(
             fetchedOrganizations.sorted(using: KeyPathComparator(\.id)),
-            organizations.compactMap(Organization.init)
+            organizations.compactMap(Organization.init),
         )
 
         let emptyOrganizations = try await subject.fetchAllOrganizations(userId: "-1")
@@ -106,7 +106,7 @@ class OrganizationDataStoreTests: BitwardenTestCase {
                 _ = OrganizationData(
                     context: self.subject.backgroundContext,
                     userId: userId,
-                    organization: organization
+                    organization: organization,
                 )
             }
         }

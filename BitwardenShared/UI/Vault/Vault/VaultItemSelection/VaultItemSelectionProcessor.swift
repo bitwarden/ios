@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - VaultItemSelectionProcessor
 
 /// The processor used to manage state and handle actions for the vault item selection screen.
@@ -5,7 +8,7 @@
 class VaultItemSelectionProcessor: StateProcessor<
     VaultItemSelectionState,
     VaultItemSelectionAction,
-    VaultItemSelectionEffect
+    VaultItemSelectionEffect,
 > {
     // MARK: Types
 
@@ -46,7 +49,7 @@ class VaultItemSelectionProcessor: StateProcessor<
         services: Services,
         state: VaultItemSelectionState,
         userVerificationHelper: UserVerificationHelper,
-        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+        vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -69,7 +72,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
-                }
+                },
             )
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
@@ -95,11 +98,11 @@ class VaultItemSelectionProcessor: StateProcessor<
                     group: .login,
                     newCipherOptions: NewCipherOptions(
                         name: state.ciphersMatchingName,
-                        totpKey: state.totpKeyModel.rawAuthenticatorKey
+                        totpKey: state.totpKeyModel.rawAuthenticatorKey,
                     ),
-                    type: .login
+                    type: .login,
                 ),
-                context: self
+                context: self,
             )
         case .cancelTapped:
             coordinator.navigate(to: .dismiss)
@@ -115,6 +118,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 return
             }
             state.profileSwitcherState.isVisible = false
+            dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):
@@ -169,12 +173,15 @@ class VaultItemSelectionProcessor: StateProcessor<
             return
         }
         do {
-            let searchPublisher = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
-                group: .login,
-                filter: VaultListFilter(filterType: .allVaults)
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: .allVaults,
+                    group: .login,
+                    searchText: searchText,
+                ),
             )
-            for try await items in searchPublisher {
+            for try await vaultListData in publisher {
+                let items = vaultListData.sections.first?.items ?? []
                 state.searchResults = items
                 state.showNoResults = items.isEmpty
             }
@@ -227,23 +234,15 @@ class VaultItemSelectionProcessor: StateProcessor<
     private func streamVaultItems() async {
         guard let searchName = state.ciphersMatchingName else { return }
         do {
-            for try await items in try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchName,
-                group: .login,
-                filter: VaultListFilter(filterType: .allVaults)
+            for try await vaultListData in try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: .allVaults,
+                    group: .login,
+                    options: [.isInPickerMode],
+                    searchText: searchName,
+                ),
             ) {
-                guard !items.isEmpty else {
-                    state.vaultListSections = []
-                    continue
-                }
-
-                state.vaultListSections = [
-                    VaultListSection(
-                        id: Localizations.matchingItems,
-                        items: items,
-                        name: Localizations.matchingItems
-                    ),
-                ]
+                state.vaultListSections = vaultListData.sections
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -305,6 +304,10 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
         }
     }
 
+    func dismissProfileSwitcher() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func handleAuthEvent(_ authEvent: AuthEvent) async {
         guard case let .action(authAction) = authEvent else { return }
         await coordinator.handleEvent(authAction)
@@ -316,5 +319,9 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
 
     func showAlert(_ alert: Alert) {
         // No-Op for the VaultItemSelectionProcessor.
+    }
+
+    func showProfileSwitcher() {
+        coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
 }

@@ -13,7 +13,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
                     CLKComplicationFamily.graphicCircular,
                     CLKComplicationFamily.graphicCorner,
                     CLKComplicationFamily.utilitarianSmall,
-                ]
+                ],
             ),
         ]
 
@@ -24,7 +24,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     func getPrivacyBehavior(
         for _: CLKComplication,
-        withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void
+        withHandler handler: @escaping (CLKComplicationPrivacyBehavior) -> Void,
     ) {
         handler(.showOnLockScreen)
     }
@@ -33,7 +33,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     func getCurrentTimelineEntry(
         for complication: CLKComplication,
-        withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void
+        withHandler handler: @escaping (CLKComplicationTimelineEntry?) -> Void,
     ) {
         guard let icon = UIImage(named: "ComplicationIcon") else {
             handler(nil)
@@ -44,7 +44,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         switch complication.family {
         case .circularSmall:
             let template = CLKComplicationTemplateCircularSmallSimpleImage(
-                imageProvider: CLKImageProvider(onePieceImage: icon)
+                imageProvider: CLKImageProvider(onePieceImage: icon),
             )
             handler(CLKComplicationTimelineEntry(date: .now, complicationTemplate: template))
         case .graphicCircular:
@@ -55,7 +55,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             handler(CLKComplicationTimelineEntry(date: .now, complicationTemplate: template))
         case .utilitarianSmall:
             let template = CLKComplicationTemplateUtilitarianSmallSquare(
-                imageProvider: CLKImageProvider(onePieceImage: icon)
+                imageProvider: CLKImageProvider(onePieceImage: icon),
             )
             handler(CLKComplicationTimelineEntry(date: .now, complicationTemplate: template))
         default:
@@ -67,7 +67,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
 
     func getLocalizableSampleTemplate(
         for complication: CLKComplication,
-        withHandler handler: @escaping (CLKComplicationTemplate?) -> Void
+        withHandler handler: @escaping (CLKComplicationTemplate?) -> Void,
     ) {
         guard let icon = UIImage(named: "ComplicationIcon") else {
             handler(nil)
@@ -78,7 +78,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
         switch complication.family {
         case .circularSmall:
             let template = CLKComplicationTemplateCircularSmallSimpleImage(
-                imageProvider: CLKImageProvider(onePieceImage: icon)
+                imageProvider: CLKImageProvider(onePieceImage: icon),
             )
             handler(template)
         case .graphicCircular:
@@ -89,7 +89,7 @@ class ComplicationController: NSObject, CLKComplicationDataSource {
             handler(template)
         case .utilitarianSmall:
             let template = CLKComplicationTemplateUtilitarianSmallSquare(
-                imageProvider: CLKImageProvider(onePieceImage: icon)
+                imageProvider: CLKImageProvider(onePieceImage: icon),
             )
             handler(template)
         default:

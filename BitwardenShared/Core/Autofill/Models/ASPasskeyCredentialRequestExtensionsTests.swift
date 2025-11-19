@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `excludedCredentialsList()` gets the excluded credential list using the
@@ -19,7 +19,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlin
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .preferred,
-            supportedAlgorithms: [-7]
+            supportedAlgorithms: [-7],
         )
         request.setExcludedCredentials([
             ASAuthorizationPlatformPublicKeyCredentialDescriptor(credentialID: data),
@@ -46,7 +46,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlin
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .preferred,
-            supportedAlgorithms: [-7]
+            supportedAlgorithms: [-7],
         )
         request.setExcludedCredentials([])
         let excludedList = request.excludedCredentialsList()
@@ -62,7 +62,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlin
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .preferred,
-            supportedAlgorithms: [-7]
+            supportedAlgorithms: [-7],
         )
         request.setExcludedCredentials(nil)
         let excludedList = request.excludedCredentialsList()
@@ -79,7 +79,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlin
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .discouraged,
-            supportedAlgorithms: [ASCOSEAlgorithmIdentifier]([])
+            supportedAlgorithms: [ASCOSEAlgorithmIdentifier]([]),
         )
         let result = subject.getPublicKeyCredentialParams()
         XCTAssert(result.count == 2)
@@ -102,7 +102,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlin
                 ASCOSEAlgorithmIdentifier(rawValue: -257),
                 ASCOSEAlgorithmIdentifier.ES256,
                 ASCOSEAlgorithmIdentifier(rawValue: 0),
-            ]
+            ],
         )
         let result = subject.getPublicKeyCredentialParams()
         XCTAssert(result.count == 1)
@@ -120,7 +120,7 @@ class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase { // swiftlin
             credentialIdentity: .fixture(),
             clientDataHash: Data(capacity: 16),
             userVerificationPreference: .discouraged,
-            supportedAlgorithms: [ASCOSEAlgorithmIdentifier(rawValue: 0)]
+            supportedAlgorithms: [ASCOSEAlgorithmIdentifier(rawValue: 0)],
         )
         let result = subject.getPublicKeyCredentialParams()
         XCTAssertTrue(result.isEmpty)

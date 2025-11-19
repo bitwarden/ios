@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -76,7 +77,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         delegate: CipherItemOperationDelegate?,
         itemId: String,
         services: Services,
-        state: ViewItemState
+        state: ViewItemState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
@@ -117,8 +118,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             } else {
                 await showPermanentDeleteConfirmation(cipherState.cipher)
             }
-        case .restorePressed:
-            await showRestoreItemConfirmation()
         case .toggleDisplayMultipleCollections:
             toggleDisplayMultipleCollections()
         case .totpCodeExpired:
@@ -135,7 +134,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case let .customFieldVisibilityPressed(customFieldState):
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
-                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item.")
+                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item."),
                 )
                 return
             }
@@ -145,7 +144,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: cipherState.cipher.id
+                        cipherId: cipherState.cipher.id,
                     )
                 }
             }
@@ -163,13 +162,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordVisibilityPressed:
             guard case var .data(cipherState) = state.loadingState else {
                 services.errorReporter.log(
-                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item.")
+                    error: ActionError.dataNotLoaded("Cannot toggle password for non-loaded item."),
                 )
                 return
             }
             guard case .login = cipherState.type else {
                 services.errorReporter.log(
-                    error: ActionError.nonLoginPasswordToggle("Cannot toggle password for non-login item.")
+                    error: ActionError.nonLoginPasswordToggle("Cannot toggle password for non-login item."),
                 )
                 return
             }
@@ -179,7 +178,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledPasswordVisible,
-                        cipherId: cipherState.cipher.id
+                        cipherId: cipherState.cipher.id,
                     )
                 }
             }
@@ -239,7 +238,7 @@ private extension ViewItemProcessor {
     private func copyValue(_ value: String, _ field: CopyableField?) {
         guard case let .data(cipherState) = state.loadingState else {
             services.errorReporter.log(
-                error: ActionError.dataNotLoaded("Cannot copy value for non-loaded item.")
+                error: ActionError.dataNotLoaded("Cannot copy value for non-loaded item."),
             )
             return
         }
@@ -252,7 +251,7 @@ private extension ViewItemProcessor {
             Task {
                 await services.eventService.collect(
                     eventType: event,
-                    cipherId: cipherState.cipher.id
+                    cipherId: cipherState.cipher.id,
                 )
             }
         }
@@ -270,7 +269,7 @@ private extension ViewItemProcessor {
 
             guard let temporaryUrl = try await services.vaultRepository.downloadAttachment(
                 attachment,
-                cipher: cipherState.cipher
+                cipher: cipherState.cipher,
             ) else {
                 return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             }
@@ -337,13 +336,13 @@ private extension ViewItemProcessor {
     private func handleCardAction(_ cardAction: ViewCardItemAction) {
         guard case var .data(cipherState) = state.loadingState else {
             services.errorReporter.log(
-                error: ActionError.dataNotLoaded("Cannot handle card action without loaded data")
+                error: ActionError.dataNotLoaded("Cannot handle card action without loaded data"),
             )
             return
         }
         guard case .card = cipherState.type else {
             services.errorReporter.log(
-                error: ActionError.nonCardTypeToggle("Cannot handle card action on non-card type")
+                error: ActionError.nonCardTypeToggle("Cannot handle card action on non-card type"),
             )
             return
         }
@@ -355,7 +354,7 @@ private extension ViewItemProcessor {
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardCodeVisible,
-                        cipherId: cipherState.cipher.id
+                        cipherId: cipherState.cipher.id,
                     )
                 }
             }
@@ -366,7 +365,7 @@ private extension ViewItemProcessor {
                 Task {
                     await services.eventService.collect(
                         eventType: .cipherClientToggledCardNumberVisible,
-                        cipherId: cipherState.cipher.id
+                        cipherId: cipherState.cipher.id,
                     )
                 }
             }
@@ -381,7 +380,7 @@ private extension ViewItemProcessor {
         guard let cipher = state.loadingState.data?.cipher else {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(
-                error: ActionError.dataNotLoaded("Cannot perform action on cipher until it's loaded.")
+                error: ActionError.dataNotLoaded("Cannot perform action on cipher until it's loaded."),
             )
             return
         }
@@ -397,6 +396,8 @@ private extension ViewItemProcessor {
             coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(cipher), context: self)
+        case .restore:
+            showRestoreItemConfirmation()
         }
     }
 
@@ -405,13 +406,13 @@ private extension ViewItemProcessor {
     private func handleSSHKeyAction(_ sshKeyAction: ViewSSHKeyItemAction) {
         guard case var .data(cipherState) = state.loadingState else {
             services.errorReporter.log(
-                error: ActionError.dataNotLoaded("Cannot handle SSH key action without loaded data")
+                error: ActionError.dataNotLoaded("Cannot handle SSH key action without loaded data"),
             )
             return
         }
         guard case .sshKey = cipherState.type else {
             services.errorReporter.log(
-                error: ActionError.nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type")
+                error: ActionError.nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type"),
             )
             return
         }
@@ -465,7 +466,7 @@ private extension ViewItemProcessor {
 
     /// Shows restore cipher confirmation alert.
     ///
-    private func showRestoreItemConfirmation() async {
+    private func showRestoreItemConfirmation() {
         guard case let .data(cipherState) = state.loadingState else { return }
         let alert = Alert(
             title: Localizations.doYouReallyWantToRestoreCipher,
@@ -477,10 +478,10 @@ private extension ViewItemProcessor {
                     handler: { [weak self] _ in
                         guard let self else { return }
                         await restoreItem(cipherState.cipher)
-                    }
+                    },
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel),
-            ]
+            ],
         )
         coordinator.showAlert(alert)
     }
@@ -502,11 +503,10 @@ private extension ViewItemProcessor {
                 if let orgId = cipher.organizationId {
                     organization = try await services.vaultRepository.fetchOrganization(withId: orgId)
                 }
+                let ownershipOptions = try await services.vaultRepository
+                    .fetchCipherOwnershipOptions(includePersonal: false)
                 let showWebIcons = await services.stateService.getShowWebIcons()
 
-                let restrictCipherItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
-                    .restrictCipherItemDeletion
-                )
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
                    let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
@@ -517,7 +517,6 @@ private extension ViewItemProcessor {
                     cipherView: cipher,
                     hasPremium: hasPremium,
                     iconBaseURL: services.environmentService.iconsURL,
-                    restrictCipherItemDeletionFlagEnabled: restrictCipherItemDeletionFlagEnabled
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {
@@ -525,6 +524,7 @@ private extension ViewItemProcessor {
                     itemState.allUserCollections = collections
                     itemState.folderName = folder?.name
                     itemState.organizationName = organization?.name
+                    itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
                     newState.loadingState = .data(itemState)
                 }

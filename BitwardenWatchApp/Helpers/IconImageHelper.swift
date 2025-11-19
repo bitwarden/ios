@@ -33,7 +33,8 @@ class IconImageHelper {
         }
 
         let hostname = URL.createFullUri(from: uriString)?.host
-        return hostname == nil ? "\(EnvironmentService.shared.iconsUrl)/icon.png" :
-            "\(EnvironmentService.shared.iconsUrl)/\(hostname!)/icon.png"
+        return hostname == nil
+            ? "\(EnvironmentService.shared.iconsUrl)/icon.png"
+            : "\(EnvironmentService.shared.iconsUrl)/\(hostname!)/icon.png"
     }
 }

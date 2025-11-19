@@ -32,7 +32,7 @@ extension _MessagePackEncoder.KeyedContainer: KeyedEncodingContainerProtocol {
     private func nestedSingleValueContainer(forKey key: Key) -> SingleValueEncodingContainer {
         let container = _MessagePackEncoder.SingleValueContainer(
             codingPath: nestedCodingPath(forKey: key),
-            userInfo: userInfo
+            userInfo: userInfo,
         )
         storage[AnyCodingKey(key)] = container
         return container
@@ -41,7 +41,7 @@ extension _MessagePackEncoder.KeyedContainer: KeyedEncodingContainerProtocol {
     func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
         let container = _MessagePackEncoder.UnkeyedContainer(
             codingPath: nestedCodingPath(forKey: key),
-            userInfo: userInfo
+            userInfo: userInfo,
         )
         storage[AnyCodingKey(key)] = container
 
@@ -50,11 +50,11 @@ extension _MessagePackEncoder.KeyedContainer: KeyedEncodingContainerProtocol {
 
     func nestedContainer<NestedKey>(
         keyedBy _: NestedKey.Type,
-        forKey key: Key
+        forKey key: Key,
     ) -> KeyedEncodingContainer<NestedKey> where NestedKey: CodingKey {
         let container = _MessagePackEncoder.KeyedContainer<NestedKey>(
             codingPath: nestedCodingPath(forKey: key),
-            userInfo: userInfo
+            userInfo: userInfo,
         )
         storage[AnyCodingKey(key)] = container
 

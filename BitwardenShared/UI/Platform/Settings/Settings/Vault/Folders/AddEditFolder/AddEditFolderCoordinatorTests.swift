@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import SwiftUI
 import XCTest
@@ -19,7 +20,7 @@ class AddEditFolderCoordinatorTests: BitwardenTestCase {
 
         subject = AddEditFolderCoordinator(
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 

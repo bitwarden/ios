@@ -295,6 +295,18 @@
       "name": "Design",
       "externalId": null,
       "object": "collectionDetails"
+    },
+    {
+      "readOnly": false,
+      "hidePasswords": false,
+      "manage": false,
+      "id": "bf4df591-e8e4-4dc1-837c-40ced4405bf5",
+      "organizationId": "ba756e34-4650-4e8a-8cbb-6e98bfae9abf",
+      "name": "Design",
+      "externalId": null,
+      "object": "collectionDetails",
+      "defaultUserCollectionEmail": null,
+      "type": 0
     }
   ],
   "folders": [

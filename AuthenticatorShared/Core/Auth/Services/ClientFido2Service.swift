@@ -12,7 +12,7 @@ protocol ClientFido2Service: AnyObject {
     /// - Returns: Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks
     func authenticator(
         userInterface: Fido2UserInterface,
-        credentialStore: Fido2CredentialStore
+        credentialStore: Fido2CredentialStore,
     ) -> ClientFido2AuthenticatorProtocol
 
     /// Returns the `ClientFido2Client` to perform Fido2 client tasks.
@@ -22,7 +22,7 @@ protocol ClientFido2Service: AnyObject {
     /// - Returns: Returns the `ClientFido2Client` to perform Fido2 client tasks
     func client(
         userInterface: Fido2UserInterface,
-        credentialStore: Fido2CredentialStore
+        credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol
 
     /// Decrypts the `CipherView` Fido2 credentials but returning an array of `Fido2CredentialAutofillView`
@@ -36,14 +36,14 @@ protocol ClientFido2Service: AnyObject {
 extension ClientFido2: ClientFido2Service {
     func authenticator(
         userInterface: Fido2UserInterface,
-        credentialStore: Fido2CredentialStore
+        credentialStore: Fido2CredentialStore,
     ) -> ClientFido2AuthenticatorProtocol {
         authenticator(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Authenticator
     }
 
     func client(
         userInterface: Fido2UserInterface,
-        credentialStore: Fido2CredentialStore
+        credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol {
         client(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Client
     }

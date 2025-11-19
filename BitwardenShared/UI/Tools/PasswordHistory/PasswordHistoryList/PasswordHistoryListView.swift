@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -21,11 +23,11 @@ struct PasswordHistoryListView: View {
                 passwordHistoryList()
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.passwordHistory)
         .toast(store.binding(
             get: \.toast,
-            send: PasswordHistoryListAction.toastShown
+            send: PasswordHistoryListAction.toastShown,
         ))
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -58,7 +60,7 @@ struct PasswordHistoryListView: View {
                     Spacer()
                     Text(Localizations.noPasswordsToList)
                         .font(.body)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .multilineTextAlignment(.center)
                         .padding(16)
                         .accessibilityIdentifier("NoPasswordsDisplayedLabel")
@@ -88,7 +90,7 @@ struct PasswordHistoryListView: View {
 
                 FormattedDateTimeView(date: passwordHistory.lastUsedDate)
                     .styleGuide(.subheadline)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .accessibilityIdentifier("GeneratedPasswordDateLabel")
             }
             .padding(.vertical, 10)
@@ -97,7 +99,7 @@ struct PasswordHistoryListView: View {
             Button {
                 store.send(.copyPassword(passwordHistory))
             } label: {
-                Image(asset: Asset.Images.copy24)
+                Image(asset: SharedAsset.Icons.copy24)
                     .imageStyle(.rowIcon)
             }
             .accessibilityLabel(Localizations.copyPassword)
@@ -131,8 +133,8 @@ extension PasswordHistoryView: @retroactive Identifiable {
                     PasswordHistoryView(password: "8gr6uY8CLYQwzr#", lastUsedDate: Date()),
                     PasswordHistoryView(password: "%w4&D*48&CD&j2", lastUsedDate: Date()),
                     PasswordHistoryView(password: "df@58^%8o7e@&@", lastUsedDate: Date()),
-                ]
-            )
+                ],
+            ),
         )))
     }
 }

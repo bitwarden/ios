@@ -36,7 +36,7 @@ public protocol ConfigService {
         _ flag: FeatureFlag,
         defaultValue: Bool,
         forceRefresh: Bool,
-        isPreAuth: Bool
+        isPreAuth: Bool,
     ) async -> Bool
 
     /// Retrieves an integer feature flag. This will use the on-disk configuration if available,
@@ -53,7 +53,7 @@ public protocol ConfigService {
         _ flag: FeatureFlag,
         defaultValue: Int,
         forceRefresh: Bool,
-        isPreAuth: Bool
+        isPreAuth: Bool,
     ) async -> Int
 
     /// Retrieves a string feature flag. This will use the on-disk configuration if available,
@@ -70,7 +70,7 @@ public protocol ConfigService {
         _ flag: FeatureFlag,
         defaultValue: String?,
         forceRefresh: Bool,
-        isPreAuth: Bool
+        isPreAuth: Bool,
     ) async -> String?
 
     // MARK: Debug Feature Flags
@@ -83,7 +83,7 @@ public protocol ConfigService {
     ///
     func toggleDebugFeatureFlag(
         name: String,
-        newValue: Bool?
+        newValue: Bool?,
     ) async
 
     /// Refreshes the list of debug feature flags by reloading their values from the settings store.
@@ -194,7 +194,7 @@ public class DefaultConfigService: ConfigService {
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: ConfigStateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.appSettingsStore = appSettingsStore
         self.configApiService = configApiService
@@ -233,7 +233,7 @@ public class DefaultConfigService: ConfigService {
         _ flag: FeatureFlag,
         defaultValue: Bool = false,
         forceRefresh: Bool = false,
-        isPreAuth: Bool = false
+        isPreAuth: Bool = false,
     ) async -> Bool {
         #if DEBUG_MENU
         if let userDefaultValue = appSettingsStore.debugFeatureFlag(name: flag.rawValue) {
@@ -241,9 +241,6 @@ public class DefaultConfigService: ConfigService {
         }
         #endif
 
-        guard flag.isRemotelyConfigured else {
-            return flag.initialValue?.boolValue ?? defaultValue
-        }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag.rawValue]?.boolValue
             ?? flag.initialValue?.boolValue
@@ -254,11 +251,8 @@ public class DefaultConfigService: ConfigService {
         _ flag: FeatureFlag,
         defaultValue: Int = 0,
         forceRefresh: Bool = false,
-        isPreAuth: Bool = false
+        isPreAuth: Bool = false,
     ) async -> Int {
-        guard flag.isRemotelyConfigured else {
-            return flag.initialValue?.intValue ?? defaultValue
-        }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag.rawValue]?.intValue
             ?? flag.initialValue?.intValue
@@ -269,11 +263,8 @@ public class DefaultConfigService: ConfigService {
         _ flag: FeatureFlag,
         defaultValue: String? = nil,
         forceRefresh: Bool = false,
-        isPreAuth: Bool = false
+        isPreAuth: Bool = false,
     ) async -> String? {
-        guard flag.isRemotelyConfigured else {
-            return flag.initialValue?.stringValue ?? defaultValue
-        }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag.rawValue]?.stringValue
             ?? flag.initialValue?.stringValue
@@ -293,7 +284,7 @@ public class DefaultConfigService: ConfigService {
 
             return DebugMenuFeatureFlag(
                 feature: feature,
-                isEnabled: userDefaultValue ?? remoteFlagValue
+                isEnabled: userDefaultValue ?? remoteFlagValue,
             )
         }
 
@@ -303,7 +294,7 @@ public class DefaultConfigService: ConfigService {
     public func toggleDebugFeatureFlag(name: String, newValue: Bool?) async {
         appSettingsStore.overrideDebugFeatureFlag(
             name: name,
-            value: newValue
+            value: newValue,
         )
     }
 
@@ -311,7 +302,7 @@ public class DefaultConfigService: ConfigService {
         for flag in flags {
             appSettingsStore.overrideDebugFeatureFlag(
                 name: flag.rawValue,
-                value: nil
+                value: nil,
             )
         }
         return await getDebugFeatureFlags(flags)
@@ -359,7 +350,7 @@ public class DefaultConfigService: ConfigService {
             let configResponse = try await configApiService.getConfig()
             let serverConfig = ServerConfig(
                 date: timeProvider.presentTime,
-                responseModel: configResponse
+                responseModel: configResponse,
             )
             try? await setStateServerConfig(serverConfig, isPreAuth: isPreAuth, userId: userId)
 

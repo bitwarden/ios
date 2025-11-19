@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - CompleteRegistrationView
@@ -12,7 +13,7 @@ struct CompleteRegistrationView: View {
     @ObservedObject var store: Store<
         CompleteRegistrationState,
         CompleteRegistrationAction,
-        CompleteRegistrationEffect
+        CompleteRegistrationEffect,
     >
 
     // MARK: View
@@ -22,7 +23,7 @@ struct CompleteRegistrationView: View {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.lock,
                 title: Localizations.chooseYourMasterPassword,
-                message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
+                message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe,
             )
             .padding(.top, 12)
 
@@ -45,7 +46,7 @@ struct CompleteRegistrationView: View {
         .animation(.default, value: store.state.passwordStrengthScore)
         .navigationBar(
             title: Localizations.createAccount,
-            titleDisplayMode: .inline
+            titleDisplayMode: .inline,
         )
         .scrollView()
         .toolbar {
@@ -58,7 +59,7 @@ struct CompleteRegistrationView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: CompleteRegistrationAction.toastShown
+            send: CompleteRegistrationAction.toastShown,
         ))
     }
 
@@ -68,7 +69,7 @@ struct CompleteRegistrationView: View {
     private var checkBreachesToggle: some View {
         BitwardenToggle(isOn: store.binding(
             get: \.isCheckDataBreachesToggleOn,
-            send: CompleteRegistrationAction.toggleCheckDataBreaches
+            send: CompleteRegistrationAction.toggleCheckDataBreaches,
         )) {
             Text(Localizations.checkKnownDataBreachesForThisPassword)
                 .styleGuide(.footnote)
@@ -81,13 +82,13 @@ struct CompleteRegistrationView: View {
     /// The section where the user can learn more about passwords.
     private var learnMoreSection: some View {
         HStack(alignment: .center, spacing: 16) {
-            Image(decorative: Asset.Images.questionCircle24)
-                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+            Image(decorative: SharedAsset.Icons.questionCircle24)
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(Localizations.whatMakesAPasswordStrong)
                     .styleGuide(.body, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .multilineTextAlignment(.leading)
 
                 Button {
@@ -95,13 +96,13 @@ struct CompleteRegistrationView: View {
                 } label: {
                     Text(Localizations.learnMore)
                         .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -111,19 +112,19 @@ struct CompleteRegistrationView: View {
             title: Localizations.masterPasswordRequired,
             text: store.binding(
                 get: \.passwordText,
-                send: CompleteRegistrationAction.passwordTextChanged
+                send: CompleteRegistrationAction.passwordTextChanged,
             ),
             accessibilityIdentifier: "MasterPasswordEntry",
             passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
-                send: CompleteRegistrationAction.togglePasswordVisibility
+                send: CompleteRegistrationAction.togglePasswordVisibility,
             ),
             footerContent: {
                 passwordStrengthIndicator
                     .padding(.vertical, 12)
                     .padding(.trailing, 12)
-            }
+            },
         )
         .textFieldConfiguration(.password)
     }
@@ -134,26 +135,26 @@ struct CompleteRegistrationView: View {
             title: Localizations.masterPasswordHint,
             text: store.binding(
                 get: \.passwordHintText,
-                send: CompleteRegistrationAction.passwordHintTextChanged
+                send: CompleteRegistrationAction.passwordHintTextChanged,
             ),
             accessibilityIdentifier: "MasterPasswordHintLabel",
             footerContent: {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                        .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                         .styleGuide(.footnote)
 
                     Button {
                         store.send(.preventAccountLockTapped)
                     } label: {
                         Text(Localizations.learnAboutWaysToPreventAccountLockout)
-                            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textInteraction.swiftUIColor)
                             .styleGuide(.footnote, weight: .bold)
                             .multilineTextAlignment(.leading)
                     }
                 }
                 .padding(.vertical, 12)
-            }
+            },
         )
     }
 
@@ -163,7 +164,7 @@ struct CompleteRegistrationView: View {
             PasswordStrengthIndicator(
                 passwordStrengthScore: store.state.passwordStrengthScore,
                 passwordTextCount: store.state.passwordText.count,
-                requiredTextCount: store.state.requiredPasswordCount
+                requiredTextCount: store.state.requiredPasswordCount,
             )
         }
     }
@@ -174,14 +175,14 @@ struct CompleteRegistrationView: View {
             title: Localizations.retypeMasterPasswordRequired,
             text: store.binding(
                 get: \.retypePasswordText,
-                send: CompleteRegistrationAction.retypePasswordTextChanged
+                send: CompleteRegistrationAction.retypePasswordTextChanged,
             ),
             accessibilityIdentifier: "ConfirmMasterPasswordEntry",
             passwordVisibilityAccessibilityId: "ConfirmPasswordVisibilityToggle",
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
-                send: CompleteRegistrationAction.togglePasswordVisibility
-            )
+                send: CompleteRegistrationAction.togglePasswordVisibility,
+            ),
         )
         .textFieldConfiguration(.password)
     }
@@ -208,7 +209,7 @@ struct CompleteRegistrationView: View {
     CompleteRegistrationView(store: Store(processor: StateProcessor(
         state: CompleteRegistrationState(
             emailVerificationToken: "emailVerificationToken",
-            userEmail: "example@bitwarden.com"
+            userEmail: "example@bitwarden.com",
         ))))
 }
 #endif

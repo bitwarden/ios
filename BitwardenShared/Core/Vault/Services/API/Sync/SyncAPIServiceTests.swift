@@ -58,7 +58,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                                     rpName: "encrypted rpName",
                                     userDisplayName: "encrypted userDisplayName",
                                     userHandle: "encrypted userHandle",
-                                    userName: "encrypted userName"
+                                    userName: "encrypted userName",
                                 ),
                             ],
                             password: "encrypted password",
@@ -67,23 +67,23 @@ class SyncAPIServiceTests: BitwardenTestCase {
                                 CipherLoginUriModel(
                                     match: nil,
                                     uri: "encrypted uri",
-                                    uriChecksum: "encrypted uri checksum"
+                                    uriChecksum: "encrypted uri checksum",
                                 ),
                             ],
-                            username: "encrypted username"
+                            username: "encrypted username",
                         ),
                         name: "encrypted name",
                         reprompt: CipherRepromptType.none,
                         revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                         type: .login,
-                        viewPassword: true
+                        viewPassword: true,
                     ),
                 ],
                 collections: [],
                 folders: [],
                 policies: [],
-                sends: []
-            )
+                sends: [],
+            ),
         )
     }
 
@@ -102,7 +102,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         enabled: false,
                         id: "policy-0",
                         organizationId: "org-1",
-                        type: .twoFactorAuthentication
+                        type: .twoFactorAuthentication,
                     ),
                     PolicyResponseModel(
                         data: [
@@ -117,24 +117,24 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         enabled: true,
                         id: "policy-1",
                         organizationId: "org-1",
-                        type: .masterPassword
+                        type: .masterPassword,
                     ),
                     PolicyResponseModel(
                         data: nil,
                         enabled: false,
                         id: "policy-3",
                         organizationId: "org-1",
-                        type: .onlyOrg
+                        type: .onlyOrg,
                     ),
                     PolicyResponseModel(
                         data: ["autoEnrollEnabled": .bool(false)],
                         enabled: true,
                         id: "policy-8",
                         organizationId: "org-1",
-                        type: .resetPassword
+                        type: .resetPassword,
                     ),
-                ]
-            )
+                ],
+            ),
         )
     }
 
@@ -158,10 +158,10 @@ class SyncAPIServiceTests: BitwardenTestCase {
                     key: "key",
                     organizations: [],
                     privateKey: "private key",
-                    securityStamp: "stamp"
+                    securityStamp: "stamp",
                 ),
-                sends: []
-            )
+                sends: [],
+            ),
         )
     }
 
@@ -189,9 +189,9 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         revisionDate: Date(timeIntervalSince1970: 1_690_925_611.636),
                         text: SendTextModel(
                             hidden: false,
-                            text: "encrypted text"
+                            text: "encrypted text",
                         ),
-                        type: .text
+                        type: .text,
                     ),
                     SendResponseModel.fixture(
                         accessId: "access id",
@@ -200,16 +200,16 @@ class SyncAPIServiceTests: BitwardenTestCase {
                             fileName: "test.txt",
                             id: "1",
                             size: "123",
-                            sizeName: "123 KB"
+                            sizeName: "123 KB",
                         ),
                         id: "d7a7e48c-443f-11ee-be56-0242ac120002",
                         key: "encrypted key",
                         name: "encrypted name",
                         revisionDate: Date(timeIntervalSince1970: 1_691_625_600),
-                        type: .file
+                        type: .file,
                     ),
-                ]
-            )
+                ],
+            ),
         )
     }
 }

@@ -15,12 +15,6 @@ protocol SyncService: AnyObject {
 
     // MARK: Methods
 
-    /// Performs an API request to sync the user's vault data.
-    ///
-    /// - Parameter forceSync: Whether syncing should be forced, bypassing the account revision and
-    ///     minimum sync interval checks.
-    func fetchSync(forceSync: Bool) async throws
-
     /// Deletes the cipher specified in the notification data in local storage.
     ///
     /// - Parameter data: The notification data for the cipher delete action.
@@ -38,6 +32,14 @@ protocol SyncService: AnyObject {
     /// - Parameter data: The notification data for the send delete action.
     ///
     func deleteSend(data: SyncSendNotification) async throws
+
+    /// Performs an API request to sync the user's vault data.
+    ///
+    /// - Parameters:
+    ///   - forceSync: Whether syncing should be forced, bypassing the account revision and
+    ///     minimum sync interval checks.
+    ///   - isPeriodic: Whether this is a periodic sync to take into consideration the minimum sync interval.
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws
 
     /// Synchronizes the cipher specified in the notification data with the server.
     ///
@@ -65,6 +67,17 @@ protocol SyncService: AnyObject {
     ///
     /// - Returns: A bool indicating if the user needs a sync or not.
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool
+}
+
+extension SyncService {
+    /// Performs an API request to sync the user's vault data.
+    ///
+    /// - Parameters:
+    ///   - forceSync: Whether syncing should be forced, bypassing the account revision and
+    ///     minimum sync interval checks.
+    func fetchSync(forceSync: Bool) async throws {
+        try await fetchSync(forceSync: forceSync, isPeriodic: false)
+    }
 }
 
 // MARK: - SyncServiceDelegate
@@ -188,7 +201,7 @@ class DefaultSyncService: SyncService {
         stateService: StateService,
         syncAPIService: SyncAPIService,
         timeProvider: TimeProvider,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
         self.cipherService = cipherService
@@ -207,7 +220,12 @@ class DefaultSyncService: SyncService {
     }
 
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool {
-        try await needsSync(forceSync: false, onlyCheckLocalData: onlyCheckLocalData, userId: userId)
+        try await needsSync(
+            forceSync: false,
+            isPeriodic: onlyCheckLocalData,
+            onlyCheckLocalData: onlyCheckLocalData,
+            userId: userId,
+        )
     }
 
     // MARK: Private
@@ -219,10 +237,16 @@ class DefaultSyncService: SyncService {
     ///     sync interval checks.
     ///   - onlyCheckLocalData: If `true` it will only check local data to establish whether sync is needed.
     ///     Otherwise, it can also perform requests to server to have additional data to check.
+    ///   - isPeriodic: If `true`then needs to check if the minimum sync interval has been reached to trigger a sync.
     ///   - userId: The user ID of the account to sync.
     /// - Returns: Whether a sync should be performed.
     ///
-    private func needsSync(forceSync: Bool, onlyCheckLocalData: Bool = false, userId: String) async throws -> Bool {
+    private func needsSync(
+        forceSync: Bool,
+        isPeriodic: Bool = false,
+        onlyCheckLocalData: Bool = false,
+        userId: String,
+    ) async throws -> Bool {
         guard !forceSync, let lastSyncTime = try await stateService.getLastSyncTime(userId: userId) else {
             return true
         }
@@ -231,9 +255,10 @@ class DefaultSyncService: SyncService {
             return true
         }
 
-        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) < timeProvider.presentTime else {
+        if isPeriodic, lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
             return false
         }
+
         guard !onlyCheckLocalData else {
             return true
         }
@@ -249,7 +274,7 @@ class DefaultSyncService: SyncService {
                 // don't do a full sync.
                 try await stateService.setLastSyncTime(
                     timeProvider.presentTime,
-                    userId: userId
+                    userId: userId,
                 )
                 return false
             }
@@ -260,11 +285,13 @@ class DefaultSyncService: SyncService {
 }
 
 extension DefaultSyncService {
-    func fetchSync(forceSync: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let userId = account.profile.userId
 
-        guard try await needsSync(forceSync: forceSync, userId: userId) else { return }
+        guard try await needsSync(forceSync: forceSync, isPeriodic: isPeriodic, userId: userId) else {
+            return
+        }
 
         let response = try await syncAPIService.getSync()
 
@@ -278,7 +305,7 @@ extension DefaultSyncService {
         if let organizations = response.profile?.organizations {
             if await !vaultTimeoutService.isLocked(userId: userId) {
                 try await organizationService.initializeOrganizationCrypto(
-                    organizations: organizations.compactMap(Organization.init)
+                    organizations: organizations.compactMap(Organization.init),
                 )
             }
             try await organizationService.replaceOrganizations(organizations, userId: userId)
@@ -286,8 +313,10 @@ extension DefaultSyncService {
         }
 
         if let profile = response.profile {
-            await stateService.updateProfile(from: profile, userId: userId)
-            try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+            try await onProfileSynced(profile, userId: userId)
+        }
+        if let masterPasswordUnlock = response.userDecryption?.masterPasswordUnlock {
+            await stateService.setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
         }
 
         try await cipherService.replaceCiphers(response.ciphers, userId: userId)
@@ -305,7 +334,7 @@ extension DefaultSyncService {
             await delegate?.removeMasterPassword(
                 organizationName: organization.name,
                 organizationId: organization.id,
-                keyConnectorUrl: keyConnectorUrl
+                keyConnectorUrl: keyConnectorUrl,
             )
         }
 
@@ -435,7 +464,7 @@ extension DefaultSyncService {
         // their stored timeout value is > the policy's timeout value.
         if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
             try await stateService.setVaultTimeout(
-                value: SessionTimeoutValue(rawValue: value)
+                value: SessionTimeoutValue(rawValue: value),
             )
         }
 
@@ -448,7 +477,7 @@ extension DefaultSyncService {
     ///
     private func checkTdeUserNeedsToSetPassword(
         _ account: Account,
-        _ organizations: [ProfileOrganizationResponseModel]
+        _ organizations: [ProfileOrganizationResponseModel],
     ) async throws {
         if organizations.count == 1,
            organizations.contains(where: \.passwordRequired),
@@ -456,6 +485,19 @@ extension DefaultSyncService {
            account.profile.userDecryptionOptions?.trustedDeviceOption != nil,
            account.profile.userDecryptionOptions?.hasMasterPassword == false {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
+        }
+    }
+
+    /// Updates the necessary state when an account profile is synced.
+    /// - Parameters:
+    ///   - profile: Profile synced.
+    ///   - userId: The user ID used for the sync.
+    private func onProfileSynced(_ profile: ProfileResponseModel, userId: String) async throws {
+        await stateService.updateProfile(from: profile, userId: userId)
+        try await stateService.setUsesKeyConnector(profile.usesKeyConnector, userId: userId)
+
+        if let accountEncryptionKeys = AccountEncryptionKeys(responseModel: profile) {
+            try await stateService.setAccountEncryptionKeys(accountEncryptionKeys, userId: userId)
         }
     }
 } // swiftlint:disable:this file_length

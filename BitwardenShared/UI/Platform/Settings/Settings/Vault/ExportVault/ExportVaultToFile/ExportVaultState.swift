@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - ExportVaultState
 
 /// An object that defines the current state of the `ExportVaultView`.

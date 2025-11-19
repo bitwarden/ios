@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -17,13 +19,13 @@ class AppearanceProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         stateService = MockStateService()
         let services = ServiceContainer.withMocks(
-            stateService: stateService
+            stateService: stateService,
         )
 
         subject = AppearanceProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: AppearanceState()
+            state: AppearanceState(),
         )
     }
 

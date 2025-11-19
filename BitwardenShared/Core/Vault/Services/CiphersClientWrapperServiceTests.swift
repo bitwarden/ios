@@ -51,17 +51,52 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
         await subject.decryptAndProcessCiphersInBatch(batchSize: 100, ciphers: ciphers, onCipher: onCipherClosure)
 
         XCTAssertEqual(onCipherCallCount, 950)
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations.count, 10)
-        for invocationIndex in 1 ..< 8 {
-            XCTAssertEqual(
-                clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[invocationIndex].count,
-                100
-            )
+        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
+            .decryptListWithFailuresReceivedCiphersInvocations
+        XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
+        for invocationIndex in 0 ..< 9 {
+            XCTAssertEqual(decryptListWithFailuresInvocations[invocationIndex].count, 100)
         }
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[9].count, 50)
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[0][40].id, "40")
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[4][0].id, "400")
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[9][20].id, "920")
+        XCTAssertEqual(decryptListWithFailuresInvocations[9].count, 50)
+        XCTAssertEqual(decryptListWithFailuresInvocations[0][40].id, "40")
+        XCTAssertEqual(decryptListWithFailuresInvocations[4][0].id, "400")
+        XCTAssertEqual(decryptListWithFailuresInvocations[9][20].id, "920")
+    }
+
+    /// `decryptAndProcessCiphersInBatch(batchSize:ciphers:onCipher:)` decrypts ciphers in batches
+    /// by the size and converts any failures to `CipherListView`s which can be identified by
+    /// the `isDecryptionFailure` property.
+    func test_decryptAndProcessCiphersInBatch_withFailures() async {
+        let ciphers: [Cipher] = (0 ..< 950).map { Cipher.fixture(id: "\($0)") }
+        var decryptedCiphers: [CipherListView] = []
+        var onCipherCallCount = 0
+        let onCipherClosure: (CipherListView) async throws -> Void = { decryptedCipher in
+            onCipherCallCount += 1
+            decryptedCiphers.append(decryptedCipher)
+        }
+        clientService.mockVault.clientCiphers.decryptListWithFailuresResultClosure = { ciphers in
+            let successes = ciphers.filter { $0.id != "240" }.map { CipherListView(cipher: $0) }
+            let failures = ciphers.filter { $0.id == "240" }
+            return DecryptCipherListResult(successes: successes, failures: failures)
+        }
+
+        await subject.decryptAndProcessCiphersInBatch(batchSize: 100, ciphers: ciphers, onCipher: onCipherClosure)
+
+        XCTAssertEqual(onCipherCallCount, 950)
+        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
+            .decryptListWithFailuresReceivedCiphersInvocations
+        XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
+        for invocationIndex in 0 ..< 9 {
+            XCTAssertEqual(decryptListWithFailuresInvocations[invocationIndex].count, 100)
+        }
+        XCTAssertEqual(decryptListWithFailuresInvocations[9].count, 50)
+        XCTAssertEqual(decryptListWithFailuresInvocations[0][40].id, "40")
+        XCTAssertEqual(decryptListWithFailuresInvocations[4][0].id, "400")
+        XCTAssertEqual(decryptListWithFailuresInvocations[9][20].id, "920")
+
+        for cipherListView in decryptedCiphers {
+            XCTAssertEqual(cipherListView.isDecryptionFailure, cipherListView.id == "240")
+        }
     }
 
     /// `decryptAndProcessCiphersInBatch(batchSize:ciphers:onCipher:)` decrypts ciphers in batches
@@ -74,30 +109,27 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
         }
         var onCipherCallCount = 0
         let onCipherClosure: (CipherListView) async throws -> Void = { decryptedCipher in
+            guard decryptedCipher.id != "200" else {
+                throw BitwardenTestError.example
+            }
+
             onCipherCallCount += 1
             decryptedCiphers.append(decryptedCipher)
-        }
-
-        clientService.mockVault.clientCiphers.decryptListErrorWhenCiphers = { ciphers in
-            ciphers.contains(where: { $0.id == "240" })
-                ? BitwardenTestError.example
-                : nil
         }
 
         await subject.decryptAndProcessCiphersInBatch(batchSize: 100, ciphers: ciphers, onCipher: onCipherClosure)
 
         XCTAssertEqual(onCipherCallCount, 850)
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations.count, 9)
-        for invocationIndex in 1 ..< 7 {
-            XCTAssertEqual(
-                clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[invocationIndex].count,
-                100
-            )
+        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
+            .decryptListWithFailuresReceivedCiphersInvocations
+        XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
+        for invocationIndex in 0 ..< 9 {
+            XCTAssertEqual(decryptListWithFailuresInvocations[invocationIndex].count, 100)
         }
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[8].count, 50)
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[0][40].id, "40")
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[3][0].id, "400")
-        XCTAssertEqual(clientService.mockVault.clientCiphers.decryptListReceivedCiphersInvocations[8][20].id, "920")
+        XCTAssertEqual(decryptListWithFailuresInvocations[9].count, 50)
+        XCTAssertEqual(decryptListWithFailuresInvocations[0][40].id, "40")
+        XCTAssertEqual(decryptListWithFailuresInvocations[4][0].id, "400")
+        XCTAssertEqual(decryptListWithFailuresInvocations[9][20].id, "920")
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 }

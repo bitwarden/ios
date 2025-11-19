@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 /// A scroll view that contains the guided tour content.
@@ -62,7 +63,7 @@ struct GuidedTourScrollView<Content: View>: View {
     @ViewBuilder
     private func guidedTourView() -> some View {
         GuidedTourView(
-            store: store
+            store: store,
         )
     }
 

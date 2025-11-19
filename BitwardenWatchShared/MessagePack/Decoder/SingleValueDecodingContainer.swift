@@ -27,7 +27,7 @@ extension _MessagePackDecoder {
             guard data[index] == format else {
                 let context = DecodingError.Context(
                     codingPath: codingPath,
-                    debugDescription: "Invalid format: \(format)"
+                    debugDescription: "Invalid format: \(format)",
                 )
                 throw DecodingError.typeMismatch(type, context)
             }
@@ -72,7 +72,7 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
         default:
             throw DecodingError.dataCorruptedError(
                 in: self,
-                debugDescription: "Invalid format for String length: \(format)"
+                debugDescription: "Invalid format for String length: \(format)",
             )
         }
 
@@ -80,7 +80,7 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
         guard let string = String(data: data, encoding: .utf8) else {
             let context = DecodingError.Context(
                 codingPath: codingPath,
-                debugDescription: "Couldn't decode string with UTF-8 encoding"
+                debugDescription: "Couldn't decode string with UTF-8 encoding",
             )
             throw DecodingError.dataCorrupted(context)
         }
@@ -132,31 +132,29 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
 
     func decode<T>(_: T.Type) throws -> T where T: BinaryInteger & Decodable {
         let format = try readByte()
-        var t: T?
-
-        switch format {
+        let t: T? = switch format {
         case 0x00 ... 0x7F:
-            t = T(format)
+            T(format)
         case 0xCC:
-            t = try T(exactly: read(UInt8.self))
+            try T(exactly: read(UInt8.self))
         case 0xCD:
-            t = try T(exactly: read(UInt16.self))
+            try T(exactly: read(UInt16.self))
         case 0xCE:
-            t = try T(exactly: read(UInt32.self))
+            try T(exactly: read(UInt32.self))
         case 0xCF:
-            t = try T(exactly: read(UInt64.self))
+            try T(exactly: read(UInt64.self))
         case 0xD0:
-            t = try T(exactly: read(Int8.self))
+            try T(exactly: read(Int8.self))
         case 0xD1:
-            t = try T(exactly: read(Int16.self))
+            try T(exactly: read(Int16.self))
         case 0xD2:
-            t = try T(exactly: read(Int32.self))
+            try T(exactly: read(Int32.self))
         case 0xD3:
-            t = try T(exactly: read(Int64.self))
+            try T(exactly: read(Int64.self))
         case 0xE0 ... 0xFF:
-            t = T(exactly: Int8(bitPattern: format))
+            T(exactly: Int8(bitPattern: format))
         default:
-            t = nil
+            nil
         }
 
         guard let value = t else {
@@ -211,7 +209,7 @@ extension _MessagePackDecoder.SingleValueContainer: SingleValueDecodingContainer
         default:
             throw DecodingError.dataCorruptedError(
                 in: self,
-                debugDescription: "Invalid format for Data length: \(format)"
+                debugDescription: "Invalid format for Data length: \(format)",
             )
         }
 

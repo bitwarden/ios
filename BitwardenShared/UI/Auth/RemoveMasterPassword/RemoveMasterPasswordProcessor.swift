@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - RemoveMasterPasswordProcessor
@@ -7,7 +9,7 @@ import BitwardenSdk
 class RemoveMasterPasswordProcessor: StateProcessor<
     RemoveMasterPasswordState,
     RemoveMasterPasswordAction,
-    RemoveMasterPasswordEffect
+    RemoveMasterPasswordEffect,
 > {
     // MARK: Types
 
@@ -35,7 +37,7 @@ class RemoveMasterPasswordProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: RemoveMasterPasswordState
+        state: RemoveMasterPasswordState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -102,7 +104,7 @@ class RemoveMasterPasswordProcessor: StateProcessor<
         } catch is BitwardenSdk.BitwardenError {
             coordinator.showAlert(.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidMasterPassword
+                message: Localizations.invalidMasterPassword,
             ))
         } catch {
             services.errorReporter.log(error: error)

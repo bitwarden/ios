@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 @testable import BitwardenShared
@@ -9,7 +10,7 @@ class MockCryptoClient: CryptoClientProtocol {
     var derivePinKeyPin: String?
     var derivePinUserKey: String?
     var derivePinKeyResult: Result<DerivePinKeyResponse, Error> = .success(
-        DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: "")
+        DerivePinKeyResponse(pinProtectedUserKey: "", encryptedPin: ""),
     )
 
     var derivePinUserKeyPin: String?
@@ -20,6 +21,23 @@ class MockCryptoClient: CryptoClientProtocol {
     var enrollAdminPasswordPublicKey: String?
     var enrollAdminPasswordResetResult: Result<String, Error> = .success("RESET_PASSWORD_KEY")
 
+    var enrollPinPin: String?
+    var enrollPinResult: Result<EnrollPinResponse, Error> = .success(
+        EnrollPinResponse(
+            pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+            userKeyEncryptedPin: "userKeyEncryptedPin",
+        ),
+    )
+
+    var enrollPinWithEncryptedPinEncryptedPin: String?
+    var enrollPinWithEncryptedPinResult: Result<EnrollPinResponse, Error> = .success(
+        EnrollPinResponse(
+            pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+            userKeyEncryptedPin: "userKeyEncryptedPin",
+        ),
+    )
+
+    var getUserEncryptionKeyCalled = false
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
     var initializeOrgCryptoRequest: InitOrgCryptoRequest?
@@ -28,12 +46,34 @@ class MockCryptoClient: CryptoClientProtocol {
     var initializeUserCryptoRequest: InitUserCryptoRequest?
     var initializeUserCryptoResult: Result<Void, Error> = .success(())
 
-    var updatePasswordNewPassword: String?
-    var updatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
+    var makeUpdateKdfKdf: Kdf?
+    var makeUpdateKdfPassword: String?
+    var makeUpdateKdfResult: Result<UpdateKdfResponse, Error> = .success(
+        UpdateKdfResponse(
+            masterPasswordAuthenticationData: MasterPasswordAuthenticationData(
+                kdf: .pbkdf2(iterations: NonZeroU32(Constants.pbkdf2Iterations)),
+                salt: "AUTHENTICATION_SALT",
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
+            ),
+            masterPasswordUnlockData: MasterPasswordUnlockData(
+                kdf: .pbkdf2(iterations: NonZeroU32(Constants.pbkdf2Iterations)),
+                masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                salt: "UNLOCK_SALT",
+            ),
+            oldMasterPasswordAuthenticationData: MasterPasswordAuthenticationData(
+                kdf: .pbkdf2(iterations: NonZeroU32(Constants.pbkdf2Iterations)),
+                salt: "OLD_AUTHENTICATION_SALT",
+                masterPasswordAuthenticationHash: "MASTER_PASSWORD_AUTHENTICATION_HASH",
+            ),
+        ),
+    )
+
+    var makeUpdatePasswordNewPassword: String?
+    var makeUpdatePasswordResult: Result<UpdatePasswordResponse, Error> = .success(
         UpdatePasswordResponse(
             passwordHash: "password hash",
-            newKey: "new key"
-        )
+            newKey: "new key",
+        ),
     )
 
     func deriveKeyConnector(request: DeriveKeyConnectorRequest) throws -> String {
@@ -55,8 +95,19 @@ class MockCryptoClient: CryptoClientProtocol {
         return try enrollAdminPasswordResetResult.get()
     }
 
+    func enrollPin(pin: String) throws -> EnrollPinResponse {
+        enrollPinPin = pin
+        return try enrollPinResult.get()
+    }
+
+    func enrollPinWithEncryptedPin(encryptedPin: EncString) throws -> EnrollPinResponse {
+        enrollPinWithEncryptedPinEncryptedPin = encryptedPin
+        return try enrollPinWithEncryptedPinResult.get()
+    }
+
     func getUserEncryptionKey() async throws -> String {
-        try getUserEncryptionKeyResult.get()
+        getUserEncryptionKeyCalled = true
+        return try getUserEncryptionKeyResult.get()
     }
 
     func initializeOrgCrypto(req: InitOrgCryptoRequest) async throws {
@@ -69,8 +120,18 @@ class MockCryptoClient: CryptoClientProtocol {
         return try initializeUserCryptoResult.get()
     }
 
+    func makeUpdateKdf(password: String, kdf: Kdf) throws -> UpdateKdfResponse {
+        makeUpdateKdfPassword = password
+        makeUpdateKdfKdf = kdf
+        return try makeUpdateKdfResult.get()
+    }
+
+    func makeUpdatePassword(newPassword: String) throws -> UpdatePasswordResponse {
+        makeUpdatePasswordNewPassword = newPassword
+        return try makeUpdatePasswordResult.get()
+    }
+
     func updatePassword(newPassword: String) throws -> BitwardenSdk.UpdatePasswordResponse {
-        updatePasswordNewPassword = newPassword
-        return try updatePasswordResult.get()
+        fatalError("Use makeUpdatePassword(newPassword:) instead")
     }
 }

@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 /// Helper functions extended from the `View` protocol
@@ -16,7 +17,7 @@ extension View {
         color: Color,
         width: CGFloat? = nil,
         height: CGFloat? = nil,
-        scaleWithFont: Bool = true
+        scaleWithFont: Bool = true,
     ) -> some View {
         VStack {
             self

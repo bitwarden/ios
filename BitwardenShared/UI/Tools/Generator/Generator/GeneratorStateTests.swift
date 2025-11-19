@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import InlineSnapshotTesting
 import XCTest
@@ -88,7 +89,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
               Menu: Username type
                 Selection: Catch-all email
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your domain's configured catch-all inbox.
+                Footer: Use your domain’s configured catch-all inbox.
               Text: Domain name (required) Value: (empty)
             """
         }
@@ -100,7 +101,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .addyIO
-        subject.usernameState.addyIOSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -224,7 +224,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .simpleLogin
-        subject.usernameState.simpleLoginSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -258,7 +257,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
               Menu: Username type
                 Selection: Plus addressed email
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your email provider's subaddress capabilities
+                Footer: Use your email provider’s subaddress capabilities
               Text: Email (required) Value: (empty)
             """
         }
@@ -377,8 +376,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 numWords: 3,
                 wordSeparator: "-",
                 capitalize: false,
-                includeNumber: false
-            )
+                includeNumber: false,
+            ),
         )
 
         subject.numberOfWords = 6
@@ -392,8 +391,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 numWords: 6,
                 wordSeparator: "*",
                 capitalize: true,
-                includeNumber: true
-            )
+                includeNumber: true,
+            ),
         )
     }
 
@@ -414,8 +413,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 minLowercase: 1,
                 minUppercase: 1,
                 minNumber: 1,
-                minSpecial: nil
-            )
+                minSpecial: nil,
+            ),
         )
     }
 
@@ -442,8 +441,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 minLowercase: nil,
                 minUppercase: nil,
                 minNumber: nil,
-                minSpecial: 1
-            )
+                minSpecial: 1,
+            ),
         )
     }
 
@@ -467,8 +466,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 minLowercase: 1,
                 minUppercase: 1,
                 minNumber: 2,
-                minSpecial: 3
-            )
+                minSpecial: 3,
+            ),
         )
     }
 
@@ -539,6 +538,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         var subject = GeneratorState().usernameState
 
         subject.usernameGeneratorType = .catchAllEmail
+        XCTAssertFalse(subject.canGenerateUsername)
+        subject.domain = "example.com"
         XCTAssertTrue(subject.canGenerateUsername)
 
         subject.usernameGeneratorType = .plusAddressedEmail
@@ -640,13 +641,13 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.catchAllEmailType = .random
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .catchall(type: .random, domain: "bitwarden.com")
+            .catchall(type: .random, domain: "bitwarden.com"),
         )
 
         subject.catchAllEmailType = .website
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .catchall(type: .websiteName(website: "example.com"), domain: "bitwarden.com")
+            .catchall(type: .websiteName(website: "example.com"), domain: "bitwarden.com"),
         )
     }
 
@@ -671,28 +672,28 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 service: .addyIo(
                     apiToken: "ADDY IO TOKEN",
                     domain: "addy-example.com",
-                    baseUrl: "https://app.addy.io"
+                    baseUrl: "https://app.addy.io",
                 ),
-                website: "example.com"
-            )
+                website: "example.com",
+            ),
         )
 
         subject.forwardedEmailService = .duckDuckGo
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .forwarded(service: .duckDuckGo(token: "DUCK DUCK GO TOKEN"), website: "example.com")
+            .forwarded(service: .duckDuckGo(token: "DUCK DUCK GO TOKEN"), website: "example.com"),
         )
 
         subject.forwardedEmailService = .fastmail
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .forwarded(service: .fastmail(apiToken: "FASTMAIL TOKEN"), website: "example.com")
+            .forwarded(service: .fastmail(apiToken: "FASTMAIL TOKEN"), website: "example.com"),
         )
 
         subject.forwardedEmailService = .firefoxRelay
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .forwarded(service: .firefox(apiToken: "FIREFOX TOKEN"), website: "example.com")
+            .forwarded(service: .firefox(apiToken: "FIREFOX TOKEN"), website: "example.com"),
         )
 
         subject.forwardedEmailService = .forwardEmail
@@ -701,10 +702,10 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .forwarded(
                 service: .forwardEmail(
                     apiToken: "FORWARDEMAIL TOKEN",
-                    domain: "forward-example.com"
+                    domain: "forward-example.com",
                 ),
-                website: "example.com"
-            )
+                website: "example.com",
+            ),
         )
 
         subject.forwardedEmailService = .simpleLogin
@@ -713,10 +714,10 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .forwarded(
                 service: .simpleLogin(
                     apiKey: "SIMPLE LOGIN TOKEN",
-                    baseUrl: "https://app.simplelogin.io"
+                    baseUrl: "https://app.simplelogin.io",
                 ),
-                website: "example.com"
-            )
+                website: "example.com",
+            ),
         )
     }
 
@@ -730,13 +731,13 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.plusAddressedEmailType = .random
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .subaddress(type: .random, email: "user@bitwarden.com")
+            .subaddress(type: .random, email: "user@bitwarden.com"),
         )
 
         subject.plusAddressedEmailType = .website
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .subaddress(type: .websiteName(website: "example.com"), email: "user@bitwarden.com")
+            .subaddress(type: .websiteName(website: "example.com"), email: "user@bitwarden.com"),
         )
     }
 
@@ -842,7 +843,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         for keyPath in keyPaths {
             XCTAssertFalse(
                 subject.shouldGenerateNewValueOnTextValueChanged(keyPath: keyPath),
-                "Expected false for key path \(keyPath)"
+                "Expected false for key path \(keyPath)",
             )
         }
     }
@@ -868,7 +869,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             case let .slider(slider):
                 result.append(
                     "Slider: \(slider.title) Value: \(slider.value) " +
-                        "Range: \(slider.range.description) Step: \(slider.step)"
+                        "Range: \(slider.range.description) Step: \(slider.step)",
                 )
             case let .stepper(stepper):
                 result.append("Stepper: \(stepper.title) Value: \(stepper.value) Range: \(stepper.range)")
@@ -905,7 +906,7 @@ private extension FormMenuField {
             indent + "  Options: \(options.map(\.localizedName).joined(separator: ", "))",
             footer.map { indent + "  Footer: \($0)" },
         ]
-        .compactMap { $0 }
+        .compactMap(\.self)
         .joined(separator: "\n")
     }
 }

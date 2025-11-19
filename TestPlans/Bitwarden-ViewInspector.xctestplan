@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "D4F7B2E5-8A3C-4D6F-9B8E-5C4A3F2E1D7B",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "65DAC3D69CB63D5E39AA4601",
+        "name" : "BitwardenSharedViewInspectorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

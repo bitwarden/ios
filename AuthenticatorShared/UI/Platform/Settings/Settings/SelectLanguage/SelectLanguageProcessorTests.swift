@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import AuthenticatorShared
@@ -9,7 +11,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSelectLanguageDelegate!
-    var stateService: MockStateService!
+    var languageStateService: MockLanguageStateService!
     var subject: SelectLanguageProcessor!
 
     // MARK: Setup & Teardown
@@ -19,16 +21,16 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         delegate = MockSelectLanguageDelegate()
-        stateService = MockStateService()
+        languageStateService = MockLanguageStateService()
         let services = ServiceContainer.withMocks(
-            stateService: stateService
+            languageStateService: languageStateService,
         )
 
         subject = SelectLanguageProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: SelectLanguageState()
+            state: SelectLanguageState(),
         )
     }
 
@@ -37,7 +39,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         delegate = nil
-        stateService = nil
+        languageStateService = nil
         subject = nil
     }
 
@@ -57,7 +59,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
         subject.receive(.languageTapped(.custom(languageCode: "th")))
 
         XCTAssertEqual(subject.state.currentLanguage, .custom(languageCode: "th"))
-        XCTAssertEqual(stateService.appLanguage, .custom(languageCode: "th"))
+        XCTAssertEqual(languageStateService.appLanguage, .custom(languageCode: "th"))
         XCTAssertEqual(delegate.selectedLanguage, .custom(languageCode: "th"))
         XCTAssertEqual(coordinator.alertShown.last, .languageChanged(to: LanguageOption("th").title) {})
 

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -20,7 +21,7 @@ struct VaultListItemRowView: View {
                 VaultItemDecorativeImageView(
                     item: store.state.item,
                     iconBaseURL: store.state.iconBaseURL,
-                    showWebIcons: store.state.showWebIcons
+                    showWebIcons: store.state.showWebIcons,
                 )
                 .imageStyle(.rowIcon)
                 .padding(.vertical, 19)
@@ -32,25 +33,25 @@ struct VaultListItemRowView: View {
                             HStack(spacing: 8) {
                                 Text(cipherItem.name)
                                     .styleGuide(.body)
-                                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                                     .lineLimit(1)
                                     .accessibilityIdentifier("CipherNameLabel")
 
                                 if cipherItem.organizationId != nil {
-                                    Asset.Images.collections16.swiftUIImage
+                                    SharedAsset.Icons.collections16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
-                                            color: Asset.Colors.textSecondary.swiftUIColor,
-                                            scaleWithFont: true
+                                            color: SharedAsset.Colors.textSecondary.swiftUIColor,
+                                            scaleWithFont: true,
                                         ))
                                         .accessibilityLabel(Localizations.shared)
                                         .accessibilityIdentifier("CipherInCollectionIcon")
                                 }
 
                                 if cipherItem.attachments > 0 {
-                                    Asset.Images.paperclip16.swiftUIImage
+                                    SharedAsset.Icons.paperclip16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
-                                            color: Asset.Colors.textSecondary.swiftUIColor,
-                                            scaleWithFont: true
+                                            color: SharedAsset.Colors.textSecondary.swiftUIColor,
+                                            scaleWithFont: true,
                                         ))
                                         .accessibilityLabel(Localizations.attachments)
                                         .accessibilityIdentifier("CipherWithAttachmentsIcon")
@@ -61,7 +62,7 @@ struct VaultListItemRowView: View {
                                let fido2CredentialRpId = store.state.item.fido2CredentialRpId {
                                 Text(fido2CredentialRpId)
                                     .styleGuide(.subheadline)
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                                     .lineLimit(1)
                                     .accessibilityIdentifier("CipherFido2CredentialRpIdLabel")
                             }
@@ -69,7 +70,7 @@ struct VaultListItemRowView: View {
                             if let subTitle = store.state.item.subtitle, !subTitle.isEmpty {
                                 Text(subTitle)
                                     .styleGuide(.subheadline)
-                                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                                     .lineLimit(1)
                                     .accessibilityIdentifier("CipherSubTitleLabel")
                             }
@@ -78,11 +79,11 @@ struct VaultListItemRowView: View {
 
                         Spacer()
 
-                        if !store.state.isFromExtension {
+                        if !store.state.isFromExtension, !cipherItem.isDecryptionFailure {
                             AsyncButton {
                                 await store.perform(.morePressed)
                             } label: {
-                                Asset.Images.ellipsisHorizontal24.swiftUIImage
+                                SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                                     .imageStyle(.rowIcon)
                             }
                             .accessibilityLabel(Localizations.more)
@@ -92,12 +93,12 @@ struct VaultListItemRowView: View {
                     case let .group(group, count):
                         Text(group.name)
                             .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                             .accessibilityIdentifier("GroupNameLabel")
                         Spacer()
                         Text("\(count)")
                             .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .accessibilityIdentifier("GroupCountLabel")
 
                     case let .totp(name, model):
@@ -124,18 +125,18 @@ struct VaultListItemRowView: View {
     @ViewBuilder
     private func totpCodeRow(
         _ name: String,
-        _ model: VaultListTOTP
+        _ model: VaultListTOTP,
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(name)
                 .styleGuide(.body)
                 .lineLimit(1)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             if let username = model.cipherListView.type.loginListView?.username {
                 Text(username)
                     .styleGuide(.subheadline)
                     .lineLimit(1)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
         }
         Spacer()
@@ -143,20 +144,20 @@ struct VaultListItemRowView: View {
             TOTPCountdownTimerView(
                 timeProvider: timeProvider,
                 totpCode: model.totpCode,
-                onExpiration: nil
+                onExpiration: nil,
             )
         }
         if !model.requiresMasterPassword {
             Text(model.totpCode.displayCode)
                 .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             if store.state.showTotpCopyButton {
                 Button {
                     store.send(.copyTOTPCode(model.totpCode.code))
                 } label: {
-                    Asset.Images.copy24.swiftUIImage
+                    SharedAsset.Icons.copy24.swiftUIImage
                 }
-                .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.iconPrimary.swiftUIColor)
                 .accessibilityLabel(Localizations.copyTotp)
             }
         }

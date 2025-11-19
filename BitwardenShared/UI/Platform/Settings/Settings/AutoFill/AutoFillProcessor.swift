@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - AutoFillProcessor
 
 /// The processor used to manage state and handle actions for the auto-fill screen.
@@ -30,7 +33,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: AutoFillState
+        state: AutoFillState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -54,10 +57,11 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         switch action {
         case .appExtensionTapped:
             coordinator.navigate(to: .appExtension)
+        case .clearUrl:
+            state.url = nil
         case let .defaultUriMatchTypeChanged(newValue):
-            state.defaultUriMatchType = newValue
             Task {
-                await updateDefaultUriMatchType(newValue)
+                await confirmAndUpdateDefaultUriMatchType(newValue)
             }
         case .passwordAutoFillTapped:
             coordinator.navigate(to: .passwordAutoFill)
@@ -72,6 +76,36 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     }
 
     // MARK: Private
+
+    /// Displays a warning for user to confirm if wants to update the defaultUriMatchType if necessary
+    ///
+    /// - Parameter defaultUriMatchType: The default URI match type.
+    ///
+    private func confirmAndUpdateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
+        switch defaultUriMatchType {
+        case .regularExpression:
+            coordinator.showAlert(
+                .confirmRegularExpressionMatchDetectionAlert {
+                    await self.updateDefaultUriMatchType(
+                        defaultUriMatchType,
+                        learnMoreLocalizedMatchType: Localizations.regEx,
+                    )
+                })
+        case .startsWith:
+            coordinator.showAlert(
+                .confirmStartsWithMatchDetectionAlert {
+                    await self.updateDefaultUriMatchType(
+                        defaultUriMatchType,
+                        learnMoreLocalizedMatchType: Localizations.startsWith,
+                    )
+                })
+        default:
+            await updateDefaultUriMatchType(
+                defaultUriMatchType,
+                learnMoreLocalizedMatchType: nil,
+            )
+        }
+    }
 
     /// Dismisses the set up autofill action card by marking the user's vault autofill setup progress complete.
     ///
@@ -88,7 +122,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     ///
     private func fetchSettingValues() async {
         do {
-            state.defaultUriMatchType = try await services.settingsRepository.getDefaultUriMatchType()
+            state.defaultUriMatchType = await services.settingsRepository.getDefaultUriMatchType()
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -109,12 +143,21 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     }
 
     /// Updates the default URI match type value for the user.
+    /// - Parameters:
+    ///   - updateUriMatchType: The new selected URI match type.
+    ///   - learnMoreLocalizedMatchType: The localized text to display on the learn more dialog.
     ///
-    /// - Parameter defaultUriMatchType: The default URI match type.
-    ///
-    private func updateDefaultUriMatchType(_ defaultUriMatchType: UriMatchType) async {
+    private func updateDefaultUriMatchType(
+        _ defaultUriMatchType: UriMatchType,
+        learnMoreLocalizedMatchType: String?,
+    ) async {
         do {
+            state.defaultUriMatchType = defaultUriMatchType
             try await services.settingsRepository.updateDefaultUriMatchType(defaultUriMatchType)
+
+            if let learnMoreText = learnMoreLocalizedMatchType, !learnMoreText.isEmpty {
+                showLearnMoreAlert(learnMoreText)
+            }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -132,5 +175,12 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Shows an alert asking the user if he wants to know more about Uri Matching
+    private func showLearnMoreAlert(_ defaultUriMatchTypeName: String) {
+        coordinator.showAlert(.learnMoreAdvancedMatchingDetection(defaultUriMatchTypeName) {
+            self.state.url = ExternalLinksConstants.uriMatchDetections
+        })
     }
 }

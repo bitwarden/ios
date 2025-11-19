@@ -20,21 +20,19 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                 authenticationMethod: .authorizationCode(
                     code: "code",
                     codeVerifier: "codeVerifier",
-                    redirectUri: "redirectUri"
+                    redirectUri: "redirectUri",
                 ),
-                captchaToken: "captchaToken",
                 deviceInfo: .fixture(),
-                loginRequestId: nil
-            )
+                loginRequestId: nil,
+            ),
         )
 
         subjectPassword = IdentityTokenRequest(
             requestModel: IdentityTokenRequestModel(
                 authenticationMethod: .password(username: "user@example.com", password: "password"),
-                captchaToken: "captchaToken",
                 deviceInfo: .fixture(),
-                loginRequestId: nil
-            )
+                loginRequestId: nil,
+            ),
         )
     }
 
@@ -54,7 +52,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
             String(data: bodyData, encoding: .utf8),
             "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
                 "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=authorization%5Fcode&code=code&" +
-                "code%5Fverifier=codeVerifier&redirect%5Furi=redirectUri&captchaResponse=captchaToken"
+                "code%5Fverifier=codeVerifier&redirect%5Furi=redirectUri",
         )
     }
 
@@ -65,7 +63,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
             String(data: bodyData, encoding: .utf8),
             "scope=api%20offline%5Faccess&client%5Fid=mobile&deviceIdentifier=1234&" +
                 "deviceName=iPhone%2014&deviceType=1&grant%5Ftype=password&" +
-                "username=user%40example%2Ecom&password=password&captchaResponse=captchaToken"
+                "username=user%40example%2Ecom&password=password",
         )
     }
 
@@ -74,9 +72,9 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertTrue(subjectAuthorizationCode.headers.isEmpty)
     }
 
-    /// `headers` returns the headers needed for a password request.
+    /// `headers` returns empty headers for a password request as Auth-Email is deprecated.
     func test_headers_password() {
-        XCTAssertEqual(subjectPassword.headers, ["Auth-Email": "dXNlckBleGFtcGxlLmNvbQ"])
+        XCTAssertTrue(subjectPassword.headers.isEmpty)
     }
 
     /// `method` returns the method of the request.
@@ -97,24 +95,11 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertTrue(subjectPassword.query.isEmpty)
     }
 
-    /// `validate(_:)` with a `400` status code and captcha error in the response body throws a `.captchaRequired`
-    /// error.
-    func test_validate_with400CaptchaError() {
+    /// `validate(_:)` with a `400` status code does not throw a validation error.
+    func test_validate_with400Error() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenCaptchaError.data
-        )
-
-        XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
-            XCTAssertEqual(error as? IdentityTokenRequestError, .captchaRequired(hCaptchaSiteCode: "1234"))
-        }
-    }
-
-    /// `validate(_:)` with a `400` status code but no captcha error does not throw a validation error.
-    func test_validate_with400NonCaptchaError() {
-        let response = HTTPResponse.failure(
-            statusCode: 400,
-            body: Data("example data".utf8)
+            body: Data("example data".utf8),
         )
 
         XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
@@ -125,7 +110,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_validate_with400NewDeviceError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenNewDeviceError.data
+            body: APITestData.identityTokenNewDeviceError.data,
         )
 
         XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
@@ -138,7 +123,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_validate_with400EncryptionKeyMigrationError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenEncryptionKeyMigrationError.data
+            body: APITestData.identityTokenEncryptionKeyMigrationError.data,
         )
 
         XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
@@ -151,7 +136,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     func test_validate_with400TwoFactorError() {
         let response = HTTPResponse.failure(
             statusCode: 400,
-            body: APITestData.identityTokenTwoFactorError.data
+            body: APITestData.identityTokenTwoFactorError.data,
         )
 
         XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
@@ -159,10 +144,9 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                 error as? IdentityTokenRequestError,
                 .twoFactorRequired(
                     AuthMethodsData.fixture(),
-                    "BWCaptchaBypass_ABCXYZ",
                     nil,
-                    "exampleToken"
-                )
+                    "exampleToken",
+                ),
             )
         }
     }
@@ -170,7 +154,7 @@ class IdentityTokenRequestTests: BitwardenTestCase {
     /// `validate(_:)` with a valid response does not throw a validation error.
     func test_validate_with200() {
         let response = HTTPResponse.success(
-            body: APITestData.identityTokenSuccess.data
+            body: APITestData.identityTokenSuccess.data,
         )
 
         XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))

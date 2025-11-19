@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AddEditFolderView
@@ -75,8 +77,8 @@ struct AddEditFolderView: View {
             title: Localizations.name,
             text: store.binding(
                 get: \.folderName,
-                send: AddEditFolderAction.folderNameTextChanged
-            )
+                send: AddEditFolderAction.folderNameTextChanged,
+            ),
         )
     }
 }

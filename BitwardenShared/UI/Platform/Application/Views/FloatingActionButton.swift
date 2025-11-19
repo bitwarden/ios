@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - FloatingActionButton
@@ -32,7 +34,7 @@ struct FloatingActionButton: View {
 #Preview {
     VStack {
         FloatingActionButton(
-            image: Asset.Images.pencil32.swiftUIImage) {}
+            image: SharedAsset.Icons.pencil32.swiftUIImage) {}
     }
     .padding()
 }

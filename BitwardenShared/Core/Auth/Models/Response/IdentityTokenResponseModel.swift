@@ -1,12 +1,16 @@
+import BitwardenKit
 import Foundation
 import Networking
 
 /// API response model for the identity token request.
 ///
-struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
+struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol, AccountKeysResponseModelProtocol {
     static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Account Properties
+
+    /// The user's account keys.
+    let accountKeys: PrivateKeysResponseModel?
 
     /// Whether the app needs to force a password reset.
     @DefaultFalse var forcePasswordReset: Bool

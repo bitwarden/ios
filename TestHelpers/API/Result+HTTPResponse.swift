@@ -5,7 +5,7 @@ public extension Result where Success == HTTPResponse, Error: Error {
     /// Convenience method to get a successful HTTPResponse result with APITestData.
     static func httpSuccess(testData: APITestData) -> Result<HTTPResponse, Error> {
         let response = HTTPResponse.success(
-            body: testData.data
+            body: testData.data,
         )
         return .success(response)
     }
@@ -14,12 +14,12 @@ public extension Result where Success == HTTPResponse, Error: Error {
     static func httpFailure(
         statusCode: Int = 500,
         headers: [String: String] = [:],
-        data: Data = Data()
+        data: Data = Data(),
     ) -> Result<HTTPResponse, Error> {
         let response = HTTPResponse.failure(
             statusCode: statusCode,
             headers: headers,
-            body: data
+            body: data,
         )
         return .success(response)
     }

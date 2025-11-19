@@ -33,7 +33,7 @@ class SceneDelegateTests: BitwardenTestCase {
     func test_sceneWillConnectTo_withWindowScene() throws {
         let appProcessor = AppProcessor(
             appModule: appModule,
-            services: ServiceContainer(errorReporter: MockErrorReporter())
+            services: ServiceContainer(errorReporter: MockErrorReporter()),
         )
         (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
 
@@ -59,7 +59,7 @@ class SceneDelegateTests: BitwardenTestCase {
     func test_sceneWillConnectTo_withNonWindowScene() throws {
         let appProcessor = AppProcessor(
             appModule: appModule,
-            services: ServiceContainer(errorReporter: MockErrorReporter())
+            services: ServiceContainer(errorReporter: MockErrorReporter()),
         )
         (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
 
@@ -82,7 +82,7 @@ class SceneDelegateTests: BitwardenTestCase {
     func test_sceneWillResignActive() {
         let appProcessor = AppProcessor(
             appModule: appModule,
-            services: ServiceContainer(errorReporter: MockErrorReporter())
+            services: ServiceContainer(errorReporter: MockErrorReporter()),
         )
         (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
 
@@ -102,7 +102,7 @@ class SceneDelegateTests: BitwardenTestCase {
     func test_sceneContinue() {
         let appProcessor = AppProcessor(
             appModule: appModule,
-            services: ServiceContainer(errorReporter: MockErrorReporter())
+            services: ServiceContainer(errorReporter: MockErrorReporter()),
         )
         (UIApplication.shared.delegate as? TestingAppDelegate)?.appProcessor = appProcessor
 

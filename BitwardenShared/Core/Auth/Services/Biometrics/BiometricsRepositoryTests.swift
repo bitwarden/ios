@@ -32,7 +32,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         subject = DefaultBiometricsRepository(
             biometricsService: biometricsService,
             keychainService: keychainService,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -68,7 +68,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_getBiometricUnlockKey_keychainServiceError() async throws {
         stateService.activeAccount = .fixture()
         keychainService.getResult = .failure(
-            KeychainServiceError.keyNotFound(.biometrics(userId: "1"))
+            KeychainServiceError.keyNotFound(.biometrics(userId: "1")),
         )
         await assertAsyncThrows(error: BiometricsServiceError.getAuthKeyFailed) {
             _ = try await subject.getUserAuthKey()
@@ -99,7 +99,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_getBiometricUnlockKey_authFailed() async throws {
         stateService.activeAccount = .fixture()
         keychainService.getResult = .failure(
-            KeychainServiceError.osStatusError(errSecAuthFailed)
+            KeychainServiceError.osStatusError(errSecAuthFailed),
         )
         await assertAsyncThrows(error: BiometricsServiceError.biometryCancelled) {
             _ = try await subject.getUserAuthKey()
@@ -130,7 +130,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
-            .notAvailable
+            .notAvailable,
         )
     }
 
@@ -145,7 +145,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
-            BiometricsUnlockStatus.available(.touchID, enabled: false)
+            BiometricsUnlockStatus.available(.touchID, enabled: false),
         )
     }
 
@@ -160,7 +160,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
-            BiometricsUnlockStatus.available(.faceID, enabled: true)
+            BiometricsUnlockStatus.available(.faceID, enabled: true),
         )
     }
 
@@ -188,7 +188,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let key = try await subject.getUserAuthKey()
         XCTAssertEqual(
             key,
-            "Dramatic Masterpiece"
+            "Dramatic Masterpiece",
         )
     }
 
@@ -284,10 +284,10 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_setBiometricUnlockKey_nilValue_setBiometricAuthenticationEnabledFailed() async throws {
         stateService.activeAccount = .fixture()
         stateService.setBiometricAuthenticationEnabledResult = .failure(
-            TestError.mock("setBiometricAuthenticationEnabledFailed")
+            TestError.mock("setBiometricAuthenticationEnabledFailed"),
         )
         await assertAsyncThrows(
-            error: TestError.mock("setBiometricAuthenticationEnabledFailed")
+            error: TestError.mock("setBiometricAuthenticationEnabledFailed"),
         ) {
             try await subject.setBiometricUnlockKey(authKey: nil)
         }
@@ -346,10 +346,10 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_setBiometricUnlockKey_withValue_setBiometricAuthenticationEnabledFailed() async throws {
         stateService.activeAccount = .fixture()
         stateService.setBiometricAuthenticationEnabledResult = .failure(
-            TestError.mock("setBiometricAuthenticationEnabledFailed")
+            TestError.mock("setBiometricAuthenticationEnabledFailed"),
         )
         await assertAsyncThrows(
-            error: TestError.mock("setBiometricAuthenticationEnabledFailed")
+            error: TestError.mock("setBiometricAuthenticationEnabledFailed"),
         ) {
             try await subject.setBiometricUnlockKey(authKey: "authKey")
         }
@@ -361,7 +361,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         stateService.setBiometricAuthenticationEnabledResult = .success(())
         keychainService.setResult = .failure(KeychainServiceError.osStatusError(13))
         await assertAsyncThrows(
-            error: BiometricsServiceError.setAuthKeyFailed
+            error: BiometricsServiceError.setAuthKeyFailed,
         ) {
             try await subject.setBiometricUnlockKey(authKey: "authKey")
         }
@@ -378,9 +378,9 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
             "authKey",
             keychainService.mockStorage[keychainService.formattedKey(
                 for: .biometrics(
-                    userId: "1"
-                )
-            )]
+                    userId: "1",
+                ),
+            )],
         )
         let result = try XCTUnwrap(stateService.biometricsEnabled["1"])
         XCTAssertTrue(result)

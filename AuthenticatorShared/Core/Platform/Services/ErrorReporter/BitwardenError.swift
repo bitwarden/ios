@@ -19,6 +19,9 @@ enum BitwardenError {
 
         /// An error occurred with data from the API.
         case dataError = 3000
+
+        /// A general-purpose error.
+        case generalError = 4000
     }
 
     // MARK: Errors
@@ -33,7 +36,26 @@ enum BitwardenError {
             code: Code.dataError.rawValue,
             userInfo: [
                 "ErrorMessage": message,
-            ]
+            ],
+        )
+    }
+
+    /// A general-purpose error.
+    ///
+    /// - Parameters:
+    ///   - type: The type of error. This is used to group the errors in the Crashlytics dashboard.
+    ///   - message: A message describing the error that occurred.
+    ///   - error: An optional underlying error that caused the error.
+    ///
+    static func generalError(type: String, message: String, error: Error? = nil) -> NSError {
+        var userInfo: [String: Any] = ["ErrorMessage": message]
+        if let error {
+            userInfo[NSUnderlyingErrorKey] = error
+        }
+        return NSError(
+            domain: "General Error: \(type)",
+            code: Code.generalError.rawValue,
+            userInfo: userInfo,
         )
     }
 
@@ -47,7 +69,7 @@ enum BitwardenError {
             code: Code.generatorOptionsError.rawValue,
             userInfo: [
                 NSUnderlyingErrorKey: error,
-            ]
+            ],
         )
     }
 
@@ -61,7 +83,7 @@ enum BitwardenError {
             code: Code.logoutError.rawValue,
             userInfo: [
                 NSUnderlyingErrorKey: error,
-            ]
+            ],
         )
     }
 }

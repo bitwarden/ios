@@ -6,14 +6,14 @@ import Foundation
 
 extension VaultListItem {
     static func fixture(
-        cipherListView: CipherListView = .fixture()
+        cipherListView: CipherListView = .fixture(),
     ) -> VaultListItem {
         VaultListItem(cipherListView: cipherListView)!
     }
 
     static func fixture(
         cipherListView: CipherListView = .fixture(),
-        fido2CredentialAutofillView: Fido2CredentialAutofillView
+        fido2CredentialAutofillView: Fido2CredentialAutofillView,
     ) -> VaultListItem {
         VaultListItem(cipherListView: cipherListView, fido2CredentialAutofillView: fido2CredentialAutofillView)!
     }
@@ -21,27 +21,27 @@ extension VaultListItem {
     static func fixtureGroup(
         id: String = "123",
         group: VaultListGroup = .card,
-        count: Int = 1
+        count: Int = 1,
     ) -> VaultListItem {
         VaultListItem(
             id: id,
             itemType: .group(
                 group,
-                count
-            )
+                count,
+            ),
         )
     }
 
     static func fixtureTOTP(
         name: String = "Name",
-        totp: VaultListTOTP
+        totp: VaultListTOTP,
     ) -> VaultListItem {
         VaultListItem(
             id: totp.id,
             itemType: .totp(
                 name: name,
-                totpModel: totp
-            )
+                totpModel: totp,
+            ),
         )
     }
 }
@@ -50,12 +50,12 @@ extension VaultListTOTP {
     static func fixture(
         id: String = "123",
         loginListView: BitwardenSdk.LoginListView = .fixture(
-            totp: .standardTotpKey
+            totp: .standardTotpKey,
         ),
         requiresMasterPassword: Bool = false,
         timeProvider: TimeProvider,
         totpCode: String = "123456",
-        totpPeriod: UInt32 = 30
+        totpPeriod: UInt32 = 30,
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
@@ -64,28 +64,28 @@ extension VaultListTOTP {
             totpCode: .init(
                 code: totpCode,
                 codeGenerationDate: timeProvider.presentTime,
-                period: totpPeriod
-            )
+                period: totpPeriod,
+            ),
         )
     }
 
     static func fixture(
         id: String = "123",
         loginListView: BitwardenSdk.LoginListView = .fixture(
-            totp: .standardTotpKey
+            totp: .standardTotpKey,
         ),
         requiresMasterPassword: Bool = false,
         totpCode: TOTPCodeModel = .init(
             code: "123456",
             codeGenerationDate: Date(),
-            period: 30
-        )
+            period: 30,
+        ),
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
             cipherListView: .fixture(type: .login(loginListView)),
             requiresMasterPassword: requiresMasterPassword,
-            totpCode: totpCode
+            totpCode: totpCode,
         )
     }
 
@@ -96,14 +96,14 @@ extension VaultListTOTP {
         totpCode: TOTPCodeModel = .init(
             code: "123456",
             codeGenerationDate: Date(),
-            period: 30
-        )
+            period: 30,
+        ),
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
             cipherListView: cipherListView,
             requiresMasterPassword: requiresMasterPassword,
-            totpCode: totpCode
+            totpCode: totpCode,
         )
     }
 }

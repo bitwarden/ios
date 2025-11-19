@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 /// An enum that describes how a URI should be matched for autofill to occur.
 ///
 enum UriMatchType: Int, CaseIterable, Codable, Equatable, Hashable, Menuable {
@@ -23,10 +26,10 @@ enum UriMatchType: Int, CaseIterable, Codable, Equatable, Hashable, Menuable {
         switch self {
         case .domain: Localizations.baseDomain
         case .host: Localizations.host
-        case .startsWith: Localizations.startsWith
         case .exact: Localizations.exact
-        case .regularExpression: Localizations.regEx
         case .never: Localizations.never
+        case .startsWith: Localizations.startsWithAdvanced
+        case .regularExpression: Localizations.regularExpressionAdvanced
         }
     }
 }

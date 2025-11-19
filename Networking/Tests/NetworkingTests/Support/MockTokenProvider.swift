@@ -8,7 +8,7 @@ class MockTokenProvider: TokenProvider {
 
     var getTokenCallCount = 0
     var tokenResults: [Result<String, Error>] = [.success("ACCESS_TOKEN")]
-    var refreshTokenResult: Result<Void, Error> = .success(())
+    var refreshTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
     var refreshTokenCallCount = 0
 
     func getToken() async throws -> String {
@@ -17,8 +17,8 @@ class MockTokenProvider: TokenProvider {
         return try tokenResults.removeFirst().get()
     }
 
-    func refreshToken() async throws {
+    func refreshToken() async throws -> String {
         refreshTokenCallCount += 1
-        try refreshTokenResult.get()
+        return try refreshTokenResult.get()
     }
 }

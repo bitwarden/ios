@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportCXFModule
 
 /// An object that builds coordinators for the Credential Exchange import flow.
@@ -11,17 +13,17 @@ protocol ImportCXFModule {
     /// - Returns: A coordinator that can navigate to `ImportCXFRoute`s.
     ///
     func makeImportCXFCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ImportCXFRoute, Void>
 }
 
 extension DefaultAppModule: ImportCXFModule {
     func makeImportCXFCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ImportCXFRoute, Void> {
         ImportCXFCoordinator(
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

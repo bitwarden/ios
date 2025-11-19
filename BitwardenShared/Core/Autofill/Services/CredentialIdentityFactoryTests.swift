@@ -42,9 +42,9 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                     .fixture(uri: expectedUri, match: .domain),
                 ],
                 username: expectedUsername,
-                totp: "1234"
+                totp: "1234",
             ),
-            name: expectedName
+            name: expectedName,
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertEqual(identities.count, 2)
@@ -55,14 +55,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(oneTimeCodeIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(
             oneTimeCodeIdentity.serviceIdentifier.type,
-            ASCredentialServiceIdentifier.IdentifierType.URL
+            ASCredentialServiceIdentifier.IdentifierType.URL,
         )
         XCTAssertEqual(oneTimeCodeIdentity.recordIdentifier, cipher.id)
 
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(
             passwordIdentity.serviceIdentifier.type,
-            ASCredentialServiceIdentifier.IdentifierType.URL
+            ASCredentialServiceIdentifier.IdentifierType.URL,
         )
         XCTAssertEqual(passwordIdentity.user, expectedUsername)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
@@ -89,9 +89,9 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                     .fixture(uri: "https://example2.com", match: .never),
                 ],
                 username: expectedUsername,
-                totp: "1234"
+                totp: "1234",
             ),
-            name: expectedName
+            name: expectedName,
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertEqual(identities.count, 2)
@@ -102,14 +102,14 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(oneTimeCodeIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(
             oneTimeCodeIdentity.serviceIdentifier.type,
-            ASCredentialServiceIdentifier.IdentifierType.URL
+            ASCredentialServiceIdentifier.IdentifierType.URL,
         )
         XCTAssertEqual(oneTimeCodeIdentity.recordIdentifier, cipher.id)
 
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(
             passwordIdentity.serviceIdentifier.type,
-            ASCredentialServiceIdentifier.IdentifierType.URL
+            ASCredentialServiceIdentifier.IdentifierType.URL,
         )
         XCTAssertEqual(passwordIdentity.user, expectedUsername)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
@@ -129,9 +129,9 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 uris: [
                     .fixture(uri: expectedUri, match: .domain),
                 ],
-                totp: "1234"
+                totp: "1234",
             ),
-            name: expectedName
+            name: expectedName,
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertEqual(identities.count, 1)
@@ -141,7 +141,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(oneTimeCodeIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(
             oneTimeCodeIdentity.serviceIdentifier.type,
-            ASCredentialServiceIdentifier.IdentifierType.URL
+            ASCredentialServiceIdentifier.IdentifierType.URL,
         )
         XCTAssertEqual(oneTimeCodeIdentity.recordIdentifier, cipher.id)
     }
@@ -161,8 +161,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 uris: [
                     .fixture(uri: expectedUri, match: .domain),
                 ],
-                username: expectedUsername
-            )
+                username: expectedUsername,
+            ),
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertEqual(identities.count, 1)
@@ -171,7 +171,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(
             passwordIdentity.serviceIdentifier.type,
-            ASCredentialServiceIdentifier.IdentifierType.URL
+            ASCredentialServiceIdentifier.IdentifierType.URL,
         )
         XCTAssertEqual(passwordIdentity.user, expectedUsername)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
@@ -191,8 +191,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                     .fixture(uri: "https://example.com", match: .never),
                 ],
                 username: "test",
-                totp: "1234"
-            )
+                totp: "1234",
+            ),
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertTrue(identities.isEmpty)
@@ -208,8 +208,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             login: .fixture(
                 password: "1234",
                 username: "test",
-                totp: "1234"
-            )
+                totp: "1234",
+            ),
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertTrue(identities.isEmpty)
@@ -229,8 +229,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                     .fixture(uri: "", match: .domain),
                 ],
                 username: "test",
-                totp: "1234"
-            )
+                totp: "1234",
+            ),
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertTrue(identities.isEmpty)
@@ -250,8 +250,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                     .fixture(uri: nil, match: .domain),
                 ],
                 username: "test",
-                totp: "1234"
-            )
+                totp: "1234",
+            ),
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertTrue(identities.isEmpty)
@@ -264,7 +264,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         }
 
         let cipher = CipherView.fixture(
-            card: .fixture()
+            card: .fixture(),
         )
         let identities = await subject.createCredentialIdentities(from: cipher)
         XCTAssertTrue(identities.isEmpty)
@@ -280,11 +280,11 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 uris: [
                     .fixture(uri: expectedUri, match: .domain),
                 ],
-                username: expectedUsername
-            )
+                username: expectedUsername,
+            ),
         )
         let passwordIdentity = try XCTUnwrap(
-            subject.tryCreatePasswordCredentialIdentity(from: cipher)
+            subject.tryCreatePasswordCredentialIdentity(from: cipher),
         )
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
@@ -295,7 +295,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
     /// `tryCreatePasswordCredentialIdentity(from:)` returns `nil` when cipher doesn't have login.
     func test_tryCreatePasswordCredentialIdentity_noLogin() throws {
         let cipher = CipherView.fixture(
-            login: nil
+            login: nil,
         )
         let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
         XCTAssertNil(passwordIdentity)
@@ -309,8 +309,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 uris: [
                     .fixture(uri: "https://example.com", match: .never),
                 ],
-                username: "expectedUsername"
-            )
+                username: "expectedUsername",
+            ),
         )
         let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
         XCTAssertNil(passwordIdentity)
@@ -324,8 +324,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 uris: [
                     .fixture(uri: "", match: .domain),
                 ],
-                username: "expectedUsername"
-            )
+                username: "expectedUsername",
+            ),
         )
         let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
         XCTAssertNil(passwordIdentity)
@@ -337,8 +337,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             login: .fixture(
                 password: "1234",
                 uris: [],
-                username: "expectedUsername"
-            )
+                username: "expectedUsername",
+            ),
         )
         let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
         XCTAssertNil(passwordIdentity)
@@ -353,8 +353,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 uris: [
                     .fixture(uri: expectedUri, match: .domain),
                 ],
-                username: nil
-            )
+                username: nil,
+            ),
         )
         let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
         XCTAssertNil(passwordIdentity)
@@ -369,8 +369,8 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 uris: [
                     .fixture(uri: expectedUri, match: .domain),
                 ],
-                username: ""
-            )
+                username: "",
+            ),
         )
         let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
         XCTAssertNil(passwordIdentity)

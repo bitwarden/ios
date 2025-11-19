@@ -10,16 +10,14 @@ public protocol Application {
     /// See note in `UIApplication+Application.swift`
     /// TODO: PM-11189
     ///
-    nonisolated
-    func startBackgroundTask(
+    nonisolated func startBackgroundTask(
         withName: String?,
-        expirationHandler: (() -> Void)?
+        expirationHandler: (() -> Void)?,
     ) -> UIBackgroundTaskIdentifier
 
     /// Marks the end of a specific long-running background task.
     ///
-    nonisolated
-    func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
+    nonisolated func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
 
     /// Registers the application to receive remote push notifications.
     ///

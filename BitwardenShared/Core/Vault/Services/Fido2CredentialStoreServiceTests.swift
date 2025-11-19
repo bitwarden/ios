@@ -30,7 +30,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
-            syncService: syncService
+            syncService: syncService,
         )
     }
 
@@ -59,9 +59,9 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
             .fixture(id: "6", type: .secureNote),
         ])
@@ -89,9 +89,9 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
         ])
         clientService.mockVault.clientCiphers.decryptListError = BitwardenTestError.example
@@ -126,12 +126,12 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                             ? expectedCredentialId
                             : Data(repeating: 123, count: 16),
                         cipherId: cipherId,
-                        rpId: expectedRpId
+                        rpId: expectedRpId,
                     ),
                     .fixture(
                         credentialId: Data(repeating: 123, count: 16),
                         cipherId: cipherId,
-                        rpId: "test"
+                        rpId: "test",
                     ),
                 ]
             }
@@ -161,12 +161,12 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                     .fixture(
                         credentialId: Data(repeating: 1, count: 16),
                         cipherId: cipherId,
-                        rpId: expectedRpId
+                        rpId: expectedRpId,
                     ),
                     .fixture(
                         credentialId: Data(repeating: 123, count: 16),
                         cipherId: cipherId,
-                        rpId: "test"
+                        rpId: "test",
                     ),
                 ]
             }
@@ -214,9 +214,9 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
         ])
         clientService.mockVault.clientCiphers.decryptResult = { _ in
@@ -236,9 +236,9 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
         ])
         clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
@@ -252,7 +252,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     /// `.saveCredential(cred:)` add cipher to server when no id present.
     func test_saveCredential_add() async throws {
         try await subject.saveCredential(
-            cred: EncryptionContext(encryptedFor: "1", cipher: .fixture())
+            cred: EncryptionContext(encryptedFor: "1", cipher: .fixture()),
         )
         XCTAssertTrue(cipherService.addCipherWithServerCiphers.count == 1)
         XCTAssertEqual(cipherService.addCipherWithServerEncryptedFor, "1")
@@ -294,27 +294,27 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
             .fixture(
                 id: "2",
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(rpId: "thrash"),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
             .fixture(
                 id: "3",
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(rpId: expectedRpId),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
             .fixture(
                 id: cipherIdWithFullFido2Credential,
@@ -322,18 +322,18 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                     fido2Credentials: [
                         .fixture(
                             credentialId: "some credential id",
-                            rpId: expectedRpId
+                            rpId: expectedRpId,
                         ),
-                    ]
+                    ],
                 ),
-                type: .login
+                type: .login,
             ),
             .fixture(id: "secureNote", type: .secureNote),
         ])
     }
 }
 
-class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable:this type_name
+class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var fido2CredentialStore: MockFido2CredentialStore!
@@ -345,9 +345,10 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         super.setUp()
 
         fido2CredentialStore = MockFido2CredentialStore()
+        Fido2DebuggingReportBuilder.builder.report = Fido2DebuggingReport()
 
         subject = DebuggingFido2CredentialStoreService(
-            fido2CredentialStore: fido2CredentialStore
+            fido2CredentialStore: fido2CredentialStore,
         )
     }
 
@@ -367,7 +368,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         XCTAssert(result.count == 1)
         XCTAssertFalse(
             (try? Fido2DebuggingReportBuilder.builder
-                .getReport()?.allCredentialsResult?.get().isEmpty) ?? true
+                .getReport()?.allCredentialsResult?.get().isEmpty) ?? true,
         )
     }
 
@@ -378,8 +379,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
             _ = try await subject.allCredentials()
         }
         XCTAssertNil(try? Fido2DebuggingReportBuilder.builder.getReport()?
-            .allCredentialsResult?.get()
-        )
+            .allCredentialsResult?.get())
     }
 
     /// `.findCredentials(ids:ripId:)` returns found credentials and reports it.
@@ -389,7 +389,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         XCTAssert(result.count == 1)
         XCTAssertFalse(
             (try? Fido2DebuggingReportBuilder.builder
-                .getReport()?.findCredentialsResult?.get().isEmpty) ?? true
+                .getReport()?.findCredentialsResult?.get().isEmpty) ?? true,
         )
     }
 
@@ -400,8 +400,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
             _ = try await subject.findCredentials(ids: nil, ripId: "something")
         }
         XCTAssertNil(try? Fido2DebuggingReportBuilder.builder.getReport()?
-            .findCredentialsResult?.get()
-        )
+            .findCredentialsResult?.get())
     }
 
     /// `.saveCredential(cred:)` saves credentials and adds it to the report.
@@ -410,7 +409,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
         XCTAssertTrue(fido2CredentialStore.saveCredentialCalled)
         XCTAssertTrue(
             (try? Fido2DebuggingReportBuilder.builder
-                .getReport()?.saveCredentialCipher?.get().id) == "1"
+                .getReport()?.saveCredentialCipher?.get().id) == "1",
         )
     }
 
@@ -421,7 +420,6 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlin
             try await subject.saveCredential(cred: EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")))
         }
         XCTAssertNil(try? Fido2DebuggingReportBuilder.builder.getReport()?
-            .saveCredentialCipher?.get()
-        )
+            .saveCredentialCipher?.get())
     }
 }

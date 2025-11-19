@@ -25,6 +25,9 @@ protocol AppSettingsStore: AnyObject {
     /// The default save location for new keys.
     var defaultSaveOption: DefaultSaveOption { get set }
 
+    /// The data used by the flight recorder for the active and any inactive logs.
+    var flightRecorderData: FlightRecorderData? { get set }
+
     /// Whether the user has seen the default save options prompt.
     var hasSeenDefaultSaveOptionPrompt: Bool { get }
 
@@ -290,7 +293,7 @@ class DefaultAppSettingsStore {
             userDefaults.set(String(data: data, encoding: .utf8), forKey: key.storageKey)
         } catch {
             Logger.application.error(
-                "Error storing \(key.storageKey): \(String(describing: value)) to UserDefaults: \(error)"
+                "Error storing \(key.storageKey): \(String(describing: value)) to UserDefaults: \(error)",
             )
         }
     }
@@ -310,6 +313,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case debugFeatureFlag(name: String)
         case defaultSaveOption
         case disableWebIcons
+        case flightRecorderData
         case hasSeenWelcomeTutorial
         case hasSyncedAccount(name: String)
         case lastActiveTime(userId: String)
@@ -321,44 +325,45 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
-            let key: String
-            switch self {
+            let key = switch self {
             case .appId:
-                key = "appId"
+                "appId"
             case .appLocale:
-                key = "appLocale"
+                "appLocale"
             case .appTheme:
-                key = "theme"
+                "theme"
             case let .biometricAuthEnabled(userId):
-                key = "biometricUnlock_\(userId)"
+                "biometricUnlock_\(userId)"
             case let .biometricIntegrityState(userId, bundleId):
-                key = "biometricIntegritySource_\(userId)_\(bundleId)"
+                "biometricIntegritySource_\(userId)_\(bundleId)"
             case let .cardClosedState(card: card):
-                key = "cardClosedState_\(card)"
+                "cardClosedState_\(card)"
             case let .clearClipboardValue(userId):
-                key = "clearClipboard_\(userId)"
+                "clearClipboard_\(userId)"
             case let .debugFeatureFlag(name):
-                key = "debugFeatureFlag_\(name)"
+                "debugFeatureFlag_\(name)"
             case .defaultSaveOption:
-                key = "defaultSaveOption"
+                "defaultSaveOption"
             case .disableWebIcons:
-                key = "disableFavicon"
+                "disableFavicon"
+            case .flightRecorderData:
+                "flightRecorderData"
             case .hasSeenWelcomeTutorial:
-                key = "hasSeenWelcomeTutorial"
+                "hasSeenWelcomeTutorial"
             case let .hasSyncedAccount(name: name):
-                key = "hasSyncedAccount_\(name)"
+                "hasSyncedAccount_\(name)"
             case let .lastActiveTime(userId):
-                key = "lastActiveTime_\(userId)"
+                "lastActiveTime_\(userId)"
             case .migrationVersion:
-                key = "migrationVersion"
+                "migrationVersion"
             case .preAuthServerConfig:
-                key = "preAuthServerConfig"
+                "preAuthServerConfig"
             case let .secretKey(userId):
-                key = "secretKey_\(userId)"
+                "secretKey_\(userId)"
             case let .serverConfig(userId):
-                key = "serverConfig_\(userId)"
+                "serverConfig_\(userId)"
             case let .vaultTimeout(userId):
-                key = "vaultTimeout_\(userId)"
+                "vaultTimeout_\(userId)"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -395,6 +400,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         set { store(newValue.rawValue, for: .defaultSaveOption) }
     }
 
+    var flightRecorderData: FlightRecorderData? {
+        get { fetch(for: .flightRecorderData) }
+        set { store(newValue, for: .flightRecorderData) }
+    }
+
     var hasSeenDefaultSaveOptionPrompt: Bool {
         fetch(for: .defaultSaveOption) != nil
     }
@@ -418,8 +428,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(
             for: .biometricIntegrityState(
                 userId: userId,
-                bundleId: bundleId
-            )
+                bundleId: bundleId,
+            ),
         )
     }
 
@@ -472,8 +482,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             base64EncodedIntegrityState,
             for: .biometricIntegrityState(
                 userId: userId,
-                bundleId: bundleId
-            )
+                bundleId: bundleId,
+            ),
         )
     }
 

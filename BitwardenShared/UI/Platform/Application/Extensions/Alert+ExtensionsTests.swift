@@ -1,5 +1,7 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKit
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared

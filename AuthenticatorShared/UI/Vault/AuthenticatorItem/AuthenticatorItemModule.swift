@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - AuthenticatorItemModule
@@ -11,18 +12,18 @@ protocol AuthenticatorItemModule {
     /// - Returns: A coordinator that can navigate to a `AuthenticatorItemRoute`.
     ///
     func makeAuthenticatorItemCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>
 }
 
 extension DefaultAppModule: AuthenticatorItemModule {
     func makeAuthenticatorItemCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent> {
         AuthenticatorItemCoordinator(
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

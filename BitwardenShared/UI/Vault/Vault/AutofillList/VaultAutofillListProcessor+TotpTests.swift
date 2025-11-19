@@ -63,9 +63,9 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 stateService: stateService,
                 totpExpirationManagerFactory: totpExpirationManagerFactory,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
-            state: VaultAutofillListState()
+            state: VaultAutofillListState(),
         )
     }
 
@@ -102,19 +102,19 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         let items = [
             VaultListItem(
                 id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1"))
+                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
             ),
             VaultListItem(
                 id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2"))
+                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
-        vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -135,19 +135,19 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         let items = [
             VaultListItem(
                 id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1"))
+                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
             ),
             VaultListItem(
                 id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2"))
+                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
         let expectedSection = VaultListSection(
             id: "",
             items: items,
-            name: ""
+            name: "",
         )
-        vaultRepository.ciphersAutofillSubject.value = [expectedSection]
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -167,18 +167,18 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         let items = [
             VaultListItem(
                 id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1"))
+                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
             ),
             VaultListItem(
                 id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2"))
+                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
         subject.state.vaultListSections = [
             VaultListSection(
                 id: "",
                 items: items,
-                name: ""
+                name: "",
             ),
         ]
         let refreshedItems = [
@@ -189,9 +189,9 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                     totpCode: .init(
                         code: "456789",
                         codeGenerationDate: Date(),
-                        period: 30
-                    )
-                ))
+                        period: 30,
+                    ),
+                )),
             ),
         ]
         vaultRepository.refreshTOTPCodesResult = .success(refreshedItems)
@@ -243,18 +243,18 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         let items = [
             VaultListItem(
                 id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1"))
+                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
             ),
             VaultListItem(
                 id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2"))
+                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
         subject.state.vaultListSections = [
             VaultListSection(
                 id: "",
                 items: items,
-                name: ""
+                name: "",
             ),
         ]
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
@@ -275,18 +275,18 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         let items = [
             VaultListItem(
                 id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1"))
+                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
             ),
             VaultListItem(
                 id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2"))
+                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
         subject.state.ciphersForSearch = [
             VaultListSection(
                 id: "",
                 items: items,
-                name: ""
+                name: "",
             ),
         ]
         let refreshedItems = [
@@ -297,9 +297,9 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                     totpCode: .init(
                         code: "456789",
                         codeGenerationDate: Date(),
-                        period: 30
-                    )
-                ))
+                        period: 30,
+                    ),
+                )),
             ),
         ]
         vaultRepository.refreshTOTPCodesResult = .success(refreshedItems)
@@ -342,7 +342,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         let items = [
             VaultListItem(
                 id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2"))
+                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
         subject.state.ciphersForSearch = []
@@ -354,9 +354,9 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                     totpCode: .init(
                         code: "456789",
                         codeGenerationDate: Date(),
-                        period: 30
-                    )
-                ))
+                        period: 30,
+                    ),
+                )),
             ),
         ]
         vaultRepository.refreshTOTPCodesResult = .success(refreshedItems)
@@ -380,18 +380,18 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         let items = [
             VaultListItem(
                 id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1"))
+                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
             ),
             VaultListItem(
                 id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2"))
+                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
         subject.state.ciphersForSearch = [
             VaultListSection(
                 id: "",
                 items: items,
-                name: ""
+                name: "",
             ),
         ]
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)

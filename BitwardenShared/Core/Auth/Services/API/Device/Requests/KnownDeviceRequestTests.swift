@@ -37,7 +37,7 @@ class KnownDeviceRequestTests: BitwardenTestCase {
     func test_init() {
         let subject = KnownDeviceRequest(
             email: "email@example.com",
-            deviceIdentifier: "1234"
+            deviceIdentifier: "1234",
         )
 
         XCTAssertEqual(subject.headers.count, 2)

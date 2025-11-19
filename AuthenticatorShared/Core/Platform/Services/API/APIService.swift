@@ -30,10 +30,12 @@ class APIService {
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///
     init(
         client: HTTPClient = URLSession.shared,
-        environmentService: EnvironmentService
+        environmentService: EnvironmentService,
+        flightRecorder: FlightRecorder,
     ) {
         self.client = client
 
@@ -41,14 +43,17 @@ class APIService {
             appName: "Bitwarden_Authenticator_Mobile",
             appVersion: Bundle.main.appVersion,
             buildNumber: Bundle.main.buildNumber,
-            systemDevice: UIDevice.current
+            systemDevice: UIDevice.current,
         )
 
         apiUnauthenticatedService = HTTPService(
             baseURLGetter: { environmentService.apiURL },
             client: client,
+            loggers: [
+                FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
+            ],
             requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler]
+            responseHandlers: [responseValidationHandler],
         )
     }
 }

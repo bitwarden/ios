@@ -7,12 +7,12 @@ extension Account {
     static func fixture(
         profile: AccountProfile = .fixture(),
         settings: AccountSettings = .fixture(),
-        tokens: AccountTokens? = nil
+        tokens: AccountTokens? = nil,
     ) -> Account {
         Account(
             profile: profile,
             settings: settings,
-            _tokens: tokens
+            _tokens: tokens,
         )
     }
 
@@ -26,14 +26,14 @@ extension Account {
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: true,
                     keyConnectorOption: nil,
-                    trustedDeviceOption: nil
+                    trustedDeviceOption: nil,
                 ),
-                userId: "13512467-9cfe-43b0-969f-07534084764b"
+                userId: "13512467-9cfe-43b0-969f-07534084764b",
             ),
             settings: Account.AccountSettings(
-                environmentUrls: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
+                environmentUrls: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!),
             ),
-            tokens: nil
+            tokens: nil,
         )
     }
 
@@ -48,12 +48,12 @@ extension Account {
                         encryptedUserKey: "USER_KEY",
                         hasAdminApproval: true,
                         hasLoginApprovingDevice: true,
-                        hasManageResetPasswordPermission: false
-                    )
-                )
+                        hasManageResetPasswordPermission: false,
+                    ),
+                ),
             ),
             settings: .fixture(),
-            tokens: nil
+            tokens: nil,
         )
     }
 
@@ -68,12 +68,12 @@ extension Account {
                         encryptedUserKey: "USER_KEY",
                         hasAdminApproval: true,
                         hasLoginApprovingDevice: true,
-                        hasManageResetPasswordPermission: false
-                    )
-                )
+                        hasManageResetPasswordPermission: false,
+                    ),
+                ),
             ),
             settings: .fixture(),
-            tokens: nil
+            tokens: nil,
         )
     }
 }
@@ -95,7 +95,7 @@ extension Account.AccountProfile {
         stamp: String? = "stamp",
         twoFactorEnabled: Bool? = nil,
         userDecryptionOptions: UserDecryptionOptions? = nil,
-        userId: String = "1"
+        userId: String = "1",
     ) -> Account.AccountProfile {
         Account.AccountProfile(
             avatarColor: avatarColor,
@@ -113,17 +113,17 @@ extension Account.AccountProfile {
             stamp: stamp,
             twoFactorEnabled: twoFactorEnabled,
             userDecryptionOptions: userDecryptionOptions,
-            userId: userId
+            userId: userId,
         )
     }
 }
 
 extension Account.AccountSettings {
     static func fixture(
-        environmentURLs: EnvironmentURLData? = .fixture()
+        environmentURLs: EnvironmentURLData? = .fixture(),
     ) -> Account.AccountSettings {
         Account.AccountSettings(
-            environmentUrls: environmentURLs
+            environmentUrls: environmentURLs,
         )
     }
 }

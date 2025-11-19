@@ -1,3 +1,4 @@
+import BitwardenKit
 import OSLog
 import SwiftUI
 
@@ -10,9 +11,12 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = AuthenticatorItemModule
         & ItemListModule
+        & NavigatorBuilderModule
 
     typealias Services = HasTimeProvider
+        & HasErrorAlertServices.ErrorAlertServices
         & ItemListProcessor.Services
+        & HasTOTPExpirationManagerFactory
 
     // MARK: - Private Properties
 
@@ -39,7 +43,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -77,11 +81,11 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp camera setup screen.
     ///
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
         coordinator.start()
 
@@ -92,11 +96,11 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             delegate: delegate,
             services: services,
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         ).asAnyCoordinator()
         coordinator.start()
         coordinator.navigate(to: .manualKeyEntry, context: nil)
@@ -109,12 +113,12 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         let processor = ItemListProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ItemListState()
+            state: ItemListState(),
         )
         let store = Store(processor: processor)
         let view = ItemListView(
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
         )
         stackNavigator?.replace(view, animated: false)
     }
@@ -124,7 +128,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
     private func showItem(route: AuthenticatorItemRoute, delegate: AuthenticatorItemOperationDelegate? = nil) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: route, context: delegate)
@@ -132,3 +136,10 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.present(navigationController)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension ItemListCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+

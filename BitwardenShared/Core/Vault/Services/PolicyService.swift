@@ -20,16 +20,22 @@ protocol PolicyService: AnyObject {
     ///
     func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)?
 
+    /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
+    /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
+    ///
+    func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions?
+
     /// Get all active restricted item types policy organization ids that apply to the active user.
     ///
     /// - Returns: Active policy organization ids that apply to the user.
     ///
     func getOrganizationIdsForRestricItemTypesPolicy() async -> [String]
 
-    /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
-    /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
+    /// Get the restricted types based on the organization's policies.
     ///
-    func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions?
+    /// - Returns: An array of restricted `CipherType`s.
+    ///
+    func getRestrictedItemCipherTypes() async -> [CipherType]
 
     /// Returns whether the send hide email option is disabled because of a policy.
     ///
@@ -37,10 +43,12 @@ protocol PolicyService: AnyObject {
     ///
     func isSendHideEmailDisabledByPolicy() async -> Bool
 
-    /// Whether the `cipher` passes the `.restrictItemTypes` policy.
-    /// - Parameter cipher: Cipher to check.
-    /// - Returns: `true` if it passes, `false` otherwise.
-    func passesRestrictItemTypesPolicy(cipher: CipherListView) async -> Bool
+    /// Gets the organizations IDs that are applying the policy to the active user.
+    ///
+    /// - Parameter policyType: The policy to check.
+    /// - Returns: The organizations applying the policy to the active user.
+    ///
+    func organizationsApplyingPolicyToUser(_ policyType: PolicyType) async -> [String]
 
     /// Determines whether a policy applies to the active user.
     ///
@@ -95,7 +103,7 @@ actor DefaultPolicyService: PolicyService {
         configService: ConfigService,
         organizationService: OrganizationService,
         policyDataStore: PolicyDataStore,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.configService = configService
         self.organizationService = organizationService
@@ -113,7 +121,9 @@ actor DefaultPolicyService: PolicyService {
     /// - Returns: Whether the organization is exempt from the policy.
     ///
     private func isOrganization(_ organization: Organization, exemptFrom policyType: PolicyType) -> Bool {
-        if policyType == .passwordGenerator || policyType == .removeUnlockWithPin {
+        if policyType == .passwordGenerator
+            || policyType == .removeUnlockWithPin
+            || policyType == .restrictItemTypes {
             return false
         }
 
@@ -172,7 +182,7 @@ actor DefaultPolicyService: PolicyService {
     private func policiesForUser(
         userId: String,
         type: PolicyType,
-        filter: ((Policy) -> Bool)? = nil
+        filter: ((Policy) -> Bool)? = nil,
     ) async throws -> [Policy] {
         let policies: [Policy]
         if let cachedPolicies = policiesByUserId[userId] {
@@ -277,12 +287,6 @@ extension DefaultPolicyService {
         return (timeoutAction, timeoutValue)
     }
 
-    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
-        await policiesApplyingToUser(.restrictItemTypes, filter: nil).map { policy in
-            policy.organizationId
-        }
-    }
-
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
         let policies = await policiesApplyingToUser(.masterPassword) { $0.data != nil }
         guard !policies.isEmpty else { return nil }
@@ -336,8 +340,23 @@ extension DefaultPolicyService {
             requireLower: requireLower,
             requireNumbers: requireNumbers,
             requireSpecial: requireSpecial,
-            enforceOnLogin: enforceOnLogin
+            enforceOnLogin: enforceOnLogin,
         )
+    }
+
+    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
+        await policiesApplyingToUser(.restrictItemTypes, filter: nil).map { policy in
+            policy.organizationId
+        }
+    }
+
+    func getRestrictedItemCipherTypes() async -> [CipherType] {
+        let restrictedTypesOrgIds = await getOrganizationIdsForRestricItemTypesPolicy()
+        guard !restrictedTypesOrgIds.isEmpty else {
+            return []
+        }
+
+        return [.card]
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {
@@ -346,12 +365,9 @@ extension DefaultPolicyService {
         }
     }
 
-    func passesRestrictItemTypesPolicy(cipher: CipherListView) async -> Bool {
-        guard await configService.getFeatureFlag(.removeCardPolicy) else {
-            return true
-        }
-        let restrictedOrganizationIds = await getOrganizationIdsForRestricItemTypesPolicy()
-        return cipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds)
+    func organizationsApplyingPolicyToUser(_ policyType: PolicyType) async -> [String] {
+        let policies = await policiesApplyingToUser(policyType, filter: nil)
+        return policies.map(\.organizationId)
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {

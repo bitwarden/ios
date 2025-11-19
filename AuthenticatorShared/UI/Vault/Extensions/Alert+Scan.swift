@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import UIKit
 
 // MARK: Alert+Scan
@@ -19,7 +21,7 @@ extension Alert {
                 AlertAction(title: Localizations.saveHere, style: .default) { _, _ in await saveLocallyAction() },
                 AlertAction(title: Localizations.saveToBitwarden,
                             style: .default) { _, _ in await sendToBitwardenAction() },
-            ]
+            ],
         )
     }
 
@@ -40,7 +42,7 @@ extension Alert {
                 AlertAction(title: Localizations.yesSetDefault, style: .default) { _, _ in await yesAction() },
                 AlertAction(title: Localizations.noAskMe,
                             style: .default) { _, _ in await noAction() },
-            ]
+            ],
         )
     }
 }

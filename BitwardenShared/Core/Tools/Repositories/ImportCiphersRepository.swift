@@ -11,10 +11,10 @@ protocol ImportCiphersRepository: AnyObject {
     ///   - onProgress: Closure to update progress.
     /// - Returns: A dictionary containing the localized cipher type (key) and count (value) of that type
     /// that was imported, e.g. ["Passwords": 3, "Cards": 2].
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func importCiphers(
         credentialImportToken: UUID,
-        onProgress: @MainActor (Double) -> Void
+        onProgress: @MainActor (Double) -> Void,
     ) async throws -> [CXFCredentialsResult]
 }
 
@@ -56,7 +56,7 @@ class DefaultImportCiphersRepository {
         credentialManagerFactory: CredentialManagerFactory,
         cxfCredentialsResultBuilder: CXFCredentialsResultBuilder,
         importCiphersService: ImportCiphersService,
-        syncService: SyncService
+        syncService: SyncService,
     ) {
         self.clientService = clientService
         self.credentialManagerFactory = credentialManagerFactory
@@ -69,15 +69,13 @@ class DefaultImportCiphersRepository {
 // MARK: ImportCiphersRepository
 
 extension DefaultImportCiphersRepository: ImportCiphersRepository {
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func importCiphers(
         credentialImportToken: UUID,
-        onProgress: @MainActor (Double) -> Void
+        onProgress: @MainActor (Double) -> Void,
     ) async throws -> [CXFCredentialsResult] {
-        #if SUPPORTS_CXP
-
         let credentialData = try await credentialManagerFactory.createImportManager().importCredentials(
-            token: credentialImportToken
+            token: credentialImportToken,
         )
         guard let accountData = credentialData.accounts.first else {
             // this should never happen.
@@ -98,7 +96,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             .importCiphers(
                 ciphers: ciphers,
                 folders: [],
-                folderRelationships: []
+                folderRelationships: [],
             )
 
         await onProgress(0.8)
@@ -110,9 +108,6 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
         await onProgress(1.0)
 
         return importedCredentialsCount.filter { !$0.isEmpty }
-        #else
-        return []
-        #endif
     }
 }
 

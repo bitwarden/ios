@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - AboutState
@@ -13,8 +15,8 @@ struct AboutState {
     /// The copyright text.
     var copyrightText = ""
 
-    /// The flight recorder's active log metadata, if logging is enabled.
-    var flightRecorderActiveLog: FlightRecorderData.LogMetadata?
+    /// The state for the Flight Recorder feature.
+    var flightRecorderState = FlightRecorderSettingsSectionState()
 
     /// Whether the submit crash logs toggle is on.
     var isSubmitCrashLogsToggleOn: Bool = false
@@ -27,22 +29,4 @@ struct AboutState {
 
     /// The version of the app.
     var version = ""
-
-    // MARK: Computed Properties
-
-    /// The accessibility label for the flight recorder toggle.
-    var flightRecorderToggleAccessibilityLabel: String {
-        var accessibilityLabelComponents = [Localizations.flightRecorder]
-        if let log = flightRecorderActiveLog {
-            // VoiceOver doesn't read the short date style correctly so use the medium style instead.
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateStyle = .medium
-
-            accessibilityLabelComponents.append(Localizations.loggingEndsOnDateAtTime(
-                dateFormatter.string(from: log.endDate),
-                log.formattedEndTime
-            ))
-        }
-        return accessibilityLabelComponents.joined(separator: ", ")
-    }
 }

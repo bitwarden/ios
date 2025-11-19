@@ -1,6 +1,7 @@
 // swiftlint:disable file_length
 
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -42,33 +43,25 @@ private struct SearchableVaultListView: View {
             search
                 .hidden(!isSearching)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .toast(
             store.binding(
                 get: \.toast,
-                send: VaultListAction.toastShown
+                send: VaultListAction.toastShown,
             ),
-            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
-        .toastBanner(
-            title: Localizations.flightRecorderOn,
-            subtitle: {
-                guard let log = store.state.activeFlightRecorderLog else { return "" }
-                return Localizations.flightRecorderWillBeActiveUntilDescriptionLong(
-                    log.formattedEndDate,
-                    log.formattedEndTime
-                )
-            }(),
+        .flightRecorderToastBanner(
+            activeLog: store.state.flightRecorderToastBanner.activeLog,
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             isVisible: store.bindingAsync(
-                get: \.isFlightRecorderToastBannerVisible,
-                perform: { _ in .dismissFlightRecorderToastBanner }
-            )
-        ) {
-            Button(Localizations.goToSettings) {
+                get: \.flightRecorderToastBanner.isToastBannerVisible,
+                perform: { _ in .dismissFlightRecorderToastBanner },
+            ),
+            goToSettingsAction: {
                 store.send(.navigateToFlightRecorderSettings)
-            }
-        }
+            },
+        )
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -97,13 +90,13 @@ private struct SearchableVaultListView: View {
                 image: Asset.Images.Illustrations.items,
                 title: Localizations.saveAndProtectYourData,
                 message: Localizations
-                    .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
+                    .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere,
             ) {
                 Button {
                     store.send(.addItemPressed(.login))
                 } label: {
                     HStack {
-                        Image(decorative: Asset.Images.plus16)
+                        Image(decorative: SharedAsset.Icons.plus16)
                             .resizable()
                             .frame(width: 16, height: 16)
                         Text(Localizations.newLogin)
@@ -131,7 +124,7 @@ private struct SearchableVaultListView: View {
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissImportLoginsActionCard)
-                }
+                },
             )
         }
     }
@@ -150,9 +143,9 @@ private struct SearchableVaultListView: View {
                         } label: {
                             vaultItemRow(
                                 for: item,
-                                isLastInSection: store.state.searchResults.last == item
+                                isLastInSection: store.state.searchResults.last == item,
                             )
-                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }
@@ -172,11 +165,11 @@ private struct SearchableVaultListView: View {
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
-                        return .searchVaultFilterChanged(type)
+                        .searchVaultFilterChanged(type)
                     }
                 },
-                mapEffect: nil
-            )
+                mapEffect: nil,
+            ),
         )
     }
 
@@ -211,11 +204,11 @@ private struct SearchableVaultListView: View {
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
-                        return .vaultFilterChanged(type)
+                        .vaultFilterChanged(type)
                     }
                 },
-                mapEffect: nil
-            )
+                mapEffect: nil,
+            ),
         )
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
@@ -230,7 +223,7 @@ private struct SearchableVaultListView: View {
     private func errorViewWithRetry(errorMessage: String) -> some View {
         VStack(spacing: 24) {
             Text(errorMessage)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 12)
@@ -242,8 +235,8 @@ private struct SearchableVaultListView: View {
             }
             .buttonStyle(
                 .primary(
-                    shouldFillWidth: false
-                )
+                    shouldFillWidth: false,
+                ),
             )
         }
         .scrollView(centerContentVertically: true)
@@ -289,23 +282,23 @@ private struct SearchableVaultListView: View {
                         isFromExtension: false,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons
+                        showWebIcons: state.showWebIcons,
                     )
                 },
                 mapAction: { action in
                     switch action {
                     case let .copyTOTPCode(code):
-                        return .copyTOTPCode(code)
+                        .copyTOTPCode(code)
                     }
                 },
                 mapEffect: { effect in
                     switch effect {
                     case .morePressed:
-                        return .morePressed(item)
+                        .morePressed(item)
                     }
-                }
+                },
             ),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
         )
     }
 }
@@ -330,15 +323,15 @@ struct VaultListView: View {
         ZStack {
             SearchableVaultListView(
                 store: store,
-                timeProvider: timeProvider
+                timeProvider: timeProvider,
             )
             .searchable(
                 text: store.binding(
                     get: \.searchText,
-                    send: VaultListAction.searchTextChanged
+                    send: VaultListAction.searchTextChanged,
                 ),
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: Localizations.search
+                prompt: Localizations.search,
             )
             .autocorrectionDisabled(true)
             .task(id: store.state.searchText) {
@@ -350,7 +343,9 @@ struct VaultListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refreshVault)
             }
-            profileSwitcher
+            if #unavailable(iOS 26) {
+                profileSwitcher
+            }
         }
         .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {
@@ -367,8 +362,8 @@ struct VaultListView: View {
                         },
                         mapEffect: { effect in
                             .profileSwitcher(effect)
-                        }
-                    )
+                        },
+                    ),
                 )
             }
         }
@@ -401,7 +396,7 @@ struct VaultListView: View {
         .onDisappear {
             store.send(.disappeared)
         }
-        .requestReview(windowScene: windowScene, isEligible: store.state.isEligibleForAppReview) {
+        .requestReview(isEligible: store.state.isEligibleForAppReview, windowScene: windowScene) {
             store.send(.appReviewPromptShown)
         }
     }
@@ -420,8 +415,8 @@ struct VaultListView: View {
                 },
                 mapEffect: { effect in
                     .profileSwitcher(effect)
-                }
-            )
+                },
+            ),
         )
     }
 }
@@ -437,7 +432,7 @@ struct VaultListView_Previews: PreviewProvider {
         isUnlocked: true,
         userId: "1",
         userInitials: "AA",
-        webVault: "vault.bitwarden.com"
+        webVault: "vault.bitwarden.com",
     )
 
     static let account2 = ProfileSwitcherItem.fixture(
@@ -446,21 +441,21 @@ struct VaultListView_Previews: PreviewProvider {
         isUnlocked: true,
         userId: "2",
         userInitials: "BB",
-        webVault: "vault.bitwarden.com"
+        webVault: "vault.bitwarden.com",
     )
 
     static let singleAccountState = ProfileSwitcherState(
         accounts: [account1],
         activeAccountId: account1.userId,
         allowLockAndLogout: true,
-        isVisible: true
+        isVisible: true,
     )
 
     static let dualAccountState = ProfileSwitcherState(
         accounts: [account1, account2],
         activeAccountId: account1.userId,
         allowLockAndLogout: true,
-        isVisible: true
+        isVisible: true,
     )
 
     static var previews: some View {
@@ -468,10 +463,10 @@ struct VaultListView_Previews: PreviewProvider {
             VaultListView(
                 store: Store(
                     processor: StateProcessor(
-                        state: VaultListState()
-                    )
+                        state: VaultListState(),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("Loading")
@@ -481,11 +476,11 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            loadingState: .data([])
-                        )
-                    )
+                            loadingState: .data([]),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("Empty")
@@ -496,12 +491,12 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             loadingState: .error(
-                                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
-                            )
-                        )
-                    )
+                                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                            ),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("Error")
@@ -512,11 +507,11 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             importLoginsSetupProgress: .incomplete,
-                            loadingState: .data([])
-                        )
-                    )
+                            loadingState: .data([]),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("Empty - Import Logins")
@@ -534,47 +529,47 @@ struct VaultListView_Previews: PreviewProvider {
                                             id: UUID().uuidString,
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             name: "Example 2",
-                                            type: .secureNote
+                                            type: .secureNote,
                                         ))!,
                                     ],
-                                    name: "Favorites"
+                                    name: "Favorites",
                                 ),
                                 VaultListSection(
                                     id: "2",
                                     items: [
                                         VaultListItem(
                                             id: "21",
-                                            itemType: .group(.login, 123)
+                                            itemType: .group(.login, 123),
                                         ),
                                         VaultListItem(
                                             id: "22",
-                                            itemType: .group(.card, 25)
+                                            itemType: .group(.card, 25),
                                         ),
                                         VaultListItem(
                                             id: "23",
-                                            itemType: .group(.identity, 1)
+                                            itemType: .group(.identity, 1),
                                         ),
                                         VaultListItem(
                                             id: "24",
-                                            itemType: .group(.secureNote, 0)
+                                            itemType: .group(.secureNote, 0),
                                         ),
                                         VaultListItem(
                                             id: "25",
-                                            itemType: .group(.sshKey, 4)
+                                            itemType: .group(.sshKey, 4),
                                         ),
                                     ],
-                                    name: "Types"
+                                    name: "Types",
                                 ),
-                            ])
-                        )
-                    )
+                            ]),
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("My Vault")
@@ -592,18 +587,18 @@ struct VaultListView_Previews: PreviewProvider {
                                             id: "31",
                                             itemType: .group(
                                                 .collection(id: "", name: "Design", organizationId: "1"),
-                                                0
-                                            )
+                                                0,
+                                            ),
                                         ),
                                         VaultListItem(
                                             id: "32",
                                             itemType: .group(
                                                 .collection(id: "", name: "Engineering", organizationId: "1"),
-                                                2
-                                            )
+                                                2,
+                                            ),
                                         ),
                                     ],
-                                    name: "Collections"
+                                    name: "Collections",
                                 ),
                                 VaultListSection(
                                     id: "CollectionItems",
@@ -613,52 +608,52 @@ struct VaultListView_Previews: PreviewProvider {
                                             organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            subtitle: "email@example.com"
+                                            subtitle: "email@example.com",
                                         ))!,
                                     ],
-                                    name: "Items"
+                                    name: "Items",
                                 ),
                             ]),
                             organizations: [
@@ -675,13 +670,13 @@ struct VaultListView_Previews: PreviewProvider {
                                     useEvents: false,
                                     usePolicies: true,
                                     userIsManagedByOrganization: false,
-                                    usersGetPremium: false
+                                    usersGetPremium: false,
                                 ),
-                            ]
-                        )
-                    )
+                            ],
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("My Vault - Collections")
@@ -695,21 +690,21 @@ struct VaultListView_Previews: PreviewProvider {
                                 accounts: [],
                                 activeAccountId: nil,
                                 allowLockAndLogout: true,
-                                isVisible: false
+                                isVisible: false,
                             ),
                             searchResults: [
                                 .init(cipherListView: .fixture(
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email@example.com"),
                                     name: "Example",
-                                    subtitle: "email@example.com"
+                                    subtitle: "email@example.com",
                                 ))!,
                             ],
-                            searchText: "Exam"
-                        )
-                    )
+                            searchText: "Exam",
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("1 Search Result")
@@ -724,26 +719,26 @@ struct VaultListView_Previews: PreviewProvider {
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email@example.com"),
                                     name: "Example",
-                                    subtitle: "email@example.com"
+                                    subtitle: "email@example.com",
                                 ))!,
                                 .init(cipherListView: .fixture(
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email2@example.com"),
                                     name: "Example 2",
-                                    subtitle: "email2@example.com"
+                                    subtitle: "email2@example.com",
                                 ))!,
                                 .init(cipherListView: .fixture(
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email3@example.com"),
                                     name: "Example 3",
-                                    subtitle: "email3@example.com"
+                                    subtitle: "email3@example.com",
                                 ))!,
                             ],
-                            searchText: "Exam"
-                        )
-                    )
+                            searchText: "Exam",
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("3 Search Results")
@@ -754,11 +749,11 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             searchResults: [],
-                            searchText: "Exam"
-                        )
-                    )
+                            searchText: "Exam",
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("No Search Results")
@@ -769,11 +764,11 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             loadingState: .data([]),
-                            profileSwitcherState: .singleAccount
-                        )
-                    )
+                            profileSwitcherState: .singleAccount,
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("Profile Switcher Visible: Single Account")
@@ -784,11 +779,11 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             loadingState: .data([]),
-                            profileSwitcherState: .dualAccounts
-                        )
-                    )
+                            profileSwitcherState: .dualAccounts,
+                        ),
+                    ),
                 ),
-                timeProvider: PreviewTimeProvider()
+                timeProvider: PreviewTimeProvider(),
             )
         }
         .previewDisplayName("Profile Switcher Visible: Multi Account")

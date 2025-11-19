@@ -16,7 +16,7 @@ public enum AuthEvent: Equatable {
         Account,
         animated: Bool,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
     )
 
     /// When the router should handle an AuthAction.
@@ -41,7 +41,7 @@ public enum AuthEvent: Equatable {
         Account,
         animated: Bool,
         attemptAutomaticBiometricUnlock: Bool,
-        didSwitchAccountAutomatically: Bool
+        didSwitchAccountAutomatically: Bool,
     )
 
     /// When the user deletes an account.

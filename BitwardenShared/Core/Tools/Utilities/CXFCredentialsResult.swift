@@ -1,3 +1,5 @@
+import BitwardenResources
+
 /// Represents the result of imported credentials or credentials to export of one type.
 struct CXFCredentialsResult: Equatable, Sendable {
     // MARK: Types
@@ -19,7 +21,7 @@ struct CXFCredentialsResult: Equatable, Sendable {
 
     /// The localized type in plural.
     var localizedTypePlural: String {
-        return switch type {
+        switch type {
         case .card:
             Localizations.cards
         case .identity:
@@ -47,7 +49,7 @@ struct CXFCredentialsResult: Equatable, Sendable {
 // MARK: - Identifiable
 
 extension CXFCredentialsResult: Identifiable {
-    public var id: CXFCredentialType {
+    var id: CXFCredentialType {
         type
     }
 }

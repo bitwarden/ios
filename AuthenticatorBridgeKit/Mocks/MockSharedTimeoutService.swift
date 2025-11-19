@@ -27,7 +27,7 @@ public final class MockSharedTimeoutService: SharedTimeoutService {
     public func updateTimeout(
         forUserId userId: String,
         lastActiveDate: Date?,
-        timeoutLength: SessionTimeoutValue
+        timeoutLength: SessionTimeoutValue,
     ) async throws {
         if let updateTimeoutError {
             throw updateTimeoutError

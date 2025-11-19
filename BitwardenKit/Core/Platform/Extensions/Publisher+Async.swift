@@ -10,10 +10,10 @@ public extension Publisher {
     ///
     func asyncCompactMap<T>(
         maxPublishers: Subscribers.Demand = .max(1),
-        _ transform: @escaping (Output) async -> T?
+        _ transform: @escaping (Output) async -> T?,
     ) -> Publishers.CompactMap<Publishers.FlatMap<Future<T?, Never>, Self>, T> {
         asyncMap(maxPublishers: maxPublishers, transform)
-            .compactMap { $0 }
+            .compactMap(\.self)
     }
 
     /// Maps the output of a publisher to a different type.
@@ -25,7 +25,7 @@ public extension Publisher {
     ///
     func asyncMap<T>(
         maxPublishers: Subscribers.Demand = .max(1),
-        _ transform: @escaping (Output) async -> T
+        _ transform: @escaping (Output) async -> T,
     ) -> Publishers.FlatMap<Future<T, Never>, Self> {
         flatMap(maxPublishers: maxPublishers) { value in
             Future { promise in
@@ -48,7 +48,7 @@ public extension Publisher where Failure == Error {
     ///
     func asyncTryMap<T>(
         maxPublishers: Subscribers.Demand = .max(1),
-        _ transform: @escaping (Output) async throws -> T
+        _ transform: @escaping (Output) async throws -> T,
     ) -> Publishers.FlatMap<Future<T, Failure>, Self> {
         flatMap(maxPublishers: maxPublishers) { value in
             Future {

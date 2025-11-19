@@ -1,25 +1,8 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Foundation
-
-// MARK: - CaptchaFlowDelegate
-
-/// An object that is signaled when specific circumstances in the captcha flow have been encountered.
-///
-@MainActor
-protocol CaptchaFlowDelegate: AnyObject {
-    /// Called when the captcha flow has been completed successfully.
-    ///
-    /// - Parameter token: The token that was returned by hCaptcha.
-    ///
-    func captchaCompleted(token: String)
-
-    /// Called when the captcha flow encounters an error.
-    ///
-    /// - Parameter error: The error that was encountered.
-    ///
-    func captchaErrored(error: Error)
-}
 
 // MARK: - LoginProcessor
 
@@ -31,7 +14,6 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     typealias Services = HasAppIdService
         & HasAuthRepository
         & HasAuthService
-        & HasCaptchaService
         & HasConfigService
         & HasDeviceAPIService
         & HasErrorReporter
@@ -62,7 +44,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: LoginState
+        state: LoginState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -90,7 +72,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             coordinator.navigate(to: .loginWithDevice(
                 email: state.username,
                 authRequestType: AuthRequestType.authenticateAndUnlock,
-                isAuthenticated: false
+                isAuthenticated: false,
             ))
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
@@ -103,31 +85,10 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
     // MARK: Private Methods
 
-    /// Generates the items needed and authenticates with the captcha flow.
-    ///
-    /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
-    ///   with hCaptcha.
-    ///
-    private func launchCaptchaFlow(with siteKey: String) async {
-        do {
-            let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
-            coordinator.navigate(
-                to: .captcha(
-                    url: url,
-                    callbackUrlScheme: services.captchaService.callbackUrlScheme
-                ),
-                context: self
-            )
-        } catch {
-            await handleErrorResponse(error)
-        }
-    }
-
     /// Attempts to log the user in with the email address and password values found in `state`.
     ///
-    /// - Parameter captchaToken: An optional captcha token value to add to the token request.
     ///
-    private func loginWithMasterPassword(captchaToken: String? = nil) async {
+    private func loginWithMasterPassword() async {
         // Hide the loading overlay when exiting this method, in case it hasn't been hidden yet.
         defer { coordinator.hideLoadingOverlay() }
 
@@ -140,8 +101,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             try await services.authService.loginWithMasterPassword(
                 state.masterPassword,
                 username: state.username,
-                captchaToken: captchaToken,
-                isNewAccount: state.isNewAccount
+                isNewAccount: state.isNewAccount,
             )
 
             // Unlock the vault.
@@ -153,11 +113,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch let error as IdentityTokenRequestError {
             switch error {
-            case let .captchaRequired(hCaptchaSiteCode):
-                await launchCaptchaFlow(with: hCaptchaSiteCode)
-            case let .twoFactorRequired(authMethodsData, _, _, _):
+            case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(
-                    to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
+                    to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil),
                 )
             case .twoFactorProvidersNotConfigured:
                 await handleErrorResponse(error)
@@ -168,8 +126,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                         .password(state.masterPassword),
                         AuthMethodsData(email: Email(email: state.username)),
                         nil,
-                        true
-                    )
+                        true,
+                    ),
                 )
             case .encryptionKeyMigrationRequired:
                 coordinator.showAlert(.encryptionKeyMigrationRequiredAlert(environmentUrl: state.serverURLString))
@@ -194,7 +152,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             let deviceIdentifier = await services.appIdService.getOrCreateAppId()
             let isKnownDevice = try await services.deviceAPIService.knownDevice(
                 email: state.username,
-                deviceIdentifier: deviceIdentifier
+                deviceIdentifier: deviceIdentifier,
             )
             state.isLoginWithDeviceVisible = isKnownDevice
         } catch {
@@ -217,30 +175,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         coordinator.showAlert(
             .networkResponseError(
                 error,
-                isOfficialBitwardenServer: isOfficialBitwardenServer
-            )
+                isOfficialBitwardenServer: isOfficialBitwardenServer,
+            ),
         )
-    }
-}
-
-// MARK: CaptchaFlowDelegate
-
-extension LoginProcessor: CaptchaFlowDelegate {
-    func captchaCompleted(token: String) {
-        Task {
-            await loginWithMasterPassword(captchaToken: token)
-        }
-    }
-
-    func captchaErrored(error: Error) {
-        guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
-
-        // Show the alert after a delay to ensure it doesn't try to display over the
-        // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            Task {
-                await self.handleErrorResponse(error)
-            }
-        }
     }
 }

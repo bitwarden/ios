@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 /// A view that displays dimmed background with a spotlight and a coach-mark card.
@@ -85,15 +87,17 @@ struct GuidedTourView: View {
     @ViewBuilder private var arrowView: some View {
         let coachMarkVerticalPosition = calculateCoachMarkPosition()
         let shouldRotateArrow = coachMarkVerticalPosition == .top
-        Image(asset: Asset.Images.arrowUp)
+        Image(asset: SharedAsset.Icons.arrowUp)
             .opacity(isArrowVisible ? 1 : 0)
             .rotationEffect(.degrees(shouldRotateArrow ? 180 : 0))
             .animation(.smooth(duration: animationDuration), value: shouldRotateArrow)
             .position(
                 x: calculateArrowAbsoluteXPosition(),
-                y: isArrowVisible ? calculateArrowAbsoluteYPosition() :
-                    (shouldRotateArrow ? calculateArrowAbsoluteYPosition() - arrowSize.height
-                        : calculateArrowAbsoluteYPosition() + arrowSize.height)
+                y: isArrowVisible
+                    ? calculateArrowAbsoluteYPosition()
+                    : (shouldRotateArrow
+                        ? calculateArrowAbsoluteYPosition() - arrowSize.height
+                        : calculateArrowAbsoluteYPosition() + arrowSize.height),
             )
             .smoothTransition(animation: .smooth(duration: animationDuration), value: store.state.currentIndex)
     }
@@ -107,7 +111,7 @@ struct GuidedTourView: View {
     private var spotlightMask: some View {
         Spotlight(
             spotlight: store.state.currentStepState.spotlightRegion,
-            spotlightShape: store.state.currentStepState.spotlightShape
+            spotlightShape: store.state.currentStepState.spotlightShape,
         )
         .fill(style: FillStyle(eoFill: true))
     }
@@ -120,12 +124,12 @@ struct GuidedTourView: View {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
                 Text(store.state.progressText)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.caption1, weight: .bold)
                     .dynamicTypeSize(...maxDynamicTypeSize)
                     .smoothTransition(
                         animation: .smooth(duration: animationDuration),
-                        value: store.state.currentStepState
+                        value: store.state.currentStepState,
                     )
 
                 Spacer()
@@ -133,24 +137,24 @@ struct GuidedTourView: View {
                 Button {
                     store.send(.dismissTapped)
                 } label: {
-                    Image(asset: Asset.Images.close16, label: Text(Localizations.dismiss))
-                        .imageStyle(.accessoryIcon16(color: Asset.Colors.iconPrimary.swiftUIColor))
+                    Image(asset: SharedAsset.Icons.close16, label: Text(Localizations.dismiss))
+                        .imageStyle(.accessoryIcon16(color: SharedAsset.Colors.iconPrimary.swiftUIColor))
                 }
             }
 
             Text(store.state.currentStepState.title)
                 .dynamicTypeSize(...maxDynamicTypeSize)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
                 .smoothTransition(
                     animation: .smooth(duration: animationDuration),
-                    value: store.state.currentStepState
+                    value: store.state.currentStepState,
                 )
 
             cardNavigationButtons()
         }
         .padding(16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -164,13 +168,13 @@ struct GuidedTourView: View {
                 } label: {
                     Text(Localizations.back)
                         .styleGuide(.callout, weight: .semibold)
-                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                         .multilineTextAlignment(.leading)
                         .dynamicTypeSize(...maxDynamicTypeSize)
                 }
                 .smoothTransition(
                     animation: .smooth(duration: animationDuration),
-                    value: store.state.currentStepState
+                    value: store.state.currentStepState,
                 )
             }
 
@@ -185,16 +189,16 @@ struct GuidedTourView: View {
 
             } label: {
                 Text(
-                    store.state.step < store.state.totalSteps ? Localizations.next : Localizations.done
+                    store.state.step < store.state.totalSteps ? Localizations.next : Localizations.done,
                 )
                 .styleGuide(.callout, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textInteraction.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .dynamicTypeSize(...maxDynamicTypeSize)
             }
             .smoothTransition(
                 animation: .smooth(duration: animationDuration),
-                value: store.state.currentStepState
+                value: store.state.currentStepState,
             )
         }
         .padding(0)
@@ -224,7 +228,7 @@ struct GuidedTourView: View {
             .padding(.trailing, cardTrailingPadding)
             .smoothTransition(
                 animation: .smooth(duration: animationDuration),
-                value: store.state.currentStepState
+                value: store.state.currentStepState,
             )
 
             if calculateCoachMarkPosition() == .top {
@@ -237,7 +241,7 @@ struct GuidedTourView: View {
         .opacity(isCardVisible ? 1 : 0)
         .smoothTransition(
             animation: .smooth(duration: animationDuration),
-            value: store.state.currentStepState
+            value: store.state.currentStepState,
         )
     }
 }
@@ -407,10 +411,10 @@ struct GuidedTourView_Previews: PreviewProvider {
             processor: StateProcessor(
                 state: LoginItemState(
                     isTOTPAvailable: false,
-                    totpState: .none
-                )
-            )
-        )
+                    totpState: .none,
+                ),
+            ),
+        ),
     )
 
     static var previews: some View {
@@ -425,16 +429,16 @@ struct GuidedTourView_Previews: PreviewProvider {
                 GuidedTourView(
                     store: Store(
                         processor: StateProcessor(
-                            state: GuidedTourViewState(guidedTourStepStates: [loginStep1, loginStep2])
-                        )
-                    )
+                            state: GuidedTourViewState(guidedTourStepStates: [loginStep1, loginStep2]),
+                        ),
+                    ),
                 )
             }
             .transaction { transaction in
                 // disable the default FullScreenCover modal animation
                 transaction.disablesAnimations = true
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Circle")
@@ -450,16 +454,16 @@ struct GuidedTourView_Previews: PreviewProvider {
                 GuidedTourView(
                     store: Store(
                         processor: StateProcessor(
-                            state: guidedTourViewState
-                        )
-                    )
+                            state: guidedTourViewState,
+                        ),
+                    ),
                 )
             }
             .transaction { transaction in
                 // disable the default FullScreenCover modal animation
                 transaction.disablesAnimations = true
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Rectangle")

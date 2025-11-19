@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 
 // MARK: - AddEditFolderDelegate
@@ -23,8 +25,7 @@ protocol AddEditFolderDelegate: AnyObject {
 final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFolderAction, AddEditFolderEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
         & HasSettingsRepository
 
     // MARK: Properties
@@ -51,7 +52,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
         coordinator: AnyCoordinator<AddEditFolderRoute, Void>,
         delegate: AddEditFolderDelegate?,
         services: Services,
-        state: AddEditFolderState
+        state: AddEditFolderState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

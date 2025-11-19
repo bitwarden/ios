@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -37,7 +38,7 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
             errorReporter: errorReporter,
             eventService: eventService,
             textAutofillOptionsHelperFactory: textAutofillOptionsHelperFactory,
-            vaultRepository: vaultRepository
+            vaultRepository: vaultRepository,
         )
         subject.setTextAutofillHelperDelegate(textAutofillHelperDelegate)
     }
@@ -98,7 +99,7 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
         optionsHelper.getTextAutofillOptionsResult = []
         textAutofillOptionsHelperFactory.createResult = optionsHelper
         vaultRepository.fetchCipherResult = .success(.fixture(
-            name: "Cipher 1"
+            name: "Cipher 1",
         ))
 
         let task = Task {
@@ -127,7 +128,7 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
         ]
         textAutofillOptionsHelperFactory.createResult = optionsHelper
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(totp: "123456")
+            login: .fixture(totp: "123456"),
         ))
 
         vaultRepository.refreshTOTPCodeResult =
@@ -136,19 +137,19 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
                     TOTPCodeModel(
                         code: "456789",
                         codeGenerationDate: .now,
-                        period: 30
+                        period: 30,
                     ),
                     key: TOTPKeyModel(
-                        authenticatorKey: "123456"
-                    )
-                )
+                        authenticatorKey: "123456",
+                    ),
+                ),
             )
 
         let task = Task {
             try await subject.handleCipherForAutofill(
                 cipherListView: CipherListView.fixture(
-                    login: .fixture(totp: "123456")
-                )
+                    login: .fixture(totp: "123456"),
+                ),
             )
         }
         defer { task.cancel() }
@@ -182,15 +183,15 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
         textAutofillOptionsHelperFactory.createResult = optionsHelper
 
         vaultRepository.fetchCipherResult = .success(.fixture(
-            login: .fixture(totp: "123456")
+            login: .fixture(totp: "123456"),
         ))
         vaultRepository.refreshTOTPCodeResult = .failure(BitwardenTestError.example)
 
         let task = Task {
             try await subject.handleCipherForAutofill(
                 cipherListView: CipherListView.fixture(
-                    login: .fixture(totp: "123456")
-                )
+                    login: .fixture(totp: "123456"),
+                ),
             )
         }
         defer { task.cancel() }
@@ -235,15 +236,15 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
                 .fixture(name: nil, value: nil, type: .text),
             ],
             id: "1",
-            viewPassword: true
+            viewPassword: true,
         ))
 
         let task = Task {
             try await subject.handleCipherForAutofill(
                 cipherListView: CipherListView.fixture(
                     id: "1",
-                    viewPassword: true
-                )
+                    viewPassword: true,
+                ),
             )
         }
         defer { task.cancel() }
@@ -297,15 +298,15 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
                 .fixture(name: "Field 2", value: "Custom Value 2", type: .hidden),
             ],
             id: "1",
-            viewPassword: false
+            viewPassword: false,
         ))
 
         let task = Task {
             try await subject.handleCipherForAutofill(
                 cipherListView: CipherListView.fixture(
                     id: "1",
-                    viewPassword: false
-                )
+                    viewPassword: false,
+                ),
             )
         }
         defer { task.cancel() }

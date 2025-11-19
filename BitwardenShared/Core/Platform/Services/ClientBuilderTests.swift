@@ -6,6 +6,7 @@ import XCTest
 class ClientBuilderTests: BitwardenTestCase {
     // MARK: Properties
 
+    var clientManagedTokens: MockClientManagedTokens!
     var errorReporter: MockErrorReporter!
     var mockPlatform: MockPlatformClientService!
     var subject: DefaultClientBuilder!
@@ -15,14 +16,19 @@ class ClientBuilderTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        clientManagedTokens = MockClientManagedTokens()
         errorReporter = MockErrorReporter()
         mockPlatform = MockPlatformClientService()
-        subject = DefaultClientBuilder(errorReporter: errorReporter)
+        subject = DefaultClientBuilder(
+            errorReporter: errorReporter,
+            tokenProvider: clientManagedTokens,
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        clientManagedTokens = nil
         errorReporter = nil
         mockPlatform = nil
         subject = nil
@@ -30,11 +36,11 @@ class ClientBuilderTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `buildClient()` creates a client and loads feature flags.
+    /// `buildClient(for:)` creates a client and loads feature flags.
     func test_buildClient() {
-        let client = subject.buildClient()
+        let builtClient = subject.buildClient()
 
-        XCTAssertNotNil(client)
+        XCTAssertNotNil(builtClient)
         XCTAssertNotNil(mockPlatform.featureFlags)
     }
 }

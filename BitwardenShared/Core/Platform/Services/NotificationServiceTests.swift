@@ -8,9 +8,11 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!
+    var refreshableApiService: MockRefreshableAPIService!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var delegate: MockNotificationServiceDelegate!
     var errorReporter: MockErrorReporter!
     var notificationAPIService: NotificationAPIService!
@@ -27,9 +29,11 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
+        configService = MockConfigService()
         delegate = MockNotificationServiceDelegate()
         errorReporter = MockErrorReporter()
         notificationAPIService = APIService(client: client)
+        refreshableApiService = MockRefreshableAPIService()
         stateService = MockStateService()
         syncService = MockSyncService()
 
@@ -37,10 +41,12 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             appIdService: AppIdService(appSettingStore: appSettingsStore),
             authRepository: authRepository,
             authService: authService,
+            configService: configService,
             errorReporter: errorReporter,
             notificationAPIService: notificationAPIService,
+            refreshableApiService: refreshableApiService,
             stateService: stateService,
-            syncService: syncService
+            syncService: syncService,
         )
         subject.setDelegate(delegate)
     }
@@ -51,9 +57,11 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         appSettingsStore = nil
         authService = nil
         client = nil
+        configService = nil
         delegate = nil
         errorReporter = nil
         notificationAPIService = nil
+        refreshableApiService = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -349,7 +357,31 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
 
         // Confirm the results.
+        XCTAssertTrue(refreshableApiService.refreshAccessTokenCalled)
         XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` doesn't sync on
+    ///  `.syncOrgKeys` when refreshing the token fails.
+    func test_messageReceived_syncOrgKeysRefreshThrows() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.syncOrgKeys.rawValue,
+                "payload": "anything",
+            ],
+        ]
+        refreshableApiService.refreshAccessTokenThrowableError = BitwardenTestError.example
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertTrue(refreshableApiService.refreshAccessTokenCalled)
+        XCTAssertFalse(syncService.didFetchSync)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles messages appropriately.
@@ -470,6 +502,60 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(delegate.routeToLandingCalled)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and
+    /// doesn't route to the landing screen if the logout reason was because of a KDF change.
+    @MainActor
+    func test_messageReceived_logout_activeUser_kdfChange() async throws {
+        let activeAccount = Account.fixture()
+        configService.featureFlagsBool[.noLogoutOnKdfChange] = true
+        stateService.setIsAuthenticated()
+        stateService.accounts = [activeAccount]
+
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": """
+                {
+                    "UserId": "\(activeAccount.profile.userId)",
+                    "Reason": 0
+                }
+                """,
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertNil(authRepository.logoutUserId)
+        XCTAssertFalse(delegate.routeToLandingCalled)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will route
+    /// to the landing screen if the logged-out account was the currently active account.
+    @MainActor
+    func test_messageReceived_logout_activeUser_kdfChange_noLogoutOnKdfChangeOff() async throws {
+        let activeAccount = Account.fixture()
+        configService.featureFlagsBool[.noLogoutOnKdfChange] = false
+        stateService.setIsAuthenticated()
+        stateService.accounts = [activeAccount]
+
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.logOut.rawValue,
+                "payload": """
+                {
+                    "UserId": "\(activeAccount.profile.userId)",
+                    "Reason": 0
+                }
+                """,
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertEqual(authRepository.logoutUserId, activeAccount.profile.userId)
+        XCTAssertTrue(delegate.routeToLandingCalled)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles notifications being dismissed.
     @MainActor
     func test_messageReceived_notificationDismissed() async throws {
@@ -477,7 +563,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.loginRequest = LoginRequestNotification(id: "1", userId: "2")
         let loginRequest = LoginRequestPushNotification(
             timeoutInMinutes: 15,
-            userId: "2"
+            userId: "2",
         )
         let testData = try JSONEncoder().encode(loginRequest)
         nonisolated(unsafe) let message: [AnyHashable: Any] = [
@@ -501,7 +587,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         authService.getPendingLoginRequestResult = .success([.fixture(id: "requestId")])
         let loginRequest = LoginRequestPushNotification(
             timeoutInMinutes: 15,
-            userId: Account.fixture().profile.userId
+            userId: Account.fixture().profile.userId,
         )
         let testData = try JSONEncoder().encode(loginRequest)
         nonisolated(unsafe) let message: [AnyHashable: Any] = [
@@ -522,7 +608,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Set up the mock data.
         let loginRequest = LoginRequestPushNotification(
             timeoutInMinutes: 15,
-            userId: Account.fixture().profile.userId
+            userId: Account.fixture().profile.userId,
         )
         let testData = try JSONEncoder().encode(loginRequest)
         nonisolated(unsafe) let message: [AnyHashable: Any] = [

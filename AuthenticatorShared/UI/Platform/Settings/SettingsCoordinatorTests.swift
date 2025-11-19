@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
 import SwiftUI
 import XCTest
 
@@ -21,7 +24,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         subject = SettingsCoordinator(
             module: module,
             services: ServiceContainer.withMocks(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         )
     }
 
@@ -40,7 +43,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(
             title: Localizations.anErrorHasOccurred,
-            message: Localizations.genericErrorMessage
+            message: Localizations.genericErrorMessage,
         )
         subject.showAlert(alert)
 
@@ -61,9 +64,20 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_exportVault() throws {
         subject.navigate(to: .exportItems)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportItemsView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is ExportItemsView)
+    }
+
+    /// `navigate(to:)` with `.flightRecorder` starts flight recorder coordinator and navigates to
+    /// the enable flight recorder view.
+    @MainActor
+    func test_navigateTo_flightRecorder() throws {
+        subject.navigate(to: .flightRecorder(.enableFlightRecorder))
+
+        XCTAssertTrue(module.flightRecorderCoordinator.isStarted)
+        XCTAssertEqual(module.flightRecorderCoordinator.routes.last, .enableFlightRecorder)
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
@@ -71,9 +85,10 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_selectLanguage() throws {
         subject.navigate(to: .selectLanguage(currentLanguage: .default))
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelectLanguageView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SelectLanguageView)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.

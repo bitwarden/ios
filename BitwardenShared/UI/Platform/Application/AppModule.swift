@@ -1,3 +1,6 @@
+import BitwardenKit
+import UIKit
+
 // MARK: AppModule
 
 /// An object that builds coordinators for the app.
@@ -12,7 +15,7 @@ public protocol AppModule: AnyObject {
     ///
     func makeAppCoordinator(
         appContext: AppContext,
-        navigator: RootNavigator
+        navigator: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent>
 }
 
@@ -39,7 +42,7 @@ public class DefaultAppModule {
     ///
     public init(
         appExtensionDelegate: AppExtensionDelegate? = nil,
-        services: ServiceContainer
+        services: ServiceContainer,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.services = services
@@ -49,14 +52,36 @@ public class DefaultAppModule {
 extension DefaultAppModule: AppModule {
     public func makeAppCoordinator(
         appContext: AppContext,
-        navigator: RootNavigator
+        navigator: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent> {
         AppCoordinator(
             appContext: appContext,
             appExtensionDelegate: appExtensionDelegate,
             module: self,
             rootNavigator: navigator,
-            services: services
+            services: services,
         ).asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + FlightRecorderModule
+
+extension DefaultAppModule: FlightRecorderModule {
+    public func makeFlightRecorderCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        FlightRecorderCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + NavigatorBuilderModule
+
+extension DefaultAppModule: NavigatorBuilderModule {
+    public func makeNavigationController() -> UINavigationController {
+        ViewLoggingNavigationController(logger: services.flightRecorder)
     }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - VaultSettingsView
@@ -47,7 +49,7 @@ struct VaultSettingsView: View {
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissImportLoginsActionCard)
-                }
+                },
             ) {
                 BitwardenBadge(badgeValue: "1")
             }
@@ -70,7 +72,7 @@ struct VaultSettingsView: View {
             SettingsListItem(Localizations.importItems) {
                 store.send(.importItemsTapped)
             } trailingContent: {
-                Image(asset: Asset.Images.externalLink24)
+                Image(asset: SharedAsset.Icons.externalLink24)
                     .imageStyle(.rowIcon)
             }
             .accessibilityIdentifier("ImportItemsLinkItemView")

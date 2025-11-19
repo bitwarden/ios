@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -30,7 +31,7 @@ class AddEditFolderCoordinator: Coordinator, HasStackNavigator {
     ///
     init(
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.services = services
         self.stackNavigator = stackNavigator
@@ -61,7 +62,7 @@ class AddEditFolderCoordinator: Coordinator, HasStackNavigator {
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: AddEditFolderState(folderName: folder?.name ?? "", mode: mode)
+            state: AddEditFolderState(folderName: folder?.name ?? "", mode: mode),
         )
         let view = AddEditFolderView(store: Store(processor: processor))
         stackNavigator?.replace(view)

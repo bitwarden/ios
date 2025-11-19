@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PendingRequestsView
@@ -36,7 +38,7 @@ struct PendingRequestsView: View {
         }
         .toast(store.binding(
             get: \.toast,
-            send: PendingRequestsAction.toastShown
+            send: PendingRequestsAction.toastShown,
         ))
     }
 
@@ -50,7 +52,7 @@ struct PendingRequestsView: View {
             HStack(spacing: 4) {
                 Spacer()
 
-                Image(decorative: Asset.Images.trash16)
+                Image(decorative: SharedAsset.Icons.trash16)
                     .imageStyle(.accessoryIcon16(scaleWithFont: true))
 
                 Text(Localizations.declineAllRequests)
@@ -72,7 +74,7 @@ struct PendingRequestsView: View {
 
             Text(Localizations.noPendingRequests)
                 .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -103,14 +105,14 @@ struct PendingRequestsView: View {
                 VStack(spacing: 0) {
                     Text(Localizations.fingerprintPhrase)
                         .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .accessibilityIdentifier("FingerprintValueLabel")
 
                     Text(pendingRequest.fingerprintPhrase ?? "")
                         .styleGuide(.caption2Monospaced)
-                        .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textCodePink.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .accessibilityIdentifier("FingerprintPhraseValue")
@@ -118,14 +120,14 @@ struct PendingRequestsView: View {
                     HStack {
                         Text(pendingRequest.requestDeviceType)
                             .styleGuide(.footnote)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .accessibilityIdentifier("DeviceTypeValueLabel")
 
                         Spacer()
 
                         Text(pendingRequest.creationDate.formatted(.dateTime))
                             .styleGuide(.footnote)
-                            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                     }
                     .padding(.top, 4)
                 }
@@ -137,7 +139,7 @@ struct PendingRequestsView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityIdentifier("LoginRequestCell")
     }
 }
@@ -147,7 +149,7 @@ struct PendingRequestsView: View {
 #if DEBUG
 #Preview("Empty") {
     PendingRequestsView(store: Store(processor: StateProcessor(state: PendingRequestsState(
-        loadingState: .data([])
+        loadingState: .data([]),
     ))))
 }
 
@@ -158,15 +160,15 @@ struct PendingRequestsView: View {
                 .fixture(
                     creationDate: .now,
                     fingerprintPhrase: "pineapple-on-pizza-is-the-best",
-                    id: "1"
+                    id: "1",
                 ),
                 .fixture(
                     creationDate: .now,
                     fingerprintPhrase: "coconuts-are-underrated",
-                    id: "2"
+                    id: "2",
                 ),
-            ]
-        )
+            ],
+        ),
     ))))
 }
 #endif

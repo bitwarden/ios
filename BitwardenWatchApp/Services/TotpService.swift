@@ -23,7 +23,7 @@ class TotpService {
             period: TotpService.TOTP_DEFAULT_TIMER,
             digits: 6,
             algorithm: CryptoFunctionService.CryptoHashAlgorithm.Sha1,
-            keyB32: key
+            keyB32: key,
         )
 
         let isOtpAuth = key.lowercased().starts(with: "otpauth://")
@@ -44,7 +44,7 @@ class TotpService {
                 period: config.period,
                 digits: 5,
                 algorithm: config.algorithm,
-                keyB32: String(key.suffix(from: keyIndexOffset))
+                keyB32: String(key.suffix(from: keyIndexOffset)),
             )
         }
 
@@ -61,7 +61,7 @@ class TotpService {
         let hash = CryptoFunctionService.shared.hmac(
             counter.data,
             SymmetricKey(data: Data(keyBytes)),
-            algorithm: config.algorithm
+            algorithm: config.algorithm,
         )
         if hash.isEmpty {
             return nil
@@ -77,7 +77,7 @@ class TotpService {
             for _ in 0 ..< config.digits {
                 let steamCharsIndex = TotpService.STEAM_CHARS.index(
                     TotpService.STEAM_CHARS.startIndex,
-                    offsetBy: fullCode % TotpService.STEAM_CHARS.count
+                    offsetBy: fullCode % TotpService.STEAM_CHARS.count,
                 )
                 otp += String(TotpService.STEAM_CHARS[steamCharsIndex])
                 fullCode = Int(Double(fullCode) / Double(TotpService.STEAM_CHARS.count))

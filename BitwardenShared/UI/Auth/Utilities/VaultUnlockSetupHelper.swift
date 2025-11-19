@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - VaultUnlockSetupHelper
 
 /// A protocol for a helper used to set up vault unlock methods.
@@ -13,7 +16,7 @@ protocol VaultUnlockSetupHelper: AnyObject {
     ///
     func setBiometricUnlock(
         enabled: Bool,
-        showAlert: @escaping @MainActor (Alert) -> Void
+        showAlert: @escaping @MainActor (Alert) -> Void,
     ) async -> BiometricsUnlockStatus?
 
     /// Enables or disables pin vault unlock.
@@ -25,7 +28,7 @@ protocol VaultUnlockSetupHelper: AnyObject {
     ///
     func setPinUnlock(
         enabled: Bool,
-        showAlert: @escaping @MainActor (Alert) -> Void
+        showAlert: @escaping @MainActor (Alert) -> Void,
     ) async -> Bool
 }
 
@@ -82,7 +85,7 @@ class DefaultVaultUnlockSetupHelper {
                 },
                 completion: { pin in
                     continuation.resume(returning: pin)
-                }
+                },
             ))
         }
     }
@@ -97,7 +100,7 @@ class DefaultVaultUnlockSetupHelper {
     ///
     private func showUnlockWithPinAlert(
         biometricType: BiometricAuthenticationType?,
-        showAlert: @escaping (Alert) -> Void
+        showAlert: @escaping (Alert) -> Void,
     ) async -> Bool {
         await withCheckedContinuation { continuation in
             showAlert(.unlockWithPINCodeAlert(biometricType: biometricType) { requirePassword in
@@ -112,7 +115,7 @@ class DefaultVaultUnlockSetupHelper {
 extension DefaultVaultUnlockSetupHelper: VaultUnlockSetupHelper {
     func setBiometricUnlock(
         enabled: Bool,
-        showAlert: @escaping @MainActor (Alert) -> Void
+        showAlert: @escaping @MainActor (Alert) -> Void,
     ) async -> BiometricsUnlockStatus? {
         do {
             try await services.authRepository.allowBioMetricUnlock(enabled)
@@ -129,7 +132,7 @@ extension DefaultVaultUnlockSetupHelper: VaultUnlockSetupHelper {
 
     func setPinUnlock(
         enabled: Bool,
-        showAlert: @escaping @MainActor (Alert) -> Void
+        showAlert: @escaping @MainActor (Alert) -> Void,
     ) async -> Bool {
         do {
             guard enabled else {
@@ -150,7 +153,7 @@ extension DefaultVaultUnlockSetupHelper: VaultUnlockSetupHelper {
 
             try await services.authRepository.setPins(
                 pin,
-                requirePasswordAfterRestart: requirePasswordAfterRestart
+                requirePasswordAfterRestart: requirePasswordAfterRestart,
             )
 
             return true

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SendItemAccessCountStepper
@@ -24,17 +26,17 @@ struct SendItemAccessCountStepper: View {
                 value: $maximumAccessCount,
                 in: 0 ... Int.max,
                 allowTextFieldInput: true,
-                textFieldAccessibilityIdentifier: "MaxAccessCountTextField"
+                textFieldAccessibilityIdentifier: "MaxAccessCountTextField",
             ) {
                 Text(Localizations.maximumAccessCount)
                     .styleGuide(.body)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             } footer: {
                 VStack(alignment: .leading, spacing: 2) {
                     if displayInfoText {
                         Text(Localizations.maximumAccessCountInfo)
                             .styleGuide(.footnote)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     }
 
                     if let currentAccessCount, maximumAccessCount > 0 {
@@ -46,7 +48,7 @@ struct SendItemAccessCountStepper: View {
                                 .fontWeight(.bold)
                         }
                         .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                     }
                 }
             }
@@ -79,6 +81,6 @@ struct SendItemAccessCountStepper: View {
 
     SendItemAccessCountStepper(currentAccessCount: 0, maximumAccessCount: $maximumAccessCount)
         .padding()
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif

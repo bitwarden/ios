@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ImportLoginsView
@@ -47,7 +48,7 @@ struct ImportLoginsView: View {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.import,
                 title: Localizations.giveYourVaultAHeadStart,
-                message: Localizations.importLoginsDescriptionLong
+                message: Localizations.importLoginsDescriptionLong,
             )
 
             VStack(spacing: 12) {
@@ -77,7 +78,7 @@ struct ImportLoginsView: View {
             NumberedListRow(title: Localizations.exportYourPasswordsThisOptionIsUsuallyFoundInYourSettings)
             NumberedListRow(
                 title: Localizations.saveTheExportedFileSomewhereOnYourComputerYouCanFindEasily,
-                subtitle: Localizations.youllDeleteThisFileAfterImportIsComplete
+                subtitle: Localizations.youllDeleteThisFileAfterImportIsComplete,
             )
         }
     }
@@ -113,7 +114,7 @@ struct ImportLoginsView: View {
     private func stepView(
         step: Int,
         title: String,
-        @ViewBuilder list: () -> some View
+        @ViewBuilder list: () -> some View,
     ) -> some View {
         VStack(spacing: 24) {
             VStack(spacing: 12) {
@@ -128,11 +129,11 @@ struct ImportLoginsView: View {
             NumberedList(content: list)
 
             Text(LocalizedStringKey(
-                Localizations.needHelpCheckOutImportHelp(ExternalLinksConstants.importHelp)
+                Localizations.needHelpCheckOutImportHelp(ExternalLinksConstants.importHelp),
             ))
             .multilineTextAlignment(.center)
             .styleGuide(.footnote)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
 
             VStack(spacing: 12) {
                 AsyncButton(step == totalSteps ? Localizations.done : Localizations.continue) {
@@ -146,7 +147,7 @@ struct ImportLoginsView: View {
                 .buttonStyle(.secondary())
             }
         }
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
         .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .scrollView()

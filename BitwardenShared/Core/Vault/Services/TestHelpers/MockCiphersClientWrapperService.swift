@@ -18,7 +18,7 @@ class MockCiphersClientWrapperService: CiphersClientWrapperService {
     func decryptAndProcessCiphersInBatch(
         batchSize: Int,
         ciphers: [BitwardenSdk.Cipher],
-        onCipher: (BitwardenSdk.CipherListView) async throws -> Void
+        onCipher: (BitwardenSdk.CipherListView) async throws -> Void,
     ) async {
         decryptAndProcessCiphersInBatchBatchSize = batchSize
         decryptAndProcessCiphersInBatchCiphers = ciphers

@@ -1,3 +1,4 @@
+import BitwardenResources
 import XCTest
 
 @testable import AuthenticatorShared
@@ -13,7 +14,7 @@ class DefaultSaveOptionTests: BitwardenTestCase {
                 .saveToBitwarden,
                 .saveHere,
                 .none,
-            ]
+            ],
         )
     }
 

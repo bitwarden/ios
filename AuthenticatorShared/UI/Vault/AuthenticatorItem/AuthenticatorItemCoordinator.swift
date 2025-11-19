@@ -1,3 +1,4 @@
+import BitwardenKit
 import OSLog
 import SwiftUI
 
@@ -9,8 +10,10 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = AuthenticatorItemModule
+        & NavigatorBuilderModule
 
     typealias Services = HasAuthenticatorItemRepository
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasTimeProvider
 
@@ -39,7 +42,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     init(
         module: Module,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.module = module
         self.services = services
@@ -61,7 +64,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
         case let .editAuthenticatorItem(authenticatorItemView):
             showEditAuthenticatorItem(
                 for: authenticatorItemView,
-                delegate: context as? AuthenticatorItemOperationDelegate
+                delegate: context as? AuthenticatorItemOperationDelegate,
             )
         }
     }
@@ -79,7 +82,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     /// - Parameter route: The route to navigate to in the presented coordinator.
     ///
     private func presentChildAuthenticatorItemCoordinator(route: AuthenticatorItemRoute, context: AnyObject?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeAuthenticatorItemCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: route, context: context)
         coordinator.start()
@@ -93,7 +96,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
     ///
     private func showEditAuthenticatorItem(
         for authenticatorItemView: AuthenticatorItemView,
-        delegate: AuthenticatorItemOperationDelegate?
+        delegate: AuthenticatorItemOperationDelegate?,
     ) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
@@ -104,7 +107,7 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
                 coordinator: asAnyCoordinator(),
                 delegate: delegate,
                 services: services,
-                state: state
+                state: state,
             )
             let store = Store(processor: processor)
             let view = EditAuthenticatorItemView(store: store)
@@ -112,8 +115,14 @@ class AuthenticatorItemCoordinator: NSObject, Coordinator, HasStackNavigator {
         } else {
             presentChildAuthenticatorItemCoordinator(
                 route: .editAuthenticatorItem(authenticatorItemView),
-                context: self
+                context: self,
             )
         }
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AuthenticatorItemCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

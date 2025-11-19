@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - UnlockMethod
@@ -20,7 +21,7 @@ public enum UnlockMethod {
 
 /// An enumeration of session timeout values to choose from.
 ///
-extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
+extension SessionTimeoutValue: @retroactive CaseIterable {
     /// All of the cases to show in the menu.
     public static let allCases: [Self] = [
         .immediately,
@@ -34,32 +35,6 @@ extension SessionTimeoutValue: @retroactive CaseIterable, Menuable {
         .never,
         .custom(-100),
     ]
-
-    /// The localized string representation of a `SessionTimeoutValue`.
-    var localizedName: String {
-        switch self {
-        case .immediately:
-            Localizations.immediately
-        case .oneMinute:
-            Localizations.oneMinute
-        case .fiveMinutes:
-            Localizations.fiveMinutes
-        case .fifteenMinutes:
-            Localizations.fifteenMinutes
-        case .thirtyMinutes:
-            Localizations.thirtyMinutes
-        case .oneHour:
-            Localizations.oneHour
-        case .fourHours:
-            Localizations.fourHours
-        case .onAppRestart:
-            Localizations.onRestart
-        case .never:
-            Localizations.never
-        case .custom:
-            Localizations.custom
-        }
-    }
 }
 
 // MARK: - SessionTimeoutAction
@@ -76,7 +51,7 @@ public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuabl
     /// All of the cases to show in the menu.
     public static let allCases: [SessionTimeoutAction] = [.lock, .logout]
 
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
         case .lock:
             Localizations.lock
@@ -144,9 +119,6 @@ struct AccountSecurityState: Equatable {
     /// The length of time before a session timeout occurs.
     var sessionTimeoutValue: SessionTimeoutValue = .immediately
 
-    /// Whether the sync with the authenticator app section should be included.
-    var shouldShowAuthenticatorSyncSection = false
-
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?
 
@@ -209,12 +181,12 @@ struct AccountSecurityState: Equatable {
             Localizations.vaultTimeoutPolicyWithActionInEffect(
                 policyTimeoutHours,
                 policyTimeoutMinutes,
-                policyTimeoutAction.localizedName
+                policyTimeoutAction.localizedName,
             )
         } else {
             Localizations.vaultTimeoutPolicyInEffect(
                 policyTimeoutHours,
-                policyTimeoutMinutes
+                policyTimeoutMinutes,
             )
         }
     }

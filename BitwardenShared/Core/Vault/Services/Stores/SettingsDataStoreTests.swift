@@ -13,7 +13,7 @@ class SettingsDataStoreTests: BitwardenTestCase {
         equivalentDomains: [["google.com", "youtube.com"]],
         globalEquivalentDomains: [
             GlobalDomains(domains: ["apple.com", "icloud.com"], excluded: false, type: 0),
-        ]
+        ],
     )
 
     let policies: [PolicyResponseModel] = [
@@ -22,14 +22,14 @@ class SettingsDataStoreTests: BitwardenTestCase {
             enabled: true,
             id: "1",
             organizationId: "org-1",
-            type: .twoFactorAuthentication
+            type: .twoFactorAuthentication,
         ),
         PolicyResponseModel(
             data: nil,
             enabled: true,
             id: "2",
             organizationId: "org-1",
-            type: .masterPassword
+            type: .masterPassword,
         ),
     ]
 
@@ -73,7 +73,7 @@ class SettingsDataStoreTests: BitwardenTestCase {
     func test_replaceEquivalentDomains() async throws {
         try await subject.replaceEquivalentDomains(
             DomainsResponseModel(equivalentDomains: nil, globalEquivalentDomains: nil),
-            userId: "1"
+            userId: "1",
         )
 
         try await subject.replaceEquivalentDomains(domains, userId: "1")

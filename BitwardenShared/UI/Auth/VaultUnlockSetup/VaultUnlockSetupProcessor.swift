@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 // MARK: - VaultUnlockSetupProcessor
 
 /// The processor used to manage state and handle actions for the vault unlock setup screen.
@@ -32,7 +35,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
         state: VaultUnlockSetupState,
-        vaultUnlockSetupHelper: VaultUnlockSetupHelper
+        vaultUnlockSetupHelper: VaultUnlockSetupHelper,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -116,7 +119,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     private func toggleBiometricUnlock(enabled: Bool) async {
         state.biometricsStatus = await vaultUnlockSetupHelper.setBiometricUnlock(
             enabled: enabled,
-            showAlert: coordinator.showAlert
+            showAlert: coordinator.showAlert,
         )
     }
 
@@ -127,7 +130,7 @@ class VaultUnlockSetupProcessor: StateProcessor<VaultUnlockSetupState, VaultUnlo
     private func togglePinUnlock(enabled: Bool) async {
         state.isPinUnlockOn = await vaultUnlockSetupHelper.setPinUnlock(
             enabled: enabled,
-            showAlert: coordinator.showAlert
+            showAlert: coordinator.showAlert,
         )
     }
 }

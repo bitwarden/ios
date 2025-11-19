@@ -21,12 +21,12 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
     let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        filter: VaultListFilter,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await Publishers.CombineLatest3(
             cipherService.ciphersPublisher(),
             collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
+            folderService.foldersPublisher(),
         )
         .asyncTryMap { ciphers, collections, folders in
             try await build(from: ciphers, collections: collections, folders: folders, filter: filter)
@@ -43,22 +43,22 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
     ///   - collections: Collections to filter and include in the sections.
     ///   - folders: Folders to filter and include in the sections.
     ///   - filter: Filter to be used to build the sections.
-    /// - Returns: Sections to be displayed to the user.
+    /// - Returns: Vault list data containing the sections to be displayed to the user.
     func build(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
-        filter: VaultListFilter
-    ) async throws -> [VaultListSection] {
-        guard !ciphers.isEmpty else { return [] }
+        filter: VaultListFilter,
+    ) async throws -> VaultListData {
+        guard !ciphers.isEmpty else { return VaultListData() }
 
-        guard let preparedGroupData = try await vaultListDataPreparator.prepareGroupData(
+        guard let preparedGroupData = await vaultListDataPreparator.prepareGroupData(
             from: ciphers,
             collections: collections,
             folders: folders,
-            filter: filter
+            filter: filter,
         ) else {
-            return []
+            return VaultListData()
         }
 
         var builder = builderFactory.make(withData: preparedGroupData)

@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 extension MasterPasswordPolicyOptions {
@@ -60,7 +61,7 @@ extension MasterPasswordPolicyOptions {
             requireLower: responseModel.requireLower ?? false,
             requireNumbers: responseModel.requireNumbers ?? false,
             requireSpecial: responseModel.requireSpecial ?? false,
-            enforceOnLogin: responseModel.enforceOnLogin ?? false
+            enforceOnLogin: responseModel.enforceOnLogin ?? false,
         )
     }
 }

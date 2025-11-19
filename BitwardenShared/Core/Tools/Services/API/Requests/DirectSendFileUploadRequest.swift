@@ -46,12 +46,12 @@ struct DirectSendFileUploadRequest: Request {
         data: Data,
         fileName: String,
         fileId: String,
-        sendId: String
+        sendId: String,
     ) {
         self.fileId = fileId
         requestModel = DirectFileUploadRequestModel(
             data: data,
-            fileName: fileName
+            fileName: fileName,
         )
         self.sendId = sendId
     }

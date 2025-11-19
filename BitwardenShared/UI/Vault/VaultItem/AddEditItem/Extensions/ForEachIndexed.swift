@@ -29,10 +29,10 @@ public struct ForEachIndexed<Data: RandomAccessCollection, ID: Hashable, Content
                 IndexInfo(
                     index: index,
                     id: id,
-                    element: element
+                    element: element,
                 )
             },
-            id: \.elementID
+            id: \.elementID,
         ) { indexInfo in
             content(indexInfo.index, indexInfo.element)
         }
@@ -50,7 +50,7 @@ public struct ForEachIndexed<Data: RandomAccessCollection, ID: Hashable, Content
     public init(
         _ data: Data,
         id: KeyPath<Data.Element, ID>,
-        content: @escaping (_ index: Data.Index, _ element: Data.Element) -> Content
+        content: @escaping (_ index: Data.Index, _ element: Data.Element) -> Content,
     ) {
         self.data = data
         self.id = id

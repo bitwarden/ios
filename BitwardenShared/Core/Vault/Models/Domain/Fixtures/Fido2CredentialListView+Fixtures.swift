@@ -6,14 +6,16 @@ extension Fido2CredentialListView {
         rpId: String = "myApp.com",
         userHandle: String? = nil,
         userName: String? = nil,
-        userDisplayName: String? = nil
+        userDisplayName: String? = nil,
+        counter: String = "0",
     ) -> Fido2CredentialListView {
         .init(
             credentialId: credentialId,
             rpId: rpId,
             userHandle: userHandle,
             userName: userName,
-            userDisplayName: userDisplayName
+            userDisplayName: userDisplayName,
+            counter: counter,
         )
     }
 }

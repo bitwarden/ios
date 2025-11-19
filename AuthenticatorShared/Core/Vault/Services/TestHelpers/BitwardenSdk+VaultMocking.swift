@@ -11,7 +11,7 @@ extension Attachment {
             size: attachmentView.size,
             sizeName: attachmentView.sizeName,
             fileName: attachmentView.fileName,
-            key: attachmentView.key
+            key: attachmentView.key,
         )
     }
 }
@@ -24,7 +24,7 @@ extension AttachmentView {
             size: attachment.size,
             sizeName: attachment.sizeName,
             fileName: attachment.fileName,
-            key: attachment.key
+            key: attachment.key,
         )
     }
 }
@@ -37,7 +37,7 @@ extension Card {
             expYear: cardView.expYear,
             code: cardView.code,
             brand: cardView.brand,
-            number: cardView.number
+            number: cardView.number,
         )
     }
 }
@@ -50,7 +50,7 @@ extension CardView {
             expYear: card.expYear,
             code: card.code,
             brand: card.brand,
-            number: card.number
+            number: card.number,
         )
     }
 }
@@ -77,8 +77,9 @@ extension CipherListView {
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate,
+            archivedDate: cipher.archivedDate,
             copyableFields: [],
-            localData: cipher.localData.map(LocalDataView.init)
+            localData: cipher.localData.map(LocalDataView.init),
         )
     }
 }
@@ -99,8 +100,8 @@ extension CipherListViewType {
                     ),
                     username: nil,
                     totp: cipher.login?.totp,
-                    uris: cipher.login?.uris?.map { LoginUriView(loginUri: $0) }
-                )
+                    uris: cipher.login?.uris?.map { LoginUriView(loginUri: $0) },
+                ),
             )
         case .secureNote:
             self = .secureNote
@@ -138,7 +139,8 @@ extension Cipher {
             passwordHistory: cipherView.passwordHistory?.map(PasswordHistory.init),
             creationDate: cipherView.creationDate,
             deletedDate: cipherView.deletedDate,
-            revisionDate: cipherView.revisionDate
+            revisionDate: cipherView.revisionDate,
+            archivedDate: cipherView.archivedDate,
         )
     }
 }
@@ -171,7 +173,8 @@ extension CipherView {
             passwordHistory: cipher.passwordHistory?.map(PasswordHistoryView.init),
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
-            revisionDate: cipher.revisionDate
+            revisionDate: cipher.revisionDate,
+            archivedDate: cipher.archivedDate,
         )
     }
 }
@@ -185,7 +188,8 @@ extension CollectionView {
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             readOnly: collection.readOnly,
-            manage: collection.manage
+            manage: collection.manage,
+            type: collection.type,
         )
     }
 }
@@ -205,7 +209,7 @@ extension Fido2Credential {
             rpName: fido2CredentialView.rpName,
             userDisplayName: fido2CredentialView.userDisplayName,
             discoverable: fido2CredentialView.discoverable,
-            creationDate: fido2CredentialView.creationDate
+            creationDate: fido2CredentialView.creationDate,
         )
     }
 }
@@ -225,7 +229,7 @@ extension Fido2CredentialView {
             rpName: fido2Credential.rpName,
             userDisplayName: fido2Credential.userDisplayName,
             discoverable: fido2Credential.discoverable,
-            creationDate: fido2Credential.creationDate
+            creationDate: fido2Credential.creationDate,
         )
     }
 }
@@ -236,7 +240,7 @@ extension Field {
             name: fieldView.name,
             value: fieldView.value,
             type: fieldView.type,
-            linkedId: fieldView.linkedId
+            linkedId: fieldView.linkedId,
         )
     }
 }
@@ -247,7 +251,7 @@ extension FieldView {
             name: field.name,
             value: field.value,
             type: field.type,
-            linkedId: field.linkedId
+            linkedId: field.linkedId,
         )
     }
 }
@@ -257,7 +261,7 @@ extension Folder {
         self.init(
             id: folderView.id,
             name: folderView.name,
-            revisionDate: folderView.revisionDate
+            revisionDate: folderView.revisionDate,
         )
     }
 }
@@ -267,7 +271,7 @@ extension FolderView {
         self.init(
             id: folder.id,
             name: folder.name,
-            revisionDate: folder.revisionDate
+            revisionDate: folder.revisionDate,
         )
     }
 }
@@ -292,7 +296,7 @@ extension Identity {
             ssn: identityView.ssn,
             username: identityView.username,
             passportNumber: identityView.passportNumber,
-            licenseNumber: identityView.licenseNumber
+            licenseNumber: identityView.licenseNumber,
         )
     }
 }
@@ -317,7 +321,7 @@ extension IdentityView {
             ssn: identity.ssn,
             username: identity.username,
             passportNumber: identity.passportNumber,
-            licenseNumber: identity.licenseNumber
+            licenseNumber: identity.licenseNumber,
         )
     }
 }
@@ -326,7 +330,7 @@ extension LocalData {
     init(localDataView: LocalDataView) {
         self.init(
             lastUsedDate: localDataView.lastUsedDate,
-            lastLaunched: localDataView.lastLaunched
+            lastLaunched: localDataView.lastLaunched,
         )
     }
 }
@@ -335,7 +339,7 @@ extension LocalDataView {
     init(localData: LocalData) {
         self.init(
             lastUsedDate: localData.lastUsedDate,
-            lastLaunched: localData.lastLaunched
+            lastLaunched: localData.lastLaunched,
         )
     }
 }
@@ -349,7 +353,7 @@ extension Login {
             uris: loginView.uris?.map(LoginUri.init),
             totp: loginView.totp,
             autofillOnPageLoad: loginView.autofillOnPageLoad,
-            fido2Credentials: loginView.fido2Credentials
+            fido2Credentials: loginView.fido2Credentials,
         )
     }
 }
@@ -363,7 +367,7 @@ extension LoginView {
             uris: login.uris?.map(LoginUriView.init),
             totp: login.totp,
             autofillOnPageLoad: login.autofillOnPageLoad,
-            fido2Credentials: login.fido2Credentials
+            fido2Credentials: login.fido2Credentials,
         )
     }
 }
@@ -373,7 +377,7 @@ extension LoginUri {
         self.init(
             uri: loginUriView.uri,
             match: loginUriView.match,
-            uriChecksum: loginUriView.uriChecksum
+            uriChecksum: loginUriView.uriChecksum,
         )
     }
 }
@@ -383,7 +387,7 @@ extension LoginUriView {
         self.init(
             uri: loginUri.uri,
             match: loginUri.match,
-            uriChecksum: loginUri.uriChecksum
+            uriChecksum: loginUri.uriChecksum,
         )
     }
 }
@@ -392,7 +396,7 @@ extension PasswordHistory {
     init(passwordHistoryView: PasswordHistoryView) {
         self.init(
             password: passwordHistoryView.password,
-            lastUsedDate: passwordHistoryView.lastUsedDate
+            lastUsedDate: passwordHistoryView.lastUsedDate,
         )
     }
 }
@@ -401,7 +405,7 @@ extension PasswordHistoryView {
     init(passwordHistory: PasswordHistory) {
         self.init(
             password: passwordHistory.password,
-            lastUsedDate: passwordHistory.lastUsedDate
+            lastUsedDate: passwordHistory.lastUsedDate,
         )
     }
 }
@@ -424,7 +428,7 @@ extension SendFileView {
             id: sendFile.id,
             fileName: sendFile.fileName,
             size: sendFile.size,
-            sizeName: sendFile.sizeName
+            sizeName: sendFile.sizeName,
         )
     }
 }
@@ -433,7 +437,7 @@ extension SendTextView {
     init(sendText: SendText) {
         self.init(
             text: sendText.text,
-            hidden: sendText.hidden
+            hidden: sendText.hidden,
         )
     }
 }
@@ -457,7 +461,7 @@ extension SendView {
             hideEmail: send.hideEmail,
             revisionDate: send.revisionDate,
             deletionDate: send.deletionDate,
-            expirationDate: send.expirationDate
+            expirationDate: send.expirationDate,
         )
     }
 }
@@ -468,7 +472,7 @@ extension SendFile {
             id: sendFileView.id,
             fileName: sendFileView.fileName,
             size: sendFileView.size,
-            sizeName: sendFileView.sizeName
+            sizeName: sendFileView.sizeName,
         )
     }
 }
@@ -477,7 +481,7 @@ extension SendText {
     init(sendTextView: SendTextView) {
         self.init(
             text: sendTextView.text,
-            hidden: sendTextView.hidden
+            hidden: sendTextView.hidden,
         )
     }
 }
@@ -500,7 +504,7 @@ extension Send {
             hideEmail: sendView.hideEmail,
             revisionDate: sendView.revisionDate,
             deletionDate: sendView.deletionDate,
-            expirationDate: sendView.expirationDate
+            expirationDate: sendView.expirationDate,
         )
     }
 }
@@ -510,7 +514,7 @@ extension SshKey {
         self.init(
             privateKey: sshKeyView.privateKey,
             publicKey: sshKeyView.publicKey,
-            fingerprint: sshKeyView.fingerprint
+            fingerprint: sshKeyView.fingerprint,
         )
     }
 }
@@ -520,7 +524,7 @@ extension SshKeyView {
         self.init(
             privateKey: sshKey.privateKey,
             publicKey: sshKey.publicKey,
-            fingerprint: sshKey.fingerprint
+            fingerprint: sshKey.fingerprint,
         )
     }
 } // swiftlint:disable:this file_length

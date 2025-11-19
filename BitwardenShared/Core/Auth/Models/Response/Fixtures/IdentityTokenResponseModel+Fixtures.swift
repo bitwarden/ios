@@ -5,7 +5,7 @@ extension AuthMethodsData {
         let methodsData = AuthMethodsData(
             authenticator: true,
             email: Email(email: "sh***@example.com"),
-            yubikey: Yubikey(nfc: true)
+            yubikey: Yubikey(nfc: true),
         )
         return methodsData
     }
@@ -18,7 +18,7 @@ extension AuthMethodsData {
                 allowCredentials: [
                     AllowCredential(
                         id: "_YSahxwU5GEkoLbFOBSMgRVoCwUZMAhuC_HhLnwG123",
-                        type: "public-key"
+                        type: "public-key",
                     ),
                 ],
                 challenge: "3Hu2GPMuYlbKqRQgdlu123",
@@ -26,8 +26,8 @@ extension AuthMethodsData {
                 rpId: "vault.bitwarden.com",
                 status: "ok",
                 timeout: 60000,
-                userVerification: "discouraged"
-            )
+                userVerification: "discouraged",
+            ),
         )
         return methodsData
     }
@@ -35,6 +35,7 @@ extension AuthMethodsData {
 
 extension IdentityTokenResponseModel {
     static func fixture(
+        accountKeys: PrivateKeysResponseModel? = nil,
         forcePasswordReset: Bool = false,
         kdf: KdfType = .pbkdf2sha256,
         kdfIterations: Int = 600_000,
@@ -49,15 +50,16 @@ extension IdentityTokenResponseModel {
         userDecryptionOptions: UserDecryptionOptions? = UserDecryptionOptions(
             hasMasterPassword: true,
             keyConnectorOption: nil,
-            trustedDeviceOption: nil
+            trustedDeviceOption: nil,
         ),
         // swiftlint:disable:next line_length
         accessToken: String = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM",
         expiresIn: Int = 3600,
         tokenType: String = "Bearer",
-        refreshToken: String = "REFRESH_TOKEN"
+        refreshToken: String = "REFRESH_TOKEN",
     ) -> IdentityTokenResponseModel {
         IdentityTokenResponseModel(
+            accountKeys: accountKeys,
             forcePasswordReset: forcePasswordReset,
             kdf: kdf,
             kdfIterations: kdfIterations,
@@ -73,7 +75,7 @@ extension IdentityTokenResponseModel {
             accessToken: accessToken,
             expiresIn: expiresIn,
             tokenType: tokenType,
-            refreshToken: refreshToken
+            refreshToken: refreshToken,
         )
     }
 }

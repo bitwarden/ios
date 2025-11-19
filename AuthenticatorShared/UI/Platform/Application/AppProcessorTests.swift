@@ -26,7 +26,7 @@ class AppProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         notificationCenter = MockNotificationCenterService()
-        timeProvider = MockTimeProvider(.currentTime)
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 1, hour: 2, minute: 30, second: 10)))
 
         subject = AppProcessor(
             appModule: appModule,
@@ -34,8 +34,8 @@ class AppProcessorTests: BitwardenTestCase {
                 appSettingsStore: appSettingsStore,
                 errorReporter: errorReporter,
                 notificationCenterService: notificationCenter,
-                timeProvider: timeProvider
-            )
+                timeProvider: timeProvider,
+            ),
         )
         subject.coordinator = coordinator.asAnyCoordinator()
     }
@@ -54,10 +54,14 @@ class AppProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    @MainActor
     func test_background_storesLastActive() async throws {
         await subject.start(appContext: .mainApp,
                             navigator: MockRootNavigator(),
                             window: window)
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.didEnterBackgroundSubject.send()
         let userId = appSettingsStore.localUserId
 
@@ -79,7 +83,7 @@ class AppProcessorTests: BitwardenTestCase {
     @MainActor
     func test_vaultTimeout_never() async throws {
         let userId = await subject.services.stateService.getActiveAccountId()
-        appSettingsStore.setLastActiveTime(.now.advanced(by: -3601), userId: userId)
+        appSettingsStore.setLastActiveTime(timeProvider.presentTime.advanced(by: -3601), userId: userId)
         appSettingsStore.setVaultTimeout(minutes: SessionTimeoutValue.never.rawValue, userId: userId)
 
         var notificationReceived = false
@@ -88,6 +92,9 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationReceived = true
             }
         defer { publisher.cancel() }
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.willEnterForegroundSubject.send()
 
         try await waitForAsync { notificationReceived }
@@ -98,7 +105,7 @@ class AppProcessorTests: BitwardenTestCase {
     @MainActor
     func test_vaultTimeout_notSet() async throws {
         let userId = await subject.services.stateService.getActiveAccountId()
-        appSettingsStore.setLastActiveTime(.now.advanced(by: -3601), userId: userId)
+        appSettingsStore.setLastActiveTime(timeProvider.presentTime.advanced(by: -3601), userId: userId)
 
         var notificationReceived = false
         let publisher = notificationCenter.willEnterForegroundPublisher()
@@ -106,6 +113,9 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationReceived = true
             }
         defer { publisher.cancel() }
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.willEnterForegroundSubject.send()
 
         try await waitForAsync { notificationReceived }
@@ -117,7 +127,7 @@ class AppProcessorTests: BitwardenTestCase {
     @MainActor
     func test_vaultTimeout_onAppRestart() async throws {
         let userId = await subject.services.stateService.getActiveAccountId()
-        appSettingsStore.setLastActiveTime(.now.advanced(by: -3601), userId: userId)
+        appSettingsStore.setLastActiveTime(timeProvider.presentTime.advanced(by: -3601), userId: userId)
         appSettingsStore.setVaultTimeout(minutes: SessionTimeoutValue.onAppRestart.rawValue, userId: userId)
 
         var notificationReceived = false
@@ -126,6 +136,9 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationReceived = true
             }
         defer { publisher.cancel() }
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.willEnterForegroundSubject.send()
 
         try await waitForAsync { notificationReceived }
@@ -145,6 +158,9 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationReceived = true
             }
         defer { publisher.cancel() }
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.willEnterForegroundSubject.send()
 
         try await waitForAsync { notificationReceived }
@@ -156,7 +172,7 @@ class AppProcessorTests: BitwardenTestCase {
     @MainActor
     func test_vaultTimeout_oneMinute_notYetTimedOut() async throws {
         let userId = await subject.services.stateService.getActiveAccountId()
-        appSettingsStore.setLastActiveTime(.now, userId: userId)
+        appSettingsStore.setLastActiveTime(timeProvider.presentTime, userId: userId)
         appSettingsStore.setVaultTimeout(minutes: 1, userId: userId)
 
         var notificationReceived = false
@@ -165,6 +181,9 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationReceived = true
             }
         defer { publisher.cancel() }
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.willEnterForegroundSubject.send()
 
         try await waitForAsync { notificationReceived }
@@ -175,7 +194,7 @@ class AppProcessorTests: BitwardenTestCase {
     @MainActor
     func test_vaultTimeout_oneMinute_timeout() async throws {
         let userId = await subject.services.stateService.getActiveAccountId()
-        appSettingsStore.setLastActiveTime(.now.advanced(by: -120), userId: userId)
+        appSettingsStore.setLastActiveTime(timeProvider.presentTime.advanced(by: -120), userId: userId)
         appSettingsStore.setVaultTimeout(minutes: 1, userId: userId)
 
         var notificationReceived = false
@@ -184,6 +203,9 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationReceived = true
             }
         defer { publisher.cancel() }
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.willEnterForegroundSubject.send()
 
         try await waitForAsync { notificationReceived }
@@ -195,7 +217,7 @@ class AppProcessorTests: BitwardenTestCase {
     @MainActor
     func test_vaultTimeout_oneHour_timeout() async throws {
         let userId = await subject.services.stateService.getActiveAccountId()
-        appSettingsStore.setLastActiveTime(.now.advanced(by: -3700), userId: userId)
+        appSettingsStore.setLastActiveTime(timeProvider.presentTime.advanced(by: -3700), userId: userId)
         appSettingsStore.setVaultTimeout(minutes: 60, userId: userId)
 
         notificationCenter.willEnterForegroundSubject.send()
@@ -206,10 +228,22 @@ class AppProcessorTests: BitwardenTestCase {
                 notificationReceived = true
             }
         defer { publisher.cancel() }
+
+        try await ensureNotificationsSubscriptionsListening()
+
         notificationCenter.willEnterForegroundSubject.send()
 
         try await waitForAsync { notificationReceived }
         try await waitForAsync { !self.coordinator.events.isEmpty }
         XCTAssertEqual(coordinator.events.last, .vaultTimeout)
+    }
+
+    // MARK: Private
+
+    /// Ensures that the subscriptions to notifications are listening to avoid race-conditions. This is done
+    /// by checking the Tasks that starts the subscription have started.
+    @MainActor
+    private func ensureNotificationsSubscriptionsListening() async throws {
+        try await waitForAsync { self.subject.notificationsListeningCount == 2 }
     }
 }

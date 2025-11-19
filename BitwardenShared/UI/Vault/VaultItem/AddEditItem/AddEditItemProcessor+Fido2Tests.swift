@@ -62,18 +62,18 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
                 policyService: policyService,
                 stateService: stateService,
                 totpService: totpService,
-                vaultRepository: vaultRepository
+                vaultRepository: vaultRepository,
             ),
             state: CipherItemState(
                 customFields: [
                     CustomFieldState(
                         name: "fieldName1",
                         type: .hidden,
-                        value: "old"
+                        value: "old",
                     ),
                 ],
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
     }
 
@@ -102,7 +102,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
             requirePresence: true,
-            requireVerification: .preferred
+            requireVerification: .preferred,
         )
         fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
 
@@ -129,7 +129,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
             requirePresence: true,
-            requireVerification: .preferred
+            requireVerification: .preferred,
         )
         fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: false))
 
@@ -179,7 +179,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
             requirePresence: true,
-            requireVerification: .required
+            requireVerification: .required,
         )
         fido2UserInterfaceHelper.checkUserResult = .failure(UserVerificationError.cancelled)
 
@@ -197,7 +197,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
             requirePresence: true,
-            requireVerification: .required
+            requireVerification: .required,
         )
         fido2UserInterfaceHelper.checkUserResult = .failure(BitwardenTestError.example)
 

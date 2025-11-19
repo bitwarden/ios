@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
@@ -21,7 +23,7 @@ struct SearchVaultFilterRowView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text(store.state.searchVaultFilterType.filterTitle)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                         .styleGuide(.body)
                         .accessibilityIdentifier("ActiveFilterNameLabel")
 
@@ -30,7 +32,7 @@ struct SearchVaultFilterRowView: View {
                     Menu {
                         Picker(selection: store.binding(
                             get: \.searchVaultFilterType,
-                            send: SearchVaultFilterRowAction.searchVaultFilterChanged
+                            send: SearchVaultFilterRowAction.searchVaultFilterChanged,
                         )) {
                             ForEach(store.state.vaultFilterOptions) { filter in
                                 Text(filter.title)
@@ -40,19 +42,19 @@ struct SearchVaultFilterRowView: View {
                             EmptyView()
                         }
                     } label: {
-                        Asset.Images.ellipsisHorizontal24.swiftUIImage
+                        SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                             .imageStyle(.rowIcon)
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
                     }
                     .accessibilityLabel(Localizations.filterByVault)
                     .accessibilityIdentifier("ActiveFilterRow")
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 9)
                 .frame(minHeight: 60)
-                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
 
                 if hasDivider {
                     Divider()
@@ -73,7 +75,7 @@ struct SearchVaultFilterRowView: View {
     init(
         hasDivider: Bool,
         accessibilityID: String? = nil,
-        store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>
+        store: Store<SearchVaultFilterRowState, SearchVaultFilterRowAction, Void>,
     ) {
         self.hasDivider = hasDivider
         self.accessibilityID = accessibilityID

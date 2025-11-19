@@ -78,7 +78,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     init(
         biometricsService: BiometricsService,
         keychainService: KeychainRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.biometricsService = biometricsService
         keychainRepository = keychainService
@@ -117,7 +117,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
             return .available(
                 type,
                 enabled: hasEnabledBiometricUnlock,
-                hasValidIntegrity: hasValidIntegrityState
+                hasValidIntegrity: hasValidIntegrityState,
             )
         case .denied,
              .lockedOut,

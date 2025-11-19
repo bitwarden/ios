@@ -33,7 +33,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
         extensionItem.attachments = [
             NSItemProvider(
                 item: "text value" as NSString,
-                typeIdentifier: UTType.plainText.identifier
+                typeIdentifier: UTType.plainText.identifier,
             ),
         ]
 
@@ -56,7 +56,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
         extensionItem.attachments = [
             NSItemProvider(
                 item: url as NSURL,
-                typeIdentifier: UTType.data.identifier
+                typeIdentifier: UTType.data.identifier,
             ),
         ]
 
@@ -78,7 +78,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
         extensionItem.attachments = [
             NSItemProvider(
                 item: data! as UIImage,
-                typeIdentifier: UTType.image.identifier
+                typeIdentifier: UTType.image.identifier,
             ),
         ]
 
@@ -94,7 +94,7 @@ class ShareExtensionHelperTests: BitwardenTestCase {
         extensionItem.attachments = [
             NSItemProvider(
                 item: URL.example as NSURL,
-                typeIdentifier: UTType.url.identifier
+                typeIdentifier: UTType.url.identifier,
             ),
         ]
 

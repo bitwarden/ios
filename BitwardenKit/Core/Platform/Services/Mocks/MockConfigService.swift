@@ -37,7 +37,7 @@ public class MockConfigService: ConfigService {
         _ flag: FeatureFlag,
         defaultValue: Bool,
         forceRefresh: Bool,
-        isPreAuth: Bool
+        isPreAuth: Bool,
     ) async -> Bool {
         let value = isPreAuth ? featureFlagsBoolPreAuth[flag] : featureFlagsBool[flag]
         return value ?? defaultValue
@@ -47,7 +47,7 @@ public class MockConfigService: ConfigService {
         _ flag: FeatureFlag,
         defaultValue: Int,
         forceRefresh: Bool,
-        isPreAuth: Bool
+        isPreAuth: Bool,
     ) async -> Int {
         let value = isPreAuth ? featureFlagsIntPreAuth[flag] : featureFlagsInt[flag]
         return value ?? defaultValue
@@ -57,7 +57,7 @@ public class MockConfigService: ConfigService {
         _ flag: FeatureFlag,
         defaultValue: String?,
         forceRefresh: Bool,
-        isPreAuth: Bool
+        isPreAuth: Bool,
     ) async -> String? {
         let value = isPreAuth ? featureFlagsStringPreAuth[flag] : featureFlagsString[flag]
         return value ?? defaultValue
@@ -75,7 +75,7 @@ public class MockConfigService: ConfigService {
 
     public func toggleDebugFeatureFlag(
         name: String,
-        newValue: Bool?
+        newValue: Bool?,
     ) async {
         toggleDebugFeatureFlagCalled = true
     }

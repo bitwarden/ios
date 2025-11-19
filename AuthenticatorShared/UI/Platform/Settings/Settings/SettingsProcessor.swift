@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import OSLog
 
 // MARK: - SettingsProcessor
@@ -8,13 +9,15 @@ import OSLog
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasAppSettingsStore
+    typealias Services = HasAppInfoService
+        & HasAppSettingsStore
         & HasApplication
         & HasAuthenticatorItemRepository
         & HasBiometricsRepository
         & HasConfigService
         & HasErrorReporter
         & HasExportItemsService
+        & HasFlightRecorder
         & HasPasteboardService
         & HasStateService
 
@@ -38,7 +41,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
-        state: SettingsState
+        state: SettingsState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -49,6 +52,15 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     override func perform(_ effect: SettingsEffect) async {
         switch effect {
+        case let .flightRecorder(flightRecorderEffect):
+            switch flightRecorderEffect {
+            case let .toggleFlightRecorder(isOn):
+                if isOn {
+                    coordinator.navigate(to: .flightRecorder(.enableFlightRecorder))
+                } else {
+                    await services.flightRecorder.disableFlightRecorder()
+                }
+            }
         case .loadData:
             await loadData()
         case let .sessionTimeoutValueChanged(timeoutValue):
@@ -61,8 +73,10 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             state.sessionTimeoutValue = timeoutValue
             services.appSettingsStore.setVaultTimeout(
                 minutes: timeoutValue.rawValue,
-                userId: services.appSettingsStore.localUserId
+                userId: services.appSettingsStore.localUserId,
             )
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case let .toggleUnlockWithBiometrics(isOn):
             await setBiometricAuth(isOn)
         }
@@ -86,6 +100,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             services.appSettingsStore.defaultSaveOption = option
         case .exportItemsTapped:
             coordinator.navigate(to: .exportItems)
+        case let .flightRecorder(flightRecorderAction):
+            switch flightRecorderAction {
+            case .viewLogsTapped:
+                coordinator.navigate(to: .flightRecorder(.flightRecorderLogs))
+            }
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
         case .importItemsTapped:
@@ -115,10 +134,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
-        // Copy the copyright text followed by the version info.
-        let text = "Bitwarden Authenticator\n\n" + state.copyrightText + "\n\n" + state.version
-        services.pasteboardService.copy(text)
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.appInfo))
+        services.pasteboardService.copy(services.appInfoService.appInfoString)
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 
     /// Loads the state of the user's biometric unlock preferences.
@@ -141,11 +158,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.appTheme = await services.stateService.getAppTheme()
         state.biometricUnlockStatus = await loadBiometricUnlockPreference()
         state.sessionTimeoutValue = loadTimeoutValue(biometricsEnabled: state.biometricUnlockStatus.isEnabled)
-        state.shouldShowSyncButton = await services.configService.getFeatureFlag(.enablePasswordManagerSync)
-        if state.shouldShowSyncButton {
-            state.shouldShowDefaultSaveOption = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
-            state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
-        }
+        state.shouldShowDefaultSaveOption = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
+        state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
     }
 
     /// Load the Session Timeout Value.
@@ -190,6 +204,13 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the flight recorder's active log metadata.
+    private func streamFlightRecorderLog() async {
+        for await activeLog in await services.flightRecorder.activeLogPublisher().values {
+            state.flightRecorderState.activeLog = activeLog
         }
     }
 }

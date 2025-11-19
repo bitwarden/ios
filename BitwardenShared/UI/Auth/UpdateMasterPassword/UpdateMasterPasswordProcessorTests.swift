@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -41,13 +43,13 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
             httpClient: httpClient,
             policyService: policyService,
             settingsRepository: settingsRepository,
-            stateService: stateService
+            stateService: stateService,
         )
         let state = UpdateMasterPasswordState()
         subject = UpdateMasterPasswordProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: state
+            state: state,
         )
     }
 
@@ -91,8 +93,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
                 requireLower: true,
                 requireNumbers: true,
                 requireSpecial: true,
-                enforceOnLogin: true
-            )
+                enforceOnLogin: true,
+            ),
         )
         XCTAssertNil(subject.state.masterPasswordPolicy)
         await subject.perform(.appeared)
@@ -105,7 +107,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_succeeds_policyNil() async throws {
         authRepository.activeAccount = .fixture(
-            profile: .fixture(forcePasswordResetReason: .weakMasterPasswordOnLogin)
+            profile: .fixture(forcePasswordResetReason: .weakMasterPasswordOnLogin),
         )
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         stateService.activeAccount = .fixture()
@@ -146,8 +148,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             coordinator.events.last,
             .action(
-                .logout(userId: nil, userInitiated: true)
-            )
+                .logout(userId: nil, userInitiated: true),
+            ),
         )
     }
 
@@ -178,8 +180,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             coordinator.alertShown.last,
             .inputValidationAlert(error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.masterPassword)
-            ))
+                message: Localizations.validationFieldRequired(Localizations.masterPassword),
+            )),
         )
     }
 
@@ -208,7 +210,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
             requireLower: false,
             requireNumbers: false,
             requireSpecial: false,
-            enforceOnLogin: true
+            enforceOnLogin: true,
         )
 
         subject.state.masterPassword = "INVALID"
@@ -247,8 +249,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.updateMasterPasswordPasswordHint, "NEW_PASSWORD_HINT")
         XCTAssertEqual(authRepository.updateMasterPasswordReason, .weakMasterPasswordOnLogin)
 
-        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.events, [.action(.logout(userId: nil, userInitiated: false))])
+        XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `receive(_:)` with `.currentMasterPasswordChanged` updates the state to reflect the changes.

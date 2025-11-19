@@ -53,7 +53,7 @@ class GeneratorDataStoreTests: BitwardenTestCase {
             // getting out of order when sorting by the date.
             PasswordHistory(
                 password: index.description,
-                lastUsedDate: Date(timeIntervalSince1970: Double(index))
+                lastUsedDate: Date(timeIntervalSince1970: Double(index)),
             )
         }
 
@@ -71,7 +71,7 @@ class GeneratorDataStoreTests: BitwardenTestCase {
         let results = try subject.backgroundContext.fetch(fetchRequest)
         XCTAssertEqual(
             try results.map(PasswordHistory.init),
-            passwords.suffix(5).reversed()
+            passwords.suffix(5).reversed(),
         )
     }
 
@@ -82,7 +82,7 @@ class GeneratorDataStoreTests: BitwardenTestCase {
             // getting out of order when sorting by the date.
             PasswordHistory(
                 password: index.description,
-                lastUsedDate: Date(timeIntervalSince1970: Double(index))
+                lastUsedDate: Date(timeIntervalSince1970: Double(index)),
             )
         }
 
@@ -104,14 +104,14 @@ class GeneratorDataStoreTests: BitwardenTestCase {
         let passwordHistory2 = PasswordHistory(password: "PASSWORD2", lastUsedDate: Date())
         try await subject.insertPasswordHistory(
             userId: "1",
-            passwordHistory: passwordHistory1
+            passwordHistory: passwordHistory1,
         )
         let results = try subject.backgroundContext.fetch(PasswordHistoryData.fetchByUserIdRequest(userId: "1"))
         try XCTAssertEqual(results.map(PasswordHistory.init), [passwordHistory1])
 
         try await subject.insertPasswordHistory(
             userId: "1",
-            passwordHistory: passwordHistory2
+            passwordHistory: passwordHistory2,
         )
         let resultsUpdated = try subject.backgroundContext.fetch(PasswordHistoryData.fetchByUserIdRequest(userId: "1"))
         try XCTAssertEqual(resultsUpdated.map(PasswordHistory.init), [passwordHistory1, passwordHistory2])
@@ -126,7 +126,7 @@ class GeneratorDataStoreTests: BitwardenTestCase {
                 receiveCompletion: { _ in },
                 receiveValue: { values in
                     publishedValues.append(values)
-                }
+                },
             )
         defer { publisher.cancel() }
 

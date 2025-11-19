@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportLoginsModule
 
 /// An object that builds coordinators for the import logins views.
@@ -11,20 +13,20 @@ protocol ImportLoginsModule {
     ///
     func makeImportLoginsCoordinator(
         delegate: ImportLoginsCoordinatorDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent>
 }
 
 extension DefaultAppModule: ImportLoginsModule {
     func makeImportLoginsCoordinator(
         delegate: ImportLoginsCoordinatorDelegate,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent> {
         ImportLoginsCoordinator(
             delegate: delegate,
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

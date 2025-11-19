@@ -54,7 +54,7 @@ extension MockExporterClient: ExporterClientProtocol {
     func exportOrganizationVault(
         collections: [BitwardenSdk.Collection],
         ciphers: [BitwardenSdk.Cipher],
-        format: BitwardenSdk.ExportFormat
+        format: BitwardenSdk.ExportFormat,
     ) throws -> String {
         self.collections = collections
         self.ciphers = ciphers
@@ -65,7 +65,7 @@ extension MockExporterClient: ExporterClientProtocol {
     func exportVault(
         folders: [BitwardenSdk.Folder],
         ciphers: [BitwardenSdk.Cipher],
-        format: BitwardenSdk.ExportFormat
+        format: BitwardenSdk.ExportFormat,
     ) throws -> String {
         self.folders = folders
         self.ciphers = ciphers

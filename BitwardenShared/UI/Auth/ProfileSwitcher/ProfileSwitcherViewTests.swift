@@ -1,14 +1,14 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
-import SnapshotTesting
 import SwiftUI
-import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
 
 // MARK: - ProfileSwitcherViewTests
 
-class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class ProfileSwitcherViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ProfileSwitcherState, ProfileSwitcherAction, ProfileSwitcherEffect>!
@@ -23,7 +23,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             accounts: [account],
             activeAccountId: account.userId,
             allowLockAndLogout: true,
-            isVisible: true
+            isVisible: true,
         )
         processor = MockProcessor(state: state)
         subject = ProfileSwitcherView(store: Store(processor: processor))
@@ -37,155 +37,6 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     // MARK: Tests
-
-    /// Long pressing a profile row dispatches the `.accountLongPressed` action.
-    @MainActor
-    func test_accountRow_longPress_currentAccount() throws {
-        let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        try accountRow.labelView().callOnLongPressGesture()
-        let currentAccount = processor.state.activeAccountProfile!
-        waitFor(!processor.effects.isEmpty)
-
-        XCTAssertEqual(processor.effects.last, .accountLongPressed(currentAccount))
-    }
-
-    /// Long pressing is disabled if lock and logout are not available.
-    @MainActor
-    func test_accountRow_longPress_currentAccount_noLockOrLogout() throws {
-        processor.state.allowLockAndLogout = false
-        processor.state.accounts[0].canBeLocked = false
-        let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        XCTAssertThrowsError(try accountRow.labelView().callOnLongPressGesture())
-    }
-
-    /// Tapping a profile row dispatches the `.accountPressed` action.
-    @MainActor
-    func test_accountRow_tap_currentAccount() throws {
-        let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        try accountRow.labelView().callOnTapGesture()
-        let currentAccount = processor.state.activeAccountProfile!
-        waitFor(!processor.effects.isEmpty)
-
-        XCTAssertEqual(processor.effects.last, .accountPressed(currentAccount))
-    }
-
-    /// Tapping a profile row dispatches the `.accountPressed` action.
-    @MainActor
-    func test_accountRow_tap_addAccount() throws {
-        let addAccountRow = try subject.inspect().find(button: "Add account")
-        try addAccountRow.tap()
-        waitFor(!processor.effects.isEmpty)
-
-        XCTAssertEqual(processor.effects.last, .addAccountPressed)
-    }
-
-    /// Long pressing an alternative profile row dispatches the `.accountLongPressed` action.
-    @MainActor
-    func test_alternateAccountRow_longPress_alternateAccount() throws {
-        let alternate = ProfileSwitcherItem.fixture(
-            email: "alternate@bitwarden.com",
-            userInitials: "NA"
-        )
-        let current = processor.state.activeAccountProfile!
-        processor.state = ProfileSwitcherState(
-            accounts: [
-                alternate,
-                current,
-            ],
-            activeAccountId: current.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-        let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try alternateRow.labelView().callOnLongPressGesture()
-        waitFor(!processor.effects.isEmpty)
-
-        XCTAssertEqual(processor.effects.last, .accountLongPressed(alternate))
-    }
-
-    /// Long pressing is disabled if lock and logout are not available.
-    @MainActor
-    func test_alternateAccountRow_longPress_currentAccount_noLockOrLogout() throws {
-        let alternate = ProfileSwitcherItem.fixture(
-            canBeLocked: false,
-            email: "alternate@bitwarden.com",
-            userInitials: "NA"
-        )
-        let current = processor.state.activeAccountProfile!
-        processor.state = ProfileSwitcherState(
-            accounts: [
-                alternate,
-                current,
-            ],
-            activeAccountId: current.userId,
-            allowLockAndLogout: false,
-            isVisible: true
-        )
-        let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        _ = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        XCTAssertThrowsError(try alternateRow.labelView().callOnLongPressGesture())
-    }
-
-    /// Tapping an alternative profile row dispatches the `.accountPressed` action.
-    @MainActor
-    func test_alternateAccountRow_tap_alternateAccount() throws {
-        let alternate = ProfileSwitcherItem.fixture(
-            email: "alternate@bitwarden.com",
-            userInitials: "NA"
-        )
-        let current = processor.state.activeAccountProfile!
-        processor.state = ProfileSwitcherState(
-            accounts: [
-                alternate,
-                current,
-            ],
-            activeAccountId: current.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-        let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try addAccountRow.labelView().callOnTapGesture()
-        waitFor(!processor.effects.isEmpty)
-
-        XCTAssertEqual(processor.effects.last, .accountPressed(alternate))
-    }
-
-    /// Tapping an alternative profile row dispatches the `.accountPressed` action.
-    @MainActor
-    func test_alternateAccountRows_tap_alternateEmptyAccount() throws {
-        let alternate = ProfileSwitcherItem.fixture(
-            email: "locked@bitwarden.com",
-            isUnlocked: false,
-            userInitials: "LA"
-        )
-        let secondAlternate = ProfileSwitcherItem.fixture()
-        let alternateAccounts = [
-            alternate,
-            secondAlternate,
-        ]
-        let current = processor.state.activeAccountProfile!
-        processor.state = ProfileSwitcherState(
-            accounts: alternateAccounts + [current],
-            activeAccountId: current.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-        let addAccountRow = try subject.inspect().find(button: "")
-        try addAccountRow.labelView().callOnTapGesture()
-        waitFor(!processor.effects.isEmpty)
-
-        XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
-    }
-
-    /// Tapping the background triggers a `.backgroundPressed` action.
-    @MainActor
-    func test_background_tap() throws {
-        let view = try subject.inspect().view(ProfileSwitcherView.self)
-        let background = view.first
-        try background?.callOnTapGesture()
-
-        XCTAssertEqual(processor.dispatchedActions.last, .backgroundPressed)
-    }
 
     /// Tests the add account visibility below the maximum account limit
     @MainActor
@@ -204,25 +55,25 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
                     color: .yellow,
                     email: "bonus.bridge@bitwarden.com",
                     isUnlocked: true,
-                    userInitials: "BB"
+                    userInitials: "BB",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .teal,
                     email: "concurrent.claim@bitarden.com",
                     isUnlocked: true,
-                    userInitials: "CC"
+                    userInitials: "CC",
                 ),
                 ProfileSwitcherItem.fixture(
                     color: .indigo,
                     email: "double.dip@bitwarde.com",
                     isUnlocked: true,
-                    userInitials: "DD"
+                    userInitials: "DD",
                 ),
             ],
             activeAccountId: ProfileSwitcherItem.anneAccount.userId,
             allowLockAndLogout: true,
             isVisible: true,
-            shouldAlwaysHideAddAccount: true
+            shouldAlwaysHideAddAccount: true,
         )
         processor.state = state
         XCTAssertFalse(subject.store.state.showsAddAccount)
@@ -233,132 +84,5 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_addAccountRow_maximumAccounts() throws {
         processor.state = ProfileSwitcherState.maximumAccounts
         XCTAssertFalse(subject.store.state.showsAddAccount)
-    }
-
-    // MARK: Snapshots
-
-    func test_snapshot_singleAccount() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    @MainActor
-    func test_snapshot_multiAccount_unlocked_belowMaximum() {
-        processor.state = ProfileSwitcherState(
-            accounts: [
-                ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem.fixture(
-                    color: .yellow,
-                    email: "bonus.bridge@bitwarden.com",
-                    isUnlocked: true,
-                    userInitials: "BB"
-                ),
-                ProfileSwitcherItem.fixture(
-                    color: .teal,
-                    email: "concurrent.claim@bitarden.com",
-                    isUnlocked: true,
-                    userInitials: "CC"
-                ),
-                ProfileSwitcherItem.fixture(
-                    color: .indigo,
-                    email: "double.dip@bitwarde.com",
-                    isUnlocked: true,
-                    userInitials: "DD"
-                ),
-            ],
-            activeAccountId: ProfileSwitcherItem.anneAccount.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    @MainActor
-    func test_snapshot_multiAccount_unlocked_atMaximum() {
-        processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    @MainActor
-    func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
-        processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(of: subject, as: .defaultPortraitAX5)
-    }
-
-    @MainActor
-    func test_snapshot_multiAccount_locked_belowMaximum() {
-        processor.state = ProfileSwitcherState(
-            accounts: [
-                ProfileSwitcherItem.fixture(
-                    color: .yellow,
-                    email: "bonus.bridge@bitwarden.com",
-                    isUnlocked: false,
-                    userInitials: "BB"
-                ),
-                ProfileSwitcherItem.fixture(
-                    color: .teal,
-                    email: "concurrent.claim@bitarden.com",
-                    isUnlocked: false,
-                    userInitials: "CC"
-                ),
-                ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem.fixture(
-                    color: .indigo,
-                    email: "double.dip@bitwarde.com",
-                    isUnlocked: false,
-                    userInitials: "DD"
-                ),
-            ],
-            activeAccountId: ProfileSwitcherItem.anneAccount.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    @MainActor
-    func test_snapshot_multiAccount_locked_atMaximum() {
-        processor.state = ProfileSwitcherState(
-            accounts: [
-                ProfileSwitcherItem.fixture(
-                    color: .yellow,
-                    email: "bonus.bridge@bitwarden.com",
-                    isUnlocked: false,
-                    userInitials: "BB"
-                ),
-                ProfileSwitcherItem.fixture(
-                    color: .teal,
-                    email: "concurrent.claim@bitarden.com",
-                    isUnlocked: false,
-                    userInitials: "CC"
-                ),
-                .anneAccount,
-                ProfileSwitcherItem.fixture(
-                    color: .indigo,
-                    email: "double.dip@bitwarde.com",
-                    isUnlocked: false,
-                    userInitials: "DD"
-                ),
-                ProfileSwitcherItem.fixture(
-                    color: .green,
-                    email: "extra.edition@bitwarden.com",
-                    isUnlocked: false,
-                    userInitials: "EE"
-                ),
-            ],
-            activeAccountId: ProfileSwitcherItem.anneAccount.userId,
-            allowLockAndLogout: true,
-            isVisible: true
-        )
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// Test a snapshot of the ProfileSwitcherView previews.
-    func test_snapshot_profileSwitcherView_previews() {
-        for preview in ProfileSwitcherView_Previews._allPreviews {
-            assertSnapshots(
-                of: preview.content,
-                as: [.defaultPortrait]
-            )
-        }
     }
 }

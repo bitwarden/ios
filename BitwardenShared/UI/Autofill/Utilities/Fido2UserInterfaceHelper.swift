@@ -53,7 +53,7 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
         credential: Fido2UserVerifiableCipherView,
-        shouldThrowEnforcingRequiredVerification: Bool
+        shouldThrowEnforcingRequiredVerification: Bool,
     ) async throws -> CheckUserResult
 
     /// Sets the selected cipher as a result for credential for Fido2 authentication.
@@ -89,7 +89,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var credentialForCreationContinuation: CheckedContinuation<CheckUserAndPickCredentialForCreationResult, Error>?
 
     private var credentialsForAuthenticationSubject = CurrentValueSubject<[BitwardenSdk.CipherView]?, Error>(
-        nil
+        nil,
     )
     private(set) var fido2CreationOptions: BitwardenSdk.CheckUserOptions?
     private(set) var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
@@ -112,13 +112,13 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     func checkUser(
         options: BitwardenSdk.CheckUserOptions,
-        hint: BitwardenSdk.UiHint
+        hint: BitwardenSdk.UiHint,
     ) async throws -> BitwardenSdk.CheckUserResult {
         if case let .requestExistingCredential(cipherView) = hint {
             return try await checkUser(
                 userVerificationPreference: options.requireVerification,
                 credential: cipherView,
-                shouldThrowEnforcingRequiredVerification: false
+                shouldThrowEnforcingRequiredVerification: false,
             )
         }
 
@@ -133,11 +133,11 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
         credential: Fido2UserVerifiableCipherView,
-        shouldThrowEnforcingRequiredVerification: Bool
+        shouldThrowEnforcingRequiredVerification: Bool,
     ) async throws -> CheckUserResult {
         let result = try await fido2UserVerificationMediator.checkUser(
             userVerificationPreference: userVerificationPreference,
-            credential: credential
+            credential: credential,
         )
 
         if !result.userVerified, shouldThrowEnforcingRequiredVerification {
@@ -150,7 +150,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     }
 
     func pickCredentialForAuthentication(
-        availableCredentials: [BitwardenSdk.CipherView]
+        availableCredentials: [BitwardenSdk.CipherView],
     ) async throws -> BitwardenSdk.CipherViewWrapper {
         guard let fido2UserInterfaceHelperDelegate else {
             throw Fido2Error.noDelegateSetup
@@ -172,7 +172,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     func checkUserAndPickCredentialForCreation(
         options: BitwardenSdk.CheckUserOptions,
-        newCredential: BitwardenSdk.Fido2CredentialNewView
+        newCredential: BitwardenSdk.Fido2CredentialNewView,
     ) async throws -> BitwardenSdk.CheckUserAndPickCredentialForCreationResult {
         defer {
             fido2CreationOptions = nil
@@ -212,7 +212,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     func setupDelegate(fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate) {
         self.fido2UserInterfaceHelperDelegate = fido2UserInterfaceHelperDelegate
         fido2UserVerificationMediator.setupDelegate(
-            fido2UserVerificationMediatorDelegate: fido2UserInterfaceHelperDelegate
+            fido2UserVerificationMediatorDelegate: fido2UserInterfaceHelperDelegate,
         )
     }
 
@@ -229,11 +229,11 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     private func checkEnforceRequiredVerification(userVerificationPreference: BitwardenSdk.Verification) async -> Bool {
         switch userVerificationPreference {
         case .discouraged:
-            return false
+            false
         case .preferred:
-            return await isVerificationEnabled()
+            await isVerificationEnabled()
         case .required:
-            return true
+            true
         }
     }
 }

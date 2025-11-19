@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -85,7 +87,7 @@ struct AuthenticatorItemState: Equatable {
         period: TotpPeriodOptions,
         secret: String,
         totpState: LoginTOTPState,
-        totpType: TotpTypeOptions
+        totpType: TotpTypeOptions,
     ) {
         self.accountName = accountName
         self.algorithm = algorithm
@@ -106,12 +108,11 @@ struct AuthenticatorItemState: Equatable {
         guard let keyModel = TOTPKeyModel(authenticatorKey: authenticatorItemView.totpKey) else {
             return nil
         }
-        let type: TotpTypeOptions
-        switch keyModel.totpKey {
+        let type: TotpTypeOptions = switch keyModel.totpKey {
         case .base32, .otpAuthUri:
-            type = .totp
+            .totp
         case .steamUri:
-            type = .steam
+            .steam
         }
 
         self.init(
@@ -126,7 +127,7 @@ struct AuthenticatorItemState: Equatable {
             period: TotpPeriodOptions(rawValue: keyModel.period) ?? .thirty,
             secret: keyModel.base32Key,
             totpState: LoginTOTPState(authenticatorItemView.totpKey),
-            totpType: type
+            totpType: type,
         )
     }
 }
@@ -147,7 +148,7 @@ extension AuthenticatorItemState {
             id: UUID().uuidString,
             name: issuer,
             totpKey: totpState.rawAuthenticatorKeyString,
-            username: accountName
+            username: accountName,
         )
     }
 }
@@ -160,11 +161,11 @@ enum TotpPeriodOptions: Int, Menuable, CaseIterable {
     var localizedName: String {
         switch self {
         case .thirty:
-            Localizations.thirtySeconds
+            Localizations.xSeconds(30)
         case .sixty:
-            Localizations.sixtySeconds
+            Localizations.xSeconds(60)
         case .ninety:
-            Localizations.ninetySeconds
+            Localizations.xSeconds(90)
         }
     }
 }

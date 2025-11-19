@@ -47,7 +47,7 @@ struct AddFileSendRequest: Request {
             notes: send.notes,
             password: send.password,
             text: nil,
-            type: .file
+            type: .file,
         )
     }
 }

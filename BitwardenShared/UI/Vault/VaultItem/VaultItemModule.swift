@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - VaultModule
@@ -11,19 +12,19 @@ protocol VaultItemModule {
     /// - Returns: A coordinator that can navigate to `VaultItemRoute`s.
     ///
     func makeVaultItemCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<VaultItemRoute, VaultItemEvent>
 }
 
 extension DefaultAppModule: VaultItemModule {
     func makeVaultItemCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<VaultItemRoute, VaultItemEvent> {
         VaultItemCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

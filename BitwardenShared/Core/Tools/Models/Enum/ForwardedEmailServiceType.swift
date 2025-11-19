@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 /// The service used to generate a forwarded email alias.
 ///
 enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable {
@@ -37,17 +40,17 @@ enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable 
     var localizedName: String {
         switch self {
         case .addyIO:
-            return Localizations.addyIo
+            Localizations.addyIo
         case .duckDuckGo:
-            return Localizations.duckDuckGo
+            Localizations.duckDuckGo
         case .fastmail:
-            return Localizations.fastmail
+            Localizations.fastmail
         case .firefoxRelay:
-            return Localizations.firefoxRelay
+            Localizations.firefoxRelay
         case .forwardEmail:
-            return Localizations.forwardEmail
+            Localizations.forwardEmail
         case .simpleLogin:
-            return Localizations.simpleLogin
+            Localizations.simpleLogin
         }
     }
 

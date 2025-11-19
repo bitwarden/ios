@@ -1,7 +1,6 @@
 import BitwardenKit
 import BitwardenSdk
 import Combine
-import OSLog
 
 // MARK: - MainVaultListDirectorStrategy
 
@@ -21,12 +20,12 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        filter: VaultListFilter,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         try await Publishers.CombineLatest3(
             cipherService.ciphersPublisher(),
             collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
+            folderService.foldersPublisher(),
         )
         .asyncTryMap { ciphers, collections, folders in
             try await build(from: ciphers, collections: collections, folders: folders, filter: filter)
@@ -43,27 +42,27 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     ///   - collections: Collections to filter and include in the sections.
     ///   - folders: Folders to filter and include in the sections.
     ///   - filter: Filter to be used to build the sections.
-    /// - Returns: Sections to be displayed to the user.
+    /// - Returns: Vault list data containing the sections to be displayed to the user.
     func build(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
-        filter: VaultListFilter
-    ) async throws -> [VaultListSection] {
-        guard !ciphers.isEmpty else { return [] }
+        filter: VaultListFilter,
+    ) async throws -> VaultListData {
+        guard !ciphers.isEmpty else { return VaultListData() }
 
-        guard let preparedData = try await vaultListDataPreparator.prepareData(
+        guard let preparedData = await vaultListDataPreparator.prepareData(
             from: ciphers,
             collections: collections,
             folders: folders,
-            filter: filter
+            filter: filter,
         ) else {
-            return []
+            return VaultListData()
         }
 
         var builder = builderFactory.make(withData: preparedData)
 
-        if filter.addTOTPGroup {
+        if filter.options.contains(.addTOTPGroup) {
             builder = builder.addTOTPSection()
         }
 
@@ -72,8 +71,9 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             .addTypesSection()
             .addFoldersSection()
             .addCollectionsSection()
+            .addCipherDecryptionFailureIds()
 
-        if filter.addTrashGroup {
+        if filter.options.contains(.addTrashGroup) {
             builder = builder.addTrashSection()
         }
 

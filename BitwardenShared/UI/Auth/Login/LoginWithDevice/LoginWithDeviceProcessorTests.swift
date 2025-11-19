@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -29,9 +30,9 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 authService: authService,
-                errorReporter: errorReporter
+                errorReporter: errorReporter,
             ),
-            state: LoginWithDeviceState(requestType: AuthRequestType.authenticateAndUnlock)
+            state: LoginWithDeviceState(requestType: AuthRequestType.authenticateAndUnlock),
         )
     }
 
@@ -97,28 +98,10 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
             subject.state.explanationText,
             Localizations.aNotificationHasBeenSentToYourDevice +
                 .newLine +
-                Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice
+                Localizations.pleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice,
         )
         XCTAssertEqual(subject.state.navBarText, Localizations.logInWithDevice)
         XCTAssertEqual(subject.state.titleText, Localizations.logInInitiated)
-    }
-
-    /// `captchaErrored(error:)` records an error.
-    @MainActor
-    func test_captchaErrored() {
-        subject.captchaErrored(error: BitwardenTestError.example)
-
-        waitFor(!coordinator.errorAlertsShown.isEmpty)
-        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
-    @MainActor
-    func test_captchaErrored_cancelled() {
-        let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
-        subject.captchaErrored(error: error)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `checkForResponse()`stops the request timer if the request has been denied.
@@ -182,7 +165,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil),
         )
 
         let task = Task {
@@ -199,11 +182,11 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
                 .loginWithDevice(
                     key: "reallyLongKey",
                     masterPasswordHash: "reallyLongMasterPasswordHash",
-                    privateKey: "PRIVATE_KEY"
+                    privateKey: "PRIVATE_KEY",
                 ),
                 AuthMethodsData(),
-                nil
-            )
+                nil,
+            ),
         )
     }
 
@@ -256,7 +239,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.newDeviceNotVerified
+            IdentityTokenRequestError.newDeviceNotVerified,
         )
 
         let task = Task {
@@ -276,7 +259,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.encryptionKeyMigrationRequired
+            IdentityTokenRequestError.encryptionKeyMigrationRequired,
         )
 
         let task = Task {

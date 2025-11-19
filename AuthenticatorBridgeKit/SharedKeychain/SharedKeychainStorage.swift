@@ -4,7 +4,7 @@ import Foundation
 
 /// Enumeration of support Keychain Items that can be placed in the `SharedKeychainRepository`
 ///
-public enum SharedKeychainItem: Equatable, Hashable {
+public enum SharedKeychainItem: Equatable, Hashable, Sendable {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
@@ -74,7 +74,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
     ///   - sharedAppGroupIdentifier: An identifier for the shared access group used by the application.
     public init(
         keychainService: SharedKeychainService,
-        sharedAppGroupIdentifier: String
+        sharedAppGroupIdentifier: String,
     ) {
         self.keychainService = keychainService
         self.sharedAppGroupIdentifier = sharedAppGroupIdentifier
@@ -89,7 +89,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
                 kSecAttrAccessGroup: sharedAppGroupIdentifier,
                 kSecAttrAccount: item.unformattedKey,
                 kSecClass: kSecClassGenericPassword,
-            ] as CFDictionary
+            ] as CFDictionary,
         )
     }
 
@@ -103,7 +103,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
                 kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 kSecAttrAccount: item.unformattedKey,
                 kSecClass: kSecClassGenericPassword,
-            ] as CFDictionary
+            ] as CFDictionary,
         )
 
         guard let resultDictionary = foundItem as? [String: Any],
@@ -128,7 +128,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
         try? keychainService.delete(query: query)
 
         try keychainService.add(
-            attributes: query
+            attributes: query,
         )
     }
 }

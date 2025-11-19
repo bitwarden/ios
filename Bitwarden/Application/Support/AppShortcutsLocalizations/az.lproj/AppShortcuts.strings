@@ -23,7 +23,7 @@
 "Open password generator using ${applicationName}" = "${applicationName} istifadə edərək parol yaradıcını aç";
 "Launch ${applicationName} password creator" = "${applicationName} parol yaradıcısını aç";
 "Show the ${applicationName} generator" = "${applicationName} yaradıcını göstər";
-"Access password maker in ${applicationName}" = "${applicationName} daxilində parol yaradıcıya müraciət";
+"Access password maker in ${applicationName}" = "${applicationName} daxilində parol yaradıcıya erişim";
 "${applicationName}, open generator tool" = "${applicationName}, yaradıcı alətini aç";
 "Go to password generator in ${applicationName}" = "${applicationName} daxiloində parol yaradıcıya get";
 "Start ${applicationName} password builder" = "${applicationName} parol qurucunu başlat";
@@ -39,6 +39,6 @@
 "Generate a random ${applicationName} phrase" = "Təsadüfi bir ${applicationName} ifadəsi yarat";
 "${applicationName}, craft a passphrase" = "${applicationName}, bir keçid ifadəsi hazırla";
 "Design a secure passphrase via ${applicationName}" = "${applicationName} vasitəsilə güvənli bir keçid ifadəsi hazırla";
-"Develop a ${applicationName} secret phrase" = "${applicationName} sirr ifadəsi ərsəyə gətir";
+"Develop a ${applicationName} secret phrase" = "${applicationName} sirr ifadəsini gəlişdir";
 "Compose a new ${applicationName} passphrase" = "Yeni bir ${applicationName} keçid ifadəsi tərtib et";
 "${applicationName}, generate a strong passphrase" = "${applicationName}, güclü bir keçid ifadəsi yarat";

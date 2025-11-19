@@ -10,16 +10,20 @@ extension CollectionDetailsResponseModel {
         manage: Bool? = false,
         name: String = "",
         organizationId: String = UUID().uuidString,
-        readOnly: Bool = false
+        readOnly: Bool = false,
+        defaultUserCollectionEmail: String? = nil,
+        type: CollectionType = .sharedCollection,
     ) -> CollectionDetailsResponseModel {
         self.init(
+            defaultUserCollectionEmail: defaultUserCollectionEmail,
             externalId: externalId,
             hidePasswords: hidePasswords,
             id: id,
             manage: manage,
             name: name,
             organizationId: organizationId,
-            readOnly: readOnly
+            readOnly: readOnly,
+            type: type,
         )
     }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SingleSignOnView
@@ -45,17 +47,18 @@ struct SingleSignOnView: View {
             title: Localizations.orgIdentifier,
             text: store.binding(
                 get: \.identifierText,
-                send: SingleSignOnAction.identifierTextChanged
+                send: SingleSignOnAction.identifierTextChanged,
             ),
-            accessibilityIdentifier: "SSOOrgIdField"
+            accessibilityIdentifier: "SSOOrgIdField",
         )
+        .textFieldConfiguration(.organizationIdentifier)
     }
 
     /// The instructions text.
     private var instructionsText: some View {
         Text(Localizations.logInSsoSummary)
             .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .multilineTextAlignment(.center)
     }
 }
@@ -64,6 +67,6 @@ struct SingleSignOnView: View {
 
 #Preview {
     SingleSignOnView(store: Store(processor: StateProcessor(
-        state: SingleSignOnState()
+        state: SingleSignOnState(),
     ))).navStackWrapped
 }

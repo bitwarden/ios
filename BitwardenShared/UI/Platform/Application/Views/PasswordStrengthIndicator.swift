@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - PasswordStrengthIndicator
@@ -16,6 +17,13 @@ struct PasswordStrengthIndicator: View {
     /// The required text count for the password
     let requiredTextCount: Int
 
+    // MARK: Computed Properties
+
+    /// Whether the entered password has met the minimum length required.
+    var hasPasswordMinimumLength: Bool {
+        passwordTextCount >= requiredTextCount
+    }
+
     // MARK: View
 
     var body: some View {
@@ -23,40 +31,45 @@ struct PasswordStrengthIndicator: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color(asset: Asset.Colors.strokeDivider))
+                        .fill(Color(asset: SharedAsset.Colors.strokeDivider))
 
+                    let fillWidth = hasPasswordMinimumLength
+                        ? geometry.size.width * passwordStrength.strengthPercent
+                        : 0
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(asset: passwordStrength.color))
-                        .frame(width: geometry.size.width * passwordStrength.strengthPercent, alignment: .leading)
-                        .animation(.easeIn, value: passwordStrength.strengthPercent)
+                        .frame(width: fillWidth, alignment: .leading)
+                        .animation(.easeIn, value: fillWidth)
                 }
                 .frame(height: 4)
             }
 
             HStack {
                 HStack(spacing: 4) {
-                    if passwordTextCount >= requiredTextCount {
-                        Image(asset: Asset.Images.check12)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    if hasPasswordMinimumLength {
+                        Image(asset: SharedAsset.Icons.check12)
+                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                             .padding(.leading, 1)
                     } else {
                         Circle()
-                            .stroke(Asset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
+                            .stroke(SharedAsset.Colors.iconPrimary.swiftUIColor, lineWidth: 2)
                             .frame(width: 10, height: 10)
                             .padding(.leading, 1)
                     }
 
                     Text(Localizations.xCharacters(requiredTextCount))
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .styleGuide(.footnote, weight: .bold)
                         .dynamicTypeSize(...DynamicTypeSize.accessibility3)
                 }
 
                 Spacer()
 
-                Text(passwordStrength.text ?? "")
-                    .foregroundColor(Color(asset: passwordStrength.color))
-                    .styleGuide(.footnote)
+                if hasPasswordMinimumLength {
+                    Text(passwordStrength.text ?? "")
+                        .foregroundColor(Color(asset: passwordStrength.color))
+                        .styleGuide(.footnote)
+                }
             }
         }
     }
@@ -72,7 +85,7 @@ struct PasswordStrengthIndicator: View {
     init(
         passwordStrengthScore: UInt8? = nil,
         passwordTextCount: Int = 0,
-        requiredTextCount: Int = 0
+        requiredTextCount: Int = 0,
     ) {
         passwordStrength = PasswordStrength(score: passwordStrengthScore)
         self.passwordTextCount = passwordTextCount
@@ -108,21 +121,21 @@ extension PasswordStrengthIndicator {
         init(score: UInt8?) {
             switch score {
             case 0, 1:
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = Localizations.weak
             case 2:
-                color = Asset.Colors.statusWeak2
+                color = SharedAsset.Colors.statusWeak2
                 text = Localizations.weak
             case 3:
-                color = Asset.Colors.statusGood
+                color = SharedAsset.Colors.statusGood
                 text = Localizations.good
             case 4:
-                color = Asset.Colors.statusStrong
+                color = SharedAsset.Colors.statusStrong
                 text = Localizations.strong
             default:
                 // Provide the initial color when not visible so the color isn't animated when the
                 // first segment appears.
-                color = Asset.Colors.statusWeak1
+                color = SharedAsset.Colors.statusWeak1
                 text = nil
             }
 
@@ -143,25 +156,25 @@ extension PasswordStrengthIndicator {
         VStack {
             PasswordStrengthIndicator(
                 passwordStrengthScore: nil,
-                passwordTextCount: 0
+                passwordTextCount: 0,
             )
 
             ForEach(UInt8(0) ... UInt8(4), id: \.self) { score in
                 PasswordStrengthIndicator(
                     passwordStrengthScore: score,
-                    passwordTextCount: 0
+                    passwordTextCount: 0,
                 )
             }
 
             PasswordStrengthIndicator(
                 passwordStrengthScore: UInt8(4),
-                passwordTextCount: 0
+                passwordTextCount: 0,
             )
 
             PasswordStrengthIndicator(
                 passwordStrengthScore: UInt8(12),
                 passwordTextCount: 5,
-                requiredTextCount: 12
+                requiredTextCount: 12,
             )
         }
         .padding()

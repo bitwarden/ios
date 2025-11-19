@@ -44,7 +44,7 @@ extension CardItemState {
                 guard case let .custom(brand) = brand else { return nil }
                 return brand.rawValue
             }(),
-            number: cardNumber.nilIfEmpty
+            number: cardNumber.nilIfEmpty,
         )
     }
 }
@@ -62,6 +62,11 @@ extension CardItemState: ViewCardItemState {
             return "Amex"
         }
         return brand.localizedName
+    }
+
+    /// The formatted card number with spaces every 4 digits.
+    var formattedCardNumber: String {
+        cardNumber.formattedCreditCardNumber()
     }
 
     /// The card's formatted expiration string.

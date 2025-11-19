@@ -14,9 +14,8 @@ class SetAccountKeysRequestTests: BitwardenTestCase {
 
         subject = SetAccountKeysRequest(body: KeysRequestModel(
             encryptedPrivateKey: "PRIVATE_KEY",
-            publicKey: "PUBLIC_KEY"
-        )
-        )
+            publicKey: "PUBLIC_KEY",
+        ))
     }
 
     override func tearDown() {
@@ -37,7 +36,7 @@ class SetAccountKeysRequestTests: BitwardenTestCase {
               "encryptedPrivateKey" : "PRIVATE_KEY",
               "publicKey" : "PUBLIC_KEY"
             }
-            """
+            """,
         )
     }
 

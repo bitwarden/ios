@@ -11,26 +11,22 @@ protocol ExportCXFCiphersRepository {
     /// - Returns: An array of `CXFCredentialsResult` that has the summary of the ciphers to export by type.
     func buildCiphersToExportSummary(from ciphers: [Cipher]) -> [CXFCredentialsResult]
 
-    #if SUPPORTS_CXP
     /// Export the credentials using the Credential Exchange flow.
     ///
     /// - Parameter data: Data to export.
-    @available(iOS 18.2, *)
-    func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws
-    #endif
+    @available(iOS 26.0, *)
+    func exportCredentials(data: ASImportableAccount, presentationAnchor: () async -> ASPresentationAnchor) async throws
 
     /// Gets all ciphers to export in Credential Exchange flow.
     ///
     /// - Returns: Ciphers to export.
     func getAllCiphersToExportCXF() async throws -> [Cipher]
 
-    #if SUPPORTS_CXP
     /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
     ///
     /// - Returns: An `ASImportableAccount`
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func getExportVaultDataForCXF() async throws -> ASImportableAccount
-    #endif
 }
 
 class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
@@ -51,6 +47,9 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     /// The error reporter used by this service.
     private let errorReporter: ErrorReporter
 
+    /// The service handling export.
+    private let exportVaultService: ExportVaultService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -64,6 +63,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     ///   - credentialManagerFactory: A factory to create credential managers.
     ///   - cxfCredentialsResultBuilder: Builder to be used to create helper objects for the Credential Exchange flow.
     ///   - errorReporter: The service for handling errors.
+    ///   - exportVaultService: The service handling export.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
@@ -72,13 +72,15 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         credentialManagerFactory: CredentialManagerFactory,
         cxfCredentialsResultBuilder: CXFCredentialsResultBuilder,
         errorReporter: ErrorReporter,
-        stateService: StateService
+        exportVaultService: ExportVaultService,
+        stateService: StateService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
         self.credentialManagerFactory = credentialManagerFactory
         self.cxfCredentialsResultBuilder = cxfCredentialsResultBuilder
         self.errorReporter = errorReporter
+        self.exportVaultService = exportVaultService
         self.stateService = stateService
     }
 
@@ -91,24 +93,20 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         return cxfCredentialsResultBuilder.build(from: ciphers).filter { !$0.isEmpty }
     }
 
-    #if SUPPORTS_CXP
-
-    @available(iOS 18.2, *)
-    func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws {
-        try await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
-            .exportCredentials(ASExportedCredentialData(accounts: [data]))
+    @available(iOS 26.0, *)
+    func exportCredentials(
+        data: ASImportableAccount,
+        presentationAnchor: () async -> ASPresentationAnchor,
+    ) async throws {
+        let manager = await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
+        try await manager.exportCredentials(importableAccount: data)
     }
-
-    #endif
 
     func getAllCiphersToExportCXF() async throws -> [Cipher] {
-        try await cipherService.fetchAllCiphers()
-            .filter { $0.deletedDate == nil && $0.organizationId == nil }
+        try await exportVaultService.fetchAllCiphersToExport()
     }
 
-    #if SUPPORTS_CXP
-
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func getExportVaultDataForCXF() async throws -> ASImportableAccount {
         let ciphers = try await getAllCiphersToExportCXF()
 
@@ -116,11 +114,9 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         let sdkAccount = BitwardenSdk.Account(
             id: account.profile.userId,
             email: account.profile.email,
-            name: account.profile.name
+            name: account.profile.name,
         )
         let serializedCXF = try await clientService.exporters().exportCxf(account: sdkAccount, ciphers: ciphers)
         return try JSONDecoder.cxfDecoder.decode(ASImportableAccount.self, from: Data(serializedCXF.utf8))
     }
-
-    #endif
 }

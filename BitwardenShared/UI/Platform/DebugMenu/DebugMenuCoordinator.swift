@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// An object that is notified when the debug menu is dismissed.
@@ -14,6 +15,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasAppSettingsStore
+        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
@@ -42,7 +44,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     init(
         delegate: DebugMenuCoordinatorDelegate,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.services = services
@@ -53,7 +55,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(
         to route: DebugMenuRoute,
-        context: AnyObject?
+        context: AnyObject?,
     ) {
         switch route {
         case .dismiss:
@@ -75,7 +77,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
         let processor = DebugMenuProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: DebugMenuState()
+            state: DebugMenuState(),
         )
 
         let view = DebugMenuView(store: Store(processor: processor))

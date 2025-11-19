@@ -12,7 +12,10 @@ public struct ResponseValidationError: NonLoggableError, Equatable {
 
     // MARK: Initializers
 
-    /// Public version of synthesized initializer.
+    /// Initializes a `ResponseValidationError`.
+    ///
+    /// - Parameters:
+    ///   - response: The received HTTP response.
     public init(response: HTTPResponse) {
         self.response = response
     }
@@ -24,7 +27,7 @@ public struct ResponseValidationError: NonLoggableError, Equatable {
 /// codes or tries to parse the error otherwise.
 ///
 public final class ResponseValidationHandler: ResponseHandler {
-    /// Public version of synthesized initializer.
+    /// Initializes a `ResponseValidationHandler`.
     public init() {}
 
     /// Handles receiving a `HTTPResponse`. The handler can view or modify the response before

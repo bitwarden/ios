@@ -12,14 +12,14 @@ final class BitwardenImporterTests: BitwardenTestCase {
                 id: "One",
                 name: "Name",
                 totpKey: "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden",
-                username: "person@example.com"
+                username: "person@example.com",
             ),
             AuthenticatorItemView(
                 favorite: true,
                 id: "Two",
                 name: "Steam",
                 totpKey: "steam://EXAMPLE",
-                username: "person@example.com"
+                username: "person@example.com",
             ),
         ]
         let actual = try BitwardenImporter.importItems(data: data)

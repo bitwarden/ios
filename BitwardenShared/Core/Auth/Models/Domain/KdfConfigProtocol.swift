@@ -32,14 +32,14 @@ extension KdfConfigProtocol {
     var sdkKdf: BitwardenSdk.Kdf {
         switch kdf {
         case .argon2id:
-            return .argon2id(
+            .argon2id(
                 iterations: NonZeroU32(kdfIterations),
                 memory: NonZeroU32(kdfMemory ?? Constants.kdfArgonMemory),
-                parallelism: NonZeroU32(kdfParallelism ?? Constants.kdfArgonParallelism)
+                parallelism: NonZeroU32(kdfParallelism ?? Constants.kdfArgonParallelism),
             )
         case .pbkdf2sha256:
-            return .pbkdf2(
-                iterations: NonZeroU32(kdfIterations)
+            .pbkdf2(
+                iterations: NonZeroU32(kdfIterations),
             )
         }
     }

@@ -18,11 +18,11 @@ enum LoadingState<T: Equatable & Sendable>: Equatable, Sendable {
     var data: T? {
         switch self {
         case let .data(data):
-            return data
+            data
         case let .loading(maybeData):
-            return maybeData
+            maybeData
         case .error:
-            return nil
+            nil
         }
     }
 }

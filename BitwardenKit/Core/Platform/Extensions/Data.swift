@@ -9,7 +9,7 @@ public extension Data {
     /// - Returns: The data as a hash value.
     ///
     func generatedHash(
-        using hashFunction: any HashFunction.Type
+        using hashFunction: any HashFunction.Type,
     ) -> String {
         let digest = hashFunction.hash(data: self)
         let hashString = digest
@@ -24,8 +24,9 @@ public extension Data {
     ///
     /// - Returns: The base 64 encoded string.
     ///
+    @_optimize(none) // TODO: PM-25026 Remove when optimization for this is fixed on release config.
     func generatedHashBase64Encoded(
-        using hashFunction: any HashFunction.Type
+        using hashFunction: any HashFunction.Type,
     ) -> String {
         let digest = hashFunction.hash(data: self)
         return Data(digest).base64EncodedString()

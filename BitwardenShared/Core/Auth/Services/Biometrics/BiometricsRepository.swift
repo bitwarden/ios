@@ -80,7 +80,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     init(
         biometricsService: BiometricsService,
         keychainService: KeychainRepository,
-        stateService: StateService
+        stateService: StateService,
     ) {
         self.biometricsService = biometricsService
         keychainRepository = keychainService

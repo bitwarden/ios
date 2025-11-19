@@ -1,4 +1,6 @@
 import AVFoundation
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - ScanCodeView
@@ -68,7 +70,7 @@ struct ScanCodeView: View {
                         .styleGuide(.body)
                         .multilineTextAlignment(.center)
                         .dynamicTypeSize(...maxDynamicTypeSize)
-                    }
+                    },
                 )
                 .buttonStyle(InlineButtonStyle())
             }
@@ -120,7 +122,7 @@ struct ScanCodeView: View {
         Rectangle()
             .frame(
                 width: width,
-                height: height
+                height: height,
             )
             .foregroundColor(.black)
             .opacity(0.5)
@@ -136,7 +138,7 @@ struct ScanCodeView: View {
             .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
             .frame(
                 width: length * 0.65,
-                height: length * 0.65
+                height: length * 0.65,
             )
     }
 }
@@ -149,9 +151,9 @@ struct ScanCodeView_Previews: PreviewProvider {
                 cameraSession: AVCaptureSession(),
                 store: Store(
                     processor: StateProcessor(
-                        state: ScanCodeState(showManualEntry: true)
-                    )
-                )
+                        state: ScanCodeState(showManualEntry: true),
+                    ),
+                ),
             )
         }
         .navigationViewStyle(.stack)

@@ -4,6 +4,7 @@ ORGANIZATION_IDENTIFIER = com.8bit
 SHARED_APP_GROUP_IDENTIFIER = group.com.bitwarden.bitwarden-authenticator
 BASE_BUNDLE_ID = $(ORGANIZATION_IDENTIFIER).bitwarden
 APPICON_NAME = AppIcon
+BMPW_BUNDLE_DISPLAY_NAME = Bitwarden
 
 // The above code signing settings can be overriden by adding a Local-bwpm.xcconfig
 // file in the Configs directory.

@@ -8,7 +8,7 @@ protocol HasTOTPCodesSections {
     func refreshTOTPCodes(
         for items: [VaultListItem],
         in sections: [VaultListSection],
-        using manager: TOTPExpirationManager?
+        using manager: TOTPExpirationManager?,
     ) async throws -> [VaultListSection]
 }
 
@@ -17,7 +17,7 @@ extension HasTOTPCodesSections {
     func refreshTOTPCodes(
         for items: [VaultListItem],
         in sections: [VaultListSection],
-        using manager: TOTPExpirationManager?
+        using manager: TOTPExpirationManager?,
     ) async throws -> [VaultListSection] {
         let refreshedItems = try await vaultRepository.refreshTOTPCodes(for: items)
         let updatedSections = sections.updated(with: refreshedItems)

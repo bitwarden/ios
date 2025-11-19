@@ -26,13 +26,8 @@ class PasteboardServiceTests: BitwardenTestCase {
         subject = DefaultPasteboardService(
             errorReporter: errorReporter,
             pasteboard: pasteboard,
-            stateService: stateService
+            stateService: stateService,
         )
-
-        // Wait for the `DefaultPasteboardService.init` task to set the initial clear clipboard
-        // value for the active account, otherwise there's a potential race condition between that
-        // and the tests below.
-        waitFor { subject.clearClipboardValue == .oneMinute }
     }
 
     override func tearDown() {
@@ -49,13 +44,15 @@ class PasteboardServiceTests: BitwardenTestCase {
     /// Test that copying a string puts the value on the `UIPasteboard` as expected.
     @MainActor
     func test_copy() async throws {
+        try await waitForInitialization()
+
         try await stateService.setClearClipboardValue(.never)
         subject.copy("Test string")
         XCTAssertEqual(pasteboard.strings?.last, "Test string")
         XCTAssertTrue(pasteboard.isPersistent)
 
         subject.updateClearClipboardValue(.fiveMinutes)
-        waitFor { self.stateService.clearClipboardValues["1"] != .never }
+        try await waitForAsync { self.stateService.clearClipboardValues["1"] != .never }
         let value = try await stateService.getClearClipboardValue()
         XCTAssertEqual(value, .fiveMinutes)
 
@@ -67,11 +64,13 @@ class PasteboardServiceTests: BitwardenTestCase {
     /// Test that an error from no account should use the default value without recording an error.
     @MainActor
     func test_error_noAccount() async throws {
+        try await waitForInitialization()
+
         stateService.activeAccount = nil
 
         stateService.activeIdSubject.send(nil)
 
-        waitFor { subject.clearClipboardValue == .never }
+        try await waitForAsync { self.subject.clearClipboardValue == .never }
         XCTAssertEqual(subject.clearClipboardValue, .never)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
@@ -79,22 +78,39 @@ class PasteboardServiceTests: BitwardenTestCase {
     /// Test that an error updating besides not being logged in should be recorded.
     @MainActor
     func test_error_other() async throws {
+        try await waitForInitialization()
+
         stateService.clearClipboardResult = .failure(BitwardenTestError.example)
 
         stateService.activeIdSubject.send(nil)
 
-        waitFor { self.errorReporter.errors.isEmpty == false }
+        try await waitForAsync { self.errorReporter.errors.isEmpty == false }
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// Test that any errors from updating the value are recorded.
     @MainActor
     func test_error_updating() async throws {
+        try await waitForInitialization()
+
         stateService.clearClipboardResult = .failure(BitwardenTestError.example)
 
         subject.updateClearClipboardValue(.twentySeconds)
 
-        waitFor { self.errorReporter.errors.isEmpty == false }
+        try await waitForAsync { self.errorReporter.errors.isEmpty == false }
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    // MARK: Private
+
+    /// Waits for the `DefaultPasteboardService.init` task to initialize the correct value to avoid race conditions.
+    func waitForInitialization() async throws {
+        // Wait for the `DefaultPasteboardService.init` task to set the initial clear clipboard
+        // value for the active account, otherwise there's a potential race condition between that
+        // and the tests.
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.clearClipboardValue == .oneMinute
+        }
     }
 }

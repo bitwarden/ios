@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenResources
 import SwiftUI
 import TestHelpers
 import XCTest
@@ -29,8 +30,8 @@ class MasterPasswordGeneratorProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                generatorRepository: generatorRepository
-            )
+                generatorRepository: generatorRepository,
+            ),
         )
     }
 

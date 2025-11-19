@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -18,7 +19,7 @@ class MasterPasswordGuidanceProcessorTests: BitwardenTestCase {
         delegate = MockMasterPasswordUpdateDelegate()
         subject = MasterPasswordGuidanceProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            delegate: delegate
+            delegate: delegate,
         )
     }
 

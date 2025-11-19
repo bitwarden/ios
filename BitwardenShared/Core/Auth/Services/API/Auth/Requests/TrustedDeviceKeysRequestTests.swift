@@ -17,8 +17,8 @@ class TrustedDeviceKeysRequestTests: BitwardenTestCase {
             requestModel: TrustedDeviceKeysRequestModel(
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedPublicKey: "PUBLIC_KEY",
-                encryptedUserKey: "USER_KEY"
-            )
+                encryptedUserKey: "USER_KEY",
+            ),
         )
     }
 
@@ -41,7 +41,7 @@ class TrustedDeviceKeysRequestTests: BitwardenTestCase {
               "encryptedPublicKey" : "PUBLIC_KEY",
               "encryptedUserKey" : "USER_KEY"
             }
-            """
+            """,
         )
     }
 

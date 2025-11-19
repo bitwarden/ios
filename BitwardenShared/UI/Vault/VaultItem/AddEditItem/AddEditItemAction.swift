@@ -1,5 +1,6 @@
 // MARK: - AddEditItemAction
 
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 import SwiftUI
@@ -14,6 +15,9 @@ enum AddEditItemAction: Equatable, Sendable {
 
     /// A card field changed
     case cardFieldChanged(AddEditCardItemAction)
+
+    /// Clears the URL.
+    case clearUrl
 
     /// The toggle for including the item in a collection was changed.
     case collectionToggleChanged(Bool, collectionId: String)

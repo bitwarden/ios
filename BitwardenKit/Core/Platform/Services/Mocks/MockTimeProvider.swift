@@ -9,9 +9,9 @@ public class MockTimeProvider: TimeProvider {
         var date: Date {
             switch self {
             case .currentTime:
-                return .now
+                .now
             case let .mockTime(fixedDate):
-                return fixedDate
+                fixedDate
             }
         }
     }

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -9,7 +10,7 @@ import Foundation
 class SetMasterPasswordProcessor: StateProcessor<
     SetMasterPasswordState,
     SetMasterPasswordAction,
-    SetMasterPasswordEffect
+    SetMasterPasswordEffect,
 > {
     // MARK: Types
 
@@ -42,7 +43,7 @@ class SetMasterPasswordProcessor: StateProcessor<
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
         services: Services,
-        state: SetMasterPasswordState
+        state: SetMasterPasswordState,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -90,7 +91,7 @@ class SetMasterPasswordProcessor: StateProcessor<
             state.isPrivilegeElevation = account.profile.userDecryptionOptions?.trustedDeviceOption != nil
 
             let response = try await services.organizationAPIService.getOrganizationAutoEnrollStatus(
-                identifier: state.organizationIdentifier
+                identifier: state.organizationIdentifier,
             )
             state.organizationId = response.id
             state.resetPasswordAutoEnroll = response.resetPasswordEnabled
@@ -125,7 +126,7 @@ class SetMasterPasswordProcessor: StateProcessor<
                     email: services.authRepository.getAccount().profile.email,
                     isPreAuth: false,
                     masterPassword: state.masterPassword,
-                    policy: state.masterPasswordPolicy
+                    policy: state.masterPasswordPolicy,
                 )
                 guard !isInvalid else {
                     coordinator.showAlert(.masterPasswordInvalid())
@@ -151,7 +152,7 @@ class SetMasterPasswordProcessor: StateProcessor<
                 masterPasswordHint: state.masterPasswordHint,
                 organizationId: organizationId,
                 organizationIdentifier: state.organizationIdentifier,
-                resetPasswordAutoEnroll: state.resetPasswordAutoEnroll
+                resetPasswordAutoEnroll: state.resetPasswordAutoEnroll,
             )
 
             await coordinator.handleEvent(.didCompleteAuth)

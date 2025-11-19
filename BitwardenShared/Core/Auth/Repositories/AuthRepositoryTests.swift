@@ -15,11 +15,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var appContextHelper: MockAppContextHelper!
     var authService: MockAuthService!
     var biometricsRepository: MockBiometricsRepository!
+    var changeKdfService: MockChangeKdfService!
     var client: MockHTTPClient!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var keyConnectorService: MockKeyConnectorService!
     var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
@@ -35,8 +37,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 avatarColor: "175DDC",
                 email: "Anne.Account@bitwarden.com",
                 name: "Anne Account",
-                userId: "1"
-            )
+                userId: "1",
+            ),
         )
 
     let beeAccount = Account
@@ -44,8 +46,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             profile: .fixture(
                 avatarColor: "175DDC",
                 email: "bee.account@bitwarden.com",
-                userId: "2"
-            )
+                userId: "2",
+            ),
         )
 
     let claimedAccount = Account
@@ -53,8 +55,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             profile: .fixture(
                 avatarColor: "175DDC",
                 email: "claims@bitwarden.com",
-                userId: "3"
-            )
+                userId: "3",
+            ),
         )
 
     let empty = Account
@@ -62,8 +64,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             profile: .fixture(
                 avatarColor: "175DDC",
                 email: "",
-                userId: "4"
-            )
+                userId: "4",
+            ),
         )
 
     let shortEmail = Account
@@ -71,8 +73,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             profile: .fixture(
                 avatarColor: "175DDC",
                 email: "a@gmail.com",
-                userId: "5"
-            )
+                userId: "5",
+            ),
         )
 
     let shortName = Account
@@ -81,8 +83,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 avatarColor: "175DDC",
                 email: "aj@gmail.com",
                 name: "AJ",
-                userId: "6"
-            )
+                userId: "6",
+            ),
         )
 
     // MARK: Setup & Teardown
@@ -96,9 +98,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         accountAPIService = APIService(client: client)
         authService = MockAuthService()
         biometricsRepository = MockBiometricsRepository()
+        changeKdfService = MockChangeKdfService()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         keyConnectorService = MockKeyConnectorService()
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
@@ -112,10 +116,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             appContextHelper: appContextHelper,
             authService: authService,
             biometricsRepository: biometricsRepository,
+            changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             keychainService: keychainService,
             keyConnectorService: keyConnectorService,
             organizationAPIService: APIService(client: client),
@@ -124,7 +130,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             policyService: policyService,
             stateService: stateService,
             trustDeviceService: trustDeviceService,
-            vaultTimeoutService: vaultTimeoutService
+            vaultTimeoutService: vaultTimeoutService,
         )
     }
 
@@ -135,6 +141,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         appContextHelper = nil
         authService = nil
         biometricsRepository = nil
+        changeKdfService = nil
         client = nil
         clientService = nil
         configService = nil
@@ -228,8 +235,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 deviceKey: "deviceKey",
                 protectedUserKey: "protectedUserKey",
                 protectedDevicePrivateKey: "protectedDevicePrivateKey",
-                protectedDevicePublicKey: "protectedDevicePublicKey"
-            )
+                protectedDevicePublicKey: "protectedDevicePublicKey",
+            ),
         )
         stateService.activeAccount = Account.fixture()
         client.results = [
@@ -249,7 +256,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, true)
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+            AccountEncryptionKeys(
+                accountKeys: nil,
+                encryptedPrivateKey: "privateKey",
+                encryptedUserKey: nil,
+            ),
         )
     }
 
@@ -263,8 +274,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 deviceKey: "deviceKey",
                 protectedUserKey: "protectedUserKey",
                 protectedDevicePrivateKey: "protectedDevicePrivateKey",
-                protectedDevicePublicKey: "protectedDevicePublicKey"
-            )
+                protectedDevicePublicKey: "protectedDevicePublicKey",
+            ),
         )
         stateService.activeAccount = Account.fixture()
         client.results = [
@@ -282,7 +293,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(clientService.mockAuth.makeRegisterTdeKeysRememberDevice, false)
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "privateKey", encryptedUserKey: nil)
+            AccountEncryptionKeys(
+                accountKeys: nil,
+                encryptedPrivateKey: "privateKey",
+                encryptedUserKey: nil,
+            ),
         )
     }
 
@@ -497,7 +512,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = false
         await subject.checkSessionTimeouts { _ in
             XCTFail(
-                "shouldn't be calling `handleActiveUser` closure if the active account is not timed out"
+                "shouldn't be calling `handleActiveUser` closure if the active account is not timed out",
             )
         }
     }
@@ -521,7 +536,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             allowLockAndLogout: true,
             isVisible: false,
             shouldAlwaysHideAddAccount: false,
-            showPlaceholderToolbarIcon: false
+            showPlaceholderToolbarIcon: false,
         )
         XCTAssertEqual(state, .empty(shouldAlwaysHideAddAccount: false))
     }
@@ -556,7 +571,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: false,
-            showPlaceholderToolbarIcon: false
+            showPlaceholderToolbarIcon: false,
         ).accounts
         XCTAssertEqual(
             accounts.first,
@@ -564,8 +579,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: anneAccount.profile.avatarColor ?? ""),
                 email: anneAccount.profile.email,
                 userId: anneAccount.profile.userId,
-                userInitials: "AA"
-            )
+                userInitials: "AA",
+            ),
         )
         XCTAssertEqual(
             accounts[1],
@@ -573,8 +588,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: beeAccount.profile.avatarColor ?? ""),
                 email: beeAccount.profile.email,
                 userId: beeAccount.profile.userId,
-                userInitials: "BA"
-            )
+                userInitials: "BA",
+            ),
         )
         XCTAssertEqual(
             accounts[2],
@@ -582,8 +597,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: claimedAccount.profile.avatarColor ?? ""),
                 email: claimedAccount.profile.email,
                 userId: claimedAccount.profile.userId,
-                userInitials: "CL"
-            )
+                userInitials: "CL",
+            ),
         )
         XCTAssertEqual(
             accounts[3],
@@ -591,8 +606,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: empty.profile.avatarColor ?? ""),
                 email: "",
                 userId: "4",
-                userInitials: nil
-            )
+                userInitials: nil,
+            ),
         )
         XCTAssertEqual(
             accounts[4],
@@ -600,8 +615,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: shortEmail.profile.avatarColor ?? ""),
                 email: shortEmail.profile.email,
                 userId: shortEmail.profile.userId,
-                userInitials: "A"
-            )
+                userInitials: "A",
+            ),
         )
         XCTAssertEqual(
             accounts[5],
@@ -609,8 +624,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: shortName.profile.avatarColor ?? ""),
                 email: shortName.profile.email,
                 userId: shortName.profile.userId,
-                userInitials: "AJ"
-            )
+                userInitials: "AJ",
+            ),
         )
     }
 
@@ -642,7 +657,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: false,
-            showPlaceholderToolbarIcon: false
+            showPlaceholderToolbarIcon: false,
         ).accounts
 
         XCTAssertEqual(
@@ -652,8 +667,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: anneAccount.profile.avatarColor ?? ""),
                 email: anneAccount.profile.email,
                 userId: anneAccount.profile.userId,
-                userInitials: "AA"
-            )
+                userInitials: "AA",
+            ),
         )
         XCTAssertEqual(
             accounts[1],
@@ -661,8 +676,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: beeAccount.profile.avatarColor ?? ""),
                 email: beeAccount.profile.email,
                 userId: beeAccount.profile.userId,
-                userInitials: "BA"
-            )
+                userInitials: "BA",
+            ),
         )
 
         // Test case for an account with no MasterPassword and PIN, but with Face ID enabled.
@@ -685,7 +700,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: false,
-            showPlaceholderToolbarIcon: false
+            showPlaceholderToolbarIcon: false,
         ).accounts
         XCTAssertEqual(
             accounts2.first,
@@ -694,8 +709,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 color: Color(hex: claimedAccount.profile.avatarColor ?? ""),
                 email: claimedAccount.profile.email,
                 userId: claimedAccount.profile.userId,
-                userInitials: "CL"
-            )
+                userInitials: "CL",
+            ),
         )
     }
 
@@ -719,7 +734,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: true,
-            showPlaceholderToolbarIcon: true
+            showPlaceholderToolbarIcon: true,
         ).accounts
         let lockedStatuses = profiles.map { profile in
             profile.isUnlocked
@@ -732,7 +747,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 false,
                 false,
                 true,
-            ]
+            ],
         )
     }
 
@@ -770,7 +785,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: true,
-            showPlaceholderToolbarIcon: true
+            showPlaceholderToolbarIcon: true,
         ).accounts
         let unlockedStatuses = profiles.map { profile in
             profile.isUnlocked
@@ -783,7 +798,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 true,
                 true,
                 false,
-            ]
+            ],
         )
     }
 
@@ -814,7 +829,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             allowLockAndLogout: true,
             isVisible: true,
             shouldAlwaysHideAddAccount: true,
-            showPlaceholderToolbarIcon: true
+            showPlaceholderToolbarIcon: true,
         ).accounts
         let loggedOutStatuses = profiles.map(\.isLoggedOut)
         XCTAssertEqual(
@@ -825,7 +840,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 false,
                 true,
                 false,
-            ]
+            ],
         )
     }
 
@@ -850,7 +865,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let active = try await subject.getAccount()
         XCTAssertEqual(
             active,
-            anneAccount
+            anneAccount,
         )
     }
 
@@ -863,13 +878,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let profile = ProfileSwitcherItem.fixture(
             email: anneAccount.profile.email,
             userId: anneAccount.profile.userId,
-            userInitials: "AA"
+            userInitials: "AA",
         )
 
         let match = try await subject.getAccount(for: profile.userId)
         XCTAssertEqual(
             match,
-            anneAccount
+            anneAccount,
         )
     }
 
@@ -882,7 +897,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let profile = ProfileSwitcherItem.fixture(
             email: beeAccount.profile.email,
             userId: beeAccount.profile.userId,
-            userInitials: "BA"
+            userInitials: "BA",
         )
         await assertAsyncThrows(error: StateServiceError.noAccounts) {
             _ = try await subject.getAccount(for: profile.userId)
@@ -895,8 +910,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         _ = try await subject.setActiveAccount(userId: account.profile.userId)
         try await stateService.setAccountEncryptionKeys(AccountEncryptionKeys(
+            accountKeys: nil,
             encryptedPrivateKey: "PRIVATE_KEY",
-            encryptedUserKey: "USER_KEY"
+            encryptedUserKey: "USER_KEY",
         ))
 
         let phrase = try await subject.getFingerprintPhrase()
@@ -1044,16 +1060,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `isUserManagedByOrganization` returns false when the feature flag is off.
-    func test_isUserManagedByOrganization_false_featureFlagOff() async throws {
-        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
-        try await stateService.setActiveAccount(userId: "1")
-        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "One")])
-
-        let value = try await subject.isUserManagedByOrganization()
-        XCTAssertFalse(value)
-    }
-
     /// `isUserManagedByOrganization` returns false when the user isn't managed by an organization.
     func test_isUserManagedByOrganization_false() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -1165,13 +1171,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setMasterPassword() async throws {
         let account = Account.fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
-        clientService.mockCrypto.updatePasswordResult = .success(
-            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
-        )
-        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            encryptedPrivateKey: "PRIVATE_KEY",
-            encryptedUserKey: "KEY"
-        )
+        // Account encryption keys don't exist until after a MP has been set for non-TDE users.
+        stateService.accountEncryptionKeys["1"] = nil
         stateService.activeAccount = account
 
         try await subject.setMasterPassword(
@@ -1179,7 +1180,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             masterPasswordHint: "HINT",
             organizationId: "1234",
             organizationIdentifier: "ORG_ID",
-            resetPasswordAutoEnroll: false
+            resetPasswordAutoEnroll: false,
         )
 
         XCTAssertEqual(clientService.mockAuth.makeRegisterKeysKdf, account.kdf.sdkKdf)
@@ -1199,9 +1200,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "encryptedUserKey"
-            )
+                encryptedUserKey: "encryptedUserKey",
+            ),
         )
         XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
 
@@ -1213,15 +1215,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: account.profile.email,
                 privateKey: "private",
                 signingKey: nil,
-                method: .password(password: "NEW_PASSWORD", userKey: "encryptedUserKey")
-            )
+                securityState: nil,
+                method: .password(password: "NEW_PASSWORD", userKey: "encryptedUserKey"),
+            ),
         )
     }
 
     /// `setMasterPassword()` throws an error if one occurs.
     func test_setMasterPassword_error() async {
-        clientService.mockCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
+        clientService.mockCrypto.makeUpdatePasswordResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = Account.fixtureWithTdeNoPassword()
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY",
+        )
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setMasterPassword(
@@ -1229,7 +1237,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 masterPasswordHint: "HINT",
                 organizationId: "1234",
                 organizationIdentifier: "ORG_ID",
-                resetPasswordAutoEnroll: false
+                resetPasswordAutoEnroll: false,
             )
         }
     }
@@ -1242,12 +1250,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             .httpSuccess(testData: .organizationKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
-        clientService.mockCrypto.updatePasswordResult = .success(
-            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
+        clientService.mockCrypto.makeUpdatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
             encryptedPrivateKey: "PRIVATE_KEY",
-            encryptedUserKey: "KEY"
+            encryptedUserKey: "KEY",
         )
         stateService.activeAccount = Account.fixtureWithTdeNoPassword()
 
@@ -1256,13 +1265,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             masterPasswordHint: "HINT",
             organizationId: "1234",
             organizationIdentifier: "ORG_ID",
-            resetPasswordAutoEnroll: true
+            resetPasswordAutoEnroll: true,
         )
 
-        XCTAssertEqual(clientService.mockCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
+        XCTAssertEqual(clientService.mockCrypto.makeUpdatePasswordNewPassword, "NEW_PASSWORD")
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
+            AccountEncryptionKeys(
+                accountKeys: .fixture(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "NEW_KEY",
+            ),
         )
         XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
 
@@ -1273,15 +1286,69 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(
             requests[0].url.absoluteString,
-            "https://example.com/api/accounts/set-password"
+            "https://example.com/api/accounts/set-password",
         )
         XCTAssertEqual(
             requests[1].url.absoluteString,
-            "https://example.com/api/organizations/1234/public-key"
+            "https://example.com/api/organizations/1234/public-key",
         )
         XCTAssertEqual(
             requests[2].url.absoluteString,
-            "https://example.com/api/organizations/1234/users/1/reset-password-enrollment"
+            "https://example.com/api/organizations/1234/users/1/reset-password-enrollment",
+        )
+    }
+
+    /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
+    /// unlocks the vault.
+    func test_setMasterPassword_TDE() async throws {
+        let account = Account.fixtureWithTDE()
+        client.result = .httpSuccess(testData: .emptyResponse)
+        clientService.mockCrypto.makeUpdatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
+        )
+        stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixture(),
+            encryptedPrivateKey: "PRIVATE_KEY",
+            encryptedUserKey: "KEY",
+        )
+        stateService.activeAccount = account
+
+        try await subject.setMasterPassword(
+            "NEW_PASSWORD",
+            masterPasswordHint: "HINT",
+            organizationId: "1234",
+            organizationIdentifier: "ORG_ID",
+            resetPasswordAutoEnroll: false,
+        )
+
+        XCTAssertEqual(clientService.mockCrypto.makeUpdatePasswordNewPassword, "NEW_PASSWORD")
+
+        let requests = client.requests
+        XCTAssertEqual(requests.count, 1)
+
+        XCTAssertEqual(requests[0].url.absoluteString, "https://example.com/api/accounts/set-password")
+
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys["1"],
+            AccountEncryptionKeys(
+                accountKeys: .fixture(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "NEW_KEY",
+            ),
+        )
+        XCTAssertEqual(stateService.userHasMasterPassword["1"], true)
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: account.kdf.sdkKdf,
+                email: account.profile.email,
+                privateKey: "PRIVATE_KEY",
+                signingKey: nil,
+                securityState: nil,
+                method: .password(password: "NEW_PASSWORD", userKey: "NEW_KEY"),
+            ),
         )
     }
 
@@ -1332,8 +1399,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keychainService.mockStorage = [
             keychainService.formattedKey(
                 for: KeychainItem.neverLock(
-                    userId: active.profile.userId
-                )
+                    userId: active.profile.userId,
+                ),
             ):
                 "pasta",
         ]
@@ -1353,10 +1420,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             keychainService.mockStorage,
             [
                 keychainService.formattedKey(
-                    for: KeychainItem.neverLock(userId: active.profile.userId)
+                    for: KeychainItem.neverLock(userId: active.profile.userId),
                 ):
                     "pasta",
-            ]
+            ],
         )
     }
 
@@ -1366,15 +1433,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keychainService.mockStorage = [
             keychainService.formattedKey(
                 for: KeychainItem.neverLock(
-                    userId: active.profile.userId
-                )
+                    userId: active.profile.userId,
+                ),
             ):
                 "pasta",
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
-                encryptedUserKey: "recipe"
+                encryptedUserKey: "recipe",
             ),
         ]
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("sauce")
@@ -1391,15 +1459,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keychainService.mockStorage = [
             keychainService.formattedKey(
                 for: KeychainItem.neverLock(
-                    userId: active.profile.userId
-                )
+                    userId: active.profile.userId,
+                ),
             ):
                 "pasta",
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
-                encryptedUserKey: "recipe"
+                encryptedUserKey: "recipe",
             ),
         ]
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("sauce")
@@ -1418,15 +1487,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keychainService.mockStorage = [
             keychainService.formattedKey(
                 for: KeychainItem.deviceKey(
-                    userId: active.profile.userId
-                )
+                    userId: active.profile.userId,
+                ),
             ):
                 "pasta",
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
-                encryptedUserKey: "recipe"
+                encryptedUserKey: "recipe",
             ),
         ]
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("sauce")
@@ -1445,15 +1515,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keychainService.mockStorage = [
             keychainService.formattedKey(
                 for: KeychainItem.deviceKey(
-                    userId: active.profile.userId
-                )
+                    userId: active.profile.userId,
+                ),
             ):
                 "pasta",
         ]
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
+                accountKeys: .fixture(),
                 encryptedPrivateKey: "secret",
-                encryptedUserKey: "recipe"
+                encryptedUserKey: "recipe",
             ),
         ]
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("sauce")
@@ -1566,7 +1637,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let weakPasswordStrength = try await subject.passwordStrength(
             email: "user@bitwarden.com",
             password: "password",
-            isPreAuth: false
+            isPreAuth: false,
         )
         XCTAssertEqual(weakPasswordStrength, 0)
         XCTAssertEqual(clientService.mockAuth.passwordStrengthEmail, "user@bitwarden.com")
@@ -1577,13 +1648,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let strongPasswordStrength = try await subject.passwordStrength(
             email: "user@bitwarden.com",
             password: "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03",
-            isPreAuth: true
+            isPreAuth: true,
         )
         XCTAssertEqual(strongPasswordStrength, 4)
         XCTAssertEqual(clientService.mockAuth.passwordStrengthEmail, "user@bitwarden.com")
         XCTAssertEqual(
             clientService.mockAuth.passwordStrengthPassword,
-            "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03"
+            "ghu65zQ0*TjP@ij74g*&FykWss#Kgv8L8j8XmC03",
         )
 
         XCTAssertTrue(clientService.mockAuthIsPreAuth)
@@ -1667,18 +1738,32 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_setPins() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        clientService.mockCrypto.derivePinKeyResult = .success(
-            DerivePinKeyResponse(pinProtectedUserKey: "12", encryptedPin: "34")
+        clientService.mockCrypto.enrollPinResult = .success(
+            EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin",
+            ),
         )
 
-        let userId = account.profile.userId
         try await subject.setPins("123", requirePasswordAfterRestart: true)
-        XCTAssertEqual(stateService.pinProtectedUserKeyValue[userId], "12")
-        XCTAssertEqual(stateService.encryptedPinByUserId[userId], "34")
+
+        let userId = account.profile.userId
         XCTAssertEqual(stateService.accountVolatileData[
             userId,
-            default: AccountVolatileData()
-        ].pinProtectedUserKey, "12")
+            default: AccountVolatileData(),
+        ].pinProtectedUserKey, "pinProtectedUserKeyEnvelope")
+        XCTAssertEqual(stateService.encryptedPinByUserId[userId], "userKeyEncryptedPin")
+        XCTAssertEqual(stateService.pinProtectedUserKeyEnvelopeValue[userId], "pinProtectedUserKeyEnvelope")
+        XCTAssertNil(stateService.pinProtectedUserKeyValue[userId])
+    }
+
+    /// `setPins(_:requirePasswordAfterRestart:)` throws an error if one occurs.
+    func test_setPins_error() async throws {
+        clientService.mockCrypto.enrollPinResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setPins("123", requirePasswordAfterRestart: true)
+        }
     }
 
     /// `.shouldPerformMasterPasswordReprompt(reprompt:)`  when reprompt password
@@ -1714,7 +1799,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVault() async throws {
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
         ]
         stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
 
@@ -1729,54 +1818,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                method: .password(password: "password", userKey: "USER_KEY")
-            )
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .password(password: "password", userKey: "USER_KEY"),
+            ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(organizationService.initializeOrganizationCryptoCalled)
         XCTAssertEqual(authService.hashPasswordPassword, "password")
-        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "ENCRYPTED_USER_KEY")
+        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "pinProtectedUserKeyEnvelope")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
-        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
-    }
-
-    /// `unlockVaultWithAuthenticatorVaultKey` throws when it encounters an error trying to unlock
-    /// the vault using the authenticator vault key from the keychain when the key is not found.
-    func test_unlockVaultWithAuthenticatorVaultKey_error() async throws {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        await assertAsyncThrows(error: KeychainServiceError.keyNotFound(
-            .authenticatorVaultKey(userId: active.profile.userId))
-        ) {
-            try await subject.unlockVaultWithAuthenticatorVaultKey(userId: active.profile.userId)
-        }
-    }
-
-    /// `unlockVaultWithAuthenticatorVaultKey` unlocks the vault using the authenticator vault
-    /// key from the keychain.
-    func test_unlockVaultWithAuthenticatorVaultKey_success() async throws {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: KeychainItem.authenticatorVaultKey(
-                    userId: active.profile.userId
-                )
-            ):
-                "pasta",
-        ]
-        stateService.accountEncryptionKeys = [
-            active.profile.userId: .init(
-                encryptedPrivateKey: "secret",
-                encryptedUserKey: "recipe"
-            ),
-        ]
-        clientService.mockCrypto.getUserEncryptionKeyResult = .success("sauce")
-        clientService.mockCrypto.initializeUserCryptoResult = .success(())
-        try await subject.unlockVaultWithAuthenticatorVaultKey(userId: active.profile.userId)
-        XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
@@ -1784,8 +1836,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithBiometrics_error_cryptoFail() async {
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "user"
+                encryptedUserKey: "user",
             ),
         ]
         stateService.activeAccount = .fixture()
@@ -1831,8 +1884,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
             "1": .init(
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "Private Key",
-                encryptedUserKey: "Encrypted User Key"
+                encryptedUserKey: "Encrypted User Key",
             ),
         ]
         biometricsRepository.getUserAuthKeyResult = .success("UserKey")
@@ -1848,8 +1902,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithBiometrics_emptyKey() async {
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "user"
+                encryptedUserKey: "user",
             ),
         ]
         stateService.activeAccount = .fixture()
@@ -1863,8 +1918,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithBiometrics_success() async {
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "user"
+                encryptedUserKey: "user",
             ),
         ]
         stateService.activeAccount = .fixture()
@@ -1875,7 +1931,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithBiometrics()
         }
 
-        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "ENCRYPTED_USER_KEY")
+        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "pinProtectedUserKeyEnvelope")
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
@@ -1886,8 +1942,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "user"
+                encryptedUserKey: "user",
             ),
         ]
         stateService.activeAccount = .fixture()
@@ -1895,7 +1952,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
 
@@ -1907,8 +1964,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "private",
                 signingKey: nil,
-                method: .keyConnector(masterKey: "key", userKey: "user")
-            )
+                securityState: nil,
+                method: .keyConnector(masterKey: "key", userKey: "user"),
+            ),
         )
         XCTAssertFalse(keyConnectorService.convertNewUserToKeyConnectorCalled)
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -1921,8 +1979,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
         keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
             self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "user"
+                encryptedUserKey: "user",
             )
             self?.stateService.getAccountEncryptionKeysError = nil
         }
@@ -1933,21 +1992,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
 
         await assertAsyncDoesNotThrow {
             try await subject.convertNewUserToKeyConnector(
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
 
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
 
@@ -1959,8 +2018,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 privateKey: "private",
                 signingKey: nil,
-                method: .keyConnector(masterKey: "key", userKey: "user")
-            )
+                securityState: nil,
+                method: .keyConnector(masterKey: "key", userKey: "user"),
+            ),
         )
         XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -1971,8 +2031,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
         keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
             self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
-                encryptedUserKey: "user"
+                encryptedUserKey: "user",
             )
             self?.stateService.getAccountEncryptionKeysError = nil
         }
@@ -1983,7 +2044,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncDoesNotThrow {
             try await subject.convertNewUserToKeyConnector(
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
         XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
@@ -1998,15 +2059,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
+                accountKeys: nil,
                 encryptedPrivateKey: "private",
-                encryptedUserKey: nil
+                encryptedUserKey: nil,
             ),
         ]
 
         await assertAsyncThrows(error: StateServiceError.noEncUserKey) {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
     }
@@ -2016,9 +2078,146 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
-                orgIdentifier: "org-id"
+                orgIdentifier: "org-id",
             )
         }
+    }
+
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and checks if the
+    // user's KDF settings need to be updated.
+    func test_unlockVaultWithPassword_checksForKdfUpdate() async throws {
+        let account = Account.fixture(profile: .fixture(kdfIterations: 100_000))
+        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
+        changeKdfService.needsKdfUpdateToMinimumsResult = true
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(100_000)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .password(password: "password", userKey: "USER_KEY"),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertTrue(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertEqual(changeKdfService.updateKdfToMinimumsPassword, "password")
+    }
+
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and checks if the
+    // user's KDF settings need to be updated. If updating the user's KDF fails, an error is logged
+    // but vault unlock still succeeds.
+    func test_unlockVaultWithPassword_checksForKdfUpdate_error() async throws {
+        let account = Account.fixture(profile: .fixture(kdfIterations: 100_000))
+        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
+        changeKdfService.needsKdfUpdateToMinimumsResult = true
+        changeKdfService.updateKdfToMinimumsResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(100_000)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .password(password: "password", userKey: "USER_KEY"),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertTrue(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password using the master
+    // password unlock data.
+    func test_unlockVaultWithPassword_masterPasswordUnlockData() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
+                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
+                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                    salt: "SALT",
+                ),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+
+        await assertAsyncDoesNotThrow {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(600_000)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .masterPasswordUnlock(
+                    password: "password",
+                    masterPasswordUnlock: MasterPasswordUnlockData(
+                        kdf: .pbkdf2(iterations: 600_000),
+                        masterKeyWrappedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                        salt: "SALT",
+                    ),
+                ),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+        XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
+
+        XCTAssertTrue(changeKdfService.needsKdfUpdateToMinimumsCalled)
+        XCTAssertFalse(changeKdfService.updateKdfToMinimumsCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `logout` throws an error with no accounts.
@@ -2135,13 +2334,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultFromLoginWithDevice_withMasterPasswordHash() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
         ]
 
         try await subject.unlockVaultFromLoginWithDevice(
             privateKey: "AUTH_REQUEST_PRIVATE_KEY",
             key: "KEY",
-            masterPasswordHash: "MASTER_PASSWORD_HASH"
+            masterPasswordHash: "MASTER_PASSWORD_HASH",
         )
 
         XCTAssertEqual(
@@ -2151,12 +2354,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
-                    method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY")
-                )
-            )
+                    method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY"),
+                ),
+            ),
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
     }
@@ -2166,13 +2370,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultFromLoginWithDevice_withoutMasterPasswordHash() async throws {
         stateService.activeAccount = Account.fixture()
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
         ]
 
         try await subject.unlockVaultFromLoginWithDevice(
             privateKey: "AUTH_REQUEST_PRIVATE_KEY",
             key: "KEY",
-            masterPasswordHash: nil
+            masterPasswordHash: nil,
         )
 
         XCTAssertEqual(
@@ -2182,32 +2390,40 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
-                    method: .userKey(protectedUserKey: "KEY")
-                )
-            )
+                    method: .userKey(protectedUserKey: "KEY"),
+                ),
+            ),
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
-    /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN.
-    func test_unlockVaultWithPIN() async throws {
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and migrates the
+    // legacy pin keys.
+    func test_unlockVaultWithPassword_migratesPinProtectedUserKey() async throws {
         let account = Account.fixture()
+        clientService.mockCrypto.enrollPinWithEncryptedPinResult = .success(
+            EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin",
+            ),
+        )
         stateService.activeAccount = account
-
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
         ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "pinProtectedUserKey"
 
-        stateService.encryptedPinByUserId[account.profile.userId] = "123"
-        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
-
-        await assertAsyncDoesNotThrow {
-            try await subject.unlockVaultWithPIN(pin: "123")
-        }
+        try await subject.unlockVaultWithPassword(password: "password")
 
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
@@ -2216,9 +2432,148 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
-                signingKey: nil,
-                method: .pin(pin: "123", pinProtectedUserKey: "123")
-            )
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .password(password: "password", userKey: "USER_KEY"),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        // Existing pin is migrated to pin protected key envelope.
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinEncryptedPin, "encryptedPin")
+        XCTAssertNil(stateService.accountVolatileData["1"]?.pinProtectedUserKey)
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "userKeyEncryptedPin")
+        XCTAssertEqual(stateService.pinProtectedUserKeyEnvelopeValue["1"], "pinProtectedUserKeyEnvelope")
+        XCTAssertEqual(flightRecorder.logMessages, [
+            "[Auth] Vault unlocked, method: Password",
+            "[Auth] Migrated from legacy PIN to PIN-protected user key envelope",
+        ])
+    }
+
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and sets the
+    // PIN-protected user key in memory.
+    func test_unlockVaultWithPassword_setsPinProtectedUserKeyInMemory() async throws {
+        let account = Account.fixture()
+        clientService.mockCrypto.enrollPinWithEncryptedPinResult = .success(
+            EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin",
+            ),
+        )
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .password(password: "password", userKey: "USER_KEY"),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinEncryptedPin, "encryptedPin")
+        XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "pinProtectedUserKeyEnvelope")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "encryptedPin")
+        XCTAssertNil(stateService.pinProtectedUserKeyEnvelopeValue["1"])
+        XCTAssertEqual(flightRecorder.logMessages, [
+            "[Auth] Vault unlocked, method: Password",
+            "[Auth] Set PIN-protected user key in memory",
+        ])
+    }
+
+    /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN and migrates the legacy pin keys.
+    func test_unlockVaultWithPIN_pinProtectedUserKey_migratesPinProtectedUserKey() async throws {
+        let account = Account.fixture()
+        clientService.mockCrypto.enrollPinWithEncryptedPinResult = .success(
+            EnrollPinResponse(
+                pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope",
+                userKeyEncryptedPin: "userKeyEncryptedPin",
+            ),
+        )
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinProtectedUserKeyValue[account.profile.userId] = "pinProtectedUserKey"
+
+        try await subject.unlockVaultWithPIN(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .pin(pin: "123", pinProtectedUserKey: "pinProtectedUserKey"),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        // Existing pin is migrated to pin protected key envelope.
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinEncryptedPin, "encryptedPin")
+        XCTAssertEqual(stateService.pinProtectedUserKeyEnvelopeValue["1"], "pinProtectedUserKeyEnvelope")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "userKeyEncryptedPin")
+        XCTAssertEqual(flightRecorder.logMessages, [
+            "[Auth] Vault unlocked, method: PIN",
+            "[Auth] Migrated from legacy PIN to PIN-protected user key envelope",
+        ])
+    }
+
+    /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN using the pin protected user key envelope.
+    func test_unlockVaultWithPIN_pinProtectedUserKeyEnvelope() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
+
+        try await subject.unlockVaultWithPIN(pin: "123")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                privateKey: "PRIVATE_KEY",
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+                method: .pinEnvelope(pin: "123", pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope"),
+            ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -2235,7 +2590,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `updateMasterPassword()` rethrows an error if an error occurs.
     func test_updateMasterPassword_error() async throws {
-        clientService.mockCrypto.updatePasswordResult = .failure(BitwardenTestError.example)
+        clientService.mockCrypto.makeUpdatePasswordResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -2243,7 +2598,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 currentPassword: "PASSWORD",
                 newPassword: "NEW_PASSWORD",
                 passwordHint: "PASSWORD_HINT",
-                reason: .weakMasterPasswordOnLogin
+                reason: .weakMasterPasswordOnLogin,
             )
         }
     }
@@ -2251,12 +2606,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `updateMasterPassword()` performs the API request to update the user's password.
     func test_updateMasterPassword_weakMasterPasswordOnLogin() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
-        clientService.mockCrypto.updatePasswordResult = .success(
-            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY")
+        clientService.mockCrypto.makeUpdatePasswordResult = .success(
+            UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "PRIVATE_KEY",
-            encryptedUserKey: "KEY"
+            encryptedUserKey: "KEY",
         )
         stateService.activeAccount = .fixture()
         stateService.masterPasswordHashes["1"] = "MASTER_PASSWORD_HASH"
@@ -2266,10 +2622,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             currentPassword: "PASSWORD",
             newPassword: "NEW_PASSWORD",
             passwordHint: "PASSWORD_HINT",
-            reason: .weakMasterPasswordOnLogin
+            reason: .weakMasterPasswordOnLogin,
         )
 
-        XCTAssertEqual(clientService.mockCrypto.updatePasswordNewPassword, "NEW_PASSWORD")
+        XCTAssertEqual(clientService.mockCrypto.makeUpdatePasswordNewPassword, "NEW_PASSWORD")
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -2279,7 +2635,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "NEW_PASSWORD_HASH")
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
-            AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "NEW_KEY")
+            AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "NEW_KEY",
+            ),
         )
         XCTAssertNil(stateService.forcePasswordResetReason["1"])
     }
@@ -2302,8 +2662,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword_noPasswordHash() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "PRIVATE_KEY",
-            encryptedUserKey: "KEY"
+            encryptedUserKey: "KEY",
         )
         clientService.mockAuth.validatePasswordUserKeyResult = .success("MASTER_PASSWORD_HASH")
 
@@ -2319,8 +2680,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_validatePassword_noPasswordHash_invalidPassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+            accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "PRIVATE_KEY",
-            encryptedUserKey: "KEY"
+            encryptedUserKey: "KEY",
         )
         clientService.mockAuth.validatePasswordUserKeyResult = .failure(BitwardenTestError.example)
 
@@ -2407,7 +2769,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
 
         stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(encryptedPrivateKey: "PRIVATE_KEY", encryptedUserKey: "USER_KEY"),
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
         ]
 
         stateService.encryptedPinByUserId[account.profile.userId] = "123"

@@ -97,7 +97,7 @@ extension DataStore: FolderDataStore {
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \FolderData.id, ascending: true)]
         return FetchedResultsPublisher(
             context: persistentContainer.viewContext,
-            request: fetchRequest
+            request: fetchRequest,
         )
         .tryMap { try $0.map(Folder.init) }
         .eraseToAnyPublisher()
@@ -108,7 +108,7 @@ extension DataStore: FolderDataStore {
         let insertRequest = try FolderData.batchInsertRequest(folders: folders, userId: userId)
         try await executeBatchReplace(
             deleteRequest: deleteRequest,
-            insertRequest: insertRequest
+            insertRequest: insertRequest,
         )
     }
 

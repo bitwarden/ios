@@ -48,7 +48,7 @@ struct IdentityTokenRefreshRequest: Request {
         if response.statusCode == 400 {
             guard let errorModel = try? IdentityTokenErrorModel.decoder.decode(
                 IdentityTokenErrorModel.self,
-                from: response.body
+                from: response.body,
             ) else { return }
 
             if let error = errorModel.error,

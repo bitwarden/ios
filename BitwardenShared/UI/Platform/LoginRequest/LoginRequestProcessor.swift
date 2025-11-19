@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import Foundation
 
 // MARK: - LoginRequestDelegate
@@ -21,7 +23,6 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
     // MARK: Types
 
     typealias Services = HasAuthService
-        & HasConfigService
         & HasErrorReporter
         & HasStateService
 
@@ -53,7 +54,7 @@ final class LoginRequestProcessor: StateProcessor<LoginRequestState, LoginReques
         coordinator: AnyCoordinator<LoginRequestRoute, Void>,
         delegate: LoginRequestDelegate?,
         services: Services,
-        state: LoginRequestState
+        state: LoginRequestState,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate

@@ -17,7 +17,7 @@ class ResendEmailCodeRequestTests: BitwardenTestCase {
             deviceIdentifier: "id",
             email: "email",
             masterPasswordHash: nil,
-            ssoEmail2FaSessionToken: nil
+            ssoEmail2FaSessionToken: nil,
         ))
     }
 

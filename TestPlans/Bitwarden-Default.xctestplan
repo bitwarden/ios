@@ -1,0 +1,108 @@
+{
+  "configurations" : [
+    {
+      "id" : "1F1B495F-A80E-4BEF-8B13-35C0D33C74E9",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testExecutionOrdering" : "random",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "8E852F2FEA58332906A444C6",
+        "name" : "BitwardenActionExtensionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "2AA7964F64AD34FCAE257E17",
+        "name" : "BitwardenTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "9F7BDC2FAE9BA6BFD0EBF905",
+        "name" : "NetworkingTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "192455E6FB7EBDE8BAB85489",
+        "name" : "BitwardenKitTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "0F0F8167EDD3A9370CA429CE",
+        "name" : "BitwardenKitSnapshotTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "27C53FBF98252CF56973FD34",
+        "name" : "BitwardenKitViewInspectorTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "417A98C7A214F8B5F141E702",
+        "name" : "BitwardenAutoFillExtensionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "9B9276A12810F3EC19899819",
+        "name" : "BitwardenSharedSnapshotTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "C026D25C368010616A94990A",
+        "name" : "BitwardenShareExtensionTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "1ACA591B401F3A38DB33C366",
+        "name" : "BitwardenSharedTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "65DAC3D69CB63D5E39AA4601",
+        "name" : "BitwardenSharedViewInspectorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

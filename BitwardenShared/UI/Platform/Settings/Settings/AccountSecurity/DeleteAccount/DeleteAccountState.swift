@@ -1,3 +1,5 @@
+import BitwardenResources
+
 // MARK: - DeleteAccountState
 
 /// An object that defines the current state of a `DeleteAccountView`.
@@ -7,7 +9,7 @@ struct DeleteAccountState: Equatable {
 
     /// A detailed description of the view.
     var description: String {
-        return if shouldPreventUserFromDeletingAccount {
+        if shouldPreventUserFromDeletingAccount {
             Localizations.cannotDeleteAccountDescriptionLong
         } else {
             Localizations.deleteAccountExplanation
@@ -15,11 +17,11 @@ struct DeleteAccountState: Equatable {
     }
 
     /// The main icon to be displayed.
-    var mainIcon: ImageAsset {
-        return if shouldPreventUserFromDeletingAccount {
-            Asset.Images.circleX16
+    var mainIcon: SharedImageAsset {
+        if shouldPreventUserFromDeletingAccount {
+            SharedAsset.Icons.circleX16
         } else {
-            Asset.Images.warning24
+            SharedAsset.Icons.warning24
         }
     }
 
@@ -33,7 +35,7 @@ struct DeleteAccountState: Equatable {
 
     /// A short description of the view.
     var title: String {
-        return if shouldPreventUserFromDeletingAccount {
+        if shouldPreventUserFromDeletingAccount {
             Localizations.cannotDeleteAccount
         } else {
             Localizations.deletingYourAccountIsPermanent

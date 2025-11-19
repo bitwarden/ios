@@ -15,7 +15,7 @@ struct CircularProgressView: View {
             Circle()
                 .stroke(
                     currentColor.opacity(0.5),
-                    lineWidth: strokeLineWidth
+                    lineWidth: strokeLineWidth,
                 )
             Circle()
                 .trim(from: 0, to: progress)
@@ -23,8 +23,8 @@ struct CircularProgressView: View {
                     currentColor,
                     style: StrokeStyle(
                         lineWidth: strokeLineWidth,
-                        lineCap: .round
-                    )
+                        lineCap: .round,
+                    ),
                 )
                 .rotationEffect(.degrees(-90))
                 .animation(.easeOut, value: progress)

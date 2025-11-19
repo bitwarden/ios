@@ -30,7 +30,7 @@ extension CameraAuthorizationStatus {
             self = .restricted
         @unknown default:
             Logger.application.warning(
-                "Unhandled AVAuthorizationStatus detected: \(String(describing: avAuthorizationStatus))"
+                "Unhandled AVAuthorizationStatus detected: \(String(describing: avAuthorizationStatus))",
             )
             self = .denied
         }

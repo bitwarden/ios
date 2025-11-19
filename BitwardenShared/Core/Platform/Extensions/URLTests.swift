@@ -28,21 +28,21 @@ class URLTests: BitwardenTestCase {
         // Wildcard: *.compute.amazonaws.com
         XCTAssertEqual(
             URL(string: "https://sub.example.compute.amazonaws.com")?.domain,
-            "sub.example.compute.amazonaws.com"
+            "sub.example.compute.amazonaws.com",
         )
         XCTAssertEqual(
             URL(string: "https://foo.sub.example.compute.amazonaws.com")?.domain,
-            "sub.example.compute.amazonaws.com"
+            "sub.example.compute.amazonaws.com",
         )
 
         // Exception: !city.kobe.jp
         XCTAssertEqual(
             URL(string: "https://example.city.kobe.jp")?.domain,
-            "example.city.kobe.jp"
+            "example.city.kobe.jp",
         )
         XCTAssertEqual(
             URL(string: "https://sub.example.city.kobe.jp")?.domain,
-            "example.city.kobe.jp"
+            "example.city.kobe.jp",
         )
     }
 

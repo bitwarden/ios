@@ -46,9 +46,9 @@ class SettingsProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 configService: configService,
                 errorReporter: errorReporter,
-                stateService: stateService
+                stateService: stateService,
             ),
-            state: SettingsState()
+            state: SettingsState(),
         )
     }
 
@@ -70,7 +70,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         badgeState = SettingsBadgeState.fixture(
             autofillSetupProgress: .setUpLater,
             badgeValue: "2",
-            vaultUnlockSetupProgress: .setUpLater
+            vaultUnlockSetupProgress: .setUpLater,
         )
         stateService.settingsBadgeSubject.send(badgeState)
         try await waitForAsync { self.delegate.badgeValue == "2" }

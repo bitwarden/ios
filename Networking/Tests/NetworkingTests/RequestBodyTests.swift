@@ -44,7 +44,7 @@ class RequestBodyTests: XCTestCase {
 
         XCTAssertEqual(
             try String(data: subject.encode(), encoding: .utf8),
-            "foo=bar&abc=xyz"
+            "foo=bar&abc=xyz",
         )
     }
 
@@ -60,7 +60,7 @@ class RequestBodyTests: XCTestCase {
 
         XCTAssertEqual(
             try String(data: subject.encode(), encoding: .utf8),
-            "foo=a%20b%20c&bar=%2B%3D%26&email=test%2B1%40example%2Ecom"
+            "foo=a%20b%20c&bar=%2B%3D%26&email=test%2B1%40example%2Ecom",
         )
     }
 }

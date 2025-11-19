@@ -18,8 +18,8 @@ class AnswerLoginRequestRequestTests: BitwardenTestCase {
                 deviceIdentifier: "deviceId",
                 key: "key",
                 masterPasswordHash: nil,
-                requestApproved: true
-            )
+                requestApproved: true,
+            ),
         )
     }
 

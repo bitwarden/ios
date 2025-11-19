@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - SelectLanguageView
@@ -13,13 +15,11 @@ struct SelectLanguageView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 0) {
+        ContentBlock(dividerLeadingPadding: 16) {
             ForEach(LanguageOption.allCases) { languageOption in
                 languageOptionRow(languageOption)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        .cornerRadius(10)
         .scrollView()
         .navigationBar(title: Localizations.selectLanguage, titleDisplayMode: .inline)
         .toolbar {
@@ -35,7 +35,7 @@ struct SelectLanguageView: View {
     @ViewBuilder
     private func checkmarkView(_ languageOption: LanguageOption) -> some View {
         if languageOption == store.state.currentLanguage {
-            Image(asset: Asset.Images.check)
+            Image(asset: SharedAsset.Icons.check24)
                 .imageStyle(.rowIcon)
         }
     }
@@ -44,7 +44,6 @@ struct SelectLanguageView: View {
     private func languageOptionRow(_ languageOption: LanguageOption) -> some View {
         SettingsListItem(
             languageOption.title,
-            hasDivider: !languageOption.isLast
         ) {
             store.send(.languageTapped(languageOption))
         } trailingContent: {

@@ -20,7 +20,7 @@ class CollectionServiceTests: XCTestCase {
 
         subject = DefaultCollectionService(
             collectionDataStore: collectionDataStore,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -51,7 +51,7 @@ class CollectionServiceTests: XCTestCase {
             [
                 .fixture(id: "1", name: "Collection 1"),
                 .fixture(id: "2", name: "Collection 2"),
-            ]
+            ],
         )
     }
 

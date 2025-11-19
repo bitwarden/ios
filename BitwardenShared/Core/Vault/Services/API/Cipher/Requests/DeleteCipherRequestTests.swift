@@ -19,7 +19,7 @@ class DeleteCipherRequestTests: BitwardenTestCase {
     /// `init` fails if the cipher has an empty id.
     func test_init_fail_empty() throws {
         XCTAssertThrowsError(
-            try DeleteCipherRequest(id: "")
+            try DeleteCipherRequest(id: ""),
         ) { error in
             XCTAssertEqual(error as? CipherAPIServiceError, .updateMissingId)
         }

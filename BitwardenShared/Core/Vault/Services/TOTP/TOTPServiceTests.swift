@@ -26,7 +26,7 @@ final class TOTPServiceTests: BitwardenTestCase {
         subject = DefaultTOTPService(
             clientService: clientService,
             pasteboardService: pasteboardService,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
@@ -46,8 +46,8 @@ final class TOTPServiceTests: BitwardenTestCase {
     func test_copyTotpIfPossible_succeeds() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
-                totp: "totp"
-            )
+                totp: "totp",
+            ),
         )
         stateService.activeAccount = .fixture()
 
@@ -61,9 +61,9 @@ final class TOTPServiceTests: BitwardenTestCase {
     func test_copyTotpIfPossible_succeedsOrganizationUseTotp() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
-                totp: "totp"
+                totp: "totp",
             ),
-            organizationUseTotp: true
+            organizationUseTotp: true,
         )
         stateService.activeAccount = .fixture()
         stateService.doesActiveAccountHavePremiumResult = false
@@ -76,7 +76,7 @@ final class TOTPServiceTests: BitwardenTestCase {
     /// `copyTotpIfPossible(cipher:)` doesn't copy the code when the cipher doesn't have a login.
     func test_copyTotpIfPossible_noLogin() async throws {
         let cipher = CipherView.fixture(
-            login: nil
+            login: nil,
         )
         stateService.activeAccount = .fixture()
 
@@ -89,8 +89,8 @@ final class TOTPServiceTests: BitwardenTestCase {
     func test_copyTotpIfPossible_noTotp() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
-                totp: nil
-            )
+                totp: nil,
+            ),
         )
         stateService.activeAccount = .fixture()
 
@@ -103,8 +103,8 @@ final class TOTPServiceTests: BitwardenTestCase {
     func test_copyTotpIfPossible_autoTotpCopyDisabled() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
-                totp: "totp"
-            )
+                totp: "totp",
+            ),
         )
         stateService.activeAccount = .fixture()
         stateService.disableAutoTotpCopyByUserId = ["1": true]
@@ -119,8 +119,8 @@ final class TOTPServiceTests: BitwardenTestCase {
     func test_copyTotpIfPossible_noPremiumNorOrgUseTotp() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
-                totp: "totp"
-            )
+                totp: "totp",
+            ),
         )
         stateService.activeAccount = .fixture()
         stateService.doesActiveAccountHavePremiumResult = false
@@ -134,8 +134,8 @@ final class TOTPServiceTests: BitwardenTestCase {
     func test_copyTotpIfPossible_throwsDisableAutoTotpCopy() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
-                totp: "totp"
-            )
+                totp: "totp",
+            ),
         )
 
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
@@ -149,8 +149,8 @@ final class TOTPServiceTests: BitwardenTestCase {
     func test_copyTotpIfPossible_throwsGeneratingCode() async throws {
         let cipher = CipherView.fixture(
             login: .fixture(
-                totp: "totp"
-            )
+                totp: "totp",
+            ),
         )
         stateService.activeAccount = .fixture()
         clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)

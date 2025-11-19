@@ -94,7 +94,7 @@ class DataStore {
         try await backgroundContext.perform {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: request,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }
@@ -111,7 +111,7 @@ class DataStore {
             try self.backgroundContext.executeAndMergeChanges(
                 batchDeleteRequest: deleteRequest,
                 batchInsertRequest: insertRequest,
-                additionalContexts: [self.persistentContainer.viewContext]
+                additionalContexts: [self.persistentContainer.viewContext],
             )
         }
     }

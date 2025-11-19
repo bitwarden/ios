@@ -18,20 +18,26 @@ APP_CONFIG_MAP = {
     build_ipa_path: "build/Bitwarden/Bitwarden.ipa",
     build_dsyms_path: "build/Bitwarden.xcarchive/dSYMs",
     build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app",
-    ci_build_info_filepath: "BitwardenShared/Core/Platform/Utilities/CIBuildInfo.swift",
+    ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
   },
   "authenticator" => {
     project_filepath: "project-bwa.yml",
     build_ipa_path: "build/Authenticator/Authenticator.ipa",
     build_dsyms_path: "build/Authenticator.xcarchive/dSYMs",
     build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Authenticator.app",
-    ci_build_info_filepath: "AuthenticatorShared/Core/Platform/Utilities/CIBuildInfo.swift",
+    ci_build_info_filepath: "BitwardenKit/Core/Platform/Utilities/CIBuildInfo.swift",
   },
 }
 
 ARTIFACT_EXTENSION = {
     "simulator" => "app",
     "device" => "ipa",
+}
+
+APPLE_ID_MAP = {
+    "com.8bit.bitwarden" => "1137397744",
+    "com.8bit.bitwarden.beta" => "6477551146",
+    "com.bitwarden.authenticator" => "6497335175",
 }
 
 platform :ios do |options|
@@ -86,7 +92,7 @@ platform :ios do |options|
         build_scheme = ENV["_BUILD_SCHEME"]
         ext = ARTIFACT_EXTENSION[build_mode]
         app_config = lane_context[:APP_CONFIG]
-        UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
+        UI.message "artifact_filename: #{bundle_id}-#{version_name}-#{version_number}-#{xcode_version}.#{ext}"
         UI.message "export_filepath: #{export_path}/#{build_scheme}.#{ext}"
     end
 
@@ -126,18 +132,18 @@ platform :ios do |options|
         ci_run_source = "#{repository}/actions/runs/#{ci_run_number}/attempts/#{ci_run_attempt}"
 
         UI.message("🧱 Updating app CI Build info with:")
-        UI.message("🧱 commit: #{git_source}")
-        UI.message("💻 build source: #{ci_run_source}")
-        UI.message("🛠️ compiler flags: #{compiler_flags}")
+        UI.message("🧱 Commit: #{git_source}")
+        UI.message("💻 Build Source: #{ci_run_source}")
+        UI.message("🛠️ Compiler Flags: #{compiler_flags}")
 
         Dir.chdir("..") do
             FileUtils.mkdir_p(File.dirname(ci_build_info_filepath))
             File.write(ci_build_info_filepath, <<~CONTENT)
-                enum CIBuildInfo {
-                    static let info: KeyValuePairs<String, String> = [
-                        "🧱 commit:": "#{git_source}",
-                        "💻 build source:": "#{ci_run_source}",
-                        "🛠️ compiler flags:": "#{compiler_flags}",
+                public enum CIBuildInfo {
+                    public static let info: KeyValuePairs<String, String> = [
+                        "🧱 Commit": "#{git_source}",
+                        "💻 Build Source": "#{ci_run_source}",
+                        "🛠️ Compiler Flags": "#{compiler_flags}",
                     ]
                 }
             CONTENT
@@ -146,9 +152,16 @@ platform :ios do |options|
         UI.success("🧱 Successfully updated app CI Build info")
     end
 
-    desc "Push a new build to TestFlight"
+    desc "Upload a new build to TestFlight"
     lane :upload_build do |options|
         bundle_id = ENV["_BUNDLE_ID"] || options[:bundle_id] || "com.8bit.bitwarden" # provides backwards compatibility with old build workflows
+
+        # NOTE workaround for xcode26 altool bug, see:
+        # https://github.com/fastlane/fastlane/issues/29698
+        # https://github.com/fastlane/fastlane/discussions/29680
+        apple_id = APPLE_ID_MAP[bundle_id]
+        ENV["DELIVER_ALTOOL_ADDITIONAL_UPLOAD_PARAMETERS"] = "--apple-id #{apple_id}"
+
         upload_to_testflight(
             skip_submission: false,
             changelog: options[:changelog],
@@ -234,21 +247,28 @@ platform :ios do |options|
 
     desc "Create config files with build variant and compiler flags"
     private_lane :create_config_files do |options|
+      build_mode = ensure_build_mode(options[:build_mode])
       compiler_flags = options[:compiler_flags] || ''
 
       ensure_env_vars(
-        env_vars: ['_BUNDLE_ID', '_GROUP_ID', '_PROVISIONING_PROFILE_PREFIX', '_APP_ICON', '_LOCAL_XCCONFIG_PATH']
+        env_vars: ['_BUNDLE_ID', '_BUNDLE_DISPLAY', '_GROUP_ID', '_PROVISIONING_PROFILE_PREFIX', '_APP_ICON', '_LOCAL_XCCONFIG_PATH']
       )
 
       export_options_file = "Configs/export_options.plist"
 
       local_xcconfig_file = ENV["_LOCAL_XCCONFIG_PATH"]
       bundle_id = ENV["_BUNDLE_ID"]
+      bundle_display = ENV["_BUNDLE_DISPLAY"]
       shared_app_group_id = ENV["_GROUP_ID"]
       profile_prefix = ENV["_PROVISIONING_PROFILE_PREFIX"]
       app_icon = ENV["_APP_ICON"]
 
-      xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+      # If the build mode is Simulator then add the compiler flag to disable assertion failures on log errors.
+      if build_mode == 'simulator'
+        compiler_flags += " DISABLE_ASSERTION_FAILURE_ON_LOG_ERROR"
+      end
+
+      xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
       export_options_plist_content = generate_export_options_plist(lane_context[:APP], bundle_id, profile_prefix)
 
       Dir.chdir("..") do
@@ -258,17 +278,13 @@ platform :ios do |options|
         File.write(export_options_file, export_options_plist_content)
       end
 
-      if compiler_flags.include?("SUPPORTS_CXP")
-        sh("./Scripts/alpha_update_cxp_infoplist.sh")
-      end
-
       UI.success("Successfully created config files for #{bundle_id}")
     end
 
-    def generate_xcconfig(app, bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+    def generate_xcconfig(app, bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
         case app
             when "password_manager"
-                generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+                generate_xcconfig_content_bwpm(bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
             when "authenticator"
                 generate_xcconfig_content_bwa(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
         end
@@ -283,13 +299,14 @@ platform :ios do |options|
         end
     end
 
-    def generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+    def generate_xcconfig_content_bwpm(bundle_id, bundle_display, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
       {
         "CODE_SIGN_STYLE" => "Manual",
         "CODE_SIGN_IDENTITY" => "Apple Distribution",
         "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
         "ORGANIZATION_IDENTIFIER" => "com.8bit",
         "BASE_BUNDLE_ID" => bundle_id,
+        "BMPW_BUNDLE_DISPLAY_NAME" => bundle_display,
         "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
         "APPICON_NAME" => app_icon,
         "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden",
@@ -430,5 +447,89 @@ platform :ios do |options|
         File.open(project_filepath, 'w') do |file|
             file.write(project_yaml.to_yaml)
         end
+    end
+
+  desc "Submit iOS app to the App Store"
+  lane :release_to_production do |options|
+
+    changelog = options[:changelog] || "Bug fixes and improvements"
+    is_dry_run = options[:dry_run] == "true" || options[:dry_run] == true
+
+    formatted_changelog = changelog
+      .split('.')
+      .map(&:strip)
+      .reject(&:empty?)
+      .map { |item| "• #{item.gsub(/\A(?:•|\u2022)\s*/, '')}" }
+      .join("\n")
+
+    auth_locales = ["en-US"]
+    pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
+    metadata_path = options[:metadata_path]
+
+    if is_dry_run
+      UI.header("🧪 DRY RUN: Testing iOS App Store submission")
+    else
+      UI.header("🚀 Publishing iOS app to App Store")
+    end
+
+    if options[:app_identifier] == "com.bitwarden.authenticator"
+      locales = auth_locales
+    else
+      locales = pw_manager_locales
+    end
+
+    locales.each do |locale|
+      dir = "#{metadata_path}/#{locale}"
+      FileUtils.mkdir_p(dir)
+      File.write("#{dir}/release_notes.txt", formatted_changelog)
+    end
+
+    notes = locales.each_with_object({}) do |locale, hash|
+      file_path = "./#{metadata_path}/#{locale}/release_notes.txt"
+      if File.exist?(file_path)
+        hash[locale] = File.read(file_path)
+      else
+        UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
+      end
+    end
+
+    if is_dry_run
+      UI.important("🧪 DRY RUN MODE - Skipping actual App Store Connect submission")
+      UI.message("✅ Validation passed")
+      UI.message("✅ Release notes prepared for #{locales.count} locales")
+      UI.message("✅ Release notes: ")
+      UI.message("#{formatted_changelog}")
+      UI.success("🎯 DRY RUN COMPLETE - Everything looks ready for production!")
+      next # ← EXITS HERE in dry run
+    end
+
+    deliver(
+      force: true,
+      app_identifier: options[:app_identifier],
+      edit_live: false,
+      build_number: options[:build_number],
+      app_version: options[:app_version],
+      submit_for_review: options[:submit_release],
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      automatic_release: true,
+      phased_release: options[:phased_release],
+      api_key_path: options[:api_key_path],
+      run_precheck_before_submit: false,
+      metadata_path: options[:metadata_path],
+      release_notes: notes
+    )
+  end
+    desc "Get latest published version"
+    lane :get_latest_version do |options|
+        app_store_build_number(
+            api_key_path: options[:api_key_path],
+            app_identifier: options[:app_identifier]
+        )
+        latest_version_name = lane_context[SharedValues::LATEST_VERSION]
+        latest_version_number = lane_context[SharedValues::LATEST_BUILD_NUMBER]
+
+        UI.message("version_name: #{latest_version_name}")
+        UI.message("version_number: #{latest_version_number}")
     end
 end

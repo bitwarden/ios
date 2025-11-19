@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "A8D5F3C7-4E9B-4A2D-9F8C-5E6B4D3A2F1C",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "-testing"
+      }
+    ],
+    "environmentVariableEntries" : [
+      {
+        "key" : "TZ",
+        "value" : "UTC"
+      }
+    ],
+    "language" : "en",
+    "region" : "US",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Authenticator.xcodeproj",
+        "identifier" : "CF48CFC74FCC367F107BD1EF",
+        "name" : "AuthenticatorSharedViewInspectorTests"
+      }
+    }
+  ],
+  "version" : 1
+}

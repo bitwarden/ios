@@ -1,3 +1,6 @@
+import BitwardenKit
+import BitwardenResources
+
 extension Alert {
     /// An alert notifying the user that the TOTP key scan was unsuccessful.
     ///
@@ -9,7 +12,7 @@ extension Alert {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 }

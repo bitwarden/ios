@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -35,16 +37,16 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     var accountHasPremium: Bool
 
     /// The card item state.
-    var cardItemState: CardItemState
+    var cardItemState = CardItemState()
 
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
     /// The full list of collections for the user, across all organizations.
-    var allUserCollections: [CollectionView]
+    var allUserCollections = [CollectionView]()
 
     /// The Add or Existing Configuration.
-    let configuration: Configuration
+    var configuration: Configuration
 
     /// The custom fields state.
     var customFieldsState: AddEditCustomFieldsState
@@ -56,7 +58,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     var folderName: String?
 
     /// The list of all folders that the item could be added to.
-    var folders: [DefaultableType<FolderView>]
+    var folders = [DefaultableType<FolderView>]()
 
     /// The state for guided tour view.
     var guidedTourViewState = GuidedTourViewState(
@@ -64,29 +66,29 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             .loginStep1,
             .loginStep2,
             .loginStep3,
-        ]
+        ],
     )
 
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
     /// The state for a identity type item.
-    var identityState: IdentityItemState
+    var identityState = IdentityItemState()
 
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded = false
 
     /// A flag indicating if this item is favorited.
-    var isFavoriteOn: Bool
+    var isFavoriteOn = false
 
     /// If account is eligible for  Learn New Login Action Card.
     var isLearnNewLoginActionCardEligible: Bool = false
 
     /// A flag indicating if master password re-prompt is required.
-    var isMasterPasswordRePromptOn: Bool
+    var isMasterPasswordRePromptOn = false
 
     /// Whether the policy is enforced to disable personal vault ownership.
-    var isPersonalOwnershipDisabled: Bool
+    var isPersonalOwnershipDisabled = false
 
     /// Whether it's showing multiple collections or not.
     var isShowingMultipleCollections: Bool = false
@@ -98,7 +100,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     var name: String
 
     /// The notes for this item.
-    var notes: String
+    var notes = ""
 
     /// The organization ID of the cipher, if the cipher is owned by an organization.
     var organizationId: String?
@@ -106,20 +108,20 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The name of the organization the cipher belongs to, if any.
     var organizationName: String?
 
-    /// The list of ownership options that can be selected for the cipher.
-    var ownershipOptions: [CipherOwner]
+    /// The organization IDs that have `.personalOwnership` policy applied.
+    var organizationsWithPersonalOwnershipPolicy: [String] = []
 
-    /// A flag indicating if cipher permissions should be used.
-    var restrictCipherItemDeletionFlag: Bool = false
+    /// The list of ownership options that can be selected for the cipher.
+    var ownershipOptions = [CipherOwner]()
 
     /// If master password reprompt toggle should be shown
-    var showMasterPasswordReprompt: Bool
+    var showMasterPasswordReprompt = true
 
     /// Whether the web icons should be shown.
     var showWebIcons: Bool
 
     /// The SSH key item state.
-    var sshKeyState: SSHKeyItemState
+    var sshKeyState = SSHKeyItemState()
 
     /// A toast for the AddEditItemView
     var toast: Toast?
@@ -127,8 +129,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// What cipher type this item is.
     var type: CipherType
 
+    /// The url to open in the device's web browser.
+    var url: URL?
+
     /// When this item was last updated.
-    var updatedDate: Date
+    var updatedDate = Date.now
 
     // MARK: DerivedProperties
 
@@ -143,6 +148,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool {
+        guard hasOrganizations, cipher.organizationId != nil else { return false }
         guard !collectionIds.isEmpty else { return true }
 
         return allUserCollections.contains { collection in
@@ -156,7 +162,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether or not this item can be deleted by the user.
     var canBeDeleted: Bool {
         // backwards compatibility for old server versions
-        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
+        guard let cipherPermissions = cipher.permissions else {
             guard !collectionIds.isEmpty else { return true }
             return allUserCollections.contains { collection in
                 guard let id = collection.id else { return false }
@@ -171,12 +177,17 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether or not this item can be restored by the user.
     var canBeRestored: Bool {
         // backwards compatibility for old server versions
-        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
+        guard let cipherPermissions = cipher.permissions else {
             return isSoftDeleted
         }
 
         // New permission model from PM-18091
         return cipherPermissions.restore && isSoftDeleted
+    }
+
+    /// Whether or not this item can be moved to an organization.
+    var canMoveToOrganization: Bool {
+        hasOrganizations && cipher.organizationId == nil
     }
 
     /// The collections that the cipher belongs to.
@@ -241,12 +252,8 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         set {
             organizationId = newValue?.organizationId
             collectionIds = []
+            selectDefaultCollectionIfNeeded()
         }
-    }
-
-    var restrictCipherItemDeletionFlagEnabled: Bool {
-        get { restrictCipherItemDeletionFlag }
-        set { restrictCipherItemDeletionFlag = newValue }
     }
 
     /// The flag indicating if we should show the learn new login action card.
@@ -267,47 +274,27 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     private init(
         accountHasPremium: Bool,
-        cardState: CardItemState,
-        collectionIds: [String],
+        collectionIds: [String] = [],
         configuration: Configuration,
-        customFields: [CustomFieldState],
-        folderId: String?,
+        customFields: [CustomFieldState] = [],
+        folderId: String? = nil,
         iconBaseURL: URL?,
-        identityState: IdentityItemState,
-        isFavoriteOn: Bool,
-        isMasterPasswordRePromptOn: Bool,
-        isPersonalOwnershipDisabled: Bool,
-        loginState: LoginItemState,
-        name: String,
-        notes: String,
-        organizationId: String?,
+        loginState: LoginItemState = .init(isTOTPAvailable: false, totpState: .init(keyModel: nil)),
+        name: String = "",
+        organizationId: String? = nil,
         showWebIcons: Bool,
-        sshKeyState: SSHKeyItemState,
         type: CipherType,
-        updatedDate: Date
     ) {
         self.accountHasPremium = accountHasPremium
-        cardItemState = cardState
         self.collectionIds = collectionIds
-        allUserCollections = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
         self.iconBaseURL = iconBaseURL
-        self.identityState = identityState
-        self.isFavoriteOn = isFavoriteOn
-        self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
-        self.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
-        folders = []
         self.loginState = loginState
         self.name = name
-        self.notes = notes
         self.organizationId = organizationId
-        ownershipOptions = []
-        showMasterPasswordReprompt = true
         self.showWebIcons = showWebIcons
-        self.sshKeyState = sshKeyState
         self.type = type
-        self.updatedDate = updatedDate
         self.configuration = configuration
     }
 
@@ -322,58 +309,41 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         password: String? = nil,
         totpKeyString: String? = nil,
         uri: String? = nil,
-        username: String? = nil
+        username: String? = nil,
     ) {
         self.init(
             accountHasPremium: hasPremium,
-            cardState: .init(),
             collectionIds: collectionIds,
             configuration: .add,
             customFields: customFields,
             folderId: folderId,
             iconBaseURL: nil,
-            identityState: .init(),
-            isFavoriteOn: false,
-            isMasterPasswordRePromptOn: false,
-            isPersonalOwnershipDisabled: false,
             loginState: .init(
                 isTOTPAvailable: hasPremium,
                 password: password ?? "",
                 totpState: .init(totpKeyString),
                 uris: [UriState(uri: uri ?? "")],
-                username: username ?? ""
+                username: username ?? "",
             ),
             name: name ?? uri.flatMap(URL.init)?.host ?? "",
-            notes: "",
             organizationId: organizationId,
             showWebIcons: false,
-            sshKeyState: .init(),
             type: type,
-            updatedDate: .now
         )
     }
 
     init(cloneItem cipherView: CipherView, hasPremium: Bool) {
         self.init(
             accountHasPremium: hasPremium,
-            cardState: cipherView.cardItemState(),
-            collectionIds: cipherView.collectionIds,
             configuration: .add,
-            customFields: cipherView.customFields,
-            folderId: cipherView.folderId,
             iconBaseURL: nil,
-            identityState: cipherView.identityItemState(),
-            isFavoriteOn: cipherView.favorite,
-            isMasterPasswordRePromptOn: cipherView.reprompt == .password,
-            isPersonalOwnershipDisabled: false,
-            loginState: cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: hasPremium),
-            name: "\(cipherView.name) - \(Localizations.clone)",
-            notes: cipherView.notes ?? "",
-            organizationId: cipherView.organizationId,
             showWebIcons: false,
-            sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
-            updatedDate: cipherView.revisionDate
+        )
+        apply(
+            cipherView: cipherView,
+            overrideName: "\(cipherView.name) - \(Localizations.clone)",
+            overrideLoginItemState: cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: hasPremium),
         )
     }
 
@@ -381,32 +351,17 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         existing cipherView: CipherView,
         hasPremium: Bool,
         iconBaseURL: URL? = nil,
-        showWebIcons: Bool = true
+        showWebIcons: Bool = true,
     ) {
         guard cipherView.id != nil else { return nil }
         self.init(
             accountHasPremium: hasPremium,
-            cardState: cipherView.cardItemState(),
-            collectionIds: cipherView.collectionIds,
             configuration: .existing(cipherView: cipherView),
-            customFields: cipherView.customFields,
-            folderId: cipherView.folderId,
             iconBaseURL: iconBaseURL,
-            identityState: cipherView.identityItemState(),
-            isFavoriteOn: cipherView.favorite,
-            isMasterPasswordRePromptOn: cipherView.reprompt == .password,
-            isPersonalOwnershipDisabled: false,
-            loginState: cipherView.loginItemState(
-                showTOTP: hasPremium || cipherView.organizationUseTotp
-            ),
-            name: cipherView.name,
-            notes: cipherView.notes ?? "",
-            organizationId: cipherView.organizationId,
             showWebIcons: showWebIcons,
-            sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
-            updatedDate: cipherView.revisionDate
         )
+        apply(cipherView: cipherView)
     }
 
     // MARK: Methods
@@ -434,9 +389,49 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             collectionIds = collectionIds.filter { $0 != collectionId }
         }
     }
+
+    /// Applies values from the given `CipherView` to the cipher driven properties in the state.
+    ///
+    /// - Parameters:
+    ///   - cipherView: The `CipherView` whose values should be copied to the state.
+    ///   - overrideName: An optional value to override the `CipherView`s name in the state. This is
+    ///     primarily used when cloning a cipher to provide a default name for the cloned `CipherView`
+    ///     that is different from the original.
+    ///   - overrideLoginItemState: An optional value to override the `CipherView`s `LoginItemState`.
+    ///     This is primarily used when cloning a cipher to exclude FIDO2 credentials.
+    ///
+    private mutating func apply(
+        cipherView: CipherView,
+        overrideName: String? = nil,
+        overrideLoginItemState: LoginItemState? = nil,
+    ) {
+        let type = CipherType(type: cipherView.type)
+
+        if case .existing = configuration {
+            configuration = .existing(cipherView: cipherView)
+        }
+
+        cardItemState = cipherView.cardItemState()
+        collectionIds = cipherView.collectionIds
+        customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: cipherView.customFields)
+        folderId = cipherView.folderId
+        identityState = cipherView.identityItemState()
+        isFavoriteOn = cipherView.favorite
+        isMasterPasswordRePromptOn = cipherView.reprompt == .password
+        loginState = overrideLoginItemState
+            ?? cipherView.loginItemState(showTOTP: accountHasPremium || cipherView.organizationUseTotp)
+        name = overrideName ?? cipherView.name
+        notes = cipherView.notes ?? ""
+        organizationId = cipherView.organizationId
+        sshKeyState = cipherView.sshKeyItemState()
+        self.type = type
+        updatedDate = cipherView.revisionDate
+    }
 }
 
 extension CipherItemState: AddEditItemState {
+    // MARK: Properties
+
     var navigationTitle: String {
         switch configuration {
         case .add:
@@ -457,6 +452,29 @@ extension CipherItemState: AddEditItemState {
             }
         }
     }
+
+    // MARK: Methods
+
+    mutating func selectDefaultCollectionIfNeeded() {
+        guard configuration.isAdding else {
+            return
+        }
+
+        let defaultCollectionForOwner = collectionsForOwner.first(where: { $0.type == .defaultUserCollection })
+
+        guard let defaultCollectionId = defaultCollectionForOwner?.id,
+              collectionIds.isEmpty,
+              let ownerOrganizationId = owner?.organizationId,
+              organizationsWithPersonalOwnershipPolicy.contains(ownerOrganizationId) else {
+            return
+        }
+
+        collectionIds.append(defaultCollectionId)
+    }
+
+    mutating func update(from cipherView: CipherView) {
+        apply(cipherView: cipherView)
+    }
 }
 
 extension CipherItemState: ViewVaultItemState {
@@ -475,9 +493,9 @@ extension CipherItemState: ViewVaultItemState {
     var cipher: BitwardenSdk.CipherView {
         switch configuration {
         case let .existing(cipherView: view):
-            return view
+            view
         case .add:
-            return newCipherView()
+            newCipherView()
         }
     }
 
@@ -485,21 +503,21 @@ extension CipherItemState: ViewVaultItemState {
         loginView
     }
 
-    var icon: ImageAsset {
+    var icon: SharedImageAsset {
         switch cipher.type {
         case .card:
             guard case let .custom(brand) = cardItemState.brand else {
-                return Asset.Images.card24
+                return SharedAsset.Icons.card24
             }
             return brand.icon
         case .identity:
-            return Asset.Images.idCard24
+            return SharedAsset.Icons.idCard24
         case .login:
-            return Asset.Images.globe24
+            return SharedAsset.Icons.globe24
         case .secureNote:
-            return Asset.Images.stickyNote24
+            return SharedAsset.Icons.stickyNote24
         case .sshKey:
-            return Asset.Images.key24
+            return SharedAsset.Icons.key24
         }
     }
 
@@ -589,13 +607,14 @@ extension CipherItemState {
                     name: customField.name,
                     value: customField.value,
                     type: .init(fieldType: customField.type),
-                    linkedId: customField.linkedIdType?.rawValue
+                    linkedId: customField.linkedIdType?.rawValue,
                 )
             },
             passwordHistory: nil,
             creationDate: creationDate,
             deletedDate: nil,
-            revisionDate: creationDate
+            revisionDate: creationDate,
+            archivedDate: nil,
         )
     }
 } // swiftlint:disable:this file_length

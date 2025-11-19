@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 /// An informational container that displays some content surrounded by a blue border.
@@ -12,12 +13,12 @@ struct InfoContainer<Content: View>: View {
 
     var body: some View {
         content
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
             .frame(maxWidth: .infinity, alignment: .leading)
             .multilineTextAlignment(.leading)
             .styleGuide(.callout)
             .padding(16)
-            .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+            .background(SharedAsset.Colors.backgroundTertiary.swiftUIColor)
             .cornerRadius(8)
     }
 

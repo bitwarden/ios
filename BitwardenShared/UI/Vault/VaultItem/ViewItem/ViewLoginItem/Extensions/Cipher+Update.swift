@@ -1,12 +1,15 @@
 import BitwardenSdk
+import Foundation
 
 extension Cipher {
     /// Returns a copy of the existing cipher with an updated list of attachments
     ///
-    /// - Parameter attachments: The attachments owned by the cipher.
+    /// - Parameters:
+    ///   - attachments: The attachments owned by the cipher.
+    ///   - revisionDate: The date of the cipher's last update.
     /// - Returns: A copy of the existing cipher, with the specified properties updated.
     ///
-    func update(attachments: [Attachment]) -> Cipher {
+    func update(attachments: [Attachment], revisionDate: Date) -> Cipher {
         Cipher(
             id: id,
             organizationId: organizationId,
@@ -33,7 +36,8 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 
@@ -69,7 +73,8 @@ extension Cipher {
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            archivedDate: archivedDate,
         )
     }
 }

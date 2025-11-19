@@ -8,9 +8,6 @@ import Networking
 struct RegisterFinishRequestModel: Equatable {
     // MARK: Properties
 
-    /// The captcha response used in validating a user for this request.
-    let captchaResponse: String?
-
     /// The user's email address.
     let email: String
 
@@ -55,7 +52,6 @@ struct RegisterFinishRequestModel: Equatable {
     /// Initializes a `RegisterFinishRequestModel`.
     ///
     /// - Parameters:
-    ///   - captchaResponse: The captcha response used in validating a user for this request.
     ///   - email: The user's email address.
     ///   - kdfConfig: A model for configuring KDF options.
     ///   - masterPasswordHash: The master password hash used to authenticate a user.
@@ -67,7 +63,6 @@ struct RegisterFinishRequestModel: Equatable {
     ///   - userAsymmetricKeys: The keys used for this request.
     ///
     init(
-        captchaResponse: String? = nil,
         email: String,
         emailVerificationToken: String,
         kdfConfig: KdfConfig,
@@ -77,9 +72,8 @@ struct RegisterFinishRequestModel: Equatable {
         organizationUserId: String? = nil,
         token: String? = nil,
         userSymmetricKey: String? = nil,
-        userAsymmetricKeys: KeysRequestModel? = nil
+        userAsymmetricKeys: KeysRequestModel? = nil,
     ) {
-        self.captchaResponse = captchaResponse
         self.email = email
         self.emailVerificationToken = emailVerificationToken
         kdf = kdfConfig.kdf

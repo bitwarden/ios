@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 
 /// An enumeration of groups of items displayed in the vault list.
@@ -65,25 +66,25 @@ extension VaultListGroup {
     var name: String {
         switch self {
         case .card:
-            return Localizations.typeCard
+            Localizations.typeCard
         case let .collection(_, name, _):
-            return name
+            name
         case let .folder(_, name):
-            return name
+            name
         case .identity:
-            return Localizations.typeIdentity
+            Localizations.typeIdentity
         case .login:
-            return Localizations.typeLogin
+            Localizations.typeLogin
         case .secureNote:
-            return Localizations.typeSecureNote
+            Localizations.typeSecureNote
         case .sshKey:
-            return Localizations.sshKey
+            Localizations.sshKey
         case .totp:
-            return Localizations.verificationCodes
+            Localizations.verificationCodes
         case .trash:
-            return Localizations.trash
+            Localizations.trash
         case .noFolder:
-            return Localizations.folderNone
+            Localizations.folderNone
         }
     }
 
@@ -91,25 +92,25 @@ extension VaultListGroup {
     var navigationTitle: String {
         switch self {
         case .card:
-            return Localizations.cards
+            Localizations.cards
         case let .collection(_, name, _):
-            return name
+            name
         case let .folder(_, name):
-            return name
+            name
         case .identity:
-            return Localizations.identities
+            Localizations.identities
         case .login:
-            return Localizations.logins
+            Localizations.logins
         case .secureNote:
-            return Localizations.secureNotes
+            Localizations.secureNotes
         case .sshKey:
-            return Localizations.sshKeys
+            Localizations.sshKeys
         case .totp:
-            return Localizations.verificationCodes
+            Localizations.verificationCodes
         case .trash:
-            return Localizations.trash
+            Localizations.trash
         case .noFolder:
-            return Localizations.folderNone
+            Localizations.folderNone
         }
     }
 

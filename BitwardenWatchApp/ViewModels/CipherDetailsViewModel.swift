@@ -11,7 +11,7 @@ class CipherDetailsViewModel: ObservableObject {
 
     var key: String
     var period: Int
-    var timer: Timer? = nil
+    var timer: Timer?
 
     init(cipher: CipherDTO) {
         self.cipher = cipher

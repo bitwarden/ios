@@ -110,7 +110,7 @@ class IdentityItemStateTests: XCTestCase {
             street 3
             City, State, 12345
             USA
-            """
+            """,
         )
     }
 
@@ -131,7 +131,7 @@ class IdentityItemStateTests: XCTestCase {
             """
             City, State, 12345
             USA
-            """
+            """,
         )
     }
 
@@ -153,7 +153,7 @@ class IdentityItemStateTests: XCTestCase {
             street 3
             City, 12345
             USA
-            """
+            """,
         )
     }
 

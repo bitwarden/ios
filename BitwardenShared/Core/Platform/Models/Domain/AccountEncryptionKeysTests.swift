@@ -5,23 +5,53 @@ import XCTest
 class AccountEncryptionKeysTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `init(identityTokenResponseModel:)` initializes an `AccountEncryptionKeys` from an identity
-    /// token response.
-    func test_init_identityTokenResponseModel() {
-        let subject = AccountEncryptionKeys(identityTokenResponseModel: .fixture())
+    /// `init(responseModel:)` initializes an `AccountEncryptionKeys` from a response model with encryption keys.
+    func test_init_responseModel() {
+        let accountKeys = PrivateKeysResponseModel.fixtureFilled()
+        let subject = AccountEncryptionKeys(
+            responseModel: ProfileResponseModel.fixture(
+                accountKeys: accountKeys,
+                key: "KEY",
+                privateKey: "PRIVATE_KEY",
+            ),
+        )
 
         XCTAssertEqual(
             subject,
             AccountEncryptionKeys(
-                encryptedPrivateKey: "PRIVATE_KEY",
-                encryptedUserKey: "KEY"
-            )
+                accountKeys: accountKeys,
+                encryptedPrivateKey: "WRAPPED_PRIVATE_KEY",
+                encryptedUserKey: "KEY",
+            ),
         )
     }
 
-    /// `init(identityTokenResponseModel:)` returns `nil` if the response model doesn't contain encryption keys.
-    func test_init_identityTokenResponseModel_missingKeys() {
-        let subject = AccountEncryptionKeys(identityTokenResponseModel: .fixture(key: nil, privateKey: nil))
+    /// `init(responseModel:)` initializes an `AccountEncryptionKeys` from a response model with encryption keys
+    /// but no account keys.
+    func test_init_responseModelNoAccountKeys() {
+        let subject = AccountEncryptionKeys(
+            responseModel: IdentityTokenResponseModel.fixture(
+                accountKeys: nil,
+                key: "KEY",
+                privateKey: "PRIVATE_KEY",
+            ),
+        )
+
+        XCTAssertEqual(
+            subject,
+            AccountEncryptionKeys(
+                accountKeys: nil,
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "KEY",
+            ),
+        )
+    }
+
+    /// `init(responseModel:)` returns `nil` if the response model doesn't contain encryption keys.
+    func test_init_responseModel_missingKeys() {
+        let subject = AccountEncryptionKeys(
+            responseModel: IdentityTokenResponseModel.fixture(accountKeys: nil, key: nil, privateKey: nil),
+        )
         XCTAssertNil(subject)
     }
 }

@@ -8,14 +8,14 @@ extension BitwardenSdk.LoginListView {
         hasFido2: Bool = false,
         username: String? = nil,
         totp: EncString? = nil,
-        uris: [LoginUriView]? = nil
+        uris: [LoginUriView]? = nil,
     ) -> LoginListView {
         .init(
             fido2Credentials: fido2Credentials,
             hasFido2: hasFido2,
             username: username,
             totp: totp,
-            uris: uris
+            uris: uris,
         )
     }
 }

@@ -12,16 +12,16 @@ class ReviewPromptDataTests: BitwardenTestCase {
             userActions: [
                 UserActionItem(
                     userAction: .addedNewItem,
-                    count: 3
+                    count: 3,
                 ),
-            ]
+            ],
         )
 
         XCTAssertEqual(subject.reviewPromptShownForVersion, "1.2")
         XCTAssertEqual(subject.userActions, [
             UserActionItem(
                 userAction: .addedNewItem,
-                count: 3
+                count: 3,
             ),
         ])
     }
@@ -41,13 +41,13 @@ class ReviewPromptDataTests: BitwardenTestCase {
             userActions: [
                 UserActionItem(
                     userAction: .addedNewItem,
-                    count: 3
+                    count: 3,
                 ),
                 UserActionItem(
                     userAction: .createdNewSend,
-                    count: 1
+                    count: 1,
                 ),
-            ]
+            ],
         )
 
         subject.addUserAction(.createdNewSend)
@@ -55,11 +55,11 @@ class ReviewPromptDataTests: BitwardenTestCase {
         XCTAssertEqual(subject.userActions, [
             UserActionItem(
                 userAction: .addedNewItem,
-                count: 3
+                count: 3,
             ),
             UserActionItem(
                 userAction: .createdNewSend,
-                count: 2
+                count: 2,
             ),
         ])
     }
@@ -73,7 +73,7 @@ class ReviewPromptDataTests: BitwardenTestCase {
         XCTAssertEqual(subject.userActions, [
             UserActionItem(
                 userAction: .createdNewSend,
-                count: 1
+                count: 1,
             ),
         ])
     }

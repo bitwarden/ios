@@ -39,6 +39,75 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     // MARK: Tests
 
+    /// `accessTokenExpirationDate(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accessTokenExpirationDate_isInitiallyNil() {
+        XCTAssertNil(subject.accessTokenExpirationDate(userId: "-1"))
+    }
+
+    /// `accessTokenExpirationDate(userId:)` can be used to get the user's access token expiration date.
+    func test_accessTokenExpirationDate_withValue() {
+        let date1 = Date(year: 2025, month: 10, day: 1)
+        let date2 = Date(year: 2026, month: 1, day: 2)
+        subject.setAccessTokenExpirationDate(date1, userId: "1")
+        subject.setAccessTokenExpirationDate(date2, userId: "2")
+
+        XCTAssertEqual(subject.accessTokenExpirationDate(userId: "1"), date1)
+        XCTAssertEqual(subject.accessTokenExpirationDate(userId: "2"), date2)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accessTokenExpirationDate_1"), 780_969_600)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accessTokenExpirationDate_2"), 789_004_800)
+    }
+
+    /// `accountKeys(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountKeys_isInitiallyNil() {
+        XCTAssertNil(subject.accountKeys(userId: "-1"))
+    }
+
+    /// `accountKeys(userId:)` can be used to get the user's account encryption keys.
+    func test_accountKeys_withValue() {
+        let fixture1 = PrivateKeysResponseModel.fixtureFilled()
+        let fixture2 = PrivateKeysResponseModel.fixture(
+            publicKeyEncryptionKeyPair: .fixture(
+                publicKey: "PUBLIC_KEY_2",
+                signedPublicKey: "SIGNED_PUBLIC_KEY_2",
+                wrappedPrivateKey: "WRAPPED_PRIVATE_KEY_2",
+            ),
+            signatureKeyPair: SignatureKeyPairResponseModel(
+                wrappedSigningKey: "WRAPPED_SIGNING_KEY_2",
+                verifyingKey: "VERIFYING_KEY_2",
+            ),
+            securityState: SecurityStateResponseModel(securityState: "SECURITY_STATE_2"),
+        )
+
+        subject.setAccountKeys(fixture1, userId: "1")
+        subject.setAccountKeys(fixture2, userId: "2")
+
+        XCTAssertEqual(subject.accountKeys(userId: "1"), fixture1)
+        XCTAssertEqual(subject.accountKeys(userId: "2"), fixture2)
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                PrivateKeysResponseModel.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountKeys_1")?
+                        .data(using: .utf8),
+                ),
+            ),
+            fixture1,
+        )
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                PrivateKeysResponseModel.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountKeys_2")?
+                        .data(using: .utf8),
+                ),
+            ),
+            fixture2,
+        )
+    }
+
     /// `accountSetupAutofill(userId:)` returns `nil` if there isn't a previously stored value.
     func test_accountSetupAutofill_isInitiallyNil() {
         XCTAssertNil(subject.accountSetupAutofill(userId: "-1"))
@@ -180,11 +249,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_appRehydrationState_withValue() {
         subject.setAppRehydrationState(
             AppRehydrationState(target: .viewCipher(cipherId: "1"), expirationTime: .now),
-            userId: "1"
+            userId: "1",
         )
         subject.setAppRehydrationState(
             AppRehydrationState(target: .viewCipher(cipherId: "2"), expirationTime: .now),
-            userId: "2"
+            userId: "2",
         )
 
         XCTAssertEqual(subject.appRehydrationState(userId: "1")?.target, .viewCipher(cipherId: "1"))
@@ -196,10 +265,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:appRehydrationState_1")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ).target,
-            .viewCipher(cipherId: "1")
+            .viewCipher(cipherId: "1"),
         )
         try XCTAssertEqual(
             JSONDecoder().decode(
@@ -207,10 +276,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:appRehydrationState_2")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ).target,
-            .viewCipher(cipherId: "2")
+            .viewCipher(cipherId: "2"),
         )
     }
 
@@ -245,7 +314,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 "1": .fixture(profile: .fixture(userId: "1")),
                 "2": .fixture(profile: .fixture(userId: "2")),
             ],
-            activeUserId: "2"
+            activeUserId: "2",
         )
         XCTAssertEqual(subject.cachedActiveUserId, "2")
     }
@@ -352,11 +421,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY")
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
-            "1:PRIVATE_KEY"
+            "1:PRIVATE_KEY",
         )
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
-            "2:PRIVATE_KEY"
+            "2:PRIVATE_KEY",
         )
 
         subject.setEncryptedPrivateKey(key: "1:PRIVATE_KEY_NEW", userId: "1")
@@ -366,11 +435,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.encryptedPrivateKey(userId: "2"), "2:PRIVATE_KEY_NEW")
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_1"),
-            "1:PRIVATE_KEY_NEW"
+            "1:PRIVATE_KEY_NEW",
         )
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:encPrivateKey_2"),
-            "2:PRIVATE_KEY_NEW"
+            "2:PRIVATE_KEY_NEW",
         )
     }
 
@@ -388,11 +457,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY")
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
-            "1:USER_KEY"
+            "1:USER_KEY",
         )
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
-            "2:USER_KEY"
+            "2:USER_KEY",
         )
 
         subject.setEncryptedUserKey(key: "1:USER_KEY_NEW", userId: "1")
@@ -402,11 +471,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.encryptedUserKey(userId: "2"), "2:USER_KEY_NEW")
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_1"),
-            "1:USER_KEY_NEW"
+            "1:USER_KEY_NEW",
         )
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:masterKeyEncryptedUserKey_2"),
-            "2:USER_KEY_NEW"
+            "2:USER_KEY_NEW",
         )
     }
 
@@ -427,14 +496,13 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
-        let featureFlags = FeatureFlag.allCases
+        let featureFlags: [FeatureFlag] = [.testFeatureFlag]
 
         for flag in featureFlags {
             subject.overrideDebugFeatureFlag(name: flag.rawValue, value: true)
         }
 
-        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.emailVerification.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.testFeatureFlag.rawValue)))
     }
 
     /// `featureFlag(name:)` returns `nil` if not found.
@@ -451,13 +519,13 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_flightRecorderData_withValue() throws {
         let flightRecorderData = FlightRecorderData(
             activeLog: FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
-            inactiveLogs: []
+            inactiveLogs: [],
         )
         subject.flightRecorderData = flightRecorderData
 
         let data = try XCTUnwrap(
             userDefaults.string(forKey: "bwPreferencesStorage:flightRecorderData")?
-                .data(using: .utf8)
+                .data(using: .utf8),
         )
         let decodedData = try JSONDecoder().decode(FlightRecorderData.self, from: data)
         XCTAssertEqual(decodedData, flightRecorderData)
@@ -532,10 +600,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:learnNewLoginActionCardStatus")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            AccountSetupProgress.complete
+            AccountSetupProgress.complete,
         )
     }
 
@@ -616,10 +684,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:learnGeneratorActionCardStatus")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            AccountSetupProgress.complete
+            AccountSetupProgress.complete,
         )
     }
 
@@ -641,10 +709,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:passwordlessLoginNotificationKey")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            loginRequest
+            loginRequest,
         )
     }
 
@@ -751,10 +819,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:passwordGenerationOptions_1")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            options1
+            options1,
         )
         try XCTAssertEqual(
             JSONDecoder().decode(
@@ -762,10 +830,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:passwordGenerationOptions_2")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            options2
+            options2,
         )
 
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "1"), options1)
@@ -787,10 +855,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:pendingAppIntentActions")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            [.lockAll]
+            [.lockAll],
         )
 
         subject.pendingAppIntentActions = nil
@@ -804,6 +872,15 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.setPinProtectedUserKey(key: "123", userId: userId)
         let pin = subject.pinProtectedUserKey(userId: userId)
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinKeyEncryptedUserKey_1"), pin)
+    }
+
+    /// `pinProtectedUserKeyEnvelope(userId:)` can be used to get the pin protected user key envelope for a user.
+    func test_pinProtectedUserKeyEnvelope() {
+        let userId = Account.fixture().profile.userId
+        subject.setPinProtectedUserKeyEnvelope(key: "123", userId: userId)
+        let pin = subject.pinProtectedUserKeyEnvelope(userId: userId)
+        XCTAssertEqual(pin, "123")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinProtectedUserKeyEnvelope_1"), "123")
     }
 
     /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.
@@ -821,10 +898,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            .defaultUS
+            .defaultUS,
         )
 
         subject.preAuthEnvironmentURLs = .defaultEU
@@ -835,10 +912,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            .defaultEU
+            .defaultEU,
         )
     }
 
@@ -858,10 +935,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            .defaultUS
+            .defaultUS,
         )
 
         subject.setAccountCreationEnvironmentURLs(environmentURLData: .defaultEU, email: email)
@@ -872,10 +949,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            .defaultEU
+            .defaultEU,
         )
     }
 
@@ -895,16 +972,16 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                     identity: "https://vault.bitwarden.com",
                     notifications: "https://vault.bitwarden.com",
                     sso: "https://vault.bitwarden.com",
-                    vault: "https://vault.bitwarden.com"
+                    vault: "https://vault.bitwarden.com",
                 ),
                 featureStates: ["feature": .bool(true)],
                 gitHash: "hash",
                 server: ThirdPartyConfigResponseModel(
                     name: "Name",
-                    url: "Url"
+                    url: "Url",
                 ),
-                version: "version"
-            )
+                version: "version",
+            ),
         )
         subject.preAuthServerConfig = config
 
@@ -915,10 +992,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthServerConfig")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            config
+            config,
         )
     }
 
@@ -938,16 +1015,16 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                     identity: "https://vault.bitwarden.com",
                     notifications: "https://vault.bitwarden.com",
                     sso: "https://vault.bitwarden.com",
-                    vault: "https://vault.bitwarden.com"
+                    vault: "https://vault.bitwarden.com",
                 ),
                 featureStates: ["feature": .bool(true)],
                 gitHash: "hash",
                 server: ThirdPartyConfigResponseModel(
                     name: "Name",
-                    url: "Url"
+                    url: "Url",
                 ),
-                version: "version"
-            )
+                version: "version",
+            ),
         )
         subject.setServerConfig(config, userId: "1")
 
@@ -958,10 +1035,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:serverConfig_1")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            config
+            config,
         )
     }
 
@@ -1025,11 +1102,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:twoFactorToken_lucky@gmail.com"),
-            "tests_that_work"
+            "tests_that_work",
         )
         XCTAssertEqual(
             userDefaults.string(forKey: "bwPreferencesStorage:twoFactorToken_happy@gmail.com"),
-            "tests_are_great"
+            "tests_are_great",
         )
     }
 
@@ -1069,10 +1146,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:usernameGenerationOptions_1")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            options1
+            options1,
         )
         try XCTAssertEqual(
             JSONDecoder().decode(
@@ -1080,10 +1157,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:usernameGenerationOptions_2")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            options2
+            options2,
         )
 
         XCTAssertEqual(subject.usernameGenerationOptions(userId: "1"), options1)
@@ -1123,9 +1200,9 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             userActions: [
                 UserActionItem(
                     userAction: .addedNewItem,
-                    count: 3
+                    count: 3,
                 ),
-            ]
+            ],
         )
         subject.reviewPromptData = reviewPromptData
         XCTAssertEqual(subject.reviewPromptData, reviewPromptData)
@@ -1136,10 +1213,10 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:reviewPromptData")?
-                        .data(using: .utf8)
-                )
+                        .data(using: .utf8),
+                ),
             ),
-            reviewPromptData
+            reviewPromptData,
         )
     }
 
@@ -1187,22 +1264,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(
             try JSONDecoder().decode(
                 State.self,
-                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:state")).utf8)
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:state")).utf8),
             ),
-            .fixture()
+            .fixture(),
         )
 
         let stateMultipleAccounts = State.fixture(
-            accounts: ["1": .fixture(), "2": .fixture()]
+            accounts: ["1": .fixture(), "2": .fixture()],
         )
         subject.state = stateMultipleAccounts
         XCTAssertEqual(subject.state, stateMultipleAccounts)
         XCTAssertEqual(
             try JSONDecoder().decode(
                 State.self,
-                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:state")).utf8)
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:state")).utf8),
             ),
-            stateMultipleAccounts
+            stateMultipleAccounts,
         )
 
         subject.state = nil
@@ -1217,9 +1294,9 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(
             try JSONDecoder().decode(
                 SessionTimeoutAction.self,
-                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:vaultTimeoutAction_1")).utf8)
+                from: Data(XCTUnwrap(userDefaults.string(forKey: "bwPreferencesStorage:vaultTimeoutAction_1")).utf8),
             ),
-            .logout
+            .logout,
         )
     }
 

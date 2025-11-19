@@ -40,7 +40,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     init(
         delegate: FileSelectionDelegate,
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.delegate = delegate
         self.services = services
@@ -187,7 +187,7 @@ extension FileSelectionCoordinator: PHPickerViewControllerDelegate {
                 self?.selected(
                     image: image,
                     suggestedName: result.itemProvider.suggestedName,
-                    typeIdentifiers: result.itemProvider.registeredTypeIdentifiers
+                    typeIdentifiers: result.itemProvider.registeredTypeIdentifiers,
                 )
             }
         }
@@ -199,7 +199,7 @@ extension FileSelectionCoordinator: PHPickerViewControllerDelegate {
 extension FileSelectionCoordinator: UIImagePickerControllerDelegate {
     func imagePickerController(
         _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any],
     ) {
         picker.dismiss()
 

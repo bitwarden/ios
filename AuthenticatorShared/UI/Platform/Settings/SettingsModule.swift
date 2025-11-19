@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SettingsModule
 
 /// An object that builds coordinators for the settings tab.
@@ -12,18 +14,18 @@ protocol SettingsModule {
     /// - Returns: A coordinator that can navigate to `SettingsRoute`s.
     ///
     func makeSettingsCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SettingsRoute, SettingsEvent>
 }
 
 extension DefaultAppModule: SettingsModule {
     func makeSettingsCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
         SettingsCoordinator(
             module: self,
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

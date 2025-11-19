@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import TestHelpers
 import XCTest
 
@@ -22,6 +24,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
+    var totpExpirationManagerForItems: MockTOTPExpirationManager!
+    var totpExpirationManagerForSearchItems: MockTOTPExpirationManager!
+    var totpExpirationManagerFactory: MockTOTPExpirationManagerFactory!
 
     // MARK: Setup & Teardown
 
@@ -39,6 +44,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
 
+        totpExpirationManagerForItems = MockTOTPExpirationManager()
+        totpExpirationManagerForSearchItems = MockTOTPExpirationManager()
+        totpExpirationManagerFactory = MockTOTPExpirationManagerFactory()
+        totpExpirationManagerFactory.createResults = [
+            totpExpirationManagerForItems,
+            totpExpirationManagerForSearchItems,
+        ]
+
         let services = ServiceContainer.withMocks(
             application: application,
             appSettingsStore: appSettingsStore,
@@ -48,13 +61,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             errorReporter: errorReporter,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
-            totpService: totpService
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
+            totpService: totpService,
         )
 
         subject = ItemListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: ItemListState()
+            state: ItemListState(),
         )
     }
 
@@ -82,7 +96,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.itemDeleted)
     }
 
     /// `perform(_:)` with `.addItemPressed` and authorized camera
@@ -134,9 +148,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "654321",
                     codeGenerationDate: Date(year: 2023, month: 12, day: 31),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
         let resultSection = ItemListSection(id: "", items: [result], name: "Items")
 
@@ -171,62 +185,40 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(_:)` with `.appeared` handles TOTP Code expiration
     /// with updates the state's TOTP codes.
     @MainActor
-    func test_perform_appeared_totpExpired_single() throws { // swiftlint:disable:this function_body_length
+    func test_perform_appeared_totpExpired_single() throws {
         let firstItem = ItemListItem.fixture(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
-        )
-        let firstSection = ItemListSection(
-            id: "",
-            items: [firstItem],
-            name: "Items"
+                    period: 30,
+                ),
+            ),
         )
 
-        let secondItem = ItemListItem.fixture(
+        let resultSection = ItemListSection(id: "", items: [firstItem], name: "Items")
+        subject.state.loadingState = .data([resultSection])
+
+        let firstItemRefreshed = ItemListItem.fixture(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
-                    code: "345678",
+                    code: "234567",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
-        )
-        let secondSection = ItemListSection(
-            id: "",
-            items: [secondItem],
-            name: "Items"
+                    period: 30,
+                ),
+            ),
         )
 
-        let thirdModel = TOTPCodeModel(
-            code: "654321",
-            codeGenerationDate: Date(),
-            period: 30
-        )
-        let thirdItem = ItemListItem.fixture(
-            totp: .fixture(
-                totpCode: thirdModel
-            )
-        )
-        let thirdResultSection = ItemListSection(id: "", items: [thirdItem], name: "Items")
+        authItemRepository.refreshTotpCodesResult = .success([firstItemRefreshed])
 
-        authItemRepository.refreshTotpCodesResult = .success([secondItem])
-        let task = Task {
-            await subject.perform(.appeared)
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
         }
-        authItemRepository.itemListSubject.send([firstSection])
-        waitFor(subject.state.loadingState.data == [secondSection])
-        authItemRepository.refreshTotpCodesResult = .success([thirdItem])
-        waitFor(subject.state.loadingState.data == [thirdResultSection])
+        onExpiration([firstItemRefreshed])
 
-        task.cancel()
-        XCTAssertEqual([secondItem], authItemRepository.refreshedTotpCodes)
-        let first = try XCTUnwrap(subject.state.loadingState.data?.first)
-        XCTAssertEqual(first, thirdResultSection)
+        waitFor(!authItemRepository.refreshedTotpCodes.isEmpty)
+        XCTAssertEqual([firstItemRefreshed], authItemRepository.refreshedTotpCodes)
     }
 
     /// `perform(:_)` with `.copyPressed()` with a local item copies the code to the pasteboard
@@ -249,8 +241,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(pasteboardService.copiedString, totpCode)
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCode)
+            subject.state.toast?.title,
+            Localizations.valueHasBeenCopied(Localizations.verificationCode),
         )
     }
 
@@ -292,8 +284,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(pasteboardService.copiedString, totpCode)
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCode)
+            subject.state.toast?.title,
+            Localizations.valueHasBeenCopied(Localizations.verificationCode),
         )
     }
 
@@ -341,26 +333,10 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                        [Alert.defaultAlert(title: Localizations.anErrorHasOccurred)])
     }
 
-    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the `enablePasswordManagerSync`
-    /// feature flag is disabled.
-    @MainActor
-    func test_perform_moveToBitwardenPressed_featureFlagDisabled() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = false
-        application.canOpenUrlResponse = true
-        let localItem = ItemListItem.fixture()
-
-        await subject.perform(.moveToBitwardenPressed(localItem))
-
-        XCTAssertNil(authItemRepository.tempItem)
-        XCTAssertTrue(errorReporter.errors.isEmpty)
-        XCTAssertNil(subject.state.url)
-    }
-
     /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the Password Manager app is not
     /// installed - i.e. the `bitwarden://` urls cannot be opened.
     @MainActor
     func test_perform_moveToBitwardenPressed_passwordManagerAppNotInstalled() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = false
         let localItem = ItemListItem.fixture()
 
@@ -374,7 +350,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when called with a shared item.
     @MainActor
     func test_perform_moveToBitwardenPressed_sharedItem() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = true
         let localItem = ItemListItem.fixtureShared()
 
@@ -393,9 +368,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totpCode: TOTPCodeModel(
                     code: "654321",
                     codeGenerationDate: Date(year: 2024, month: 6, day: 28),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
 
         authItemRepository.searchItemListSubject.send([result])
@@ -419,7 +394,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
     }
 
@@ -432,7 +407,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(subject.state.searchResults.count, 0)
         XCTAssertEqual(
             subject.state.searchResults,
-            []
+            [],
         )
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
@@ -445,48 +420,35 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             totp: .fixture(
                 totpCode: TOTPCodeModel(
                     code: "123456",
-                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
-        )
-        let firstSection = ItemListSection(id: "", items: [firstItem], name: "Items")
-        subject.state.loadingState = .data([firstSection])
-
-        let secondItem = ItemListItem.fixtureShared(
-            totp: .fixture(
-                totpCode: TOTPCodeModel(
-                    code: "345678",
-                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30
-                )
-            )
-        )
-
-        let thirdItem = ItemListItem.fixture(
-            totp: .fixture(
-                totpCode: TOTPCodeModel(
-                    code: "654321",
                     codeGenerationDate: Date(),
-                    period: 30
-                )
-            )
+                    period: 30,
+                ),
+            ),
         )
 
-        authItemRepository.refreshTotpCodesResult = .success([secondItem])
-        let task = Task {
-            subject.receive(.searchTextChanged("text"))
-            await subject.perform(.search("text"))
+        subject.state.searchResults = [firstItem]
+
+        let firstItemRefreshed = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "234567",
+                    codeGenerationDate: Date(),
+                    period: 30,
+                ),
+            ),
+        )
+
+        authItemRepository.refreshTotpCodesResult = .success([firstItemRefreshed])
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[1] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
         }
-        authItemRepository.searchItemListSubject.send([firstItem])
-        waitFor(!subject.state.searchResults.isEmpty)
-        XCTAssertEqual(subject.state.searchResults, [secondItem])
+        onExpiration([firstItem])
 
-        authItemRepository.refreshTotpCodesResult = .success([thirdItem])
-        waitFor(authItemRepository.refreshedTotpCodes == [secondItem])
-        waitFor(subject.state.searchResults == [thirdItem])
-
-        task.cancel()
+        waitFor { subject.state.searchResults == [firstItemRefreshed] }
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, [firstItem])
+        XCTAssertEqual(subject.state.searchResults, [firstItemRefreshed])
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are no shared
@@ -581,7 +543,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
-        XCTAssertEqual(subject.state.toast?.text, Localizations.accountsSyncedFromBitwardenApp)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.accountsSyncedFromBitwardenApp)
         XCTAssertTrue(appSettingsStore.hasSyncedAccount(name: accountName))
     }
 
@@ -615,8 +577,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `false` when the feature flag is disabled
-    /// or the user has not yet turned sync on for at least one account.
+    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `false`
+    /// when the user has not yet turned sync on for at least one account.
     @MainActor
     func test_perform_streamItemList_showMoveToBitwarden_false() {
         authItemRepository.pmSyncEnabled = false
@@ -642,7 +604,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(subject.state.showMoveToBitwarden)
     }
 
-    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `true` when the feature flag is enabled
+    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `true` when
     /// and the user has turned sync on for at least one account.
     @MainActor
     func test_perform_appeared_showMoveToBitwarden_true() {
@@ -677,6 +639,77 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.url)
     }
 
+    /// `refreshTOTPCodes(for:)` does nothing if state.loadingState is nil
+    @MainActor
+    func test_refreshTOTPCodes_forItemsReturnsEmpty() {
+        let items = [
+            ItemListItem.fixture(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "123456",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30))),
+            ItemListItem.fixtureShared(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "654321",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30))),
+        ]
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
+        }
+        onExpiration(items)
+
+        waitFor(subject.state.loadingState == .loading(nil))
+    }
+
+    /// `refreshTOTPCodes(for:)` logs when refreshing throws.
+    @MainActor
+    func test_refreshTOTPCodes_forItemsThrows() {
+        let items = [ItemListItem]()
+
+        let resultSection = ItemListSection(id: "", items: items, name: "Items")
+        subject.state.loadingState = .data([resultSection])
+
+        authItemRepository.refreshTotpCodesResult = .failure(BitwardenTestError.example)
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
+        }
+        onExpiration(items)
+
+        waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
+    }
+
+    /// `refreshTOTPCodes(searchItems:)` logs when refreshing throws.
+    @MainActor
+    func test_refreshTOTPCodes_searchItemsThrows() {
+        let items = [
+            ItemListItem.fixture(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "123456",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30))),
+            ItemListItem.fixtureShared(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "654321",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30))),
+        ]
+
+        authItemRepository.refreshTotpCodesResult = .failure(BitwardenTestError.example)
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[1] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
+        }
+        onExpiration(items)
+
+        waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
+    }
+
     /// `setupForegroundNotification()` is called as part of `init()` and subscribes to any
     ///  foreground notification, performing `.refresh` when it receives a notification.
     @MainActor
@@ -686,7 +719,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success([item])
 
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
 
         notificationCenterService.willEnterForegroundSubject.send()
@@ -721,8 +753,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
-                ]
-            )
+                ],
+            ),
         )
         XCTAssertEqual(authItemRepository.addAuthItemAuthItems, [])
         XCTAssertNil(subject.state.toast)
@@ -1036,7 +1068,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `didCompleteAutomaticCapture` should not show any prompts or look at the defaults when the sync
-    /// is not active (either feature flag is disabled, or the user hasn't yet turned sync on). It should revert to the
+    /// is not active (the user hasn't yet turned sync on). It should revert to the
     /// pre-existing behavior and save the code locally.
     @MainActor
     func test_didCompleteAutomaticCapture_syncNotActive() async throws {
@@ -1084,8 +1116,8 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
-                ]
-            )
+                ],
+            ),
         )
         XCTAssertEqual(authItemRepository.addAuthItemAuthItems, [])
         XCTAssertNil(subject.state.toast)
@@ -1148,7 +1180,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// Tests that the `itemListCardState` is set to `none` if the download card has been closed.
     @MainActor
     func test_determineItemListCardState_closed_download() async {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
         await subject.perform(.closeCard(.passwordManagerDownload))
         XCTAssertEqual(subject.state.itemListCardState, .none)
@@ -1157,30 +1188,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// Tests that the `itemListCardState` is set to `none` if the sync card has been closed.
     @MainActor
     func test_determineItemListCardState_closed_sync() async {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = true
         await subject.perform(.closeCard(.passwordManagerSync))
         XCTAssertEqual(subject.state.itemListCardState, .none)
     }
 
-    /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set
-    /// to false if the feature flag is turned off.
+    /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if PM is not installed.
     @MainActor
-    func test_determineItemListCardState_FeatureFlag_off() {
-        subject.state.itemListCardState = .passwordManagerSync
-        configService.featureFlagsBool = [.enablePasswordManagerSync: false]
-        let task = Task {
-            await self.subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.itemListCardState == .none)
-        task.cancel()
-    }
-
-    /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
-    @MainActor
-    func test_determineItemListCardState_FeatureFlag_on_download() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+    func test_determineItemListCardState_PM_notInstalled() {
         application.canOpenUrlResponse = false
         let task = Task {
             await self.subject.perform(.appeared)
@@ -1190,10 +1205,9 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         task.cancel()
     }
 
-    /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
+    /// Tests that the `itemListCardState` is set to `passwordManagerSync` if PM is installed.
     @MainActor
-    func test_determineItemListCardState_FeatureFlag_on_sync() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+    func test_determineItemListCardState_PM_installed() {
         application.canOpenUrlResponse = true
         let task = Task {
             await self.subject.perform(.appeared)
@@ -1207,7 +1221,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// (when the BWPM app is not installed).
     @MainActor
     func test_determineItemListCardState_syncAlreadyOn_download() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = false
         let task = Task {
@@ -1223,7 +1236,6 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// (when the BWPM app is installed).
     @MainActor
     func test_determineItemListCardState_syncAlreadyOn_sync() {
-        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
         let task = Task {

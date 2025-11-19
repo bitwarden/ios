@@ -5,39 +5,15 @@ fileGroups:
 configs:
   Debug: debug
   Release: release
+include:
+  - path: project-common.yml
 options:
-  createIntermediateGroups: true
-  deploymentTarget:
-    iOS: 15.0
-    watchOS: 8.0
-  groupSortPosition: top
-  usesTabs: false
-  indentWidth: 4
-  tabWidth: 4
+  fileTypes:
+    "icon":
+      file: true 
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
-include:
-  - path: Configs/local-sdk.yml
-    relativePaths: false
-    enable: ${LOCAL_SDK}
-packages:
-  BitwardenSdk:
-    url: https://github.com/bitwarden/sdk-swift
-    revision: 0c3baf9d372cd941146616a3d842b78c96a1170f
-    branch: unstable
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.14.0
-  SwiftUIIntrospect:
-    url: https://github.com/siteline/SwiftUI-Introspect
-    exactVersion: 1.3.0
-  SnapshotTesting:
-    url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.4
-  ViewInspector:
-    url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.1
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -70,9 +46,17 @@ schemes:
         - BitwardenAutoFillExtensionTests
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
+        - BitwardenSharedSnapshotTests
+        - BitwardenSharedViewInspectorTests
         - BitwardenKit/AuthenticatorBridgeKitTests
         - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Snapshot.xctestplan
+        - path: TestPlans/Bitwarden-ViewInspector.xctestplan
   BitwardenActionExtension:
     build:
       targets:
@@ -86,6 +70,10 @@ schemes:
       region: US
       targets:
         - BitwardenActionExtensionTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenAutoFillExtension:
     build:
       targets:
@@ -99,6 +87,10 @@ schemes:
       region: US
       targets:
         - BitwardenAutoFillExtensionTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShareExtension:
     build:
       targets:
@@ -112,11 +104,17 @@ schemes:
       region: US
       targets:
         - BitwardenShareExtensionTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShared:
     build:
       targets:
         BitwardenShared: all
         BitwardenSharedTests: [test]
+        BitwardenSharedSnapshotTests: [test]
+        BitwardenSharedViewInspectorTests: [test]
     test:
       commandLineArguments:
         "-testing": true
@@ -127,6 +125,14 @@ schemes:
       region: US
       targets:
         - BitwardenSharedTests
+        - BitwardenSharedSnapshotTests
+        - BitwardenSharedViewInspectorTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
+        - path: TestPlans/Bitwarden-Snapshot.xctestplan
+        - path: TestPlans/Bitwarden-ViewInspector.xctestplan
   BitwardenWatchApp:
     build:
       targets:
@@ -164,7 +170,7 @@ targets:
         buildPhase: none
       - path: swiftgen-pm.yml
         buildPhase: none
-      - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
+      - path: BitwardenResources/Localizations  # Needed for AppIntent.
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension
@@ -173,6 +179,7 @@ targets:
       - target: BitwardenWatchApp
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
@@ -202,12 +209,6 @@ targets:
       - path: Scripts/update_settings_version_number.sh
         name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
-      - path: Scripts/upload_dsym_to_crashlytics.sh
-        name: "Upload dSYM files to Crashlytics"
-        basedOnDependencyAnalysis: false
-        inputFiles:
-          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
-          - ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}
   BitwardenTests:
     type: bundle.unit-test
     platform: iOS
@@ -225,8 +226,6 @@ targets:
       - target: BitwardenShared
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenActionExtension:
@@ -262,8 +261,6 @@ targets:
       - target: BitwardenActionExtension
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenAutoFillExtension:
@@ -299,8 +296,6 @@ targets:
       - target: BitwardenAutoFillExtension
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenShareExtension:
@@ -336,8 +331,6 @@ targets:
       - target: BitwardenShareExtension
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   BitwardenShared:
@@ -370,18 +363,14 @@ targets:
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
-        optional: true
-      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
-        optional: true
       - path: BitwardenWatchShared
       - path: BitwardenShared/Sourcery/sourcery.yml
         buildPhase: none
     dependencies:
       - package: BitwardenSdk
-      - package: SwiftUIIntrospect
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
@@ -393,8 +382,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
-          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
       - name: Sourcery
         script: |
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
@@ -421,6 +408,40 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
+      - path: GlobalTestHelpers
+      - path: BitwardenShared/Sourcery/Generated
+        optional: true
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Bitwarden
+      - target: BitwardenShared
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  BitwardenSharedSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenSharedTests-Debug.xcconfig
+      Release: Configs/BitwardenSharedTests-Release.xcconfig
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
+        INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenShared
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
       - path: GlobalTestHelpers
       - path: BitwardenShared/Sourcery/Generated
         optional: true
@@ -434,6 +455,35 @@ targets:
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  BitwardenSharedViewInspectorTests:
+    type: bundle.unit-test
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenSharedTests-Debug.xcconfig
+      Release: Configs/BitwardenSharedTests-Release.xcconfig
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
+        INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenShared
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers
+      - path: BitwardenShared/Sourcery/Generated
+        optional: true
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Bitwarden
+      - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+      - target: BitwardenKit/ViewInspectorTestHelpers
       - package: ViewInspector
     randomExecutionOrder: true
 
@@ -455,13 +505,6 @@ targets:
       - target: BitwardenWatchWidgetExtension
       - package: Firebase
         product: FirebaseCrashlytics
-    postBuildScripts:
-      - path: Scripts/upload_watch_dsym_to_crashlytics.sh
-        name: "Upload watch dSYM files to Crashlytics"
-        basedOnDependencyAnalysis: false
-        inputFiles:
-          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
-          - ${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}
 
   BitwardenWatchWidgetExtension:
     type: app-extension

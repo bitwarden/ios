@@ -24,7 +24,7 @@ public extension ManagedObject where Self: NSManagedObject {
     ///
     static func batchInsertRequest<T>(
         objects: [T],
-        handler: @escaping (Self, T) throws -> Void
+        handler: @escaping (Self, T) throws -> Void,
     ) throws -> NSBatchInsertRequest {
         var index = 0
         var errorToThrow: Error?

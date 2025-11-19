@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -11,6 +12,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     typealias Services = HasAuthRepository
         & HasConfigService
         & HasErrorReporter
+        & HasEventService
         & HasExportVaultService
         & HasPolicyService
         & HasStateService
@@ -33,7 +35,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
-        services: Services
+        services: Services,
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -119,25 +121,26 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     ///    - password: The password used to validate the export.
     ///
     private func exportVault(format: ExportFormatType, password: String) async throws {
-        var exportFormat: ExportFileType
-        switch format {
+        let exportFormat: ExportFileType = switch format {
         case .csv:
-            exportFormat = .csv
+            .csv
         case .json:
-            exportFormat = .json
+            .json
         case .jsonEncrypted:
-            exportFormat = .encryptedJson(password: password)
+            .encryptedJson(password: password)
         }
 
         let fileURL = try await services.exportVaultService.exportVault(format: exportFormat)
         coordinator.navigate(to: .shareURL(fileURL))
+
+        await services.eventService.collect(eventType: .userClientExportedVault)
     }
 
     /// Load any initial data for the view.
     ///
     private func loadData() async {
         state.disableIndividualVaultExport = await services.policyService.policyAppliesToUser(
-            .disablePersonalVaultExport
+            .disablePersonalVaultExport,
         )
 
         do {
@@ -176,7 +179,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
                 state.filePasswordStrengthScore = try await services.authRepository.passwordStrength(
                     email: "",
                     password: state.filePasswordText,
-                    isPreAuth: false
+                    isPreAuth: false,
                 )
             } catch {
                 services.errorReporter.log(error: error)

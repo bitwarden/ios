@@ -11,14 +11,14 @@ class LastpassImporter {
                 digits: account.digits,
                 issuer: account.issuerName.nilIfEmpty,
                 period: account.timeStep,
-                secret: account.secret
+                secret: account.secret,
             )
             return AuthenticatorItemView(
                 favorite: account.isFavorite,
                 id: UUID().uuidString,
                 name: account.issuerName,
                 totpKey: otp.otpAuthUri,
-                username: account.userName.nilIfEmpty
+                username: account.userName.nilIfEmpty,
             )
         }
     }

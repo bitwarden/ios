@@ -38,8 +38,8 @@ class OrganizationAPIServiceTests: BitwardenTestCase {
             response,
             OrganizationAutoEnrollStatusResponseModel(
                 id: "af0d946f-8a7c-41eb-af0e-4b2e4e9fb8f5",
-                resetPasswordEnabled: true
-            )
+                resetPasswordEnabled: true,
+            ),
         )
     }
 
@@ -53,8 +53,8 @@ class OrganizationAPIServiceTests: BitwardenTestCase {
             response,
             OrganizationKeysResponseModel(
                 privateKey: nil,
-                publicKey: "MIIBIjAN...2QIDAQAB"
-            )
+                publicKey: "MIIBIjAN...2QIDAQAB",
+            ),
         )
     }
 
@@ -71,10 +71,10 @@ class OrganizationAPIServiceTests: BitwardenTestCase {
                     SingleSignOnDomainVerifiedDetailResponse(
                         domainName: "domain",
                         organizationIdentifier: "TestID",
-                        organizationName: "TestName"
+                        organizationName: "TestName",
                     ),
-                ]
-            )
+                ],
+            ),
         )
     }
 

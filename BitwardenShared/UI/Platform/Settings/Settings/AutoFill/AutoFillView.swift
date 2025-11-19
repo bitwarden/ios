@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - AutoFillView
@@ -9,6 +11,9 @@ struct AutoFillView: View {
 
     /// The store used to render the view.
     @ObservedObject var store: Store<AutoFillState, AutoFillAction, AutoFillEffect>
+
+    /// An action that opens URLs.
+    @Environment(\.openURL) private var openURL
 
     // MARK: View
 
@@ -23,6 +28,11 @@ struct AutoFillView: View {
         .animation(.easeInOut, value: store.state.badgeState?.autofillSetupProgress == .complete)
         .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearUrl)
+        }
         .task {
             await store.perform(.fetchSettingValues)
         }
@@ -43,7 +53,7 @@ struct AutoFillView: View {
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissSetUpAutofillActionCard)
-                }
+                },
             ) {
                 BitwardenBadge(badgeValue: "1")
             }
@@ -58,22 +68,37 @@ struct AutoFillView: View {
                 footer: Localizations.copyTotpAutomaticallyDescription,
                 isOn: store.binding(
                     get: \.isCopyTOTPToggleOn,
-                    send: AutoFillAction.toggleCopyTOTPToggle
+                    send: AutoFillAction.toggleCopyTOTPToggle,
                 ),
-                accessibilityIdentifier: "CopyTotpAutomaticallySwitch"
+                accessibilityIdentifier: "CopyTotpAutomaticallySwitch",
             )
             .contentBlock()
 
             BitwardenMenuField(
                 title: Localizations.defaultUriMatchDetection,
-                footer: Localizations.defaultUriMatchDetectionDescription,
                 accessibilityIdentifier: "DefaultUriMatchDetectionChooser",
-                options: UriMatchType.allCases,
+                options: store.state.uriMatchTypeOptions,
                 selection: store.binding(
                     get: \.defaultUriMatchType,
-                    send: AutoFillAction.defaultUriMatchTypeChanged
-                )
-            )
+                    send: AutoFillAction.defaultUriMatchTypeChanged,
+                ),
+            ) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(Localizations.uriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions)
+                        .bitwardenMenuFooterText(
+                            topPadding: 12,
+                            bottomPadding: store.state.warningMessage == nil ? 12 : 4,
+                        )
+
+                    store.state.warningMessage.map { warningMessage in
+                        Text(LocalizedStringKey(warningMessage))
+                            .bitwardenMenuFooterText(
+                                topPadding: 0,
+                                bottomPadding: 12,
+                            )
+                    }
+                }
+            }
         }
     }
 
@@ -105,7 +130,7 @@ struct AutoFillView: View {
 #Preview("Autofill Action Card") {
     NavigationView {
         AutoFillView(store: Store(processor: StateProcessor(state: AutoFillState(
-            badgeState: .fixture(autofillSetupProgress: .setUpLater)
+            badgeState: .fixture(autofillSetupProgress: .setUpLater),
         ))))
     }
 }

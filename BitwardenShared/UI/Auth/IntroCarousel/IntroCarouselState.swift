@@ -1,3 +1,4 @@
+import BitwardenResources
 import SwiftUI
 
 // MARK: - IntroCarouselState
@@ -35,25 +36,25 @@ struct IntroCarouselState: Equatable {
         CarouselPage(
             image: Asset.Images.Illustrations.items.swiftUIImage,
             message: Localizations.introCarouselPage1Message,
-            title: Localizations.introCarouselPage1Title
+            title: Localizations.introCarouselPage1Title,
         ),
 
         CarouselPage(
             image: Asset.Images.Illustrations.biometricsPhone.swiftUIImage,
             message: Localizations.introCarouselPage2Message,
-            title: Localizations.introCarouselPage2Title
+            title: Localizations.introCarouselPage2Title,
         ),
 
         CarouselPage(
             image: Asset.Images.Illustrations.generate.swiftUIImage,
             message: Localizations.introCarouselPage3Message,
-            title: Localizations.introCarouselPage3Title
+            title: Localizations.introCarouselPage3Title,
         ),
 
         CarouselPage(
             image: Asset.Images.Illustrations.secureDevices.swiftUIImage,
             message: Localizations.introCarouselPage4Message,
-            title: Localizations.introCarouselPage4Title
+            title: Localizations.introCarouselPage4Title,
         ),
     ]
 }

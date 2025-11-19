@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 import XCTest
@@ -34,7 +35,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `cipherCollections` returns all the collections that the cipher belongs to.
     func test_cipherCollections_withResults() throws {
         let cipher = CipherView.loginFixture(
-            collectionIds: ["2", "3"]
+            collectionIds: ["2", "3"],
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.allUserCollections = [
@@ -50,7 +51,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `cipherCollections` returns empty if there are no collection ids on the state.
     func test_cipherCollections_empty() throws {
         let cipher = CipherView.loginFixture(
-            collectionIds: []
+            collectionIds: [],
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.allUserCollections = [
@@ -67,7 +68,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
     /// is showing multiple collections.
     func test_cipherCollectionsToDisplay_allCollections() throws {
         let cipher = CipherView.loginFixture(
-            collectionIds: ["2", "3"]
+            collectionIds: ["2", "3"],
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.isShowingMultipleCollections = true
@@ -85,7 +86,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
     /// is not showing multiple collections.
     func test_cipherCollectionsToDisplay_oneResult() throws {
         let cipher = CipherView.loginFixture(
-            collectionIds: ["2", "3"]
+            collectionIds: ["2", "3"],
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.isShowingMultipleCollections = false
@@ -102,7 +103,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `cipherCollectionsToDisplay` returns empty when no cipher collections.
     func test_cipherCollectionsToDisplay_empty() throws {
         let cipher = CipherView.loginFixture(
-            collectionIds: []
+            collectionIds: [],
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.allUserCollections = [
@@ -120,7 +121,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         let cipher = CipherView.loginFixture(
             collectionIds: ["1", "2", "3"],
             login: .fixture(),
-            organizationId: "Org1"
+            organizationId: "Org1",
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.ownershipOptions = [.organization(id: "Org1", name: "Organization 1")]
@@ -150,10 +151,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         var state = try XCTUnwrap(
             CipherItemState(
                 existing: .fixture(
-                    collectionIds: ["1", "2"]
+                    collectionIds: ["1", "2"],
                 ),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         state.allUserCollections = [
             CollectionView.fixture(id: "1"),
@@ -241,10 +242,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
                 existing: .fixture(
                     collectionIds: ["1"],
                     folderId: "2",
-                    organizationId: "3"
+                    organizationId: "3",
                 ),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertFalse(state.shouldDisplayNoFolder)
     }
@@ -257,10 +258,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
                 CipherItemState(
                     existing: .fixture(
                         card: .fixture(brand: brand.rawValue),
-                        type: .card
+                        type: .card,
                     ),
-                    hasPremium: true
-                )
+                    hasPremium: true,
+                ),
             )
             XCTAssertFalse(state.shouldUseCustomPlaceholderContent)
         }
@@ -272,10 +273,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
             CipherItemState(
                 existing: .fixture(
                     card: .fixture(brand: "Other"),
-                    type: .card
+                    type: .card,
                 ),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertTrue(state.shouldUseCustomPlaceholderContent)
     }
@@ -286,10 +287,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
             CipherItemState(
                 existing: .fixture(
                     card: .fixture(brand: nil),
-                    type: .card
+                    type: .card,
                 ),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertTrue(state.shouldUseCustomPlaceholderContent)
     }
@@ -301,10 +302,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
             CipherItemState(
                 existing: .fixture(
                     card: .fixture(brand: "something-that-is-not-a-card-brand"),
-                    type: .card
+                    type: .card,
                 ),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertTrue(state.shouldUseCustomPlaceholderContent)
     }
@@ -316,10 +317,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
             let state = try XCTUnwrap(
                 CipherItemState(
                     existing: .fixture(
-                        type: type
+                        type: type,
                     ),
-                    hasPremium: true
-                )
+                    hasPremium: true,
+                ),
             )
             XCTAssertTrue(state.shouldUseCustomPlaceholderContent)
         }
@@ -330,8 +331,8 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         let state = try XCTUnwrap(
             CipherItemState(
                 existing: .fixture(),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertEqual(state.totalHeaderAdditionalItems, 0)
     }
@@ -342,8 +343,8 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         let state = try XCTUnwrap(
             CipherItemState(
                 existing: .fixture(organizationId: "1"),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertEqual(state.totalHeaderAdditionalItems, 1)
     }
@@ -354,8 +355,8 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         let state = try XCTUnwrap(
             CipherItemState(
                 existing: .fixture(collectionIds: ["1", "2", "3"], organizationId: "1"),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertEqual(state.totalHeaderAdditionalItems, 4)
     }
@@ -368,10 +369,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
                 existing: .fixture(
                     collectionIds: ["1", "2", "3"],
                     folderId: "4",
-                    organizationId: "1"
+                    organizationId: "1",
                 ),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertEqual(state.totalHeaderAdditionalItems, 5)
     }
@@ -383,10 +384,10 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
             CipherItemState(
                 existing: .fixture(
                     folderId: "4",
-                    organizationId: "1"
+                    organizationId: "1",
                 ),
-                hasPremium: true
-            )
+                hasPremium: true,
+            ),
         )
         XCTAssertEqual(state.totalHeaderAdditionalItems, 2)
     }

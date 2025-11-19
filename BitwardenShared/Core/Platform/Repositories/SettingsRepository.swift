@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
@@ -44,7 +45,7 @@ protocol SettingsRepository: AnyObject {
 
     /// Gets the default URI match type setting for the current user.
     ///
-    func getDefaultUriMatchType() async throws -> UriMatchType
+    func getDefaultUriMatchType() async -> UriMatchType
 
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
@@ -152,7 +153,7 @@ class DefaultSettingsRepository {
         pasteboardService: PasteboardService,
         stateService: StateService,
         syncService: SyncService,
-        vaultTimeoutService: VaultTimeoutService
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.clientService = clientService
         self.folderService = folderService
@@ -206,8 +207,8 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getConnectToWatch()
     }
 
-    func getDefaultUriMatchType() async throws -> UriMatchType {
-        try await stateService.getDefaultUriMatchType()
+    func getDefaultUriMatchType() async -> UriMatchType {
+        await stateService.getDefaultUriMatchType()
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

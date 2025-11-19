@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenResources
 import SwiftUI
 import UIKit
 
@@ -76,7 +77,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         settingsDelegate: SettingsCoordinatorDelegate,
         tabNavigator: TabNavigator,
         vaultDelegate: VaultCoordinatorDelegate,
-        vaultRepository: VaultRepository
+        vaultRepository: VaultRepository,
     ) {
         self.errorReporter = errorReporter
         self.module = module
@@ -118,7 +119,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
     func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
         errorReporter.log(error: BitwardenError.generalError(
             type: "TabCoordinator: `showErrorAlert` Not Supported",
-            message: "`showErrorAlert(error:tryAgain:onDismissed:)` is not supported from TabCoordinator."
+            message: "`showErrorAlert(error:tryAgain:onDismissed:)` is not supported from TabCoordinator.",
         ))
     }
 
@@ -132,14 +133,14 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         vaultNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         vaultCoordinator = module.makeVaultCoordinator(
             delegate: vaultDelegate,
-            stackNavigator: vaultNavigator
+            stackNavigator: vaultNavigator,
         )
 
         let sendNavigator = module.makeNavigationController()
         sendNavigator.navigationBar.prefersLargeTitles = false
         sendNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         sendCoordinator = module.makeSendCoordinator(
-            stackNavigator: sendNavigator
+            stackNavigator: sendNavigator,
         )
         sendCoordinator?.start()
 
@@ -151,7 +152,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         generatorNavigator.removeHairlineDivider()
         generatorCoordinator = module.makeGeneratorCoordinator(
             delegate: nil,
-            stackNavigator: generatorNavigator
+            stackNavigator: generatorNavigator,
         )
         generatorCoordinator?.start()
 
@@ -160,7 +161,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         settingsNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         let settingsCoordinator = module.makeSettingsCoordinator(
             delegate: settingsDelegate,
-            stackNavigator: settingsNavigator
+            stackNavigator: settingsNavigator,
         )
         settingsCoordinator.start()
         self.settingsCoordinator = settingsCoordinator

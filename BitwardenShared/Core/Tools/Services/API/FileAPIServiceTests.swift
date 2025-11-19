@@ -38,7 +38,7 @@ class FileAPIServiceTests: BitwardenTestCase {
             data: data,
             fileName: "cheese.txt",
             type: .direct,
-            url: .example
+            url: .example,
         )
 
         let request = try XCTUnwrap(client.requests.last)
@@ -58,7 +58,7 @@ class FileAPIServiceTests: BitwardenTestCase {
             data: data,
             fileName: "cheese.txt",
             type: .azure,
-            url: url
+            url: url,
         )
 
         let request = try XCTUnwrap(client.requests.last)
@@ -79,7 +79,7 @@ class FileAPIServiceTests: BitwardenTestCase {
             fileId: "file_id",
             fileName: "file_name",
             sendId: "send_id",
-            url: url
+            url: url,
         )
 
         let request = try XCTUnwrap(client.requests.last)
@@ -99,7 +99,7 @@ class FileAPIServiceTests: BitwardenTestCase {
             fileId: "file_id",
             fileName: "file_name",
             sendId: "send_id",
-            url: .example
+            url: .example,
         )
 
         let request = try XCTUnwrap(client.requests.last)

@@ -103,7 +103,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     var allAccounts: [Account] {
         let combined = [activeAccount] + altAccounts
-        return combined.compactMap { $0 }
+        return combined.compactMap(\.self)
     }
 
     var updateMasterPasswordCurrentPassword: String?
@@ -201,7 +201,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         allowLockAndLogout: Bool,
         isVisible: Bool,
         shouldAlwaysHideAddAccount: Bool,
-        showPlaceholderToolbarIcon: Bool
+        showPlaceholderToolbarIcon: Bool,
     ) async -> BitwardenShared.ProfileSwitcherState {
         if let profileSwitcherState {
             return ProfileSwitcherState(
@@ -210,11 +210,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
                 allowLockAndLogout: allowLockAndLogout,
                 isVisible: isVisible,
                 shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
-                showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
+                showPlaceholderToolbarIcon: showPlaceholderToolbarIcon,
             )
         }
         return .empty(
-            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
+            shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
         )
     }
 
@@ -308,7 +308,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         activeAccount = match
         altAccounts = altAccounts
             .filter { $0.profile.userId == userId }
-            + [priorActive].compactMap { $0 }
+            + [priorActive].compactMap(\.self)
         return match
     }
 
@@ -338,7 +338,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         masterPasswordHint: String,
         organizationId: String,
         organizationIdentifier: String,
-        resetPasswordAutoEnroll: Bool
+        resetPasswordAutoEnroll: Bool,
     ) async throws {
         setMasterPasswordHint = masterPasswordHint
         setMasterPasswordPassword = password
@@ -417,7 +417,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         currentPassword: String,
         newPassword: String,
         passwordHint: String,
-        reason: ForcePasswordResetReason
+        reason: ForcePasswordResetReason,
     ) async throws {
         updateMasterPasswordCurrentPassword = currentPassword
         updateMasterPasswordNewPassword = newPassword

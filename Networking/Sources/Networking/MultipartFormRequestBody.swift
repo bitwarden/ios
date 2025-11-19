@@ -34,13 +34,13 @@ public extension MultipartFormPart {
         data: Data,
         name: String,
         fileName: String,
-        mimeType: String? = nil
+        mimeType: String? = nil,
     ) -> MultipartFormPart {
         MultipartFormPart(
             data: data,
             fileName: fileName,
             mimeType: mimeType ?? "application/octet-stream",
-            name: name
+            name: name,
         )
     }
 }

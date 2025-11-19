@@ -17,7 +17,7 @@ protocol KeychainService: AnyObject {
     ///
     func accessControl(
         protection: CFTypeRef,
-        for flags: SecAccessControlCreateFlags
+        for flags: SecAccessControlCreateFlags,
     ) throws -> SecAccessControl
 
     /// Adds a set of attributes.
@@ -62,14 +62,14 @@ enum KeychainServiceError: Error, Equatable, CustomNSError {
     case osStatusError(OSStatus)
 
     /// The user-info dictionary.
-    public var errorUserInfo: [String: Any] {
+    var errorUserInfo: [String: Any] {
         switch self {
         case .accessControlFailed:
-            return [:]
+            [:]
         case let .keyNotFound(keychainItem):
-            return ["Keychain Item": keychainItem.unformattedKey]
+            ["Keychain Item": keychainItem.unformattedKey]
         case let .osStatusError(osStatus):
-            return ["OS Status": osStatus]
+            ["OS Status": osStatus]
         }
     }
 }
@@ -81,14 +81,14 @@ class DefaultKeychainService: KeychainService {
 
     func accessControl(
         protection: CFTypeRef,
-        for flags: SecAccessControlCreateFlags
+        for flags: SecAccessControlCreateFlags,
     ) throws -> SecAccessControl {
         var error: Unmanaged<CFError>?
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
             protection,
             flags,
-            &error
+            &error,
         )
 
         guard let accessControl,

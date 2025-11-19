@@ -8,30 +8,30 @@ import TestHelpers
 class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var checkUserCalled = false
     var checkUserResult: Result<BitwardenSdk.CheckUserResult, Error> = .success(
-        BitwardenSdk.CheckUserResult(userPresent: true, userVerified: true)
+        BitwardenSdk.CheckUserResult(userPresent: true, userVerified: true),
     )
     var credentialsForAuthenticationSubject = CurrentValueSubject<[BitwardenSdk.CipherView]?, Error>(
-        nil
+        nil,
     )
     var fido2CreationOptions: BitwardenSdk.CheckUserOptions?
     var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
     var pickCredentialForAuthenticationResult: Result<BitwardenSdk.CipherViewWrapper, Error> = .success(
-        BitwardenSdk.CipherViewWrapper(cipher: .fixture())
+        BitwardenSdk.CipherViewWrapper(cipher: .fixture()),
     )
     var pickedCredentialForAuthenticationMocker = InvocationMocker<
-        Result<CipherView, any Error>
+        Result<CipherView, any Error>,
     >()
     var pickedCredentialForCreationMocker = InvocationMocker<
-        Result<CheckUserAndPickCredentialForCreationResult, any Error>
+        Result<CheckUserAndPickCredentialForCreationResult, any Error>,
     >()
     var checkAndPickCredentialForCreationResult: Result<
         BitwardenSdk.CheckUserAndPickCredentialForCreationResult,
-        Error
+        Error,
     > = .success(
         BitwardenSdk.CheckUserAndPickCredentialForCreationResult(
             cipher: CipherViewWrapper(cipher: .fixture()),
-            checkUserResult: CheckUserResult(userPresent: true, userVerified: true)
-        )
+            checkUserResult: CheckUserResult(userPresent: true, userVerified: true),
+        ),
     )
     var isVerificationEnabledResult = false
     var fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate?
@@ -45,7 +45,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     func checkUser(
         options: BitwardenSdk.CheckUserOptions,
-        hint: BitwardenSdk.UiHint
+        hint: BitwardenSdk.UiHint,
     ) async throws -> BitwardenSdk.CheckUserResult {
         checkUserCalled = true
         return try checkUserResult.get()
@@ -54,14 +54,14 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
         credential: Fido2UserVerifiableCipherView,
-        shouldThrowEnforcingRequiredVerification: Bool
+        shouldThrowEnforcingRequiredVerification: Bool,
     ) async throws -> BitwardenSdk.CheckUserResult {
         checkUserCalled = true
         return try checkUserResult.get()
     }
 
     func pickCredentialForAuthentication(
-        availableCredentials: [BitwardenSdk.CipherView]
+        availableCredentials: [BitwardenSdk.CipherView],
     ) async throws -> BitwardenSdk.CipherViewWrapper {
         try pickCredentialForAuthenticationResult.get()
     }
@@ -71,14 +71,14 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     }
 
     func pickedCredentialForCreation(
-        result: Result<BitwardenSdk.CheckUserAndPickCredentialForCreationResult, any Error>
+        result: Result<BitwardenSdk.CheckUserAndPickCredentialForCreationResult, any Error>,
     ) {
         pickedCredentialForCreationMocker.invoke(param: result)
     }
 
     func checkUserAndPickCredentialForCreation(
         options: BitwardenSdk.CheckUserOptions,
-        newCredential: BitwardenSdk.Fido2CredentialNewView
+        newCredential: BitwardenSdk.Fido2CredentialNewView,
     ) async throws -> BitwardenSdk.CheckUserAndPickCredentialForCreationResult {
         try checkAndPickCredentialForCreationResult.get()
     }

@@ -38,25 +38,27 @@ env:
 jobs:
   build:
     name: Build ${{ inputs.bw-env }}
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 60
     permissions:
       contents: read
+      id-token: write
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
     steps:
       - name: Log inputs to job summary
-        run: |
-          echo "<details><summary>Job Inputs</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
+        uses: bitwarden/ios/.github/actions/log-inputs@main
+        with:
+          inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
+
+      - name: Optimize macOS Runner
+        uses: ./.github/actions/macos-runner-tuneup
 
       - name: Read Xcode version from file if not provided
         run: |
@@ -69,8 +71,14 @@ jobs:
         with:
           xcode-version: ${{ env._XCODE_VERSION }}
 
+      - name: Install simulators for specific Xcode version
+        if: env._XCODE_VERSION == '26.0-beta'
+        run: |
+          xcodebuild -downloadPlatform iOS
+          xcodebuild -downloadPlatform watchOS
+
       - name: Configure Ruby
-        uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1.229.0
+        uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
         with:
           bundler-cache: true
 
@@ -78,13 +86,24 @@ jobs:
         run: |
           brew update
           brew bundle
-          bundle exec fastlane load_dotenv_file --env $_BW_ENV
+          bundle exec fastlane load_dotenv_file --env "$_BW_ENV"
+
 
       - name: Log in to Azure
         if: env._BUILD_MODE == 'Device'
-        uses: Azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        if: env._BUILD_MODE == 'Device'
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-ios
+          secrets: "IOS-KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Setup secrets
         if: env._BUILD_MODE == 'Device'
@@ -94,10 +113,10 @@ jobs:
             local az_filename=$2
             local local_filename=$3
 
-            az storage blob download --account-name bitwardenci --container-name $container_name --name $az_filename --file $local_filename --output none --only-show-errors --no-progress
+            az storage blob download --account-name bitwardenci --container-name "$container_name" --name "$az_filename" --file "$local_filename" --output none --only-show-errors --no-progress
           }
 
-          mkdir -p $HOME/secrets
+          mkdir -p "$HOME/secrets"
 
           profiles_dir_path="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$profiles_dir_path"
@@ -106,68 +125,72 @@ jobs:
           for FILE in "${profiles[@]}"
           do
             echo "⌛️ Downloading provisioning profile $FILE..."
-            local_profile_path=$HOME/secrets/$FILE
+            local_profile_path="$HOME/secrets/$FILE"
 
-            az_download profiles $FILE $local_profile_path
+            az_download profiles "$FILE" "$local_profile_path"
 
-            profile_uuid=$(grep UUID -A1 -a $local_profile_path | grep -io "[-A-F0-9]\{36\}")
-            cp $local_profile_path "$profiles_dir_path/$profile_uuid.mobileprovision"
+            profile_uuid=$(grep UUID -A1 -a "$local_profile_path" | grep -io "[-A-F0-9]\{36\}")
+            cp "$local_profile_path" "$profiles_dir_path/$profile_uuid.mobileprovision"
           done
 
           echo "⌛️ Downloading Google-Services.plist..."
-          az_download mobile $_AZ_CRASHLYTICS_FILE_NAME $_CRASHLYTICS_PATH
+          az_download mobile "$_AZ_CRASHLYTICS_FILE_NAME" "$_CRASHLYTICS_PATH"
 
           if [[ "$_APP" == "password_manager" ]]; then
             echo "⌛️ Downloading Google-Services.plist for watchOS..."
-            az_download mobile $_AZ_CRASHLYTICS_FILE_NAME "BitwardenWatchApp/GoogleService-Info.plist"
+            az_download mobile "$_AZ_CRASHLYTICS_FILE_NAME" "BitwardenWatchApp/GoogleService-Info.plist"
             plutil -replace BUNDLE_ID -string '$BUNDLE_ID.watchkitapp' BitwardenWatchApp/GoogleService-Info.plist
           fi
 
           echo "⌛️ Downloading fastlane credentials..."
-          az_download mobile appstoreconnect-fastlane.json $HOME/secrets/appstoreconnect-fastlane.json
+          az_download mobile appstoreconnect-fastlane.json "$HOME/secrets/appstoreconnect-fastlane.json"
 
           echo "⌛️ Downloading distribution certificate..."
-          mkdir -p $HOME/certificates
+          mkdir -p "$HOME/certificates"
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
-            jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
+            jq -r .value | base64 -d > "$HOME/certificates/ios-distribution.p12"
 
           echo "✅ All secrets downloaded!"
+
+      - name: Log out from Azure
+        if: env._BUILD_MODE == 'Device'
+        uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Configure Keychain Access
         if: env._BUILD_MODE == 'Device'
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.IOS-KEYCHAIN-PASSWORD }}
         run: |
-          security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
-          security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
 
-          security import $HOME/certificates/ios-distribution.p12 -k build.keychain -P "" -T /usr/bin/codesign \
+          security import "$HOME/certificates/ios-distribution.p12" -k build.keychain -P "" -T /usr/bin/codesign \
             -T /usr/bin/security
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Setup code files
         run: |
           bundle exec fastlane setup_code_files \
-            --env $_BW_ENV \
-            build_mode:$_BUILD_MODE \
-            version_name:$_VERSION_NAME \
-            version_number:$_VERSION_NUMBER \
+            --env "$_BW_ENV" \
+            build_mode:"$_BUILD_MODE" \
+            version_name:"$_VERSION_NAME" \
+            version_number:"$_VERSION_NUMBER" \
             compiler_flags:"$_COMPILER_FLAGS"
 
           bundle exec fastlane update_ci_build_info \
-            --env $_BW_ENV \
-            repository:$GITHUB_REPOSITORY \
-            branch:$GITHUB_REF_NAME \
-            commit_hash:$GITHUB_SHA \
-            ci_run_number:$GITHUB_RUN_ID \
-            ci_run_attempt:$GITHUB_RUN_ATTEMPT \
+            --env "$_BW_ENV" \
+            repository:"$GITHUB_REPOSITORY" \
+            branch:"$GITHUB_REF_NAME" \
+            commit_hash:"$GITHUB_SHA" \
+            ci_run_number:"$GITHUB_RUN_ID" \
+            ci_run_attempt:"$GITHUB_RUN_ATTEMPT" \
             compiler_flags:"$_COMPILER_FLAGS"
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -181,28 +204,28 @@ jobs:
 
       - name: Build ${{ inputs.bw-env }}
         run: |
-          ./Scripts/build.sh $_BUILD_PROJECT_PATH $_BUILD_SCHEME $_BUILD_MODE
+          ./Scripts/build.sh "$_BUILD_PROJECT_PATH" "$_BUILD_SCHEME" "$_BUILD_MODE"
 
       - name: Prepare artifacts for upload to GitHub
         run: |
-          mkdir -p $_EXPORT_PATH
-          mkdir -p $_EXPORT_PATH/dSYMs
+          mkdir -p "$_EXPORT_PATH"
+          mkdir -p "$_EXPORT_PATH/dSYMs"
 
           bundle exec fastlane post_build \
-            --env $_BW_ENV \
-            build_mode:$_BUILD_MODE \
-            export_path:$_EXPORT_PATH
+            --env "$_BW_ENV" \
+            build_mode:"$_BUILD_MODE" \
+            export_path:"$_EXPORT_PATH"
 
       - name: Get artifact name
         id: get_file_paths
         run: |
           OUTPUT=$(bundle exec fastlane get_artifact_name \
-            --env $_BW_ENV \
-            build_mode:$_BUILD_MODE \
-            version_name:$_VERSION_NAME \
-            version_number:$_VERSION_NUMBER \
-            xcode_version:$_XCODE_VERSION \
-            export_path:$_EXPORT_PATH)
+            --env "$_BW_ENV" \
+            build_mode:"$_BUILD_MODE" \
+            version_name:"$_VERSION_NAME" \
+            version_number:"$_VERSION_NUMBER" \
+            xcode_version:"$_XCODE_VERSION" \
+            export_path:"$_EXPORT_PATH")
 
           ARTIFACT_NAME=$(echo "$OUTPUT" | grep "artifact_filename: " | cut -d' ' -f3)
           EXPORT_FILEPATH=$(echo "$OUTPUT" | grep "export_filepath: " | cut -d' ' -f3)
@@ -217,11 +240,11 @@ jobs:
             exit 1
           fi
 
-          echo "artifact_filename=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
-          echo "export_filepath=$EXPORT_FILEPATH" >> $GITHUB_OUTPUT
+          echo "artifact_filename=$ARTIFACT_NAME" >> "$GITHUB_OUTPUT"
+          echo "export_filepath=$EXPORT_FILEPATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifacts to GitHub
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ steps.get_file_paths.outputs.artifact_filename }}
           path: ${{ env._EXPORT_PATH }}
@@ -229,30 +252,33 @@ jobs:
 
       - name: Set up private auth key
         if: env._BUILD_MODE == 'Device'
+        env:
+          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${_APP_STORE_CONNECT_AUTH_KEY}
           EOF
 
       - name: Validate app with App Store Connect
         if: env._BUILD_MODE == 'Device' && false # Set to true to debug failing submissions
         env:
           _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
+          _ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
         run: |
           xcrun altool --validate-app \
             --type ios \
             --file "$_EXPORT_FILEPATH" \
             --apiKey "J46C83CB96" \
-            --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
+            --apiIssuer "${_ISSUER}"
 
       - name: Upload dSYM files to Crashlytics
-        if: ${{ env._BUILD_MODE == 'Device' && startsWith(env._BW_ENV, 'bwpm') }}
+        if: ${{ env._BUILD_MODE == 'Device' }}
         continue-on-error: true
         run: |
-          find $_EXPORT_PATH/dSYMs -name "*.dSYM" \
-            -exec "build/DerivedData/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
-            -gsp $_CRASHLYTICS_PATH \
+          find "$_EXPORT_PATH/dSYMs" -name "*.dSYM" \
+            -exec "./build/DerivedData/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
+            -gsp "$_CRASHLYTICS_PATH" \
             -p ios -- {} +
 
       - name: Upload app to TestFlight with Fastlane
@@ -267,7 +293,7 @@ jobs:
           $_GITHUB_ACTION_RUN_URL"
 
           bundle exec fastlane upload_build \
-            --env $_BW_ENV \
+            --env "$_BW_ENV" \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
             ipa_path:"$_EXPORT_FILEPATH"

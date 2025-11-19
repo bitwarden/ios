@@ -9,6 +9,7 @@ class VaultListSectionsBuilderFactoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientService: MockClientService!
+    var collectionHelper: MockCollectionHelper!
     var errorReporter: MockErrorReporter!
     var subject: VaultListSectionsBuilderFactory!
 
@@ -18,14 +19,20 @@ class VaultListSectionsBuilderFactoryTests: BitwardenTestCase {
         super.setUp()
 
         clientService = MockClientService()
+        collectionHelper = MockCollectionHelper()
         errorReporter = MockErrorReporter()
-        subject = DefaultVaultListSectionsBuilderFactory(clientService: clientService, errorReporter: errorReporter)
+        subject = DefaultVaultListSectionsBuilderFactory(
+            clientService: clientService,
+            collectionHelper: collectionHelper,
+            errorReporter: errorReporter,
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
         clientService = nil
+        collectionHelper = nil
         errorReporter = nil
         subject = nil
     }

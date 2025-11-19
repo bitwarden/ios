@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - TwoFactorAuthView
@@ -34,7 +36,7 @@ struct TwoFactorAuthView: View {
             }
             .toast(store.binding(
                 get: \.toast,
-                send: TwoFactorAuthAction.toastShown
+                send: TwoFactorAuthAction.toastShown,
             ))
             .navigationBar(title: store.state.titleText, titleDisplayMode: .inline)
             .task {
@@ -130,7 +132,7 @@ struct TwoFactorAuthView: View {
         VStack(spacing: 16) {
             Text(store.state.detailsText)
                 .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                 .multilineTextAlignment(.center)
 
             if let detailImageAsset = store.state.detailImageAsset {
@@ -189,8 +191,8 @@ struct TwoFactorAuthView: View {
             Localizations.rememberMe,
             isOn: store.binding(
                 get: { $0.isRememberMeOn },
-                send: { .rememberMeToggleChanged($0) }
-            )
+                send: { .rememberMeToggleChanged($0) },
+            ),
         )
         .contentBlock()
     }
@@ -216,8 +218,8 @@ struct TwoFactorAuthView: View {
             title: Localizations.verificationCode,
             text: store.binding(
                 get: \.verificationCode,
-                send: TwoFactorAuthAction.verificationCodeChanged
-            )
+                send: TwoFactorAuthAction.verificationCodeChanged,
+            ),
         )
         .textFieldConfiguration(verificationTextFieldConfiguration)
     }
@@ -227,18 +229,18 @@ struct TwoFactorAuthView: View {
 
 #Preview {
     TwoFactorAuthView(store: Store(processor: StateProcessor(
-        state: TwoFactorAuthState()
+        state: TwoFactorAuthState(),
     ))).navStackWrapped
 }
 
 #Preview("Duo") {
     TwoFactorAuthView(store: Store(processor: StateProcessor(
-        state: TwoFactorAuthState(authMethod: .duo)
+        state: TwoFactorAuthState(authMethod: .duo),
     ))).navStackWrapped
 }
 
 #Preview("WebAuthn") {
     TwoFactorAuthView(store: Store(processor: StateProcessor(
-        state: TwoFactorAuthState(authMethod: .webAuthn)
+        state: TwoFactorAuthState(authMethod: .webAuthn),
     ))).navStackWrapped
 }

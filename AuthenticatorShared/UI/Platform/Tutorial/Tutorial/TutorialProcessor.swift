@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - TutorialProcessor
 
 /// The processer used to manage state and handle actions for the tutorial screen.
@@ -22,7 +24,7 @@ final class TutorialProcessor: StateProcessor<TutorialState, TutorialAction, Tut
     ///
     init(
         coordinator: AnyCoordinator<TutorialRoute, TutorialEvent>,
-        state: TutorialState
+        state: TutorialState,
     ) {
         self.coordinator = coordinator
         super.init(state: state)

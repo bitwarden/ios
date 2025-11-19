@@ -4,6 +4,22 @@ extension MockVaultListSectionsBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper {
         let helper = MockCallOrderHelper()
 
+        addAutofillPasswordsSectionClosure = { () -> VaultListSectionsBuilder in
+            helper.recordCall("addAutofillPasswordsSection")
+            return self
+        }
+        addAutofillCombinedMultipleSectionClosure = { (_: String?, _: String?) -> VaultListSectionsBuilder in
+            helper.recordCall("addAutofillCombinedMultipleSection")
+            return self
+        }
+        addAutofillCombinedSingleSectionClosure = { () -> VaultListSectionsBuilder in
+            helper.recordCall("addAutofillCombinedSingleSection")
+            return self
+        }
+        addCipherDecryptionFailureIdsClosure = { () -> VaultListSectionsBuilder in
+            helper.recordCall("addCipherDecryptionFailureIds")
+            return self
+        }
         addTOTPSectionClosure = { () -> VaultListSectionsBuilder in
             helper.recordCall("addTOTPSection")
             return self
@@ -20,12 +36,16 @@ extension MockVaultListSectionsBuilder {
             helper.recordCall("addTypesSection")
             return self
         }
-        addFoldersSectionNestedFolderIdClosure = { (_: String?) throws -> VaultListSectionsBuilder in
+        addFoldersSectionClosure = { (_: String?) throws -> VaultListSectionsBuilder in
             helper.recordCall("addFoldersSection")
             return self
         }
-        addCollectionsSectionNestedCollectionIdClosure = { (_: String?) throws -> VaultListSectionsBuilder in
+        addCollectionsSectionClosure = { (_: String?) throws -> VaultListSectionsBuilder in
             helper.recordCall("addCollectionsSection")
+            return self
+        }
+        addSearchResultsSectionClosure = { _ -> VaultListSectionsBuilder in
+            helper.recordCall("addSearchResultsSection")
             return self
         }
         addTrashSectionClosure = { () -> VaultListSectionsBuilder in

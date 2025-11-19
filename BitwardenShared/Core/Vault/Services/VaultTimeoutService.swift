@@ -106,6 +106,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -128,6 +131,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// - Parameters:
     ///   - biometricsRepository: The service to use system biometrics for vault unlock.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
@@ -136,13 +140,15 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     init(
         biometricsRepository: BiometricsRepository,
         clientService: ClientService,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
+        self.configService = configService
         self.errorReporter = errorReporter
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
@@ -175,7 +181,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
-        try await stateService.pinProtectedUserKey(userId: userId) != nil
+        let hasPinProtectedUserKeyEnvelope = try await stateService.pinProtectedUserKeyEnvelope(userId: userId) != nil
+        let hasPinProtectedUserKey = try await stateService.pinProtectedUserKey(userId: userId) != nil
+        return hasPinProtectedUserKeyEnvelope || hasPinProtectedUserKey
     }
 
     func lockVault(userId: String?) async {
@@ -211,6 +219,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             } else {
                 // If the user doesn't have a master password and hasn't enabled a pin or
                 // biometrics, their timeout action needs to be logout.
+                try await stateService.setTimeoutAction(action: .logout, userId: userId)
                 return .logout
             }
         }
@@ -224,7 +233,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await updateSharedTimeout(
             lastActiveTime: now,
             timeoutValue: vaultTimeout,
-            userId: userId
+            userId: userId,
         )
     }
 
@@ -235,7 +244,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         try await updateSharedTimeout(
             lastActiveTime: lastActiveTime,
             timeoutValue: value,
-            userId: userId
+            userId: userId,
         )
     }
 
@@ -256,7 +265,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                 guard let activeAccountId else { return nil }
                 return VaultLockStatus(
                     isVaultLocked: lockStatusByAccount[activeAccountId] ?? true,
-                    userId: activeAccountId
+                    userId: activeAccountId,
                 )
             }
             .removeDuplicates()
@@ -269,7 +278,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     private func updateSharedTimeout(
         lastActiveTime: Date?,
         timeoutValue: SessionTimeoutValue,
-        userId: String
+        userId: String,
     ) async throws {
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         switch vaultTimeout {
@@ -287,7 +296,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                 try await sharedTimeoutService.updateTimeout(
                     forUserId: userId,
                     lastActiveDate: lastActiveTime,
-                    timeoutLength: timeoutValue
+                    timeoutLength: timeoutValue,
                 )
             }
         }

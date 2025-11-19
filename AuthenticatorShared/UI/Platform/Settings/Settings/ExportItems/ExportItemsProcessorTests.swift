@@ -22,12 +22,12 @@ class ExportItemsProcessorTests: BitwardenTestCase {
         exportService = MockExportItemsService()
         let services = ServiceContainer.withMocks(
             errorReporter: errorReporter,
-            exportItemsService: exportService
+            exportItemsService: exportService,
         )
 
         subject = ExportItemsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: services
+            services: services,
         )
     }
 

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - StartRegistrationView
@@ -19,7 +21,7 @@ struct StartRegistrationView: View {
         mainContent
             .navigationBar(
                 title: Localizations.createAccount,
-                titleDisplayMode: .inline
+                titleDisplayMode: .inline,
             )
             .onDisappear {
                 store.send(.disappeared)
@@ -35,8 +37,8 @@ struct StartRegistrationView: View {
             .toast(
                 store.binding(
                     get: \.toast,
-                    send: StartRegistrationAction.toastShown
-                )
+                    send: StartRegistrationAction.toastShown,
+                ),
             )
     }
 
@@ -61,18 +63,18 @@ struct StartRegistrationView: View {
             title: Localizations.emailAddress,
             text: store.binding(
                 get: \.emailText,
-                send: StartRegistrationAction.emailTextChanged
+                send: StartRegistrationAction.emailTextChanged,
             ),
             accessibilityIdentifier: "EmailAddressEntry",
             footerContent: {
                 RegionSelector(
                     selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseURLDescription
+                    regionName: store.state.region.baseURLDescription,
                 ) {
                     await store.perform(.regionTapped)
                 }
                 .padding(.vertical, 14)
-            }
+            },
         )
         .textFieldConfiguration(.email)
     }
@@ -86,7 +88,7 @@ struct StartRegistrationView: View {
                 Image(decorative: Asset.Images.logo)
                     .resizable()
                     .scaledToFit()
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity, maxHeight: 34)
                     .padding(.horizontal, 12)
 
@@ -107,9 +109,9 @@ struct StartRegistrationView: View {
             title: Localizations.name,
             text: store.binding(
                 get: \.nameText,
-                send: StartRegistrationAction.nameTextChanged
+                send: StartRegistrationAction.nameTextChanged,
             ),
-            accessibilityIdentifier: "NameEntry"
+            accessibilityIdentifier: "NameEntry",
         )
         .textFieldConfiguration(.username)
     }
@@ -119,11 +121,11 @@ struct StartRegistrationView: View {
         if store.state.showReceiveMarketingToggle {
             BitwardenToggle(isOn: store.binding(
                 get: \.isReceiveMarketingToggleOn,
-                send: StartRegistrationAction.toggleReceiveMarketing
+                send: StartRegistrationAction.toggleReceiveMarketing,
             )) {
                 Text(LocalizedStringKey(store.state.receiveMarketingEmailsText))
-                    .tint(Asset.Colors.textInteraction.swiftUIColor)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+                    .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
                     .styleGuide(.subheadline)
             }
             .accessibilityIdentifier("ReceiveMarketingToggle")
@@ -150,8 +152,8 @@ struct StartRegistrationView: View {
     private var termsAndPrivacyText: some View {
         Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
             .styleGuide(.footnote)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
             .padding([.bottom], 32)
             .multilineTextAlignment(.center)
     }
@@ -168,9 +170,9 @@ struct StartRegistrationView: View {
     StartRegistrationView(
         store: Store(
             processor: StateProcessor(
-                state: StartRegistrationState()
-            )
-        )
+                state: StartRegistrationState(),
+            ),
+        ),
     )
 }
 #endif

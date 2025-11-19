@@ -71,7 +71,7 @@ struct OTPAuthModel: Equatable {
         digits: Int,
         issuer: String?,
         period: Int,
-        secret: String
+        secret: String,
     ) {
         self.accountName = accountName?.nilIfEmpty
         self.algorithm = algorithm
@@ -101,13 +101,11 @@ struct OTPAuthModel: Equatable {
         let issuer = queryItems.first { $0.name == "issuer" }?.value
         let period = queryItems.first { $0.name == "period" }?.value.flatMap(Int.init) ?? 30
 
-        let accountName: String?
-
-        if let issuer {
+        let accountName: String? = if let issuer {
             // Remove the leading slash and trailing colon as well
-            accountName = String(urlComponents.path.dropFirst(issuer.count + 2))
+            String(urlComponents.path.dropFirst(issuer.count + 2))
         } else {
-            accountName = String(urlComponents.path.dropFirst())
+            String(urlComponents.path.dropFirst())
         }
 
         self.init(
@@ -116,7 +114,7 @@ struct OTPAuthModel: Equatable {
             digits: digits,
             issuer: issuer,
             period: period,
-            secret: secret
+            secret: secret,
         )
     }
 
@@ -132,7 +130,7 @@ struct OTPAuthModel: Equatable {
             digits: 6,
             issuer: issuer,
             period: 30,
-            secret: secret
+            secret: secret,
         )
     }
 }

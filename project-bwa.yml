@@ -4,39 +4,19 @@ fileGroups:
 configs:
   Debug: debug
   Release: release
+include:
+  - path: project-common.yml
 options:
-  createIntermediateGroups: true
-  deploymentTarget:
-    iOS: 15.0
-    watchOS: 8.0
-  groupSortPosition: top
-  usesTabs: false
-  indentWidth: 4
-  tabWidth: 4
+  fileTypes:
+    "icon":
+      file: true 
 settings:
   MARKETING_VERSION: 2024.6.1
   CURRENT_PROJECT_VERSION: 1
-include:
-  - path: Configs/local-sdk.yml
-    relativePaths: false
-    enable: ${LOCAL_SDK}
 packages:
-  BitwardenSdk:
-    url: https://github.com/bitwarden/sdk-swift
-    revision: 0c3baf9d372cd941146616a3d842b78c96a1170f
-    branch: unstable
-  Firebase:
-    url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.14.0
-  SnapshotTesting:
-    url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.4
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
-    exactVersion: 1.29.0
-  ViewInspector:
-    url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.1
+    exactVersion: 1.31.0
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -64,11 +44,19 @@ schemes:
         - BitwardenKit/AuthenticatorBridgeKitTests
         - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
+      testPlans:
+        - path: TestPlans/Authenticator-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Authenticator-Unit.xctestplan
+        - path: TestPlans/Authenticator-Snapshot.xctestplan
+        - path: TestPlans/Authenticator-ViewInspector.xctestplan
   AuthenticatorShared:
     build:
       targets:
         AuthenticatorShared: all
         AuthenticatorSharedTests: [test]
+        AuthenticatorSharedSnapshotTests: [test]
+        AuthenticatorSharedViewInspectorTests: [test]
     test:
       commandLineArguments:
         "-testing": true
@@ -77,6 +65,14 @@ schemes:
       gatherCoverageData: true
       targets:
         - AuthenticatorSharedTests
+        - AuthenticatorSharedSnapshotTests
+        - AuthenticatorSharedViewInspectorTests
+      testPlans:
+        - path: TestPlans/Authenticator-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Authenticator-Unit.xctestplan
+        - path: TestPlans/Authenticator-Snapshot.xctestplan
+        - path: TestPlans/Authenticator-ViewInspector.xctestplan
 targets:
   Authenticator:
     type: application
@@ -108,6 +104,7 @@ targets:
       - target: AuthenticatorShared
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
@@ -154,7 +151,6 @@ targets:
       - target: BitwardenKit/AuthenticatorBridgeKit
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
-      - package: ViewInspector
     randomExecutionOrder: true
 
   AuthenticatorShared:
@@ -182,17 +178,17 @@ targets:
         buildPhase: none
       - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
-      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
-        optional: true
       - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
         optional: true
       - path: AuthenticatorShared/Sourcery/sourcery.yml
         buildPhase: none
     dependencies:
-      - target: BitwardenKit/AuthenticatorBridgeKit
       - package: BitwardenSdk
-      - target: BitwardenKit/Networking
       - package: SwiftProtobuf
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
+      - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
         script: |
@@ -203,7 +199,6 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
-          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
       - name: Protobuf
         script: |
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
@@ -237,6 +232,9 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers-bwa
       - path: AuthenticatorShared/Sourcery/Generated
         optional: true
@@ -245,10 +243,66 @@ targets:
     dependencies:
       - target: Authenticator
       - target: AuthenticatorShared
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  AuthenticatorSharedSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers-bwa
+      - path: AuthenticatorShared/Sourcery/Generated
+        optional: true
+      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Authenticator
+      - target: AuthenticatorShared
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
+    randomExecutionOrder: true
+  AuthenticatorSharedViewInspectorTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers-bwa
+      - path: AuthenticatorShared/Sourcery/Generated
+        optional: true
+      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: Authenticator
+      - target: AuthenticatorShared
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+      - target: BitwardenKit/ViewInspectorTestHelpers
       - package: ViewInspector
     randomExecutionOrder: true

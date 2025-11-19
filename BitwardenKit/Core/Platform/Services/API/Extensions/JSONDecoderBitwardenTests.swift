@@ -8,10 +8,6 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
 
     /// `JSONDecoder.cxfDecoder` can decode Credential Exchange Format.
     func test_cxfDecoder_decodesISO8601DateWithFractionalSeconds() throws {
-        guard #available(iOS 18.3, *) else {
-            throw XCTSkip("This test only works from iOS 18.3")
-        }
-
         let subject = JSONDecoder.cxfDecoder
         let toDecode = #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#
 
@@ -26,43 +22,57 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
             credentialId: "credential",
             date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54),
             otherKey: "other",
-            rpId: "rp"
+            rpId: "rp",
         )
 
         XCTAssertEqual(
             try subject
                 .decode(JSONBody.self, from: Data(toDecode.utf8)),
-            body
+            body,
         )
     }
 
-    /// `JSONDecoder.cxfDecoder` can decode Credential Exchange Format on iOS versions lower than iOS 18.3.
-    func test_cxfDecoder_decodesISO8601DateWithFractionalSecondsOlderiOS18dot3() throws {
-        if #available(iOS 18.3, *) {
-            throw XCTSkip("This test only works until iOS 18.3")
+    /// `JSONDecoder.cxfDecoder` can decode URLs succesfully when they don't present schemes
+    /// prefixing http or https depending on if it's an IP Address on properties named "urls" and
+    /// if they can be converted directly to URL or not..
+    func test_cxfDecoder_decodesNoSchemeURLsSuccessfully() throws {
+        let subject = JSONDecoder.cxfDecoder
+        let toDecode =
+            """
+            {
+                "id": "1",
+                "scope": {
+                    "urls": [
+                        "192.168.1.100:8080",
+                        "api.example.com/v1/endpoint",
+                        "https://secure.example.com/api/v2"
+                    ]
+                }
+            }   
+            """
+
+        struct JSONContainerBody: Codable, Equatable {
+            let urls: [String]
         }
 
-        let subject = JSONDecoder.cxfDecoder
-        let toDecode = #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#
-
         struct JSONBody: Codable, Equatable {
-            let credentialID: String
-            let date: Date
-            let otherKey: String
-            let rpID: String
+            let id: String
+            let scope: JSONContainerBody
         }
 
         let body = JSONBody(
-            credentialID: "credential",
-            date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54),
-            otherKey: "other",
-            rpID: "rp"
+            id: "1",
+            scope: JSONContainerBody(urls: [
+                "http://192.168.1.100:8080",
+                "api.example.com/v1/endpoint",
+                "https://secure.example.com/api/v2",
+            ]),
         )
 
         XCTAssertEqual(
             try subject
                 .decode(JSONBody.self, from: Data(toDecode.utf8)),
-            body
+            body,
         )
     }
 
@@ -73,12 +83,12 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
         XCTAssertEqual(
             try subject
                 .decode(Date.self, from: Data(#""2023-08-18T21:33:31.6366667Z""#.utf8)),
-            Date(timeIntervalSince1970: 1_692_394_411.636)
+            Date(timeIntervalSince1970: 1_692_394_411.636),
         )
         XCTAssertEqual(
             try subject
                 .decode(Date.self, from: Data(#""2023-06-14T13:51:24.45Z""#.utf8)),
-            Date(timeIntervalSince1970: 1_686_750_684.450)
+            Date(timeIntervalSince1970: 1_686_750_684.450),
         )
     }
 
@@ -89,12 +99,12 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
         XCTAssertEqual(
             try subject
                 .decode(Date.self, from: Data(#""2023-08-25T21:33:00Z""#.utf8)),
-            Date(timeIntervalSince1970: 1_692_999_180)
+            Date(timeIntervalSince1970: 1_692_999_180),
         )
         XCTAssertEqual(
             try subject
                 .decode(Date.self, from: Data(#""2023-07-12T15:46:12Z""#.utf8)),
-            Date(timeIntervalSince1970: 1_689_176_772)
+            Date(timeIntervalSince1970: 1_689_176_772),
         )
     }
 
@@ -106,12 +116,12 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
         func assertThrowsDataCorruptedError(
             dateString: String,
             file: StaticString = #filePath,
-            line: UInt = #line
+            line: UInt = #line,
         ) {
             XCTAssertThrowsError(
                 try subject.decode(Date.self, from: Data(#""\#(dateString)""#.utf8)),
                 file: file,
-                line: line
+                line: line,
             ) { error in
                 XCTAssertTrue(error is DecodingError, file: file, line: line)
                 guard case let .dataCorrupted(context) = error as? DecodingError else {
@@ -121,7 +131,7 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
                     context.debugDescription,
                     "Unable to decode date with value '\(dateString)'",
                     file: file,
-                    line: line
+                    line: line,
                 )
             }
         }
