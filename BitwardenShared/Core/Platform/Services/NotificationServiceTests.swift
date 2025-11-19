@@ -502,12 +502,12 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(delegate.routeToLandingCalled)
     }
 
-    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will route
-    /// to the landing screen if the logged-out account was the currently active account.
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and
+    /// doesn't route to the landing screen if the logout reason was because of a KDF change.
     @MainActor
     func test_messageReceived_logout_activeUser_kdfChange() async throws {
         let activeAccount = Account.fixture()
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = true
+        configService.featureFlagsBool[.noLogoutOnKdfChange] = true
         stateService.setIsAuthenticated()
         stateService.accounts = [activeAccount]
 
@@ -532,9 +532,9 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will route
     /// to the landing screen if the logged-out account was the currently active account.
     @MainActor
-    func test_messageReceived_logout_activeUser_kdfChange_forceUpdateKdfSettingsOff() async throws {
+    func test_messageReceived_logout_activeUser_kdfChange_noLogoutOnKdfChangeOff() async throws {
         let activeAccount = Account.fixture()
-        configService.featureFlagsBool[.forceUpdateKdfSettings] = false
+        configService.featureFlagsBool[.noLogoutOnKdfChange] = false
         stateService.setIsAuthenticated()
         stateService.accounts = [activeAccount]
 
