@@ -43,7 +43,7 @@ class SelectLanguageCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.open(currentLanguage:)` presents the Select Language view.
     @MainActor
-    func test_navigateTo_flightRecorderLogs() throws {
+    func test_navigate_selectLanguage() throws {
         subject.navigate(to: .open(currentLanguage: LanguageOption("es")))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
