@@ -492,13 +492,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         )
         coordinator.start()
         coordinator.navigate(to: .open(currentLanguage: currentLanguage))
-//        let processor = SelectLanguageProcessor(
-//            coordinator: asAnyCoordinator(),
-//            delegate: delegate,
-//            services: services,
-//            state: SelectLanguageState(currentLanguage: currentLanguage),
-//        )
-//        stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
     }
 
     /// Shows the settings screen.
