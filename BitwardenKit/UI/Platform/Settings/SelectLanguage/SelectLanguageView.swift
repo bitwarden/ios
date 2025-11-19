@@ -28,6 +28,11 @@ public struct SelectLanguageView: View {
         }
     }
 
+    /// Initializes a `SelectLanguageView`.
+    ///
+    /// - Parameters:
+    ///   - store: The `Store` for this view.
+    ///
     public init(store: Store<SelectLanguageState, SelectLanguageAction, Void>) {
         self.store = store
     }
