@@ -52,6 +52,9 @@ class MockAppModule:
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
     var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
+    var selectLanguageCoordinatorDelegate: SelectLanguageDelegate?
+    // swiftlint:disable:next weak_navigator identifier_name
+    var selectLanguageCoordinatorStackNavigator: StackNavigator?
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
@@ -175,7 +178,9 @@ class MockAppModule:
         delegate: (any SelectLanguageDelegate)?,
         stackNavigator: any StackNavigator,
     ) -> AnyCoordinator<SelectLanguageRoute, Void> {
-        selectLanguageCoordinator.asAnyCoordinator()
+        selectLanguageCoordinatorDelegate = delegate
+        selectLanguageCoordinatorStackNavigator = stackNavigator
+        return selectLanguageCoordinator.asAnyCoordinator()
     }
 
     func makeSendCoordinator(
