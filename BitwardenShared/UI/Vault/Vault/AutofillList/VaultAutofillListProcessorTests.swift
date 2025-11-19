@@ -222,7 +222,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: "",
         )
-        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: [expectedSection])
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -233,6 +233,16 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
         XCTAssertFalse(subject.state.showNoResults)
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                mode: .passwords,
+                rpID: nil,
+                searchText: "bit",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.search()` doesn't perform a search if the search string is empty.
@@ -251,7 +261,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             await subject.perform(.search("example"))
         }
 
-        vaultRepository.searchCipherAutofillSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
         waitFor(!coordinator.alertShown.isEmpty)
         task.cancel()
 

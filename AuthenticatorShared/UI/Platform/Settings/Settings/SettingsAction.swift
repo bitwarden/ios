@@ -18,6 +18,9 @@ enum SettingsAction: Equatable {
     /// The export items button was tapped.
     case exportItemsTapped
 
+    /// An action for the Flight Recorder feature.
+    case flightRecorder(FlightRecorderSettingsSectionAction)
+
     /// The help center button was tapped.
     case helpCenterTapped
 

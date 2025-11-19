@@ -193,7 +193,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "2"))),
             XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
         ]
-        vaultRepository.searchVaultListSubject.value = vaultItems
+        let expectedSection = VaultListSection(
+            id: "",
+            items: vaultItems,
+            name: "",
+        )
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.search("Bit"))
@@ -204,6 +209,14 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         XCTAssertEqual(subject.state.searchResults, vaultItems)
         XCTAssertFalse(subject.state.showNoResults)
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                searchText: "bit",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.search()` doesn't perform a search if the search string is empty.
@@ -222,7 +235,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             await subject.perform(.search("example"))
         }
 
-        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
         waitFor(!coordinator.alertShown.isEmpty)
         task.cancel()
 
@@ -252,7 +265,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "2"))),
             XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
         ]
-        vaultRepository.searchVaultListSubject.value = vaultItems
+        let expectedSection = VaultListSection(
+            id: Localizations.matchingItems,
+            items: vaultItems,
+            name: Localizations.matchingItems,
+        )
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
 
         let task = Task {
             await subject.perform(.streamVaultItems)
@@ -271,6 +289,15 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
                 ),
             ],
         )
+        XCTAssertEqual(
+            vaultRepository.vaultListFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                options: [.isInPickerMode],
+                searchText: "Example",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.streamVaultItems` doesn't create an empty section if no results are returned.
@@ -279,7 +306,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         subject.state.vaultListSections = [
             VaultListSection(id: "", items: [.fixture()], name: Localizations.matchingItems),
         ]
-        vaultRepository.searchVaultListSubject.value = []
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [])
 
         let task = Task {
             await subject.perform(.streamVaultItems)
@@ -298,7 +325,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             await subject.perform(.streamVaultItems)
         }
 
-        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
         waitFor(!coordinator.alertShown.isEmpty)
         task.cancel()
 

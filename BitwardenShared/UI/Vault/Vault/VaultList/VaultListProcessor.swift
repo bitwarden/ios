@@ -267,7 +267,6 @@ extension VaultListProcessor {
     /// Dismisses the flight recorder toast banner for the active user.
     ///
     private func dismissFlightRecorderToastBanner() async {
-        state.isFlightRecorderToastBannerVisible = false
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
@@ -429,12 +428,15 @@ extension VaultListProcessor {
             return
         }
         do {
-            let result = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType),
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: state.searchVaultFilterType,
+                    searchText: searchText,
+                ),
             )
-            for try await ciphers in result {
-                state.searchResults = ciphers
+            for try await vaultListData in publisher {
+                let items = vaultListData.sections.first?.items ?? []
+                state.searchResults = items
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -496,8 +498,7 @@ extension VaultListProcessor {
     ///
     private func streamFlightRecorderLog() async {
         for await log in await services.flightRecorder.activeLogPublisher().values {
-            state.activeFlightRecorderLog = log
-            state.isFlightRecorderToastBannerVisible = !(log?.isBannerDismissed ?? true)
+            state.flightRecorderToastBanner.activeLog = log
         }
     }
 
@@ -516,7 +517,12 @@ extension VaultListProcessor {
     private func streamVaultList() async {
         do {
             for try await vaultList in try await services.vaultRepository
-                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
+                .vaultListPublisher(
+                    filter: VaultListFilter(
+                        filterType: state.vaultFilterType,
+                        options: [.addTOTPGroup, .addTrashGroup],
+                    ),
+                ) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
 

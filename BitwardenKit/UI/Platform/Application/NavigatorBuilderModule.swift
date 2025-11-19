@@ -12,9 +12,3 @@ public protocol NavigatorBuilderModule: AnyObject {
     ///
     func makeNavigationController() -> UINavigationController
 }
-
-extension DefaultAppModule: NavigatorBuilderModule {
-    public func makeNavigationController() -> UINavigationController {
-        ViewLoggingNavigationController(logger: services.flightRecorder)
-    }
-}

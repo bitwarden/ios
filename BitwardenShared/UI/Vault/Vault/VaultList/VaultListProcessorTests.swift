@@ -510,11 +510,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_dismissFlightRecorderToastBanner() async {
         stateService.activeAccount = .fixture()
-        subject.state.isFlightRecorderToastBannerVisible = true
 
         await subject.perform(.dismissFlightRecorderToastBanner)
 
-        XCTAssertFalse(subject.state.isFlightRecorderToastBannerVisible)
         XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedCalled)
     }
 
@@ -786,7 +784,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_search() {
         let searchResult: [CipherListView] = [.fixture(name: "example")]
-        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
+        vaultRepository.vaultListSubject.value = VaultListData(sections: [
+            VaultListSection(
+                id: "",
+                items: searchResult.compactMap { VaultListItem(cipherListView: $0) },
+                name: "",
+            ),
+        ])
         let task = Task {
             await subject.perform(.search("example"))
         }
@@ -803,7 +807,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(.search)` throws error and error is logged.
     @MainActor
     func test_perform_search_error() async {
-        vaultRepository.searchVaultListSubject.send(completion: .failure(BitwardenTestError.example))
+        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 0)
@@ -864,31 +868,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         defer { task.cancel() }
 
         flightRecorder.activeLogSubject.send(FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now))
-        try await waitForAsync { self.subject.state.isFlightRecorderToastBannerVisible }
-        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, true)
+        try await waitForAsync { self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, true)
 
         flightRecorder.activeLogSubject.send(nil)
-        try await waitForAsync { !self.subject.state.isFlightRecorderToastBannerVisible }
-        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
-    }
-
-    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log but doesn't
-    /// display the flight recorder banner if the user has dismissed it previously.
-    @MainActor
-    func test_perform_streamFlightRecorderLog_userDismissed() async throws {
-        stateService.activeAccount = .fixture()
-
-        let task = Task {
-            await subject.perform(.streamFlightRecorderLog)
-        }
-        defer { task.cancel() }
-
-        var log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
-        log.isBannerDismissed = true
-        flightRecorder.activeLogSubject.send(log)
-
-        try await waitForAsync { self.subject.state.activeFlightRecorderLog != nil }
-        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
+        try await waitForAsync { !self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, false)
     }
 
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
