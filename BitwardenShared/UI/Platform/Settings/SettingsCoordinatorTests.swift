@@ -366,10 +366,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_navigateTo_selectLanguage() throws {
         subject.navigate(to: .selectLanguage(currentLanguage: .default))
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is SelectLanguageView)
-        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertTrue(module.selectLanguageCoordinator.isStarted)
+        XCTAssertEqual(module.selectLanguageCoordinator.routes, [.open(currentLanguage: .default)])
+        XCTAssertNil(module.selectLanguageCoordinatorDelegate)
+        XCTAssertIdentical(module.selectLanguageCoordinatorStackNavigator, stackNavigator)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
