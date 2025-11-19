@@ -453,6 +453,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
+
+        let clientCertificateService = DefaultClientCertificateService(
+            stateService: stateService,
+        )
+
+        // Create certificate-aware HTTP client
+        let certificateHttpClient = CertificateHTTPClient(certificateService: clientCertificateService)
         let apiService = APIService(
             client: certificateHttpClient,
             environmentService: environmentService,
