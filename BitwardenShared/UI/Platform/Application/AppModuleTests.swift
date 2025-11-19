@@ -136,16 +136,17 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     /// `makeSelectLanguageCoordinator()` builds the select language coordinator.
-    /// TODO: Fix this
     @MainActor
-    func test_makeSelectLanguageCoordinator() {
-        let navigationController = UINavigationController()
+    func test_makeSelectLanguageCoordinator() throws {
+        let navigationController = MockStackNavigator()
         let coordinator = subject.makeSelectLanguageCoordinator(
             delegate: MockSelectLanguageDelegate(),
-            stackNavigator: navigationController
+            stackNavigator: navigationController,
         )
-        coordinator.start()
-        XCTAssertEqual(navigationController.viewControllers.count, 0)
+        coordinator.navigate(to: .open(currentLanguage: .default))
+        let action = try XCTUnwrap(navigationController.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SelectLanguageView)
     }
 
     /// `makeSendCoordinator()` builds the send coordinator.
