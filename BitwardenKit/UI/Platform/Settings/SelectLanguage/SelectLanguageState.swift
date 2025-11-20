@@ -5,7 +5,7 @@ public struct SelectLanguageState: Equatable {
     /// The currently selected language.
     public var currentLanguage: LanguageOption = .default
 
-    /// Creates a new `SelectLanguageState` with the default language option.
+    /// Creates a new `SelectLanguageState` with the `LanguageOption.default` language option.
     ///
     public init() {}
 

@@ -47,17 +47,25 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
         case .dismiss:
             stackNavigator?.dismiss()
         case let .open(currentLanguage):
-            let processor = SelectLanguageProcessor(
-                coordinator: asAnyCoordinator(),
-                delegate: delegate,
-                services: services,
-                state: SelectLanguageState(currentLanguage: currentLanguage),
-            )
-            stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
+            showSelectLanguage(currentLanguage: currentLanguage)
         }
     }
 
     public func start() {}
+
+    /// Presents the Select Language view.
+    ///
+    /// - Parameters:
+    ///   - currentLanguage: The currently selected language.
+    private func showSelectLanguage(currentLanguage: LanguageOption) {
+        let processor = SelectLanguageProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: SelectLanguageState(currentLanguage: currentLanguage),
+        )
+        stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
+    }
 }
 
 // MARK: - HasErrorAlertServices
