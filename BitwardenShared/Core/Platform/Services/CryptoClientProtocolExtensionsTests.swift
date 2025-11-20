@@ -40,7 +40,7 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
                     kdf: .pbkdf2(iterations: 600_000),
                     masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
                     salt: "SALT",
-                )
+                ),
             ),
         )
 
@@ -55,9 +55,9 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
                 masterPasswordUnlock: MasterPasswordUnlockData(
                     kdf: .pbkdf2(iterations: 600_000),
                     masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
-                    salt: "SALT"
-                )
-            )
+                    salt: "SALT",
+                ),
+            ),
         )
         XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
         XCTAssertEqual(request.securityState, "SECURITY_STATE")

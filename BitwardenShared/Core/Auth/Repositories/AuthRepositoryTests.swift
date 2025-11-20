@@ -1179,7 +1179,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 ),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
-            )
+            ),
         ))
         client.result = .httpSuccess(testData: .emptyResponse)
         // Account encryption keys don't exist until after a MP has been set for non-TDE users.
@@ -2151,7 +2151,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 ),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
-            )
+            ),
         ))
         configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
@@ -2209,7 +2209,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 ),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
-            )
+            ),
         ))
         configService.featureFlagsBool[.forceUpdateKdfSettings] = false
         changeKdfService.needsKdfUpdateToMinimumsResult = true
@@ -2507,7 +2507,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 ),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
-            )
+            ),
         ))
         clientService.mockCrypto.enrollPinWithEncryptedPinResult = .success(
             EnrollPinResponse(
@@ -2575,7 +2575,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 ),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
-            )
+            ),
         ))
         clientService.mockCrypto.enrollPinWithEncryptedPinResult = .success(
             EnrollPinResponse(
