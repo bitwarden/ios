@@ -14,6 +14,7 @@ class MockAppModule:
     FlightRecorderModule,
     ItemListModule,
     NavigatorBuilderModule,
+    SelectLanguageModule,
     SettingsModule,
     TabModule,
     TutorialModule {
@@ -27,6 +28,10 @@ class MockAppModule:
     var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
     var itemListCoordinatorDelegate: ItemListCoordinatorDelegate?
+    var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
+    var selectLanguageCoordinatorDelegate: SelectLanguageDelegate?
+    // swiftlint:disable:next weak_navigator identifier_name
+    var selectLanguageCoordinatorStackNavigator: StackNavigator?
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var tutorialCoordinator = MockCoordinator<TutorialRoute, TutorialEvent>()
@@ -92,6 +97,15 @@ class MockAppModule:
 
     func makeNavigationController() -> UINavigationController {
         UINavigationController()
+    }
+
+    func makeSelectLanguageCoordinator(
+        delegate: (any SelectLanguageDelegate)?,
+        stackNavigator: any StackNavigator,
+    ) -> AnyCoordinator<SelectLanguageRoute, Void> {
+        selectLanguageCoordinatorDelegate = delegate
+        selectLanguageCoordinatorStackNavigator = stackNavigator
+        return selectLanguageCoordinator.asAnyCoordinator()
     }
 
     func makeTabCoordinator(

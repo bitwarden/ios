@@ -83,12 +83,13 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
     @MainActor
     func test_navigateTo_selectLanguage() throws {
-        subject.navigate(to: .selectLanguage(currentLanguage: .default))
+        let delegate = MockSelectLanguageDelegate()
+        subject.navigate(to: .selectLanguage(currentLanguage: .default), context: delegate)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.embedInNavigationController, true)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is SelectLanguageView)
+        XCTAssertTrue(module.selectLanguageCoordinator.isStarted)
+        XCTAssertEqual(module.selectLanguageCoordinator.routes, [.open(currentLanguage: .default)])
+        XCTAssertTrue(module.selectLanguageCoordinatorDelegate is MockSelectLanguageDelegate)
+        XCTAssertIdentical(module.selectLanguageCoordinatorStackNavigator, stackNavigator)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
