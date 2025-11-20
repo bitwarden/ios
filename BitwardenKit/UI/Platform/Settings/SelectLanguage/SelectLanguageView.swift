@@ -28,6 +28,8 @@ public struct SelectLanguageView: View {
         }
     }
 
+    // MARK: Initializer
+
     /// Initializes a `SelectLanguageView`.
     ///
     /// - Parameters:
