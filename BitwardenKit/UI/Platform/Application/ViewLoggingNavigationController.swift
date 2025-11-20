@@ -1,4 +1,3 @@
-import BitwardenKit
 import UIKit
 
 // MARK: - ViewLoggingNavigationController
@@ -10,7 +9,7 @@ import UIKit
 /// `UINavigationController` *or* the `delegate` and `presentationController?.delegate` need to be
 /// passed from an existing navigation controller to any newly created `UINavigationController`.
 ///
-class ViewLoggingNavigationController: UINavigationController,
+public class ViewLoggingNavigationController: UINavigationController,
     UINavigationControllerDelegate,
     UIAdaptivePresentationControllerDelegate {
     // MARK: Properties
@@ -24,7 +23,7 @@ class ViewLoggingNavigationController: UINavigationController,
     ///
     /// - Parameter logger: The logger instance used to log when views appear and are dismissed.
     ///
-    init(logger: BitwardenLogger) {
+    public init(logger: BitwardenLogger) {
         self.logger = logger
         super.init(nibName: nil, bundle: nil)
     }
@@ -36,7 +35,7 @@ class ViewLoggingNavigationController: UINavigationController,
 
     // MARK: View Lifecycle
 
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
         presentationController?.delegate = self
@@ -44,14 +43,14 @@ class ViewLoggingNavigationController: UINavigationController,
 
     // MARK: UINavigationController
 
-    override func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
+    override public func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
         super.dismiss(animated: animated, completion: completion)
         logger.log("[Navigation] View dismissed: \(resolveLoggingViewName(for: self))")
     }
 
     // MARK: UINavigationControllerDelegate
 
-    func navigationController(
+    public func navigationController(
         _ navigationController: UINavigationController,
         didShow viewController: UIViewController,
         animated: Bool,
@@ -61,7 +60,7 @@ class ViewLoggingNavigationController: UINavigationController,
 
     // MARK: UIAdaptivePresentationControllerDelegate
 
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+    public func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
         let viewController = presentationController.presentedViewController
         logger.log("[Navigation] View dismissed interactively: \(resolveLoggingViewName(for: viewController))")
     }

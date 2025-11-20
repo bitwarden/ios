@@ -1,26 +1,33 @@
 @testable import AuthenticatorShared
 import BitwardenKit
 import BitwardenKitMocks
+import UIKit
 
 // MARK: - MockAppModule
 
 class MockAppModule:
     AppModule,
     AuthModule,
+    AuthenticatorItemModule,
     DebugMenuModule,
     FileSelectionModule,
     FlightRecorderModule,
     ItemListModule,
-    TutorialModule,
-    TabModule {
+    NavigatorBuilderModule,
+    SettingsModule,
+    TabModule,
+    TutorialModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .vaultUnlock })
+    var authenticatorItemCoordinator = MockCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent>()
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, FileSelectionEvent>()
     var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
+    var itemListCoordinatorDelegate: ItemListCoordinatorDelegate?
+    var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
     var tutorialCoordinator = MockCoordinator<TutorialRoute, TutorialEvent>()
 
@@ -41,6 +48,12 @@ class MockAppModule:
 
     func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
         authRouter.asAnyRouter()
+    }
+
+    func makeAuthenticatorItemCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<AuthenticatorItemRoute, AuthenticatorItemEvent> {
+        authenticatorItemCoordinator.asAnyCoordinator()
     }
 
     func makeDebugMenuCoordinator(
@@ -64,13 +77,26 @@ class MockAppModule:
     }
 
     func makeItemListCoordinator(
+        delegate: ItemListCoordinatorDelegate,
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<ItemListRoute, ItemListEvent> {
-        itemListCoordinator.asAnyCoordinator()
+        itemListCoordinatorDelegate = delegate
+        return itemListCoordinator.asAnyCoordinator()
+    }
+
+    func makeSettingsCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
+        settingsCoordinator.asAnyCoordinator()
+    }
+
+    func makeNavigationController() -> UINavigationController {
+        UINavigationController()
     }
 
     func makeTabCoordinator(
         errorReporter _: ErrorReporter,
+        itemListDelegate _: ItemListCoordinatorDelegate,
         rootNavigator _: RootNavigator,
         tabNavigator _: TabNavigator,
     ) -> AnyCoordinator<TabRoute, Void> {

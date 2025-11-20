@@ -41,6 +41,16 @@ class ItemListViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    @MainActor
+    func disabletest_snapshot_flightRecorderToastBanner() {
+        processor.state.loadingState = .data([])
+        processor.state.flightRecorderToastBanner.activeLog = FlightRecorderData.LogMetadata(
+            duration: .twentyFourHours,
+            startDate: Date(year: 2025, month: 4, day: 3),
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     /// Test a snapshot of the ItemListView previews.
     func disabletest_snapshot_ItemListView_previews() {
         for preview in ItemListView_Previews._allPreviews {

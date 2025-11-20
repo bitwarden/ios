@@ -32,6 +32,7 @@ typealias Services = HasAPIService
     & HasFlightRecorder
     & HasGeneratorRepository
     & HasImportCiphersRepository
+    & HasLanguageStateService
     & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService

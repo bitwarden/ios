@@ -7,10 +7,12 @@ import Networking
 extension APIService {
     convenience init(
         client: HTTPClient,
+        flightRecorder: FlightRecorder = MockFlightRecorder(),
     ) {
         self.init(
             client: client,
             environmentService: MockEnvironmentService(),
+            flightRecorder: flightRecorder,
         )
     }
 }

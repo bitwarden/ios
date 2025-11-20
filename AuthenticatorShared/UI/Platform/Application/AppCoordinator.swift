@@ -14,6 +14,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     typealias Module = AuthModule
         & DebugMenuModule
         & ItemListModule
+        & NavigatorBuilderModule
         & TabModule
         & TutorialModule
 
@@ -107,7 +108,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: authRoute)
         } else {
             guard let rootNavigator else { return }
-            let navigationController = UINavigationController()
+            let navigationController = module.makeNavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
@@ -133,6 +134,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
+                itemListDelegate: self,
                 rootNavigator: rootNavigator,
                 tabNavigator: tabNavigator,
             )
@@ -148,7 +150,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Shows the welcome tutorial.
     ///
     private func showTutorial() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeTutorialCoordinator(
             stackNavigator: navigationController,
         )
@@ -196,4 +198,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
 extension AppCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - ItemListCoordinatorDelegate
+
+extension AppCoordinator: ItemListCoordinatorDelegate {
+    func switchToSettingsTab(route: SettingsRoute) {
+        showTab(route: .settings(route))
+    }
 }

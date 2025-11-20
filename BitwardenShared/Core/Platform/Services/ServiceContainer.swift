@@ -112,6 +112,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
 
+    /// The state service that handles language state.
+    public let languageStateService: LanguageStateService
+
     /// The service used by the application to evaluate local auth policies.
     let localAuthService: LocalAuthService
 
@@ -233,6 +236,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   in Credential Exhange flow.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
+    ///   - languageStateService: The service for handling language state.
     ///   - localAuthService: The service used by the application to evaluate local auth policies.
     ///   - migrationService: The serviced used to perform app data migrations.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
@@ -291,6 +295,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         importCiphersRepository: ImportCiphersRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
+        languageStateService: LanguageStateService,
         localAuthService: LocalAuthService,
         migrationService: MigrationService,
         nfcReaderService: NFCReaderService,
@@ -348,6 +353,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.importCiphersRepository = importCiphersRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
+        self.languageStateService = languageStateService
         self.localAuthService = localAuthService
         self.migrationService = migrationService
         self.nfcReaderService = nfcReaderService
@@ -936,6 +942,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            languageStateService: stateService,
             localAuthService: localAuthService,
             migrationService: migrationService,
             nfcReaderService: nfcReaderService ?? NoopNFCReaderService(),
