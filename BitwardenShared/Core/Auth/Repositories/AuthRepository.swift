@@ -993,17 +993,15 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVaultWithPassword(password: String) async throws {
         let account = try await stateService.getActiveAccount()
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        guard let encUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
 
-        let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock
-        let unlockMethod: InitUserCryptoMethod = if let masterPasswordUnlock {
-            .masterPasswordUnlock(
-                password: password,
-                masterPasswordUnlock: MasterPasswordUnlockData(responseModel: masterPasswordUnlock),
-            )
-        } else {
-            .password(password: password, userKey: encUserKey)
+        guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
+            throw AuthError.missingUserDecryptionOptions
         }
+
+        let unlockMethod: InitUserCryptoMethod = .masterPasswordUnlock(
+            password: password,
+            masterPasswordUnlock: MasterPasswordUnlockData(responseModel: masterPasswordUnlock),
+        )
         try await unlockVault(method: unlockMethod)
 
         let hashedPassword = try await authService.hashPassword(
@@ -1249,8 +1247,7 @@ extension DefaultAuthRepository: AuthRepository {
             )
             await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
         case .decryptedKey,
-             .masterPasswordUnlock,
-             .password:
+             .masterPasswordUnlock:
             guard let encryptedPin = try await stateService.getEncryptedPin(),
                   try await stateService.pinProtectedUserKeyEnvelope() == nil
             else {
@@ -1276,7 +1273,8 @@ extension DefaultAuthRepository: AuthRepository {
                 try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
                 await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
             }
-        case .pinEnvelope:
+        case .password,
+             .pinEnvelope:
             break
         }
     }
