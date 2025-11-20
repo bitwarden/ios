@@ -51,4 +51,10 @@ class SelectLanguageCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is SelectLanguageView)
         XCTAssertEqual(action.embedInNavigationController, true)
     }
+
+    /// `errorAlertServices` returns the services.
+    @MainActor
+    func test_errorAlertServices() {
+        XCTAssertNotNil(subject.errorAlertServices)
+    }
 }
