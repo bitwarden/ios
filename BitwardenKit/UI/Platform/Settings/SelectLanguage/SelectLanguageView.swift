@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - SelectLanguageView
 
-/// A view that shows a list of all the available languages to select from..
+/// A view that shows a list of all the available languages to select from.
 ///
 public struct SelectLanguageView: View {
     // MARK: Properties
