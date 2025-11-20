@@ -8,7 +8,7 @@ extension MockVaultListSectionsBuilder {
             helper.recordCall("addAutofillPasswordsSection")
             return self
         }
-        addAutofillCombinedMultipleSectionClosure = { (_: String?) -> VaultListSectionsBuilder in
+        addAutofillCombinedMultipleSectionClosure = { (_: String?, _: String?) -> VaultListSectionsBuilder in
             helper.recordCall("addAutofillCombinedMultipleSection")
             return self
         }
@@ -42,6 +42,10 @@ extension MockVaultListSectionsBuilder {
         }
         addCollectionsSectionClosure = { (_: String?) throws -> VaultListSectionsBuilder in
             helper.recordCall("addCollectionsSection")
+            return self
+        }
+        addSearchResultsSectionClosure = { _ -> VaultListSectionsBuilder in
+            helper.recordCall("addSearchResultsSection")
             return self
         }
         addTrashSectionClosure = { () -> VaultListSectionsBuilder in

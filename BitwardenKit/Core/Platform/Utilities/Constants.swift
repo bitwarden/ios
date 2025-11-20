@@ -17,6 +17,10 @@ public enum Constants {
     /// The device type, iOS = 1.
     public static let deviceType: DeviceType = 1
 
+    /// The number of days that a flight recorder log will remain on the device after the end date
+    /// before being automatically deleted.
+    static let flightRecorderLogExpirationDays = 30
+
     /// The minimum number of minutes before attempting a server config sync again.
     public static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 

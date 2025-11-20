@@ -19,6 +19,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasCameraService
         & HasConfigService
         & HasErrorReporter
+        & HasFlightRecorder
         & HasNotificationCenterService
         & HasPasteboardService
         & HasTOTPExpirationManagerFactory
@@ -99,6 +100,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 else { return }
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
+        case .dismissFlightRecorderToastBanner:
+            await dismissFlightRecorderToastBanner()
         case let .moveToBitwardenPressed(item):
             guard case let .totp(model) = item.itemType else { return }
             await moveItemToBitwarden(item: model.itemView)
@@ -107,6 +110,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             await streamItemList()
         case let .search(text):
             await searchItems(for: text)
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case .streamItemList:
             await streamItemList()
         }
@@ -127,6 +132,8 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
 
             services.pasteboardService.copy(totpCode.code)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        case .navigateToFlightRecorderSettings:
+            coordinator.navigate(to: .flightRecorderSettings)
         case let .searchStateChanged(isSearching: isSearching):
             guard isSearching else {
                 state.searchText = ""
@@ -157,6 +164,12 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Dismisses the flight recorder toast banner.
+    ///
+    private func dismissFlightRecorderToastBanner() async {
+        await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
     /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
@@ -344,6 +357,14 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             return true
         } else {
             return false
+        }
+    }
+
+    /// Streams the flight recorder enabled status.
+    ///
+    private func streamFlightRecorderLog() async {
+        for await log in await services.flightRecorder.activeLogPublisher().values {
+            state.flightRecorderToastBanner.activeLog = log
         }
     }
 

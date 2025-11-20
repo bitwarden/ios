@@ -51,25 +51,17 @@ private struct SearchableVaultListView: View {
             ),
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
-        .toastBanner(
-            title: Localizations.flightRecorderOn,
-            subtitle: {
-                guard let log = store.state.activeFlightRecorderLog else { return "" }
-                return Localizations.flightRecorderWillBeActiveUntilDescriptionLong(
-                    log.formattedEndDate,
-                    log.formattedEndTime,
-                )
-            }(),
+        .flightRecorderToastBanner(
+            activeLog: store.state.flightRecorderToastBanner.activeLog,
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             isVisible: store.bindingAsync(
-                get: \.isFlightRecorderToastBannerVisible,
+                get: \.flightRecorderToastBanner.isToastBannerVisible,
                 perform: { _ in .dismissFlightRecorderToastBanner },
             ),
-        ) {
-            Button(Localizations.goToSettings) {
+            goToSettingsAction: {
                 store.send(.navigateToFlightRecorderSettings)
-            }
-        }
+            },
+        )
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)

@@ -49,13 +49,24 @@ struct SettingsView: View {
         .task {
             await store.perform(.loadData)
         }
+        .task {
+            await store.perform(.streamFlightRecorderLog)
+        }
     }
 
     // MARK: Private views
 
     /// The about section containing privacy policy and version information.
     @ViewBuilder private var aboutSection: some View {
-        SectionView(Localizations.about) {
+        SectionView(Localizations.about, contentSpacing: 8) {
+            FlightRecorderSettingsSectionView(
+                store: store.child(
+                    state: \.flightRecorderState,
+                    mapAction: { .flightRecorder($0) },
+                    mapEffect: { .flightRecorder($0) },
+                ),
+            )
+
             ContentBlock(dividerLeadingPadding: 16) {
                 externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
 

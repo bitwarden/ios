@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SelectLanguageState
 
 /// The state used to present the `SelectLanguageView`.

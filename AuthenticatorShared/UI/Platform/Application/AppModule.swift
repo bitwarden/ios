@@ -1,4 +1,5 @@
 import BitwardenKit
+import UIKit
 
 // MARK: AppModule
 
@@ -54,5 +55,27 @@ extension DefaultAppModule: AppModule {
             rootNavigator: navigator,
             services: services,
         ).asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + FlightRecorderModule
+
+extension DefaultAppModule: FlightRecorderModule {
+    public func makeFlightRecorderCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        FlightRecorderCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + NavigatorBuilderModule
+
+extension DefaultAppModule: NavigatorBuilderModule {
+    public func makeNavigationController() -> UINavigationController {
+        ViewLoggingNavigationController(logger: services.flightRecorder)
     }
 }
