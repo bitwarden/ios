@@ -24,7 +24,7 @@ struct SimpleLoginFormView: View {
         Form {
             Section {
                 TextField(
-                    "Username",
+                    Localizations.username,
                     text: store.binding(
                         get: \.username,
                         send: SimpleLoginFormAction.usernameChanged,
@@ -35,7 +35,7 @@ struct SimpleLoginFormView: View {
                 .autocorrectionDisabled()
 
                 SecureField(
-                    "Password",
+                    Localizations.password,
                     text: store.binding(
                         get: \.password,
                         send: SimpleLoginFormAction.passwordChanged,
@@ -43,30 +43,30 @@ struct SimpleLoginFormView: View {
                 )
                 .textContentType(.password)
             } header: {
-                Text("Credentials")
+                Text(Localizations.credentials)
             } footer: {
-                Text("Use this simple login form to test autofill functionality.")
+                Text(Localizations.simpleLoginFormDescription)
             }
 
             Section {
                 if !store.state.username.isEmpty || !store.state.password.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         if !store.state.username.isEmpty {
-                            Text("Username: \(store.state.username)")
+                            Text(Localizations.usernameValue(store.state.username))
                                 .styleGuide(.body)
                         }
                         if !store.state.password.isEmpty {
-                            Text("Password: \(String(repeating: "•", count: store.state.password.count))")
+                            Text(Localizations.passwordValue(String(repeating: "•", count: store.state.password.count)))
                                 .styleGuide(.body)
                         }
                     }
                 } else {
-                    Text("Enter credentials above")
+                    Text(Localizations.enterCredentialsAbove)
                         .foregroundColor(.secondary)
                         .styleGuide(.body)
                 }
             } header: {
-                Text("Form Values")
+                Text(Localizations.formValues)
             }
         }
     }

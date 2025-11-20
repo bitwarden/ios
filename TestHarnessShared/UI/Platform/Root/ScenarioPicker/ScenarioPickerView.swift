@@ -38,7 +38,7 @@ struct ScenarioPickerView: View {
                     .foregroundColor(.primary)
                 }
             } header: {
-                Text("Test Scenarios")
+                Text(Localizations.testScenarios)
             }
         }
         .listStyle(.insetGrouped)

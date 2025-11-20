@@ -6,7 +6,7 @@ struct SimpleLoginFormState: Equatable {
     // MARK: Properties
 
     /// The title of the screen.
-    var title: String = "Simple Login Form"
+    var title: String = Localizations.simpleLoginForm
 
     /// The username field value.
     var username: String = ""

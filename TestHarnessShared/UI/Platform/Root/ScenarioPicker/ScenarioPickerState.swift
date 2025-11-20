@@ -13,21 +13,6 @@ struct ScenarioItem: Equatable, Identifiable {
 
     /// The route to navigate to when this scenario is selected.
     let route: RootRoute?
-
-    // MARK: Initialization
-
-    /// Initialize a `ScenarioItem`.
-    ///
-    /// - Parameters:
-    ///   - id: The unique identifier for the scenario.
-    ///   - title: The display title for the scenario.
-    ///   - route: The route to navigate to when this scenario is selected. Nil if not yet implemented.
-    ///
-    init(id: String, title: String, route: RootRoute?) {
-        self.id = id
-        self.title = title
-        self.route = route
-    }
 }
 
 /// The state for the scenario picker screen.
@@ -36,12 +21,12 @@ struct ScenarioPickerState: Equatable {
     // MARK: Properties
 
     /// The title of the screen.
-    var title: String = "Test Harness"
+    var title: String = Localizations.testHarness
 
     /// The available test scenarios.
     var scenarios: [ScenarioItem] = [
-        ScenarioItem(id: "simpleLoginForm", title: "Simple Login Form", route: .simpleLoginForm),
-        ScenarioItem(id: "passkeyAutofill", title: "Passkey Autofill", route: nil),
-        ScenarioItem(id: "createPasskey", title: "Create Passkey", route: nil),
+        ScenarioItem(id: "simpleLoginForm", title: Localizations.simpleLoginForm, route: .simpleLoginForm),
+        ScenarioItem(id: "passkeyAutofill", title: Localizations.passkeyAutofill, route: nil),
+        ScenarioItem(id: "createPasskey", title: Localizations.createPasskey, route: nil),
     ]
 }

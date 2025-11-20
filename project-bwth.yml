@@ -128,6 +128,8 @@ targets:
           - "**/sourcery.yml"
       - path: TestHarnessShared/Sourcery/sourcery.yml
         buildPhase: none
+      - path: TestHarnessShared/UI/Platform/Application/Support/Generated/Localizations.swift
+        optional: true
     dependencies:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
@@ -141,6 +143,15 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/TestHarnessShared/Sourcery/Generated/AutoMockable.generated.swift
+      - name: SwiftGen
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen-bwth.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/TestHarnessShared/UI/Platform/Application/Support/Generated/Localizations.swift
   TestHarnessSharedTests:
     type: bundle.unit-test
     platform: iOS
