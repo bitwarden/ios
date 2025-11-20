@@ -28,14 +28,12 @@ class ScenarioPickerProcessor: StateProcessor<ScenarioPickerState, ScenarioPicke
 
     override func receive(_ action: ScenarioPickerAction) {
         switch action {
-        case .simpleLoginFormTapped:
-            coordinator.navigate(to: .simpleLoginForm)
-        case .passkeyAutofillTapped:
-            // Not yet implemented
-            break
-        case .createPasskeyTapped:
-            // Not yet implemented
-            break
+        case let .scenarioTapped(scenario):
+            guard let route = scenario.route else {
+                // Scenario not yet implemented
+                return
+            }
+            coordinator.navigate(to: route)
         }
     }
 }

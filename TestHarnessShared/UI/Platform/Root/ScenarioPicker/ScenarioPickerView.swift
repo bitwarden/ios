@@ -23,44 +23,20 @@ struct ScenarioPickerView: View {
     private var content: some View {
         List {
             Section {
-                Button {
-                    store.send(.simpleLoginFormTapped)
-                } label: {
-                    HStack {
-                        Text("Simple Login Form")
-                            .styleGuide(.body)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.secondary)
+                ForEach(store.state.scenarios) { scenario in
+                    Button {
+                        store.send(.scenarioTapped(scenario))
+                    } label: {
+                        HStack {
+                            Text(scenario.title)
+                                .styleGuide(.body)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                        }
                     }
+                    .foregroundColor(.primary)
                 }
-                .foregroundColor(.primary)
-
-                Button {
-                    store.send(.passkeyAutofillTapped)
-                } label: {
-                    HStack {
-                        Text("Passkey Autofill")
-                            .styleGuide(.body)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .foregroundColor(.primary)
-
-                Button {
-                    store.send(.createPasskeyTapped)
-                } label: {
-                    HStack {
-                        Text("Create Passkey")
-                            .styleGuide(.body)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .foregroundColor(.primary)
             } header: {
                 Text("Test Scenarios")
             }
