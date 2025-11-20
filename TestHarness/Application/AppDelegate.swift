@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, AppDelegateType {
 
     func application(
         _: UIApplication,
-        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil
+        didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]? = nil,
     ) -> Bool {
         // Exit early if testing to avoid running any app functionality.
         guard !isTesting else { return true }

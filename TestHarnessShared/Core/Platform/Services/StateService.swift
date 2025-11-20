@@ -1,8 +1,7 @@
 import BitwardenKit
 
 /// Protocol for the service that controls the general state of the app.
-protocol StateService {
-}
+protocol StateService {}
 
 // MARK: - DefaultStateService
 

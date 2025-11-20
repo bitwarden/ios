@@ -13,7 +13,7 @@ public protocol AppModule: AnyObject {
     /// - Returns: An `AppCoordinator` instance.
     ///
     func makeAppCoordinator(
-        navigator: RootNavigator
+        navigator: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent>
 }
 
@@ -41,12 +41,12 @@ public class DefaultAppModule: AppModule {
     // MARK: Methods
 
     public func makeAppCoordinator(
-        navigator: RootNavigator
+        navigator: RootNavigator,
     ) -> AnyCoordinator<AppRoute, AppEvent> {
         AppCoordinator(
             module: self,
             rootNavigator: navigator,
-            services: services
+            services: services,
         ).asAnyCoordinator()
     }
 }
@@ -55,11 +55,11 @@ public class DefaultAppModule: AppModule {
 
 extension DefaultAppModule: RootModule {
     func makeRootCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<RootRoute, Void> {
         RootCoordinator(
             services: services,
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

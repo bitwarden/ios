@@ -1,8 +1,8 @@
 import Foundation
 
-/// The state for the test list screen.
+/// The state for the scenario picker screen.
 ///
-struct TestListState: Equatable {
+struct ScenarioPickerState: Equatable {
     // MARK: Properties
 
     /// The title of the screen.

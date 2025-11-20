@@ -1,8 +1,8 @@
 import Foundation
 
-/// Actions that can be processed by a `PasswordAutofillProcessor`.
+/// Actions that can be processed by a `SimpleLoginFormProcessor`.
 ///
-enum PasswordAutofillAction: Equatable {
+enum SimpleLoginFormAction: Equatable {
     /// The password field was updated.
     case passwordChanged(String)
 

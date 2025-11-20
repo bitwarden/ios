@@ -1,12 +1,12 @@
 import BitwardenKit
 import Combine
 
-/// The processor for the password autofill test screen.
+/// The processor for the simple login form test screen.
 ///
-class PasswordAutofillProcessor: StateProcessor<
-    PasswordAutofillState,
-    PasswordAutofillAction,
-    PasswordAutofillEffect
+class SimpleLoginFormProcessor: StateProcessor<
+    SimpleLoginFormState,
+    SimpleLoginFormAction,
+    SimpleLoginFormEffect,
 > {
     // MARK: Types
 
@@ -19,18 +19,18 @@ class PasswordAutofillProcessor: StateProcessor<
 
     // MARK: Initialization
 
-    /// Initialize a `PasswordAutofillProcessor`.
+    /// Initialize a `SimpleLoginFormProcessor`.
     ///
     /// - Parameter coordinator: The coordinator that handles navigation.
     ///
     init(coordinator: AnyCoordinator<RootRoute, Void>) {
         self.coordinator = coordinator
-        super.init(state: PasswordAutofillState())
+        super.init(state: SimpleLoginFormState())
     }
 
     // MARK: Methods
 
-    override func receive(_ action: PasswordAutofillAction) {
+    override func receive(_ action: SimpleLoginFormAction) {
         switch action {
         case let .usernameChanged(newValue):
             state.username = newValue

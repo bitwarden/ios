@@ -1,9 +1,9 @@
 import BitwardenKit
 import Combine
 
-/// The processor for the test list screen.
+/// The processor for the scenario picker screen.
 ///
-class TestListProcessor: StateProcessor<TestListState, TestListAction, TestListEffect> {
+class ScenarioPickerProcessor: StateProcessor<ScenarioPickerState, ScenarioPickerAction, ScenarioPickerEffect> {
     // MARK: Types
 
     typealias Services = HasErrorReporter
@@ -15,21 +15,21 @@ class TestListProcessor: StateProcessor<TestListState, TestListAction, TestListE
 
     // MARK: Initialization
 
-    /// Initialize a `TestListProcessor`.
+    /// Initialize a `ScenarioPickerProcessor`.
     ///
     /// - Parameter coordinator: The coordinator that handles navigation.
     ///
     init(coordinator: AnyCoordinator<RootRoute, Void>) {
         self.coordinator = coordinator
-        super.init(state: TestListState())
+        super.init(state: ScenarioPickerState())
     }
 
     // MARK: Methods
 
-    override func receive(_ action: TestListAction) {
+    override func receive(_ action: ScenarioPickerAction) {
         switch action {
-        case .passwordAutofillTapped:
-            coordinator.navigate(to: .passwordAutofill)
+        case .simpleLoginFormTapped:
+            coordinator.navigate(to: .simpleLoginForm)
         case .passkeyAutofillTapped:
             // Not yet implemented
             break

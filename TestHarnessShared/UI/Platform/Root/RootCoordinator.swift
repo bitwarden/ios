@@ -26,7 +26,7 @@ class RootCoordinator: Coordinator, HasStackNavigator {
     ///
     init(
         services: Services,
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) {
         self.services = services
         self.stackNavigator = stackNavigator
@@ -36,10 +36,10 @@ class RootCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: RootRoute, context: AnyObject?) {
         switch route {
-        case .testList:
-            showTestList()
-        case .passwordAutofill:
-            showPasswordAutofill()
+        case .scenarioPicker:
+            showScenarioPicker()
+        case .simpleLoginForm:
+            showSimpleLoginForm()
         }
     }
 
@@ -49,19 +49,19 @@ class RootCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
-    /// Shows the test list screen.
+    /// Shows the scenario picker screen.
     ///
-    private func showTestList() {
-        let processor = TestListProcessor(coordinator: asAnyCoordinator())
-        let view = TestListView(store: Store(processor: processor))
+    private func showScenarioPicker() {
+        let processor = ScenarioPickerProcessor(coordinator: asAnyCoordinator())
+        let view = ScenarioPickerView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
 
-    /// Shows the password autofill test screen.
+    /// Shows the simple login form test screen.
     ///
-    private func showPasswordAutofill() {
-        let processor = PasswordAutofillProcessor(coordinator: asAnyCoordinator())
-        let view = PasswordAutofillView(store: Store(processor: processor))
+    private func showSimpleLoginForm() {
+        let processor = SimpleLoginFormProcessor(coordinator: asAnyCoordinator())
+        let view = SimpleLoginFormView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.push(viewController)
     }

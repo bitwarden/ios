@@ -29,7 +29,7 @@ public class AppProcessor {
     ///
     public init(
         appModule: AppModule,
-        services: ServiceContainer
+        services: ServiceContainer,
     ) {
         self.appModule = appModule
         self.services = services
@@ -47,7 +47,7 @@ public class AppProcessor {
     ///
     public func start(
         navigator: RootNavigator,
-        window: UIWindow?
+        window: UIWindow?,
     ) async {
         let coordinator = appModule.makeAppCoordinator(navigator: navigator)
         coordinator.start()

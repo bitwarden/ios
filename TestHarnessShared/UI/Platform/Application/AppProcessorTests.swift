@@ -40,6 +40,7 @@ class AppProcessorTests: BitwardenTestCase {
 
 /// A mock `AppModule` for testing.
 ///
+@MainActor
 class MockAppModule: AppModule {
     var makeAppCoordinatorCalled = false
 
@@ -48,7 +49,7 @@ class MockAppModule: AppModule {
         return AppCoordinator(
             module: self,
             rootNavigator: navigator,
-            services: ServiceContainer()
+            services: ServiceContainer(),
         ).asAnyCoordinator()
     }
 }
@@ -57,7 +58,7 @@ extension MockAppModule: RootModule {
     func makeRootCoordinator(stackNavigator: StackNavigator) -> AnyCoordinator<RootRoute, Void> {
         RootCoordinator(
             services: ServiceContainer(),
-            stackNavigator: stackNavigator
+            stackNavigator: stackNavigator,
         ).asAnyCoordinator()
     }
 }

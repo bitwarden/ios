@@ -1,13 +1,13 @@
 import BitwardenKit
 import SwiftUI
 
-/// A view that displays a form for testing password autofill functionality.
+/// A view that displays a simple login form for testing autofill functionality.
 ///
-struct PasswordAutofillView: View {
+struct SimpleLoginFormView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<PasswordAutofillState, PasswordAutofillAction, PasswordAutofillEffect>
+    @ObservedObject var store: Store<SimpleLoginFormState, SimpleLoginFormAction, SimpleLoginFormEffect>
 
     // MARK: View
 
@@ -27,8 +27,8 @@ struct PasswordAutofillView: View {
                     "Username",
                     text: store.binding(
                         get: \.username,
-                        send: PasswordAutofillAction.usernameChanged
-                    )
+                        send: SimpleLoginFormAction.usernameChanged,
+                    ),
                 )
                 .textContentType(.username)
                 .textInputAutocapitalization(.never)
@@ -38,14 +38,14 @@ struct PasswordAutofillView: View {
                     "Password",
                     text: store.binding(
                         get: \.password,
-                        send: PasswordAutofillAction.passwordChanged
-                    )
+                        send: SimpleLoginFormAction.passwordChanged,
+                    ),
                 )
                 .textContentType(.password)
             } header: {
                 Text("Credentials")
             } footer: {
-                Text("Use this form to test password autofill functionality.")
+                Text("Use this simple login form to test autofill functionality.")
             }
 
             Section {
@@ -77,7 +77,7 @@ struct PasswordAutofillView: View {
 #if DEBUG
 #Preview {
     NavigationView {
-        PasswordAutofillView(store: Store(processor: StateProcessor(state: PasswordAutofillState())))
+        SimpleLoginFormView(store: Store(processor: StateProcessor(state: SimpleLoginFormState())))
     }
 }
 #endif

@@ -28,7 +28,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
-        options connectionOptions: UIScene.ConnectionOptions
+        options connectionOptions: UIScene.ConnectionOptions,
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
         guard let appProcessor else {
@@ -53,7 +53,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Task {
             await appProcessor.start(
                 navigator: rootViewController,
-                window: appWindow
+                window: appWindow,
             )
             hideSplash()
             isStartingUp = false
@@ -80,7 +80,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.isHidden = false
         window.rootViewController = UIStoryboard(
             name: "LaunchScreen",
-            bundle: .main
+            bundle: .main,
         ).instantiateInitialViewController()
         window.windowLevel = UIWindow.Level.alert + 1
         return window

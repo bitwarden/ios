@@ -41,7 +41,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     init(
         module: Module,
         rootNavigator: RootNavigator,
-        services: Services
+        services: Services,
     ) {
         self.module = module
         self.rootNavigator = rootNavigator
@@ -53,7 +53,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
-            showRoot(route: .testList)
+            showRoot(route: .scenarioPicker)
         }
     }
 
@@ -83,7 +83,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let navigationController = UINavigationController()
             navigationController.navigationBar.prefersLargeTitles = true
             let coordinator = module.makeRootCoordinator(
-                stackNavigator: navigationController
+                stackNavigator: navigationController,
             )
             coordinator.start()
             coordinator.navigate(to: route)

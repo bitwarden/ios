@@ -106,7 +106,6 @@ targets:
     dependencies:
       - target: TestHarness
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
     randomExecutionOrder: true
 
   TestHarnessShared:
@@ -125,13 +124,8 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
-          - "**/__Snapshots__/*"
           - "**/Sourcery/Generated/*"
           - "**/sourcery.yml"
-      - path: TestHarnessShared
-        includes:
-          - "**/__Snapshots__/*"
-        buildPhase: none
       - path: TestHarnessShared/Sourcery/sourcery.yml
         buildPhase: none
     dependencies:
@@ -171,6 +165,4 @@ targets:
       - target: TestHarnessShared
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
-      - package: SnapshotTesting
-        product: InlineSnapshotTesting
     randomExecutionOrder: true

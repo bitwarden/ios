@@ -3,11 +3,11 @@ import SwiftUI
 
 /// A view that displays a list of test scenarios available in the test harness.
 ///
-struct TestListView: View {
+struct ScenarioPickerView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<TestListState, TestListAction, TestListEffect>
+    @ObservedObject var store: Store<ScenarioPickerState, ScenarioPickerAction, ScenarioPickerEffect>
 
     // MARK: View
 
@@ -24,10 +24,10 @@ struct TestListView: View {
         List {
             Section {
                 Button {
-                    store.send(.passwordAutofillTapped)
+                    store.send(.simpleLoginFormTapped)
                 } label: {
                     HStack {
-                        Text("Password Autofill")
+                        Text("Simple Login Form")
                             .styleGuide(.body)
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -74,7 +74,7 @@ struct TestListView: View {
 #if DEBUG
 #Preview {
     NavigationView {
-        TestListView(store: Store(processor: StateProcessor(state: TestListState())))
+        ScenarioPickerView(store: Store(processor: StateProcessor(state: ScenarioPickerState())))
     }
 }
 #endif

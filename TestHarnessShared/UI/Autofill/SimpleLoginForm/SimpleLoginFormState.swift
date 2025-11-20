@@ -1,12 +1,12 @@
 import Foundation
 
-/// The state for the password autofill test screen.
+/// The state for the simple login form test screen.
 ///
-struct PasswordAutofillState: Equatable {
+struct SimpleLoginFormState: Equatable {
     // MARK: Properties
 
     /// The title of the screen.
-    var title: String = "Password Autofill"
+    var title: String = "Simple Login Form"
 
     /// The username field value.
     var username: String = ""

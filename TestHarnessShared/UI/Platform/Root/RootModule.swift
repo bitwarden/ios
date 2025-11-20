@@ -3,6 +3,7 @@ import Foundation
 
 /// A protocol for an object that contains the dependencies for creating coordinators in the root flow.
 ///
+@MainActor
 protocol RootModule: AnyObject {
     /// Creates a `RootCoordinator`.
     ///
@@ -10,6 +11,6 @@ protocol RootModule: AnyObject {
     /// - Returns: A `RootCoordinator` instance.
     ///
     func makeRootCoordinator(
-        stackNavigator: StackNavigator
+        stackNavigator: StackNavigator,
     ) -> AnyCoordinator<RootRoute, Void>
 }
