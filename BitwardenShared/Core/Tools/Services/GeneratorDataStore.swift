@@ -83,10 +83,10 @@ extension DataStore: GeneratorDataStore {
             PasswordHistoryData.sortByLastUsedDateDescending,
         ]
         return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
+            context: backgroundContext,
             request: fetchRequest,
+            transform: { try $0.map(PasswordHistory.init) },
         )
-        .tryMap { try $0.map(PasswordHistory.init) }
         .eraseToAnyPublisher()
     }
 }

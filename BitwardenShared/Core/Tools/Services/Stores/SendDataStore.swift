@@ -89,10 +89,10 @@ extension DataStore: SendDataStore {
         // A sort descriptor is needed by `NSFetchedResultsController`.
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \SendData.id, ascending: true)]
         return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
+            context: backgroundContext,
             request: fetchRequest,
+            transform: { try $0.first.map(Send.init) },
         )
-        .tryMap { try $0.first.map(Send.init) }
         .eraseToAnyPublisher()
     }
 
@@ -101,10 +101,10 @@ extension DataStore: SendDataStore {
         // A sort descriptor is needed by `NSFetchedResultsController`.
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \SendData.id, ascending: true)]
         return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
+            context: backgroundContext,
             request: fetchRequest,
+            transform: { try $0.map(Send.init) },
         )
-        .tryMap { try $0.map(Send.init) }
         .eraseToAnyPublisher()
     }
 
