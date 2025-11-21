@@ -195,7 +195,7 @@
 "Icons" = "图标";
 "Translations" = "翻译";
 "ItemsForUri" = "适用于 %1$@ 的项目";
-"NoItemsForUri" = "您的密码库中没有可用于 %1$@ 的项目。";
+"NoItemsForUri" = "您的密码库中没有适用于 %1$@ 的项目。";
 "BitwardenAutofillServiceOverlay" = "当您选择一个输入字段并看到一个 Bitwarden 自动填充叠加层时，您可以点击它来启动自动填充服务。";
 "BitwardenAutofillServiceNotificationContent" = "点击此通知以自动填充密码库中的项目。";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "打开无障碍设置";
@@ -884,7 +884,7 @@
 "SecondDotTurnOnAutoFill" = "2. 启用自动填充";
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. 选择「Bitwarden」以用于密码和通行密钥";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "您的通行密钥将保存在您的 Bitwarden 密码库中";
-"YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "您的通行密钥将保存在您的 %1$@ Bitwarden 密码库中";
+"YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "您的通行密钥将保存到您的 %1$@ Bitwarden 密码库中";
 "PasskeysNotSupportedForThisApp" = "此 App 不支持通行密钥";
 "PasskeyOperationFailedBecauseBrowserIsNotPrivileged" = "由于浏览器没有权限，通行密钥操作失败";
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "由于浏览器签名不匹配，通行密钥操作失败";
@@ -1156,7 +1156,7 @@
 "OpenPasswordGenerator" = "打开密码生成器";
 "GeneratePassphrase" = "生成密码短语";
 "AllowUniversalClipboard" = "允许通用剪贴板";
-"UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪贴板，可以在此处复制然后粘贴到使用相同 Apple ID 登录的其他设备上。";
+"UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪贴板，可以在这里复制然后粘贴到使用相同 Apple ID 登录的其他设备上。";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "您的 PIN 码必须至少包含 %1$@ 个字符。您的 PIN 设置将在您完全注销应用程序时被重置。";
 "RemoveMasterPasswordMessage" = "%1$@ 正在使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
 "RemoveMasterPasswordConfirmDomain" = "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。";
