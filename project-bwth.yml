@@ -1,0 +1,179 @@
+name: TestHarness
+configs:
+  Debug: debug
+  Release: release
+include:
+  - path: project-common.yml
+options:
+  fileTypes:
+    "icon":
+      file: true
+settings:
+  MARKETING_VERSION: 1.0.0
+  CURRENT_PROJECT_VERSION: 1
+projectReferences:
+  BitwardenKit:
+    path: BitwardenKit.xcodeproj
+schemes:
+  TestHarness:
+    build:
+      targets:
+        TestHarness: all
+        TestHarnessTests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      coverageTargets:
+        - TestHarness
+        - TestHarnessShared
+        - BitwardenKit/BitwardenKit
+      targets:
+        - TestHarnessTests
+        - TestHarnessSharedTests
+        - BitwardenKit/BitwardenKitTests
+      testPlans:
+        - path: TestPlans/TestHarness-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/TestHarness-Unit.xctestplan
+  TestHarnessShared:
+    build:
+      targets:
+        TestHarnessShared: all
+        TestHarnessSharedTests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - TestHarnessSharedTests
+      testPlans:
+        - path: TestPlans/TestHarness-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/TestHarness-Unit.xctestplan
+targets:
+  TestHarness:
+    type: application
+    platform: iOS
+    configFiles:
+      Debug: Configs/TestHarness-Debug.xcconfig
+      Release: Configs/TestHarness-Release.xcconfig
+    settings:
+      base:
+        INFOPLIST_FILE: TestHarness/Application/Support/Info.plist
+    sources:
+      - path: TestHarness
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: README-bwth.md
+        buildPhase: none
+    dependencies:
+      - target: TestHarnessShared
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
+    postCompileScripts:
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftlint
+        name: Swiftlint
+        basedOnDependencyAnalysis: false
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftformat --lint --lenient .
+        name: SwiftFormat Lint
+        basedOnDependencyAnalysis: false
+  TestHarnessTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: TestHarness/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: TestHarness
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers-bwth
+    dependencies:
+      - target: TestHarness
+      - target: BitwardenKit/TestHelpers
+    randomExecutionOrder: true
+
+  TestHarnessShared:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/TestHarnessShared-Debug.xcconfig
+      Release: Configs/TestHarnessShared-Release.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: TestHarnessShared/UI/Platform/Application/Support/Info.plist
+    sources:
+      - path: TestHarnessShared
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+          - "**/Sourcery/Generated/*"
+          - "**/sourcery.yml"
+      - path: TestHarnessShared/Sourcery/sourcery.yml
+        buildPhase: none
+      - path: TestHarnessShared/UI/Platform/Application/Support/Generated/Localizations.swift
+        optional: true
+    dependencies:
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/BitwardenResources
+    preBuildScripts:
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config TestHarnessShared/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/TestHarnessShared/Sourcery/Generated/AutoMockable.generated.swift
+      - name: SwiftGen
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen-bwth.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/TestHarnessShared/UI/Platform/Application/Support/Generated/Localizations.swift
+  TestHarnessSharedTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/TestHarness.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TestHarness"
+        INFOPLIST_FILE: TestHarnessShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: TestHarnessShared
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers-bwth
+      - path: TestHarnessShared/Sourcery/Generated
+        optional: true
+      - path: TestHarnessShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: TestHarness
+      - target: TestHarnessShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+    randomExecutionOrder: true
