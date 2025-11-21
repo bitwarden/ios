@@ -7,6 +7,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @MainActor
 final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length

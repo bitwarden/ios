@@ -391,6 +391,22 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+  BitwardenSharedMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        GENERATE_INFOPLIST_FILE: YES
+    sources:
+      - path: BitwardenShared
+        includes:
+          - "**/Fixtures/*"
+          - "**/Mocks/*"
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: BitwardenShared
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -407,18 +423,14 @@ targets:
         includes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
         excludes:
           - "**/*SnapshotTests.*"
           - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
@@ -441,15 +453,11 @@ targets:
         includes:
           - "**/*SnapshotTests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
@@ -472,15 +480,11 @@ targets:
         includes:
           - "**/*ViewInspectorTests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - target: BitwardenKit/ViewInspectorTestHelpers

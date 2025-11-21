@@ -6,6 +6,7 @@ import SnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
