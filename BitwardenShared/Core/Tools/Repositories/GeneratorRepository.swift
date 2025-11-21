@@ -184,7 +184,7 @@ extension DefaultGeneratorRepository: GeneratorRepository {
     // MARK: Generator
 
     func generateMasterPassword() async throws -> String {
-        try await clientService.generators(isPreAuth: false).passphrase(
+        try await clientService.generators(isPreAuth: true).passphrase(
             settings: PassphraseGeneratorRequest(
                 numWords: 3,
                 wordSeparator: "-",

@@ -115,6 +115,13 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ImportLoginsView>)
     }
 
+    /// `makeNavigationController()` builds a navigation controller.
+    @MainActor
+    func test_makeNavigationController() {
+        let navigationController = subject.makeNavigationController()
+        XCTAssertTrue(navigationController is ViewLoggingNavigationController)
+    }
+
     /// `makePasswordAutoFillCoordinator` builds the password autofill coordinator.
     @MainActor
     func test_makePasswordAutoFillCoordinator() {

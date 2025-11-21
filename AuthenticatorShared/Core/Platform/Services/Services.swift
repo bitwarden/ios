@@ -15,6 +15,7 @@ typealias Services = HasAppInfoService
     & HasExportItemsService
     & HasFlightRecorder
     & HasImportItemsService
+    & HasLanguageStateService
     & HasNotificationCenterService
     & HasPasteboardService
     & HasStateService
