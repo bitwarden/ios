@@ -313,6 +313,8 @@ struct VaultListView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultListState, VaultListAction, VaultListEffect>
 
+    @StateObject var searchContext = SearchContext()
+
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
@@ -334,8 +336,11 @@ struct VaultListView: View {
                 prompt: Localizations.search,
             )
             .autocorrectionDisabled(true)
-            .task(id: store.state.searchText) {
-                await store.perform(.search(store.state.searchText))
+            .onChange(of: store.state.searchText) { newValue in
+                searchContext.query = newValue
+            }
+            .task(id: searchContext.debouncedQuery) {
+                await store.perform(.search(searchContext.debouncedQuery))
             }
             .task(id: store.state.searchVaultFilterType) {
                 await store.perform(.search(store.state.searchText))
