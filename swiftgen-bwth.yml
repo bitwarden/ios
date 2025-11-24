@@ -1,0 +1,11 @@
+output_dir: TestHarnessShared/UI/Platform/Application/Support/Generated/
+strings:
+  inputs:
+    - TestHarnessShared/UI/Platform/Application/Support/Localizations/en.lproj
+  outputs:
+    - templateName: structured-swift5
+      output: Localizations.swift
+      params:
+        enumName: Localizations
+        publicAccess: true
+        lookupFunction: TestHarnessResources.localizationFunction(key:table:fallbackValue:)

@@ -1,0 +1,13 @@
+"TestHarness" = "Test Harness";
+"TestScenarios" = "Test Scenarios";
+"SimpleLoginForm" = "Simple Login Form";
+"PasskeyAutofill" = "Passkey Autofill";
+"CreatePasskey" = "Create Passkey";
+"Username" = "Username";
+"Password" = "Password";
+"Credentials" = "Credentials";
+"SimpleLoginFormDescription" = "Use this simple login form to test autofill functionality.";
+"EnterCredentialsAbove" = "Enter credentials above";
+"FormValues" = "Form Values";
+"UsernameValue" = "Username: %@";
+"PasswordValue" = "Password: %@";
