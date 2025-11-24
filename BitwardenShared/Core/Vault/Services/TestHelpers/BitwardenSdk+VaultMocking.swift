@@ -141,6 +141,7 @@ extension Cipher {
             deletedDate: cipherView.deletedDate,
             revisionDate: cipherView.revisionDate,
             archivedDate: cipherView.archivedDate,
+            data: nil,
         )
     }
 }
