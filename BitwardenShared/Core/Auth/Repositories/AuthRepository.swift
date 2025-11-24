@@ -995,7 +995,7 @@ extension DefaultAuthRepository: AuthRepository {
         let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
 
         guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
-            throw AuthError.missingUserDecryptionOptions
+            throw AuthError.missingMasterPasswordUnlockData
         }
 
         let unlockMethod: InitUserCryptoMethod = .masterPasswordUnlock(
