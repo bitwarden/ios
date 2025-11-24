@@ -369,7 +369,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertTrue(module.selectLanguageCoordinator.isStarted)
         XCTAssertEqual(module.selectLanguageCoordinator.routes, [.open(currentLanguage: .default)])
-        XCTAssertTrue(module.selectLanguageCoordinatorDelegate is MockSelectLanguageDelegate)
+        XCTAssertNotNil(module.selectLanguageCoordinator.contexts.last as? MockSelectLanguageDelegate)
         XCTAssertIdentical(module.selectLanguageCoordinatorStackNavigator, stackNavigator)
     }
 

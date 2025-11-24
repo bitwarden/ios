@@ -192,11 +192,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     private func showSelectLanguage(currentLanguage: LanguageOption, delegate: SelectLanguageDelegate?) {
         guard let stackNavigator else { return }
         let coordinator = module.makeSelectLanguageCoordinator(
-            delegate: delegate,
             stackNavigator: stackNavigator,
         )
         coordinator.start()
-        coordinator.navigate(to: .open(currentLanguage: currentLanguage))
+        coordinator.navigate(to: .open(currentLanguage: currentLanguage), context: delegate)
     }
 
     /// Shows the settings screen.

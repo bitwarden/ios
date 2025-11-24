@@ -11,9 +11,6 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
         & HasErrorReporter
         & HasLanguageStateService
 
-    /// The delegate for handling the selection flow.
-    private weak var delegate: SelectLanguageDelegate?
-
     /// The services used by this coordinator.
     private let services: Services
 
@@ -31,11 +28,9 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     public init(
-        delegate: SelectLanguageDelegate?,
         services: Services,
         stackNavigator: StackNavigator,
     ) {
-        self.delegate = delegate
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -47,7 +42,10 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
         case .dismiss:
             stackNavigator?.dismiss()
         case let .open(currentLanguage):
-            showSelectLanguage(currentLanguage: currentLanguage)
+            showSelectLanguage(
+                currentLanguage: currentLanguage,
+                delegate: context as? SelectLanguageDelegate,
+            )
         }
     }
 
@@ -57,7 +55,11 @@ public final class SelectLanguageCoordinator: Coordinator, HasStackNavigator {
     ///
     /// - Parameters:
     ///   - currentLanguage: The currently selected language.
-    private func showSelectLanguage(currentLanguage: LanguageOption) {
+    ///   - delegate: The delegate for handling the selection flow.
+    private func showSelectLanguage(
+        currentLanguage: LanguageOption,
+        delegate: SelectLanguageDelegate?,
+    ) {
         let processor = SelectLanguageProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,

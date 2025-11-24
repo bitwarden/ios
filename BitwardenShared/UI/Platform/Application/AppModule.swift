@@ -90,11 +90,9 @@ extension DefaultAppModule: NavigatorBuilderModule {
 
 extension DefaultAppModule: SelectLanguageModule {
     public func makeSelectLanguageCoordinator(
-        delegate: SelectLanguageDelegate?,
         stackNavigator: StackNavigator,
     ) -> AnyCoordinator<SelectLanguageRoute, Void> {
         SelectLanguageCoordinator(
-            delegate: delegate,
             services: services,
             stackNavigator: stackNavigator,
         )

@@ -16,7 +16,6 @@ class SelectLanguageCoordinatorTests: BitwardenTestCase {
         stackNavigator = MockStackNavigator()
 
         subject = SelectLanguageCoordinator(
-            delegate: nil,
             services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator,
         )

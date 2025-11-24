@@ -44,11 +44,8 @@ class AppModuleTests: BitwardenTestCase {
     @MainActor
     func test_makeAppCoordinator() {
         let coordinator = subject.makeAppCoordinator(appContext: .mainApp, navigator: rootViewController)
-        let task = Task {
-            coordinator.navigate(to: .auth(.landing), context: nil)
-        }
-        waitFor(rootViewController.childViewController != nil)
-        task.cancel()
+        coordinator.navigate(to: .auth(.landing), context: nil)
+        XCTAssertNotNil(rootViewController.childViewController)
     }
 
     /// `makeAuthCoordinator` builds the auth coordinator.
@@ -140,7 +137,6 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeSelectLanguageCoordinator() throws {
         let navigationController = MockStackNavigator()
         let coordinator = subject.makeSelectLanguageCoordinator(
-            delegate: MockSelectLanguageDelegate(),
             stackNavigator: navigationController,
         )
         coordinator.navigate(to: .open(currentLanguage: .default))
