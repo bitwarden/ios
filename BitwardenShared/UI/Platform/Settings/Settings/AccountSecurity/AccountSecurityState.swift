@@ -134,17 +134,44 @@ struct AccountSecurityState: Equatable {
         customTimeoutValueSeconds.timeInHoursMinutes(shouldSpellOut: true)
     }
 
+    /// The  message informing the user of their organization's policy-set session timeout duration.
+    var customTimeoutMessage: String {
+        switch (policyTimeoutHours, policyTimeoutMinutes) {
+        case let (hours, minutes) where hours > 0 && minutes > 0:
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToXAndY(
+                Localizations.xHours(
+                    policyTimeoutHours,
+                ),
+                Localizations.xMinutes(
+                    policyTimeoutMinutes,
+                ),
+            )
+        case let (hours, _) where hours > 0:
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+                Localizations.xHours(
+                    policyTimeoutHours,
+                ),
+            )
+        default:
+            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+                Localizations.xMinutes(
+                    policyTimeoutMinutes,
+                ),
+            )
+        }
+    }
+
+    /// The string representation of the custom session timeout value.
+    var customTimeoutString: String {
+        customTimeoutValueSeconds.timeInHoursMinutes()
+    }
+
     /// The custom session timeout value, in seconds, initially set to 60 seconds.
     var customTimeoutValueSeconds: Int {
         guard case let .custom(customValueInMinutes) = sessionTimeoutValue, customValueInMinutes > 0 else {
             return 60
         }
         return customValueInMinutes * 60
-    }
-
-    /// The string representation of the custom session timeout value.
-    var customTimeoutString: String {
-        customTimeoutValueSeconds.timeInHoursMinutes()
     }
 
     /// Whether the user has a method to unlock the vault (master password, pin set, or biometrics
@@ -185,17 +212,6 @@ struct AccountSecurityState: Equatable {
         return Localizations.thisSettingIsManagedByYourOrganization
     }
 
-    /// The policy's timeout value in hours.
-    var policyTimeoutHours: Int {
-        policyTimeoutValue / 60
-    }
-
-    /// The message to display if a timeout policy is in effect for the user.
-    var policyTimeoutMessage: String? {
-        guard !isShowingCustomTimeout else { return nil }
-        return policyTimeoutCustomMessage
-    }
-
     /// The message to display if a timeout policy is in effect for the user.
     var policyTimeoutCustomMessage: String? {
         guard isPolicyTimeoutEnabled, let policy = policyTimeoutType else { return nil }
@@ -211,6 +227,17 @@ struct AccountSecurityState: Equatable {
         default:
             return customTimeoutMessage
         }
+    }
+
+    /// The policy's timeout value in hours.
+    var policyTimeoutHours: Int {
+        policyTimeoutValue / 60
+    }
+
+    /// The message to display if a timeout policy is in effect for the user.
+    var policyTimeoutMessage: String? {
+        guard !isShowingCustomTimeout else { return nil }
+        return policyTimeoutCustomMessage
     }
 
     /// The policy's timeout value in minutes.
@@ -229,32 +256,6 @@ struct AccountSecurityState: Equatable {
     /// Whether the unlock with Pin feature is available.
     var unlockWithPinFeatureAvailable: Bool {
         !removeUnlockWithPinPolicyEnabled || isUnlockWithPINCodeOn
-    }
-
-    var customTimeoutMessage: String {
-        switch (policyTimeoutHours, policyTimeoutMinutes) {
-        case let (hours, minutes) where hours > 0 && minutes > 0:
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToXAndY(
-                Localizations.xHours(
-                    policyTimeoutHours,
-                ),
-                Localizations.xMinutes(
-                    policyTimeoutMinutes,
-                ),
-            )
-        case let (hours, _) where hours > 0:
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
-                Localizations.xHours(
-                    policyTimeoutHours,
-                ),
-            )
-        default:
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
-                Localizations.xMinutes(
-                    policyTimeoutMinutes,
-                ),
-            )
-        }
     }
 
     /// Returns the available timeout options based on policy type and value.

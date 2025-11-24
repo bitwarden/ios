@@ -146,47 +146,44 @@ struct AccountSecurityView: View {
     /// The session timeout section.
     private var sessionTimeoutSection: some View {
         SectionView(Localizations.sessionTimeout, contentSpacing: 8) {
-            VStack(spacing: 16) {
-                ContentBlock(dividerLeadingPadding: 16) {
-                    BitwardenMenuField(
-                        title: Localizations.sessionTimeout,
-                        footer: store.state.policyTimeoutMessage,
-                        accessibilityIdentifier: "VaultTimeoutChooser",
-                        options: store.state.availableTimeoutOptions,
-                        selection: store.binding(
-                            get: \.sessionTimeoutValue,
-                            send: AccountSecurityAction.sessionTimeoutValueChanged,
-                        ),
-                    )
-                    .disabled(store.state.isSessionTimeoutPickerDisabled)
+            ContentBlock(dividerLeadingPadding: 16) {
+                BitwardenMenuField(
+                    title: Localizations.sessionTimeout,
+                    footer: store.state.policyTimeoutMessage,
+                    accessibilityIdentifier: "VaultTimeoutChooser",
+                    options: store.state.availableTimeoutOptions,
+                    selection: store.binding(
+                        get: \.sessionTimeoutValue,
+                        send: AccountSecurityAction.sessionTimeoutValueChanged,
+                    ),
+                )
+                .disabled(store.state.isSessionTimeoutPickerDisabled)
 
-                    if store.state.isShowingCustomTimeout {
-                        SettingsPickerField(
-                            title: "",
-                            footer: store.state.policyTimeoutCustomMessage,
-                            customTimeoutValue: store.state.customTimeoutString,
-                            pickerValue: store.binding(
-                                get: \.customTimeoutValueSeconds,
-                                send: AccountSecurityAction.customTimeoutValueSecondsChanged,
-                            ),
-                            hasDivider: true,
-                            customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel,
-                        )
-                    }
-                }
-                ContentBlock(dividerLeadingPadding: 16) {
-                    BitwardenMenuField(
-                        title: Localizations.sessionTimeoutAction,
-                        footer: store.state.policyTimeoutActionMessage,
-                        accessibilityIdentifier: "VaultTimeoutActionChooser",
-                        options: store.state.availableTimeoutActions,
-                        selection: store.binding(
-                            get: \.sessionTimeoutAction,
-                            send: AccountSecurityAction.sessionTimeoutActionChanged,
+                if store.state.isShowingCustomTimeout {
+                    SettingsPickerField(
+                        title: "",
+                        footer: store.state.policyTimeoutCustomMessage,
+                        customTimeoutValue: store.state.customTimeoutString,
+                        pickerValue: store.binding(
+                            get: \.customTimeoutValueSeconds,
+                            send: AccountSecurityAction.customTimeoutValueSecondsChanged,
                         ),
+                        customTimeoutAccessibilityLabel: store.state.customTimeoutAccessibilityLabel,
                     )
-                    .disabled(store.state.isSessionTimeoutActionDisabled)
                 }
+            }
+            ContentBlock(dividerLeadingPadding: 16) {
+                BitwardenMenuField(
+                    title: Localizations.sessionTimeoutAction,
+                    footer: store.state.policyTimeoutActionMessage,
+                    accessibilityIdentifier: "VaultTimeoutActionChooser",
+                    options: store.state.availableTimeoutActions,
+                    selection: store.binding(
+                        get: \.sessionTimeoutAction,
+                        send: AccountSecurityAction.sessionTimeoutActionChanged,
+                    ),
+                )
+                .disabled(store.state.isSessionTimeoutActionDisabled)
             }
         }
     }

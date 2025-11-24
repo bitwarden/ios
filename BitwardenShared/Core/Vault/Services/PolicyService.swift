@@ -16,7 +16,7 @@ protocol PolicyService: AnyObject {
     /// If the policy for a maximum vault timeout value is enabled,
     /// return the value and action to take upon timeout.
     ///
-    /// - Returns: The timeout value in minutes, and the action to take upon timeout.
+    /// - Returns: The session timeout policy.
     ///
     func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy?
 

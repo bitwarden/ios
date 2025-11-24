@@ -17,9 +17,6 @@ public struct SettingsPickerField: View {
     /// The footer text displayed below the toggle.
     let footer: String?
 
-    /// Whether the menu field should have a bottom divider.
-    let hasDivider: Bool
-
     /// The date picker value.
     @Binding var pickerValue: Int
 
@@ -57,7 +54,7 @@ public struct SettingsPickerField: View {
                 .padding(.horizontal, 16)
             }
 
-            if hasDivider {
+            if footer != nil {
                 Divider()
                     .padding(.leading, 16)
             }
@@ -66,21 +63,17 @@ public struct SettingsPickerField: View {
                 CountdownDatePicker(duration: $pickerValue)
                     .frame(maxWidth: .infinity)
 
-                if hasDivider {
+                if footer != nil {
                     Divider()
                         .padding(.leading, 16)
                 }
             }
 
-            if footer != nil {
-                Group {
-                    if let footer {
-                        Text(footer)
-                            .styleGuide(.subheadline)
-                            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
-                    }
-                }
-                .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+            if let footer {
+                Text(footer)
+                    .styleGuide(.subheadline)
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                    .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
             }
         }
         .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
@@ -95,7 +88,6 @@ public struct SettingsPickerField: View {
     ///   - footer: The footer text displayed below the menu field.
     ///   - customTimeoutValue: The custom session timeout value.
     ///   - pickerValue: The date picker value.
-    ///   - hasDivider: Whether or not the field has a bottom edge divider.
     ///   - customTimeoutAccessibilityLabel: The accessibility label used for the custom timeout value.
     ///
     public init(
@@ -103,13 +95,11 @@ public struct SettingsPickerField: View {
         footer: String? = nil,
         customTimeoutValue: String,
         pickerValue: Binding<Int>,
-        hasDivider: Bool = true,
-        customTimeoutAccessibilityLabel: String,
+        customTimeoutAccessibilityLabel: String
     ) {
         self.customTimeoutAccessibilityLabel = customTimeoutAccessibilityLabel
         self.customTimeoutValue = customTimeoutValue
         self.footer = footer
-        self.hasDivider = hasDivider
         _pickerValue = pickerValue
         self.title = title
     }
