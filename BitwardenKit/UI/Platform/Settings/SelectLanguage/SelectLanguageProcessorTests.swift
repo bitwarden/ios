@@ -1,15 +1,14 @@
-import BitwardenKit
 import BitwardenKitMocks
 import XCTest
 
-@testable import AuthenticatorShared
+@testable import BitwardenKit
 
 // MARK: - SelectLanguageProcessorTests
 
 class SelectLanguageProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var coordinator: MockCoordinator<SelectLanguageRoute, Void>!
     var delegate: MockSelectLanguageDelegate!
     var languageStateService: MockLanguageStateService!
     var subject: SelectLanguageProcessor!
@@ -60,7 +59,7 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.currentLanguage, .custom(languageCode: "th"))
         XCTAssertEqual(languageStateService.appLanguage, .custom(languageCode: "th"))
-        XCTAssertEqual(delegate.selectedLanguage, .custom(languageCode: "th"))
+        XCTAssertEqual(delegate.languageSelectedReceivedLanguageOption, .custom(languageCode: "th"))
         XCTAssertEqual(coordinator.alertShown.last, .languageChanged(to: LanguageOption("th").title) {})
 
         // Tapping the button on the alert should dismiss the view.
@@ -75,15 +74,5 @@ class SelectLanguageProcessorTests: BitwardenTestCase {
     func test_receive_languageTapped_noChange() {
         subject.receive(.languageTapped(.default))
         XCTAssertTrue(coordinator.alertShown.isEmpty)
-    }
-}
-
-// MARK: - MockSelectLanguageDelegate
-
-class MockSelectLanguageDelegate: SelectLanguageDelegate {
-    var selectedLanguage: LanguageOption?
-
-    func languageSelected(_ languageOption: LanguageOption) {
-        selectedLanguage = languageOption
     }
 }
