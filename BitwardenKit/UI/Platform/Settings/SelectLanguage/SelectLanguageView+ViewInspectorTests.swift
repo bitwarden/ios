@@ -2,12 +2,10 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
-import SnapshotTesting
+import ViewInspectorTestHelpers
 import XCTest
 
 // MARK: - SelectLanguageViewTests
-
-@testable import AuthenticatorShared
 
 class SelectLanguageViewTests: BitwardenTestCase {
     // MARK: Properties
@@ -33,13 +31,21 @@ class SelectLanguageViewTests: BitwardenTestCase {
         subject = nil
     }
 
-    // MARK: Snapshots
+    // MARK: Tests
 
-    /// Test that the view renders correctly.
-    func disabletest_viewRender() {
-        assertSnapshots(
-            of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()],
-        )
+    /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
+    func test_cancelButton_tap() throws {
+        let button = try subject.inspect().findCancelToolbarButton()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
+    /// Tapping a language button dispatches the `.languageTapped(_)` action.
+    @MainActor
+    func test_languageButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.defaultSystem)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .languageTapped(.default))
     }
 }

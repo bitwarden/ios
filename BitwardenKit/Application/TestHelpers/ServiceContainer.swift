@@ -8,6 +8,7 @@ typealias Services = HasConfigService
     & HasErrorReportBuilder
     & HasErrorReporter
     & HasFlightRecorder
+    & HasLanguageStateService
     & HasTimeProvider
 
 /// A service container used for testing processors within `BitwardenKitTests`.
@@ -18,6 +19,7 @@ class ServiceContainer: Services {
     let errorReportBuilder: any ErrorReportBuilder
     let errorReporter: ErrorReporter
     let flightRecorder: FlightRecorder
+    let languageStateService: any LanguageStateService
     let timeProvider: TimeProvider
 
     required init(
@@ -26,6 +28,7 @@ class ServiceContainer: Services {
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
+        languageStateService: LanguageStateService,
         timeProvider: TimeProvider,
     ) {
         self.configService = configService
@@ -33,6 +36,7 @@ class ServiceContainer: Services {
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.flightRecorder = flightRecorder
+        self.languageStateService = languageStateService
         self.timeProvider = timeProvider
     }
 }
@@ -44,6 +48,7 @@ extension ServiceContainer {
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
+        languageStateService: LanguageStateService = MockLanguageStateService(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
     ) -> ServiceContainer {
         self.init(
@@ -52,6 +57,7 @@ extension ServiceContainer {
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
+            languageStateService: languageStateService,
             timeProvider: timeProvider,
         )
     }
