@@ -461,6 +461,8 @@ extension DefaultSyncService {
         let timeoutAction = try await stateService.getTimeoutAction()
         let timeoutValue = try await stateService.getVaultTimeout()
 
+        // For onAppRestart and never policy types, preserve the user's current timeout value
+        // as these policy types don't restrict the value itself, only the behavior
         if type == SessionTimeoutType.onAppRestart || type == SessionTimeoutType.never {
             try await stateService.setVaultTimeout(
                 value: timeoutValue,

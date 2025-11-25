@@ -54,7 +54,7 @@ public struct SettingsPickerField: View {
                 .padding(.horizontal, 16)
             }
 
-            if footer != nil {
+            if let footer {
                 Divider()
                     .padding(.leading, 16)
             }
@@ -63,7 +63,7 @@ public struct SettingsPickerField: View {
                 CountdownDatePicker(duration: $pickerValue)
                     .frame(maxWidth: .infinity)
 
-                if footer != nil {
+                if let footer {
                     Divider()
                         .padding(.leading, 16)
                 }

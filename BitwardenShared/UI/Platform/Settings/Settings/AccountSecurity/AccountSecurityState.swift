@@ -134,7 +134,10 @@ struct AccountSecurityState: Equatable {
         customTimeoutValueSeconds.timeInHoursMinutes(shouldSpellOut: true)
     }
 
-    /// The  message informing the user of their organization's policy-set session timeout duration.
+    /// The localized message informing the user of their organization's policy-set session timeout duration.
+    ///
+    /// Returns a formatted string describing the default session timeout configured by the organization,
+    /// expressed in hours and/or minutes depending on the `policyTimeoutValue`.
     var customTimeoutMessage: String {
         switch (policyTimeoutHours, policyTimeoutMinutes) {
         case let (hours, minutes) where hours > 0 && minutes > 0:

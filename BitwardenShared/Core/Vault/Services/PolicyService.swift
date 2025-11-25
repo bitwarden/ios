@@ -13,10 +13,10 @@ protocol PolicyService: AnyObject {
     ///
     func applyPasswordGenerationPolicy(options: inout PasswordGenerationOptions) async throws -> Bool
 
-    /// If the policy for a maximum vault timeout value is enabled,
-    /// return the value and action to take upon timeout.
+    /// Fetches the maximum vault timeout policy values if the policy is enabled.
     ///
-    /// - Returns: The session timeout policy.
+    /// - Returns: A `SessionTimeoutPolicy` containing the policy's timeout action, type, and value,
+    ///   or `nil` if no maximum vault timeout policies apply to the user.
     ///
     func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy?
 

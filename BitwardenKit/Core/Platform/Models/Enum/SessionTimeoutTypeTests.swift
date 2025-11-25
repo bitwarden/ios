@@ -12,8 +12,16 @@ final class SessionTimeoutTypeTests: BitwardenTestCase {
         XCTAssertEqual(SessionTimeoutType.onAppRestart, SessionTimeoutType(rawValue: "onSystemLock"))
         XCTAssertEqual(SessionTimeoutType.never, SessionTimeoutType(rawValue: "never"))
         XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(rawValue: "custom"))
+    }
+
+    /// `init(rawValue:)` returns `.custom` for `nil` and unknown values (default case).
+    func test_initFromRawValue_defaultCase() {
         // `nil` value maps to `custom` on mobile in support to legacy.
         XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(rawValue: nil))
+        // Unknown/invalid strings map to `custom` (default case).
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(rawValue: "unknown"))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(rawValue: "invalid"))
+        XCTAssertEqual(SessionTimeoutType.custom, SessionTimeoutType(rawValue: ""))
     }
 
     /// `init(value:)` returns the correct case for the given `SessionTimeoutValue`.
