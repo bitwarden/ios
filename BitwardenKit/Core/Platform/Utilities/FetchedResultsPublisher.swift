@@ -98,6 +98,9 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType, Outpu
     /// Whether the subscription has changes to send to the subscriber.
     private var hasChangesToSend = false
 
+    /// A serial queue to synchronize access to subscription state.
+    private let queue = DispatchQueue(label: "com.bitwarden.FetchedResultsSubscription")
+
     /// The subscriber to the subscription that is notified of the fetched results.
     private var subscriber: SubscriberType?
 
@@ -137,8 +140,10 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType, Outpu
         do {
             try controller?.performFetch()
             if controller?.fetchedObjects != nil {
-                hasChangesToSend = true
-                fulfillDemand()
+                queue.async {
+                    self.hasChangesToSend = true
+                    self.fulfillDemand()
+                }
             }
         } catch {
             subscriber.receive(completion: .failure(error))
@@ -148,43 +153,59 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType, Outpu
     // MARK: Subscription
 
     func request(_ demand: Subscribers.Demand) {
-        self.demand += demand
-        fulfillDemand()
+        queue.async {
+            self.demand += demand
+            self.fulfillDemand()
+        }
     }
 
     // MARK: Cancellable
 
     func cancel() {
-        controller = nil
-        subscriber = nil
+        queue.async {
+            self.controller = nil
+            self.subscriber = nil
+        }
     }
 
     // MARK: NSFetchedResultsControllerDelegate
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        hasChangesToSend = true
-        fulfillDemand()
+        queue.async {
+            self.hasChangesToSend = true
+            self.fulfillDemand()
+        }
     }
 
     // MARK: Private
 
     private func fulfillDemand() {
+        #if DEBUG
+        dispatchPrecondition(condition: .onQueue(queue))
+        #endif
+
         guard demand > 0,
               hasChangesToSend,
               let subscriber
         else { return }
 
-        controller?.managedObjectContext.perform {
-            guard let fetchedObjects = self.controller?.fetchedObjects else { return }
+        hasChangesToSend = false
+        demand -= 1
 
-            self.hasChangesToSend = false
-            self.demand -= 1
+        controller?.managedObjectContext.perform { [weak self] in
+            guard let self,
+                  let fetchedObjects = controller?.fetchedObjects
+            else { return }
 
             do {
-                let output = try self.transform(fetchedObjects)
-                self.demand += subscriber.receive(output)
+                let output = try transform(fetchedObjects)
+                queue.async {
+                    self.demand += subscriber.receive(output)
+                }
             } catch {
-                subscriber.receive(completion: .failure(error))
+                queue.async {
+                    subscriber.receive(completion: .failure(error))
+                }
             }
         }
     }
