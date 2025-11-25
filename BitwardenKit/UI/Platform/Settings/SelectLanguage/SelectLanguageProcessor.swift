@@ -1,10 +1,8 @@
-import BitwardenKit
-
 // MARK: - SelectLanguageDelegate
 
 /// The delegate for updating the parent view after a language has been selected.
 @MainActor
-protocol SelectLanguageDelegate: AnyObject {
+public protocol SelectLanguageDelegate: AnyObject { // sourcery: AutoMockable
     /// A language has been selected.
     func languageSelected(_ languageOption: LanguageOption)
 }
@@ -21,7 +19,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
+    private let coordinator: AnyCoordinator<SelectLanguageRoute, Void>
 
     /// The delegate for handling the selection flow.
     private weak var delegate: SelectLanguageDelegate?
@@ -40,7 +38,7 @@ final class SelectLanguageProcessor: StateProcessor<SelectLanguageState, SelectL
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        coordinator: AnyCoordinator<SelectLanguageRoute, Void>,
         delegate: SelectLanguageDelegate?,
         services: Services,
         state: SelectLanguageState,
