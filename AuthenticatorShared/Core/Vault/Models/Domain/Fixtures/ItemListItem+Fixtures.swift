@@ -1,10 +1,13 @@
 import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenSdk
 import Foundation
 
 @testable import AuthenticatorShared
 
-extension ItemListSection {
+// swiftlint:disable missing_docs
+
+public extension ItemListSection {
     static func fixture() -> ItemListSection {
         ItemListSection(
             id: "example",
@@ -14,7 +17,7 @@ extension ItemListSection {
     }
 }
 
-extension ItemListItem {
+public extension ItemListItem {
     static func fixture(
         id: String = "123",
         name: String = "Name",
@@ -44,7 +47,7 @@ extension ItemListItem {
     }
 }
 
-extension ItemListTotpItem {
+public extension ItemListTotpItem {
     static func fixture(
         itemView: AuthenticatorItemView = .fixture(),
         totpCode: TOTPCodeModel = TOTPCodeModel(
@@ -60,7 +63,7 @@ extension ItemListTotpItem {
     }
 }
 
-extension ItemListSharedTotpItem {
+public extension ItemListSharedTotpItem {
     static func fixture(
         itemView: AuthenticatorBridgeItemDataView = .fixtureFilled(),
         totpCode: TOTPCodeModel = TOTPCodeModel(
@@ -75,3 +78,5 @@ extension ItemListSharedTotpItem {
         )
     }
 }
+
+// swiftlint:enable missing_docs
