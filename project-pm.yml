@@ -23,6 +23,9 @@ schemes:
       targets:
         Bitwarden: all
         BitwardenTests: [test]
+    run:
+      commandLineArguments:
+        "-com.apple.CoreData.ConcurrencyDebug 1": true
     test:
       commandLineArguments:
         "-testing": true
