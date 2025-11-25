@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Copie e compartilhe este relatório de erros com o sucesso do consumidor para evitar perda adicional de dados.</string>
+      <string>%#@vaultitems@. Copy and share this error report with customer success to avoid additional data loss.</string>
       <key>vaultitems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

@@ -35,13 +35,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>יום %d</string>
         <key>two</key>
-        <string>%d days</string>
+        <string>%d ימים</string>
         <key>many</key>
-        <string>%d days</string>
+        <string>%d ימים</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d ימים</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -56,20 +56,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>פריט %d</string>
         <key>two</key>
-        <string>%d items</string>
+        <string>%d פריטים</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d פריטים</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d פריטים</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ successfully imported</string>
+      <string>%#@items@ יובאו בהצלחה</string>
       <key>items</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>פריט %d</string>
         <key>two</key>
-        <string>%d items</string>
+        <string>%d פריטים</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d פריטים</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d פריטים</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -98,13 +98,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>שעה %d</string>
         <key>two</key>
-        <string>%d hours</string>
+        <string>%d שעות</string>
         <key>many</key>
-        <string>%d hours</string>
+        <string>%d שעות</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d שעות</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -140,13 +140,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>שנייה %d</string>
         <key>two</key>
-        <string>%d seconds</string>
+        <string>%d שניות</string>
         <key>many</key>
-        <string>%d seconds</string>
+        <string>%d שניות</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d שניות</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -161,13 +161,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>שבוע %d</string>
         <key>two</key>
-        <string>%d weeks</string>
+        <string>%d שבועות</string>
         <key>many</key>
-        <string>%d weeks</string>
+        <string>%d שבועות</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d שבועות</string>
       </dict>
     </dict>
   </dict>
