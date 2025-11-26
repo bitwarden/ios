@@ -337,9 +337,9 @@
 "AutofillServiceDescription" = "A Bitwarden automata-kitöltő szolgáltatás az Android Automata-kitöltő Keretrendszerét használja, hogy az eszközén más app belépési információját beillessze.";
 "BitwardenAutofillServiceDescription" = "Használja a Bitwarden automat-kitöltő szolgáltatást, hogy más appok belépési információját kitöltse.";
 "BitwardenAutofillServiceOpenAutofillSettings" = "Automatikus kitöltés beállításainak megnyitása";
-"FaceID" = "Arc AZ";
-"FaceIDDirection" = "Arc AZ használata a azonosság ellenőrzéséhez.";
-"UseFaceIDToUnlock" = "Arc AZ használata a feloldáshoz";
+"FaceID" = "Face ID";
+"FaceIDDirection" = "Face ID használata az ellenőrzéshez.";
+"UseFaceIDToUnlock" = "Face ID használata a feloldáshoz";
 "VerifyFaceID" = "Arc AZ ellenőrzése";
 "WindowsHello" = "Windows Hello";
 "BitwardenCredentialProviderGoToSettings" = "Nem lehetett automatikusan megnyitni az Android hitelesítő adatszolgáltató beállítási menüjét. Manuálisan navigálhatunk a hitelesítő adatszolgáltató beállítási menüjébe az Android Beállítások > Rendszer > Jelszavak és fiókok > Jelszavak, belépőkulcsok és adatszolgáltatások menüpontban.";
