@@ -218,6 +218,24 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
+  AuthenticatorSharedMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        GENERATE_INFOPLIST_FILE: YES
+    sources:
+      - path: AuthenticatorShared
+        includes:
+          - "**/Fixtures/*"
+          - "**/Mocks/*"
+      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: AuthenticatorShared
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
+      - target: BitwardenKit/TestHelpers
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -231,18 +249,14 @@ targets:
         includes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
         excludes:
           - "**/*SnapshotTests.*"
           - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers-bwa
-      - path: AuthenticatorShared/Sourcery/Generated
-        optional: true
-      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Authenticator
       - target: AuthenticatorShared
+      - target: AuthenticatorSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
@@ -262,15 +276,11 @@ targets:
         includes:
           - "**/*SnapshotTests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers-bwa
-      - path: AuthenticatorShared/Sourcery/Generated
-        optional: true
-      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Authenticator
       - target: AuthenticatorShared
+      - target: AuthenticatorSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
@@ -291,15 +301,11 @@ targets:
         includes:
           - "**/*ViewInspectorTests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers-bwa
-      - path: AuthenticatorShared/Sourcery/Generated
-        optional: true
-      - path: AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Authenticator
       - target: AuthenticatorShared
+      - target: AuthenticatorSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers

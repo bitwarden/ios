@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+import AuthenticatorSharedMocks
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
