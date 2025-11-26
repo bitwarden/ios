@@ -403,6 +403,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
         await ciphersClientWrapperService.decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
+            preFilter: { cipher in filterEncryptedCipher(cipher: cipher, filter: filter) },
         ) { decryptedCipher in
             guard filter.filterType.cipherFilter(decryptedCipher),
                   decryptedCipher.passesRestrictItemTypesPolicy(restrictedOrganizationIds) else {
@@ -411,6 +412,28 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
             try await onCipher(decryptedCipher)
         }
+    }
+
+    /// Filters encrypted cipher based on the vault list filter.
+    /// - Parameters:
+    ///   - cipher: The cipher to filter.
+    ///   - filter: The vault list filter.
+    /// - Returns: `true` if the cipher passes the filter, `false` otherwise.
+    func filterEncryptedCipher(
+        cipher: Cipher,
+        filter: VaultListFilter,
+    ) -> Bool {
+        if cipher.deletedDate != nil {
+            guard let group = filter.group, group == .trash else {
+                return false
+            }
+        }
+
+        if let group = filter.group, group != .trash {
+            return cipher.belongsToGroup(group)
+        }
+
+        return true
     }
 
     /// Returns the restricted organization IDs for the `.restrictItemTypes` policy and adds them
