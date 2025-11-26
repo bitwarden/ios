@@ -1257,7 +1257,7 @@
 "WhenUsingTwoStepVerification" = "Використовуючи двоетапну перевірку, ви вводите ім'я користувача, пароль, а також одноразовий код, згенерований цією програмою.";
 "YesSetDefault" = "Так, зробити типовою";
 "YouCanUpdateYourDefaultAnytimeInSettings" = "Це можна змінити будь-коли в налаштуваннях.";
-"SelectAccount" = "Select account";
+"SelectAccount" = "Вибрати обліковий запис";
 /* The header for the account switcher sheet. This is always plural (maximally so) if applicable regardless of the number of accounts being displayed. */
 "Accounts" = "Облікові записи";
 "UriMatchDetectionControlsHowBitwardenIdentifiesAutofillSuggestions" = "Функція виявлення збігів URI керує ідентифікацією пропозицій автозаповнення Bitwarden.";
@@ -1271,7 +1271,7 @@
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Починається з** – це функція для досвідчених користувачів, використання якої може призвести до розкриття облікових даних.";
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Регулярний вираз** – це функція для досвідчених користувачів, неправильне використання якої може призвести до розкриття облікових даних.";
 "DefaultX" = "Типово (%1$@)";
-"UpdateYourEncryptionSettings" = "Update your encryption settings";
-"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"UpdateYourEncryptionSettings" = "Оновіть свої налаштування шифрування";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нові рекомендовані налаштування шифрування покращать безпеку вашого облікового запису. Щоб оновити їх, введіть свій головний пароль.";
 "Updating" = "Оновлення…";
-"EncryptionSettingsUpdated" = "Encryption settings updated";
+"EncryptionSettingsUpdated" = "Налаштування шифрування оновлено";

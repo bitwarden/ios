@@ -85,3 +85,17 @@ extension DefaultAppModule: NavigatorBuilderModule {
         ViewLoggingNavigationController(logger: services.flightRecorder)
     }
 }
+
+// MARK: - DefaultAppModule + SelectLanguageModule
+
+extension DefaultAppModule: SelectLanguageModule {
+    public func makeSelectLanguageCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<SelectLanguageRoute, Void> {
+        SelectLanguageCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}

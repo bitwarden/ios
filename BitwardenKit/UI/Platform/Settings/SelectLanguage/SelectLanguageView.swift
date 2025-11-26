@@ -1,12 +1,11 @@
-import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
 // MARK: - SelectLanguageView
 
-/// A view that shows a list of all the available languages to select from..
+/// A view that shows a list of all the available languages to select from.
 ///
-struct SelectLanguageView: View {
+public struct SelectLanguageView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
@@ -14,7 +13,7 @@ struct SelectLanguageView: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         ContentBlock(dividerLeadingPadding: 16) {
             ForEach(LanguageOption.allCases) { languageOption in
                 languageOptionRow(languageOption)
@@ -27,6 +26,17 @@ struct SelectLanguageView: View {
                 store.send(.dismiss)
             }
         }
+    }
+
+    // MARK: Initializer
+
+    /// Initializes a `SelectLanguageView`.
+    ///
+    /// - Parameters:
+    ///   - store: The `Store` for this view.
+    ///
+    public init(store: Store<SelectLanguageState, SelectLanguageAction, Void>) {
+        self.store = store
     }
 
     // MARK: Private Views
