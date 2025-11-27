@@ -97,10 +97,10 @@ extension DataStore: AuthenticatorItemDataStore {
         // A sort descriptor is needed by `NSFetchedResultsController`.
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorItemData.id, ascending: true)]
         return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
+            context: backgroundContext,
             request: fetchRequest,
+            transform: { try $0.map(AuthenticatorItem.init) },
         )
-        .tryMap { try $0.map(AuthenticatorItem.init) }
         .eraseToAnyPublisher()
     }
 

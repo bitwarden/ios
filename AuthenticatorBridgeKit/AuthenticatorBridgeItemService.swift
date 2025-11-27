@@ -219,12 +219,10 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         )
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorBridgeItemData.userId, ascending: true)]
         return FetchedResultsPublisher(
-            context: dataStore.persistentContainer.viewContext,
+            context: dataStore.backgroundContext,
             request: fetchRequest,
+            transform: { $0.compactMap(\.model) },
         )
-        .map { dataItems in
-            dataItems.compactMap(\.model)
-        }
         .asyncTryMap { itemModel in
             try await self.cryptoService.decryptAuthenticatorItems(itemModel)
         }
@@ -237,13 +235,15 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// logout timeout. If so, then their shared items are deleted.
     ///
     private func checkForLogout() async throws {
-        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: AuthenticatorBridgeItemData.entityName)
-        fetchRequest.propertiesToFetch = ["userId"]
-        fetchRequest.returnsDistinctResults = true
-        fetchRequest.resultType = .dictionaryResultType
+        let userIds = try dataStore.backgroundContext.performAndWait {
+            let fetchRequest = NSFetchRequest<NSDictionary>(entityName: AuthenticatorBridgeItemData.entityName)
+            fetchRequest.propertiesToFetch = ["userId"]
+            fetchRequest.returnsDistinctResults = true
+            fetchRequest.resultType = .dictionaryResultType
 
-        let results = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
-        let userIds = results.compactMap { ($0 as? [String: Any])?["userId"] as? String }
+            let results = try dataStore.backgroundContext.fetch(fetchRequest)
+            return results.compactMap { ($0 as? [String: Any])?["userId"] as? String }
+        }
 
         try await userIds.asyncForEach { userId in
             if try await sharedTimeoutService.hasPassedTimeout(userId: userId) {

@@ -26,6 +26,9 @@ schemes:
       targets:
         Authenticator: all
         AuthenticatorTests: [test]
+    run:
+      commandLineArguments:
+        "-com.apple.CoreData.ConcurrencyDebug 1": true
     test:
       commandLineArguments:
         "-testing": true
