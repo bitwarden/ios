@@ -1,4 +1,5 @@
 // swiftlint:disable:this file_name
+import AuthenticatorSharedMocks
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
@@ -43,7 +44,7 @@ class ItemListViewTests: BitwardenTestCase {
 
     /// Test the close taps trigger the associated effect.
     @MainActor
-    func test_itemListCardView_close_download() throws {
+    func test_actionCard_close_download() async throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
             loadingState: .data([ItemListSection.fixture()]),
@@ -54,16 +55,15 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider,
         )
 
-        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
-
-        waitFor(!processor.effects.isEmpty)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.downloadTheBitwardenApp)
+        try await actionCard.find(asyncButton: Localizations.close).tap()
 
         XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerDownload))
     }
 
     /// Test the close taps trigger the associated effect.
     @MainActor
-    func test_itemListCardView_close_sync() throws {
+    func test_actionCard_close_sync() async throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
             loadingState: .data([]),
@@ -74,10 +74,22 @@ class ItemListViewTests: BitwardenTestCase {
             timeProvider: timeProvider,
         )
 
-        try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.close).tap()
-
-        waitFor(!processor.effects.isEmpty)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.syncWithTheBitwardenApp)
+        try await actionCard.find(asyncButton: Localizations.close).tap()
 
         XCTAssertEqual(processor.effects.last, .closeCard(.passwordManagerSync))
+    }
+
+    /// Tapping the go to settings button in the flight recorder toast banner dispatches the
+    /// `.navigateToFlightRecorderSettings` action.
+    @MainActor
+    func test_flightRecorderToastBannerGoToSettings_tap() async throws {
+        processor.state.flightRecorderToastBanner.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: Date(year: 2025, month: 4, day: 3),
+        )
+        let button = try subject.inspect().find(button: Localizations.goToSettings)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.navigateToFlightRecorderSettings])
     }
 }

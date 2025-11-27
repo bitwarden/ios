@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Copy and share this error report with customer success to avoid additional data loss.</string>
+      <string>%#@vaultitems@. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.</string>
       <key>vaultitems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,13 +14,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementu sejfu</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu</string>
         <key>many</key>
-        <string>Bitwarden could not decrypt %d vault items</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -56,20 +56,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d element</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d elementy</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d elementów</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d elementów</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ successfully imported</string>
+      <string>Zaimportowano %#@items@</string>
       <key>items</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d element</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d elementy</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d elementów</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d elementów</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->

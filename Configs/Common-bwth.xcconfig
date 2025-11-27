@@ -1,0 +1,19 @@
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = LTZ2PFU5D6
+ORGANIZATION_IDENTIFIER = com.bitwarden
+BASE_BUNDLE_ID = $(ORGANIZATION_IDENTIFIER).testharness
+SHARED_APP_GROUP_IDENTIFIER = group.${ORGANIZATION_IDENTIFIER}.testharness
+APPICON_NAME = AppIcon
+
+// The above code signing settings can be overriden by adding a Local-bwth.xcconfig
+// file in the Configs directory.
+//
+// As an example, add the file Local-bwth.xcconfig with the following contents:
+//
+//    DEVELOPMENT_TEAM = <Your team ID>
+//    ORGANIZATION_IDENTIFIER = <Your reversed domain name>
+//    PROVISIONING_PROFILE_SPECIFIER = <Optional provisioning profile specifier for the main app>
+//
+// This should allow Xcode to build the application based on these settings without
+// code signing errors or having to modify the project itself.
+//

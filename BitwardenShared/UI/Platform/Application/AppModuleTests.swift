@@ -44,11 +44,8 @@ class AppModuleTests: BitwardenTestCase {
     @MainActor
     func test_makeAppCoordinator() {
         let coordinator = subject.makeAppCoordinator(appContext: .mainApp, navigator: rootViewController)
-        let task = Task {
-            coordinator.navigate(to: .auth(.landing), context: nil)
-        }
-        waitFor(rootViewController.childViewController != nil)
-        task.cancel()
+        coordinator.navigate(to: .auth(.landing), context: nil)
+        XCTAssertNotNil(rootViewController.childViewController)
     }
 
     /// `makeAuthCoordinator` builds the auth coordinator.
@@ -115,6 +112,13 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ImportLoginsView>)
     }
 
+    /// `makeNavigationController()` builds a navigation controller.
+    @MainActor
+    func test_makeNavigationController() {
+        let navigationController = subject.makeNavigationController()
+        XCTAssertTrue(navigationController is ViewLoggingNavigationController)
+    }
+
     /// `makePasswordAutoFillCoordinator` builds the password autofill coordinator.
     @MainActor
     func test_makePasswordAutoFillCoordinator() {
@@ -126,6 +130,19 @@ class AppModuleTests: BitwardenTestCase {
         coordinator.navigate(to: .passwordAutofill(mode: .onboarding))
         XCTAssertEqual(navigationController.viewControllers.count, 1)
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<PasswordAutoFillView>)
+    }
+
+    /// `makeSelectLanguageCoordinator()` builds the select language coordinator.
+    @MainActor
+    func test_makeSelectLanguageCoordinator() throws {
+        let navigationController = MockStackNavigator()
+        let coordinator = subject.makeSelectLanguageCoordinator(
+            stackNavigator: navigationController,
+        )
+        coordinator.navigate(to: .open(currentLanguage: .default))
+        let action = try XCTUnwrap(navigationController.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SelectLanguageView)
     }
 
     /// `makeSendCoordinator()` builds the send coordinator.

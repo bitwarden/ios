@@ -64,19 +64,32 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_exportVault() throws {
         subject.navigate(to: .exportItems)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportItemsView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is ExportItemsView)
+    }
+
+    /// `navigate(to:)` with `.flightRecorder` starts flight recorder coordinator and navigates to
+    /// the enable flight recorder view.
+    @MainActor
+    func test_navigateTo_flightRecorder() throws {
+        subject.navigate(to: .flightRecorder(.enableFlightRecorder))
+
+        XCTAssertTrue(module.flightRecorderCoordinator.isStarted)
+        XCTAssertEqual(module.flightRecorderCoordinator.routes.last, .enableFlightRecorder)
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
     @MainActor
     func test_navigateTo_selectLanguage() throws {
-        subject.navigate(to: .selectLanguage(currentLanguage: .default))
+        let delegate = MockSelectLanguageDelegate()
+        subject.navigate(to: .selectLanguage(currentLanguage: .default), context: delegate)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelectLanguageView>)
+        XCTAssertTrue(module.selectLanguageCoordinator.isStarted)
+        XCTAssertEqual(module.selectLanguageCoordinator.routes, [.open(currentLanguage: .default)])
+        XCTAssertNotNil(module.selectLanguageCoordinator.contexts.last as? MockSelectLanguageDelegate)
+        XCTAssertIdentical(module.selectLanguageCoordinatorStackNavigator, stackNavigator)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.

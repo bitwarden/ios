@@ -69,7 +69,7 @@ jobs:
           permission-contents: write
 
       - name: Check out repo
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
@@ -208,11 +208,11 @@ jobs:
 
           if [ "$_DOWNGRADING" = "true" ]; then
             PR_BODY="$PR_BODY\n\n## :warning: Downgrading SDK to an older version. :warning:"
-            PR_TITLE_ACTION="Downgrading"
+            PR_TITLE_ACTION="Downgrade"
           else
             CHANGELOG=$(./Scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$_OLD_SDK_INTERNAL_REF" "$_NEW_SDK_INTERNAL_REF")
             PR_BODY="$PR_BODY\n\n## What's Changed\n\n$CHANGELOG"
-            PR_TITLE_ACTION="Updating"
+            PR_TITLE_ACTION="Update"
           fi
 
           EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base main --state open --json number --jq '.[0].number // empty')

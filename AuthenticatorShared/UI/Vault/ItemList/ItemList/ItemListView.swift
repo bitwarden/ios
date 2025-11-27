@@ -56,11 +56,17 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
             get: \.toast,
             send: ItemListAction.toastShown,
         ))
+        .flightRecorderToastBanner(
+            activeLog: store.state.flightRecorderToastBanner.activeLog,
+            isVisible: store.bindingAsync(
+                get: \.flightRecorderToastBanner.isToastBannerVisible,
+                perform: { _ in .dismissFlightRecorderToastBanner },
+            ),
+            goToSettingsAction: {
+                store.send(.navigateToFlightRecorderSettings)
+            },
+        )
         .animation(.default, value: isSearching)
-        .toast(store.binding(
-            get: \.toast,
-            send: ItemListAction.toastShown,
-        ))
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -131,52 +137,42 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
 
     /// The Password Manager download card definition.
     private var itemListCardPasswordManagerInstall: some View {
-        ItemListCardView(
-            bodyText: Localizations.storeAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp,
-            buttonText: Localizations.downloadTheBitwardenApp,
-            leftImage: {
-                Image(decorative: SharedAsset.Icons.shield24)
-                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
-                    .frame(width: 24, height: 24)
-            },
-            titleText: Localizations.downloadTheBitwardenApp,
-            actionTapped: {
+        ActionCard(
+            title: Localizations.downloadTheBitwardenApp,
+            message: Localizations.storeAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp,
+            actionButtonState: ActionCard.ButtonState(title: Localizations.downloadTheBitwardenApp) {
                 openURL(ExternalLinksConstants.passwordManagerLink)
             },
-            closeTapped: {
-                Task {
-                    await store.perform(.closeCard(.passwordManagerDownload))
-                }
+            dismissButtonState: ActionCard.ButtonState(title: Localizations.close) {
+                await store.perform(.closeCard(.passwordManagerDownload))
             },
-        )
+        ) {
+            Image(decorative: SharedAsset.Icons.shield24)
+                .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
+                .frame(width: 24, height: 24)
+        }
         .padding(.top, 16)
     }
 
     /// The Password Manager sync card definition.
     private var itemListCardSync: some View {
-        ItemListCardView(
-            bodyText: Localizations
-                .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
-            buttonText: Localizations.takeMeToTheAppSettings,
-            leftImage: {
-                Image(decorative: SharedAsset.Icons.arrowSync24)
-                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
-                    .frame(width: 24, height: 24)
-            },
-            secondaryButtonText: Localizations.learnMore,
-            titleText: Localizations.syncWithTheBitwardenApp,
-            actionTapped: {
+        ActionCard(
+            title: Localizations.syncWithTheBitwardenApp,
+            message: Localizations.allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
+            actionButtonState: ActionCard.ButtonState(title: Localizations.takeMeToTheAppSettings) {
                 openURL(ExternalLinksConstants.passwordManagerSettings)
             },
-            closeTapped: {
-                Task {
-                    await store.perform(.closeCard(.passwordManagerSync))
-                }
+            dismissButtonState: ActionCard.ButtonState(title: Localizations.close) {
+                await store.perform(.closeCard(.passwordManagerSync))
             },
-            secondaryActionTapped: {
+            secondaryButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
                 openURL(ExternalLinksConstants.totpSyncHelp)
             },
-        )
+        ) {
+            Image(decorative: SharedAsset.Icons.arrowSync24)
+                .foregroundColor(SharedAsset.Colors.iconSecondary.swiftUIColor)
+                .frame(width: 24, height: 24)
+        }
         .padding(.top, 16)
     }
 
@@ -390,6 +386,9 @@ struct ItemListView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .task {
+            await store.perform(.streamFlightRecorderLog)
         }
     }
 }
@@ -722,6 +721,36 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                 timeProvider: PreviewTimeProvider(),
             )
         }.previewDisplayName("SharedItems")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            itemListCardState: .passwordManagerDownload,
+                            loadingState: .data([]),
+                        ),
+                    ),
+                ),
+                timeProvider: PreviewTimeProvider(),
+            )
+        }
+        .previewDisplayName("Password Manager Download Card")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            itemListCardState: .passwordManagerSync,
+                            loadingState: .data([]),
+                        ),
+                    ),
+                ),
+                timeProvider: PreviewTimeProvider(),
+            )
+        }
+        .previewDisplayName("Password Manager Sync Card")
     }
 }
 #endif

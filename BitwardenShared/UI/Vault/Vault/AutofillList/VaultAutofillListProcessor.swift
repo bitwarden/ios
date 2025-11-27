@@ -342,17 +342,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
         do {
-            let searchResult = try await services.vaultRepository.searchCipherAutofillPublisher(
-                availableFido2CredentialsPublisher: services
-                    .fido2UserInterfaceHelper
-                    .availableCredentialsForAuthenticationPublisher(),
-                mode: autofillListMode,
-                filter: VaultListFilter(filterType: .allVaults),
-                group: state.group,
-                rpID: autofillAppExtensionDelegate?.rpID,
-                searchText: searchText,
+            let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
+            let publisher = try await services.vaultRepository.vaultListPublisher(
+                filter: VaultListFilter(
+                    filterType: .allVaults,
+                    group: groupFilter,
+                    mode: autofillListMode,
+                    rpID: autofillAppExtensionDelegate?.rpID,
+                    searchText: searchText,
+                ),
             )
-            for try await vaultListData in searchResult {
+            for try await vaultListData in publisher {
                 let sections = vaultListData.sections
                 state.ciphersForSearch = sections
                 state.showNoResults = sections.isEmpty

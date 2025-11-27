@@ -14,6 +14,7 @@ class MockAppModule:
     ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
+    FlightRecorderModule,
     GeneratorModule,
     ImportCXFModule,
     ImportLoginsModule,
@@ -22,6 +23,7 @@ class MockAppModule:
     PasswordAutoFillModule,
     PasswordHistoryModule,
     ProfileSwitcherModule,
+    SelectLanguageModule,
     SendModule,
     SendItemModule,
     SettingsModule,
@@ -38,6 +40,7 @@ class MockAppModule:
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
+    var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
     var importCXFCoordinator = MockCoordinator<ImportCXFRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
@@ -48,6 +51,9 @@ class MockAppModule:
     var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
+    var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
+    // swiftlint:disable:next weak_navigator identifier_name
+    var selectLanguageCoordinatorStackNavigator: StackNavigator?
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
@@ -109,6 +115,12 @@ class MockAppModule:
         return fileSelectionCoordinator.asAnyCoordinator()
     }
 
+    func makeFlightRecorderCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        flightRecorderCoordinator.asAnyCoordinator()
+    }
+
     func makeGeneratorCoordinator(
         delegate _: GeneratorCoordinatorDelegate?,
         stackNavigator _: StackNavigator,
@@ -159,6 +171,13 @@ class MockAppModule:
         stackNavigator: any StackNavigator,
     ) -> AnyCoordinator<ProfileSwitcherRoute, Void> {
         profileSwitcherCoordinator.asAnyCoordinator()
+    }
+
+    func makeSelectLanguageCoordinator(
+        stackNavigator: any StackNavigator,
+    ) -> AnyCoordinator<SelectLanguageRoute, Void> {
+        selectLanguageCoordinatorStackNavigator = stackNavigator
+        return selectLanguageCoordinator.asAnyCoordinator()
     }
 
     func makeSendCoordinator(

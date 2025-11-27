@@ -2,7 +2,9 @@ import Foundation
 
 @testable import AuthenticatorBridgeKit
 
-extension AuthenticatorBridgeItemDataView {
+// swiftlint:disable missing_docs
+
+public extension AuthenticatorBridgeItemDataView {
     static func fixture(
         accountDomain: String? = "",
         accountEmail: String? = "",
@@ -23,6 +25,16 @@ extension AuthenticatorBridgeItemDataView {
         )
     }
 
+    static func fixtureFilled() -> AuthenticatorBridgeItemDataView {
+        .fixture(
+            accountDomain: "Domain",
+            accountEmail: "test@example.com",
+            name: "Name",
+            totpKey: "TOTP",
+            username: "username",
+        )
+    }
+
     static func fixtures() -> [AuthenticatorBridgeItemDataView] {
         [
             AuthenticatorBridgeItemDataView.fixture(),
@@ -39,3 +51,5 @@ extension AuthenticatorBridgeItemDataView {
         ]
     }
 }
+
+// swiftlint:enable missing_docs

@@ -1,3 +1,4 @@
+import AuthenticatorSharedMocks
 import XCTest
 
 @testable import AuthenticatorShared

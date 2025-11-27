@@ -11,7 +11,8 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
     /// The module types required for creating child coordinators.
     typealias Module = DefaultAppModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasErrorAlertServices.ErrorAlertServices
+        & HasErrorReporter
         & HasStateService
 
     // MARK: Private Properties
@@ -76,4 +77,10 @@ final class TutorialCoordinator: Coordinator, HasStackNavigator {
         let view = TutorialView(store: Store(processor: processor))
         stackNavigator?.push(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension TutorialCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

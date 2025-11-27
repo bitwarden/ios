@@ -55,10 +55,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     typealias Module = AddEditFolderModule
         & AuthModule
         & ExportCXFModule
+        & FlightRecorderModule
         & ImportLoginsModule
         & LoginRequestModule
         & NavigatorBuilderModule
         & PasswordAutoFillModule
+        & SelectLanguageModule
 
     typealias Services = HasAccountAPIService
         & HasAppInfoService
@@ -74,6 +76,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasExportCXFCiphersRepository
         & HasExportVaultService
         & HasFlightRecorder
+        & HasLanguageStateService
         & HasNotificationCenterService
         & HasPasteboardService
         & HasPolicyService
@@ -152,8 +155,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
-        case .enableFlightRecorder:
-            showEnableFlightRecorder()
         case .appearance:
             showAppearance()
         case .appExtension:
@@ -174,8 +175,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVaultToApp()
         case .exportVaultToFile:
             showExportVaultToFile()
-        case .flightRecorderLogs:
-            showFlightRecorderLogs()
+        case let .flightRecorder(route):
+            showFlightRecorder(route: route)
         case .folders:
             showFolders()
         case .importLogins:
@@ -194,8 +195,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showSettings(presentationMode: presentationMode)
         case let .shareURL(url):
             showShareSheet([url])
-        case let .shareURLs(urls):
-            showShareSheet(urls)
         case .vault:
             showVault()
         case .vaultUnlockSetup:
@@ -343,17 +342,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
     }
 
-    /// Shows the enable flight recorder screen.
-    ///
-    private func showEnableFlightRecorder() {
-        let processor = EnableFlightRecorderProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: EnableFlightRecorderState(),
-        )
-        stackNavigator?.present(EnableFlightRecorderView(store: Store(processor: processor)))
-    }
-
     /// Shows the share sheet to share one or more items.
     ///
     /// - Parameter items: The items to share.
@@ -400,16 +388,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(navigationController)
     }
 
-    /// Shows the flight recorder logs screen.
+    /// Shows a flight recorder view.
     ///
-    private func showFlightRecorderLogs() {
-        let processor = FlightRecorderLogsProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: FlightRecorderLogsState(),
-        )
-        let view = FlightRecorderLogsView(store: Store(processor: processor), timeProvider: services.timeProvider)
-        stackNavigator?.present(view)
+    /// - Parameter route: A `FlightRecorderRoute` to navigate to.
+    ///
+    private func showFlightRecorder(route: FlightRecorderRoute) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFlightRecorderCoordinator(stackNavigator: stackNavigator)
+        coordinator.start()
+        coordinator.navigate(to: route)
     }
 
     /// Shows the folders screen.
@@ -494,14 +481,16 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the select language screen.
     ///
-    private func showSelectLanguage(currentLanguage: LanguageOption, delegate: SelectLanguageDelegate?) {
-        let processor = SelectLanguageProcessor(
-            coordinator: asAnyCoordinator(),
-            delegate: delegate,
-            services: services,
-            state: SelectLanguageState(currentLanguage: currentLanguage),
+    private func showSelectLanguage(
+        currentLanguage: LanguageOption,
+        delegate: SelectLanguageDelegate?,
+    ) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeSelectLanguageCoordinator(
+            stackNavigator: stackNavigator,
         )
-        stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
+        coordinator.start()
+        coordinator.navigate(to: .open(currentLanguage: currentLanguage), context: delegate)
     }
 
     /// Shows the settings screen.

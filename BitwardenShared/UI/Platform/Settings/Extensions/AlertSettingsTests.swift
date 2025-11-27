@@ -31,42 +31,6 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertNil(subject.message)
     }
 
-    /// `confirmDeleteLog(action:)` constructs an `Alert` with the title,
-    /// message, yes, and cancel buttons to confirm deleting a log.
-    func test_confirmDeleteLog() async throws {
-        var actionCalled = false
-        let subject = Alert.confirmDeleteLog(isBulkDeletion: false) { actionCalled = true }
-
-        XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDeleteThisLog)
-        XCTAssertNil(subject.message)
-
-        try await subject.tapAction(title: Localizations.cancel)
-        XCTAssertFalse(actionCalled)
-
-        try await subject.tapAction(title: Localizations.yes)
-        XCTAssertTrue(actionCalled)
-    }
-
-    /// `confirmDeleteLog(action:)` constructs an `Alert` with the title,
-    /// message, yes, and cancel buttons to confirm deleting all logs.
-    func test_confirmDeleteLog_bulkDeletion() async throws {
-        var actionCalled = false
-        let subject = Alert.confirmDeleteLog(isBulkDeletion: true) { actionCalled = true }
-
-        XCTAssertEqual(subject.alertActions.count, 2)
-        XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.title, Localizations.doYouReallyWantToDeleteAllRecordedLogs)
-        XCTAssertNil(subject.message)
-
-        try await subject.tapAction(title: Localizations.cancel)
-        XCTAssertFalse(actionCalled)
-
-        try await subject.tapAction(title: Localizations.yes)
-        XCTAssertTrue(actionCalled)
-    }
-
     /// `confirmDenyingAllRequests(action:)` constructs an `Alert` with the title,
     /// message, yes, and cancel buttons to confirm denying all login requests
     func test_confirmDenyingAllRequests() {
@@ -131,19 +95,6 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.first?.style, .cancel)
         XCTAssertEqual(subject.alertActions.last?.title, Localizations.continue)
         XCTAssertEqual(subject.alertActions.last?.style, .default)
-    }
-
-    /// `languageChanged(to:)` constructs an `Alert` with the title and ok buttons.
-    @MainActor
-    func test_languageChanged() {
-        let subject = Alert.languageChanged(to: "Thai") {}
-
-        XCTAssertEqual(subject.title, Localizations.languageChangeXDescription("Thai"))
-        XCTAssertNil(subject.message)
-        XCTAssertEqual(subject.preferredStyle, .alert)
-        XCTAssertEqual(subject.alertActions.count, 1)
-        XCTAssertEqual(subject.alertActions.first?.title, Localizations.ok)
-        XCTAssertEqual(subject.alertActions.first?.style, .default)
     }
 
     /// `learnAboutOrganizationsAlert(encrypted:action:)` constructs an `Alert`
