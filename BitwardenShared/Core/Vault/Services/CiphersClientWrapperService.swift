@@ -9,10 +9,12 @@ protocol CiphersClientWrapperService {
     /// - Parameters:
     ///   - batchSize: The size of the batch.
     ///   - ciphers: The ciphers to decrypt and process
+    ///   - preFilter: A closure to filter ciphers before decryption.
     ///   - onCipher: The action to perform on each decrypted cipher.
     func decryptAndProcessCiphersInBatch(
         batchSize: Int,
         ciphers: [Cipher],
+        preFilter: (Cipher) throws -> Bool,
         onCipher: (CipherListView) async throws -> Void,
     ) async
 }
@@ -23,14 +25,17 @@ extension CiphersClientWrapperService {
     ///
     /// - Parameters:
     ///   - ciphers: The ciphers to decrypt and process
+    ///   - preFilter: A closure to filter ciphers before decryption.
     ///   - onCipher: The action to perform on each decrypted cipher.
     func decryptAndProcessCiphersInBatch(
         ciphers: [Cipher],
+        preFilter: (Cipher) throws -> Bool = { _ in true },
         onCipher: (CipherListView) async throws -> Void,
     ) async {
         await decryptAndProcessCiphersInBatch(
             batchSize: Constants.decryptCiphersBatchSize,
             ciphers: ciphers,
+            preFilter: preFilter,
             onCipher: onCipher,
         )
     }
@@ -52,6 +57,7 @@ struct DefaultCiphersClientWrapperService: CiphersClientWrapperService {
     func decryptAndProcessCiphersInBatch(
         batchSize: Int,
         ciphers: [Cipher],
+        preFilter: (Cipher) throws -> Bool = { _ in true },
         onCipher: (CipherListView) async throws -> Void,
     ) async {
         for start in stride(from: 0, to: ciphers.count, by: batchSize) {
@@ -59,7 +65,7 @@ struct DefaultCiphersClientWrapperService: CiphersClientWrapperService {
 
             do {
                 let decryptResult = try await clientService.vault().ciphers().decryptListWithFailures(
-                    ciphers: Array(ciphers[start ..< end]),
+                    ciphers: Array(ciphers[start ..< end].filter(preFilter)),
                 )
 
                 for decryptedCipher in decryptResult.successes {

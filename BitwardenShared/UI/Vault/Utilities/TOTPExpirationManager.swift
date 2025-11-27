@@ -16,6 +16,10 @@ protocol TOTPExpirationManager {
     ///
     func cleanup()
 
+    /// Clear out all vault items managed by this object.
+    ///
+    func clearItems()
+
     /// Configures TOTP code refresh scheduling
     ///
     /// - Parameter items: The vault list items that may require code expiration tracking.
@@ -71,6 +75,7 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
     /// Clear out any timers tracking TOTP code expiration
     deinit {
         cleanup()
+        clearItems()
     }
 
     // MARK: Methods
@@ -87,6 +92,10 @@ class DefaultTOTPExpirationManager: TOTPExpirationManager {
     func cleanup() {
         updateTimer?.invalidate()
         updateTimer = nil
+    }
+
+    func clearItems() {
+        itemsByInterval.removeAll(keepingCapacity: false)
     }
 
     // MARK: Private

@@ -337,14 +337,18 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func searchVault(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            state.ciphersForSearch = []
+            state.ciphersForSearch.removeAll(keepingCapacity: false)
+            searchTotpExpirationManager?.clearItems()
             state.showNoResults = false
             return
         }
+
         do {
+            state.ciphersForSearch.removeAll(keepingCapacity: false)
+
             let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
             let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
+                    filter: VaultListFilter(
                     filterType: .allVaults,
                     group: groupFilter,
                     mode: autofillListMode,
@@ -361,7 +365,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 }
             }
         } catch {
-            state.ciphersForSearch = []
+            state.ciphersForSearch.removeAll(keepingCapacity: false)
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }

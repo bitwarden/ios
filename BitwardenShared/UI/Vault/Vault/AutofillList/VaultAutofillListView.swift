@@ -84,6 +84,9 @@ private struct VaultAutofillListSearchableView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>
 
+    /// The `SearchContext` for the view.
+    @StateObject var searchContext = SearchContext()
+
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
@@ -93,6 +96,9 @@ private struct VaultAutofillListSearchableView: View {
         contentView()
             .onChange(of: isSearching) { newValue in
                 store.send(.searchStateChanged(isSearching: newValue))
+            }
+            .onChange(of: store.state.searchText) { newValue in
+                searchContext.query = newValue
             }
             .task {
                 await store.perform(.loadData)
@@ -106,8 +112,8 @@ private struct VaultAutofillListSearchableView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
-            .task(id: store.state.searchText) {
-                await store.perform(.search(store.state.searchText))
+            .task(id: searchContext.debouncedQuery) {
+                await store.perform(.search(searchContext.debouncedQuery))
             }
             .task(id: store.state.excludedCredentialIdFound) {
                 await store.perform(.excludedCredentialFoundChaged)
