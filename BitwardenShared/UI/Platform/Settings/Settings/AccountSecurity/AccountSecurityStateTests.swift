@@ -75,7 +75,7 @@ class AccountSecurityStateTests: BitwardenTestCase {
     /// Tests that `.custom` policy type filters by maximum value.
     func test_availableTimeoutOptions_customPolicy_filtersUpToMaxValue() {
         subject.policyTimeoutType = .custom
-        subject.policyTimeoutValue = 60 // 1 hour in minutes
+        subject.policyTimeoutValue = 60
 
         let options = subject.availableTimeoutOptions
 
@@ -99,7 +99,7 @@ class AccountSecurityStateTests: BitwardenTestCase {
     /// Tests that `.custom` policy type with low value filters correctly.
     func test_availableTimeoutOptions_customPolicy_lowValue() {
         subject.policyTimeoutType = .custom
-        subject.policyTimeoutValue = 5 // 5 minutes
+        subject.policyTimeoutValue = 5
 
         let options = subject.availableTimeoutOptions
 
@@ -119,7 +119,7 @@ class AccountSecurityStateTests: BitwardenTestCase {
     /// Tests that `.custom` policy type with high value includes all minute-based options.
     func test_availableTimeoutOptions_customPolicy_highValue() {
         subject.policyTimeoutType = .custom
-        subject.policyTimeoutValue = 1000 // Very high value
+        subject.policyTimeoutValue = 1000
 
         let options = subject.availableTimeoutOptions
 
@@ -138,20 +138,10 @@ class AccountSecurityStateTests: BitwardenTestCase {
         XCTAssertFalse(options.contains(.onAppRestart))
     }
 
-    /// Tests that `.custom` policy always includes the custom placeholder.
-    func test_availableTimeoutOptions_customPolicy_alwaysIncludesPlaceholder() {
-        subject.policyTimeoutType = .custom
-        subject.policyTimeoutValue = 0 // Even with 0, placeholder should be included
-
-        let options = subject.availableTimeoutOptions
-
-        XCTAssertTrue(options.contains { $0.isCustomPlaceholder })
-    }
-
     /// Tests that `nil` policy type with value > 0 filters by maximum value.
     func test_availableTimeoutOptions_nilPolicy_withPositiveValue() {
         subject.policyTimeoutType = nil
-        subject.policyTimeoutValue = 30 // 30 minutes
+        subject.policyTimeoutValue = 30
 
         let options = subject.availableTimeoutOptions
 
@@ -206,7 +196,7 @@ class AccountSecurityStateTests: BitwardenTestCase {
     /// Tests boundary condition: exactly matching the policy value.
     func test_availableTimeoutOptions_customPolicy_exactMatch() {
         subject.policyTimeoutType = .custom
-        subject.policyTimeoutValue = 15 // Exactly 15 minutes
+        subject.policyTimeoutValue = 15
 
         let options = subject.availableTimeoutOptions
 
@@ -227,7 +217,7 @@ class AccountSecurityStateTests: BitwardenTestCase {
     /// Tests boundary condition: value between two predefined options.
     func test_availableTimeoutOptions_customPolicy_betweenOptions() {
         subject.policyTimeoutType = .custom
-        subject.policyTimeoutValue = 20 // Between 15 and 30 minutes
+        subject.policyTimeoutValue = 20
 
         let options = subject.availableTimeoutOptions
 

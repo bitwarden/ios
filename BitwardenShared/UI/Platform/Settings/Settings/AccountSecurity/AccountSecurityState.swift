@@ -215,7 +215,14 @@ struct AccountSecurityState: Equatable {
         return Localizations.thisSettingIsManagedByYourOrganization
     }
 
-    /// The message to display if a timeout policy is in effect for the user.
+    /// The message to display in the custom timeout field when a policy is in effect.
+    ///
+    /// Returns different messages based on the policy type:
+    /// - `.custom`: Shows the specific timeout duration from the policy
+    /// - `.immediately`: Indicates the setting is managed by the organization
+    /// - `.never`/`.onAppRestart`: Shows the policy's timeout type
+    /// - `nil`: Returns `nil` if no policy is in effect
+    ///
     var policyTimeoutCustomMessage: String? {
         guard isPolicyTimeoutEnabled, let policy = policyTimeoutType else { return nil }
         switch policyTimeoutType {
