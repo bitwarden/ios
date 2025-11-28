@@ -190,6 +190,28 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
     }
 
+    /// `perform(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 dismisses the profile switcher.
+    @MainActor
+    func test_perform_profileSwitcher_accountPressed_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.state.profileSwitcherState.isVisible = true
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+        authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
+        authRepository.altAccounts = [
+            .fixture(),
+        ]
+        authRepository.vaultTimeout = [
+            "1": .fiveMinutes,
+            "42": .immediately,
+        ]
+
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
+    }
+
     /// `perform(_:)` with `.profileSwitcher(.lock)` does nothing.
     @MainActor
     func test_perform_profileSwitcher_lock() async {
@@ -211,6 +233,20 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `perform(_:)` with `.profileSwitcher(.requestedProfileSwitcher(visible:))`
+    /// for iOS 26 navigates to present the profile switcher sheet.
+    @MainActor
+    func test_perform_profileSwitcher_toggleProfilesViewVisibility_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.state.profileSwitcherState.isVisible = false
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
+
+        XCTAssertEqual(coordinator.routes.last, .viewProfileSwitcher)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
@@ -396,6 +432,19 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         subject.receive(.profileSwitcher(.backgroundTapped))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.profileSwitcher(.backgroundTapped)` for iOS 26 dismisses the profile switcher.
+    @MainActor
+    func test_receive_profileSwitcher_backgroundPressed_iOS26() throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.state.profileSwitcherState.isVisible = true
+        subject.receive(.profileSwitcher(.backgroundTapped))
+
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.logout)` does nothing.
