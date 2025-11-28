@@ -86,10 +86,20 @@ protocol AutofillCredentialService: AnyObject {
 /// A default implementation of an `AutofillCredentialService`.
 ///
 class DefaultAutofillCredentialService {
+    // MARK: Computed properties
+
+    /// Whether the cipher changes publisher has been subscribed to. This is useful for tests.
+    var hasCipherChangesSubscription: Bool {
+        cipherChangesSubscriptionTask != nil && !(cipherChangesSubscriptionTask?.isCancelled ?? true)
+    }
+
     // MARK: Private Properties
 
     /// Helper to know about the app context.
     private let appContextHelper: AppContextHelper
+
+    /// A reference to the task used to track cipher changes.
+    private var cipherChangesSubscriptionTask: Task<Void, Never>?
 
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
@@ -191,6 +201,11 @@ class DefaultAutofillCredentialService {
         self.vaultTimeoutService = vaultTimeoutService
 
         guard appContextHelper.appContext == .mainApp else {
+            // NOTE: [PM-28855] when in the context of iOS extensions
+            // subscribe to individual cipher changes to update the local OS store
+            // to improve memory performance and avoid crashes by not loading
+            // nor potentially decrypting the whole vault.
+            subscribeToCipherChanges()
             return
         }
 
@@ -201,7 +216,36 @@ class DefaultAutofillCredentialService {
         }
     }
 
+    /// Deinitializes this service.
+    deinit {
+        cipherChangesSubscriptionTask?.cancel()
+        cipherChangesSubscriptionTask = nil
+    }
+
     // MARK: Private Methods
+
+    /// Subscribes to cipher changes to update the internal `ASCredentialIdentityStore`.
+    private func subscribeToCipherChanges() {
+        cipherChangesSubscriptionTask?.cancel()
+        cipherChangesSubscriptionTask = Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                for await cipherChange in try await cipherService.cipherChangesPublisher().values {
+                    switch cipherChange {
+                    case let .inserted(cipher):
+                        await upsertCredentialsInStore(for: cipher)
+                    case let .updated(cipher):
+                        await upsertCredentialsInStore(for: cipher)
+                    case let .deleted(cipher):
+                        await removeCredentialsInStore(for: cipher)
+                    }
+                }
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
+    }
 
     /// Synchronizes the identities in the identity store for the user with the specified lock status.
     ///
@@ -467,6 +511,30 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         return try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
     }
 
+    /// Gets the credential identities for a given cipher.
+    /// - Parameter cipher: The cipher to get the credential identiteis from.
+    /// - Returns: A list of credential identities for the cipher.
+    @available(iOS 17.0, *)
+    private func getCredentialIdentities(from cipher: Cipher) async throws -> [ASCredentialIdentity] {
+        var identities = [ASCredentialIdentity]()
+        let decryptedCipher = try await clientService.vault().ciphers().decrypt(cipher: cipher)
+
+        let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: decryptedCipher)
+        identities.append(contentsOf: newIdentities)
+
+        let fido2Identities = try await clientService.platform().fido2()
+            .authenticator(
+                userInterface: fido2UserInterfaceHelper,
+                credentialStore: fido2CredentialStore,
+            )
+            .credentialsForAutofill()
+            .filter { $0.cipherId == cipher.id }
+            .compactMap { $0.toFido2CredentialIdentity() }
+        identities.append(contentsOf: fido2Identities)
+
+        return identities
+    }
+
     /// Provides a Fido2 credential based for the given request.
     /// - Parameters:
     ///   - request: Request to get the assertion credential.
@@ -525,6 +593,48 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw error
         }
     }
+
+    /// Removes the credential identities associated with the cipher on the store.
+    /// - Parameter cipher: The cipher to get the credential identities from.
+    private func removeCredentialsInStore(for cipher: Cipher) async {
+        guard #available(iOS 17.0, *),
+              await identityStore.state().isEnabled,
+              await identityStore.state().supportsIncrementalUpdates else {
+            return
+        }
+
+        do {
+            let identities = try await getCredentialIdentities(from: cipher)
+            try await identityStore.removeCredentialIdentities(identities)
+
+            Logger.application.debug(
+                "[AutofillCredentialService] Removed \(identities.count) identities from \(cipher.id ?? "nil")",
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    /// Adds/Updates the credential identities associated with the cipher on the store.
+    /// - Parameter cipher: The cipher to get the credential identities from.
+    private func upsertCredentialsInStore(for cipher: Cipher) async {
+        guard #available(iOS 17.0, *),
+              await identityStore.state().isEnabled,
+              await identityStore.state().supportsIncrementalUpdates else {
+            return
+        }
+
+        do {
+            let identities = try await getCredentialIdentities(from: cipher)
+            try await identityStore.saveCredentialIdentities(identities)
+
+            Logger.application.debug(
+                "[AutofillCredentialService] Upserted \(identities.count) identities from \(cipher.id ?? "nil")",
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
 }
 
 // MARK: - CredentialIdentityStore
@@ -535,6 +645,13 @@ protocol CredentialIdentityStore {
     /// Removes all existing credential identities from the store.
     ///
     func removeAllCredentialIdentities() async throws
+
+    /// Remove the given credential identities from the store.
+    ///
+    /// - Parameter credentialIdentities: A list of credential identities to remove.
+    ///
+    @available(iOS 17.0, *)
+    func removeCredentialIdentities(_ credentialIdentities: [any ASCredentialIdentity]) async throws
 
     /// Replaces existing credential identities with new credential identities.
     ///
@@ -548,6 +665,13 @@ protocol CredentialIdentityStore {
     /// - Parameter newCredentialIdentities: The new credential identities.
     ///
     func replaceCredentialIdentities(with newCredentialIdentities: [ASPasswordCredentialIdentity]) async throws
+
+    /// Save the supplied credential identities to the store.
+    ///
+    /// - Parameter credentialIdentities: A list of credential identities to save.
+    ///
+    @available(iOS 17.0, *)
+    func saveCredentialIdentities(_ credentialIdentities: [any ASCredentialIdentity]) async throws
 
     /// Gets the state of the credential identity store.
     ///

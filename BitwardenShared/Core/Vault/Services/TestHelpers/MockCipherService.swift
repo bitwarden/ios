@@ -11,6 +11,10 @@ class MockCipherService: CipherService {
 
     var cipherCountResult: Result<Int, Error> = .success(0)
 
+    var cipherChangesSubject = CurrentValueSubject<CipherChange, Never>(
+        .inserted(.fixture()), // stub data that will be dropped and not published.
+    )
+
     var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])
 
     var deleteAttachmentWithServerAttachmentId: String?
@@ -157,6 +161,10 @@ class MockCipherService: CipherService {
     func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {
         updateCipherCollectionsWithServerCiphers.append(cipher)
         try updateCipherCollectionsWithServerResult.get()
+    }
+
+    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Never> {
+        cipherChangesSubject.dropFirst().eraseToAnyPublisher()
     }
 
     func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {

@@ -105,6 +105,34 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         try XCTAssertEqual(XCTUnwrap(publisherValue), [cipher])
     }
 
+    /// `cipherChangesPublisher()` returns a publisher that emits individual cipher changes from the data store.
+    func test_cipherChangesPublisher_success() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        var iterator = try await subject.cipherChangesPublisher().values.makeAsyncIterator()
+
+        let cipher = Cipher.fixture(id: "1", name: "Test Cipher")
+        let userId = stateService.activeAccount?.profile.userId ?? ""
+        cipherDataStore.cipherChangesSubjectByUserId[userId]?.send(.inserted(cipher))
+
+        let change = await iterator.next()
+        guard case let .inserted(insertedCipher) = change else {
+            XCTFail("Expected inserted change")
+            return
+        }
+        XCTAssertEqual(insertedCipher.id, cipher.id)
+        XCTAssertEqual(insertedCipher.name, cipher.name)
+    }
+
+    /// `cipherChangesPublisher()` throws an error when there's no active account.
+    func test_cipherChangesPublisher_noActiveAccount() async {
+        stateService.activeAccount = nil
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.cipherChangesPublisher()
+        }
+    }
+
     /// `deleteAttachmentWithServer(attachmentId:cipherId:)` deletes the cipher's attachment from backend
     ///  and local storage.
     func test_deleteAttachmentWithServer() async throws {
