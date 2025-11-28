@@ -481,7 +481,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountLongPressed_lock() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -551,7 +550,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountLongPressed_lock_error() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -614,7 +612,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountLongPressed_logout() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -693,7 +690,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountLongPressed_logout_error() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -764,7 +760,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountPressed_active_unlocked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -837,7 +832,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountPressed_active_locked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -917,7 +911,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountPressed_alternateUnlocked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -999,7 +992,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountPressed_alternateLocked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1077,7 +1069,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_accountPressed_noMatch() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1147,7 +1138,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_addAccountPressed() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1195,7 +1185,6 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     @MainActor
     func test_receive_backgroundTapped() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 

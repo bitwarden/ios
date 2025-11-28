@@ -136,7 +136,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_profileSwitcher_accountPressed() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -204,7 +203,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_profileSwitcher_toggleProfilesViewVisibility() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -530,7 +528,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_receive_profileSwitcher_backgroundPressed() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
