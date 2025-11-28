@@ -244,12 +244,12 @@
 "AuthenticatorKeyReadError" = "Overovací kľúč sa nedá čítať.";
 "PointYourCameraAtTheQRCode" = "Namierte fotoaparát na kód QR.\nSkenovanie prebehne automaticky.";
 "ScanQrTitle" = "Skenovať QR kód";
-"Camera" = "Kamera";
+"Camera" = "Fotoaparát";
 "Photos" = "Fotky";
 "CopyTotp" = "Kopírovať TOTP";
 "CopyTotpAutomaticallyDescription" = "Ak majú prihlasovacie údaje nastavený kľúč overovateľa, overovací kód TOTP bude automaticky skopírovaný do schránky vždy, keď použijete automatické vypĺňanie.";
 "CopyTotpAutomatically" = "Automaticky kopírovať TOTP";
-"PremiumRequired" = "Pre použitie tejto funkcie je potrebné prémiové členstvo.";
+"PremiumRequired" = "Na použitie tejto funkcie je potrebné prémiové členstvo.";
 "AttachementAdded" = "Príloha pridaná";
 "AttachmentDeleted" = "Príloha odstránená";
 "ChooseFile" = "Vybrať súbor";
@@ -740,7 +740,7 @@
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "Naozaj chcete odmietnuť všetky čakajúce požiadavky o prihlásenie?";
 "RequestsDeclined" = "Požiadavky odmietnuté";
 "NoPendingRequests" = "Žiadne čakajúce požiadavky";
-"EnableCamerPermissionToUseTheScanner" = "Pre použitie skenera povoľte prístup ku kamere";
+"EnableCamerPermissionToUseTheScanner" = "Na použitie skenera povoľte prístup k fotoaparátu";
 "Language" = "Jazyk";
 "LanguageChangeXDescription" = "Jazyk bol zmenený na %1$@. Reštartujte aplikáciu, aby sa zmena prejavila";
 "LanguageChangeRequiresAppRestart" = "Zmena jazyka si vyžaduje reštart aplikácie";
