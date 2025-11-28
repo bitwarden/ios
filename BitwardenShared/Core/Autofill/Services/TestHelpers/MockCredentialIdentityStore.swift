@@ -9,13 +9,28 @@ class MockCredentialIdentityStore: CredentialIdentityStore {
     var removeAllCredentialIdentitiesCalled = false
     var removeAllCredentialIdentitiesResult = Result<Void, Error>.success(())
 
+    var removeCredentialIdentitiesCalled = false
+    var removeCredentialIdentitiesIdentities: [CredentialIdentity]?
+    var removeCredentialIdentitiesResult = Result<Void, Error>.success(())
+
     var replaceCredentialIdentitiesCalled = false
     var replaceCredentialIdentitiesIdentities: [CredentialIdentity]?
     var replaceCredentialIdentitiesResult = Result<Void, Error>.success(())
 
+    var saveCredentialIdentitiesCalled = false
+    var saveCredentialIdentitiesIdentities: [CredentialIdentity]?
+    var saveCredentialIdentitiesResult = Result<Void, Error>.success(())
+
     func removeAllCredentialIdentities() async throws {
         removeAllCredentialIdentitiesCalled = true
         try removeAllCredentialIdentitiesResult.get()
+    }
+
+    @available(iOS 17.0, *)
+    func removeCredentialIdentities(_ identities: [any ASCredentialIdentity]) async throws {
+        removeCredentialIdentitiesCalled = true
+        removeCredentialIdentitiesIdentities = identities.compactMap(CredentialIdentity.init)
+        try removeCredentialIdentitiesResult.get()
     }
 
     @available(iOS 17, *)
@@ -31,6 +46,13 @@ class MockCredentialIdentityStore: CredentialIdentityStore {
         try replaceCredentialIdentitiesResult.get()
     }
 
+    @available(iOS 17.0, *)
+    func saveCredentialIdentities(_ identities: [any ASCredentialIdentity]) async throws {
+        saveCredentialIdentitiesCalled = true
+        saveCredentialIdentitiesIdentities = identities.compactMap(CredentialIdentity.init)
+        try saveCredentialIdentitiesResult.get()
+    }
+
     func state() async -> ASCredentialIdentityStoreState {
         stateCalled = true
         return state
@@ -41,9 +63,15 @@ class MockCredentialIdentityStore: CredentialIdentityStore {
 
 class MockCredentialIdentityStoreState: ASCredentialIdentityStoreState {
     var mockIsEnabled = true
+    var mockSupportsIncrementalUpdates = true
 
     override var isEnabled: Bool {
         mockIsEnabled
+    }
+
+    @available(iOS 12.0, *)
+    override var supportsIncrementalUpdates: Bool {
+        mockSupportsIncrementalUpdates
     }
 }
 
