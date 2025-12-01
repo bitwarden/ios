@@ -1,11 +1,11 @@
 // swiftlint:disable:this file_name
-import BitwardenKit
+//import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import SnapshotTesting
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 // MARK: - DebugMenuViewTests
 

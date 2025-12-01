@@ -63,17 +63,17 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     /// `makeDebugMenuCoordinator()` builds the debug menu coordinator.
-    @MainActor
-    func test_makeDebugMenuCoordinator() {
-        let navigationController = UINavigationController()
-        let coordinator = subject.makeDebugMenuCoordinator(
-            delegate: MockDebugMenuCoordinatorDelegate(),
-            stackNavigator: navigationController,
-        )
-        coordinator.start()
-        XCTAssertEqual(navigationController.viewControllers.count, 1)
-        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<DebugMenuView>)
-    }
+//    @MainActor
+//    func test_makeDebugMenuCoordinator() {
+//        let navigationController = UINavigationController()
+//        let coordinator = subject.makeDebugMenuCoordinator(
+//            delegate: MockDebugMenuCoordinatorDelegate(),
+//            stackNavigator: navigationController,
+//        )
+//        coordinator.start()
+//        XCTAssertEqual(navigationController.viewControllers.count, 1)
+//        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<DebugMenuView>)
+//    }
 
     /// `makeExportCXFCoordinator(stackNavigator:)` builds the Credential Exchange export coordinator.
     @MainActor

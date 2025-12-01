@@ -6,7 +6,7 @@ import SwiftUI
 
 /// Represents the debug menu for configuring app settings and feature flags.
 ///
-struct DebugMenuView: View {
+public struct DebugMenuView: View {
     // MARK: Properties
 
     /// The store used to render the view.
@@ -14,7 +14,7 @@ struct DebugMenuView: View {
 
     // MARK: View
 
-    var body: some View {
+    public var body: some View {
         List {
             Section {
                 featureFlags

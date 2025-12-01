@@ -64,6 +64,22 @@ extension DefaultAppModule: AppModule {
     }
 }
 
+// MARK: - DefaultAppModule + DebugMenuModule
+
+extension DefaultAppModule: DebugMenuModule {
+    public func makeDebugMenuCoordinator(
+        delegate: DebugMenuCoordinatorDelegate,
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<DebugMenuRoute, Void> {
+        DebugMenuCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
+
 // MARK: - DefaultAppModule + FlightRecorderModule
 
 extension DefaultAppModule: FlightRecorderModule {
@@ -100,16 +116,3 @@ extension DefaultAppModule: SelectLanguageModule {
     }
 }
 
-extension DefaultAppModule: DebugMenuModule {
-    public func makeDebugMenuCoordinator(
-        delegate: DebugMenuCoordinatorDelegate,
-        stackNavigator: StackNavigator,
-    ) -> AnyCoordinator<DebugMenuRoute, Void> {
-        DebugMenuCoordinator(
-            delegate: delegate,
-            services: services,
-            stackNavigator: stackNavigator,
-        )
-        .asAnyCoordinator()
-    }
-}
