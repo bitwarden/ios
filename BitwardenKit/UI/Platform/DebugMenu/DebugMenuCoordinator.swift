@@ -1,9 +1,8 @@
-import BitwardenKit
 import Foundation
 
 /// An object that is notified when the debug menu is dismissed.
 ///
-public protocol DebugMenuCoordinatorDelegate: AnyObject {
+public protocol DebugMenuCoordinatorDelegate: AnyObject { // sourcery: AutoMockable
     /// The debug menu has been dismissed.
     ///
     func didDismissDebugMenu()
@@ -11,7 +10,7 @@ public protocol DebugMenuCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation for the debug menu.
 ///
-final public class DebugMenuCoordinator: Coordinator, HasStackNavigator {
+public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     public typealias Services = HasConfigService
