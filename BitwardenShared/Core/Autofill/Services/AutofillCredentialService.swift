@@ -512,7 +512,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
     }
 
     /// Gets the credential identities for a given cipher.
-    /// - Parameter cipher: The cipher to get the credential identiteis from.
+    /// - Parameter cipher: The cipher to get the credential identities from.
     /// - Returns: A list of credential identities for the cipher.
     @available(iOS 17.0, *)
     private func getCredentialIdentities(from cipher: Cipher) async throws -> [ASCredentialIdentity] {
