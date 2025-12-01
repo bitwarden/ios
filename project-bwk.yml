@@ -141,6 +141,7 @@ targets:
           - "**/sourcery.yml"
         buildPhase: none
     dependencies:
+      - package: BitwardenSdk
       - package: SwiftUIIntrospect
       - target: BitwardenResources
       - target: Networking
