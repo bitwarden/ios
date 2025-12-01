@@ -51,7 +51,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
             services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
                 message: "Generated error report from debug view.",
             )))
-            services.errorReporter.log(error: KeychainServiceError.osStatusError(1))
+//            services.errorReporter.log(error: KeychainServiceError.osStatusError(1))
         }
     }
 
@@ -66,7 +66,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
                 name: flag,
                 newValue: newValue,
             )
-            state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
+//            state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
         }
     }
 
@@ -74,11 +74,11 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     /// Fetch the current debug feature flags.
     private func fetchFlags() async {
-        state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
+//        state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
     }
 
     /// Refreshes the feature flags by resetting their local values and fetching the latest configurations.
     private func refreshFlags() async {
-        state.featureFlags = await services.configService.refreshDebugFeatureFlags(FeatureFlag.allCases)
+//        state.featureFlags = await services.configService.refreshDebugFeatureFlags(FeatureFlag.allCases)
     }
 }

@@ -3,7 +3,7 @@ import Foundation
 
 /// An object that is notified when the debug menu is dismissed.
 ///
-protocol DebugMenuCoordinatorDelegate: AnyObject {
+public protocol DebugMenuCoordinatorDelegate: AnyObject {
     /// The debug menu has been dismissed.
     ///
     func didDismissDebugMenu()
@@ -11,11 +11,10 @@ protocol DebugMenuCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation for the debug menu.
 ///
-final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
+final public class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasAppSettingsStore
-        & HasConfigService
+    public typealias Services = HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
@@ -30,7 +29,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     // MARK: Properties
 
     /// The stack navigator that is managed by this coordinator.
-    private(set) weak var stackNavigator: StackNavigator?
+    public private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -41,7 +40,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
-    init(
+    public init(
         delegate: DebugMenuCoordinatorDelegate,
         services: Services,
         stackNavigator: StackNavigator,
@@ -53,7 +52,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(
+    public func navigate(
         to route: DebugMenuRoute,
         context: AnyObject?,
     ) {
@@ -66,7 +65,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     }
 
     /// Starts the process of displaying the debug menu.
-    func start() {
+    public func start() {
         showDebugMenu()
     }
 
@@ -88,5 +87,5 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
 // MARK: - HasErrorAlertServices
 
 extension DebugMenuCoordinator: HasErrorAlertServices {
-    var errorAlertServices: ErrorAlertServices { services }
+    public var errorAlertServices: ErrorAlertServices { services }
 }

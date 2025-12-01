@@ -99,3 +99,17 @@ extension DefaultAppModule: SelectLanguageModule {
         .asAnyCoordinator()
     }
 }
+
+extension DefaultAppModule: DebugMenuModule {
+    public func makeDebugMenuCoordinator(
+        delegate: DebugMenuCoordinatorDelegate,
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<DebugMenuRoute, Void> {
+        DebugMenuCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
