@@ -65,7 +65,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.featureFlags.contains(flag))
     }
 
-    /// `perform(.refreshFeatureFlags)` refreshs the current feature flags.
+    /// `perform(.refreshFeatureFlags)` refreshes the current feature flags.
     @MainActor
     func test_perform_refreshFeatureFlags() async {
         await subject.perform(.refreshFeatureFlags)

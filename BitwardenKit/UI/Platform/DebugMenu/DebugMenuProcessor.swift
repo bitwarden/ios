@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -19,6 +18,18 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     /// The services used by the processor.
     private let services: Services
+
+    // MARK: Computed Properties
+
+    /// The current feature flags. This requires `FeatureFlag` to have been extended in the executable's
+    /// namespace to conform to `CaseIterable`.
+    private var currentFeatureFlags: [FeatureFlag] {
+        guard let featureFlagType = FeatureFlag.self as? any CaseIterable.Type,
+              let flags = featureFlagType.allCases as? [FeatureFlag] else {
+            return []
+        }
+        return flags
+    }
 
     // MARK: Initialization
 
@@ -66,7 +77,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
                 name: flag,
                 newValue: newValue,
             )
-//            state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
+            state.featureFlags = await services.configService.getDebugFeatureFlags(currentFeatureFlags)
         }
     }
 
@@ -74,11 +85,11 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     /// Fetch the current debug feature flags.
     private func fetchFlags() async {
-//        state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
+        state.featureFlags = await services.configService.getDebugFeatureFlags(currentFeatureFlags)
     }
 
     /// Refreshes the feature flags by resetting their local values and fetching the latest configurations.
     private func refreshFlags() async {
-//        state.featureFlags = await services.configService.refreshDebugFeatureFlags(FeatureFlag.allCases)
+        state.featureFlags = await services.configService.refreshDebugFeatureFlags(currentFeatureFlags)
     }
 }
