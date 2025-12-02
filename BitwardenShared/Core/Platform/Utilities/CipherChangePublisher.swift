@@ -30,7 +30,7 @@ public class CipherChangePublisher: Publisher {
 
     public typealias Output = CipherChange
 
-    public typealias Failure = Never
+    public typealias Failure = Error
 
     // MARK: Properties
 
@@ -72,7 +72,7 @@ public class CipherChangePublisher: Publisher {
 private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscription
     where SubscriberType: Subscriber,
     SubscriberType.Input == CipherChange,
-    SubscriberType.Failure == Never {
+    SubscriberType.Failure == Error {
     // MARK: Properties
 
     /// The subscriber to notify of cipher changes.
@@ -137,34 +137,41 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
             return
         }
 
-        // Check inserted objects
-        if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject> {
-            for object in inserts where object is CipherData {
-                guard let cipherData = object as? CipherData,
-                      cipherData.userId == userId,
-                      let cipher = try? Cipher(cipherData: cipherData) else { continue }
-                _ = subscriber.receive(.inserted(cipher))
+        do {
+            // Check inserted objects
+            if let inserts = userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject> {
+                for object in inserts where object is CipherData {
+                    guard let cipherData = object as? CipherData,
+                          cipherData.userId == userId else {
+                        continue
+                    }
+                    _ = subscriber.receive(.inserted(try Cipher(cipherData: cipherData)))
+                }
             }
-        }
 
-        // Check updated objects
-        if let updates = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> {
-            for object in updates where object is CipherData {
-                guard let cipherData = object as? CipherData,
-                      cipherData.userId == userId,
-                      let cipher = try? Cipher(cipherData: cipherData) else { continue }
-                _ = subscriber.receive(.updated(cipher))
+            // Check updated objects
+            if let updates = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> {
+                for object in updates where object is CipherData {
+                    guard let cipherData = object as? CipherData,
+                          cipherData.userId == userId else {
+                        continue
+                    }
+                    _ = subscriber.receive(.updated(try Cipher(cipherData: cipherData)))
+                }
             }
-        }
 
-        // Check deleted objects
-        if let deletes = userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject> {
-            for object in deletes where object is CipherData {
-                guard let cipherData = object as? CipherData,
-                      cipherData.userId == userId,
-                      let cipher = try? Cipher(cipherData: cipherData) else { continue }
-                _ = subscriber.receive(.deleted(cipher))
+            // Check deleted objects
+            if let deletes = userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject> {
+                for object in deletes where object is CipherData {
+                    guard let cipherData = object as? CipherData,
+                          cipherData.userId == userId else {
+                        continue
+                    }
+                    _ = subscriber.receive(.deleted(try Cipher(cipherData: cipherData)))
+                }
             }
+        } catch {
+            subscriber.receive(completion: .failure(error))
         }
     }
 }

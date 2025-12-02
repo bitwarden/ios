@@ -115,7 +115,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let userId = stateService.activeAccount?.profile.userId ?? ""
         cipherDataStore.cipherChangesSubjectByUserId[userId]?.send(.inserted(cipher))
 
-        let change = await iterator.next()
+        let change = try await iterator.next()
         guard case let .inserted(insertedCipher) = change else {
             XCTFail("Expected inserted change")
             return

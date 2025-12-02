@@ -59,7 +59,7 @@ protocol CipherDataStore: AnyObject {
     /// - Parameter userId: The user ID of the user associated with the ciphers.
     /// - Returns: A publisher that emits cipher changes.
     ///
-    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never>
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Error>
 
     /// Replaces a list of `Cipher` objects for a user.
     ///
@@ -126,7 +126,7 @@ extension DataStore: CipherDataStore {
         .eraseToAnyPublisher()
     }
 
-    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never> {
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Error> {
         CipherChangePublisher(
             context: backgroundContext,
             userId: userId,

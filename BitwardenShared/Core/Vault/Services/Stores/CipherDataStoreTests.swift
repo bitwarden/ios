@@ -67,9 +67,12 @@ class CipherDataStoreTests: BitwardenTestCase {
     func test_cipherChangesPublisher_insert() async throws {
         var publishedChanges = [CipherChange]()
         let publisher = subject.cipherChangesPublisher(userId: "1")
-            .sink { change in
-                publishedChanges.append(change)
-            }
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
         defer { publisher.cancel() }
 
         let cipher = Cipher.fixture(id: "1", name: "CIPHER1")
@@ -91,9 +94,12 @@ class CipherDataStoreTests: BitwardenTestCase {
 
         var publishedChanges = [CipherChange]()
         let publisher = subject.cipherChangesPublisher(userId: "1")
-            .sink { change in
-                publishedChanges.append(change)
-            }
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
         defer { publisher.cancel() }
 
         let updatedCipher = Cipher.fixture(id: "1", name: "UPDATED CIPHER1")
@@ -115,9 +121,12 @@ class CipherDataStoreTests: BitwardenTestCase {
 
         var publishedChanges = [CipherChange]()
         let publisher = subject.cipherChangesPublisher(userId: "1")
-            .sink { change in
-                publishedChanges.append(change)
-            }
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
         defer { publisher.cancel() }
 
         try await subject.deleteCipher(id: "2", userId: "1")
@@ -134,9 +143,12 @@ class CipherDataStoreTests: BitwardenTestCase {
     func test_cipherChangesPublisher_doesNotEmitForOtherUsers() async throws {
         var publishedChanges = [CipherChange]()
         let publisher = subject.cipherChangesPublisher(userId: "1")
-            .sink { change in
-                publishedChanges.append(change)
-            }
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
         defer { publisher.cancel() }
 
         // Insert cipher for a different user
@@ -153,9 +165,12 @@ class CipherDataStoreTests: BitwardenTestCase {
     func test_cipherChangesPublisher_doesNotEmitForBatchOperations() async throws {
         var publishedChanges = [CipherChange]()
         let publisher = subject.cipherChangesPublisher(userId: "1")
-            .sink { change in
-                publishedChanges.append(change)
-            }
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
         defer { publisher.cancel() }
 
         // Replace ciphers (batch operation)

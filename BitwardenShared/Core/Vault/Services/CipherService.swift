@@ -139,7 +139,7 @@ protocol CipherService {
     ///
     /// - Returns: A publisher that emits cipher changes.
     ///
-    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Never>
+    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Error>
 
     /// A publisher for the list of ciphers for the current user.
     ///
@@ -381,7 +381,7 @@ extension DefaultCipherService {
 
     // MARK: Publishers
 
-    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Never> {
+    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Error> {
         let userId = try await stateService.getActiveAccountId()
         return cipherDataStore.cipherChangesPublisher(userId: userId)
     }

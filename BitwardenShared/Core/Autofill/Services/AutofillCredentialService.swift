@@ -228,17 +228,18 @@ class DefaultAutofillCredentialService {
     private func subscribeToCipherChanges() {
         cipherChangesSubscriptionTask?.cancel()
         cipherChangesSubscriptionTask = Task { [weak self] in
-            guard let self else { return }
+            guard let self, #available(iOS 17.0, *) else {
+                return
+            }
 
             do {
-                for await cipherChange in try await cipherService.cipherChangesPublisher().values {
+                for try await cipherChange in try await cipherService.cipherChangesPublisher().values {
                     switch cipherChange {
-                    case let .inserted(cipher):
-                        await upsertCredentialsInStore(for: cipher)
-                    case let .updated(cipher):
-                        await upsertCredentialsInStore(for: cipher)
                     case let .deleted(cipher):
                         await removeCredentialsInStore(for: cipher)
+                    case let .inserted(cipher),
+                         let .updated(cipher):
+                        await upsertCredentialsInStore(for: cipher)
                     }
                 }
             } catch {
@@ -596,9 +597,9 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
     /// Removes the credential identities associated with the cipher on the store.
     /// - Parameter cipher: The cipher to get the credential identities from.
+    @available(iOS 17.0, *)
     private func removeCredentialsInStore(for cipher: Cipher) async {
-        guard #available(iOS 17.0, *),
-              await identityStore.state().isEnabled,
+        guard await identityStore.state().isEnabled,
               await identityStore.state().supportsIncrementalUpdates else {
             return
         }
@@ -617,9 +618,9 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
     /// Adds/Updates the credential identities associated with the cipher on the store.
     /// - Parameter cipher: The cipher to get the credential identities from.
+    @available(iOS 17.0, *)
     private func upsertCredentialsInStore(for cipher: Cipher) async {
-        guard #available(iOS 17.0, *),
-              await identityStore.state().isEnabled,
+        guard await identityStore.state().isEnabled,
               await identityStore.state().supportsIncrementalUpdates else {
             return
         }
