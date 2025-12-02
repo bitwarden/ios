@@ -992,7 +992,6 @@ extension DefaultAuthRepository: AuthRepository {
 
     func unlockVaultWithPassword(password: String) async throws {
         let account = try await stateService.getActiveAccount()
-        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
 
         guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
             throw AuthError.missingMasterPasswordUnlockData
