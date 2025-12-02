@@ -40,6 +40,12 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// The coordinator has error alert services.
+    @MainActor
+    func test_errorAlertServices() {
+        XCTAssertNotNil(subject.errorAlertServices)
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses the view.
     @MainActor
     func test_navigate_dismiss() throws {
