@@ -59,10 +59,11 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         case .generateCrash:
             preconditionFailure("Generated crash from debug view.")
         case .generateErrorReport:
+//            services.errorReporter.log(error: KeychainServiceError.osStatusError(1))
+        case .generateSdkErrorReport:
             services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
                 message: "Generated error report from debug view.",
             )))
-//            services.errorReporter.log(error: KeychainServiceError.osStatusError(1))
         }
     }
 

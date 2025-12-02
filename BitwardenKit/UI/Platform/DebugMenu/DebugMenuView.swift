@@ -52,6 +52,12 @@ public struct DebugMenuView: View {
             }
             .accessibilityIdentifier("GenerateErrorReportButton")
             Button {
+                store.send(.generateSdkErrorReport)
+            } label: {
+                Text(Localizations.generateSdkErrorReport)
+            }
+            .accessibilityIdentifier("GenerateSdkErrorReportButton")
+            Button {
                 store.send(.generateCrash)
             } label: {
                 Text(Localizations.generateCrash)
