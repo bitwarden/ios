@@ -266,7 +266,7 @@ struct SendListView: View {
             )
             .task { await store.perform(.loadData) }
             .task { await store.perform(.streamSendList) }
-            .task(id: store.state.searchText) {
+            .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
             .onChange(of: store.state.infoUrl) { newValue in

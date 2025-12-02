@@ -334,7 +334,7 @@ struct VaultListView: View {
                 prompt: Localizations.search,
             )
             .autocorrectionDisabled(true)
-            .task(id: store.state.searchText) {
+            .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
             .task(id: store.state.searchVaultFilterType) {
