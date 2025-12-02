@@ -59,10 +59,20 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         case .generateCrash:
             preconditionFailure("Generated crash from debug view.")
         case .generateErrorReport:
-//            services.errorReporter.log(error: KeychainServiceError.osStatusError(1))
+            services.errorReporter.log(
+                error: FlightRecorderError.fileSizeError(
+                    NSError(
+                        domain: "Generated Error",
+                        code: 0,
+                        userInfo: [
+                            "AdditionalMessage": "Generated error report from debug view.",
+                        ],
+                    ),
+                ),
+            )
         case .generateSdkErrorReport:
             services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
-                message: "Generated error report from debug view.",
+                message: "Generated SDK error report from debug view.",
             )))
         }
     }
