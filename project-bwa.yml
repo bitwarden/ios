@@ -260,6 +260,7 @@ targets:
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
         product: InlineSnapshotTesting
     randomExecutionOrder: true
@@ -284,6 +285,7 @@ targets:
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
@@ -310,5 +312,6 @@ targets:
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - target: BitwardenKit/ViewInspectorTestHelpers
+      - package: BitwardenSdk
       - package: ViewInspector
     randomExecutionOrder: true
