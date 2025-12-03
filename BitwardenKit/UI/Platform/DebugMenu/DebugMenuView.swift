@@ -28,12 +28,9 @@ public struct DebugMenuView: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
+                closeToolbarButton {
                     store.send(.dismissTapped)
-                } label: {
-                    Text(Localizations.close)
                 }
-                .accessibilityIdentifier("close-debug")
             }
         }
         .navigationTitle("Debug Menu")
