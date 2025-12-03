@@ -1,3 +1,5 @@
+// MARK: - Array + Extensions
+
 public extension Array {
     /// Safely access elements in an array by index without running into an out-of-bounds error.
     /// This works like normal array subscript access, but if the index is out of bounds, then
