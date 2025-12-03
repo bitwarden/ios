@@ -115,4 +115,3 @@ extension DefaultAppModule: SelectLanguageModule {
         .asAnyCoordinator()
     }
 }
-
