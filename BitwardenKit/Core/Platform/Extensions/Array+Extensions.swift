@@ -7,8 +7,10 @@ public extension Array {
     /// where we want to access array elements by index number, and not have additional error handling
     /// if the index in question does not exist in the array.
     ///
+    /// This can be used in a subscript. For example, `array[safeIndex: 2]`.
+    ///
     /// - Parameters:
-    ///   - index: The position of the element to access.
+    ///   - safeIndex: The position of the element to access.
     /// - Returns: The element at the specified index if it is within bounds, otherwise `nil`.
     subscript(safeIndex index: Int) -> Element? {
         guard index >= 0, index < endIndex else {
