@@ -51,6 +51,16 @@ protocol CipherDataStore: AnyObject {
     ///
     func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error>
 
+    /// A publisher that emits individual cipher changes (insert, update, delete) as they occur.
+    ///
+    /// This publisher only emits for individual cipher operations (`upsertCipher`, `deleteCipher`).
+    /// Batch operations like `replaceCiphers` do not trigger emissions from this publisher.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the ciphers.
+    /// - Returns: A publisher that emits cipher changes.
+    ///
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Error>
+
     /// Replaces a list of `Cipher` objects for a user.
     ///
     /// - Parameters:
@@ -113,6 +123,14 @@ extension DataStore: CipherDataStore {
             request: fetchRequest,
         )
         .tryMap { try $0.map(Cipher.init) }
+        .eraseToAnyPublisher()
+    }
+
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Error> {
+        CipherChangePublisher(
+            context: backgroundContext,
+            userId: userId,
+        )
         .eraseToAnyPublisher()
     }
 
