@@ -24,6 +24,9 @@ public enum Constants {
     /// The minimum number of minutes before attempting a server config sync again.
     public static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 
+    /// The search debounce time in nanoseconds.
+    public static let searchDebounceTimeInNS: UInt64 = 200_000_000 // 200ms
+
     /// The default file name when the file name cannot be determined.
     public static let unknownFileName = "unknown_file_name"
 }
