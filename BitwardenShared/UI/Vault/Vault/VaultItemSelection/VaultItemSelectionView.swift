@@ -133,7 +133,7 @@ private struct VaultItemSelectionSearchableView: View {
         .task {
             await store.perform(.streamVaultItems)
         }
-        .task(id: store.state.searchText) {
+        .searchDebouncedTask(id: store.state.searchText) {
             await store.perform(.search(store.state.searchText))
         }
         .toast(
