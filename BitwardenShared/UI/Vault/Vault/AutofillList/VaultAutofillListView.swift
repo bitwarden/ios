@@ -106,7 +106,7 @@ private struct VaultAutofillListSearchableView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
-            .task(id: store.state.searchText) {
+            .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
             .task(id: store.state.excludedCredentialIdFound) {
