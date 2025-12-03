@@ -4,7 +4,7 @@ import Foundation
 
 /// The Fido2 credential store implementation that the SDK needs
 /// which handles getting/saving credentials for Fido2 flows.
-class Fido2CredentialStoreService: Fido2CredentialStore {
+final class Fido2CredentialStoreService: Fido2CredentialStore {
     // MARK: Properties
 
     /// The service used to manage syncing and updates to the user's ciphers.

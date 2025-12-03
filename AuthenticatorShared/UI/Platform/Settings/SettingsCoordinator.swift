@@ -13,6 +13,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     typealias Module = FileSelectionModule
         & FlightRecorderModule
         & NavigatorBuilderModule
+        & SelectLanguageModule
         & TutorialModule
 
     typealias Services = HasAppInfoService
@@ -189,14 +190,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     /// Shows the select language screen.
     ///
     private func showSelectLanguage(currentLanguage: LanguageOption, delegate: SelectLanguageDelegate?) {
-        let processor = SelectLanguageProcessor(
-            coordinator: asAnyCoordinator(),
-            delegate: delegate,
-            services: services,
-            state: SelectLanguageState(currentLanguage: currentLanguage),
+        guard let stackNavigator else { return }
+        let coordinator = module.makeSelectLanguageCoordinator(
+            stackNavigator: stackNavigator,
         )
-        let view = SelectLanguageView(store: Store(processor: processor))
-        stackNavigator?.present(view)
+        coordinator.start()
+        coordinator.navigate(to: .open(currentLanguage: currentLanguage), context: delegate)
     }
 
     /// Shows the settings screen.

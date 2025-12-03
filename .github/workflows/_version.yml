@@ -79,7 +79,7 @@ jobs:
 
       - name: Check out repository
         if: ${{ !inputs.skip_checkout || false }}
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -108,7 +108,7 @@ jobs:
 
           latest_tag_version=$(git tag -l --sort=-creatordate | grep "$APP_CODENAME" | head -n 1)
           if [[ -z "$latest_tag_version" ]]; then
-            version_name="${current_year}.${current_month}.${_PATCH_VERSION}"
+            version_name="${current_year}.${current_month}.${_PATCH_VERSION:-0}"
             echo "::warning::No tags found, did you checkout? Calculating version from current date: $version_name"
             output "$version_name"
             exit 0
@@ -167,7 +167,7 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload version info artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: version-info
           path: version_info.json

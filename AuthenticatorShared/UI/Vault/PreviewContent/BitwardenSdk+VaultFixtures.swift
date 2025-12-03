@@ -83,6 +83,7 @@ extension Cipher {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            data: nil,
         )
     }
 }

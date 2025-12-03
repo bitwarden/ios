@@ -8,8 +8,6 @@ open class BitwardenTestCase: BaseBitwardenTestCase {
     override open class func setUp() {
         // Apply default appearances for snapshot tests.
         UI.applyDefaultAppearances()
-
-        TestDataHelpers.defaultBundle = Bundle(for: Self.self)
     }
 
     /// Executes any logic that should be applied before each test runs.

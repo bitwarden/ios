@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Copy and share this error report with customer success to avoid additional data loss.</string>
+      <string>%#@vaultitems@. Скопіюйте цей звіт про помилку та поділіться ним зі службою підтримки, щоб уникнути втрати даних.</string>
       <key>vaultitems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,13 +14,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item</string>
+        <string>Bitwarden не вдалося розшифрувати %d запис сховища</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items</string>
+        <string>Bitwarden не вдалося розшифрувати %d записи сховища</string>
         <key>many</key>
-        <string>Bitwarden could not decrypt %d vault items</string>
+        <string>Bitwarden не вдалося розшифрувати %d записів сховища</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items</string>
+        <string>Bitwarden не вдалося розшифрувати %d записів сховища</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -35,13 +35,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d день</string>
         <key>few</key>
-        <string>%d days</string>
+        <string>%d дні</string>
         <key>many</key>
-        <string>%d days</string>
+        <string>%d днів</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d днів</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d запис</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d записи</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d записів</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d записів</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d запис</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d записи</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d записів</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d записів</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->

@@ -7,7 +7,7 @@ import SwiftUI
 // MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
-private struct SearchableItemListView: View {
+private struct SearchableItemListView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -56,11 +56,17 @@ private struct SearchableItemListView: View {
             get: \.toast,
             send: ItemListAction.toastShown,
         ))
+        .flightRecorderToastBanner(
+            activeLog: store.state.flightRecorderToastBanner.activeLog,
+            isVisible: store.bindingAsync(
+                get: \.flightRecorderToastBanner.isToastBannerVisible,
+                perform: { _ in .dismissFlightRecorderToastBanner },
+            ),
+            goToSettingsAction: {
+                store.send(.navigateToFlightRecorderSettings)
+            },
+        )
         .animation(.default, value: isSearching)
-        .toast(store.binding(
-            get: \.toast,
-            send: ItemListAction.toastShown,
-        ))
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -365,7 +371,7 @@ struct ItemListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search,
             )
-            .task(id: store.state.searchText) {
+            .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
         }
@@ -380,6 +386,9 @@ struct ItemListView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .task {
+            await store.perform(.streamFlightRecorderLog)
         }
     }
 }
