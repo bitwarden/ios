@@ -46,21 +46,15 @@ class CipherDataStoreTests: BitwardenTestCase {
 
     /// `cipherPublisher(userId:)` returns a publisher for a user's cipher objects.
     func test_cipherPublisher() async throws {
-        var publishedValues = [[Cipher]]()
-        let publisher = subject.cipherPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.cipherPublisher(userId: "1").values.makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         try await subject.replaceCiphers(ciphers, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], ciphers)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, ciphers)
     }
 
     /// `cipherChangesPublisher(userId:)` emits inserted ciphers for the user.

@@ -68,21 +68,15 @@ class FolderDataStoreTests: BitwardenTestCase {
 
     /// `folderPublisher(userId:)` returns a publisher for a user's folder objects.
     func test_folderPublisher() async throws {
-        var publishedValues = [[Folder]]()
-        let publisher = subject.folderPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.folderPublisher(userId: "1").values.makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         try await subject.replaceFolders(folders, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], folders)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, folders)
     }
 
     /// `replaceFolders(_:userId)` replaces the list of folders for the user.

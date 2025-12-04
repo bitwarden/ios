@@ -120,18 +120,16 @@ class GeneratorDataStoreTests: BitwardenTestCase {
     /// `passwordHistoryPublisher(userId:)` returns a publisher for a user's password history objects.
     @MainActor
     func test_passwordHistoryPublisher() async throws {
-        var publishedValues = [[PasswordHistory]]()
-        let publisher = subject.passwordHistoryPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.passwordHistoryPublisher(userId: "1").values.makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         let passwordHistory1 = PasswordHistory(password: "PASSWORD1", lastUsedDate: Date())
         try await subject.insertPasswordHistory(userId: "1", passwordHistory: passwordHistory1)
+
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, [passwordHistory1])
 
         let passwordHistoryOther = PasswordHistory(password: "PASSWORD_OTHER", lastUsedDate: Date())
         try await subject.insertPasswordHistory(userId: "2", passwordHistory: passwordHistoryOther)
@@ -139,9 +137,7 @@ class GeneratorDataStoreTests: BitwardenTestCase {
         let passwordHistory2 = PasswordHistory(password: "PASSWORD2", lastUsedDate: Date())
         try await subject.insertPasswordHistory(userId: "1", passwordHistory: passwordHistory2)
 
-        waitFor { publishedValues.count == 3 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], [passwordHistory1])
-        XCTAssertEqual(publishedValues[2], [passwordHistory2, passwordHistory1])
+        let thirdValue = try await iterator.next()
+        XCTAssertEqual(thirdValue, [passwordHistory2, passwordHistory1])
     }
 }

@@ -34,21 +34,15 @@ class CollectionDataStoreTests: BitwardenTestCase {
 
     /// `collectionPublisher(userId:)` returns a publisher for a user's collection objects.
     func test_collectionPublisher() async throws {
-        var publishedValues = [[Collection]]()
-        let publisher = subject.collectionPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.collectionPublisher(userId: "1").values.makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         try await subject.replaceCollections(collections, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], collections)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, collections)
     }
 
     /// `deleteAllCollections(user:)` removes all objects for the user.
