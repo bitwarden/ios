@@ -78,6 +78,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             AuthenticatorBridgeKitMocks: 0x0000000000000000
             BitwardenKit:                0x0000000000000000
             BitwardenKitMocks:           0x0000000000000000
+            BitwardenSdk_464161978EAC5FCE_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
 
@@ -115,6 +116,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             AuthenticatorBridgeKitMocks: 0x0000000000000000
             BitwardenKit:                0x0000000000000000
             BitwardenKitMocks:           0x0000000000000000
+            BitwardenSdk_464161978EAC5FCE_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
 
@@ -150,6 +152,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             AuthenticatorBridgeKitMocks: 0x0000000000000000
             BitwardenKit:                0x0000000000000000
             BitwardenKitMocks:           0x0000000000000000
+            BitwardenSdk_464161978EAC5FCE_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
 

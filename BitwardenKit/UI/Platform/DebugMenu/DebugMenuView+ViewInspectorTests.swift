@@ -46,7 +46,7 @@ class DebugMenuViewTests: BitwardenTestCase {
     /// Tapping the close button dispatches the `.dismissTapped` action.
     @MainActor
     func test_closeButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.close)
+        let button = try subject.inspect().findCloseToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
     }
