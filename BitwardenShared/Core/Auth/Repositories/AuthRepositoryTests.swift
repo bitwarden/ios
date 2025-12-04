@@ -1276,13 +1276,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY",
         )
-        var tdeAccount = Account.fixtureWithTdeNoPassword()
-        tdeAccount.profile.userDecryptionOptions?.masterPasswordUnlock = MasterPasswordUnlockResponseModel(
-            kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
-            masterKeyEncryptedUserKey: "NEW_KEY",
-            salt: "SALT",
-        )
-        stateService.activeAccount = tdeAccount
+        stateService.activeAccount = Account.fixtureWithTDE()
 
         try await subject.setMasterPassword(
             "NEW_PASSWORD",

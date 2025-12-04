@@ -42,6 +42,14 @@ extension Account {
             profile: Account.AccountProfile.fixture(
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: true,
+                    masterPasswordUnlock: MasterPasswordUnlockResponseModel(
+                        kdf: KdfConfig(
+                            kdfType: .pbkdf2sha256,
+                            iterations: Constants.pbkdf2Iterations,
+                        ),
+                        masterKeyEncryptedUserKey: "NEW_KEY",
+                        salt: "SALT",
+                    ),
                     keyConnectorOption: nil,
                     trustedDeviceOption: TrustedDeviceUserDecryptionOption(
                         encryptedPrivateKey: "PRIVATE_KEY",
@@ -62,6 +70,7 @@ extension Account {
             profile: Account.AccountProfile.fixture(
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: false,
+                    masterPasswordUnlock: nil,
                     keyConnectorOption: nil,
                     trustedDeviceOption: TrustedDeviceUserDecryptionOption(
                         encryptedPrivateKey: "PRIVATE_KEY",
