@@ -1172,11 +1172,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
-                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
-                    masterKeyEncryptedUserKey: "encryptedUserKey",
-                    salt: "SALT",
-                ),
+                masterPasswordUnlock: .fixture(),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
             ),
@@ -1320,11 +1316,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// unlocks the vault.
     func test_setMasterPassword_TDE() async throws {
         var account = Account.fixtureWithTDE()
-        account.profile.userDecryptionOptions?.masterPasswordUnlock = MasterPasswordUnlockResponseModel(
-            kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
-            masterKeyEncryptedUserKey: "NEW_KEY",
-            salt: "SALT",
-        )
+        account.profile.userDecryptionOptions?.masterPasswordUnlock = .fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
         clientService.mockCrypto.makeUpdatePasswordResult = .success(
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
@@ -1830,11 +1822,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
-                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
-                ),
+                masterPasswordUnlock: .fixture(),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
             ),
@@ -2138,11 +2126,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             kdfIterations: 100_000,
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
-                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 100_000),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
-                ),
+                masterPasswordUnlock: .fixture(iterations: 100_000),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
             ),
@@ -2196,11 +2180,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             kdfIterations: 100_000,
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
-                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 100_000),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
-                ),
+                masterPasswordUnlock: .fixture(iterations: 100_000),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
             ),
@@ -2255,11 +2235,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
-                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
-                ),
+                masterPasswordUnlock: .fixture(),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
             ),
@@ -2494,11 +2470,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
-                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
-                ),
+                masterPasswordUnlock: .fixture(),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
             ),
@@ -2562,11 +2534,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
-                masterPasswordUnlock: MasterPasswordUnlockResponseModel(
-                    kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: Constants.pbkdf2Iterations),
-                    masterKeyEncryptedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
-                    salt: "SALT",
-                ),
+                masterPasswordUnlock: .fixture(),
                 keyConnectorOption: nil,
                 trustedDeviceOption: nil,
             ),
