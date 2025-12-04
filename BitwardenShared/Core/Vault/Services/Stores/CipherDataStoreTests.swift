@@ -46,7 +46,7 @@ class CipherDataStoreTests: BitwardenTestCase {
 
     /// `cipherPublisher(userId:)` returns a publisher for a user's cipher objects.
     func test_cipherPublisher() async throws {
-        var iterator = subject.cipherPublisher(userId: "1").values.makeAsyncIterator()
+        var iterator = subject.cipherPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, [])

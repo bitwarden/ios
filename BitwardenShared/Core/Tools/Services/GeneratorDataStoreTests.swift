@@ -120,7 +120,7 @@ class GeneratorDataStoreTests: BitwardenTestCase {
     /// `passwordHistoryPublisher(userId:)` returns a publisher for a user's password history objects.
     @MainActor
     func test_passwordHistoryPublisher() async throws {
-        var iterator = subject.passwordHistoryPublisher(userId: "1").values.makeAsyncIterator()
+        var iterator = subject.passwordHistoryPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, [])

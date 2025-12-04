@@ -33,7 +33,7 @@ class AuthenticatorItemDataStoreTests: BitwardenTestCase {
 
     /// `authenticatorItemPublisher(userId:)` returns a publisher for a user's authenticatorItem objects.
     func test_authenticatorItemPublisher() async throws {
-        var iterator = subject.authenticatorItemPublisher(userId: "1").values.makeAsyncIterator()
+        var iterator = subject.authenticatorItemPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, [])

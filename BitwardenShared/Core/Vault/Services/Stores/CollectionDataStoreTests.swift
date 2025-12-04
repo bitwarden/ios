@@ -34,7 +34,7 @@ class CollectionDataStoreTests: BitwardenTestCase {
 
     /// `collectionPublisher(userId:)` returns a publisher for a user's collection objects.
     func test_collectionPublisher() async throws {
-        var iterator = subject.collectionPublisher(userId: "1").values.makeAsyncIterator()
+        var iterator = subject.collectionPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, [])

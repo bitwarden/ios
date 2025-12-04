@@ -68,7 +68,7 @@ class FolderDataStoreTests: BitwardenTestCase {
 
     /// `folderPublisher(userId:)` returns a publisher for a user's folder objects.
     func test_folderPublisher() async throws {
-        var iterator = subject.folderPublisher(userId: "1").values.makeAsyncIterator()
+        var iterator = subject.folderPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, [])

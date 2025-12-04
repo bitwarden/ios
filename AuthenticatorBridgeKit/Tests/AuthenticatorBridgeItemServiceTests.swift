@@ -355,7 +355,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.insertItems(initialItems, forUserId: "userId")
 
-        var iterator = try await subject.sharedItemsPublisher().values.makeAsyncIterator()
+        var iterator = try await subject.sharedItemsPublisher().valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, initialItems)
@@ -372,7 +372,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
         try await subject.insertItems(initialItems, forUserId: "userId")
 
-        var iterator = try await subject.sharedItemsPublisher().values.makeAsyncIterator()
+        var iterator = try await subject.sharedItemsPublisher().valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, initialItems)

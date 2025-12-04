@@ -45,7 +45,7 @@ class OrganizationDataStoreTests: BitwardenTestCase {
 
     /// `organizationPublisher(userId:)` returns a publisher for a user's organization objects.
     func test_organizationPublisher() async throws {
-        var iterator = subject.organizationPublisher(userId: "1").values.makeAsyncIterator()
+        var iterator = subject.organizationPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, [])

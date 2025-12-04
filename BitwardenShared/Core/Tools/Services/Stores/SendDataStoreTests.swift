@@ -57,7 +57,7 @@ class SendDataStoreTests: BitwardenTestCase {
 
     /// `sendPublisher(userId:)` returns a publisher for a single send.
     func test_sendPublisher() async throws {
-        var iterator = subject.sendPublisher(id: "1", userId: "1").values.makeAsyncIterator()
+        var iterator = subject.sendPublisher(id: "1", userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, .some(nil))
@@ -70,7 +70,7 @@ class SendDataStoreTests: BitwardenTestCase {
 
     /// `sendsPublisher(userId:)` returns a publisher for a user's send objects.
     func test_sendsPublisher() async throws {
-        var iterator = subject.sendsPublisher(userId: "1").values.makeAsyncIterator()
+        var iterator = subject.sendsPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
 
         let firstValue = try await iterator.next()
         XCTAssertEqual(firstValue, [])
