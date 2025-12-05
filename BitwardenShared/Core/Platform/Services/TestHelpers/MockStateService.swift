@@ -126,6 +126,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
         encryptedPinByUserId[userId] = nil
+        pinProtectedUserKeyEnvelopeValue[userId] = nil
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {
