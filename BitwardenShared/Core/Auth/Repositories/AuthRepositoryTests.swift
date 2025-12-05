@@ -1868,6 +1868,30 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
+    /// `unlockVaultWithPassword(password:)` throws missingMasterPasswordUnlockData error when masterPasswordUnlock nil
+    func test_unlockVault_missingMasterPasswordUnlockData() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: nil,
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
+
+        await assertAsyncThrows(error: AuthError.missingMasterPasswordUnlockData) {
+            try await subject.unlockVaultWithPassword(password: "password")
+        }
+    }
+
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
     func test_unlockVaultWithBiometrics_error_cryptoFail() async {
         stateService.accountEncryptionKeys = [
