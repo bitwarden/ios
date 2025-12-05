@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class SetMasterPasswordProcessorTests: BitwardenTestCase {
     // MARK: Properties

@@ -1,4 +1,5 @@
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 extension MockVaultListSectionsBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper {

@@ -11,6 +11,16 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
 
     var subject: ActionExtensionHelper!
 
+    let pageDetailsJsonData = APITestData.loadFromJsonBundle(
+        resource: "pageDetails",
+        bundle: .bitwardenSharedMocks,
+    ).data
+
+    let pageDetailsWithoutPasswordJsonData = APITestData.loadFromJsonBundle(
+        resource: "pageDetailsWithoutPassword",
+        bundle: .bitwardenSharedMocks,
+    ).data
+
     // MARK: Setup & Teardown
 
     override func setUp() {
@@ -30,7 +40,6 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `canAutofill` returns true if the provider type is supported and the page details contains a
     /// password field.
     func test_canAutofill() throws {
-        let pageDetailsJsonData = APITestData.loadFromJsonBundle(resource: "pageDetails").data
         let pageDetailsJson = try XCTUnwrap(String(data: pageDetailsJsonData, encoding: .utf8))
 
         let extensionItem = NSExtensionItem()
@@ -70,8 +79,7 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// `canAutofill` returns false if the page details doesn't contain a password field.
     func test_canAutofill_noPasswordField() throws {
-        let pageDetailsJsonData = APITestData.loadFromJsonBundle(resource: "pageDetailsWithoutPassword").data
-        let pageDetailsJson = String(data: pageDetailsJsonData, encoding: .utf8)
+        let pageDetailsJson = String(data: pageDetailsWithoutPasswordJsonData, encoding: .utf8)
 
         let extensionItem = NSExtensionItem()
         extensionItem.attachments = [
@@ -168,7 +176,6 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
     /// returns the data necessary to autofill the selected cipher on the web page.
     func test_processInputItems_findLoginBrowserProvider_dictionary() throws {
         // swiftlint:disable:previous function_body_length
-        let pageDetailsJsonData = APITestData.loadFromJsonBundle(resource: "pageDetails").data
         let pageDetailsJson = String(data: pageDetailsJsonData, encoding: .utf8)
         let pageDetails = try JSONDecoder().decode(PageDetails.self, from: pageDetailsJsonData)
 
@@ -313,7 +320,6 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `processInputItems(_:)` processes the input items for a web URL provider and returns the
     /// data necessary to autofill the selected cipher on the web page.
     func test_processInputItems_webUrlProvider() throws { // swiftlint:disable:this function_body_length
-        let pageDetailsJsonData = APITestData.loadFromJsonBundle(resource: "pageDetails").data
         let pageDetailsJson = try XCTUnwrap(String(data: pageDetailsJsonData, encoding: .utf8))
 
         let extensionItem = NSExtensionItem()

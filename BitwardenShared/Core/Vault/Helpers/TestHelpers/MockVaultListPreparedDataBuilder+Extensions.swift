@@ -3,6 +3,7 @@ import Combine
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 extension MockVaultListPreparedDataBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper { // swiftlint:disable:this function_body_length

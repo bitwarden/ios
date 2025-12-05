@@ -5,6 +5,7 @@ import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListItemRowViewTests
 

@@ -7,6 +7,7 @@ import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SendListViewTests
 

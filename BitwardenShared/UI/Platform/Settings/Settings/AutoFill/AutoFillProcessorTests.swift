@@ -4,6 +4,7 @@ import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // swiftlint:disable:next type_body_length
 class AutoFillProcessorTests: BitwardenTestCase {

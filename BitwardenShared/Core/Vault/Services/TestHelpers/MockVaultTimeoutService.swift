@@ -4,6 +4,7 @@ import Combine
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockVaultTimeoutService: VaultTimeoutService {
     var account: Account = .fixture()

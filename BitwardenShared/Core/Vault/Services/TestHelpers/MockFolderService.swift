@@ -2,6 +2,7 @@ import BitwardenSdk
 import Combine
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockFolderService: FolderService {
     var addedFolderName: String?

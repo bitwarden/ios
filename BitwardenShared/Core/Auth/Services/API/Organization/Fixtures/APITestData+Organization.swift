@@ -1,6 +1,8 @@
 import TestHelpers
 
-extension APITestData {
+// swiftlint:disable missing_docs
+
+public extension APITestData {
     static let organizationAutoEnrollStatus = loadFromJsonBundle(resource: "OrganizationAutoEnrollStatus")
     static let organizationAutoEnrollStatusDisabled = loadFromJsonBundle(
         resource: "OrganizationAutoEnrollStatusDisabled",
@@ -19,3 +21,5 @@ extension APITestData {
         resource: "SingleSignOnDomainsVerifiedMultiple",
     )
 }
+
+// swiftlint:enable missing_docs

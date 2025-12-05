@@ -5,6 +5,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class FoldersProcessorTests: BitwardenTestCase {
     // MARK: Properties

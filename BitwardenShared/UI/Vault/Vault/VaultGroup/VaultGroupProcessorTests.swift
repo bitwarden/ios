@@ -8,6 +8,7 @@ import XCTest
 // swiftlint:disable file_length
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultGroupProcessorTests
 

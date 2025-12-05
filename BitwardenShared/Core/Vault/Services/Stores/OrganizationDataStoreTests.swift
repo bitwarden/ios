@@ -4,6 +4,7 @@ import CoreData
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class OrganizationDataStoreTests: BitwardenTestCase {
     // MARK: Properties

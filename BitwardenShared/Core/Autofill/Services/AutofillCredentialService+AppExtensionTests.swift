@@ -8,6 +8,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 /// The tests for `DefaultAutofillCredentialService` when the app context is `.appExtension`.
 /// This new file is needed given that the app context is necesary on `DefaultAutofillCredentialService`

@@ -1,6 +1,8 @@
 import TestHelpers
 
-extension APITestData {
+// swiftlint:disable missing_docs
+
+public extension APITestData {
     // MARK: Identity Token
 
     static let authRequestSuccess = loadFromJsonBundle(resource: "AuthRequest")
@@ -30,3 +32,5 @@ extension APITestData {
         resource: "IdentityTokenEncryptionKeyMigrationError",
     )
 }
+
+// swiftlint:enable missing_docs

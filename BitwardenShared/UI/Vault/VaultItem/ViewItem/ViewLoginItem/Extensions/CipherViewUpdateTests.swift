@@ -3,6 +3,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties

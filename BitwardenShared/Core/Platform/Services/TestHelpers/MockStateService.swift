@@ -5,6 +5,7 @@ import Combine
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:disable:this type_body_length
     var accessTokenExpirationDateByUserId = [String: Date]()

@@ -3,6 +3,7 @@ import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties

@@ -1,6 +1,8 @@
 import TestHelpers
 
-extension APITestData {
+// swiftlint:disable missing_docs
+
+public extension APITestData {
     static let cipherResponse = loadFromJsonBundle(resource: "cipherResponse")
     static let deleteAttachment = loadFromJsonBundle(resource: "deleteAttachment")
     static let downloadAttachment = loadFromJsonBundle(resource: "downloadAttachment")
@@ -18,3 +20,5 @@ extension APITestData {
     static let syncWithSends = loadFromJsonBundle(resource: "syncWithSends")
     static let syncWithUserDecryption = loadFromJsonBundle(resource: "syncWithUserDecryption")
 }
+
+// swiftlint:enable missing_docs
