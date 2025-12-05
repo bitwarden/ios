@@ -1,5 +1,3 @@
-import Foundation
-
 // MARK: - DebugMenuAction
 
 /// Actions that can be processed by a `DebugMenuProcessor`.
@@ -11,4 +9,6 @@ enum DebugMenuAction: Equatable {
     case generateCrash
     /// The generate error report button was tapped.
     case generateErrorReport
+    /// The generate SDK error report button was tapped.
+    case generateSdkErrorReport
 }

@@ -1,5 +1,3 @@
-import Foundation
-
 // MARK: - DebugMenuEffect
 
 /// Effects that can be processed by a `DebugMenuProcessor`.

@@ -1,6 +1,5 @@
+import BitwardenKit
 import XCTest
-
-@testable import BitwardenShared
 
 class ArrayExtensionsTests: BitwardenTestCase {
     // MARK: Tests

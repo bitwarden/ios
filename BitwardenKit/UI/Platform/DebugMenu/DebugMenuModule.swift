@@ -5,7 +5,7 @@ import Foundation
 
 /// An object that builds coordinator for the debug menu.
 @MainActor
-protocol DebugMenuModule {
+public protocol DebugMenuModule {
     /// Initializes a coordinator for navigating between `DebugMenuRoute`s.
     ///
     /// - Parameters:
@@ -17,18 +17,4 @@ protocol DebugMenuModule {
         delegate: DebugMenuCoordinatorDelegate,
         stackNavigator: StackNavigator,
     ) -> AnyCoordinator<DebugMenuRoute, Void>
-}
-
-extension DefaultAppModule: DebugMenuModule {
-    func makeDebugMenuCoordinator(
-        delegate: DebugMenuCoordinatorDelegate,
-        stackNavigator: StackNavigator,
-    ) -> AnyCoordinator<DebugMenuRoute, Void> {
-        DebugMenuCoordinator(
-            delegate: delegate,
-            services: services,
-            stackNavigator: stackNavigator,
-        )
-        .asAnyCoordinator()
-    }
 }

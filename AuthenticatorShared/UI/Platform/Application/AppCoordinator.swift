@@ -26,6 +26,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
 
+    /// Whether the debug menu is currently being shown.
+    private(set) var isShowingDebugMenu = false
+
     // MARK: Properties
 
     /// The module to use for creating child coordinators.
@@ -84,9 +87,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
         case .debugMenu:
-            #if DEBUG_MENU
             showDebugMenu()
-            #endif
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         }
@@ -160,7 +161,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         rootNavigator?.rootViewController?.present(navigationController, animated: false)
     }
 
-    #if DEBUG_MENU
     /// Configures and presents the debug menu.
     ///
     /// Initializes feedback generator for haptic feedback. Sets up a `UINavigationController`
@@ -168,22 +168,23 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Presents the navigation controller and triggers haptic feedback upon completion.
     ///
     private func showDebugMenu() {
+        guard !isShowingDebugMenu else { return }
+
         let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
         feedbackGenerator.prepare()
         let stackNavigator = UINavigationController()
         stackNavigator.navigationBar.prefersLargeTitles = true
         stackNavigator.modalPresentationStyle = .fullScreen
-        let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
+        let debugMenuCoordinator = module.makeDebugMenuCoordinator(delegate: self, stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
-        childCoordinator = debugMenuCoordinator
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
             animated: true,
             completion: { feedbackGenerator.impactOccurred() },
         )
+        isShowingDebugMenu = true
     }
-    #endif
 }
 
 // MARK: - AuthCoordinatorDelegate
@@ -191,6 +192,14 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
         showTab(route: .itemList(.list))
+    }
+}
+
+// MARK: - DebugMenuCoordinatorDelegate
+
+extension AppCoordinator: DebugMenuCoordinatorDelegate {
+    func didDismissDebugMenu() {
+        isShowingDebugMenu = false
     }
 }
 

@@ -38,6 +38,19 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertNotNil(rootViewController.childViewController)
     }
 
+    /// `makeDebugMenuCoordinator()` builds the debug menu coordinator.
+    @MainActor
+    func test_makeDebugMenuCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeDebugMenuCoordinator(
+            delegate: MockDebugMenuCoordinatorDelegate(),
+            stackNavigator: navigationController,
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<DebugMenuView>)
+    }
+
     /// `makeNavigationController()` builds a navigation controller.
     @MainActor
     func test_makeNavigationController() {

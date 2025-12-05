@@ -1,13 +1,11 @@
+import BitwardenKit
 import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
-@testable import BitwardenShared
-
 class DebugMenuCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
     var configService: MockConfigService!
     var delegate: MockDebugMenuCoordinatorDelegate!
     var stackNavigator: MockStackNavigator!
@@ -18,7 +16,6 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
         configService = MockConfigService()
         delegate = MockDebugMenuCoordinatorDelegate()
         stackNavigator = MockStackNavigator()
@@ -26,7 +23,6 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
         subject = DebugMenuCoordinator(
             delegate: delegate,
             services: ServiceContainer.withMocks(
-                appSettingsStore: appSettingsStore,
                 configService: configService,
             ),
             stackNavigator: stackNavigator,
@@ -36,7 +32,6 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        appSettingsStore = nil
         configService = nil
         delegate = nil
         stackNavigator = nil
@@ -44,6 +39,12 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// The coordinator has error alert services.
+    @MainActor
+    func test_errorAlertServices() {
+        XCTAssertNotNil(subject.errorAlertServices)
+    }
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
     @MainActor
@@ -61,13 +62,5 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.last?.view is DebugMenuView)
-    }
-}
-
-class MockDebugMenuCoordinatorDelegate: DebugMenuCoordinatorDelegate {
-    var didDismissDebugMenuCalled = false
-
-    func didDismissDebugMenu() {
-        didDismissDebugMenuCalled = true
     }
 }

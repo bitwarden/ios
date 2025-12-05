@@ -1,5 +1,3 @@
-import Foundation
-
 // MARK: - DebugMenuRoute
 
 /// A route to specific screens in the` DebugMenuView`
