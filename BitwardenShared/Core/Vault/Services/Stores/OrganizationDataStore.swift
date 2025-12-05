@@ -47,10 +47,10 @@ extension DataStore: OrganizationDataStore {
         // A sort descriptor is needed by `NSFetchedResultsController`.
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \OrganizationData.id, ascending: true)]
         return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
+            context: backgroundContext,
             request: fetchRequest,
+            transform: { try $0.compactMap(Organization.init) },
         )
-        .tryMap { try $0.compactMap(Organization.init) }
         .eraseToAnyPublisher()
     }
 
