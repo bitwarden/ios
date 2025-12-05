@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -33,14 +34,31 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedUserKey: "encryptedUserKey",
             ),
-            method: .password(password: "password123", userKey: "userKey"),
+            method: .masterPasswordUnlock(
+                password: "password123",
+                masterPasswordUnlock: MasterPasswordUnlockData(
+                    kdf: .pbkdf2(iterations: 600_000),
+                    masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                    salt: "SALT",
+                ),
+            ),
         )
 
         let request = try XCTUnwrap(subject.initializeUserCryptoRequest)
         XCTAssertEqual(request.userId, "1")
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
-        XCTAssertEqual(request.method, .password(password: "password123", userKey: "userKey"))
+        XCTAssertEqual(
+            request.method,
+            .masterPasswordUnlock(
+                password: "password123",
+                masterPasswordUnlock: MasterPasswordUnlockData(
+                    kdf: .pbkdf2(iterations: 600_000),
+                    masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                    salt: "SALT",
+                ),
+            ),
+        )
         XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
         XCTAssertEqual(request.securityState, "SECURITY_STATE")
         XCTAssertEqual(request.signingKey, "WRAPPED_SIGNING_KEY")
