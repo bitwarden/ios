@@ -57,40 +57,28 @@ class SendDataStoreTests: BitwardenTestCase {
 
     /// `sendPublisher(userId:)` returns a publisher for a single send.
     func test_sendPublisher() async throws {
-        var publishedValues = [Send?]()
-        let publisher = subject.sendPublisher(id: "1", userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { value in
-                    publishedValues.append(value)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.sendPublisher(id: "1", userId: "1").valuesWithTimeout().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, .some(nil))
 
         try await subject.replaceSends(sends, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertNil(publishedValues[0])
-        XCTAssertEqual(publishedValues[1], Send.fixture(id: "1", name: "SEND1"))
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, Send.fixture(id: "1", name: "SEND1"))
     }
 
     /// `sendsPublisher(userId:)` returns a publisher for a user's send objects.
     func test_sendsPublisher() async throws {
-        var publishedValues = [[Send]]()
-        let publisher = subject.sendsPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.sendsPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         try await subject.replaceSends(sends, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], sends)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, sends)
     }
 
     /// `replaceSends(_:userId)` replaces the list of sends for the user.

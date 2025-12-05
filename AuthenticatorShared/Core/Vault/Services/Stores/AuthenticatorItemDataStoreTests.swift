@@ -33,21 +33,15 @@ class AuthenticatorItemDataStoreTests: BitwardenTestCase {
 
     /// `authenticatorItemPublisher(userId:)` returns a publisher for a user's authenticatorItem objects.
     func test_authenticatorItemPublisher() async throws {
-        var publishedValues = [[AuthenticatorItem]]()
-        let publisher = subject.authenticatorItemPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.authenticatorItemPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         try await subject.replaceAuthenticatorItems(authenticatorItems, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], authenticatorItems)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, authenticatorItems)
     }
 
     /// `deleteAllAuthenticatorItems(user:)` removes all objects for the user.
