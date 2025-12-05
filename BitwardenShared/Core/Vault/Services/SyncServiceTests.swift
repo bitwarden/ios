@@ -142,7 +142,13 @@ class SyncServiceTests: BitwardenTestCase {
     func test_checkVaultTimeoutPolicy_actionOnly() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
-        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 60))
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: nil,
+                timeoutValue: SessionTimeoutValue(rawValue: 60),
+            ),
+        )
 
         try await subject.fetchSync(forceSync: false)
 
@@ -157,12 +163,38 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         stateService.vaultTimeout["1"] = SessionTimeoutValue(rawValue: 120)
 
-        policyService.fetchTimeoutPolicyValuesResult = .success((.logout, 60))
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: nil,
+                timeoutValue: SessionTimeoutValue(rawValue: 60),
+            ),
+        )
 
         try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(stateService.timeoutAction["1"], .logout)
         XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue(rawValue: 60))
+    }
+
+    /// `fetchSync()` updates the user's timeout action and ignores the time value.
+    func test_checkVaultTimeoutPolicy_setActionForOnAppRestartType() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        stateService.vaultTimeout["1"] = SessionTimeoutValue(rawValue: 120)
+
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .logout,
+                timeoutType: .onAppRestart,
+                timeoutValue: SessionTimeoutValue(rawValue: 60),
+            ),
+        )
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertEqual(stateService.timeoutAction["1"], .logout)
+        XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue(rawValue: 120))
     }
 
     /// `fetchSync()` updates the user's timeout action and value - if the timeout value is set to
@@ -172,7 +204,13 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         stateService.vaultTimeout["1"] = .never
 
-        policyService.fetchTimeoutPolicyValuesResult = .success((.lock, 15))
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(
+                timeoutAction: .lock,
+                timeoutType: nil,
+                timeoutValue: SessionTimeoutValue(rawValue: 15),
+            ),
+        )
 
         try await subject.fetchSync(forceSync: false)
 
