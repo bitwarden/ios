@@ -134,7 +134,7 @@ extension MasterPasswordUnlockResponseModel {
     static func fixture(
         kdfType: KdfType = .pbkdf2sha256,
         iterations: Int = Constants.pbkdf2Iterations,
-        masterKeyEncryptedUserKey: String = "NEW_KEY",
+        masterKeyEncryptedUserKey: String = "MASTER_KEY_ENCRYPTED_USER_KEY",
         salt: String = "SALT",
     ) -> MasterPasswordUnlockResponseModel {
         MasterPasswordUnlockResponseModel(

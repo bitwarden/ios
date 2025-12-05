@@ -1227,7 +1227,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     password: "NEW_PASSWORD",
                     masterPasswordUnlock: MasterPasswordUnlockData(
                         kdf: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
-                        masterKeyWrappedUserKey: "encryptedUserKey",
+                        masterKeyWrappedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
                         salt: "SALT",
                     ),
                 ),
@@ -1366,7 +1366,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     password: "NEW_PASSWORD",
                     masterPasswordUnlock: MasterPasswordUnlockData(
                         kdf: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
-                        masterKeyWrappedUserKey: "NEW_KEY",
+                        masterKeyWrappedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
                         salt: "SALT",
                     ),
                 ),
