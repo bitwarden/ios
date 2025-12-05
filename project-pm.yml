@@ -407,6 +407,7 @@ targets:
         optional: true
     dependencies:
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -458,6 +459,7 @@ targets:
       - target: Bitwarden
       - target: BitwardenShared
       - target: BitwardenSharedMocks
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
@@ -485,6 +487,7 @@ targets:
       - target: Bitwarden
       - target: BitwardenShared
       - target: BitwardenSharedMocks
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - target: BitwardenKit/ViewInspectorTestHelpers
