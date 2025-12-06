@@ -45,21 +45,15 @@ class OrganizationDataStoreTests: BitwardenTestCase {
 
     /// `organizationPublisher(userId:)` returns a publisher for a user's organization objects.
     func test_organizationPublisher() async throws {
-        var publishedValues = [[Organization]]()
-        let publisher = subject.organizationPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.organizationPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         try await subject.replaceOrganizations(organizations, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], organizations.compactMap(Organization.init))
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, organizations.compactMap(Organization.init))
     }
 
     /// `fetchAllOrganizations(userId:)` fetches all organizations for a user.
