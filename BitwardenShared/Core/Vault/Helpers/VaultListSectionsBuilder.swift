@@ -101,7 +101,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
-    let preparedData: VaultListPreparedData
+    var preparedData: VaultListPreparedData?
     /// The vault list data to build.
     private var vaultListData = VaultListData()
 
@@ -129,6 +129,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     // MARK: Methods
 
     func addAutofillCombinedMultipleSection(searchText: String?, rpID: String?) -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         if !preparedData.fido2Items.isEmpty, let rpID {
             vaultListData.sections.append(VaultListSection(
                 id: Localizations.passkeysForX(searchText ?? rpID),
@@ -157,6 +159,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addAutofillCombinedSingleSection() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         guard !preparedData.groupItems.isEmpty || !preparedData.fido2Items.isEmpty else {
             return self
         }
@@ -171,6 +175,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addAutofillPasswordsSection() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
             return self
         }
@@ -187,11 +193,15 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addCipherDecryptionFailureIds() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         vaultListData.cipherDecryptionFailureIds = preparedData.cipherDecryptionFailureIds
         return self
     }
 
     func addCollectionsSection(nestedCollectionId: String? = nil) async throws -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         guard !preparedData.collections.isEmpty else {
             return self
         }
@@ -236,6 +246,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addFavoritesSection() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         if !preparedData.favorites.isEmpty {
             vaultListData.sections.append(VaultListSection(
                 id: "Favorites",
@@ -247,6 +259,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addFoldersSection(nestedFolderId: String? = nil) async throws -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         let folderTree = try await clientService.vault().folders()
             .decryptList(folders: preparedData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
@@ -307,6 +321,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addGroupSection() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         if !preparedData.groupItems.isEmpty {
             vaultListData.sections.append(
                 VaultListSection(
@@ -322,6 +338,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
             return self
         }
@@ -347,6 +365,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addTOTPSection() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         if preparedData.totpItemsCount > 0 {
             vaultListData.sections.append(VaultListSection(
                 id: "TOTP",
@@ -363,6 +383,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addTrashSection() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
         vaultListData.sections.append(
             VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
@@ -371,6 +393,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func addTypesSection() -> VaultListSectionsBuilder {
+        guard let preparedData else { return self }
+
         var types = [
             VaultListItem(
                 id: "Types.Logins",
@@ -410,7 +434,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func build() -> VaultListData {
-        vaultListData
+        defer { preparedData = nil }
+        return vaultListData
     }
 }
 

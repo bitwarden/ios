@@ -97,7 +97,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
 }
 
 /// Default implementation of `VaultListDataPreparator`.
-struct DefaultVaultListDataPreparator: VaultListDataPreparator {
+struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The factory to create cipher matching helpers.

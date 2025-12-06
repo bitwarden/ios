@@ -52,7 +52,7 @@ class CipherExtensionsTests: BitwardenTestCase {
     func test_belongsToGroup_totp() {
         let cipher = Cipher.fixture(
             login: .fixture(totp: "JBSWY3DPEHPK3PXP"),
-            type: .login
+            type: .login,
         )
         XCTAssertTrue(cipher.belongsToGroup(.totp))
         XCTAssertTrue(cipher.belongsToGroup(.login))
@@ -62,7 +62,7 @@ class CipherExtensionsTests: BitwardenTestCase {
     func test_belongsToGroup_totp_noTotp() {
         let cipher = Cipher.fixture(
             login: .fixture(totp: nil),
-            type: .login
+            type: .login,
         )
         XCTAssertFalse(cipher.belongsToGroup(.totp))
         XCTAssertTrue(cipher.belongsToGroup(.login))
@@ -110,7 +110,7 @@ class CipherExtensionsTests: BitwardenTestCase {
         XCTAssertTrue(cipher.belongsToGroup(.collection(
             id: "collection-123",
             name: "My Collection",
-            organizationId: "org-1"
+            organizationId: "org-1",
         )))
     }
 
@@ -120,7 +120,7 @@ class CipherExtensionsTests: BitwardenTestCase {
         XCTAssertFalse(cipher.belongsToGroup(.collection(
             id: "collection-789",
             name: "Other Collection",
-            organizationId: "org-1"
+            organizationId: "org-1",
         )))
     }
 
@@ -130,7 +130,7 @@ class CipherExtensionsTests: BitwardenTestCase {
         XCTAssertFalse(cipher.belongsToGroup(.collection(
             id: "collection-123",
             name: "My Collection",
-            organizationId: "org-1"
+            organizationId: "org-1",
         )))
     }
 
