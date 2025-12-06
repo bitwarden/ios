@@ -2,6 +2,7 @@ import AuthenticationServices
 import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
+import Combine
 
 // MARK: - VaultAutofillListProcessor
 
@@ -23,6 +24,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTOTPExpirationManagerFactory
         & HasTextAutofillHelperFactory
@@ -43,6 +45,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// An object to manage TOTP code expirations and batch refresh calls for the vault list items.
     private var vaultItemsTotpExpirationManager: TOTPExpirationManager?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
@@ -94,7 +99,12 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         )
         self.coordinator = coordinator
         self.services = services
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
+
         super.init(state: state)
+
+        searchProcessorMediator.setDelegate(self)
+        searchProcessorMediator.setAutofillListMode(autofillListMode)
 
         switch autofillListMode {
         case .all:
@@ -115,6 +125,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
         searchTotpExpirationManager?.cleanup()
         searchTotpExpirationManager = nil
+
+        searchProcessorMediator.stopSearching()
     }
 
     // MARK: Methods
@@ -197,7 +209,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else { return }
+            guard isSearching else {
+                searchProcessorMediator.stopSearching()
+                return
+            }
+            searchProcessorMediator.startSearching()
             state.searchText = ""
             state.ciphersForSearch = []
             state.showNoResults = false
@@ -341,30 +357,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             state.showNoResults = false
             return
         }
-        do {
-            let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
-            let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
-                    filterType: .allVaults,
-                    group: groupFilter,
-                    mode: autofillListMode,
-                    rpID: autofillAppExtensionDelegate?.rpID,
-                    searchText: searchText,
-                ),
-            )
-            for try await vaultListData in publisher {
-                let sections = vaultListData.sections
-                state.ciphersForSearch = sections
-                state.showNoResults = sections.isEmpty
-                if let section = sections.first, !section.items.isEmpty {
-                    searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: section.items)
-                }
-            }
-        } catch {
-            state.ciphersForSearch = []
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
+
+        let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
+        searchProcessorMediator.onFilterChanged(
+            VaultListFilter(
+                filterType: .allVaults,
+                group: groupFilter,
+                mode: autofillListMode,
+                rpID: autofillAppExtensionDelegate?.rpID,
+                searchText: searchText,
+            ),
+        )
     }
 
     /// Streams the list of autofill items.
@@ -782,6 +785,19 @@ extension VaultAutofillListProcessor: CipherItemOperationDelegate {
         if state.excludedCredentialIdFound != nil {
             state.toast = Toast(title: Localizations.itemSoftDeleted)
             state.excludedCredentialIdFound = nil
+        }
+    }
+}
+
+// MARK: - SearchProcessorMediatorDelegate
+
+extension VaultAutofillListProcessor: SearchProcessorMediatorDelegate {
+    func onNewSearchResults(data: VaultListData) {
+        let sections = data.sections
+        state.ciphersForSearch = sections
+        state.showNoResults = sections.isEmpty
+        if state.isAutofillingTotpList, let section = sections.first, !section.items.isEmpty {
+            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: section.items)
         }
     }
 }

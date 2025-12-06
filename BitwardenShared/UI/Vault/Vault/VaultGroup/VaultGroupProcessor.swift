@@ -19,6 +19,7 @@ final class VaultGroupProcessor: StateProcessor<
         & HasEventService
         & HasPasteboardService
         & HasPolicyService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -38,6 +39,9 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// An object to manage TOTP code expirations and batch refresh calls for the group.
     private var groupTotpExpirationManager: TOTPExpirationManager?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
@@ -69,10 +73,12 @@ final class VaultGroupProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
+
         groupTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
@@ -91,6 +97,8 @@ final class VaultGroupProcessor: StateProcessor<
                 }
             },
         )
+
+        searchProcessorMediator.setDelegate(self)
     }
 
     deinit {
@@ -158,8 +166,10 @@ final class VaultGroupProcessor: StateProcessor<
             if !isSearching {
                 state.searchText = ""
                 state.searchResults = []
+                searchProcessorMediator.stopSearching()
                 searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: [])
             }
+            searchProcessorMediator.startSearching()
             state.isSearching = isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
@@ -259,22 +269,14 @@ final class VaultGroupProcessor: StateProcessor<
             state.searchResults = []
             return
         }
-        do {
-            let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
-                    filterType: state.searchVaultFilterType,
-                    group: state.group,
-                    searchText: searchText,
-                ),
-            )
-            for try await vaultListData in publisher {
-                let items = vaultListData.sections.first?.items ?? []
-                state.searchResults = items
-                searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+
+        searchProcessorMediator.onFilterChanged(
+            VaultListFilter(
+                filterType: state.searchVaultFilterType,
+                group: state.group,
+                searchText: searchText,
+            ),
+        )
     }
 
     /// Streams the user's organizations.
@@ -325,5 +327,16 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
         Task {
             await perform(.refresh)
         }
+    }
+}
+
+// MARK: - SearchProcessorMediatorDelegate
+
+extension VaultGroupProcessor: SearchProcessorMediatorDelegate {
+    func onNewSearchResults(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+        searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
+
     }
 }

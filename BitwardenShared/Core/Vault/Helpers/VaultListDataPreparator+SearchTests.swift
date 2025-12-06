@@ -277,15 +277,12 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     /// prepared data filtering out cipher as it's deleted.
     @MainActor
     func test_prepareSearchAutofillCombinedMultipleData_deletedCipher() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            name: "Example Site",
-            deletedDate: .now,
-        )
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = nil
 
         let result = await subject.prepareSearchAutofillCombinedMultipleData(
             from: [
                 .fixture(
+                    deletedDate: .now,
                     login: .fixture(
                         uris: [.fixture(uri: "https://example.com", match: .exact)],
                     ),
@@ -298,11 +295,20 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            0,
+            "Deleted cipher should be filtered out by preFilter",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 0)
         XCTAssertNotNil(result)
     }
 
     /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
     /// prepared data filtering out cipher as it's not a login type.
+    /// Note: Without a group filter, the preFilter doesn't filter by type, so the cipher gets decrypted
+    /// but is then filtered out in the onCipher logic.
     @MainActor
     func test_prepareSearchAutofillCombinedMultipleData_nonLoginCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
@@ -322,6 +328,17 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Non-login cipher should pass preFilter when no group filter is set",
+        )
+        XCTAssertEqual(
+            ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount,
+            1,
+            "onCipher should be called even for non-login ciphers",
+        )
         XCTAssertNotNil(result)
     }
 
@@ -462,20 +479,23 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     /// as it's deleted and filter group is not trash.
     @MainActor
     func test_prepareSearchData_deletedCipherNotTrashGroup() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            name: "Example Site",
-            deletedDate: .now,
-        )
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = nil
 
         let result = await subject.prepareSearchData(
-            from: [.fixture()],
+            from: [.fixture(deletedDate: .now)],
             filter: VaultListFilter(group: .login, searchText: "example"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            0,
+            "Deleted cipher should be filtered out by preFilter when group is not trash",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 0)
         XCTAssertNotNil(result)
     }
 
@@ -498,6 +518,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             "prepareRestrictItemsPolicyOrganizations",
             "addSearchResultItem",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Deleted cipher should pass preFilter when group is trash",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 1)
         XCTAssertNotNil(result)
     }
 
@@ -505,11 +532,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     /// as it doesn't belong to the filter group.
     @MainActor
     func test_prepareSearchData_cipherDoesNotBelongToGroup() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            name: "Example Card",
-            type: .card(.fixture()),
-        )
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = nil
 
         let result = await subject.prepareSearchData(
             from: [.fixture(type: .card)],
@@ -519,6 +542,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            0,
+            "Card cipher should be filtered out by preFilter when group is login",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 0)
         XCTAssertNotNil(result)
     }
 
@@ -541,6 +571,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             "prepareRestrictItemsPolicyOrganizations",
             "addSearchResultItem",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Login cipher should pass preFilter when group is login",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 1)
         XCTAssertNotNil(result)
     }
 
@@ -563,6 +600,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             "prepareRestrictItemsPolicyOrganizations",
             "addSearchResultItem",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Card cipher should pass preFilter when no group filter is specified",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 1)
         XCTAssertNotNil(result)
     }
 
