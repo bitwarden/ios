@@ -1,3 +1,4 @@
+import BitwardenKit
 import LocalAuthentication
 
 @testable import AuthenticatorShared
