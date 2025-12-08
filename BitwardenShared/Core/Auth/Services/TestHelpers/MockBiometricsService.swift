@@ -1,3 +1,4 @@
+import BitwardenKit
 import LocalAuthentication
 
 @testable import BitwardenShared
@@ -9,7 +10,7 @@ class MockBiometricsService: BiometricsService {
 
     func evaluateBiometricPolicy(
         _ suppliedContext: LAContext?,
-        for biometricAuthStatus: BitwardenShared.BiometricAuthorizationStatus,
+        for biometricAuthStatus: BiometricAuthorizationStatus,
     ) async -> Bool {
         evaluationResult
     }

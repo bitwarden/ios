@@ -1,7 +1,8 @@
+import BitwardenKit
 @testable import BitwardenShared
 
 class MockBiometricsRepository: BiometricsRepository {
-    var getBiometricAuthenticationTypeResult: BitwardenShared.BiometricAuthenticationType?
+    var getBiometricAuthenticationTypeResult: BiometricAuthenticationType?
 
     var getBiometricUnlockStatusError: Error?
     var getBiometricUnlockStatusActiveUser = BiometricsUnlockStatus.notAvailable
@@ -13,7 +14,7 @@ class MockBiometricsRepository: BiometricsRepository {
     var setBiometricUnlockKeyByUserId = [String: String]()
     var setBiometricUnlockKeyError: Error?
 
-    func getBiometricAuthenticationType() -> BitwardenShared.BiometricAuthenticationType? {
+    func getBiometricAuthenticationType() -> BiometricAuthenticationType? {
         getBiometricAuthenticationTypeResult
     }
 
