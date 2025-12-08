@@ -262,6 +262,10 @@ struct SettingsView: View {
             Localizations.unlockWithFaceID
         case .touchID:
             Localizations.unlockWithTouchID
+        case .opticID:
+            Localizations.unlockWithOpticID
+        case .unknown:
+            Localizations.unlockWithBiometrics
         }
     }
 

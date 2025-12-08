@@ -69,6 +69,10 @@ struct VaultUnlockView: View {
             Text(Localizations.useFaceIDToUnlock)
         case .touchID:
             Text(Localizations.useFingerprintToUnlock)
+        case .opticID:
+            Text(Localizations.useOpticIDToUnlock)
+        case .unknown:
+            Text(Localizations.useBiometricsToUnlock)
         }
     }
 }
