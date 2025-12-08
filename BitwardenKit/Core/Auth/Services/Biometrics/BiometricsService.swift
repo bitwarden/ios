@@ -1,4 +1,3 @@
-import BitwardenKit
 import BitwardenResources
 import LocalAuthentication
 import OSLog
@@ -7,7 +6,7 @@ import OSLog
 
 /// A protocol for returning the available authentication policies and access controls for the user's device.
 ///
-protocol BiometricsService: AnyObject {
+public protocol BiometricsService: AnyObject { // sourcery: AutoMockable
     /// Evaluate's the users biometrics policy via `BiometricAuthorizationStatus`
     ///
     /// - Parameter biometricAuthStatus: The status to be checked.
@@ -32,7 +31,7 @@ protocol BiometricsService: AnyObject {
     func getBiometricAuthStatus() -> BiometricAuthorizationStatus
 }
 
-extension BiometricsService {
+public extension BiometricsService {
     /// Evaluate's the users biometrics policy via `BiometricAuthorizationStatus`
     ///
     /// - Returns: An evaluated status for the user's biometric authorization.
@@ -51,8 +50,15 @@ extension BiometricsService {
     }
 }
 
-class DefaultBiometricsService: BiometricsService {
-    func evaluateBiometricPolicy(
+public class DefaultBiometricsService: BiometricsService {
+    // MARK: Initializers
+
+    /// Initializes a `DefaultBiometricsService`.
+    public init() {}
+
+    // MARK: Public Methods
+
+    public func evaluateBiometricPolicy(
         _ suppliedContext: LAContext?,
         for biometricAuthStatus: BiometricAuthorizationStatus,
     ) async -> Bool {
@@ -77,7 +83,7 @@ class DefaultBiometricsService: BiometricsService {
         }
     }
 
-    func getBiometricAuthenticationType(_ suppliedContext: LAContext?) -> BiometricAuthenticationType? {
+    public func getBiometricAuthenticationType(_ suppliedContext: LAContext?) -> BiometricAuthenticationType? {
         let authContext = suppliedContext ?? LAContext()
         var error: NSError?
 
@@ -100,7 +106,7 @@ class DefaultBiometricsService: BiometricsService {
         }
     }
 
-    func getBiometricAuthStatus() -> BiometricAuthorizationStatus {
+    public func getBiometricAuthStatus() -> BiometricAuthorizationStatus {
         let context = LAContext()
         var error: NSError?
 
