@@ -23,6 +23,8 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         super.setUp()
 
         biometricsService = MockBiometricsService()
+        biometricsService.getBiometricAuthStatusReturnValue = .notDetermined
+        biometricsService.evaluateBiometricPolicyReturnValue = true
         keychainService = MockBiometricsKeychainRepository()
         stateService = MockBiometricsStateService()
 
@@ -46,10 +48,10 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `getBiometricAuthenticationType()` gets the current authentication type.
     func test_getBiometricAuthenticationType() async throws {
-        biometricsService.biometricAuthenticationType = .faceID
+        biometricsService.getBiometricAuthenticationTypeReturnValue = .faceID
         XCTAssertEqual(subject.getBiometricAuthenticationType(), .faceID)
 
-        biometricsService.biometricAuthenticationType = nil
+        biometricsService.getBiometricAuthenticationTypeReturnValue = nil
         XCTAssertNil(subject.getBiometricAuthenticationType())
     }
 
@@ -104,7 +106,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     /// `getBiometricUnlockStatus` throws an error if the user has locked biometrics.
     func test_getBiometricUnlockStatus_lockout() async throws {
         stateService.activeAccountIdResult = .success("1")
-        biometricsService.biometricAuthStatus = .lockedOut(.faceID)
+        biometricsService.getBiometricAuthStatusReturnValue = .lockedOut(.faceID)
         stateService.getBiometricAuthenticationEnabledActiveAccount = false
         await assertAsyncThrows(error: BiometricsServiceError.biometryLocked) {
             _ = try await subject.getBiometricUnlockStatus()
@@ -114,8 +116,8 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     /// `getBiometricUnlockStatus` tracks the availability of biometrics.
     func test_getBiometricUnlockStatus_success_denied() async throws {
         stateService.activeAccountIdResult = .success("1")
-        biometricsService.biometricAuthStatus = .denied(.touchID)
         stateService.getBiometricAuthenticationEnabledActiveAccount = false
+        biometricsService.getBiometricAuthStatusReturnValue = .denied(.touchID)
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
@@ -127,7 +129,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_getBiometricUnlockStatus_success_disabled() async throws {
         stateService.activeAccountIdResult = .success("1")
         stateService.getBiometricAuthenticationEnabledActiveAccount = false
-        biometricsService.biometricAuthStatus = .authorized(.touchID)
+        biometricsService.getBiometricAuthStatusReturnValue = .authorized(.touchID)
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
@@ -139,7 +141,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_getBiometricUnlockStatus_success() async throws {
         stateService.activeAccountIdResult = .success("1")
         stateService.getBiometricAuthenticationEnabledActiveAccount = true
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
+        biometricsService.getBiometricAuthStatusReturnValue = .authorized(.faceID)
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
@@ -150,7 +152,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     /// `getBiometricUnlockStatus` with a specific userId checks the status for that user.
     func test_getBiometricUnlockStatus_withSpecificUserId() async throws {
         stateService.activeAccountIdResult = .success("1")
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
+        biometricsService.getBiometricAuthStatusReturnValue = .authorized(.faceID)
         stateService.getBiometricAuthenticationEnabledByUserId["specificUser"] = true
 
         let status = try await subject.getBiometricUnlockStatus(userId: "specificUser")
@@ -259,7 +261,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_setBiometricUnlockKey_evaluationFalse() async throws {
         stateService.activeAccountIdResult = .success("1")
         stateService.getBiometricAuthenticationEnabledActiveAccount = true
-        biometricsService.evaluationResult = false
+        biometricsService.evaluateBiometricPolicyReturnValue = false
         try await subject.setBiometricUnlockKey(authKey: "1234")
         waitFor(keychainService.deleteUserBiometricAuthKeyCalled)
         XCTAssertFalse(keychainService.setUserBiometricAuthKeyCalled)
@@ -308,7 +310,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `setBiometricUnlockKey` throws on a keychain error.
     func test_setBiometricUnlockKey_withValue_keychainError() async throws {
-        biometricsService.evaluationResult = true
+        biometricsService.evaluateBiometricPolicyReturnValue = true
         stateService.activeAccountIdResult = .success("1")
         stateService.getBiometricAuthenticationEnabledByUserId["1"] = false
         keychainService.setUserBiometricAuthKeyThrowableError = KeychainServiceError.osStatusError(13)
@@ -321,7 +323,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `setBiometricUnlockKey` can store a user key to the keychain and track the availability in state.
     func test_setBiometricUnlockKey_withValue_success() async throws {
-        biometricsService.evaluationResult = true
+        biometricsService.evaluateBiometricPolicyReturnValue = true
         stateService.activeAccountIdResult = .success("1")
         stateService.getBiometricAuthenticationEnabledActiveAccount = false
         try await subject.setBiometricUnlockKey(authKey: "authKey")
@@ -345,7 +347,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `setBiometricUnlockKey` with a specific userId sets biometrics for that user.
     func test_setBiometricUnlockKey_withSpecificUserId_setsCorrectUser() async throws {
-        biometricsService.evaluationResult = true
+        biometricsService.evaluateBiometricPolicyReturnValue = true
         stateService.activeAccountIdResult = .success("activeUser")
         stateService.getBiometricAuthenticationEnabledByUserId["inactiveUser"] = false
 
