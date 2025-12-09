@@ -1,6 +1,6 @@
 import BitwardenKit
-@testable import BitwardenShared
 import Foundation
+@testable import BitwardenShared
 
 extension PolicyResponseModel {
     static func fixture(
@@ -8,7 +8,7 @@ extension PolicyResponseModel {
         enabled: Bool = true,
         id: String = "policy-1",
         organizationId: String = "org-1",
-        revisionDate: Date = Date.now,
+        revisionDate: Date? = Date.now,
         type: PolicyType = .twoFactorAuthentication,
     ) -> PolicyResponseModel {
         PolicyResponseModel(

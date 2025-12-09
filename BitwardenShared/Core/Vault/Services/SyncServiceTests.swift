@@ -756,7 +756,13 @@ class SyncServiceTests: BitwardenTestCase {
         )
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[2],
-            .fixture(enabled: false, id: "policy-3", organizationId: "org-1", type: .onlyOrg),
+            .fixture(
+                enabled: false,
+                id: "policy-3",
+                organizationId: "org-1",
+                revisionDate: nil,
+                type: .onlyOrg,
+            ),
         )
         XCTAssertEqual(
             policyService.replacePoliciesPolicies[3],
@@ -765,6 +771,7 @@ class SyncServiceTests: BitwardenTestCase {
                 enabled: true,
                 id: "policy-8",
                 organizationId: "org-1",
+                revisionDate: nil,
                 type: .resetPassword,
             ),
         )
