@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import LocalAuthentication
 
@@ -66,7 +67,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     var keychainRepository: KeychainRepository
 
     /// A service used to update user preferences.
-    var stateService: StateService
+    var stateService: BiometricsStateService
 
     // MARK: Initialization
 
@@ -80,7 +81,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     init(
         biometricsService: BiometricsService,
         keychainService: KeychainRepository,
-        stateService: StateService,
+        stateService: BiometricsStateService,
     ) {
         self.biometricsService = biometricsService
         keychainRepository = keychainService
@@ -189,4 +190,22 @@ extension DefaultBiometricsRepository {
             throw BiometricsServiceError.setAuthKeyFailed
         }
     }
+}
+
+public protocol BiometricsStateService: ActiveAccountStateProvider { // sourcery: AutoMockable
+    /// Get the active user's Biometric Authentication Preference.
+    ///
+    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func getBiometricAuthenticationEnabled() async throws -> Bool
+
+    /// Sets the user's Biometric Authentication Preference.
+    ///
+    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
+    ///     If `true`, the device should attempt biometric authentication for authorization events.
+    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    ///
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
 }
