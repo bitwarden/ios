@@ -8,7 +8,7 @@ extension PolicyResponseModel {
         enabled: Bool = true,
         id: String = "policy-1",
         organizationId: String = "org-1",
-        revisionDate: Date? = Date.now,
+        revisionDate: Date? = nil,
         type: PolicyType = .twoFactorAuthentication,
     ) -> PolicyResponseModel {
         PolicyResponseModel(
