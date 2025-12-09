@@ -1,9 +1,8 @@
-import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class DebugMenuProcessorTests: BitwardenTestCase {
     // MARK: Properties
@@ -66,7 +65,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.featureFlags.contains(flag))
     }
 
-    /// `perform(.refreshFeatureFlags)` refreshs the current feature flags.
+    /// `perform(.refreshFeatureFlags)` refreshes the current feature flags.
     @MainActor
     func test_perform_refreshFeatureFlags() async {
         await subject.perform(.refreshFeatureFlags)
@@ -91,19 +90,33 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertTrue(configService.toggleDebugFeatureFlagCalled)
     }
 
-    /// `receive()` with `.generateErrorReport` generates error reports on the error reporter.
+    /// `receive()` with `.generateErrorReport` sends an error report to the error reporter.
     @MainActor
     func test_receive_generateErrorReport() {
         subject.receive(.generateErrorReport)
         XCTAssertEqual(
-            errorReporter.errors[0] as? BitwardenSdk.BitwardenError,
-            BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
-                message: "Generated error report from debug view.",
-            )),
+            errorReporter.errors[safeIndex: 0] as? FlightRecorderError,
+            FlightRecorderError.fileSizeError(
+                NSError(
+                    domain: "Generated Error",
+                    code: 0,
+                    userInfo: [
+                        "AdditionalMessage": "Generated error report from debug view.",
+                    ],
+                ),
+            ),
         )
+    }
+
+    /// `receive()` with `.generateSdkErrorReport` sends an SDK error report to the error reporter.
+    @MainActor
+    func test_receive_generateSdkErrorReport() {
+        subject.receive(.generateSdkErrorReport)
         XCTAssertEqual(
-            errorReporter.errors[1] as? KeychainServiceError,
-            KeychainServiceError.osStatusError(1),
+            errorReporter.errors[safeIndex: 0] as? BitwardenSdk.BitwardenError,
+            BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
+                message: "Generated SDK error report from debug view.",
+            )),
         )
     }
 }
