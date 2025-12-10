@@ -3,8 +3,11 @@ import UIKit
 /// A UIWindow subclass that detects and responds to shake gestures.
 ///
 /// This window class allows you to provide a custom handler that will be called whenever a shake
-/// gesture is detected. This can be particularly useful for triggering debug or testing actions only
-/// in DEBUG_MENU mode, such as showing development menus or refreshing data.
+/// gesture is detected. **Note:** The shake detection only functions when compiled with the
+/// `DEBUG_MENU` conditional compilation flag. In release builds, shake gestures are ignored.
+///
+/// This is particularly useful for triggering debug menus or testing actions in development builds
+/// while ensuring the functionality is completely removed from production builds.
 ///
 public class ShakeWindow: UIWindow {
     /// The callback to be invoked when a shake gesture is detected.

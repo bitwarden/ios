@@ -1049,6 +1049,7 @@
 "GotIt" = "Got it";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "Generate error report";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Allow authenticator syncing";
 "AuthenticatorSync" = "Authenticator sync";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";

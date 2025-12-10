@@ -86,3 +86,4 @@ Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_result
 
 # AI
 .claude/settings.local.json
+review-*.md

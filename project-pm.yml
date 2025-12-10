@@ -23,6 +23,9 @@ schemes:
       targets:
         Bitwarden: all
         BitwardenTests: [test]
+    run:
+      commandLineArguments:
+        "-com.apple.CoreData.ConcurrencyDebug 1": true
     test:
       commandLineArguments:
         "-testing": true
@@ -181,6 +184,7 @@ targets:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
+      - package: BitwardenSdk
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
@@ -244,6 +248,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenActionExtensionTests:
     type: bundle.unit-test
@@ -279,6 +284,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenAutoFillExtensionTests:
     type: bundle.unit-test
@@ -314,6 +320,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenShareExtensionTests:
     type: bundle.unit-test
@@ -422,6 +429,7 @@ targets:
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
         product: InlineSnapshotTesting
     randomExecutionOrder: true
@@ -452,6 +460,7 @@ targets:
       - target: BitwardenShared
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
@@ -484,6 +493,7 @@ targets:
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - target: BitwardenKit/ViewInspectorTestHelpers
+      - package: BitwardenSdk
       - package: ViewInspector
     randomExecutionOrder: true
 

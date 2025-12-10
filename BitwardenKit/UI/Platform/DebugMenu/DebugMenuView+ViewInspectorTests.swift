@@ -1,11 +1,10 @@
 // swiftlint:disable:this file_name
-import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import ViewInspectorTestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 // MARK: - DebugMenuViewTests
 
@@ -47,7 +46,7 @@ class DebugMenuViewTests: BitwardenTestCase {
     /// Tapping the close button dispatches the `.dismissTapped` action.
     @MainActor
     func test_closeButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.close)
+        let button = try subject.inspect().findCloseToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
     }
@@ -78,6 +77,14 @@ class DebugMenuViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.generateErrorReport)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .generateErrorReport)
+    }
+
+    /// Tapping the generate SDK error report button dispatches the `.generateSdkErrorReport` action.
+    @MainActor
+    func test_generateSdkErrorReport_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.generateSdkErrorReport)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .generateSdkErrorReport)
     }
 
     /// Test that the refresh button sends the correct effect.
