@@ -37,26 +37,26 @@ extension SessionTimeoutValue: @retroactive CaseIterable {
     ]
 }
 
-// MARK: - SessionTimeoutAction
-
-/// The action to perform on session timeout.
-///
-public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuable, Sendable {
-    /// Lock the vault.
-    case lock = 0
-
-    /// Log the user out.
-    case logout = 1
-
-    /// All of the cases to show in the menu.
-    public static let allCases: [SessionTimeoutAction] = [.lock, .logout]
-
-    public var localizedName: String {
+extension SessionTimeoutValue {
+    var minutesValue: Int? {
         switch self {
-        case .lock:
-            Localizations.lock
-        case .logout:
-            Localizations.logOut
+        case .immediately: 0
+        case .oneMinute: 1
+        case .fiveMinutes: 5
+        case .fifteenMinutes: 15
+        case .thirtyMinutes: 30
+        case .oneHour: 60
+        case .fourHours: 240
+        case let .custom(minutes) where minutes >= 0: minutes
+        case .custom, .never, .onAppRestart: nil
+        }
+    }
+
+    var isCustomPlaceholder: Bool {
+        if case let .custom(minutes) = self {
+            minutes < 0
+        } else {
+            false
         }
     }
 }
@@ -70,9 +70,6 @@ struct AccountSecurityState: Equatable {
 
     /// The timeout actions to show when the policy for maximum timeout value is in effect.
     var availableTimeoutActions: [SessionTimeoutAction] = SessionTimeoutAction.allCases
-
-    /// The timeout options to show when the policy for maximum timeout value is in effect.
-    var availableTimeoutOptions: [SessionTimeoutValue] = SessionTimeoutValue.allCases
 
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
@@ -89,32 +86,32 @@ struct AccountSecurityState: Equatable {
     /// Whether the user has enabled the sync with the authenticator app..
     var isAuthenticatorSyncEnabled = false
 
+    /// Whether the timeout action policy is in effect.
+    var isPolicyTimeoutActionEnabled = false
+
     /// Whether the timeout policy is in effect.
-    var isTimeoutPolicyEnabled = false
+    var isPolicyTimeoutEnabled = false
 
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
 
     /// The policy's maximum vault timeout value.
-    ///
-    /// When set, all timeout values greater than this are no longer shown.
-    var policyTimeoutValue: Int = 0 {
-        didSet {
-            availableTimeoutOptions = SessionTimeoutValue.allCases
-                .filter { $0 != .never }
-                .filter { $0 != .onAppRestart }
-                .filter { $0.rawValue <= policyTimeoutValue }
-        }
-    }
+    var policyTimeoutValue: Int = 0
 
     /// The policy's timeout action, if set.
     var policyTimeoutAction: SessionTimeoutAction?
+
+    /// The policy's timeout type, if set.
+    var policyTimeoutType: SessionTimeoutType?
 
     /// Whether the policy to remove Unlock with pin feature is enabled.
     var removeUnlockWithPinPolicyEnabled: Bool = false
 
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock
+
+    /// The length of time before a session timeout occurs.
+    var sessionTimeoutType: SessionTimeoutType = .immediately
 
     /// The length of time before a session timeout occurs.
     var sessionTimeoutValue: SessionTimeoutValue = .immediately
@@ -124,9 +121,68 @@ struct AccountSecurityState: Equatable {
 
     // MARK: Computed Properties
 
+    /// Returns the available timeout options based on policy type and policy timeout value.
+    var availableTimeoutOptions: [SessionTimeoutValue] {
+        switch policyTimeoutType {
+        case .never:
+            SessionTimeoutValue.allCases
+        case .onAppRestart:
+            SessionTimeoutValue.allCases.filter { option in option != .never }
+        case .immediately:
+            [.immediately]
+        case .custom:
+            SessionTimeoutValue.allCases.filter { option in
+                option.isCustomPlaceholder || (option.minutesValue.map { $0 <= policyTimeoutValue } ?? false)
+            }
+        case nil:
+            if policyTimeoutValue > 0 {
+                SessionTimeoutValue.allCases.filter { option in
+                    option.isCustomPlaceholder || (option.minutesValue.map { $0 <= policyTimeoutValue } ?? false)
+                }
+            } else {
+                SessionTimeoutValue.allCases
+            }
+        }
+    }
+
     /// The accessibility label used for the custom timeout value.
     var customTimeoutAccessibilityLabel: String {
         customTimeoutValueSeconds.timeInHoursMinutes(shouldSpellOut: true)
+    }
+
+    /// The localized message informing the user of their organization's policy-set session timeout duration.
+    ///
+    /// Returns a formatted string describing the default session timeout configured by the organization,
+    /// expressed in hours and/or minutes depending on the `policyTimeoutValue`.
+    var customTimeoutMessage: String {
+        switch (policyTimeoutHours, policyTimeoutMinutes) {
+        case let (hours, minutes) where hours > 0 && minutes > 0:
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToXAndY(
+                Localizations.xHours(
+                    policyTimeoutHours,
+                ),
+                Localizations.xMinutes(
+                    policyTimeoutMinutes,
+                ),
+            )
+        case let (hours, _) where hours > 0:
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToX(
+                Localizations.xHours(
+                    policyTimeoutHours,
+                ),
+            )
+        default:
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToX(
+                Localizations.xMinutes(
+                    policyTimeoutMinutes,
+                ),
+            )
+        }
+    }
+
+    /// The string representation of the custom session timeout value.
+    var customTimeoutString: String {
+        customTimeoutValueSeconds.timeInHoursMinutes()
     }
 
     /// The custom session timeout value, in seconds, initially set to 60 seconds.
@@ -135,11 +191,6 @@ struct AccountSecurityState: Equatable {
             return 60
         }
         return customValueInMinutes * 60
-    }
-
-    /// The string representation of the custom session timeout value.
-    var customTimeoutString: String {
-        customTimeoutValueSeconds.timeInHoursMinutes()
     }
 
     /// Whether the user has a method to unlock the vault (master password, pin set, or biometrics
@@ -158,6 +209,11 @@ struct AccountSecurityState: Equatable {
         !hasUnlockMethod || isTimeoutActionPolicyEnabled
     }
 
+    var isSessionTimeoutPickerDisabled: Bool {
+        guard case .immediately = policyTimeoutType else { return false }
+        return true
+    }
+
     /// Whether the timeout policy specifies a timeout action.
     var isTimeoutActionPolicyEnabled: Bool {
         policyTimeoutAction != nil
@@ -169,6 +225,36 @@ struct AccountSecurityState: Equatable {
         return true
     }
 
+    /// The message to display if a timeout action is in effect for the user.
+    var policyTimeoutActionMessage: String? {
+        guard isTimeoutActionPolicyEnabled else { return nil }
+        return Localizations.thisSettingIsManagedByYourOrganization
+    }
+
+    /// The message to display in the custom timeout field when a policy is in effect.
+    ///
+    /// Returns different messages based on the policy type:
+    /// - `.custom`: Shows the specific timeout duration from the policy
+    /// - `.immediately`: Indicates the setting is managed by the organization
+    /// - `.never`/`.onAppRestart`: Shows the policy's timeout type
+    /// - `nil`: Returns `nil` if no policy is in effect
+    ///
+    var policyTimeoutCustomMessage: String? {
+        guard isPolicyTimeoutEnabled, let policy = policyTimeoutType else { return nil }
+        switch policyTimeoutType {
+        case .custom:
+            return customTimeoutMessage
+        case .immediately:
+            return Localizations.thisSettingIsManagedByYourOrganization
+        case .never:
+            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(policy.timeoutType)
+        case .onAppRestart:
+            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(policy.timeoutType)
+        default:
+            return customTimeoutMessage
+        }
+    }
+
     /// The policy's timeout value in hours.
     var policyTimeoutHours: Int {
         policyTimeoutValue / 60
@@ -176,19 +262,8 @@ struct AccountSecurityState: Equatable {
 
     /// The message to display if a timeout policy is in effect for the user.
     var policyTimeoutMessage: String? {
-        guard isTimeoutPolicyEnabled else { return nil }
-        return if let policyTimeoutAction {
-            Localizations.vaultTimeoutPolicyWithActionInEffect(
-                policyTimeoutHours,
-                policyTimeoutMinutes,
-                policyTimeoutAction.localizedName,
-            )
-        } else {
-            Localizations.vaultTimeoutPolicyInEffect(
-                policyTimeoutHours,
-                policyTimeoutMinutes,
-            )
-        }
+        guard !isShowingCustomTimeout else { return nil }
+        return policyTimeoutCustomMessage
     }
 
     /// The policy's timeout value in minutes.

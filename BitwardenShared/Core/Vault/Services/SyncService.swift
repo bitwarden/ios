@@ -454,18 +454,27 @@ extension DefaultSyncService {
     private func checkVaultTimeoutPolicy() async throws {
         guard let timeoutPolicyValues = try await policyService.fetchTimeoutPolicyValues() else { return }
 
-        let action = timeoutPolicyValues.action
-        let value = timeoutPolicyValues.value
+        let action = timeoutPolicyValues.timeoutAction
+        let type = timeoutPolicyValues.timeoutType
+        guard let value = timeoutPolicyValues.timeoutValue?.rawValue else { return }
 
         let timeoutAction = try await stateService.getTimeoutAction()
         let timeoutValue = try await stateService.getVaultTimeout()
 
-        // Only update the user's stored vault timeout value if
-        // their stored timeout value is > the policy's timeout value.
-        if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
+        // For onAppRestart and never policy types, preserve the user's current timeout value
+        // as these policy types don't restrict the value itself, only the behavior
+        if type == SessionTimeoutType.onAppRestart || type == SessionTimeoutType.never {
             try await stateService.setVaultTimeout(
-                value: SessionTimeoutValue(rawValue: value),
+                value: timeoutValue,
             )
+        } else {
+            // Only update the user's stored vault timeout value if
+            // their stored timeout value is > the policy's timeout value.
+            if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
+                try await stateService.setVaultTimeout(
+                    value: SessionTimeoutValue(rawValue: value),
+                )
+            }
         }
 
         try await stateService.setTimeoutAction(action: action ?? timeoutAction)
