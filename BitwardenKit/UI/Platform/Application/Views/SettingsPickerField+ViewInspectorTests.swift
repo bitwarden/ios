@@ -72,24 +72,6 @@ class SettingsPickerFieldTests: BitwardenTestCase {
         XCTAssertEqual(try text.string(), "Custom Timeout")
     }
 
-    /// Tests that the picker value binding works correctly.
-    func test_pickerValue_binding() {
-        let testValue = 7200 // 2 hours
-        subject = SettingsPickerField(
-            title: "Custom",
-            customTimeoutValue: "2:00",
-            pickerValue: Binding(
-                get: { self.pickerValue },
-                set: { self.pickerValue = $0 },
-            ),
-            customTimeoutAccessibilityLabel: "two hours, zero minutes",
-        )
-
-        // Update the bound value
-        pickerValue = testValue
-        XCTAssertEqual(pickerValue, testValue)
-    }
-
     /// Tests that footer text is displayed when provided.
     func test_footer_displays() throws {
         let footerMessage = "Your organization has set the default session timeout to 1 hour"
