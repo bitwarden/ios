@@ -129,7 +129,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToX(
                 Localizations.xMinutes(15),
             ),
         )
@@ -293,7 +293,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutCustomMessage,
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToX(
                 Localizations.xHours(1),
             ),
         )
@@ -336,7 +336,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToXAndY(
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToXAndY(
                 Localizations.xHours(1),
                 Localizations.xMinutes(1),
             ),
@@ -372,7 +372,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
         XCTAssertEqual(
             subject.state.policyTimeoutMessage,
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToXAndY(
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToXAndY(
                 Localizations.xHours(1),
                 Localizations.xMinutes(1),
             ),

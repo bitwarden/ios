@@ -71,14 +71,6 @@ struct AccountSecurityState: Equatable {
     /// The timeout actions to show when the policy for maximum timeout value is in effect.
     var availableTimeoutActions: [SessionTimeoutAction] = SessionTimeoutAction.allCases
 
-    /// The timeout options to show when the policy for maximum timeout value is in effect.
-    var availableTimeoutOptions: [SessionTimeoutValue] {
-        availableTimeoutOptions(
-            type: policyTimeoutType,
-            value: policyTimeoutValue,
-        )
-    }
-
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
 
@@ -129,6 +121,30 @@ struct AccountSecurityState: Equatable {
 
     // MARK: Computed Properties
 
+    /// Returns the available timeout options based on policy type and policy timeout value.
+    var availableTimeoutOptions: [SessionTimeoutValue] {
+        switch policyTimeoutType {
+        case .never:
+            SessionTimeoutValue.allCases
+        case .onAppRestart:
+            SessionTimeoutValue.allCases.filter { option in option != .never }
+        case .immediately:
+            [.immediately]
+        case .custom:
+            SessionTimeoutValue.allCases.filter { option in
+                option.isCustomPlaceholder || (option.minutesValue.map { $0 <= policyTimeoutValue } ?? false)
+            }
+        case nil:
+            if policyTimeoutValue > 0 {
+                SessionTimeoutValue.allCases.filter { option in
+                    option.isCustomPlaceholder || (option.minutesValue.map { $0 <= policyTimeoutValue } ?? false)
+                }
+            } else {
+                SessionTimeoutValue.allCases
+            }
+        }
+    }
+
     /// The accessibility label used for the custom timeout value.
     var customTimeoutAccessibilityLabel: String {
         customTimeoutValueSeconds.timeInHoursMinutes(shouldSpellOut: true)
@@ -141,7 +157,7 @@ struct AccountSecurityState: Equatable {
     var customTimeoutMessage: String {
         switch (policyTimeoutHours, policyTimeoutMinutes) {
         case let (hours, minutes) where hours > 0 && minutes > 0:
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToXAndY(
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToXAndY(
                 Localizations.xHours(
                     policyTimeoutHours,
                 ),
@@ -150,13 +166,13 @@ struct AccountSecurityState: Equatable {
                 ),
             )
         case let (hours, _) where hours > 0:
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToX(
                 Localizations.xHours(
                     policyTimeoutHours,
                 ),
             )
         default:
-            Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(
+            Localizations.yourOrganizationHasSetTheMaximumSessionTimeoutToX(
                 Localizations.xMinutes(
                     policyTimeoutMinutes,
                 ),
@@ -266,39 +282,5 @@ struct AccountSecurityState: Equatable {
     /// Whether the unlock with Pin feature is available.
     var unlockWithPinFeatureAvailable: Bool {
         !removeUnlockWithPinPolicyEnabled || isUnlockWithPINCodeOn
-    }
-
-    /// Returns the available timeout options based on policy type and value.
-    ///
-    /// - Parameters:
-    ///   - type: The policy's timeout type, if set.
-    ///   - value: The policy's maximum vault timeout value.
-    /// - Returns: Filtered array of available session timeout values.
-    private func availableTimeoutOptions(
-        type: SessionTimeoutType?,
-        value: Int,
-    ) -> [SessionTimeoutValue] {
-        SessionTimeoutValue.allCases.filter { option in
-            switch type {
-            case .never:
-                return true
-            case .onAppRestart:
-                return option != .never
-            case .immediately:
-                return option == .immediately
-            case .custom:
-                if option.isCustomPlaceholder { return true }
-                guard let time = option.minutesValue else { return false }
-                return time <= value
-            case nil:
-                if value > 0 {
-                    if option.isCustomPlaceholder { return true }
-                    guard let time = option.minutesValue else { return false }
-                    return time <= value
-                } else {
-                    return true
-                }
-            }
-        }
     }
 }

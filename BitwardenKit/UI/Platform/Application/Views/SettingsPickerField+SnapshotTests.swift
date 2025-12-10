@@ -63,7 +63,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     func disabletest_snapshot_lightMode_withFooter() {
         subject = SettingsPickerField(
             title: "Title",
-            footer: "Your organization has set the default session timeout to 1 hour",
+            footer: "Your organization has set the default session timeout to 1 hour.",
             customTimeoutValue: "1:00",
             pickerValue: .constant(3600),
             customTimeoutAccessibilityLabel: "one hour, zero minutes",
@@ -76,7 +76,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     func disabletest_snapshot_darkMode_withFooter() {
         subject = SettingsPickerField(
             title: "Title",
-            footer: "Your organization has set the default session timeout to 1 hour",
+            footer: "Your organization has set the default session timeout to 1 hour.",
             customTimeoutValue: "1:00",
             pickerValue: .constant(3600),
             customTimeoutAccessibilityLabel: "one hour, zero minutes",
@@ -89,7 +89,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     func disabletest_snapshot_largeDynamicType_withFooter() {
         subject = SettingsPickerField(
             title: "Title",
-            footer: "Your organization has set the default session timeout to 1 hour",
+            footer: "Your organization has set the default session timeout to 1 hour.",
             customTimeoutValue: "1:00",
             pickerValue: .constant(3600),
             customTimeoutAccessibilityLabel: "one hour, zero minutes",
@@ -102,7 +102,7 @@ class SettingsPickerFieldTests: BitwardenTestCase {
     func disabletest_snapshot_lightMode_emptyTitle() {
         subject = SettingsPickerField(
             title: "",
-            footer: "This setting is managed by your organization",
+            footer: "Your organization has set the default session timeout to 1 hour and 30 minutes.",
             customTimeoutValue: "1:30",
             pickerValue: .constant(5400),
             customTimeoutAccessibilityLabel: "one hour, thirty minutes",

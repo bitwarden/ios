@@ -41,7 +41,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         data: [PolicyOptionType.minutes.rawValue: .int(60)],
         type: .maximumVaultTimeout,
     )
-    
+
     let maximumTimeoutPolicyLogout = Policy.fixture(
         data: [
             PolicyOptionType.action.rawValue: .string("logOut"),

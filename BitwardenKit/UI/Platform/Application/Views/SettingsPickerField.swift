@@ -36,22 +36,35 @@ public struct SettingsPickerField: View {
                 }
             } label: {
                 HStack {
-                    Text(title)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-                        .padding(.vertical, 19)
-                        .fixedSize(horizontal: false, vertical: true)
+                    if !title.isEmpty {
+                        Text(title)
+                            .multilineTextAlignment(.leading)
+                            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                            .padding(.vertical, 19)
+                            .fixedSize(horizontal: false, vertical: true)
 
-                    Spacer()
+                        Spacer()
+                    }
 
                     Text(customTimeoutValue)
                         .accessibilityLabel(customTimeoutAccessibilityLabel)
-                        .multilineTextAlignment(.trailing)
-                        .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .multilineTextAlignment(title.isEmpty ? .leading : .trailing)
+                        .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(SharedAsset.Colors.backgroundPrimary.swiftUIColor),
+                        )
+
+                    if title.isEmpty {
+                        Spacer()
+                    }
                 }
                 .styleGuide(.body)
                 .id(title)
                 .padding(.horizontal, 16)
+                .padding(.vertical, title.isEmpty ? 12 : 0)
             }
 
             if footer != nil {
@@ -74,6 +87,7 @@ public struct SettingsPickerField: View {
                     .styleGuide(.subheadline)
                     .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
                     .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
@@ -95,7 +109,7 @@ public struct SettingsPickerField: View {
         footer: String? = nil,
         customTimeoutValue: String,
         pickerValue: Binding<Int>,
-        customTimeoutAccessibilityLabel: String
+        customTimeoutAccessibilityLabel: String,
     ) {
         self.customTimeoutAccessibilityLabel = customTimeoutAccessibilityLabel
         self.customTimeoutValue = customTimeoutValue
@@ -110,6 +124,14 @@ public struct SettingsPickerField: View {
 #Preview {
     SettingsPickerField(
         title: "Custom",
+        footer: nil,
+        customTimeoutValue: "1:00",
+        pickerValue: .constant(1),
+        customTimeoutAccessibilityLabel: "one hour, zero minutes",
+    )
+    
+    SettingsPickerField(
+        title: "",
         footer: nil,
         customTimeoutValue: "1:00",
         pickerValue: .constant(1),

@@ -79,10 +79,10 @@ public struct BitwardenMenuField<
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             menu
+                .padding(.horizontal, 16)
 
             footerView()
         }
-        .padding(.horizontal, 16)
         .background(
             isEnabled
                 ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
@@ -347,14 +347,16 @@ public struct BitwardenMenuField<
     @ViewBuilder
     private func footerView() -> some View {
         if let footerContent {
+            Divider()
+                .padding(.leading, 16)
             Group {
-                Divider()
                 if let footerContent = footerContent as? Text {
                     footerContent.bitwardenMenuFooterText(topPadding: 12, bottomPadding: 12)
                 } else {
                     footerContent
                 }
             }
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -419,6 +421,17 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         BitwardenMenuField(
             title: "Animals",
             footer: "Select your favorite animal",
+            options: MenuPreviewOptions.allCases,
+            selection: .constant(.dog),
+        )
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+
+    Group {
+        BitwardenMenuField(
+            title: "Animals",
+            footer: "Your organization has set the maximum session timeout to 1 hour and 30 minutes.",
             options: MenuPreviewOptions.allCases,
             selection: .constant(.dog),
         )
