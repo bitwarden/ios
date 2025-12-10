@@ -1,5 +1,4 @@
 {
-  "originHash" : "93ec2eb77f36826178e4c8677e95e70ec909a1b40aa8e2cb1ccaa066a778be58",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -119,14 +118,6 @@
       }
     },
     {
-      "identity" : "sdk-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bitwarden/sdk-swift",
-      "state" : {
-        "revision" : "6af01587ba3c79fe98465c36ec0a18f74a6d9f64"
-      }
-    },
-    {
       "identity" : "swift-custom-dump",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-custom-dump",
@@ -190,5 +181,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
