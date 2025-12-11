@@ -191,21 +191,3 @@ extension DefaultBiometricsRepository {
         }
     }
 }
-
-public protocol BiometricsStateService: ActiveAccountStateProvider { // sourcery: AutoMockable
-    /// Get the active user's Biometric Authentication Preference.
-    ///
-    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///
-    func getBiometricAuthenticationEnabled() async throws -> Bool
-
-    /// Sets the user's Biometric Authentication Preference.
-    ///
-    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
-}
