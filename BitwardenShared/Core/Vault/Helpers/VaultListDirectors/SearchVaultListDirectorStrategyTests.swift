@@ -54,7 +54,9 @@ class SearchVaultListDirectorStrategyTests: BitwardenTestCase {
     func test_build_emptyCiphers() async throws {
         cipherService.ciphersSubject.value = []
 
-        var iteratorPublisher = try await subject.build(filter: VaultListFilter()).makeAsyncIterator()
+        var iteratorPublisher = try await subject.build(
+            filterPublisher: VaultListFilter().asPublisher(),
+        ).makeAsyncIterator()
         let vaultListData = try await iteratorPublisher.next()
 
         XCTAssertEqual(vaultListData, VaultListData())
@@ -68,7 +70,9 @@ class SearchVaultListDirectorStrategyTests: BitwardenTestCase {
         vaultListDataPreparator.prepareSearchDataReturnValue = nil
 
         var iteratorPublisher = try await subject.build(
-            filter: VaultListFilter(searchText: "test"),
+            filterPublisher: VaultListFilter(
+                searchText: "test",
+            ).asPublisher(),
         ).makeAsyncIterator()
         let vaultListData = try await iteratorPublisher.next()
 
@@ -89,7 +93,9 @@ class SearchVaultListDirectorStrategyTests: BitwardenTestCase {
         )
 
         var iteratorPublisher = try await subject.build(
-            filter: VaultListFilter(searchText: "test"),
+            filterPublisher: VaultListFilter(
+                searchText: "test",
+            ).asPublisher(),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
         let vaultListData = try XCTUnwrap(result)

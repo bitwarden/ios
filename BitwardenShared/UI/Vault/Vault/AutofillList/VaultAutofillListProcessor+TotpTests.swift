@@ -2,6 +2,7 @@
 
 import BitwardenKitMocks
 import BitwardenSdk
+import InlineSnapshotTesting
 import TestHelpers
 import XCTest
 
@@ -18,6 +19,8 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var totpExpirationManagerForItems: MockTOTPExpirationManager!
@@ -40,6 +43,11 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         stateService = MockStateService()
 
         totpExpirationManagerForItems = MockTOTPExpirationManager()
@@ -61,6 +69,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
                 totpExpirationManagerFactory: totpExpirationManagerFactory,
                 vaultRepository: vaultRepository,
@@ -79,6 +88,8 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
         totpExpirationManagerFactory = nil
@@ -95,37 +106,21 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(totpExpirationManagerFactory.createTimesCalled, 2)
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
-    /// Also it configures TOTP refresh scheduling.
+    /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor
+    /// mediator that the filter changed
     @MainActor
-    func test_perform_searchWithTOTPRefreshScheduling() {
-        let items = [
-            VaultListItem(
-                id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
+    func test_perform_searchWithTOTP() async {
+        await subject.perform(.search("example"))
+        XCTAssertEqual(
+            searchProcessorMediator.onFilterChangedReceivedFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                mode: .totp,
+                rpID: nil,
+                searchText: "example",
             ),
-            VaultListItem(
-                id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
-            ),
-        ]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: items,
-            name: "",
         )
-        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
-        XCTAssertFalse(subject.state.showNoResults)
-        XCTAssertEqual(totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems?.count, 2)
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers and configures
@@ -158,6 +153,40 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
 
         XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
         XCTAssertEqual(totpExpirationManagerForItems.configuredTOTPRefreshSchedulingItems?.count, 2)
+    }
+
+    /// `onNewSearchResults(data:)` should configure search TOTP expiration manager
+    /// when is autofilling from TOTP list.
+    @MainActor
+    func test_onNewSearchResults_TOTPAutofill() {
+        subject.state.isAutofillingTotpList = true
+
+        subject.onNewSearchResults(
+            data: VaultListData(
+                sections: [
+                    VaultListSection(
+                        id: "SearchResults",
+                        items: [
+                            VaultListItem(cipherListView: .fixture(name: "Result 1")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 2")),
+                        ].compactMap(\.self),
+                        name: "Search Results",
+                    ),
+                ],
+            ),
+        )
+
+        guard let configuredItems = totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems else {
+            XCTFail("No items configured in the TOTP search expiration manager")
+            return
+        }
+
+        assertInlineSnapshot(of: configuredItems.dump(), as: .lines) {
+            """
+            - Cipher: Result 1
+            - Cipher: Result 2
+            """
+        }
     }
 
     /// `refreshTOTPCodes(for:)` is called from the TOTP expiration manager expiration closure

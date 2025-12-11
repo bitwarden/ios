@@ -24,6 +24,8 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var subject: VaultAutofillListProcessor!
     var timeProvider: MockTimeProvider!
     var vaultRepository: MockVaultRepository!
@@ -41,6 +43,11 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)))
         vaultRepository = MockVaultRepository()
 
@@ -54,6 +61,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 timeProvider: timeProvider,
                 vaultRepository: vaultRepository,
             ),
@@ -72,6 +80,8 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         subject = nil
         timeProvider = nil
         vaultRepository = nil
@@ -924,81 +934,20 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
-    /// when on autofillFido2VaulltList
+    /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor
+    /// mediator that the filter changed
     @MainActor
-    func test_perform_search_onAutofillFido2VaultList() { // swiftlint:disable:this function_body_length
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-
-        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        let expectedSections = [
-            VaultListSection(
-                id: Localizations.passkeysForX("Bit"),
-                items: ciphers.suffix(from: 1).compactMap { cipher in
-                    VaultListItem(
-                        cipherListView: cipher,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipher.id ?? "",
-                            rpId: "myApp.com",
-                        ),
-                    )
-                },
-                name: Localizations.passkeysForX("Bit"),
-            ),
-            VaultListSection(
-                id: Localizations.passwordsForX("Bit"),
-                items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-                name: Localizations.passwordsForX("Bit"),
-            ),
-        ]
-        vaultRepository.vaultListSubject.value = VaultListData(sections: expectedSections)
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
+    func test_perform_search() async {
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+        await subject.perform(.search("example"))
         XCTAssertEqual(
-            subject.state.ciphersForSearch[0],
-            VaultListSection(
-                id: Localizations.passkeysForX("Bit"),
-                items: ciphers.suffix(from: 1).compactMap { cipher in
-                    VaultListItem(
-                        cipherListView: cipher,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipher.id ?? "",
-                            rpId: "myApp.com",
-                        ),
-                    )
-                },
-                name: Localizations.passkeysForX("Bit"),
-            ),
-        )
-        XCTAssertEqual(
-            subject.state.ciphersForSearch[1],
-            VaultListSection(
-                id: Localizations.passwordsForX("Bit"),
-                items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-                name: Localizations.passwordsForX("Bit"),
-            ),
-        )
-
-        XCTAssertFalse(subject.state.showNoResults)
-
-        XCTAssertEqual(
-            vaultRepository.vaultListFilter,
+            searchProcessorMediator.onFilterChangedReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,
                 mode: .combinedMultipleSections,
                 rpID: "myApp.com",
-                searchText: "bit",
+                searchText: "example",
             ),
         )
     }

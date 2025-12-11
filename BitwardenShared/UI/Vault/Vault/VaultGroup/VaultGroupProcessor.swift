@@ -337,6 +337,5 @@ extension VaultGroupProcessor: SearchProcessorMediatorDelegate {
         let items = data.sections.first?.items ?? []
         state.searchResults = items
         searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
-
     }
 }
