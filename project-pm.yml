@@ -415,6 +415,7 @@ targets:
     dependencies:
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
