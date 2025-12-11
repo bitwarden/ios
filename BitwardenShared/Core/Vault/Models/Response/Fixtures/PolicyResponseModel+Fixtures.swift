@@ -1,4 +1,5 @@
 import BitwardenKit
+import Foundation
 @testable import BitwardenShared
 
 extension PolicyResponseModel {
@@ -7,6 +8,7 @@ extension PolicyResponseModel {
         enabled: Bool = true,
         id: String = "policy-1",
         organizationId: String = "org-1",
+        revisionDate: Date? = nil,
         type: PolicyType = .twoFactorAuthentication,
     ) -> PolicyResponseModel {
         PolicyResponseModel(
@@ -14,6 +16,7 @@ extension PolicyResponseModel {
             enabled: enabled,
             id: id,
             organizationId: organizationId,
+            revisionDate: revisionDate,
             type: type,
         )
     }

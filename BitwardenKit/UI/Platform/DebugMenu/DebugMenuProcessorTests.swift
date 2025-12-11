@@ -1,0 +1,122 @@
+import BitwardenKitMocks
+import BitwardenSdk
+import XCTest
+
+@testable import BitwardenKit
+
+class DebugMenuProcessorTests: BitwardenTestCase {
+    // MARK: Properties
+
+    var configService: MockConfigService!
+    var coordinator: MockCoordinator<DebugMenuRoute, Void>!
+    var errorReporter: MockErrorReporter!
+    var subject: DebugMenuProcessor!
+
+    // MARK: Set Up & Tear Down
+
+    override func setUp() {
+        super.setUp()
+
+        configService = MockConfigService()
+        coordinator = MockCoordinator<DebugMenuRoute, Void>()
+        errorReporter = MockErrorReporter()
+        subject = DebugMenuProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                configService: configService,
+                errorReporter: errorReporter,
+            ),
+            state: DebugMenuState(featureFlags: []),
+        )
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        configService = nil
+        coordinator = nil
+        errorReporter = nil
+        subject = nil
+    }
+
+    // MARK: Tests
+
+    /// `receive()` with `.dismissTapped` navigates to the `.dismiss` route.
+    @MainActor
+    func test_receive_dismissTapped() {
+        subject.receive(.dismissTapped)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `perform(.viewAppeared)` loads the correct feature flags.
+    @MainActor
+    func test_perform_appeared_loadsFeatureFlags() async {
+        XCTAssertTrue(subject.state.featureFlags.isEmpty)
+
+        let flag = DebugMenuFeatureFlag(
+            feature: .testFeatureFlag,
+            isEnabled: false,
+        )
+
+        configService.debugFeatureFlags = [flag]
+
+        await subject.perform(.viewAppeared)
+
+        XCTAssertTrue(subject.state.featureFlags.contains(flag))
+    }
+
+    /// `perform(.refreshFeatureFlags)` refreshes the current feature flags.
+    @MainActor
+    func test_perform_refreshFeatureFlags() async {
+        await subject.perform(.refreshFeatureFlags)
+        XCTAssertTrue(configService.refreshDebugFeatureFlagsCalled)
+    }
+
+    /// `perform(.toggleFeatureFlag)` changes the state of the feature flag.
+    @MainActor
+    func test_perform_toggleFeatureFlag() async {
+        let flag = DebugMenuFeatureFlag(
+            feature: .testFeatureFlag,
+            isEnabled: true,
+        )
+
+        await subject.perform(
+            .toggleFeatureFlag(
+                flag.feature.rawValue,
+                false,
+            ),
+        )
+
+        XCTAssertTrue(configService.toggleDebugFeatureFlagCalled)
+    }
+
+    /// `receive()` with `.generateErrorReport` sends an error report to the error reporter.
+    @MainActor
+    func test_receive_generateErrorReport() {
+        subject.receive(.generateErrorReport)
+        XCTAssertEqual(
+            errorReporter.errors[safeIndex: 0] as? FlightRecorderError,
+            FlightRecorderError.fileSizeError(
+                NSError(
+                    domain: "Generated Error",
+                    code: 0,
+                    userInfo: [
+                        "AdditionalMessage": "Generated error report from debug view.",
+                    ],
+                ),
+            ),
+        )
+    }
+
+    /// `receive()` with `.generateSdkErrorReport` sends an SDK error report to the error reporter.
+    @MainActor
+    func test_receive_generateSdkErrorReport() {
+        subject.receive(.generateSdkErrorReport)
+        XCTAssertEqual(
+            errorReporter.errors[safeIndex: 0] as? BitwardenSdk.BitwardenError,
+            BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
+                message: "Generated SDK error report from debug view.",
+            )),
+        )
+    }
+}

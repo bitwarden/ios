@@ -141,6 +141,7 @@ targets:
           - "**/sourcery.yml"
         buildPhase: none
     dependencies:
+      - package: BitwardenSdk
       - package: SwiftUIIntrospect
       - target: BitwardenResources
       - target: Networking
@@ -190,6 +191,7 @@ targets:
       - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
         product: InlineSnapshotTesting
     randomExecutionOrder: true

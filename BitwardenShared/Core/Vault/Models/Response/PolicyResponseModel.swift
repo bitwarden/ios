@@ -18,6 +18,9 @@ struct PolicyResponseModel: Codable, Equatable, Sendable {
     /// The organization identifier for the policy.
     let organizationId: String
 
+    /// The date the policy was last revised.
+    let revisionDate: Date?
+
     /// The policy type.
     let type: PolicyType
 }
