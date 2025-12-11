@@ -4,6 +4,7 @@ import InlineSnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListSectionsBuilderTests
 

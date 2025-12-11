@@ -2,6 +2,7 @@ import AuthenticationServices
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class CredentialProviderContextTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests

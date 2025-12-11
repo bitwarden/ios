@@ -6,6 +6,7 @@ import XCTest
 // swiftlint:disable file_length
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @MainActor
 final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_body_length

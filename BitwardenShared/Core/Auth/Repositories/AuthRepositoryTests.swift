@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @MainActor
 class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
