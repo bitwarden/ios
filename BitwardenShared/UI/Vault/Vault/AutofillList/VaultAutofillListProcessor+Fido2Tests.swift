@@ -9,6 +9,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 /// Tests for `VaultAutofillListProcessor` Fido2 flows which require iOS 17
 /// and another setup given that the `appExtensionDelegate` is different.

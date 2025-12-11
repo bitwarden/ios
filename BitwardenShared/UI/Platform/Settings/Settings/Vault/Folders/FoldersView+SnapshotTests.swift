@@ -5,6 +5,7 @@ import SnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class FoldersViewTests: BitwardenTestCase {
     // MARK: Properties

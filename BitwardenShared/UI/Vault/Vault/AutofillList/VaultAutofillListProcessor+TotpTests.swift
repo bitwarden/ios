@@ -7,6 +7,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @available(iOS 17.0, *)
 class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disable:this type_body_length

@@ -4,6 +4,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class ASPasskeyCredentialRequestExtensionsTests: BitwardenTestCase {
     // MARK: Tests

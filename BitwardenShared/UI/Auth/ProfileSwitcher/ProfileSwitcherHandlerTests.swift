@@ -6,6 +6,7 @@ import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 final class ProfileSwitcherHandlerTests: BitwardenTestCase {
     // MARK: Properties

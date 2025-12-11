@@ -3,6 +3,7 @@ import Combine
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SearchCombinedMultipleAutofillListDirectorStrategyTests
 

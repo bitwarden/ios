@@ -2,6 +2,7 @@ import Foundation
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class SearchVaultFilterRowStateTests: BitwardenTestCase {
     // MARK: Properties
