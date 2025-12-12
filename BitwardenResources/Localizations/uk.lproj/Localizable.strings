@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Повернутися до програми";
 "Fido2CheckBrowser" = "Переконайтеся, що ваш браузер підтримує WebAuthn і спробуйте знову.";
 "ResetPasswordAutoEnrollInviteWarning" = "Ця організація має корпоративну політику, яка автоматично розгортає вас на скидання пароля. Розгортання дозволятиме адміністраторам організації змінювати ваш головний пароль.";
-"VaultTimeoutPolicyInEffect" = "Політикою вашої організації встановлено максимальний дозволений час очікування сховища %1$@ годин, %2$@ хвилин.";
-"VaultTimeoutPolicyWithActionInEffect" = "Політики вашої організації впливають на час очікування сховища. Максимальний дозволений час очікування сховища %1$@ годин, %2$@ хвилин. Для часу очікування вашого сховища встановлена дія %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Політикою вашої організації встановлено дію для часу очікування сховища %1$@.";
 "VaultTimeoutToLarge" = "Час очікування сховища перевищує обмеження, встановлені вашою організацією.";
 "DisablePersonalVaultExportPolicyInEffect" = "Одна чи декілька організаційних політик не дозволяють вам експортувати особисте сховище.";
 "AddAccount" = "Додати обліковий запис";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Зрозуміло";
 "GenerateCrash" = "Генерувати звіт про збій";
 "GenerateErrorReport" = "Генерувати звіт про помилку";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Дозволити синхронізацію автентифікатора";
 "AuthenticatorSync" = "Синхронізація автентифікатора";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Обліковий запис не знайдено. Якщо ця помилка з'являтиметься й надалі, повторно виконайте вхід.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нові рекомендовані налаштування шифрування покращать безпеку вашого облікового запису. Щоб оновити їх, введіть свій головний пароль.";
 "Updating" = "Оновлення…";
 "EncryptionSettingsUpdated" = "Налаштування шифрування оновлено";
+"ThisSettingIsManagedByYourOrganization" = "Цим параметром керує ваша організація.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша організація встановила максимальний час сеансу %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша організація встановила максимальний час сеансу %1$@ і %2$@.";

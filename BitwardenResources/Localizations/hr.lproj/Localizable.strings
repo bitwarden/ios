@@ -610,9 +610,6 @@
 "Fido2ReturnToApp" = "Povratak u aplikaciju";
 "Fido2CheckBrowser" = "Provjeri podržava li tvoj zadani preglednik WebAuthn i pokušaj ponovno.";
 "ResetPasswordAutoEnrollInviteWarning" = "Pravilo ove organizacija automatski će te učlaniti u ponovno postavljanje lozinke. Učlanjenje će omogućiti administratorima organizacije promjenu tvoje glavne lozinke.";
-"VaultTimeoutPolicyInEffect" = "Pravilo tvoje organizacije utječe na istek trezora. Najveće dozvoljeno vrijeme isteka je %1$@:%2$@ h.";
-"VaultTimeoutPolicyWithActionInEffect" = "Pravila tvoje organizacije utječu na vremenski istek trezora. Naveće dozvoljeno vrijeme isteka je %1$@:%2$@ h. Vaša radnja nakon isteka trezora je %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Pravilo tvoje organizacije podesilo je radnju nakon isteka trezora na: %1$@.";
 "VaultTimeoutToLarge" = "Vrijeme isteka premašuje ograničenje koje je postavila tvoja organizacija.";
 "DisablePersonalVaultExportPolicyInEffect" = "Jedno ili više pravila organizacija onemogućuje izvoz osobnog trezora. ";
 "AddAccount" = "Dodaj račun";
@@ -1053,6 +1050,7 @@
 "GotIt" = "U redu";
 "GenerateCrash" = "Generiraj crash";
 "GenerateErrorReport" = "Generiraj zapisnik o greškama";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Dozvoli sinkronizaciju s Bitwarden Autentifikatorom";
 "AuthenticatorSync" = "Sinkornizacija s Autentifikatorom";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nije pronađen račun. Ako nastaviš viđati grešku, prijavi e ponovno.";
@@ -1276,3 +1274,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za ažuriranje, unesi svoju glavnu lozinku.";
 "Updating" = "Ažuriranje...";
 "EncryptionSettingsUpdated" = "Postavke šifriranje su ažurirane";
+"ThisSettingIsManagedByYourOrganization" = "Ovom postavkom upravlja tvoje organizacija.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Tvoja organizacaija je postavila zadani istek sesije na %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Tvoja organizacaija je postavila zadani istek sesije na %1$@ i %2$@.";

@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Atgriezties uz lietotni";
 "Fido2CheckBrowser" = "Lūgums pārliecināties, ka noklusējuma pārlūks atbalsta WebAuthn, un mēģināt vēlreiz.";
 "ResetPasswordAutoEnrollInviteWarning" = "Šajā apvienībā ir uzņēmuma nosacījums, kas automātiski ievieto lietotājus paroles atiestatīšanas sarakstā. Tas ļauj apvienības pārvaldniekiem mainīt lietotāju galveno paroli.";
-"VaultTimeoutPolicyInEffect" = "Apvienības nosacījumi ietekmē glabātavas noildzi. Lielākā atļautā glabātavas noildze ir %1$@ stunda(s) un %2$@ minūte(s)";
-"VaultTimeoutPolicyWithActionInEffect" = "Apvienības nosacījumi ietekmē glabātavas noildzi. Lielākā atļautā glabātavas noildze ir %1$@ stunda(s) un %2$@ minūte(s). Kā glabātavas noildzes darbība ir uzstādīta %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Apvienības nosacījumos kā glabātavas noildzes darbība ir uzstādīta %1$@.";
 "VaultTimeoutToLarge" = "Glabātavas noildze pārsniedz apvienības uzstādītos ierobežojumus.";
 "DisablePersonalVaultExportPolicyInEffect" = "Viens vai vairāki apvienības nosacījumi neļauj izgūt privātās glabātavas saturu.";
 "AddAccount" = "Pievienot kontu";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Sapratu";
 "GenerateCrash" = "Izveidot avārijas ziņojumu";
 "GenerateErrorReport" = "Izveidot kļūdas ziņojumu";
+"GenerateSdkErrorReport" = "Izveidot SDK kļūdas ziņojumu";
 "AllowAuthenticatorSyncing" = "Ļaut autentificētāja sinhronizēšanu";
 "AuthenticatorSync" = "Authentificētāja sinhronizēšana";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Netika atrasts neviens konts. Lūgums pieteikties vēlreiz, ja šī kļūda joprojām ir redzama.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad.";
 "Updating" = "Atjaunina...";
 "EncryptionSettingsUpdated" = "Šifrēšanas iestatījumi ir atjaunināti";
+"ThisSettingIsManagedByYourOrganization" = "Šo iestatījumu pārvalda apvienība.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Apvienība ir iestatījusi noklusējuma sesijas noildzi uz %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz %1$@ un %2$@.";

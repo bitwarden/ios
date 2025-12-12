@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Ritorna all'app";
 "Fido2CheckBrowser" = "Assicurati che il tuo browser predefinito supporti WebAuthn e riprova.";
 "ResetPasswordAutoEnrollInviteWarning" = "Questa organizzazione ha una politica aziendale che ti iscriverà automaticamente al ripristino della password. Ciò permetterà agli amministratori dell'organizzazione di cambiare la tua password principale.";
-"VaultTimeoutPolicyInEffect" = "Le politiche della tua organizzazione stanno influenzando il timeout della tua cassaforte. Il tempo massimo consentito è di %1$@ ore e %2$@ minuti";
-"VaultTimeoutPolicyWithActionInEffect" = "Le politiche della tua organizzazione stanno influenzando il timeout della tua cassaforte. Il tempo massimo consentito è di %1$@ ore e %2$@ minuti. La tua azione di timeout della cassaforte è impostata su %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Le politiche della tua organizzazione hanno impostato l'azione di timeout cassaforte su %1$@.";
 "VaultTimeoutToLarge" = "Il timeout della tua cassaforte supera i limiti impostati dalla tua organizzazione.";
 "DisablePersonalVaultExportPolicyInEffect" = "Una o più politiche dell'organizzazione ti impediscono di esportare la tua cassaforte personale.";
 "AddAccount" = "Aggiungi account";
@@ -1052,6 +1049,7 @@
 "GotIt" = "OK";
 "GenerateCrash" = "Genera resoconto crash";
 "GenerateErrorReport" = "Genera resoconto errori";
+"GenerateSdkErrorReport" = "Genera report di errore SDK";
 "AllowAuthenticatorSyncing" = "Consenti la sincronizzazione dell'app di autenticazione";
 "AuthenticatorSync" = "App di autenticazione";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Account non trovato. Se continui a riscontrare questo errore, prova a disconnetterti e ad accedere di nuovo.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Le nuove impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la tua password principale per aggiornare.";
 "Updating" = "Aggiornamento…";
 "EncryptionSettingsUpdated" = "Impostazioni di crittografia aggiornate";
+"ThisSettingIsManagedByYourOrganization" = "Questa impostazione è gestita dalla tua organizzazione.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "La tua organizzazione ha impostato il timeout massimo per la sessione a %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "La tua organizzazione ha impostato %1$@ e %2$@ come durata massima della sessione.";

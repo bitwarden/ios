@@ -481,7 +481,7 @@
 "SendVerificationCodeToEmail" = "Enviar um código de verificação para o seu e-mail";
 "CodeSent" = "Código enviado!";
 "ConfirmYourIdentity" = "Confirme a sua identidade para continuar.";
-"ExportVaultWarning" = "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo.";
+"ExportVaultWarning" = "Esta exportação contém os dados do seu cofre em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo.";
 "ExportVaultConfirmationTitle" = "Confirmar exportação de cofre";
 "Warning" = "Atenção";
 "ExportVaultFailure" = "Houve um problema ao exportar o seu cofre. Caso o problema persista, você precisará exportar pelo cofre web.";
@@ -609,15 +609,12 @@
 "Fido2ReturnToApp" = "Voltar ao aplicativo";
 "Fido2CheckBrowser" = "Certifique-se de que seu navegador padrão seja compatível com WebAuthn e tente novamente.";
 "ResetPasswordAutoEnrollInviteWarning" = "Esta organização possui uma política empresarial que irá inscrevê-lo automaticamente na reconfiguração de senha. A inscrição permitirá que os administradores da organização alterem sua senha principal.";
-"VaultTimeoutPolicyInEffect" = "As políticas da sua organização configuraram o tempo limite máximo do cofre como %1$@ hora(s) e %2$@ minuto(s).";
-"VaultTimeoutPolicyWithActionInEffect" = "As políticas da sua organização estão afetando o tempo limite do seu cofre. O tempo limite máximo permitido do cofre é de %1$@ hora(s) e %2$@ minuto(s). Sua ação do tempo limite do cofre está configurada como %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "As políticas da sua organização configuraram a ação do tempo limite do seu cofre para %1$@.";
 "VaultTimeoutToLarge" = "O tempo limite do seu cofre excede as restrições estabelecidas pela sua organização.";
 "DisablePersonalVaultExportPolicyInEffect" = "Uma ou mais políticas da organização impedem que você exporte seu cofre individual.";
 "AddAccount" = "Adicionar conta";
-"AccountUnlocked" = "Desbloqueado";
-"AccountLocked" = "Bloqueado";
-"AccountLoggedOut" = "Desconectado";
+"AccountUnlocked" = "Desbloqueada";
+"AccountLocked" = "Bloqueada";
+"AccountLoggedOut" = "Desconectada";
 "AccountSwitchedAutomatically" = "Trocado para a próxima conta disponível";
 "AccountLockedSuccessfully" = "Conta bloqueada";
 "AccountLoggedOutSuccessfully" = "Conta desconectada com sucesso";
@@ -668,9 +665,9 @@
 "GenericErrorMessage" = "Não foi possível processar o seu pedido. Tente novamente ou entre em contato conosco.";
 "AllowScreenCapture" = "Permitir captura de tela";
 "AreYouSureYouWantToEnableScreenCapture" = "Tem certeza que quer ativar a captura de tela?";
-"LogInRequested" = "Autenticação solicitada";
+"LogInRequested" = "Acesso solicitado";
 "AreYouTryingToLogIn" = "Você está tentando se conectar?";
-"LogInAttemptByXOnY" = "Tentativa de autenticação por %1$@ em %2$@";
+"LogInAttemptByXOnY" = "Tentativa de acesso por %1$@ em %2$@";
 "DeviceType" = "Tipo de dispositivo";
 "IpAddress" = "Endereço de IP";
 "Time" = "Horário";
@@ -682,7 +679,7 @@
 "LogInAccepted" = "Acesso confirmado";
 "LogInDenied" = "Acesso negado";
 "ApproveLoginRequests" = "Aprovar solicitações de acesso";
-"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Use este dispositivo para aprovar solicitações de login feitas de outros dispositivos";
+"UseThisDeviceToApproveLoginRequestsMadeFromOtherDevices" = "Use este dispositivo para aprovar solicitações de acesso feitas de outros dispositivos";
 "AllowNotifications" = "Permitir notificações";
 "ReceivePushNotificationsForNewLoginRequests" = "Receba notificações push de novas solicitações de acesso";
 "NoThanks" = "Não, obrigado";
@@ -720,7 +717,7 @@
 "AccessibilityDisclosureText" = "O Bitwarden utiliza o serviço de acessibilidade para procurar campos de senhas em aplicativos e em sites, e então estabelece os IDs de campo apropriados para digitar um nome de usuário e senha quando uma correspondência para o aplicativo ou site for encontrada. Não armazenamos nenhuma das informações que nos são apresentadas pelo serviço, nem fazemos qualquer tentativa de controlar quaisquer elementos na tela além da entrada de credenciais em texto.";
 "Accept" = "Aceitar";
 "Decline" = "Recusar";
-"LoginRequestHasAlreadyExpired" = "A solicitação de autenticação já expirou.";
+"LoginRequestHasAlreadyExpired" = "A solicitação de acesso já expirou.";
 "LoginAttemptFromXDoYouWantToSwitchToThisAccount" = "Tentativa de autenticação de:\n%1$@\nVocê deseja trocar para esta conta?";
 "NewAroundHere" = "Novo por aqui?";
 "GetMasterPasswordwordHint" = "Receber dica da senha principal";
@@ -737,7 +734,7 @@
 "ThisRequestIsNoLongerValid" = "Esta solicitação não é mais válida";
 "PendingLogInRequests" = "Solicitações de acesso pendentes";
 "DeclineAllRequests" = "Recusar todas as solicitações";
-"AreYouSureYouWantToDeclineAllPendingLogInRequests" = "Tem certeza que quer recusar todas as solicitações de autenticação pendentes?";
+"AreYouSureYouWantToDeclineAllPendingLogInRequests" = "Tem certeza que quer recusar todas as solicitações de acesso pendentes?";
 "RequestsDeclined" = "Solicitações recusadas";
 "NoPendingRequests" = "Nenhuma solicitação pendente";
 "EnableCamerPermissionToUseTheScanner" = "Conceda permissão ao uso da câmera para usar o leitor";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Entendi";
 "GenerateCrash" = "Gerar travamento";
 "GenerateErrorReport" = "Gerar relatório de erros";
+"GenerateSdkErrorReport" = "Gerar relatório de erros do SDK";
 "AllowAuthenticatorSyncing" = "Permitir sincronização do autenticador";
 "AuthenticatorSync" = "Sincronização do autenticador";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nenhuma conta encontrada. Conecte-se novamente se você continuar vendo este erro.";
@@ -1212,7 +1210,7 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "DownloadTheBitwardenApp" = "Baixe o aplicativo do Bitwarden";
 "EnsureItsValidJsonAndTryAgain" = "Certifique-se de que é um JSON válido e tente novamente.";
 "ExportItemsConfirmationTitle" = "Confirmar exportação de itens";
-"ExportItemsWarning" = "Esta exportação contém os dados do seu cofre em um formato não criptografado. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo.";
+"ExportItemsWarning" = "Esta exportação contém os dados do seu cofre em um formato sem criptografia. Você não deve armazenar ou enviar o arquivo exportado por canais inseguros (como e-mail). Apague o arquivo imediatamente após terminar de usá-lo.";
 "FileCouldNotBeProcessed" = "O arquivo não pôde ser processado";
 "GetVerificationCodesForAllYourAccounts" = "Receba códigos de verificação para todas as suas contas que suportam verificação em duas etapas.";
 "Help" = "Ajuda";
@@ -1276,3 +1274,7 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "As novas configurações de criptografia recomendadas melhorarão a segurança da sua conta. Digite sua senha principal para atualizar agora.";
 "Updating" = "Atualizando…";
 "EncryptionSettingsUpdated" = "Configuração de criptografia atualizada";
+"ThisSettingIsManagedByYourOrganization" = "Esta configuração é gerenciada pela sua organização.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A sua organização configurou o tempo de limite máximo da sessão para %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A sua organização configurou o tempo de limite máximo da sessão para %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A sua organização configurou o tempo de limite máximo da sessão para %1$@ e %2$@.";

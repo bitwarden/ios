@@ -33,7 +33,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d дан</string>
         <key>few</key>
         <string>%d days</string>
         <key>other</key>
@@ -90,11 +90,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d сат</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d сата</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d сати</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -128,11 +128,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d секунда</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d секунде</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d секунди</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -147,11 +147,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d седмица</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d седмице</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d седмица</string>
       </dict>
     </dict>
   </dict>

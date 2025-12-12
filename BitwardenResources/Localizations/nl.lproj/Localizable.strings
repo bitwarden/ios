@@ -59,7 +59,7 @@
 "Password" = "Wachtwoord";
 "Save" = "Opslaan";
 "Move" = "Verplaatsen";
-"Saving" = "Saving…";
+"Saving" = "Opslaan…";
 "Settings" = "Instellingen";
 "Show" = "Weergeven";
 "ItemDeleted" = "Item verwijderd";
@@ -97,7 +97,7 @@
 "SetBitwardenAsPasskeyManagerDescription" = "Bitwarden instellen als je passkey-provider in apparaatinstellingen.";
 "AvoidAmbiguousCharacters" = "Dubbelzinnige tekens vermijden";
 "BitwardenAppExtension" = "Bitwarden app-extensie";
-"BitwardenAppExtensionAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden app extension. Learn more about using the Bitwarden app extension by navigating to the “Settings” screen.";
+"BitwardenAppExtensionAlert2" = "De makkelijkste manier om nieuwe logins aan je kluis toe te voegen is met de Bitwarden app extensie. Leer meer over het gebruiken van de Bitwarden app extensie door naar de instellingen te gaan.";
 "BitwardenAppExtensionDescription" = "Gebruik Bitwarden in Safari en andere apps om je logins automatisch in te vullen.";
 "BitwardenAutofillService" = "Bitwarden Automatisch invullen dienst";
 "BitwardenAutofillAccessibilityServiceDescription" = "Gebruik de Bitwarden Toegankelijkheidsdienst om je logins automatisch in te vullen.";
@@ -107,7 +107,7 @@
 "Close" = "Sluiten";
 "Continue" = "Doorgaan";
 "CreateAccount" = "Account aanmaken";
-"CreatingAccount" = "Creating account…";
+"CreatingAccount" = "Account aan het aanmaken…";
 "EditItem" = "Item bewerken";
 "EnableAutomaticSyncing" = "Automatische synchronisatie inschakelen";
 "EnterEmailForHint" = "Voer het e-mailadres van je account in om je hoofdwachwoordhint te ontvangen.";
@@ -116,11 +116,11 @@
 "ExtensionEnable" = "App-extensie inschakelen";
 "ExtensionInSafari" = "In Safari vind je Bitwarden onder het pictogram Delen (hint: scroll naar rechts op de onderste rij van het menu).";
 "ExtensionInstantAccess" = "Overal je wachtwoorden onder handbereik!";
-"ExtensionReady" = "You’re ready to log in!";
+"ExtensionReady" = "Je bent klaar om in te loggen!";
 "ExtensionSetup" = "Je inloggevens zijn nu gemakkelijk bereikbaar vanuit Safari, Chrome en ondersteunde apps.";
 "ExtensionSetup2" = "In Safari en Chrome vind je Bitwarden onder het pictogram Delen (hint: scroll naar rechts op de onderste rij van het menu).";
 "ExtensionTapIcon" = "Tik op het Bitwarden-pictogram in het menu om de extensie te starten.";
-"ExtensionTurnOn" = "To turn on Bitwarden in Safari and other apps, tap the “more” icon on the bottom row of the menu.";
+"ExtensionTurnOn" = "Om Bitwarden in Safari en andere apps aan te zetten druk je op de \"meer\" knop op de onderste rij van het menu.";
 "Favorite" = "Favoriet";
 "Fingerprint" = "Vingerafdruk";
 "GeneratePassword" = "Wachtwoord genereren";
@@ -135,7 +135,7 @@
 "VaultTimeout" = "Time-out van de kluis";
 "VaultTimeoutAction" = "Actie bij time-out";
 "VaultTimeoutLogOutConfirmation" = "Uitloggen ontneemt je de toegang tot je kluis en vereist online authenticatie na een periode van time-out. Weet je zeker dat je deze instelling wilt gebruiken?";
-"LoggingIn" = "Logging in…";
+"LoggingIn" = "In aan het loggen…";
 "LogInToBitwarden" = "Inloggen op Bitwarden";
 "Manage" = "Beheer";
 "MasterPasswordConfirmationValMessage" = "De wachtwoorden komen niet overeen.";
@@ -154,7 +154,7 @@
 "NoItemsTap" = "Er zijn geen items in je kluis voor deze website. Tik om er een toe te voegen.";
 "NoUsernamePasswordConfigured" = "Deze login bevat geen gebruikersnaam of wachtwoord.";
 "OKGotIt" = "Ok, begrepen!";
-"OptionDefaults" = "Option defaults are set from the main Bitwarden app’s password generator tool.";
+"OptionDefaults" = ".";
 "Options" = "Opties";
 "Other" = "Overig";
 "PasswordGenerated" = "Wachtwoord gegenereerd";
@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Terug naar de app";
 "Fido2CheckBrowser" = "Zorg ervoor dat je standaardbrowser WebAuthn ondersteunt en probeer het opnieuw.";
 "ResetPasswordAutoEnrollInviteWarning" = "Deze organisatie heeft een ondernemingsbeleid dat je automatisch inschrijft bij het resetten van je wachtwoord. Inschrijving stelt organisatiebeheerders in staat om je hoofdwachtwoord te wijzigen.";
-"VaultTimeoutPolicyInEffect" = "Het beleid van je organisatie heeft invloed op de time-out van je kluis. De maximaal toegestane kluis time-out is %1$@ uur en %2$@ minuten.";
-"VaultTimeoutPolicyWithActionInEffect" = "De beleidsinstellingen van je organisatie hebben invloed op de time-out van je kluis. De maximale toegestane kluis time-out is %1$@ uur en %2$@ minuten. Jouw time-out is ingesteld op %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "De beleidsinstellingen van je organisatie hebben je kluis time-out ingesteld op %1$@.";
 "VaultTimeoutToLarge" = "Je kluis time-out is hoger dan het maximum van jouw organisatie.";
 "DisablePersonalVaultExportPolicyInEffect" = "Organisatiebeleid voorkomt dat je je persoonlijke kluis exporteert.";
 "AddAccount" = "Account toevoegen";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Ik snap het";
 "GenerateCrash" = "Crash genereren";
 "GenerateErrorReport" = "Foutenrapport genereren";
+"GenerateSdkErrorReport" = "SDK-foutenrapport genereren";
 "AllowAuthenticatorSyncing" = "Authenticator synchroniseren toestaan";
 "AuthenticatorSync" = "Authenticator synchroniseren";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Geen account gevonden. Log opnieuw in als je deze foutmelding blijft zien.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken.";
 "Updating" = "Bijwerken...";
 "EncryptionSettingsUpdated" = "Versleutelingsinstellingen bijgewerkt";
+"ThisSettingIsManagedByYourOrganization" = "Deze instelling wordt beheerd door je organisatie.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Je organisatie heeft de maximale sessie time-out ingesteld op %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Je organisatie heeft de maximale sessie time-out ingesteld op %1$@ en %2$@.";
