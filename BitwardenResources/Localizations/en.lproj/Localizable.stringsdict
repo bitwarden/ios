@@ -20,7 +20,7 @@
 		</dict>
 	</dict>
 	<!-- A warning if we have determined that a password has been exposed in a data breach. -->
-	<key>ThisPasswordHasBeenExposedXTimesLong</key>
+	<key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
 		<string>This password has been exposed %#@times@ in data breaches. You should change it.</string>

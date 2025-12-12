@@ -155,7 +155,7 @@ extension Alert {
     static func dataBreachesCountAlert(count: Int) -> Alert {
         if count >= 1 {
             Alert(
-                title: Localizations.thisPasswordHasBeenExposedXTimesLong(count),
+                title: Localizations.thisPasswordHasBeenExposedXTimesDescriptionLong(count),
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),

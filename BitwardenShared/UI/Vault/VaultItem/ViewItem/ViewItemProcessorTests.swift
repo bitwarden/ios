@@ -442,7 +442,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://api.pwnedpasswords.com/range/e6b6a"))
         XCTAssertEqual(coordinator.alertShown.last, Alert(
-            title: Localizations.thisPasswordHasBeenExposedXTimesLong(1957),
+            title: Localizations.thisPasswordHasBeenExposedXTimesDescriptionLong(1957),
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
