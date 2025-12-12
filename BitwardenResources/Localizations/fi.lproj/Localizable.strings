@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Palaa sovellukseen";
 "Fido2CheckBrowser" = "Varmista, että oletusselaimesi sisältää WebAuthn-tuen ja yritä uudelleen.";
 "ResetPasswordAutoEnrollInviteWarning" = "Organisaatiolla on yrityskäytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi.";
-"VaultTimeoutPolicyInEffect" = "Organisaatiokäytännöt ovat määrittäneet holvisi aikakatkaisun enimmäisajaksi %1$@ tuntia %2$@ minuuttia.";
-"VaultTimeoutPolicyWithActionInEffect" = "Organisaatiokäytännöt vaikuttavat holvisi aikakatkaisuun. Suurin sallittu aika on %1$@ tuntia %2$@ minuuttia. Holvillesi määritetty aikakatkaisutoiminto on %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Organisaatiokäytännöt ovat määrittäneet holville aikakatkaisutoiminnon %1$@.";
 "VaultTimeoutToLarge" = "Holvisi aikakatkaisu ylittää organisaatiosi asettamat rajoitukset.";
 "DisablePersonalVaultExportPolicyInEffect" = "Yksi tai useampi organisaatiokäytäntö estää henkilökohtaisen holvisi viennin.";
 "AddAccount" = "Lisää tili";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Selvä";
 "GenerateCrash" = "Luo vikailmoitus";
 "GenerateErrorReport" = "Luo virheraportti";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Salli todentajan synkronointi";
 "AuthenticatorSync" = "Todentajan synkronointi";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Tiliä ei löytynyt. Kirjaudu sisään uudelleen, jos tämä virhe toistuu.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ThisSettingIsManagedByYourOrganization" = "Organisaatiosi hallitsee tätä asetusta.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Organisaatiosi on asettanut istunnon enimmäisajan %1$@ ja %2$@.";

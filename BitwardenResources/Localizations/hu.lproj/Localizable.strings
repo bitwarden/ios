@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Vissza az alkalmazásba";
 "Fido2CheckBrowser" = "Biztosítsuk, hogy az alapértelmezett böngésző támogassa a WebAuthn technológiát és próbáljuk újra.";
 "ResetPasswordAutoEnrollInviteWarning" = "Ennek a szervezetnek van egy vállalati házirendje, amely automatikusan regisztrál a jelszó alaphelyzetbe állítására. A regisztráció lehetővé teszi a szervezet adminisztrátorainak a mesterjelszó megváltoztatását.";
-"VaultTimeoutPolicyInEffect" = "A szervezeti házirendek hatással vannak a széf időkorlátjára. A széf időkorlátja legfeljebb %1$@ óra és %2$@ perc lehet.";
-"VaultTimeoutPolicyWithActionInEffect" = "A szervezeti házirendek hatással vannak a széf időkorlátjára. A széf időkorlátja legfeljebb %1$@ óra és %2$@ perc lehet. A széf időkifutási művelete %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "A szervezeti házirendek által jelenleg beállított időkifutási művelet %1$@.";
 "VaultTimeoutToLarge" = "A széf időkorlátja túllépi a szervezet által beállított korlátozást.";
 "DisablePersonalVaultExportPolicyInEffect" = "Egy vagy több szervezeti házirend tiltja a személyes széf exportálását.";
 "AddAccount" = "Fiók hozzáadása";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Rendben";
 "GenerateCrash" = "Összeomlás generálás";
 "GenerateErrorReport" = "Hibajelentés generálása";
+"GenerateSdkErrorReport" = "SDK hibajelentés generálása";
 "AllowAuthenticatorSyncing" = "A hitelesítő szinkronizálásának engedélyezése.";
 "AuthenticatorSync" = "Hitelesítő szinkronizálás";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nem található fiók. Kérem, lépjen be újra, ha továbbra is ezzel a hibával találkozik.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most.";
 "Updating" = "Frissítés...";
 "EncryptionSettingsUpdated" = "A titkosítási beállítások frissítésre kerültek.";
+"ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet lezeli.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A szervezet a maximális munkamenet időkifutást %1$@ és %2$@ értékre állította.";
