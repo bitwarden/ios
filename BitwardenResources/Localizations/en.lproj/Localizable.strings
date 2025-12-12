@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "Minimum numbers";
 "MinSpecial" = "Minimum special";
 "MoreSettings" = "More settings";

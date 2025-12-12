@@ -35,7 +35,7 @@ extension Alert {
     static var passwordIsTooShort: Alert {
         Alert(
             title: Localizations.anErrorHasOccurred,
-            message: Localizations.masterPasswordLengthValMessageX(Constants.minimumPasswordCharacters),
+            message: Localizations.masterPasswordMustBeAtLeastXCharactersLong(Constants.minimumPasswordCharacters),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ],
