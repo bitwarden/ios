@@ -258,6 +258,20 @@ public protocol VaultRepository: AnyObject {
     func vaultListPublisher(
         filter: VaultListFilter,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
+
+    /// A publisher for the vault search list which returns a list of sections and items that are
+    /// displayed in the vault.
+    ///
+    /// - Parameters:
+    ///   - mode: The `AutofillListMode` to choose the correct strategy, if any.
+    ///   - filterPublisher: Filter publisher to be subscribed to changes to build the sections.
+    /// - Returns: A publisher for the sections of the vault list which will be notified as the
+    ///     data changes.
+    ///
+    func vaultSearchListPublisher(
+        mode: AutofillListMode?,
+        filterPublisher: AnyPublisher<VaultListFilter, Error>,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
 }
 
 extension VaultRepository {
@@ -823,6 +837,15 @@ extension DefaultVaultRepository: VaultRepository {
         try await vaultListDirectorStrategyFactory
             .make(filter: filter)
             .build(filter: filter)
+    }
+
+    func vaultSearchListPublisher(
+        mode: AutofillListMode?,
+        filterPublisher: AnyPublisher<VaultListFilter, Error>,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
+        try await vaultListDirectorStrategyFactory
+            .makeSearchStrategy(mode: mode)
+            .build(filterPublisher: filterPublisher)
     }
 
     // MARK: Private

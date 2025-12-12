@@ -16,6 +16,7 @@ class VaultItemSelectionProcessor: StateProcessor<
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasVaultRepository
 
@@ -23,6 +24,9 @@ class VaultItemSelectionProcessor: StateProcessor<
 
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// The services used by this processor.
     private var services: Services
@@ -52,10 +56,14 @@ class VaultItemSelectionProcessor: StateProcessor<
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper,
     ) {
         self.coordinator = coordinator
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
         self.services = services
         self.userVerificationHelper = userVerificationHelper
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
+
         super.init(state: state)
+
+        searchProcessorMediator.setDelegate(self)
     }
 
     // MARK: Methods
@@ -115,8 +123,10 @@ class VaultItemSelectionProcessor: StateProcessor<
                 state.searchText = ""
                 state.searchResults = []
                 state.showNoResults = false
+                searchProcessorMediator.stopSearching()
                 return
             }
+            searchProcessorMediator.startSearching()
             state.profileSwitcherState.isVisible = false
             dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
@@ -172,24 +182,14 @@ class VaultItemSelectionProcessor: StateProcessor<
             state.showNoResults = false
             return
         }
-        do {
-            let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
-                    filterType: .allVaults,
-                    group: .login,
-                    searchText: searchText,
-                ),
-            )
-            for try await vaultListData in publisher {
-                let items = vaultListData.sections.first?.items ?? []
-                state.searchResults = items
-                state.showNoResults = items.isEmpty
-            }
-        } catch {
-            state.searchResults = []
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
+
+        searchProcessorMediator.onFilterChanged(
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                searchText: searchText,
+            ),
+        )
     }
 
     /// Shows the edit item screen for the cipher within the specified vault list item with the OTP
@@ -323,5 +323,15 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
 
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
+    }
+}
+
+// MARK: - SearchProcessorMediatorDelegate
+
+extension VaultItemSelectionProcessor: SearchProcessorMediatorDelegate {
+    func onNewSearchResults(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+        state.showNoResults = items.isEmpty
     }
 }

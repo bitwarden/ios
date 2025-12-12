@@ -43,6 +43,7 @@ typealias Services = HasAPIService
     & HasPolicyService
     & HasRehydrationHelper
     & HasReviewPromptService
+    & HasSearchProcessorMediatorFactory
     & HasSendRepository
     & HasSettingsRepository
     & HasSharedTimeoutService
@@ -288,6 +289,12 @@ protocol HasRehydrationHelper {
 protocol HasReviewPromptService {
     /// The service used by the application to determine if a user is eligible for a review prompt.
     var reviewPromptService: ReviewPromptService { get }
+}
+
+/// Protocol for an object that provides a `SearchProcessorMediatorFactory`.
+protocol HasSearchProcessorMediatorFactory {
+    /// The factory to make `SearchProcessorMediator`s.
+    var searchProcessorMediatorFactory: SearchProcessorMediatorFactory { get }
 }
 
 /// Protocol for an object that provides a `SendRepository`.
