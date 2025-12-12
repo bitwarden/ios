@@ -37,6 +37,8 @@ Core directives for maintaining code quality and consistency in the Bitwarden iO
 
 1. Follow existing code style in surrounding files
 2. Write tests alongside implementation
+   1. Prefer using Sourcery with the `AutoMockable` attribute for creating mocks.
+   2. If a manual mock implementation is needed (not using Sourcery), place it in a `Mocks` folder within the appropriate framework directory, as our Xcodegen configuration will automatically include it in the correct test target.
 3. Add DocC to everything except protocol implementations and mocks
 4. Validate against architecture guidelines
 
