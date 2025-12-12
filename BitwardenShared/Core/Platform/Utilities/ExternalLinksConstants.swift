@@ -43,6 +43,9 @@ extension ExternalLinksConstants {
     /// A markdown link to Bitwarden's terms of service.
     static let termsOfService = URL(string: "https://bitwarden.com/terms/")!
 
+    /// A markdown link to Bitwarden's terms of service.
+    static let transferOwnership = URL(string: "https://bitwarden.com/help/transfer-ownership/")!
+
     /// A markdown link to Bitwarden's marketing email preferences.
     static let unsubscribeFromMarketingEmails = URL(string: "https://bitwarden.com/email-preferences/")!
 
