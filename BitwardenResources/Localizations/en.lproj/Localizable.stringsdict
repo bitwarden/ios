@@ -36,6 +36,23 @@
 			<string>%d days</string>
 		</dict>
 	</dict>
+	<!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+	<key>XHours</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@hours@</string>
+		<key>hours</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d hour</string>
+			<key>other</key>
+			<string>%d hours</string>
+		</dict>
+	</dict>
 	<!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
 	<key>XItems</key>
 	<dict>
@@ -68,23 +85,6 @@
 			<string>%d item</string>
 			<key>other</key>
 			<string>%d items</string>
-		</dict>
-	</dict>
-	<!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
-	<key>XHours</key>
-	<dict>
-		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@hours@</string>
-		<key>hours</key>
-		<dict>
-			<key>NSStringFormatSpecTypeKey</key>
-			<string>NSStringPluralRuleType</string>
-			<key>NSStringFormatValueTypeKey</key>
-			<string>d</string>
-			<key>one</key>
-			<string>%d hour</string>
-			<key>other</key>
-			<string>%d hours</string>
 		</dict>
 	</dict>
 	<!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
