@@ -389,7 +389,6 @@
 "AllItems" = "All items";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "Check if password has been exposed.";
-"PasswordExposed" = "This password has been exposed %1$@ time(s) in data breaches. You should change it.";
 "PasswordSafe" = "This password was not found in any known data breaches. It should be safe to use.";
 "IdentityName" = "Identity name";
 "Value" = "Value";

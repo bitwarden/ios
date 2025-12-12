@@ -161,7 +161,7 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
     func test_passwordExposedAlert() {
         let subject = Alert.dataBreachesCountAlert(count: 1)
 
-        XCTAssertEqual(subject.title, Localizations.passwordExposed(1))
+        XCTAssertEqual(subject.title, Localizations.thisPasswordHasBeenExposedXTimesLong(1))
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }
