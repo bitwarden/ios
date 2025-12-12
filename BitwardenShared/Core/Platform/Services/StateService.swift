@@ -2376,7 +2376,7 @@ struct AccountVolatileData {
 
 // MARK: Biometrics
 
-extension DefaultStateService {
+extension DefaultStateService: BiometricsStateService {
     func getBiometricAuthenticationEnabled() async throws -> Bool {
         let userId = try getActiveAccountUserId()
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
