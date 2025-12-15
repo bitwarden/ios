@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Kembali ke apl";
 "Fido2CheckBrowser" = "Pastikan peramban utama Anda mendukung WebAuthn, kemudian coba lagi.";
 "ResetPasswordAutoEnrollInviteWarning" = "Organisasi ini memiliki kebijakan perusahaan yang secara otomatis mendaftarkan Anda dalam pengaturan ulang sandi. Dengan mendaftar, akan memungkinkan administrator organisasi untuk mengubah sandi utama Anda.";
-"VaultTimeoutPolicyInEffect" = "Kebijakan organisasi Anda telah menetapkan batas waktu penyimpanan brankas maksimum yang diizinkan menjadi %1$@ jam dan %2$@ menit.";
-"VaultTimeoutPolicyWithActionInEffect" = "Kebijakan organisasi Anda memengaruhi batas waktu penyimpanan Anda. Batas waktu penyimpanan maksimum yang diizinkan adalah %1$@ jam dan %2$@ menit. Tindakan batas waktu penyimpanan Anda diatur ke %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Kebijakan organisasi anda telah menetapkan tindakan batas waktu brankas ke %1$@.";
 "VaultTimeoutToLarge" = "Batas waktu penyimpanan brankas Anda melampaui batasan yang ditetapkan oleh organisasi Anda.";
 "DisablePersonalVaultExportPolicyInEffect" = "Satu atau lebih kebijakan organisasi mencegah Anda mengekspor brankas pribadi Anda.";
 "AddAccount" = "Tambah akun";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Dimengerti";
 "GenerateCrash" = "Hasilkan crash";
 "GenerateErrorReport" = "Buat laporan kesalahan";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Aktifkan sinkronisasi authenticator";
 "AuthenticatorSync" = "Sinkronisasi authenticator";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Tidak ada akun ditemukan. Silakan masuk kembali jika Anda terus melihat kesalahan ini.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Rekomendasi pengaturan enkripsi baru akan meningkatkan keamanan akun Anda. Masukkan sandi utama untuk memperbarui sekarang.";
 "Updating" = "Memperbarui...";
 "EncryptionSettingsUpdated" = "Pengaturan enkripsi diperbarui";
+"ThisSettingIsManagedByYourOrganization" = "Pengaturan ini dikelola oleh organisasi Anda.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Organisasi Anda telah menetapkan batas waktu sesi maksimum ke %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Organisasi Anda telah menetapkan batas waktu sesi maksimum ke %1$@ dan %2$@.";

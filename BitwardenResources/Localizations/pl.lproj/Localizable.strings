@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Wróć do aplikacji";
 "Fido2CheckBrowser" = "Upewnij się, że Twoja przeglądarka obsługuje WebAuthn i spróbuj ponownie.";
 "ResetPasswordAutoEnrollInviteWarning" = "Ta organizacja posługuje się zasadą, która automatycznie rejestruje użytkowników do resetowania hasła. Rejestracja umożliwia administratorom organizacji zmianę Twojego hasła głównego.";
-"VaultTimeoutPolicyInEffect" = "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi %1$@ godz. i %2$@ min.";
-"VaultTimeoutPolicyWithActionInEffect" = "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi %1$@ godz. i %2$@ min. Twój czas blokowania sejfu to %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Zasady organizacji wymuszają sposób blokowania sejfu na %1$@.";
 "VaultTimeoutToLarge" = "Czas blokowania sejfu przekracza limit określony przez organizację.";
 "DisablePersonalVaultExportPolicyInEffect" = "Co najmniej jedna zasada organizacji uniemożliwia wyeksportowanie osobistego sejfu.";
 "AddAccount" = "Dodaj konto";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Ok";
 "GenerateCrash" = "Wygeneruj awarię";
 "GenerateErrorReport" = "Wygeneruj raport błędu";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Synchronizacja z aplikacją Authenticator";
 "AuthenticatorSync" = "Synchronizacja aplikacji Authenticator";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nie znaleziono konta. Zaloguj się ponownie, jeśli nadal widzisz ten błąd.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia.";
 "Updating" = "Aktualizowanie…";
 "EncryptionSettingsUpdated" = "Ustawienia szyfrowania zostały zaktualizowane";
+"ThisSettingIsManagedByYourOrganization" = "Ustawienie jest zarządzane przez Twoją organizację.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@ i %2$@.";

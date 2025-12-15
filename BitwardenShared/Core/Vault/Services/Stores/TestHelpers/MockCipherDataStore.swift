@@ -20,6 +20,7 @@ class MockCipherDataStore: CipherDataStore {
     var fetchCipherUserId: String?
 
     var cipherSubjectByUserId: [String: CurrentValueSubject<[Cipher], Error>] = [:]
+    var cipherChangesSubjectByUserId: [String: CurrentValueSubject<CipherChange, Error>] = [:]
 
     var replaceCiphersValue: [Cipher]?
     var replaceCiphersUserId: String?
@@ -50,6 +51,16 @@ class MockCipherDataStore: CipherDataStore {
         fetchCipherId = id
         fetchCipherUserId = userId
         return fetchCipherResult
+    }
+
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Error> {
+        if let subject = cipherChangesSubjectByUserId[userId] {
+            return subject.eraseToAnyPublisher()
+        } else {
+            let subject = CurrentValueSubject<CipherChange, Error>(.inserted(.fixture()))
+            cipherChangesSubjectByUserId[userId] = subject
+            return subject.dropFirst().eraseToAnyPublisher()
+        }
     }
 
     func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {

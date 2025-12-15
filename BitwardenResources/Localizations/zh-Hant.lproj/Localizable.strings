@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "返回應用程式";
 "Fido2CheckBrowser" = "請確保您的預設瀏覽器支援 WebAuthn，然後再試一次。";
 "ResetPasswordAutoEnrollInviteWarning" = "此組織有一個可以為您自動註冊密碼重設的企業原則。註冊後將允許組織管理員變更您的主密碼。";
-"VaultTimeoutPolicyInEffect" = "您的組織原則正在影響您的密碼庫逾時時間。密碼庫逾時時間最多可以設定到 %1$@ 小時 %2$@ 分鐘。";
-"VaultTimeoutPolicyWithActionInEffect" = "您的組織原則正在影響您的密碼庫逾時時間。密碼庫逾時時間最多可以設定到 %1$@ 小時 %2$@ 分鐘。您密碼庫的逾時動作被設定為 %3$@。";
-"VaultTimeoutActionPolicyInEffect" = "您的組織原則已將密碼庫逾時動作設定為 %1$@。";
 "VaultTimeoutToLarge" = "您的密碼庫逾時時間超過組織設定的限制。";
 "DisablePersonalVaultExportPolicyInEffect" = "一個或多個組織原則禁止您匯出個人密碼庫。";
 "AddAccount" = "新增帳戶";
@@ -1052,6 +1049,7 @@
 "GotIt" = "知道了";
 "GenerateCrash" = "產生當機報告";
 "GenerateErrorReport" = "產生錯誤報告";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "啟用驗證器的自動同步";
 "AuthenticatorSync" = "驗證器自動同步";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "找不到帳號。若您持續看到此錯誤，請重試登入。";
@@ -1276,3 +1274,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。";
 "Updating" = "更新中…";
 "EncryptionSettingsUpdated" = "加密設定已更新";
+"ThisSettingIsManagedByYourOrganization" = "此設定由您的組織管理。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的組織已將最長工作階段逾時設為 %1$@。";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "您的組織已將最長工作階段逾時設為 %1$@ 和 %2$@。";

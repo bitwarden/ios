@@ -106,7 +106,7 @@ private struct VaultAutofillListSearchableView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
-            .task(id: store.state.searchText) {
+            .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
             .task(id: store.state.excludedCredentialIdFound) {
@@ -142,7 +142,7 @@ private struct VaultAutofillListSearchableView: View {
     /// A view for displaying a list of sections with ciphers.
     @ViewBuilder
     private func cipherCombinedListView(_ sections: [VaultListSection]) -> some View {
-        LazyVStack(spacing: 16) {
+        VStack(spacing: 16) {
             ForEach(sections) { section in
                 VaultListSectionView(
                     section: section,

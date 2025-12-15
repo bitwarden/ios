@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "앱으로 돌아가기";
 "Fido2CheckBrowser" = "기본 브라우저가 WebAuthn을 지원하는지 확인한 후 다시 시도해주세요.";
 "ResetPasswordAutoEnrollInviteWarning" = "이 조직에는 자동으로 비밀번호 재설정에 등록하는 기업 정책이 있습니다. 등록하면 조직 관리자가 마스터 암호를 변경할 수 있습니다.";
-"VaultTimeoutPolicyInEffect" = "조직 정책이 보관함 제한 시간에 영향을 미치고 있습니다. 최대 허용 보관함 제한 시간은 %1$@시간 %2$@분입니다";
-"VaultTimeoutPolicyWithActionInEffect" = "조직에서 보관함 타임아웃을 관리하고 있습니다. 허용된 최대 보관함 타임아웃은 %1$@시간 %2$@분입니다. 현재 보관함 타임아웃은 %3$@입니다.";
-"VaultTimeoutActionPolicyInEffect" = "조직에서 보관함 타임아웃 작업을 %1$@으로 설정했습니다.";
 "VaultTimeoutToLarge" = "볼트 제한 시간이 조직에서 설정한 제한을 초과합니다.";
 "DisablePersonalVaultExportPolicyInEffect" = "하나 이상의 조직 정책이 개인 보관함을 내보내는 것을 제한하고 있습니다.";
 "AddAccount" = "계정 추가";
@@ -1052,6 +1049,7 @@
 "GotIt" = "이해했습니다";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "Generate error report";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Bitwarden Authenticator와 동기화 허용";
 "AuthenticatorSync" = "Authenticator sync";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";

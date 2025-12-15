@@ -3,6 +3,7 @@ import BitwardenSdk
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockAuthService: AuthService {
     var answerLoginRequestApprove: Bool?

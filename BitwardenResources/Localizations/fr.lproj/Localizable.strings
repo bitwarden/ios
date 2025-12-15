@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Retourner à l’application";
 "Fido2CheckBrowser" = "Assurez-vous que votre navigateur par défaut prend en charge WebAuthn et réessayez.";
 "ResetPasswordAutoEnrollInviteWarning" = "Cette organisation dispose d'une politique d'entreprise qui vous inscrira automatiquement à la réinitialisation du mot de passe. L'inscription permettra aux administrateurs de l'organisation de changer votre mot de passe principal.";
-"VaultTimeoutPolicyInEffect" = "Les politiques de sécurité de votre organisation ont défini le délai d'expiration de votre coffre à %1$@ heure(s) et %2$@ minute(s) maximum.";
-"VaultTimeoutPolicyWithActionInEffect" = "Les politiques de sécurité de votre organisation affectent le délai d'expiration de votre coffre. Le délai d'expiration autorisé du coffre est de %1$@ heure(s) et %2$@ minute(s) maximum. L'action après délai d'expiration de votre coffre est fixée à %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Les politiques de sécurité de votre organisation ont défini l'action après délai d'expiration de votre coffre à %1$@.";
 "VaultTimeoutToLarge" = "Le délai d'expiration de votre coffre dépasse les restrictions définies par votre organisation.";
 "DisablePersonalVaultExportPolicyInEffect" = "Une ou plusieurs politiques de sécurité de l'organisation vous empêchent d'exporter votre coffre individuel.";
 "AddAccount" = "Ajouter un compte";
@@ -1052,6 +1049,7 @@
 "GotIt" = "C'est compris";
 "GenerateCrash" = "Générer un plantage";
 "GenerateErrorReport" = "Générer un rapport d'erreur";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Autoriser la synchronisation de l'authentificateur";
 "AuthenticatorSync" = "Synchronisation de l'authentificateur";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Aucun compte trouvé. Veuillez vous reconnecter si vous continuez à voir cette erreur.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant.";
 "Updating" = "Mise à jour…";
 "EncryptionSettingsUpdated" = "Paramètres de chiffrement mis à jour";
+"ThisSettingIsManagedByYourOrganization" = "Ce paramètre est géré par votre organisation.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@ et %2$@.";

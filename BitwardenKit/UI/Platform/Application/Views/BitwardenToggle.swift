@@ -38,23 +38,24 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
             .padding(.vertical, 12)
             .accessibilityIdentifier(accessibilityIdentifier ?? "")
             .accessibilityLabel(accessibilityLabel ?? "")
+            .padding(.horizontal, 16)
 
             if footer != nil || footerContent != nil {
                 Divider()
-
+                    .padding(.leading, 16)
                 Group {
                     if let footer {
                         Text(footer)
                             .styleGuide(.subheadline)
                             .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                            .padding(.vertical, 12)
                     } else if let footerContent {
                         footerContent
                     }
                 }
-                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
             }
         }
-        .padding(.horizontal, 16)
     }
 
     // MARK: Initialization
@@ -173,6 +174,13 @@ public struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
 
         BitwardenToggle("Toggle", footer: "Footer text", isOn: .constant(false))
             .contentBlock()
+
+        BitwardenToggle(
+            "Toggle",
+            footer: "Footer text that's too long on purpose so truncation is triggered.",
+            isOn: .constant(true),
+        )
+        .contentBlock()
 
         BitwardenToggle("Toggle", isOn: .constant(false)) {
             Button("Custom footer content") {}
