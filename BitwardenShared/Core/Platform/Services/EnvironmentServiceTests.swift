@@ -3,6 +3,7 @@ import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class EnvironmentServiceTests: XCTestCase {
     // MARK: Properties

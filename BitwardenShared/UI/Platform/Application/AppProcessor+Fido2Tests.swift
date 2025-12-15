@@ -9,6 +9,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @available(iOS 17.0, *)
 class AppProcessorFido2Tests: BitwardenTestCase {

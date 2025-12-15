@@ -184,6 +184,7 @@ targets:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
+      - package: BitwardenSdk
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
@@ -247,6 +248,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenActionExtensionTests:
     type: bundle.unit-test
@@ -282,6 +284,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenAutoFillExtensionTests:
     type: bundle.unit-test
@@ -317,6 +320,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenShareExtensionTests:
     type: bundle.unit-test
@@ -394,6 +398,24 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+  BitwardenSharedMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        GENERATE_INFOPLIST_FILE: YES
+    sources:
+      - path: BitwardenShared
+        includes:
+          - "**/Fixtures/*"
+          - "**/Mocks/*"
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -410,21 +432,18 @@ targets:
         includes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
         excludes:
           - "**/*SnapshotTests.*"
           - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
         product: InlineSnapshotTesting
     randomExecutionOrder: true
@@ -444,17 +463,15 @@ targets:
         includes:
           - "**/*SnapshotTests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
@@ -475,18 +492,16 @@ targets:
         includes:
           - "**/*ViewInspectorTests.*"
           - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - target: BitwardenKit/ViewInspectorTestHelpers
+      - package: BitwardenSdk
       - package: ViewInspector
     randomExecutionOrder: true
 

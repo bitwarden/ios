@@ -3,6 +3,7 @@ import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -30,14 +31,24 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     let maximumTimeoutPolicy = Policy.fixture(
         data: [
-            PolicyOptionType.minutes.rawValue: .int(60),
             PolicyOptionType.action.rawValue: .string("lock"),
+            PolicyOptionType.minutes.rawValue: .int(60),
+            PolicyOptionType.type.rawValue: .string("custom"),
         ],
         type: .maximumVaultTimeout,
     )
 
     let maximumTimeoutPolicyNoAction = Policy.fixture(
         data: [PolicyOptionType.minutes.rawValue: .int(60)],
+        type: .maximumVaultTimeout,
+    )
+
+    let maximumTimeoutPolicyLogout = Policy.fixture(
+        data: [
+            PolicyOptionType.action.rawValue: .string("logOut"),
+            PolicyOptionType.minutes.rawValue: .int(60),
+            PolicyOptionType.type.rawValue: .string("custom"),
+        ],
         type: .maximumVaultTimeout,
     )
 
@@ -387,8 +398,21 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60)
-        XCTAssertEqual(policyValues?.action, .lock)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
+        XCTAssertEqual(policyValues?.timeoutAction, .lock)
+    }
+
+    /// `fetchTimeoutPolicyValues()` fetches timeout values when the policy contains data.
+    func test_fetchTimeoutPolicyValues_logout() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicyLogout])
+
+        let policyValues = try await subject.fetchTimeoutPolicyValues()
+
+        XCTAssertEqual(policyValues?.timeoutAction, .logout)
+        XCTAssertEqual(policyValues?.timeoutType, .custom)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
     }
 
     /// `fetchTimeoutPolicyValues()` returns `nil` if the user is exempt from policies in the organization.
@@ -411,8 +435,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60)
-        XCTAssertNil(policyValues?.action)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
+        XCTAssertNil(policyValues?.timeoutAction)
     }
 
     /// `organizationsApplyingPolicyToUser(_:)` returns the organization IDs which apply the policy.

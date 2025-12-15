@@ -2,6 +2,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class SyncAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
@@ -102,6 +103,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         enabled: false,
                         id: "policy-0",
                         organizationId: "org-1",
+                        revisionDate: nil,
                         type: .twoFactorAuthentication,
                     ),
                     PolicyResponseModel(
@@ -117,6 +119,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         enabled: true,
                         id: "policy-1",
                         organizationId: "org-1",
+                        revisionDate: nil,
                         type: .masterPassword,
                     ),
                     PolicyResponseModel(
@@ -124,6 +127,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         enabled: false,
                         id: "policy-3",
                         organizationId: "org-1",
+                        revisionDate: nil,
                         type: .onlyOrg,
                     ),
                     PolicyResponseModel(
@@ -131,6 +135,7 @@ class SyncAPIServiceTests: BitwardenTestCase {
                         enabled: true,
                         id: "policy-8",
                         organizationId: "org-1",
+                        revisionDate: nil,
                         type: .resetPassword,
                     ),
                 ],
