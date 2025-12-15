@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "返回 App";
 "Fido2CheckBrowser" = "请确保您的默认浏览器支持 WebAuthn，然后重试。";
 "ResetPasswordAutoEnrollInviteWarning" = "此组织有一个企业策略，将为您自动注册密码重置。注册后将允许组织管理员更改您的主密码。";
-"VaultTimeoutPolicyInEffect" = "您的组织策略已将您最大允许的密码库超时设置为 %1$@ 小时 %2$@ 分钟。";
-"VaultTimeoutPolicyWithActionInEffect" = "您的组织策略正在影响您的密码库超时。最大允许的密码库超时为 %1$@ 小时 %2$@ 分钟。您的密码库超时动作被设置为 %3$@。";
-"VaultTimeoutActionPolicyInEffect" = "您的组织策略已将您的密码库超时动作设置为 %1$@。";
 "VaultTimeoutToLarge" = "您的密码库超时超出了您组织设置的限制。";
 "DisablePersonalVaultExportPolicyInEffect" = "一个或多个组织策略阻止您导出个人密码库。";
 "AddAccount" = "添加账户";
@@ -813,7 +810,7 @@
 "TheURIXIsAlreadyBlocked" = "URI %1$@ 已被屏蔽";
 "CannotEditMultipleURIsAtOnce" = "一次不能编辑多个 URI";
 "LoginApproved" = "登录已批准";
-"LogInWithDeviceMustBeSetUpInTheSettingsOfTheBitwardenAppNeedAnotherOption" = "必须在 Bitwarden App 的设置中启用设备登录。需要其他登录选项吗？";
+"LogInWithDeviceMustBeSetUpInTheSettingsOfTheBitwardenAppNeedAnotherOption" = "必须在 Bitwarden App 的设置中启用设备登录。需要其他选项吗？";
 "LogInWithDevice" = "使用设备登录";
 "LoggingInOn" = "正登录到";
 "Vault" = "密码库";
@@ -857,7 +854,7 @@
 "AccountLoggedOutBiometricExceeded" = "账户已注销。";
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "您的组织权限已更新，要求您设置主密码。";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "您的组织要求您设置主密码。";
-"SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "设置解锁选项以更改您的密码库超时动作。";
+"SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "设置一个解锁选项以更改您的密码库超时动作。";
 "ChooseALoginToSaveThisPasskeyTo" = "选择一个用于保存此通行密钥的登录项目";
 "SavePasskeyAsNewLogin" = "将通行密钥保存为新的登录";
 "SavePasskey" = "保存通行密钥";
@@ -1052,6 +1049,7 @@
 "GotIt" = "知道了";
 "GenerateCrash" = "生成崩溃报告";
 "GenerateErrorReport" = "生成错误报告";
+"GenerateSdkErrorReport" = "生成 SDK 错误报告";
 "AllowAuthenticatorSyncing" = "允许验证器同步";
 "AuthenticatorSync" = "验证器同步";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "未找到账户。如果您继续看到此错误，请重新登录。";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "新的推荐加密设置将提高您的账户安全性。输入您的主密码以立即更新。";
 "Updating" = "正在更新…";
 "EncryptionSettingsUpdated" = "加密设置已更新";
+"ThisSettingIsManagedByYourOrganization" = "此设置由您的组织管理。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的组织已将最大会话超时设置为 %1$@ 。";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "您的组织已将最大会话超时设置为 %1$@ 小时 %2$@ 分钟。";

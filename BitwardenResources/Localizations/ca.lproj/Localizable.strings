@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Torna a l'aplicació";
 "Fido2CheckBrowser" = "Assegureu-vos que el vostre navegador predeterminat admeta WebAuthn i torneu-ho a provar.";
 "ResetPasswordAutoEnrollInviteWarning" = "Aquesta organització té una política empresarial que us inscriurà automàticament al restabliment de la contrasenya. La inscripció permetrà als administradors de l’organització canviar la vostra contrasenya mestra.";
-"VaultTimeoutPolicyInEffect" = "Les polítiques de l'organització afecten el temps d'espera de la caixa forta. El temps d'espera màxim permès de la caixa forta és de %1$@ hores i %2$@ minuts";
-"VaultTimeoutPolicyWithActionInEffect" = "Les polítiques de l'organització afecten el temps d'espera de la vostra caixa forta. El temps d'espera màxim permès és de %1$@ hores i %2$@ minuts. L'acció de temps d'espera de la caixa forta està definida en %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Les polítiques de l'organització han establert l'acció de temps d'espera de la caixa forta a %1$@.";
 "VaultTimeoutToLarge" = "El temps d'espera de la caixa forta supera les restriccions establertes per la vostra organització.";
 "DisablePersonalVaultExportPolicyInEffect" = "Una o més polítiques d'organització us impedeixen exportar la vostra caixa forta.";
 "AddAccount" = "Afig compte";
@@ -1052,6 +1049,7 @@
 "GotIt" = "D'acord";
 "GenerateCrash" = "Generate crash";
 "GenerateErrorReport" = "Generate error report";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Permet la sincronització de l'autenticador";
 "AuthenticatorSync" = "Authenticator sync";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";

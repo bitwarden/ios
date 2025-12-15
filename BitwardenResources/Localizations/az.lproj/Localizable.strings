@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Tətbiqə qayıt";
 "Fido2CheckBrowser" = "Lütfən ilkin brauzerinizin WebAuthn-u dəstəklədiyinə əmin olub yenidən sınayın.";
 "ResetPasswordAutoEnrollInviteWarning" = "Bu təşkilat, sizi \"parol sıfırlama\"da avtomatik olaraq qeydiyyata alan müəssisə siyasətinə sahibdir. Qeydiyyat, təşkilat administratorlarına ana parolunuzu dəyişdirmə icazəsi verəcək.";
-"VaultTimeoutPolicyInEffect" = "Təşkilatınızın siyasətləri, icazə verilən maksimum seyf bitmə vaxtını %1$@ saat %2$@ dəqiqə olaraq ayarladı.";
-"VaultTimeoutPolicyWithActionInEffect" = "Təşkilatınızın siyasətləri, seyfinizin bitmə vaxtına təsir edir. İcazə verilən maksimum seyf bitmə vaxtı %1$@ saat %2$@ dəqiqədir. Seyf vaxt bitmə əməliyyatı %3$@ olaraq ayarlandı.";
-"VaultTimeoutActionPolicyInEffect" = "Təşkilatınızın siyasətləri, seyfinizin vaxt bitmə əməliyyatını %1$@ olaraq ayarladı.";
 "VaultTimeoutToLarge" = "Seyfin bitmə vaxtı, təşkilatınız tərəfindən ayarlanan məhdudiyyətləri aşır.";
 "DisablePersonalVaultExportPolicyInEffect" = "Bir və ya daha çox təşkilat siyasəti, fərdi seyfinizi xaricə köçürməyinizi əngəlləyir.";
 "AddAccount" = "Hesab əlavə et";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Anladım";
 "GenerateCrash" = "Çökmə yarat";
 "GenerateErrorReport" = "Xəta hesabatı yarat";
+"GenerateSdkErrorReport" = "SDK xəta hesabatını yarat";
 "AllowAuthenticatorSyncing" = "Kimlik doğrulayıcını sinxrn icazə ver";
 "AuthenticatorSync" = "Kimlik doğrulayıcı sinxronlaşdırma";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Hesab tapılmadı. Bu xətanı görməyə davam etsəniz lütfən yenidən giriş edin.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin.";
 "Updating" = "Güncəllənir...";
 "EncryptionSettingsUpdated" = "Şifrələmə ayarları güncəlləndi";
+"ThisSettingIsManagedByYourOrganization" = "Bu ayar, təşkilatınız tərəfindən idarə olunur.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ %2$@ olaraq təyin etdi.";

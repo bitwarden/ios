@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Vend tilbage til app";
 "Fido2CheckBrowser" = "Sørg for, at standardbrowseren understøtter WebAuthn og forsøg igen.";
 "ResetPasswordAutoEnrollInviteWarning" = "Denne organisation har en virksomhedspolitik, der automatisk tilmelder dig til nulstilling af adgangskode. Tilmelding giver organisationsadministratorer mulighed for at skifte din hovedadgangskode.";
-"VaultTimeoutPolicyInEffect" = "Organisationspolitikkerne har sat den maksimalt tilladte boks-timeout til %1$@ tim(er) og %2$@ minut(ter).";
-"VaultTimeoutPolicyWithActionInEffect" = "Organisationspolitikkerne påvirker boks-timeout. Maks. tilladt boks-timeout er %1$@ time(r) og %2$@ minut(ter). Boks-timeouthandlingen er pt. sat til %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Organisationspolitikker har sat boks-timeouthandlingen til %1$@.";
 "VaultTimeoutToLarge" = "Boks-timeout overskrider den af organisationen fastsatte restriktion.";
 "DisablePersonalVaultExportPolicyInEffect" = "En eller flere organisationspolitikker forhindrer eksport af din personlige boks.";
 "AddAccount" = "Tilføj konto";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Forstået";
 "GenerateCrash" = "Generér nedbrud";
 "GenerateErrorReport" = "Generér fejlrapport";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "Tillad Authenticator-synkning";
 "AuthenticatorSync" = "Authenticator-synk";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Ingen konto fundet. Log venligst ind igen, hvis denne fejl fortsat bliver vist.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";

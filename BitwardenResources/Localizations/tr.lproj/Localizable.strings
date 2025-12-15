@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Uygulamaya dön";
 "Fido2CheckBrowser" = "Lütfen varsayılan tarayıcınızın WebAuthn'i desteklediğini kontrol edip tekrar deneyin.";
 "ResetPasswordAutoEnrollInviteWarning" = "Bu kuruluşun sizi otomatik olarak parola sıfırlamaya ekleyen bir ilkesi bulunmakta. Bu ilkeye eklenmek, kuruluş yöneticilerinin ana parolanızı değiştirebilmesini sağlar.";
-"VaultTimeoutPolicyInEffect" = "Kuruluş ilkeleriniz izin verilen maksimum kasa zaman aşımını %1$@ saat %2$@ dakika olarak belirlemiş.";
-"VaultTimeoutPolicyWithActionInEffect" = "Kuruluş ilkeleriniz kasa zaman aşımınızı etkiliyor. İzin verilen maksimum kasa zaman aşımı %1$@ saat %2$@ dakikadır. Kasa zaman aşımı eyleminiz %3$@ olarak ayarlanmış.";
-"VaultTimeoutActionPolicyInEffect" = "Kuruluş ilkeleriniz kasa zaman aşımı eyleminizi %1$@ olarak ayarlamış.";
 "VaultTimeoutToLarge" = "Kasa zaman aşımınız, kuruluşunuz tarafından belirlenen kısıtlamaları aşıyor.";
 "DisablePersonalVaultExportPolicyInEffect" = "Bir veya daha fazla kuruluş ilkesi, kişisel kasanızı dışa aktarmanızı engelliyor.";
 "AddAccount" = "Hesap ekle";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Anladım";
 "GenerateCrash" = "Çökme oluştur";
 "GenerateErrorReport" = "Hata raporu oluştur";
+"GenerateSdkErrorReport" = "SDK hata raporu oluştur";
 "AllowAuthenticatorSyncing" = "Authenticator ile eşitlemeye izin ver";
 "AuthenticatorSync" = "Authenticator eşitlemesi";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Hesap bulunamadı. Bu hatayı görmeye devam ederseniz lütfen yeniden giriş yapın.";
@@ -1272,6 +1270,10 @@
 "WarningRegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**Uyarı:** \"Düzenli ifade\\” yanlış kullanıldığında kimlik bilgilerinin açığa çıkma riskini artıran gelişmiş bir seçenektir.";
 "DefaultX" = "Varsayılan (%1$@)";
 "UpdateYourEncryptionSettings" = "Şifreleme ayarlarınızı güncelleyin";
-"TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
+"TheNewRecommendedEncryptionSettingsDescriptionLong" = "Yeni önerilen şifreleme ayarları hesap güvenliğinizi artıracaktır. Şimdi güncellemek için ana parolanızı girin.";
 "Updating" = "Güncelleniyor…";
 "EncryptionSettingsUpdated" = "Şifreleme ayarları güncellendi";
+"ThisSettingIsManagedByYourOrganization" = "Bu ayar kuruluşunuz tarafından yönetiliyor.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Kuruluşunuz varsayılan oturum zaman aşımını %1$@ olarak ayarladı.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Kuruluşunuz maksimum oturum zaman aşımını %1$@ olarak ayarladı.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Kuruluşunuz maksimum oturum zaman aşımını %1$@ ve %2$@ olarak ayarladı.";

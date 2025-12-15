@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "الرجوع إلى التطبيق";
 "Fido2CheckBrowser" = "يرجى التأكد من أن المتصفح الافتراضي الخاص بك يدعم WebAuthn وحاول مرة أخرى.";
 "ResetPasswordAutoEnrollInviteWarning" = "هذه المؤسسة لديها سياسة الشركة التي ستقوم تلقائياً بتسجيلك في إعادة تعيين كلمة المرور. التسجيل سيسمح لمسؤولي المؤسسة بتغيير كلمة المرور الرئيسية الخاصة بك.";
-"VaultTimeoutPolicyInEffect" = "سياسات مؤسستك تؤثر على مهلة الخزانة الخاص بك. الحد الأقصى المسموح به لمهلة الخزانة هو %1$@ ساعة و %2$@ دقيقة.";
-"VaultTimeoutPolicyWithActionInEffect" = "سياسات مؤسستك تؤثر على مهلة خزانتك. الحد الأقصى المسموح به لمهلة الخزانة هو %1$@ ساعة(ساعات) و %2$@ دقيقة(دقائق). يتم تعيين إجراء مهلة المخزن الخاص بك إلى %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "سياسات مؤسستك قامت بتعيين إجراء مهلة خزانتك إلى %1$@.";
 "VaultTimeoutToLarge" = "مهلة خزانتك تتجاوز القيود التي تضعها مؤسستك.";
 "DisablePersonalVaultExportPolicyInEffect" = "واحدة أو أكثر من سياسات المؤسسة تمنعك من تصدير خزانتك الشخصية.";
 "AddAccount" = "إضافة حساب";
@@ -1052,6 +1049,7 @@
 "GotIt" = "فهمت";
 "GenerateCrash" = "توليد تحطم";
 "GenerateErrorReport" = "إنشاء تقرير الخطأ";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "السماح بمزامنة المصادقة";
 "AuthenticatorSync" = "مزامنة المصادقة";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "لم يُعثر على حساب. الرجاء تسجيل الدخول مرة أخرى إذا كنت لا تزال ترى هذا الخطأ.";
@@ -1276,3 +1274,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
