@@ -198,7 +198,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         }
 
         subject.state.profileSwitcherState.isVisible = true
-        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
         authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
         authRepository.altAccounts = [
             .fixture(),
@@ -207,6 +206,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             "1": .fiveMinutes,
             "42": .immediately,
         ]
+
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
         XCTAssertTrue(coordinator.routes.contains(.dismiss))
         XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
