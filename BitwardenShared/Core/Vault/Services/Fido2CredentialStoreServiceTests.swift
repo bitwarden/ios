@@ -13,6 +13,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     var cipherService: MockCipherService!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: Fido2CredentialStoreService!
     var syncService: MockSyncService!
 
@@ -24,12 +25,14 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         cipherService = MockCipherService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
         syncService = MockSyncService()
 
         subject = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
+            stateService: stateService,
             syncService: syncService,
         )
     }
@@ -40,6 +43,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         cipherService = nil
         clientService = nil
         errorReporter = nil
+        stateService = nil
         subject = nil
         syncService = nil
     }

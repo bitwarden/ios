@@ -16,6 +16,9 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used by the application to manage account state.
+    private let stateService: StateService
+
     /// The service used to handle syncing vault data with the API
     private let syncService: SyncService
 
@@ -26,16 +29,19 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        stateService: StateService,
         syncService: SyncService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
+        self.stateService = stateService
         self.syncService = syncService
     }
 
@@ -55,12 +61,6 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
     /// - Returns: All the ciphers that matches the filter.
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
-        do {
-            try await syncService.fetchSync(forceSync: false)
-        } catch {
-            errorReporter.log(error: error)
-        }
-
         let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
             .filter(\.isActiveWithFido2Credentials)
             .asyncMap { cipher in
@@ -81,6 +81,22 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
             if let ids,
                !ids.contains(fido2CredentialAutofillView.credentialId) {
                 continue
+            }
+
+            // Only perform sync if there are Fido2 credentials with counter.
+            if fido2CredentialAutofillViews.contains(where: { $0.hasCounter }) {
+                do {
+                    let userId = try await stateService.getActiveAccountId()
+                    let needsSync = try await syncService.needsSync(for: userId, onlyCheckLocalData: true)
+                    if needsSync {
+                        try await syncService.fetchSync(forceSync: false, isPeriodic: true)
+
+                        // After sync re-call this function to find the up-to-date credentials.
+                        return try await findCredentials(ids: ids, ripId: ripId)
+                    }
+                } catch {
+                    errorReporter.log(error: error)
+                }
             }
 
             result.append(cipherView)
