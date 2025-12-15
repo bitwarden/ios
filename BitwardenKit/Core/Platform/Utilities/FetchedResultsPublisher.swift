@@ -147,7 +147,9 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType, Outpu
                     }
                 }
             } catch {
-                subscriber.receive(completion: .failure(error))
+                self.queue.async {
+                    self.subscriber?.receive(completion: .failure(error))
+                }
             }
         }
     }
