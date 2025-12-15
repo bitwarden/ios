@@ -67,6 +67,9 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
 
+        let userId = try await stateService.getActiveAccountId()
+        let needsSync = try await syncService.needsSync(for: userId, onlyCheckLocalData: true)
+
         var result = [BitwardenSdk.CipherView]()
         for cipherView in activeCiphersWithFido2Credentials {
             let fido2CredentialAutofillViews = try await clientService.platform()
@@ -83,17 +86,13 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
                 continue
             }
 
-            // Only perform sync if there are Fido2 credentials with counter.
-            if fido2CredentialAutofillViews.contains(where: { $0.hasCounter }) {
+            // Only perform sync if there are Fido2 credentials with counter and a sync is needed.
+            if fido2CredentialAutofillViews.contains(where: { $0.hasCounter }), needsSync {
                 do {
-                    let userId = try await stateService.getActiveAccountId()
-                    let needsSync = try await syncService.needsSync(for: userId, onlyCheckLocalData: true)
-                    if needsSync {
-                        try await syncService.fetchSync(forceSync: false, isPeriodic: true)
+                    try await syncService.fetchSync(forceSync: false, isPeriodic: true)
 
-                        // After sync re-call this function to find the up-to-date credentials.
-                        return try await findCredentials(ids: ids, ripId: ripId)
-                    }
+                    // After sync re-call this function to find the up-to-date credentials.
+                    return try await findCredentials(ids: ids, ripId: ripId)
                 } catch {
                     errorReporter.log(error: error)
                 }
