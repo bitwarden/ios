@@ -4,6 +4,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class AccountTokenProviderTests: BitwardenTestCase {
     // MARK: Properties

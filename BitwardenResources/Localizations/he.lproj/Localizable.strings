@@ -610,9 +610,6 @@
 "Fido2ReturnToApp" = "חזור ליישום";
 "Fido2CheckBrowser" = "נא לוודא שהדפדפן שלך תומך ב־WebAuthn ולנסות שוב.";
 "ResetPasswordAutoEnrollInviteWarning" = "לארגון זה יש מדיניות ארגונית שתרשום אותך באופן אוטומטי לאיפוס סיסמה. הרישום יאפשר למנהלי הארגון לשנות את הסיסמה הראשית שלך.";
-"VaultTimeoutPolicyInEffect" = "פוליסות הארגון שלך הגדירו את פסק הזמן לכספת המרבי שלך ל־%1$@ שעות ו־%2$@ דקות.";
-"VaultTimeoutPolicyWithActionInEffect" = "פוליסות הארגון שלך משפיעות על פסק הזמן לכספת שלך. פסק זמן מרבי המותר הוא %1$@ שעות ו־%2$@ דקות. פעולת פסק הזמן לכספת שלך מוגדרת ל%3$@.";
-"VaultTimeoutActionPolicyInEffect" = "פוליסות הארגון שלך הגדירו את פעולת פסק הזמן לכספת שלך ל%1$@.";
 "VaultTimeoutToLarge" = "פסק הזמן לכספת שלך חורג מהמגבלות שנקבעו על ידי הארגון שלך.";
 "DisablePersonalVaultExportPolicyInEffect" = "מדיניות ארגון אחת או יותר מונעת ממך מלייצא את הכספת האישית שלך.";
 "AddAccount" = "הוסף חשבון";
@@ -1054,6 +1051,7 @@
 "GotIt" = "הבנתי";
 "GenerateCrash" = "צור קריסה";
 "GenerateErrorReport" = "צור דוח שגיאות";
+"GenerateSdkErrorReport" = "Generate SDK error report";
 "AllowAuthenticatorSyncing" = "אפשר סנכרון מאמת";
 "AuthenticatorSync" = "סנכרון מאמת";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "לא נמצא חשבון. נא להיכנס שוב אם אתה ממשיך לראות שגיאה זו.";
@@ -1277,3 +1275,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "הגדרות ההצפנה המומלצות החדשות ישפרו את אבטחת החשבון שלך. הזן את הסיסמה הראשית שלך כדי לעדכן כעת.";
 "Updating" = "מעדכן…";
 "EncryptionSettingsUpdated" = "הגדרות ההצפנה עודכנו";
+"ThisSettingIsManagedByYourOrganization" = "הגדרה זו מנוהלת על ידי הארגון שלך.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "הארגון שלך הגדיר את פסק הזמן המרבי להפעלה ל־%1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "הארגון שלך הגדיר את פסק הזמן המרבי להפעלה ל־%1$@ ו־%2$@.";

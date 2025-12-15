@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Zurück zur App";
 "Fido2CheckBrowser" = "Bitte stelle sicher, dass dein Standardbrowser WebAuthn unterstützt und versuche es erneut.";
 "ResetPasswordAutoEnrollInviteWarning" = "Diese Organisation hat eine Unternehmensrichtlinie, die dich automatisch für die Passwortzurücksetzung registriert. Die Registrierung wird es Administratoren der Organisation erlauben, dein Master-Passwort zu ändern.";
-"VaultTimeoutPolicyInEffect" = "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf %1$@ Stunde(n) und %2$@ Minute(n) festgelegt.";
-"VaultTimeoutPolicyWithActionInEffect" = "Deine Organisationsrichtlinien beeinflussen dein Tresor-Timeout. Das maximal zulässige Tresor-Timeout beträgt %1$@ Stunde(n) und %2$@ Minute(n). Deine Tresor-Timeout-Aktion ist auf %3$@ gesetzt.";
-"VaultTimeoutActionPolicyInEffect" = "Deine Organisationsrichtlinien haben deine Tresor-Timeout-Aktion auf %1$@ gesetzt.";
 "VaultTimeoutToLarge" = "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen.";
 "DisablePersonalVaultExportPolicyInEffect" = "Eine oder mehrere Unternehmensrichtlinien verhindern es, dass du deinen persönlichen Tresor exportieren kannst.";
 "AddAccount" = "Konto hinzufügen";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Verstanden";
 "GenerateCrash" = "Absturz erzeugen";
 "GenerateErrorReport" = "Fehlerbericht generieren";
+"GenerateSdkErrorReport" = "SDK-Fehlerbericht generieren";
 "AllowAuthenticatorSyncing" = "Authenticator-Synchronisation zulassen";
 "AuthenticatorSync" = "Authenticator-Synchronisation";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Kein Konto gefunden. Bitte melde dich erneut an, wenn du diesen Fehler weiterhin siehst.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren.";
 "Updating" = "Wird aktualisiert...";
 "EncryptionSettingsUpdated" = "Verschlüsselungseinstellungen aktualisiert";
+"ThisSettingIsManagedByYourOrganization" = "Diese Einstellung wird von deiner Organisation verwaltet.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Deine Organisation hat das Standard-Sitzungs-Timeout auf %1$@ gesetzt.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ gesetzt.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ und %2$@ gesetzt.";
