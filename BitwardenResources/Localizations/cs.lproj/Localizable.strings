@@ -609,9 +609,6 @@
 "Fido2ReturnToApp" = "Zpět do aplikace";
 "Fido2CheckBrowser" = "Ujistěte se, že Váš výchozí prohlížeč podporuje WebAuthn a zkuste to znovu.";
 "ResetPasswordAutoEnrollInviteWarning" = "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní správcům organizace změnit Vaše hlavní heslo.";
-"VaultTimeoutPolicyInEffect" = "Zásady Vaší organizace ovlivňují časový limit trezoru. Maximální povolený časový limit trezoru je %1$@ hodin a %2$@ minut.";
-"VaultTimeoutPolicyWithActionInEffect" = "Zásady Vaší organizace mají vliv na časový limit trezoru. Maximální povolený časový limit trezoru je %1$@ hodin a %2$@ minut. Akce po časovém limitu trezoru je nastavena na %3$@.";
-"VaultTimeoutActionPolicyInEffect" = "Zásady Vaší organizace nastavily akce po časovém limitu trezoru na %1$@.";
 "VaultTimeoutToLarge" = "Časový limit Vašeho trezoru překračuje omezení stanovená Vaší organizací.";
 "DisablePersonalVaultExportPolicyInEffect" = "Jedna nebo více zásad organizace Vám brání v exportu Vašeho osobního trezoru.";
 "AddAccount" = "Přidat účet";
@@ -1052,6 +1049,7 @@
 "GotIt" = "Rozumím";
 "GenerateCrash" = "Vygenerovat pád";
 "GenerateErrorReport" = "Vygenerovat chybové hlášení";
+"GenerateSdkErrorReport" = "Vygenerovat chybové hlášení SDK";
 "AllowAuthenticatorSyncing" = "Povolit synchronizaci ověřovací aplikace";
 "AuthenticatorSync" = "Synchronizovat ověřovací aplikaci";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nebyl nalezen žádný účet. Přihlaste se znovu, pokud znovu uvidíte tuto chybu.";
@@ -1275,3 +1273,7 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo.";
 "Updating" = "Aktualizování...";
 "EncryptionSettingsUpdated" = "Nastavení šifrování bylo aktualizováno";
+"ThisSettingIsManagedByYourOrganization" = "Tato nastavení je spravováno Vaší organizací.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaše organizace nastavila výchozí časový limit relace na %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaše organizace nastavila maximální časový limit relace na %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Vaše organizace nastavila maximální časový limit relace na %1$@ a %2$@.";

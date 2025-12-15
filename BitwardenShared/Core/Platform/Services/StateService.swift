@@ -146,14 +146,6 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
-    /// Get the active user's Biometric Authentication Preference.
-    ///
-    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///
-    func getBiometricAuthenticationEnabled() async throws -> Bool
-
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -534,14 +526,6 @@ protocol StateService: AnyObject {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
-
-    /// Sets the user's Biometric Authentication Preference.
-    ///
-    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -2376,7 +2360,7 @@ struct AccountVolatileData {
 
 // MARK: Biometrics
 
-extension DefaultStateService {
+extension DefaultStateService: BiometricsStateService {
     func getBiometricAuthenticationEnabled() async throws -> Bool {
         let userId = try getActiveAccountUserId()
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
