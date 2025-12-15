@@ -458,3 +458,20 @@ extension DefaultKeychainRepository {
         try await setValue(value, for: item)
     }
 }
+
+extension DefaultKeychainRepository: BiometricsKeychainRepository {
+    func deleteUserBiometricAuthKey(userId: String) async throws {
+        let key = KeychainItem.biometrics(userId: userId)
+        try await deleteUserAuthKey(for: key)
+    }
+
+    func getUserBiometricAuthKey(userId: String) async throws -> String {
+        let key = KeychainItem.biometrics(userId: userId)
+        return try await getUserAuthKeyValue(for: key)
+    }
+
+    func setUserBiometricAuthKey(userId: String, value: String) async throws {
+        let key = KeychainItem.biometrics(userId: userId)
+        try await setUserAuthKey(for: key, value: value)
+    }
+}

@@ -19,3 +19,11 @@ public protocol BiometricsStateService: ActiveAccountStateProvider {
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
 }
+
+public protocol BiometricsKeychainRepository {
+    func deleteUserBiometricAuthKey(userId: String) async throws
+
+    func getUserBiometricAuthKey(userId: String) async throws -> String
+
+    func setUserBiometricAuthKey(userId: String, value: String) async throws
+}
