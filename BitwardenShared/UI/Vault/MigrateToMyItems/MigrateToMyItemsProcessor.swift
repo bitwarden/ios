@@ -90,7 +90,7 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     private func acceptTransfer() async {
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.loading))
 
-        // TODO: Implement accept transfer API call
+        // TODO: PM-29709 Implement accept transfer API call
 
         defer { coordinator.hideLoadingOverlay() }
         coordinator.navigate(to: .dismiss())
@@ -101,7 +101,7 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     private func leaveOrganization() async {
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.loading))
 
-        // TODO: Implement leave organization API call
+        // TODO: PM-29710 Implement leave organization API call
 
         defer { coordinator.hideLoadingOverlay() }
         delegate?.didLeaveOrganization()
