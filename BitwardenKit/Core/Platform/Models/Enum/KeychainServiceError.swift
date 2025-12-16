@@ -55,7 +55,7 @@ public enum KeychainServiceError: Error, Equatable, CustomNSError {
 // MARK: - KeychainStorageKeyPossessing
 
 /// A protocol for an object that can provide a keychain storage key.
-public protocol KeychainStorageKeyPossessing: Equatable {
+public protocol KeychainStorageKeyPossessing: Equatable { // sourcery: AutoMockable
     /// A keychain storage key that can be used for this object.
     var unformattedKey: String { get }
 }
