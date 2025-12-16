@@ -1,3 +1,4 @@
+import BitwardenKit
 import XCTest
 
 @testable import BitwardenShared
@@ -178,7 +179,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getAccessToken(userId:)` throws an error if one occurs.
     func test_getAccessToken_error() async {
-        let error = KeychainServiceError.keyNotFound(.accessToken(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(KeychainItem.accessToken(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAccessToken(userId: "1")
@@ -194,7 +195,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getAuthenticatorVaultKey(userId:)` throws an error if one occurs.
     func test_getAuthenticatorVaultKey_error() async {
-        let error = KeychainServiceError.keyNotFound(.authenticatorVaultKey(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(KeychainItem.authenticatorVaultKey(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAuthenticatorVaultKey(userId: "1")
@@ -210,7 +211,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getRefreshToken(userId:)` throws an error if one occurs.
     func test_getRefreshToken_error() async {
-        let error = KeychainServiceError.keyNotFound(.refreshToken(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(KeychainItem.refreshToken(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getRefreshToken(userId: "1")
