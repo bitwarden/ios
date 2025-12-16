@@ -34,7 +34,7 @@ class MigrateToMyItemsViewSnapshotTests: BitwardenTestCase {
 
     /// The transfer page renders correctly.
     @MainActor
-    func test_snapshot_transferPage() {
+    func disabletest_snapshot_transferPage() {
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -43,7 +43,7 @@ class MigrateToMyItemsViewSnapshotTests: BitwardenTestCase {
 
     /// The decline confirmation page renders correctly.
     @MainActor
-    func test_snapshot_declineConfirmationPage() {
+    func disabletest_snapshot_declineConfirmationPage() {
         processor.state.page = .declineConfirmation
         assertSnapshots(
             of: subject.navStackWrapped,

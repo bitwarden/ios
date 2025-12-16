@@ -1275,11 +1275,11 @@
 "EncryptionSettingsUpdated" = "Encryption settings updated";
 "ItemTransfer" = "Item transfer";
 "TransferItemsToX" = "Transfer items to %1$@";
-"XIsRequiringAllItemsToBeOwnedByTheOrganization" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
 "DeclineAndLeave" = "Decline and leave";
 "WhyAmISeeingThis" = "Why am I seeing this?";
 "AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
-"ByDecliningYourPersonalItemsWillStayInYourAccount" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Leave %1$@";
 "HowToManageMyVault" = "How to manage My vault";

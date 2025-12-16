@@ -53,7 +53,9 @@ struct MigrateToMyItemsView: View {
                 image: Asset.Images.Illustrations.itemTransfer,
                 style: .mediumImage,
                 title: Localizations.transferItemsToX(store.state.organizationName),
-                message: Localizations.xIsRequiringAllItemsToBeOwnedByTheOrganization(store.state.organizationName),
+                message: Localizations.xIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong(
+                    store.state.organizationName,
+                ),
             )
 
             VStack(spacing: 12) {
@@ -88,7 +90,7 @@ struct MigrateToMyItemsView: View {
                 image: Asset.Images.Illustrations.itemTransferWarning,
                 style: .mediumImage,
                 title: Localizations.areYouSureYouWantToLeave,
-                message: Localizations.byDecliningYourPersonalItemsWillStayInYourAccount,
+                message: Localizations.byDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong,
             ) {
                 Text(Localizations.contactYourAdminToRegainAccess)
                     .styleGuide(.body)
