@@ -61,14 +61,45 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
     /// - Returns: All the ciphers that matches the filter.
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+        try await findCredentials(ids: ids, ripId: ripId, shouldCheckSync: true)
+    }
+
+    /// Saves a cipher credential that contains a Fido2 credential, either creating it or updating it to server.
+    /// - Parameter cred: Cipher/Credential to add/update.
+    func saveCredential(cred: BitwardenSdk.EncryptionContext) async throws {
+        if cred.cipher.id == nil {
+            try await cipherService.addCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
+        } else {
+            try await cipherService.updateCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
+        }
+    }
+
+    // MARK: Private methods
+
+    /// Finds active login ciphers that have Fido2 credentials, match the `ripId` and if `ids` is sent
+    /// then filters the one which the Fido2 `credentialId` matches some of the one in `ids`.
+    /// - Parameters:
+    ///   - ids: An array of possible `credentialId` to filter credentials that matches one of them.
+    ///   When `nil` the `credentialId` filter is not applied.
+    ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
+    ///   - shouldCheckSync: Whether it should check if sync is needed. This is particular useful to vaoid
+    ///   inifinite loops by calling this method recursively.
+    /// - Returns: All the ciphers that matches the filter.
+    private func findCredentials(
+        ids: [Data]?,
+        ripId: String,
+        shouldCheckSync: Bool,
+    ) async throws -> [BitwardenSdk.CipherView] {
         let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
             .filter(\.isActiveWithFido2Credentials)
             .asyncMap { cipher in
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
             }
 
-        let userId = try await stateService.getActiveAccountId()
-        let needsSync = try await syncService.needsSync(for: userId, onlyCheckLocalData: true)
+        var needsSync = false
+        if shouldCheckSync {
+            needsSync = await needsSyncCheckingLocally()
+        }
 
         var result = [BitwardenSdk.CipherView]()
         for cipherView in activeCiphersWithFido2Credentials {
@@ -86,13 +117,13 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
                 continue
             }
 
-            // Only perform sync if there are Fido2 credentials with counter and a sync is needed.
-            if fido2CredentialAutofillViews.contains(where: { $0.hasCounter }), needsSync {
+            // Only perform sync if it's needed and there are Fido2 credentials with counter.
+            if needsSync, fido2CredentialAutofillViews.contains(where: \.hasCounter) {
                 do {
                     try await syncService.fetchSync(forceSync: false, isPeriodic: true)
 
                     // After sync re-call this function to find the up-to-date credentials.
-                    return try await findCredentials(ids: ids, ripId: ripId)
+                    return try await findCredentials(ids: ids, ripId: ripId, shouldCheckSync: false)
                 } catch {
                     errorReporter.log(error: error)
                 }
@@ -103,13 +134,15 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
         return result
     }
 
-    /// Saves a cipher credential that contains a Fido2 credential, either creating it or updating it to server.
-    /// - Parameter cred: Cipher/Credential to add/update.
-    func saveCredential(cred: BitwardenSdk.EncryptionContext) async throws {
-        if cred.cipher.id == nil {
-            try await cipherService.addCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
-        } else {
-            try await cipherService.updateCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
+    /// Whether the current user needs to perform a sync. It only performs local verifications.
+    /// - Returns: `true` if needed, `false` otherwise.
+    private func needsSyncCheckingLocally() async -> Bool {
+        do {
+            let userId = try await stateService.getActiveAccountId()
+            return try await syncService.needsSync(for: userId, onlyCheckLocalData: true)
+        } catch {
+            errorReporter.log(error: error)
+            return false
         }
     }
 }
@@ -126,7 +159,7 @@ private extension Cipher {
 #if DEBUG
 
 /// A wrapper of a `Fido2CredentialStore` which adds debugging info for the `Fido2DebugginReportBuilder`.
-class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
+final class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
     let fido2CredentialStore: Fido2CredentialStore
 
     init(fido2CredentialStore: Fido2CredentialStore) {

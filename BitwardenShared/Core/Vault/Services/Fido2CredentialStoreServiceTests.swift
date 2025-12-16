@@ -6,6 +6,7 @@ import XCTest
 // swiftlint:disable file_length
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -106,7 +107,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     }
 
     /// `.findCredentials(ids:ripId:)` returns the login ciphers that are active, have Fido2 credentials
-    /// and match the `ripId` and the credential `ids` if any.
+    /// and match the `ripId` and the credential `ids` if any. Syncs when needed and credentials have counter.
     func test_findCredentials() async throws {
         let expectedRpId = Fido2CredentialAutofillView.defaultRpId
         let expectedCredentialId = Data(repeating: 1, count: 16)
@@ -118,24 +119,32 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
         setupFindCredentials(cipherIdWithFullFido2Credential: expectedCipherId, expectedRpId: expectedRpId)
 
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(true)
+
+        var callCount = 0
         clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
-            .withResult { cipherView in
+            .withResult { (cipherView: CipherView) -> [Fido2CredentialAutofillView] in
                 guard let cipherId = cipherView.id else {
                     return []
                 }
+
                 let hasExpectedCredentialId = cipherId == expectedCipherId
+                callCount += 1
                 return [
-                    .fixture(
+                    Fido2CredentialAutofillView.fixture(
                         credentialId: hasExpectedCredentialId
                             ? expectedCredentialId
                             : Data(repeating: 123, count: 16),
                         cipherId: cipherId,
                         rpId: expectedRpId,
+                        hasCounter: true,
                     ),
-                    .fixture(
+                    Fido2CredentialAutofillView.fixture(
                         credentialId: Data(repeating: 123, count: 16),
                         cipherId: cipherId,
                         rpId: "test",
+                        hasCounter: false,
                     ),
                 ]
             }
@@ -143,17 +152,24 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         let result = try await subject.findCredentials(ids: credentialIds, ripId: expectedRpId)
 
         XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertEqual(syncService.fetchSyncForceSync, false)
+        XCTAssertEqual(syncService.fetchSyncIsPeriodic, true)
         XCTAssertTrue(result.count == 1)
         XCTAssertTrue(result[0].id == expectedCipherId)
+        // Verify recursive call happened after sync (should be called twice: before and after sync)
+        XCTAssertTrue(callCount >= 2)
     }
 
     /// `.findCredentials(ids:ripId:)` returns the login ciphers that are active, have Fido2 credentials
-    /// and match the `ripId` and the credential `ids` if any.
+    /// and match the `ripId` and the credential `ids` if any. Doesn't sync when credentials have no counter.
     func test_findCredentials_noCredentialIds() async throws {
         let expectedRpId = Fido2CredentialAutofillView.defaultRpId
         let expectedCipherIds = ["3", "4"]
 
         setupFindCredentials(cipherIdWithFullFido2Credential: "4", expectedRpId: expectedRpId)
+
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(true)
 
         clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
             .withResult { cipherView in
@@ -166,11 +182,13 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                         credentialId: Data(repeating: 1, count: 16),
                         cipherId: cipherId,
                         rpId: expectedRpId,
+                        hasCounter: false,
                     ),
                     .fixture(
                         credentialId: Data(repeating: 123, count: 16),
                         cipherId: cipherId,
                         rpId: "test",
+                        hasCounter: false,
                     ),
                 ]
             }
@@ -180,6 +198,8 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(result.count == 2)
         XCTAssertTrue(result[0].id == expectedCipherIds[0])
         XCTAssertTrue(result[1].id == expectedCipherIds[1])
+        // Verify sync was NOT performed because no credentials have counter
+        XCTAssertFalse(syncService.didFetchSync)
     }
 
     /// `.findCredentials(ids:ripId:)` returns empty if there are active Fido2 credentials.
@@ -191,11 +211,137 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(result.isEmpty)
     }
 
+    /// `.findCredentials(ids:ripId:)` doesn't sync when credentials have no counter even if sync is needed.
+    func test_findCredentials_noCounterNoSync() async throws {
+        let expectedRpId = Fido2CredentialAutofillView.defaultRpId
+        let expectedCipherId = "4"
+
+        setupFindCredentials(cipherIdWithFullFido2Credential: expectedCipherId, expectedRpId: expectedRpId)
+
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(true)
+
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
+            .withResult { cipherView in
+                guard let cipherId = cipherView.id else {
+                    return []
+                }
+                let hasExpectedCredentialId = cipherId == expectedCipherId
+                return [
+                    .fixture(
+                        credentialId: hasExpectedCredentialId
+                            ? Data(repeating: 1, count: 16)
+                            : Data(repeating: 123, count: 16),
+                        cipherId: cipherId,
+                        rpId: expectedRpId,
+                        hasCounter: false,
+                    ),
+                ]
+            }
+
+        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId)
+
+        XCTAssertTrue(result.count == 4)
+        // Verify sync was NOT performed despite sync being needed, because no credentials have counter
+        XCTAssertFalse(syncService.didFetchSync)
+    }
+
+    /// `.findCredentials(ids:ripId:)` doesn't sync when sync is not needed even if credentials have counter.
+    func test_findCredentials_syncNotNeeded() async throws {
+        let expectedRpId = Fido2CredentialAutofillView.defaultRpId
+        let expectedCipherId = "4"
+
+        setupFindCredentials(cipherIdWithFullFido2Credential: expectedCipherId, expectedRpId: expectedRpId)
+
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(false)
+
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
+            .withResult { cipherView in
+                guard let cipherId = cipherView.id else {
+                    return []
+                }
+                let hasExpectedCredentialId = cipherId == expectedCipherId
+                return [
+                    .fixture(
+                        credentialId: hasExpectedCredentialId
+                            ? Data(repeating: 1, count: 16)
+                            : Data(repeating: 123, count: 16),
+                        cipherId: cipherId,
+                        rpId: expectedRpId,
+                        hasCounter: true,
+                    ),
+                ]
+            }
+
+        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId)
+
+        XCTAssertTrue(result.count == 4)
+        // Verify sync was NOT performed despite credentials having counter, because sync not needed
+        XCTAssertFalse(syncService.didFetchSync)
+    }
+
+    /// `.findCredentials(ids:ripId:)` logs error and continues when needsSync check fails.
+    func test_findCredentials_needsSyncError() async throws {
+        let expectedRpId = Fido2CredentialAutofillView.defaultRpId
+        let expectedCipherId = "4"
+
+        setupFindCredentials(cipherIdWithFullFido2Credential: expectedCipherId, expectedRpId: expectedRpId)
+
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .failure(BitwardenTestError.example)
+
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
+            .withResult { cipherView in
+                guard let cipherId = cipherView.id else {
+                    return []
+                }
+                let hasExpectedCredentialId = cipherId == expectedCipherId
+                return [
+                    .fixture(
+                        credentialId: hasExpectedCredentialId
+                            ? Data(repeating: 1, count: 16)
+                            : Data(repeating: 123, count: 16),
+                        cipherId: cipherId,
+                        rpId: expectedRpId,
+                        hasCounter: true,
+                    ),
+                ]
+            }
+
+        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId)
+
+        XCTAssertFalse(errorReporter.errors.isEmpty)
+        // Verify sync was NOT performed because needsSync check failed
+        XCTAssertFalse(syncService.didFetchSync)
+        XCTAssertTrue(result.count == 4)
+    }
+
     /// `.findCredentials(ids:ripId)` throws when syncing.
     func test_findCredentials_throwsSync() async throws {
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user123"))
+        syncService.needsSyncResult = .success(true)
 
-        _ = try await subject.findCredentials(ids: nil, ripId: "something")
+        let expectedRpId = Fido2CredentialAutofillView.defaultRpId
+        setupFindCredentials(cipherIdWithFullFido2Credential: "4", expectedRpId: expectedRpId)
+
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
+            .withResult { cipherView in
+                guard let cipherId = cipherView.id else {
+                    return []
+                }
+                return [
+                    .fixture(
+                        credentialId: Data(repeating: 1, count: 16),
+                        cipherId: cipherId,
+                        rpId: expectedRpId,
+                        hasCounter: true,
+                    ),
+                ]
+            }
+
+        _ = try await subject.findCredentials(ids: nil, ripId: expectedRpId)
 
         XCTAssertFalse(errorReporter.errors.isEmpty)
         XCTAssertTrue(cipherService.fetchAllCiphersCalled)
