@@ -125,8 +125,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
         searchTotpExpirationManager?.cleanup()
         searchTotpExpirationManager = nil
-
-        searchProcessorMediator.stopSearching()
     }
 
     // MARK: Methods

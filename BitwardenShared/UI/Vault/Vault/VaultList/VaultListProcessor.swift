@@ -87,8 +87,6 @@ final class VaultListProcessor: StateProcessor<
 
     deinit {
         reviewPromptTask?.cancel()
-
-        searchProcessorMediator.stopSearching()
     }
 
     // MARK: Methods
