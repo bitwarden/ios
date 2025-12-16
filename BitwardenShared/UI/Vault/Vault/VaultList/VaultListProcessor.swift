@@ -440,7 +440,7 @@ extension VaultListProcessor {
             return
         }
 
-        searchProcessorMediator.onFilterChanged(
+        searchProcessorMediator.updateFilter(
             VaultListFilter(
                 filterType: state.searchVaultFilterType,
                 searchText: searchText,

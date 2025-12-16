@@ -942,7 +942,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
         await subject.perform(.search("example"))
         XCTAssertEqual(
-            searchProcessorMediator.onFilterChangedReceivedFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,

@@ -270,7 +270,7 @@ final class VaultGroupProcessor: StateProcessor<
             return
         }
 
-        searchProcessorMediator.onFilterChanged(
+        searchProcessorMediator.updateFilter(
             VaultListFilter(
                 filterType: state.searchVaultFilterType,
                 group: state.group,

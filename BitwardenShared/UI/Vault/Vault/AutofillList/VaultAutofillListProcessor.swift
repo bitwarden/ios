@@ -359,7 +359,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
 
         let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
-        searchProcessorMediator.onFilterChanged(
+        searchProcessorMediator.updateFilter(
             VaultListFilter(
                 filterType: .allVaults,
                 group: groupFilter,

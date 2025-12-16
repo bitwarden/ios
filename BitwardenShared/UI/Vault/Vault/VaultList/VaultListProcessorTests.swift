@@ -800,7 +800,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.search("example"))
 
         XCTAssertEqual(
-            searchProcessorMediator.onFilterChangedReceivedFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 searchText: "example",
@@ -818,7 +818,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             subject.state.searchResults,
             [],
         )
-        XCTAssertFalse(searchProcessorMediator.onFilterChangedCalled)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
 
         subject.state.searchResults = [.fixture(), .fixture()]
 
@@ -827,7 +827,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             subject.state.searchResults,
             [],
         )
-        XCTAssertFalse(searchProcessorMediator.onFilterChangedCalled)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
     }
 
     /// `perform(_:)` with `.streamAccountSetupProgress` updates the state's import logins process

@@ -238,7 +238,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.perform(.search("example"))
 
         XCTAssertEqual(
-            searchProcessorMediator.onFilterChangedReceivedFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,
@@ -256,7 +256,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
         XCTAssertFalse(subject.state.showNoResults)
-        XCTAssertFalse(searchProcessorMediator.onFilterChangedCalled)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.

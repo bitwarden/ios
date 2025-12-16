@@ -183,7 +183,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             return
         }
 
-        searchProcessorMediator.onFilterChanged(
+        searchProcessorMediator.updateFilter(
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,

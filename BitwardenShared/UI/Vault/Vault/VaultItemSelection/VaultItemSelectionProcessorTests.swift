@@ -210,7 +210,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         await subject.perform(.search("example"))
 
         XCTAssertEqual(
-            searchProcessorMediator.onFilterChangedReceivedFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,
@@ -226,7 +226,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         XCTAssertTrue(subject.state.searchResults.isEmpty)
         XCTAssertFalse(subject.state.showNoResults)
-        XCTAssertFalse(searchProcessorMediator.onFilterChangedCalled)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
     }
 
     /// `perform(_:)` with `.streamVaultItems` streams the list of vault items.

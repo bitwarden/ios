@@ -5,9 +5,6 @@ import Combine
 
 /// A protocol for a mediator between processors and search publisher/subscription behavior.
 protocol SearchProcessorMediator { // sourcery: AutoMockable
-    /// Event that happens when a filter changes so the search results should be updated.
-    /// - Parameter filter: The new filter.
-    func onFilterChanged(_ filter: VaultListFilter)
     /// Sets the `AutofillListMode` to use in the search.
     /// - Parameter mode: The mode to use in the search.
     func setAutofillListMode(_ mode: AutofillListMode)
@@ -18,6 +15,9 @@ protocol SearchProcessorMediator { // sourcery: AutoMockable
     func startSearching()
     /// Stops the searching process.
     func stopSearching()
+    /// Updates the filter so the search results should be updated.
+    /// - Parameter filter: The new filter.
+    func updateFilter(_ filter: VaultListFilter)
 }
 
 // MARK: - SearchProcessorMediatorDelegate
@@ -88,10 +88,6 @@ class DefaultSearchProcessorMediator: SearchProcessorMediator {
 
     // MARK: Methods
 
-    func onFilterChanged(_ filter: VaultListFilter) {
-        vaultListFilterSubject.send(filter)
-    }
-
     func setAutofillListMode(_ mode: AutofillListMode) {
         autofillListMode = mode
     }
@@ -124,6 +120,10 @@ class DefaultSearchProcessorMediator: SearchProcessorMediator {
 
     func stopSearching() {
         vaultSearchListSubscriptionTask?.cancel()
+    }
+
+    func updateFilter(_ filter: VaultListFilter) {
+        vaultListFilterSubject.send(filter)
     }
 }
 

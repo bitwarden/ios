@@ -114,7 +114,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     func test_perform_search() async {
         await subject.perform(.search("example"))
         XCTAssertEqual(
-            searchProcessorMediator.onFilterChangedReceivedFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: nil,
@@ -134,7 +134,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
         await subject.perform(.search("example"))
 
         XCTAssertEqual(
-            searchProcessorMediator.onFilterChangedReceivedFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .card,

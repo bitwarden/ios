@@ -275,7 +275,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.perform(.search("example"))
 
         XCTAssertEqual(
-            searchProcessorMediator.onFilterChangedReceivedFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .organization(.fixture(id: "id1")),
                 group: .login,
@@ -294,7 +294,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             subject.state.searchResults,
             [],
         )
-        XCTAssertFalse(searchProcessorMediator.onFilterChangedCalled)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
 
         subject.state.searchResults = [.fixture(), .fixture()]
 
@@ -303,7 +303,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             subject.state.searchResults,
             [],
         )
-        XCTAssertFalse(searchProcessorMediator.onFilterChangedCalled)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
     }
 
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.

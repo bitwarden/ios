@@ -40,53 +40,6 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `onFilterChanged(_:)` sends the filter through the filter publisher.
-    func test_onFilterChanged() async throws {
-        let expectation = XCTestExpectation(description: "Filter received")
-        let filter = VaultListFilter(searchText: "test")
-
-        var receivedFilter: VaultListFilter?
-        let cancellable = subject.vaultListFilterPublisher
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { value in
-                    receivedFilter = value
-                    expectation.fulfill()
-                },
-            )
-
-        subject.onFilterChanged(filter)
-
-        await fulfillment(of: [expectation], timeout: 1.0)
-        XCTAssertEqual(receivedFilter?.searchText, "test")
-
-        cancellable.cancel()
-    }
-
-    /// `onFilterChanged(_:)` removes duplicate filter emissions.
-    func test_onFilterChanged_removeDuplicates() async throws {
-        let expectation = XCTestExpectation(description: "Filter received once")
-        expectation.expectedFulfillmentCount = 1
-        expectation.assertForOverFulfill = true
-
-        let filter = VaultListFilter(searchText: "test")
-
-        let cancellable = subject.vaultListFilterPublisher
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { _ in
-                    expectation.fulfill()
-                },
-            )
-
-        subject.onFilterChanged(filter)
-        subject.onFilterChanged(filter)
-
-        await fulfillment(of: [expectation], timeout: 1.0)
-
-        cancellable.cancel()
-    }
-
     /// `setAutofillListMode(_:)` sets the autofill list mode.
     func test_setAutofillListMode() {
         subject.setAutofillListMode(.passwords)
@@ -111,7 +64,7 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
         )
 
         subject.startSearching()
-        subject.onFilterChanged(VaultListFilter(searchText: "test"))
+        subject.updateFilter(VaultListFilter(searchText: "test"))
 
         try await waitForAsync {
             delegate.onNewSearchResultsCallsCount == 1
@@ -140,7 +93,7 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
         )
 
         subject.startSearching()
-        subject.onFilterChanged(VaultListFilter(searchText: "test"))
+        subject.updateFilter(VaultListFilter(searchText: "test"))
 
         try await waitForAsync {
             delegate.onNewSearchResultsReceivedData?.sections.count == 1
@@ -163,7 +116,7 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
         subject.startSearching()
         subject.startSearching()
 
-        subject.onFilterChanged(VaultListFilter(searchText: "test"))
+        subject.updateFilter(VaultListFilter(searchText: "test"))
 
         try await waitForAsync {
             delegate.onNewSearchResultsCallsCount > 0
@@ -182,19 +135,66 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
         vaultRepository.vaultSearchListSubject.send(VaultListData())
 
         subject.startSearching()
-        subject.onFilterChanged(VaultListFilter(searchText: "first"))
+        subject.updateFilter(VaultListFilter(searchText: "first"))
 
         try await waitForAsync {
             delegate.onNewSearchResultsCallsCount == 1
         }
 
         subject.stopSearching()
-        subject.onFilterChanged(VaultListFilter(searchText: "second"))
+        subject.updateFilter(VaultListFilter(searchText: "second"))
 
         try await Task.sleep(forSeconds: 1)
 
         // No new search results should be received after stopping
         XCTAssertEqual(delegate.onNewSearchResultsCallsCount, 1)
+    }
+
+    /// `updateFilter(_:)` sends the filter through the filter publisher.
+    func test_updateFilter() async throws {
+        let expectation = XCTestExpectation(description: "Filter received")
+        let filter = VaultListFilter(searchText: "test")
+
+        var receivedFilter: VaultListFilter?
+        let cancellable = subject.vaultListFilterPublisher
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    receivedFilter = value
+                    expectation.fulfill()
+                },
+            )
+
+        subject.updateFilter(filter)
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+        XCTAssertEqual(receivedFilter?.searchText, "test")
+
+        cancellable.cancel()
+    }
+
+    /// `updateFilter(_:)` removes duplicate filter emissions.
+    func test_updateFilter_removeDuplicates() async throws {
+        let expectation = XCTestExpectation(description: "Filter received once")
+        expectation.expectedFulfillmentCount = 1
+        expectation.assertForOverFulfill = true
+
+        let filter = VaultListFilter(searchText: "test")
+
+        let cancellable = subject.vaultListFilterPublisher
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { _ in
+                    expectation.fulfill()
+                },
+            )
+
+        subject.updateFilter(filter)
+        subject.updateFilter(filter)
+
+        await fulfillment(of: [expectation], timeout: 1.0)
+
+        cancellable.cancel()
     }
 }
 
