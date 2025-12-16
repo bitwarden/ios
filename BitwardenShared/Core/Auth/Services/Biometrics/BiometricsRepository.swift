@@ -64,7 +64,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     var biometricsService: BiometricsService
 
     /// A service used to store the UserAuthKey key/value pair.
-    var keychainRepository: KeychainRepository
+    var keychainRepository: BiometricsKeychainRepository
 
     /// A service used to update user preferences.
     var stateService: BiometricsStateService
@@ -80,7 +80,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     ///
     init(
         biometricsService: BiometricsService,
-        keychainService: KeychainRepository,
+        keychainService: BiometricsKeychainRepository,
         stateService: BiometricsStateService,
     ) {
         self.biometricsService = biometricsService
@@ -128,7 +128,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
         let key = KeychainItem.biometrics(userId: id)
 
         do {
-            let string = try await keychainRepository.getUserAuthKeyValue(for: key)
+            let string = try await keychainRepository.getUserBiometricAuthKey(userId: id)
             guard !string.isEmpty else {
                 throw BiometricsServiceError.getAuthKeyFailed
             }
@@ -170,7 +170,7 @@ extension DefaultBiometricsRepository {
         let id = try await stateService.getActiveAccountId()
         let key = KeychainItem.biometrics(userId: id)
         do {
-            try await keychainRepository.deleteUserAuthKey(for: key)
+            try await keychainRepository.deleteUserBiometricAuthKey(userId: id)
         } catch {
             throw BiometricsServiceError.deleteAuthKeyFailed
         }
@@ -185,7 +185,7 @@ extension DefaultBiometricsRepository {
         let key = KeychainItem.biometrics(userId: id)
 
         do {
-            try await keychainRepository.setUserAuthKey(for: key, value: value)
+            try await keychainRepository.setUserBiometricAuthKey(userId: id, value: value)
         } catch {
             throw BiometricsServiceError.setAuthKeyFailed
         }
