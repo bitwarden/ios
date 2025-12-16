@@ -53,7 +53,7 @@ enum KeychainServiceError: Error, Equatable, CustomNSError {
     ///
     /// - Parameter KeychainItem: The potential storage key for the auth key.
     ///
-    case keyNotFound(KeychainItem)
+    case keyNotFound(any KeychainStorageKeyPossessing)
 
     /// A passthrough for OSService Error cases.
     ///
@@ -72,6 +72,26 @@ enum KeychainServiceError: Error, Equatable, CustomNSError {
             ["OS Status": osStatus]
         }
     }
+
+    // MARK: Equatable
+
+    static func == (lhs: KeychainServiceError, rhs: KeychainServiceError) -> Bool {
+        switch (lhs, rhs) {
+        case let (.accessControlFailed(lError), .accessControlFailed(rError)):
+            lError == rError
+        case let (.keyNotFound(lKey), .keyNotFound(rKey)):
+            lKey.unformattedKey == rKey.unformattedKey
+        case let (.osStatusError(lStatus), .osStatusError(rStatus)):
+            lStatus == rStatus
+        default:
+            false
+        }
+    }
+}
+
+protocol KeychainStorageKeyPossessing: Equatable {
+    /// A keychain storage key that can be used for this object.
+    var unformattedKey: String { get }
 }
 
 // MARK: - DefaultKeychainService

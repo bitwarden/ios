@@ -5,7 +5,7 @@ import Foundation
 // MARK: - KeychainItem
 
 // swiftlint:disable file_length
-enum KeychainItem: Equatable {
+enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
 
