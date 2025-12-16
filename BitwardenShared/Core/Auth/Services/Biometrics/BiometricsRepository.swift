@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import LocalAuthentication
 
@@ -66,7 +67,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     var keychainRepository: KeychainRepository
 
     /// A service used to update user preferences.
-    var stateService: StateService
+    var stateService: BiometricsStateService
 
     // MARK: Initialization
 
@@ -80,7 +81,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     init(
         biometricsService: BiometricsService,
         keychainService: KeychainRepository,
-        stateService: StateService,
+        stateService: BiometricsStateService,
     ) {
         self.biometricsService = biometricsService
         keychainRepository = keychainService
