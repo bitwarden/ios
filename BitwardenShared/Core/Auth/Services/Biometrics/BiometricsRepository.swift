@@ -125,7 +125,6 @@ class DefaultBiometricsRepository: BiometricsRepository {
 
     func getUserAuthKey() async throws -> String {
         let id = try await stateService.getActiveAccountId()
-        let key = KeychainItem.biometrics(userId: id)
 
         do {
             let string = try await keychainRepository.getUserBiometricAuthKey(userId: id)
@@ -168,7 +167,7 @@ extension DefaultBiometricsRepository {
     ///
     private func deleteUserAuthKey() async throws {
         let id = try await stateService.getActiveAccountId()
-        let key = KeychainItem.biometrics(userId: id)
+
         do {
             try await keychainRepository.deleteUserBiometricAuthKey(userId: id)
         } catch {
@@ -182,7 +181,6 @@ extension DefaultBiometricsRepository {
     ///
     private func setUserBiometricAuthKey(value: String) async throws {
         let id = try await stateService.getActiveAccountId()
-        let key = KeychainItem.biometrics(userId: id)
 
         do {
             try await keychainRepository.setUserBiometricAuthKey(userId: id, value: value)
