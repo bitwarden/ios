@@ -7,6 +7,7 @@ import Networking
 import TestHelpers
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 extension ServiceContainer {
     @MainActor

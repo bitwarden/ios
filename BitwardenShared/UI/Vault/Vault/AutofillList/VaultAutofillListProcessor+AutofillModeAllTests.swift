@@ -7,6 +7,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @available(iOS 18.0, *)
 class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
