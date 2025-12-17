@@ -113,6 +113,13 @@ protocol SyncServiceDelegate: AnyObject {
     /// - Parameter orgIdentifier: The organization Identifier the user belongs to.
     ///
     func setMasterPassword(orgIdentifier: String) async
+
+    /// The user needs to migrate their personal vault items to the organization.
+    ///
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    ///
+    @MainActor
+    func migrateVaultToMyItems(organizationId: String) async
 }
 
 // MARK: - DefaultSyncService
@@ -133,6 +140,9 @@ class DefaultSyncService: SyncService {
 
     /// The service for managing the collections for the user.
     private let collectionService: CollectionService
+
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
 
     /// The service for managing the folders for the user.
     private let folderService: FolderService
@@ -176,6 +186,7 @@ class DefaultSyncService: SyncService {
     ///   - cipherService: The service for managing the ciphers for the user.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
+    ///   - configService: The service to get server-specified configuration.
     ///   - folderService: The service for managing the folders for the user.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationService: The service for managing the organizations for the user.
@@ -192,6 +203,7 @@ class DefaultSyncService: SyncService {
         cipherService: CipherService,
         clientService: ClientService,
         collectionService: CollectionService,
+        configService: ConfigService,
         folderService: FolderService,
         keyConnectorService: KeyConnectorService,
         organizationService: OrganizationService,
@@ -207,6 +219,7 @@ class DefaultSyncService: SyncService {
         self.cipherService = cipherService
         self.clientService = clientService
         self.collectionService = collectionService
+        self.configService = configService
         self.folderService = folderService
         self.keyConnectorService = keyConnectorService
         self.organizationService = organizationService
@@ -327,6 +340,7 @@ extension DefaultSyncService {
         try await policyService.replacePolicies(response.policies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
         try await checkVaultTimeoutPolicy()
+        try await checkUserNeedsVaultMigration()
 
         if try await keyConnectorService.userNeedsMigration(),
            let organization = try await keyConnectorService.getManagingOrganization(),
@@ -495,6 +509,32 @@ extension DefaultSyncService {
            account.profile.userDecryptionOptions?.hasMasterPassword == false {
             await delegate?.setMasterPassword(orgIdentifier: userOrgId)
         }
+    }
+
+    /// Checks if the user needs to migrate their personal vault items to an organization.
+    ///
+    /// The user needs to migrate if:
+    /// - The feature flag is enabled
+    /// - The user is a member of an organization with the Personal Ownership policy enabled
+    /// - The user has one or more items in their personal vault
+    ///
+    private func checkUserNeedsVaultMigration() async throws {
+        // Check if feature flag is enabled
+        guard await configService.getFeatureFlag(.migrateMyVaultToMyItems) else { return }
+        // Get the earliest organization applying the personal ownership policy
+        guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+        else { return }
+
+        // Check if user has personal vault items (items not belonging to any organization)
+        let allCiphers = try await cipherService.fetchAllCiphers()
+        let hasPersonalVaultItems = allCiphers.contains { cipher in
+            cipher.organizationId == nil && cipher.deletedDate == nil
+        }
+
+        guard hasPersonalVaultItems else { return }
+
+        // All conditions met, notify delegate
+        await delegate?.migrateVaultToMyItems(organizationId: organizationId)
     }
 
     /// Updates the necessary state when an account profile is synced.
