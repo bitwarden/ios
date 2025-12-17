@@ -81,8 +81,6 @@ final class VaultListProcessor: StateProcessor<
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
-
-        searchProcessorMediator.setDelegate(self)
     }
 
     deinit {
@@ -166,7 +164,7 @@ final class VaultListProcessor: StateProcessor<
                 searchProcessorMediator.stopSearching()
                 return
             }
-            searchProcessorMediator.startSearching()
+            searchProcessorMediator.startSearching(mode: nil, onNewSearchResults: searchResultsReceived)
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
@@ -428,6 +426,15 @@ extension VaultListProcessor {
         )
     }
 
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+    }
+
     /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
@@ -655,14 +662,5 @@ extension VaultListProcessor: ProfileSwitcherHandler {
 
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
-    }
-}
-
-// MARK: - SearchProcessorMediatorDelegate
-
-extension VaultListProcessor: SearchProcessorMediatorDelegate {
-    func onNewSearchResults(data: VaultListData) {
-        let items = data.sections.first?.items ?? []
-        state.searchResults = items
     }
 }

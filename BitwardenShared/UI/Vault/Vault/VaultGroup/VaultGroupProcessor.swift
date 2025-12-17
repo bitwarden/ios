@@ -97,8 +97,6 @@ final class VaultGroupProcessor: StateProcessor<
                 }
             },
         )
-
-        searchProcessorMediator.setDelegate(self)
     }
 
     deinit {
@@ -169,7 +167,7 @@ final class VaultGroupProcessor: StateProcessor<
                 searchProcessorMediator.stopSearching()
                 searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: [])
             }
-            searchProcessorMediator.startSearching()
+            searchProcessorMediator.startSearching(mode: nil, onNewSearchResults: searchResultsReceived)
             state.isSearching = isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
@@ -279,6 +277,16 @@ final class VaultGroupProcessor: StateProcessor<
         )
     }
 
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+        searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
+    }
+
     /// Streams the user's organizations.
     private func streamOrganizations() async {
         do {
@@ -327,15 +335,5 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
         Task {
             await perform(.refresh)
         }
-    }
-}
-
-// MARK: - SearchProcessorMediatorDelegate
-
-extension VaultGroupProcessor: SearchProcessorMediatorDelegate {
-    func onNewSearchResults(data: VaultListData) {
-        let items = data.sections.first?.items ?? []
-        state.searchResults = items
-        searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
     }
 }

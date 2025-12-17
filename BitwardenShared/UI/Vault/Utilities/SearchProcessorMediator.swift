@@ -5,29 +5,16 @@ import Combine
 
 /// A protocol for a mediator between processors and search publisher/subscription behavior.
 protocol SearchProcessorMediator { // sourcery: AutoMockable
-    /// Sets the `AutofillListMode` to use in the search.
-    /// - Parameter mode: The mode to use in the search.
-    func setAutofillListMode(_ mode: AutofillListMode)
-    /// Sets the delegate to make updates to the caller.
-    /// - Parameter delegate: The delegate to set.
-    func setDelegate(_ delegate: SearchProcessorMediatorDelegate)
     /// Starts the searching process.
-    func startSearching()
+    /// - Parameters:
+    ///   - mode: The `AutofillListMode` to use in searching, if any.
+    ///   - onNewSearchResults: A closure that gets called when new search results arrive.
+    func startSearching(mode: AutofillListMode?, onNewSearchResults: @escaping (VaultListData) async -> Void)
     /// Stops the searching process.
     func stopSearching()
     /// Updates the filter so the search results should be updated.
     /// - Parameter filter: The new filter.
     func updateFilter(_ filter: VaultListFilter)
-}
-
-// MARK: - SearchProcessorMediatorDelegate
-
-/// A delegate to be used by the `SearchProcessorMediator` to report back to the caller processor.
-@MainActor
-protocol SearchProcessorMediatorDelegate: AnyObject { // sourcery: AutoMockable
-    /// This gets executed every time new search results arrive to update the caller processor with them.
-    /// - Parameter data: The new search results data.
-    func onNewSearchResults(data: VaultListData)
 }
 
 // MARK: - DefaultSearchProcessorMediator
@@ -36,14 +23,8 @@ protocol SearchProcessorMediatorDelegate: AnyObject { // sourcery: AutoMockable
 class DefaultSearchProcessorMediator: SearchProcessorMediator {
     // MARK: Properties
 
-    /// The autofill list mode the caller processor is in, if any.
-    private var autofillListMode: AutofillListMode?
-
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
-
-    /// The delegate to use by this mediator to report back to the caller processor.
-    private weak var searchProcessorMediatorDelegate: SearchProcessorMediatorDelegate?
 
     /// Publisher for the current vault list filter. Emits new filter values when search criteria changes.
     private let vaultListFilterSubject = PassthroughSubject<VaultListFilter, Never>()
@@ -83,37 +64,27 @@ class DefaultSearchProcessorMediator: SearchProcessorMediator {
     deinit {
         vaultSearchListSubscriptionTask?.cancel()
         vaultSearchListSubscriptionTask = nil
-        searchProcessorMediatorDelegate = nil
     }
 
     // MARK: Methods
 
-    func setAutofillListMode(_ mode: AutofillListMode) {
-        autofillListMode = mode
-    }
-
-    func setDelegate(_ delegate: SearchProcessorMediatorDelegate) {
-        searchProcessorMediatorDelegate = delegate
-    }
-
-    func startSearching() {
+    func startSearching(mode: AutofillListMode?, onNewSearchResults: @escaping (VaultListData) async -> Void) {
         vaultSearchListSubscriptionTask?.cancel()
-        vaultSearchListSubscriptionTask = Task { [weak self] in
-            guard let self else { return }
-
+        vaultSearchListSubscriptionTask = Task { [weak self, vaultListFilterPublisher] in
             do {
-                let publisher = try await vaultRepository.vaultSearchListPublisher(
-                    mode: autofillListMode,
+                let publisher = try await self?.vaultRepository.vaultSearchListPublisher(
+                    mode: mode,
                     filterPublisher: vaultListFilterPublisher,
                 )
+                guard let publisher else { return }
 
                 for try await vaultListData in publisher {
                     guard !Task.isCancelled else { break }
 
-                    await searchProcessorMediatorDelegate?.onNewSearchResults(data: vaultListData)
+                    await onNewSearchResults(vaultListData)
                 }
             } catch {
-                errorReporter.log(error: error)
+                self?.errorReporter.log(error: error)
             }
         }
     }

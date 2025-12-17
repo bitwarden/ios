@@ -86,7 +86,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// the search process mediator.
     func test_init() {
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
-        XCTAssertNotNil(searchProcessorMediator.setDelegateReceivedDelegate)
     }
 
     /// `itemAdded()` requests the coordinator dismiss the view.
@@ -410,11 +409,13 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
     }
 
-    /// `onNewSearchResults(data:)` updates the state's search results with the new items.
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search results with the new items.
     @MainActor
-    func test_onNewSearchResults() {
-        subject.onNewSearchResults(
-            data: VaultListData(
+    func test_onNewSearchResults() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [
                     VaultListSection(
                         id: "SearchResults",
@@ -439,11 +440,14 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertFalse(subject.state.showNoResults)
     }
 
-    /// `onNewSearchResults(data:)` updates the state's search to empty when there are no sections in the data.
+    /// `onNewSearchResults(data:)` closure from search mediatorupdates the state's search to empty
+    /// when there are no sections in the data.
     @MainActor
-    func test_onNewSearchResults_noSections() {
-        subject.onNewSearchResults(
-            data: VaultListData(
+    func test_onNewSearchResults_noSections() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [],
             ),
         )

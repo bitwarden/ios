@@ -62,8 +62,6 @@ class VaultItemSelectionProcessor: StateProcessor<
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
-
-        searchProcessorMediator.setDelegate(self)
     }
 
     // MARK: Methods
@@ -126,7 +124,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 searchProcessorMediator.stopSearching()
                 return
             }
-            searchProcessorMediator.startSearching()
+            searchProcessorMediator.startSearching(mode: nil, onNewSearchResults: searchResultsReceived)
             state.profileSwitcherState.isVisible = false
             dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
@@ -172,6 +170,16 @@ class VaultItemSelectionProcessor: StateProcessor<
         default:
             await handleProfileSwitcherEffect(profileSwitcherEffect)
         }
+    }
+
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+        state.showNoResults = items.isEmpty
     }
 
     /// Searches the list of ciphers for those matching the search term.
@@ -323,15 +331,5 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
 
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
-    }
-}
-
-// MARK: - SearchProcessorMediatorDelegate
-
-extension VaultItemSelectionProcessor: SearchProcessorMediatorDelegate {
-    func onNewSearchResults(data: VaultListData) {
-        let items = data.sections.first?.items ?? []
-        state.searchResults = items
-        state.showNoResults = items.isEmpty
     }
 }

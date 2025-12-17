@@ -89,7 +89,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// the search process mediator.
     func test_init() {
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
-        XCTAssertNotNil(searchProcessorMediator.setDelegateReceivedDelegate)
     }
 
     /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
@@ -310,11 +309,13 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         task.cancel()
     }
 
-    /// `onNewSearchResults(data:)` updates the state's search results with the new items.
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search results with the new items.
     @MainActor
-    func test_onNewSearchResults() {
-        subject.onNewSearchResults(
-            data: VaultListData(
+    func test_onNewSearchResults() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [
                     VaultListSection(
                         id: "SearchResults",
@@ -339,11 +340,14 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `onNewSearchResults(data:)` updates the state's search to empty when there are no sections in the data.
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search to empty
+    /// when there are no sections in the data.
     @MainActor
-    func test_onNewSearchResults_noSections() {
-        subject.onNewSearchResults(
-            data: VaultListData(
+    func test_onNewSearchResults_noSections() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [],
             ),
         )

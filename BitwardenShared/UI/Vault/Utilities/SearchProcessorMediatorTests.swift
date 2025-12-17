@@ -40,43 +40,10 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `setAutofillListMode(_:)` sets the autofill list mode.
-    func test_setAutofillListMode() {
-        subject.setAutofillListMode(.passwords)
-
-        vaultRepository.vaultSearchListSubject.send(
-            VaultListData(),
-        )
-
-        subject.startSearching()
-
-        XCTAssertEqual(vaultRepository.vaultSearchListPublisherMode, .passwords)
-    }
-
-    /// `setDelegate(_:)` sets the delegate.
-    @MainActor
-    func test_setDelegate() async throws {
-        let delegate = MockSearchProcessorMediatorDelegate()
-        subject.setDelegate(delegate)
-
-        vaultRepository.vaultSearchListSubject.send(
-            VaultListData(),
-        )
-
-        subject.startSearching()
-        subject.updateFilter(VaultListFilter(searchText: "test"))
-
-        try await waitForAsync {
-            delegate.onNewSearchResultsCallsCount == 1
-        }
-    }
-
-    /// `startSearching()` subscribes to the vault search list publisher and send the new results to the delegate.
+    /// `startSearching(mode:onNewSearchResults:)` subscribes to the vault search list publisher
+    /// and calls the closure with new results.
     @MainActor
     func test_startSearching() async throws {
-        let delegate = MockSearchProcessorMediatorDelegate()
-        subject.setDelegate(delegate)
-
         let cipherView = CipherListView.fixture(id: "cipher-id-123")
         try vaultRepository.vaultSearchListSubject.send(
             VaultListData(
@@ -92,53 +59,58 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
             ),
         )
 
-        subject.startSearching()
+        var receivedData: VaultListData?
+        subject.startSearching(mode: nil) { data in
+            receivedData = data
+        }
         subject.updateFilter(VaultListFilter(searchText: "test"))
 
         try await waitForAsync {
-            delegate.onNewSearchResultsReceivedData?.sections.count == 1
+            receivedData?.sections.count == 1
         }
 
         XCTAssertEqual(
-            delegate.onNewSearchResultsReceivedData?.sections.first?.items.first?.id,
+            receivedData?.sections.first?.items.first?.id,
             "cipher-id-123",
         )
     }
 
-    /// `startSearching()` cancels previous search when called multiple times.
+    /// `startSearching(mode:onNewSearchResults:)` cancels previous search when called multiple times.
     @MainActor
     func test_startSearching_cancelsPrevious() async throws {
-        let delegate = MockSearchProcessorMediatorDelegate()
-        subject.setDelegate(delegate)
-
         vaultRepository.vaultSearchListSubject.send(VaultListData())
 
-        subject.startSearching()
-        subject.startSearching()
+        var callsCount = 0
+        subject.startSearching(mode: nil) { _ in
+            callsCount += 1
+        }
+        subject.startSearching(mode: nil) { _ in
+            callsCount += 1
+        }
 
         subject.updateFilter(VaultListFilter(searchText: "test"))
 
         try await waitForAsync {
-            delegate.onNewSearchResultsCallsCount > 0
+            callsCount > 0
         }
 
         // Should only have one subscription active (second startSearching cancelled the first)
-        XCTAssertEqual(delegate.onNewSearchResultsCallsCount, 1)
+        XCTAssertEqual(callsCount, 1)
     }
 
     /// `stopSearching()` cancels the search subscription.
     @MainActor
     func test_stopSearching() async throws {
-        let delegate = MockSearchProcessorMediatorDelegate()
-        subject.setDelegate(delegate)
-
         vaultRepository.vaultSearchListSubject.send(VaultListData())
 
-        subject.startSearching()
+        var callsCount = 0
+        subject.startSearching(mode: nil) { _ in
+            callsCount += 1
+        }
         subject.updateFilter(VaultListFilter(searchText: "first"))
 
         try await waitForAsync {
-            delegate.onNewSearchResultsCallsCount == 1
+            callsCount == 1
         }
 
         subject.stopSearching()
@@ -147,7 +119,7 @@ class SearchProcessorMediatorTests: BitwardenTestCase {
         try await Task.sleep(forSeconds: 1)
 
         // No new search results should be received after stopping
-        XCTAssertEqual(delegate.onNewSearchResultsCallsCount, 1)
+        XCTAssertEqual(callsCount, 1)
     }
 
     /// `updateFilter(_:)` sends the filter through the filter publisher.

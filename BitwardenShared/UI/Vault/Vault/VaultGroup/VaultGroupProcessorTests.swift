@@ -129,7 +129,6 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// the search process mediator.
     func test_init() {
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
-        XCTAssertNotNil(searchProcessorMediator.setDelegateReceivedDelegate)
     }
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.
@@ -355,11 +354,13 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
     }
 
-    /// `onNewSearchResults(data:)` should update search results in state.
+    /// `onNewSearchResults(data:)` closure from search mediator should update search results in state.
     @MainActor
-    func test_onNewSearchResults_updatesState() {
-        subject.onNewSearchResults(
-            data: VaultListData(
+    func test_onNewSearchResults_updatesState() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [
                     VaultListSection(
                         id: "SearchResults",
@@ -383,11 +384,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
     }
 
-    /// `onNewSearchResults(data:)` updates the state's search to empty when there are no sections in the data.
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search to empty
+    /// when there are no sections in the data.
     @MainActor
-    func test_onNewSearchResults_noSections() {
-        subject.onNewSearchResults(
-            data: VaultListData(
+    func test_onNewSearchResults_noSections() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [],
             ),
         )
@@ -399,9 +403,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
     }
 
-    /// `onNewSearchResults(data:)` should update search results in state when TOTP expired.
+    /// `onNewSearchResults(data:)` closure from search mediator should update search results in state
+    /// when TOTP expired.
     @MainActor
-    func test_onNewSearchResults_expiredTOTP() { // swiftlint:disable:this function_body_length
+    func test_onNewSearchResults_expiredTOTP() async throws { // swiftlint:disable:this function_body_length
         let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         let refreshed = VaultListItem(
             id: "1",
@@ -459,8 +464,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
 
-        subject.onNewSearchResults(
-            data: VaultListData(
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [
                     VaultListSection(
                         id: "",
@@ -471,7 +478,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
 
-        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        try await waitForAsync {
+            !self.vaultRepository.refreshedTOTPCodes.isEmpty
+        }
         XCTAssertEqual(
             vaultRepository.refreshedTOTPCodes,
             [expired],
@@ -480,12 +489,15 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             refreshed,
             stable,
         ]
-        waitFor(subject.state.searchResults == expectedRefresh)
+        try await waitForAsync {
+            self.subject.state.searchResults == expectedRefresh
+        }
     }
 
-    /// `onNewSearchResults(data:)` should update search results in state but refreshing TOTP throws.
+    /// `onNewSearchResults(data:)` closure from search mediator should update search results in state
+    /// but refreshing TOTP throws.
     @MainActor
-    func test_onNewSearchResults_expiredTOTP_error() { // swiftlint:disable:this function_body_length
+    func test_onNewSearchResults_expiredTOTP_error() async throws { // swiftlint:disable:this function_body_length
         let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
 
@@ -522,8 +534,11 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 ),
             ),
         )
-        subject.onNewSearchResults(
-            data: VaultListData(
+
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [
                     VaultListSection(
                         id: "",
@@ -534,7 +549,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             ),
         )
 
-        waitFor(!vaultRepository.refreshedTOTPCodes.isEmpty)
+        try await waitForAsync {
+            !self.vaultRepository.refreshedTOTPCodes.isEmpty
+        }
         XCTAssertEqual(
             vaultRepository.refreshedTOTPCodes,
             [expired],
@@ -547,7 +564,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             try await Task.sleep(nanoseconds: (1 * NSEC_PER_SEC) / 4)
             didWait = true
         }
-        waitFor(didWait)
+        try await waitForAsync { didWait }
         delay.cancel()
 
         XCTAssertEqual(

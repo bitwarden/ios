@@ -103,9 +103,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
         super.init(state: state)
 
-        searchProcessorMediator.setDelegate(self)
-        searchProcessorMediator.setAutofillListMode(autofillListMode)
-
         switch autofillListMode {
         case .all:
             self.state.isAutofillingTextToInsertList = true
@@ -211,7 +208,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 searchProcessorMediator.stopSearching()
                 return
             }
-            searchProcessorMediator.startSearching()
+            searchProcessorMediator.startSearching(mode: autofillListMode, onNewSearchResults: searchResultsReceived)
             state.searchText = ""
             state.ciphersForSearch = []
             state.showNoResults = false
@@ -344,6 +341,19 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let sections = data.sections
+        state.ciphersForSearch = sections
+        state.showNoResults = sections.isEmpty
+        if state.isAutofillingTotpList, let section = sections.first, !section.items.isEmpty {
+            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: section.items)
         }
     }
 
@@ -783,19 +793,6 @@ extension VaultAutofillListProcessor: CipherItemOperationDelegate {
         if state.excludedCredentialIdFound != nil {
             state.toast = Toast(title: Localizations.itemSoftDeleted)
             state.excludedCredentialIdFound = nil
-        }
-    }
-}
-
-// MARK: - SearchProcessorMediatorDelegate
-
-extension VaultAutofillListProcessor: SearchProcessorMediatorDelegate {
-    func onNewSearchResults(data: VaultListData) {
-        let sections = data.sections
-        state.ciphersForSearch = sections
-        state.showNoResults = sections.isEmpty
-        if state.isAutofillingTotpList, let section = sections.first, !section.items.isEmpty {
-            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: section.items)
         }
     }
 }

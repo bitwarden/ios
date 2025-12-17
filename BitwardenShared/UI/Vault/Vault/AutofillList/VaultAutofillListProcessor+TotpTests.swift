@@ -156,14 +156,16 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(totpExpirationManagerForItems.configuredTOTPRefreshSchedulingItems?.count, 2)
     }
 
-    /// `onNewSearchResults(data:)` should configure search TOTP expiration manager
+    /// `onNewSearchResults(data:)` closure of search mediator should configure search TOTP expiration manager
     /// when is autofilling from TOTP list.
     @MainActor
-    func test_onNewSearchResults_TOTPAutofill() {
+    func test_onNewSearchResults_TOTPAutofill() async {
         subject.state.isAutofillingTotpList = true
 
-        subject.onNewSearchResults(
-            data: VaultListData(
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
                 sections: [
                     VaultListSection(
                         id: "SearchResults",
