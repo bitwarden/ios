@@ -19,6 +19,34 @@ public extension View {
             .accessibilityIdentifier("AddItemButton")
     }
 
+    /// Returns a toolbar button configured for navigating back within a view flow.
+    ///
+    /// - Parameters:
+    ///   - hidden: Whether to hide the toolbar item.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `Button` configured for navigating back.
+    ///
+    func backToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
+        if #available(iOS 26, *) {
+            return Button(action: action) {
+                Label(Localizations.back, systemImage: "chevron.backward")
+            }
+            .hidden(hidden)
+            .accessibilityIdentifier("BackButton")
+            .accessibilityLabel(Localizations.back)
+        }
+        return Button(action: action) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.left")
+                    .font(.body.weight(.semibold))
+                Text(Localizations.back)
+            }
+        }
+        .buttonStyle(.toolbar)
+        .hidden(hidden)
+        .accessibilityIdentifier("BackButton")
+    }
+
     /// Returns a toolbar button configured for cancelling an operation in a view.
     ///
     /// - Parameters:
