@@ -1,5 +1,13 @@
 import Foundation
 
+// MARK: - KeychainStorageKeyPossessing
+
+/// A protocol for an object that can provide a keychain storage key.
+public protocol KeychainStorageKeyPossessing: Equatable { // sourcery: AutoMockable
+    /// A keychain storage key that can be used for this object.
+    var unformattedKey: String { get }
+}
+
 // MARK: - KeychainServiceError
 
 /// An error that can be thrown from a keychain service indicating an issue when
@@ -50,12 +58,4 @@ public enum KeychainServiceError: Error, Equatable, CustomNSError {
             false
         }
     }
-}
-
-// MARK: - KeychainStorageKeyPossessing
-
-/// A protocol for an object that can provide a keychain storage key.
-public protocol KeychainStorageKeyPossessing: Equatable { // sourcery: AutoMockable
-    /// A keychain storage key that can be used for this object.
-    var unformattedKey: String { get }
 }
