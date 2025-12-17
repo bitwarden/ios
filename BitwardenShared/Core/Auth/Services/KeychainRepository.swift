@@ -459,6 +459,8 @@ extension DefaultKeychainRepository {
     }
 }
 
+// MARK: BiometricsKeychainRepository
+
 extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func deleteUserBiometricAuthKey(userId: String) async throws {
         let key = KeychainItem.biometrics(userId: userId)

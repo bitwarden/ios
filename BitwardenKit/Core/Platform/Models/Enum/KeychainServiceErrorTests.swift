@@ -10,8 +10,7 @@ class KeychainServiceErrorTests: BitwardenTestCase {
         let errorAccessControlFailed = KeychainServiceError.accessControlFailed(nil)
         XCTAssertTrue(errorAccessControlFailed.errorUserInfo.isEmpty)
 
-        let keyThatWasNotFound = MockKeychainStorageKeyPossessing()
-        keyThatWasNotFound.unformattedKey = "refreshToken_1"
+        let keyThatWasNotFound = MockKeychainStorageKeyPossessing(unformattedKey: "refreshToken_1")
         let errorKeyNotFound = KeychainServiceError.keyNotFound(keyThatWasNotFound)
         XCTAssertEqual(errorKeyNotFound.errorUserInfo["Keychain Item"] as? String, "refreshToken_1")
 
