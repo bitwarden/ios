@@ -1482,4 +1482,34 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
         XCTAssertTrue(configService.configMocker.called)
     }
+
+    // MARK: - MigrateVaultToMyItems Tests
+
+    /// `migrateVaultToMyItems(organizationId:)` hides the loading overlay and navigates to the migrate to my items route.
+    @MainActor
+    func test_migrateVaultToMyItems() {
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.migrateVaultToMyItems(organizationId: "org-123")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
+    }
+
+    /// `migrateVaultToMyItems(organizationId:)` doesn't show the migrate vault screen if running in an app extension.
+    @MainActor
+    func test_migrateVaultToMyItems_extension() {
+        let delegate = MockAppExtensionDelegate()
+        delegate.isInAppExtension = true
+        let subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks(),
+        )
+        subject.coordinator = coordinator.asAnyCoordinator()
+
+        subject.migrateVaultToMyItems(organizationId: "org-123")
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
 }

@@ -17,7 +17,10 @@ class MigrateToMyItemsViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: MigrateToMyItemsState(organizationName: "Acme Corporation"))
+        processor = MockProcessor(state: MigrateToMyItemsState(
+            organizationId: "org-123",
+            organizationName: "Acme Corporation",
+        ))
         let store = Store(processor: processor)
 
         subject = MigrateToMyItemsView(store: store)
