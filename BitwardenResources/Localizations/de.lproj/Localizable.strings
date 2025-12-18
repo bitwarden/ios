@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Das Master-Passwort ist das Passwort, mit dem du auf deinen Tresor zugreifst.";
 "MasterPasswordHint" = "Master-Passwort-Hinweis";
 "NewMasterPasswordHint" = "Neuer Hinweis zum Master-Passwort";
-"MasterPasswordLengthValMessageX" = "Das Master-Passwort muss mindestens %1$@ Zeichen lang sein.";
 "MinNumbers" = "Mindestanzahl Ziffern";
 "MinSpecial" = "Mindestanzahl Sonderzeichen";
 "MoreSettings" = "Weitere Einstellungen";
@@ -389,7 +388,6 @@
 "AllItems" = "Alle Einträge";
 "CheckingPassword" = "Passwort wird überprüft…";
 "CheckPassword" = "Überprüfe ob dein Kennwort kompromittiert ist.";
-"PasswordExposed" = "Dieses Passwort wurde %1$@-mal in Passwortdiebstahl Datenbanken gefunden. Du solltest es ändern.";
 "PasswordSafe" = "Dieses Passwort wurde in keiner bekannten Passwortdiebstahl Datenbank gefunden. Es sollte sicher zu verwenden sein.";
 "IdentityName" = "Identitätsname";
 "Value" = "Wert";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Anmeldung genehmigen";
 "DenyLogIn" = "Anmeldung ablehnen";
 "JustNow" = "Gerade eben";
-"XMinutesAgo" = "vor %1$@ Minuten";
 "LogInAccepted" = "Anmeldung bestätigt";
 "LogInDenied" = "Anmeldung abgelehnt";
 "ApproveLoginRequests" = "Anmeldeanfragen genehmigen";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Sitzungs-Timeout";
 "SessionTimeoutAction" = "Aktion bei Sitzungs-Timeout";
 "AccountFingerprintPhrase" = "Fingerabdruck-Phrase des Kontos";
-"OneHourAndOneMinute" = "Eine Stunde und eine Minute";
-"OneHourAndXMinute" = "Eine Stunde und %1$@ Minuten";
-"XHoursAndOneMinute" = "%1$@ Stunden und eine Minute";
-"XHoursAndYMinutes" = "%1$@ Stunden und %2$@ Minuten";
 "PasskeyManagementExplanationLong" = "Verwende Bitwarden, um neue Passkeys zu speichern und dich mit Passkeys aus deinem Tresor anzumelden.";
 "AutofillServicesExplanationLong" = "Das Android Autofill Framework wird verwendet, um Zugangsdaten in andere Apps auf deinem Gerät auszufüllen.";
 "UseInlineAutofillExplanationLong" = "Inline Auto-Ausfüllen verwenden, falls deine ausgewählte Tastatur dies unterstützt. Andernfalls wird das Standard Auto-Ausfüllen-Overlay verwendet.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden kann kein verlorenes oder vergessenes Master-Passwort zurücksetzen.";
 "LearnAboutWaysToPreventAccountLockout" = "Erfahre, wie du ein Aussperren von deinem Konto verhindern kannst";
 "WhatMakesAPasswordStrong" = "Was zeichnet ein starkes Passwort aus?";
-"XCharacters" = "%1$@ Zeichen";
 "RemoveMasterPasswordMessage" = "%1$@ verwendet SSO mit einem selbst gehosteten Schlüsselserver. Ein Master-Passwort zum Anmelden ist für Mitglieder dieser Organisation nicht mehr erforderlich.";
 "RestartRegistration" = "Registrierung neu starten";
 "ExpiredLink" = "Abgelaufener Link";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Passphrase generieren";
 "AllowUniversalClipboard" = "Allgemeine Zwischenablage zulassen";
 "UseUniversalClipboardToCopyDescriptionLong" = "Verwende die allgemeine Zwischenablage, um hier zu kopieren und auf anderen Geräten einzufügen, die mit dem gleichen Apple-Account angemeldet sind.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Deine PIN muss mindestens %1$@ Zeichen lang sein. Deine PIN-Einstellungen werden zurückgesetzt, wenn du dich jemals vollständig von der Anwendung abmeldest.";
 "RemoveMasterPasswordMessage" = "%1$@ verwendet SSO mit einem selbst gehosteten Schlüsselserver. Ein Master-Passwort zum Anmelden ist für Mitglieder dieser Organisation nicht mehr erforderlich.";
 "RemoveMasterPasswordConfirmDomain" = "Für Mitglieder der folgenden Organisation ist kein Master-Passwort mehr erforderlich. Bitte bestätige die folgende Domain bei deinem Organisations-Administrator.";
 "ConfirmKeyConnectorDomain" = "Key Connector-Domain bestätigen";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren.";
 "Updating" = "Wird aktualisiert...";
 "EncryptionSettingsUpdated" = "Verschlüsselungseinstellungen aktualisiert";
+"ItemTransfer" = "Eintragsübertragung";
+"TransferItemsToX" = "Eintrag an %1$@ übertragen";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.";
+"DeclineAndLeave" = "Ablehnen und verlassen";
+"WhyAmISeeingThis" = "Warum wird mir das angezeigt?";
+"AreYouSureYouWantToLeave" = "Bist du sicher, dass du gehen willst?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Wenn du ablehnst, bleiben deine persönlichen Einträge in deinem Konto erhalten, aber du wirst den Zugriff auf geteilte Einträge und Organisationsfunktionen verlieren.";
+"ContactYourAdminToRegainAccess" = "Kontaktiere deinen Administrator, um wieder Zugriff zu erhalten.";
+"LeaveX" = "%1$@ verlassen";
+"HowToManageMyVault" = "So verwaltest du deinen Tresor";
+"YouLeftTheOrganization" = "Du hast die Organisation verlassen";
 "ThisSettingIsManagedByYourOrganization" = "Diese Einstellung wird von deiner Organisation verwaltet.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Deine Organisation hat das Standard-Sitzungs-Timeout auf %1$@ gesetzt.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ gesetzt.";
