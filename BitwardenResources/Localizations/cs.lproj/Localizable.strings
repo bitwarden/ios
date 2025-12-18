@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavní heslo je heslo, které používáte pro přístup k trezoru.";
 "MasterPasswordHint" = "Nápověda k hlavnímu heslu";
 "NewMasterPasswordHint" = "Nápověda k novému hlavnímu heslu";
-"MasterPasswordLengthValMessageX" = "Hlavní heslo musí obsahovat alespoň %1$@ znaků.";
 "MinNumbers" = "Minimální počet číslic";
 "MinSpecial" = "Minimální počet speciálních znaků";
 "MoreSettings" = "Další nastavení";
@@ -389,7 +388,6 @@
 "AllItems" = "Všechny položky";
 "CheckingPassword" = "Kontrolování hesla...";
 "CheckPassword" = "Zkontrolujte, zda nedošlo k úniku hesla.";
-"PasswordExposed" = "K úniku tohoto hesla došlo celkem %1$@x. Měli byste jej změnit.";
 "PasswordSafe" = " V žádném ze známých případů nedošlo k úniku tohoto hesla. Mělo by být bezpečné používat jej i nadále.";
 "IdentityName" = "Název identity";
 "Value" = "Hodnota";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Potvrdit přihlášení";
 "DenyLogIn" = "Zamítnout přihlášení";
 "JustNow" = "Právě teď";
-"XMinutesAgo" = "Před %1$@ minutami";
 "LogInAccepted" = "Přihlášení potvrzeno";
 "LogInDenied" = "Přihlášení zamítnuto";
 "ApproveLoginRequests" = "Schválit žádosti o přihlášení";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Časový limit relace";
 "SessionTimeoutAction" = "Akce časového limitu relace";
 "AccountFingerprintPhrase" = "Fráze otisku prstu účtu";
-"OneHourAndOneMinute" = "Jedna hodina a jedna minuta";
-"OneHourAndXMinute" = "Jedna hodina a %1$@ minut";
-"XHoursAndOneMinute" = "%1$@ hodin a jedna minuta";
-"XHoursAndYMinutes" = "%1$@ hodin a %2$@ minut";
 "PasskeyManagementExplanationLong" = "Použijte Bitwarden pro ukládání nových přístupových klíčů a přihlašování se pomocí přístupových klíčů uložených ve Vašem trezoru.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework se používá k vyplnění přihlašovacích údajů do jiných aplikací na Vašem zařízení.";
 "UseInlineAutofillExplanationLong" = "Pokud to Vaše vybraná klávesnice podporuje, použije se inline automatické vyplňování. V opačném případě se použije výchozí překrytí.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden nemůže obnovit ztracené nebo zapomenuté hlavní heslo.";
 "LearnAboutWaysToPreventAccountLockout" = "Více o způsobech, jak zabránit uzamčení účtu";
 "WhatMakesAPasswordStrong" = "Co je silným heslem?";
-"XCharacters" = "%1$@ znaků";
 "RemoveMasterPasswordMessage" = "%1$@ používá SSO s vlastním serverem s klíči. Hlavní heslo pro členy této organizace již není vyžadováno.";
 "RestartRegistration" = "Restartovat registraci";
 "ExpiredLink" = "Platnost odkazu vypršela";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Vygenerovat heslovou frázi";
 "AllowUniversalClipboard" = "Povolit univerzální schránku";
 "UseUniversalClipboardToCopyDescriptionLong" = "Použijte univerzální schránku pro kopírování zde a vložení na jiná zařízení přihlášená se stejným Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN musí mít nejméně %1$@ znaků. Pokud se z aplikace odhlásíte, nastavení PINu bude resetováno.";
 "RemoveMasterPasswordMessage" = "%1$@ používá SSO s vlastním serverem s klíči. Hlavní heslo pro členy této organizace již není vyžadováno.";
 "RemoveMasterPasswordConfirmDomain" = "Hlavní heslo již není vyžadováno pro členy následující organizace. Potvrďte níže uvedenou doménu u správce Vaší organizace.";
 "ConfirmKeyConnectorDomain" = "Potvrdit doménu Key Connectoru";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo.";
 "Updating" = "Aktualizování...";
 "EncryptionSettingsUpdated" = "Nastavení šifrování bylo aktualizováno";
+"ItemTransfer" = "Převod položky";
+"TransferItemsToX" = "Převést položky do %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ vyžaduje, aby byly všechny položky vlastněny organizací z důvodu bezpečnosti a shody. Klepnutím na tlačítko pro převod vlastnictví Vašich položek.";
+"DeclineAndLeave" = "Odmítnout a opustit";
+"WhyAmISeeingThis" = "Proč se mi toto zobrazuje?";
+"AreYouSureYouWantToLeave" = "Opravdu chcete odejít?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Odmítnutím zůstanou Vaše osobní položky ve Vašem účtu, ale ztratíte přístup ke sdíleným položkám a funkcím organizace.";
+"ContactYourAdminToRegainAccess" = "Obraťte se na svého správce, abyste znovu získali přístup.";
+"LeaveX" = "Opustit %1$@";
+"HowToManageMyVault" = "Jak spravovat můj trezor";
+"YouLeftTheOrganization" = "Opustili jste organizaci";
 "ThisSettingIsManagedByYourOrganization" = "Tato nastavení je spravováno Vaší organizací.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaše organizace nastavila výchozí časový limit relace na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaše organizace nastavila maximální časový limit relace na %1$@.";

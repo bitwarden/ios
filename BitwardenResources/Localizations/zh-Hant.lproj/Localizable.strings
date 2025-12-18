@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "主密碼是您用來存取密碼庫的密碼。";
 "MasterPasswordHint" = "主密碼提示";
 "NewMasterPasswordHint" = "新增主密碼提示";
-"MasterPasswordLengthValMessageX" = "主密碼需要至少 %1$@ 個字元。";
 "MinNumbers" = "最少數字位數";
 "MinSpecial" = "最少符號位數";
 "MoreSettings" = "更多設定";
@@ -389,7 +388,6 @@
 "AllItems" = "所有項目";
 "CheckingPassword" = "正在驗證...";
 "CheckPassword" = "檢查密碼是否已暴露。";
-"PasswordExposed" = "此密碼在資料外洩事件中被暴露了 %1$@ 次，應立即變更它。";
 "PasswordSafe" = "任何已知的外洩密碼資料庫中都沒有此密碼，它目前是安全的。";
 "IdentityName" = "身分名稱";
 "Value" = "值";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "確認登入";
 "DenyLogIn" = "拒絕登入";
 "JustNow" = "剛剛";
-"XMinutesAgo" = "%1$@ 分鐘之前";
 "LogInAccepted" = "登入已確認";
 "LogInDenied" = "登入被拒絕";
 "ApproveLoginRequests" = "批准登入要求";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "工作階段逾時";
 "SessionTimeoutAction" = "工作階段逾時動作";
 "AccountFingerprintPhrase" = "帳戶指紋短語";
-"OneHourAndOneMinute" = "1 小時 1 分鐘";
-"OneHourAndXMinute" = "1 小時 %1$@ 分鐘";
-"XHoursAndOneMinute" = "%1$@ 小時 1 分鐘";
-"XHoursAndYMinutes" = "%1$@ 小時 %2$@ 分鐘";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 來保存新的通行密鑰(passkey) 和 使用儲存在密碼庫中的通行密鑰(passkey) 來登入。";
 "AutofillServicesExplanationLong" = "Android 自動填入框架能協助在裝置上的其他應用程式當中，填入登入資訊。";
 "UseInlineAutofillExplanationLong" = "如果您選擇的鍵盤支持，請使用内嵌式自動填入。若不支持，請使用預設疊層。";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden 無法為您恢復遺失或忘記的主密碼。";
 "LearnAboutWaysToPreventAccountLockout" = "[%1$s] 採用自架金鑰伺服器的 SSO 功能，因此該組織成員不再需要主密碼來登入。";
 "WhatMakesAPasswordStrong" = "一個強密碼具有哪些特性？";
-"XCharacters" = "%1$@ 個字元";
 "RemoveMasterPasswordMessage" = "%1$@ 正在透過自建的金鑰伺服器使用 SSO。此組織的成員登入時將不再需要主密碼。";
 "RestartRegistration" = "[%1$s] 採用自架金鑰伺服器的 SSO 功能，因此該組織成員不再需要主密碼來登入。";
 "ExpiredLink" = "過期連結";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "產生密碼短語";
 "AllowUniversalClipboard" = "允許通用剪貼簿";
 "UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪貼簿在此複製並在其他使用相同 Apple ID 登入的裝置上貼上。";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "您的 PIN 碼至少需為 %1$@ 個字元。如果您完全登出應用程式，PIN 設定將會重置。";
 "RemoveMasterPasswordMessage" = "%1$@ 正在透過自建的金鑰伺服器使用 SSO。此組織的成員登入時將不再需要主密碼。";
 "RemoveMasterPasswordConfirmDomain" = "以下組織的成員不再需要主密碼。請與您的組織管理員確認下方網域。";
 "ConfirmKeyConnectorDomain" = "確認 Key Connector 網域";
@@ -1274,6 +1265,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。";
 "Updating" = "更新中…";
 "EncryptionSettingsUpdated" = "加密設定已更新";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "此設定由您的組織管理。";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的組織已將最長工作階段逾時設為 %1$@。";

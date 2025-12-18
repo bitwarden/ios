@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Ülemparooli vihje";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordLengthValMessageX" = "Ülemparool peab olema vähemalt %1$@ tähemärgi pikkune.";
 "MinNumbers" = "Vähim arv numbreid";
 "MinSpecial" = "Vähim arv spetsiaalmärke";
 "MoreSettings" = "Rohkem seadeid";
@@ -389,7 +388,6 @@
 "AllItems" = "Kõik kirjed";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "Vaata, kas parool on lekkinud.";
-"PasswordExposed" = "See parool on erinevates andmeleketes kokku %1$@ korda lekkinud. Peaksid selle ära muutma.";
 "PasswordSafe" = "Seda parooli ei õnnestu andmeleketest leida. Parooli edasi kasutamine peaks olema turvaline.";
 "IdentityName" = "Identiteedi nimi";
 "Value" = "Väärtus";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Kinnita sisselogimine";
 "DenyLogIn" = "Tühista sisselogimine";
 "JustNow" = "Just praegu";
-"XMinutesAgo" = "%1$@ minuti eest";
 "LogInAccepted" = "Sisselogimine on kinnitatud";
 "LogInDenied" = "Sisselogimine on tühistatud";
 "ApproveLoginRequests" = "Sisselogimise päringute kinnitamine";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Sessiooni ajalõpp";
 "SessionTimeoutAction" = "Ajalõpule järgnev tegevus";
 "AccountFingerprintPhrase" = "Konto unikaalne sõnajada";
-"OneHourAndOneMinute" = "Üks tund ja üks minut";
-"OneHourAndXMinute" = "Üks tund ja %1$@ minutit";
-"XHoursAndOneMinute" = "%1$@ tundi ja üks minut";
-"XHoursAndYMinutes" = "%1$@ tundi ja %2$@ minutit";
 "PasskeyManagementExplanationLong" = "Kasuta Bitwardenit uute pääsuvõtmete salvestamiseks hoidlas ja nendega sisse logimiseks.";
 "AutofillServicesExplanationLong" = "Android Autofill Raamistiku kasutatakse teistesse rakendustesse sisselogimisel andmete automaatse täitmise lihtsustamiseks.";
 "UseInlineAutofillExplanationLong" = "Kasuta automaatset täitmist hüpikuna veebisaidi sees, kui su klaviatuur lubab seda. Muidu kasuta vaikeseadet.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
-"XCharacters" = "%1$@ Characters";
 "RemoveMasterPasswordMessage" = "%1$@ kasutab SSO-d koos kliendi poolt hallatava võtmeserveriga. Jätkamisel eemaldatakse sinu organisatsiooni kontodelt ülemparool ning nõutakse sisselogimist läbi SSO.";
 "RestartRegistration" = "Alusta registreerimist uuesti";
 "ExpiredLink" = "Aegunud link";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
 "RemoveMasterPasswordMessage" = "%1$@ kasutab SSO-d koos kliendi poolt hallatava võtmeserveriga. Jätkamisel eemaldatakse sinu organisatsiooni kontodelt ülemparool ning nõutakse sisselogimist läbi SSO.";
 "RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
 "ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
