@@ -35,7 +35,7 @@ extension Alert {
     static var passwordIsTooShort: Alert {
         Alert(
             title: Localizations.anErrorHasOccurred,
-            message: Localizations.masterPasswordLengthValMessageX(Constants.minimumPasswordCharacters),
+            message: Localizations.masterPasswordMustBeAtLeastXCharactersLong(Constants.minimumPasswordCharacters),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ],
@@ -155,7 +155,7 @@ extension Alert {
     static func dataBreachesCountAlert(count: Int) -> Alert {
         if count >= 1 {
             Alert(
-                title: Localizations.passwordExposed(count),
+                title: Localizations.thisPasswordHasBeenExposedXTimesDescriptionLong(count),
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),
