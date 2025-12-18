@@ -16,6 +16,7 @@ class SyncServiceTests: BitwardenTestCase {
     var client: MockHTTPClient!
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
+    var configService: MockConfigService!
     var folderService: MockFolderService!
     var keyConnectorService: MockKeyConnectorService!
     var organizationService: MockOrganizationService!
@@ -37,6 +38,7 @@ class SyncServiceTests: BitwardenTestCase {
         client = MockHTTPClient()
         clientService = MockClientService()
         collectionService = MockCollectionService()
+        configService = MockConfigService()
         folderService = MockFolderService()
         keyConnectorService = MockKeyConnectorService()
         organizationService = MockOrganizationService()
@@ -61,6 +63,7 @@ class SyncServiceTests: BitwardenTestCase {
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
+            configService: configService,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
@@ -82,6 +85,7 @@ class SyncServiceTests: BitwardenTestCase {
         client = nil
         clientService = nil
         collectionService = nil
+        configService = nil
         folderService = nil
         keyConnectorService = nil
         organizationService = nil
@@ -137,6 +141,114 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchSync(forceSync: false)
         XCTAssertFalse(syncServiceDelegate.setMasterPasswordCalled)
     }
+
+    // MARK: - checkUserNeedsVaultMigration Tests
+
+    /// `checkUserNeedsVaultMigration()` does not call delegate when feature flag is disabled.
+    @MainActor
+    func test_checkUserNeedsVaultMigration_featureFlagDisabled() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = false
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        cipherService.fetchAllCiphersResult = .success([.fixture(organizationId: nil)])
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertNil(syncServiceDelegate.migrateVaultToMyItemsOrganizationId)
+    }
+
+    /// `checkUserNeedsVaultMigration()` does not call delegate when no organization applies the policy.
+    @MainActor
+    func test_checkUserNeedsVaultMigration_noOrganizationAppliesPolicy() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = nil
+        cipherService.fetchAllCiphersResult = .success([.fixture(organizationId: nil)])
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertNil(syncServiceDelegate.migrateVaultToMyItemsOrganizationId)
+    }
+
+    /// `checkUserNeedsVaultMigration()` does not call delegate when user has no personal vault items.
+    @MainActor
+    func test_checkUserNeedsVaultMigration_noPersonalVaultItems() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        // All ciphers belong to an organization
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(id: "1", organizationId: "org-123"),
+            .fixture(id: "2", organizationId: "org-456"),
+        ])
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertNil(syncServiceDelegate.migrateVaultToMyItemsOrganizationId)
+    }
+
+    /// `checkUserNeedsVaultMigration()` does not call delegate when user only has deleted items in personal vault.
+    @MainActor
+    func test_checkUserNeedsVaultMigration_onlyDeletedPersonalVaultItems() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        // Personal vault item is deleted
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(deletedDate: Date(), id: "1", organizationId: nil),
+        ])
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertNil(syncServiceDelegate.migrateVaultToMyItemsOrganizationId)
+    }
+
+    /// `checkUserNeedsVaultMigration()` calls delegate when all conditions are met.
+    @MainActor
+    func test_checkUserNeedsVaultMigration_allConditionsMet() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        // User has personal vault items (not deleted, no organizationId)
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(id: "1", organizationId: nil),
+            .fixture(id: "2", organizationId: "org-123"),
+        ])
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertEqual(syncServiceDelegate.migrateVaultToMyItemsOrganizationId, "org-123")
+    }
+
+    /// `checkUserNeedsVaultMigration()` calls delegate with correct organization ID when multiple orgs apply policy.
+    @MainActor
+    func test_checkUserNeedsVaultMigration_multipleOrganizations() async throws {
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        // The earliest organization to activate the policy
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "earliest-org"
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(id: "1", organizationId: nil),
+        ])
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertTrue(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertEqual(syncServiceDelegate.migrateVaultToMyItemsOrganizationId, "earliest-org")
+    }
+
+    // MARK: - checkVaultTimeoutPolicy Tests
 
     /// `fetchSync()` only updates the user's timeout action to match the policy's
     /// if the user's timeout value is less than the policy's.
@@ -980,5 +1092,13 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
     func setMasterPassword(orgIdentifier: String) async {
         setMasterPasswordCalled = true
         setMasterPasswordOrgId = orgIdentifier
+    }
+
+    var migrateVaultToMyItemsCalled = false
+    var migrateVaultToMyItemsOrganizationId: String?
+
+    func migrateVaultToMyItems(organizationId: String) {
+        migrateVaultToMyItemsCalled = true
+        migrateVaultToMyItemsOrganizationId = organizationId
     }
 } // swiftlint:disable:this file_length
