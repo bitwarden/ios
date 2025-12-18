@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Pista de la contrasenya mestra";
 "NewMasterPasswordHint" = "Obteniu la pista de la contrasenya mestra";
-"MasterPasswordLengthValMessageX" = "La contrasenya mestra ha de contenir almenys %1$@ caràcters.";
 "MinNumbers" = "Mínim de caràcters numèrics";
 "MinSpecial" = "Mínim de caràcters especials";
 "MoreSettings" = "Més opcions";
@@ -389,7 +388,6 @@
 "AllItems" = "Tots els elements";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "Comprova si la contrasenya ha estat exposada.";
-"PasswordExposed" = "Aquesta contrasenya ha estat exposada %1$@ vegades en filtracions de seguretat de dades. Heu de canviar-la.";
 "PasswordSafe" = "Aquesta contrasenya no s'ha trobat en cap filtració de dades coneguda. Hauries de poder utilitzar-la de manera segura.";
 "IdentityName" = "Nom d'identitat";
 "Value" = "Valor";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Confirmeu l'inici de sessió";
 "DenyLogIn" = "Denegueu l'inici de sessió";
 "JustNow" = "Ara mateix";
-"XMinutesAgo" = "Fa %1$@ minuts";
 "LogInAccepted" = "S'ha confirmat l'inici de sessió";
 "LogInDenied" = "S'ha denegat l'inici de sessió";
 "ApproveLoginRequests" = "Aprova les sol·licituds d'inici de sessió";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Temps de sessió";
 "SessionTimeoutAction" = "Acció de temps d'espera de la sessió";
 "AccountFingerprintPhrase" = "Frase d'empremta digital";
-"OneHourAndOneMinute" = "Una hora i un minut";
-"OneHourAndXMinute" = "Una hora i %1$@ minuts";
-"XHoursAndOneMinute" = "%1$@ hores i un minut";
-"XHoursAndYMinutes" = "%1$@ hores i %2$@ minuts";
 "PasskeyManagementExplanationLong" = "Utilitzeu Bitwarden per guardar claus de pas noves i iniciar sessió amb les claus emmagatzemades a la vostra caixa forta.";
 "AutofillServicesExplanationLong" = "El marc d'emplenament automàtic d'Android s'utilitza per ajudar a omplir la informació d'inici de sessió a altres aplicacions del vostre dispositiu.";
 "UseInlineAutofillExplanationLong" = "Utilitzeu l'emplenament automàtic en línia si el vostre teclat seleccionat ho admet. En cas contrari, utilitzeu la superposició predeterminada.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
-"XCharacters" = "%1$@ Characters";
 "RemoveMasterPasswordMessage" = "%1$@ està utilitzant SSO amb un servidor autoallotjat de claus. Ja no es requereix una contrasenya mestra d'inici de sessió per als membres d'aquesta organització.";
 "RestartRegistration" = "Reinicia el registre";
 "ExpiredLink" = "Enllaç caducat";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Genera frase de pas";
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
 "RemoveMasterPasswordMessage" = "%1$@ està utilitzant SSO amb un servidor autoallotjat de claus. Ja no es requereix una contrasenya mestra d'inici de sessió per als membres d'aquesta organització.";
 "RemoveMasterPasswordConfirmDomain" = "Ja no cal contrasenya mestra per als membres de la següent organització. Confirma'n el domini a sota amb l'administrador de la teva organització.";
 "ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
