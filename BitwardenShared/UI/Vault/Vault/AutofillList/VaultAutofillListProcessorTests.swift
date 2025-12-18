@@ -113,7 +113,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             """
             \(Localizations.decryptionError)
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
-
             1
             """,
         )
@@ -197,20 +196,46 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             throw XCTSkip("This test requires iOS 26 or later")
         }
 
-        subject.state.profileSwitcherState.isVisible = true
-        authRepository.activeAccount = .fixture(profile: .fixture(userId: "42"))
-        authRepository.altAccounts = [
-            .fixture(),
-        ]
-        authRepository.vaultTimeout = [
-            "1": .fiveMinutes,
-            "42": .immediately,
-        ]
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                ProfileSwitcherItem.fixture(userId: "42"),
+                ProfileSwitcherItem.fixture(userId: "1"),
+            ],
+            activeAccountId: "42",
+            allowLockAndLogout: true,
+            isVisible: false,
+            shouldAlwaysHideAddAccount: true,
+        )
 
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
         XCTAssertTrue(coordinator.routes.contains(.dismiss))
         XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
+    }
+
+    /// `perform(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 when selecting already-active account
+    /// dismisses the profile switcher but does not fire switch event.
+    @MainActor
+    func test_perform_profileSwitcher_accountPressed_sameAccount_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                ProfileSwitcherItem.fixture(userId: "1"),
+                ProfileSwitcherItem.fixture(userId: "42"),
+            ],
+            activeAccountId: "1",
+            allowLockAndLogout: true,
+            isVisible: false,
+            shouldAlwaysHideAddAccount: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertNil(coordinator.events.last)
     }
 
     /// `perform(_:)` with `.profileSwitcher(.lock)` does nothing.
@@ -243,7 +268,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             throw XCTSkip("This test requires iOS 26 or later")
         }
 
-        subject.state.profileSwitcherState.isVisible = false
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
         XCTAssertEqual(coordinator.routes.last, .viewProfileSwitcher)
@@ -440,7 +464,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             throw XCTSkip("This test requires iOS 26 or later")
         }
 
-        subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcher(.backgroundTapped))
 
         XCTAssertTrue(coordinator.routes.contains(.dismiss))

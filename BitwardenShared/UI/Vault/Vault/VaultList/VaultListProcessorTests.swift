@@ -1631,10 +1631,33 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             throw XCTSkip("This test requires iOS 26 or later")
         }
 
-        subject.state.profileSwitcherState.isVisible = true
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture())))
 
         XCTAssertTrue(coordinator.routes.contains(.dismiss))
+    }
+
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 when selecting already-active account
+    /// dismisses the profile switcher but does not fire switch event.
+    @MainActor
+    func test_receive_accountPressed_sameAccount_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                ProfileSwitcherItem.fixture(userId: "1"),
+                ProfileSwitcherItem.fixture(userId: "42"),
+            ],
+            activeAccountId: "1",
+            allowLockAndLogout: true,
+            isVisible: false,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertNil(coordinator.events.last)
     }
 
     /// `receive(_:)` with `.addAccountPressed` updates the state correctly
@@ -1811,7 +1834,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             throw XCTSkip("This test requires iOS 26 or later")
         }
 
-        subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcher(.backgroundTapped))
 
         XCTAssertTrue(coordinator.routes.contains(.dismiss))
