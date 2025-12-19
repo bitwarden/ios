@@ -111,14 +111,17 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     private func loadOrganizationName() async {
         do {
             let organization = try await services.vaultRepository.fetchOrganization(withId: state.organizationId)
-            // TODO: PM-29113 Validate if user must do vault migration and error handling
 
             guard let organizationName = organization?.name else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                coordinator.showAlert(.defaultAlert(title: Localizations.organizationNotFound)) {
+                    self.coordinator.navigate(to: .dismiss())
+                }
                 return
             }
+            
             state.organizationName = organizationName
         } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
     }

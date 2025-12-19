@@ -601,14 +601,3 @@ class MockScanDelegateProcessor: MockProcessor<Any, Any, Any>, AuthenticatorKeyC
         didCancel = true
     }
 }
-
-/// A mock implementation of `MigrateToMyItemsProcessorDelegate` for testing.
-///
-class MockMigrateToMyItemsProcessorDelegate: MigrateToMyItemsProcessorDelegate {
-    /// A flag to capture a `didLeaveOrganization` call.
-    var didLeaveOrganizationCalled = false
-
-    func didLeaveOrganization() {
-        didLeaveOrganizationCalled = true
-    }
-}
