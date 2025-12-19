@@ -82,8 +82,8 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ids: An array of possible `credentialId` to filter credentials that matches one of them.
     ///   When `nil` the `credentialId` filter is not applied.
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
-    ///   - shouldCheckSync: Whether it should check if sync is needed. This is particular useful to vaoid
-    ///   inifinite loops by calling this method recursively.
+    ///   - shouldCheckSync: Whether it should check if sync is needed. This is particular useful to avoid
+    ///   infinite loops by calling this method recursively.
     /// - Returns: All the ciphers that matches the filter.
     private func findCredentials(
         ids: [Data]?,
