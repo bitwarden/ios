@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Het hoofdwachtwoord is het wachtwoord dat je gebruikt om toegang te krijgen tot je kluis.";
 "MasterPasswordHint" = "Hint voor het hoofdwachtwoord";
 "NewMasterPasswordHint" = "Nieuwe hoofdwachtwoordhint";
-"MasterPasswordLengthValMessageX" = "Hoofdwachtwoord moet minstens %1$@ tekens lang zijn.";
 "MinNumbers" = "Min. aantal cijfers";
 "MinSpecial" = "Min. aantal speciaal";
 "MoreSettings" = "Meer instellingen";
@@ -389,7 +388,6 @@
 "AllItems" = "Alle items";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "Controleer of wachtwoord is gelekt.";
-"PasswordExposed" = "Dit wachtwoord is %1$@ keer gelekt. Je zou het moeten veranderen.";
 "PasswordSafe" = "Dit wachtwoord is niet gevonden in de bekende datalekken. Het kan veilig gebruikt worden.";
 "IdentityName" = "Identiteitsnaam";
 "Value" = "Waarde";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Inloggen bevestigen";
 "DenyLogIn" = "Inloggen afwijzen";
 "JustNow" = "Zojuist";
-"XMinutesAgo" = "%1$@ minuten geleden";
 "LogInAccepted" = "Inloggen bevestigd";
 "LogInDenied" = "Inloggen afgewezen";
 "ApproveLoginRequests" = "Inlogverzoeken goedkeuren";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Sessie time-out";
 "SessionTimeoutAction" = "Actie voor sessie time-out";
 "AccountFingerprintPhrase" = "Vingerafdrukzin van je account";
-"OneHourAndOneMinute" = "Een uur en een minuut";
-"OneHourAndXMinute" = "Een uur en %1$@ minuten";
-"XHoursAndOneMinute" = "%1$@ uur en een minuut";
-"XHoursAndYMinutes" = "%1$@ uur en %2$@ minuten";
 "PasskeyManagementExplanationLong" = "Gebruik Bitwarden voor het opslaan van nieuwe passkeys en inloggen met passkeys die zijn opgeslagen in je kluis.";
 "AutofillServicesExplanationLong" = "Het Android Autofill Framework helpt het het invullen van inloggegevens in andere apps op je apparaat.";
 "UseInlineAutofillExplanationLong" = "Gebruik inline automatisch aanvullen als het geselecteerde toetsenbord dit ondersteunt. Gebruik anders de standaard overlay.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden kan een verloren of vergeten hoofdwachtwoord niet herstellen.";
 "LearnAboutWaysToPreventAccountLockout" = "Lees meer over manieren om te voorkomen dat je wordt buitengesloten van je account";
 "WhatMakesAPasswordStrong" = "Wat maakt een wachtwoord sterk?";
-"XCharacters" = "%1$@ tekens";
 "RemoveMasterPasswordMessage" = "%1$@ gebruikt SSO met een zelf-gehoste sleutelserver. Leden van deze organisatie kunnen zonder hoofdwachtwoord inloggen.";
 "RestartRegistration" = "Registratie herstarten";
 "ExpiredLink" = "Verlopen link";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Wachtwoordzin genereren";
 "AllowUniversalClipboard" = "Universeel klembord toestaan";
 "UseUniversalClipboardToCopyDescriptionLong" = "Gebruik Universeel Klembord om hier te kopiëren en te plakken op andere apparaten die zijn ingelogd met hetzelfde Apple-ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Je PINmoet tenminste %1$@ tekens bevatten. Je PIN-instellingen worden gereset als je je ooit volledig uitlogt.";
 "RemoveMasterPasswordMessage" = "%1$@ gebruikt SSO met een zelf-gehoste sleutelserver. Leden van deze organisatie kunnen zonder hoofdwachtwoord inloggen.";
 "RemoveMasterPasswordConfirmDomain" = "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie.";
 "ConfirmKeyConnectorDomain" = "Key Connector-domein bevestigen";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "De nieuwe aanbevolen versleutelingsinstellingen verbeteren de beveiliging van je account. Voer je hoofdwachtwoord in om nu bij te werken.";
 "Updating" = "Bijwerken...";
 "EncryptionSettingsUpdated" = "Versleutelingsinstellingen bijgewerkt";
+"ItemTransfer" = "Items overdragen";
+"TransferItemsToX" = "Items overdragen naar %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en beleidsnaleving. Klik op accepteren voor het overdragen van eigendom van je items.";
+"DeclineAndLeave" = "Weigeren en verlaten";
+"WhyAmISeeingThis" = "Waarom zie ik dit?";
+"AreYouSureYouWantToLeave" = "Weet je zeker dat je wilt verlaten?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Door te weigeren, blijven je persoonlijke items in je account, maar verlies je toegang tot gedeelde items en organisatiefunctionaliteit.";
+"ContactYourAdminToRegainAccess" = "Neem contact op met je beheerder om weer toegang te krijgen.";
+"LeaveX" = "%1$@ verlaten";
+"HowToManageMyVault" = "Hoe Mijn kluis beheren";
+"YouLeftTheOrganization" = "Je hebt de organisatie verlaten";
 "ThisSettingIsManagedByYourOrganization" = "Deze instelling wordt beheerd door je organisatie.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Je organisatie heeft de maximale sessie time-out ingesteld op %1$@.";

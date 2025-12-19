@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Pääsalasana on se salasana, jolla pääset holviisi.";
 "MasterPasswordHint" = "Pääsalasanan vihje";
 "NewMasterPasswordHint" = "Uusi pääsalasanan vihje";
-"MasterPasswordLengthValMessageX" = "Pääsalasanan tulee sisältää vähintään %1$@ merkkiä.";
 "MinNumbers" = "Numeroita vähintään";
 "MinSpecial" = "Erikoismerkkejä vähintään";
 "MoreSettings" = "Lisää asetuksia";
@@ -389,7 +388,6 @@
 "AllItems" = "Kaikki kohteet";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "Tarkasta, onko salasana paljastunut.";
-"PasswordExposed" = "Salasana on paljastunut %1$@ tietovuodossa. Se tulisi vaihtaa.";
 "PasswordSafe" = "Salasanaa ei löytynyt tunnetuista tietovuodoista. Sen pitäisi olla turvallinen.";
 "IdentityName" = "Henkilöllisyyden nimi";
 "Value" = "Arvo";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Vahvista kirjautuminen";
 "DenyLogIn" = "Hylkää kirjautuminen";
 "JustNow" = "Juuri nyt";
-"XMinutesAgo" = "%1$@ minuuttia sitten";
 "LogInAccepted" = "Kirjautuminen vahvistettiin";
 "LogInDenied" = "Kirjautuminen estetty";
 "ApproveLoginRequests" = "Hyväksy kirjautumispyyntöjä";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Istunnon aikakatkaisu";
 "SessionTimeoutAction" = "Istunnon aikakatkaisutoiminto";
 "AccountFingerprintPhrase" = "Tilin tunnistelause";
-"OneHourAndOneMinute" = "Tunti ja minuutti";
-"OneHourAndXMinute" = "Tunti ja %1$@ minuuttia";
-"XHoursAndOneMinute" = "%1$@ tuntia ja minuutti";
-"XHoursAndYMinutes" = "%1$@ tuntia %2$@ minuuttia";
 "PasskeyManagementExplanationLong" = "Käytä Bitwardenia uusien pääsyavainten tallennukseen ja kirjaudu palveluihin holviisi aiemmin tallennetuilla avaimilla.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework -rajapintaa käytetään täytettäessä kirjautumistietoja laitteen muihin sovelluksiin.";
 "UseInlineAutofillExplanationLong" = "Tekstinsisäistä automattitäyttöä käytetään, jos aktiivinen näppäimistö tukee sitä. Muussa tapauksessa käytetään ponnahdusvalintaa.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden ei voi nollata kadonnutta tai unohtunutta pääsalasanaa.";
 "LearnAboutWaysToPreventAccountLockout" = "Lue tavoista joilla voit välttyä tilin menetykseltä";
 "WhatMakesAPasswordStrong" = "Mikä tekee salasanasta vahvan?";
-"XCharacters" = "%1$@ merkkiä";
 "RemoveMasterPasswordMessage" = "%1$@ käyttää kertakirjautumista itse ylläpidetyllä avainpalvelimella. Organisaation jäsenet eivät enää tarvitse pääsalasanaa kirjautumiseen.";
 "RestartRegistration" = "Aloita rekisteröityminen alusta";
 "ExpiredLink" = "Vanhentunut linkki";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Luo salalause";
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-koodin tulee olla vähintään %1$@ merkkiä. PIN-asetus tyhjentyy, jos kirjaudut kokonaan ulos sovelluksesta.";
 "RemoveMasterPasswordMessage" = "%1$@ käyttää kertakirjautumista itse ylläpidetyllä avainpalvelimella. Organisaation jäsenet eivät enää tarvitse pääsalasanaa kirjautumiseen.";
 "RemoveMasterPasswordConfirmDomain" = "Pääsalasanaa ei enää tarvita tämän organisaation jäsenille. Ole hyvä ja vahvista alla oleva verkkotunnus organisaation ylläpitäjän kanssa.";
 "ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "Organisaatiosi hallitsee tätä asetusta.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";

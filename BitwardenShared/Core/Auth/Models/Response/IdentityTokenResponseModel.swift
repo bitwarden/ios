@@ -39,9 +39,6 @@ struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol, A
     /// The user's private key.
     let privateKey: String?
 
-    /// Whether the user's master password needs to be reset.
-    let resetMasterPassword: Bool
-
     /// The two-factor authentication token.
     let twoFactorToken: String?
 
