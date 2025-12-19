@@ -51,7 +51,7 @@ extension ServiceContainer {
         notificationCenterService: NotificationCenterService = MockNotificationCenterService(),
         rehydrationHelper: RehydrationHelper = MockRehydrationHelper(),
         reviewPromptService: ReviewPromptService = MockReviewPromptService(),
-        searchProcessorMediatorFactory: SearchProcessorMediatorFactory = MockSearchProcessorMediatorFactory(),
+        searchProcessorMediatorFactory: SearchProcessorMediatorFactory? = nil,
         sendRepository: SendRepository = MockSendRepository(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),
         sharedTimeoutService: SharedTimeoutService = MockSharedTimeoutService(),
@@ -70,7 +70,18 @@ extension ServiceContainer {
         vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService(),
         watchService: WatchService = MockWatchService(),
     ) -> ServiceContainer {
-        ServiceContainer(
+        var actualSearchProcessorMediatorFactory: SearchProcessorMediatorFactory
+        if let searchProcessorMediatorFactory {
+            actualSearchProcessorMediatorFactory = searchProcessorMediatorFactory
+        } else {
+            // This is needed to provide a default mock value for `makeReturnValue` of the factory
+            // or it breaks tests where the factory isn't defined and uses the default factory mock.
+            let factoryMock = MockSearchProcessorMediatorFactory()
+            factoryMock.makeReturnValue = MockSearchProcessorMediator()
+            actualSearchProcessorMediatorFactory = factoryMock
+        }
+
+        return ServiceContainer(
             apiService: APIService(
                 client: httpClient,
                 environmentService: environmentService,
@@ -114,7 +125,7 @@ extension ServiceContainer {
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
             reviewPromptService: reviewPromptService,
-            searchProcessorMediatorFactory: searchProcessorMediatorFactory,
+            searchProcessorMediatorFactory: actualSearchProcessorMediatorFactory,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
