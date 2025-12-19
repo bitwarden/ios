@@ -16,19 +16,22 @@ public protocol KeychainStorageKeyPossessing: Equatable { // sourcery: AutoMocka
 public enum KeychainServiceError: Error, Equatable, CustomNSError {
     /// When creating an accessControl fails.
     ///
-    /// - Parameter CFError: The potential system error.
+    /// - Parameters:
+    ///   - CFError: The potential system error.
     ///
     case accessControlFailed(CFError?)
 
-    /// When a `KeychainService` is unable to locate an auth key for a given storage key.
+    /// When a `KeychainService` is unable to locate a value for a given storage key.
     ///
-    /// - Parameter KeychainItem: The potential storage key for the auth key.
+    /// - Parameters:
+    ///   - KeychainStorageKeyPossessing: The storage key for the value.
     ///
     case keyNotFound(any KeychainStorageKeyPossessing)
 
     /// A passthrough for OSService Error cases.
     ///
-    /// - Parameter OSStatus: The `OSStatus` returned from a keychain operation.
+    /// - Parameters:
+    ///   - OSStatus: The `OSStatus` returned from a keychain operation.
     ///
     case osStatusError(OSStatus)
 
