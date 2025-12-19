@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Le mot de passe principal est le mot de passe que vous utilisez pour accéder à votre coffre.";
 "MasterPasswordHint" = "Indice du mot de passe principal";
 "NewMasterPasswordHint" = "Nouvel indice de mot de passe principal";
-"MasterPasswordLengthValMessageX" = "Le mot de passe principal doit comporter au moins %1$@ caractères.";
 "MinNumbers" = "Chiffres minimum";
 "MinSpecial" = "Caractères spéciaux minimum";
 "MoreSettings" = "Plus de paramètres";
@@ -389,7 +388,6 @@
 "AllItems" = "Tous les éléments";
 "CheckingPassword" = "Vérification du mot de passe…";
 "CheckPassword" = "Vérifier si le mot de passe a été exposé.";
-"PasswordExposed" = "Ce mot de passe a été exposé %1$@ fois dans des fuites de données. Vous devriez le changer.";
 "PasswordSafe" = "Ce mot de passe n'a été trouvé dans aucune fuite de données connue. Il semble sécurisé.";
 "IdentityName" = "Identité";
 "Value" = "Valeur";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Confirmer la connexion";
 "DenyLogIn" = "Refuser la connexion";
 "JustNow" = "À l'instant";
-"XMinutesAgo" = "il y a %1$@ minutes";
 "LogInAccepted" = "Connexion confirmée";
 "LogInDenied" = "Connexion refusée";
 "ApproveLoginRequests" = "Approuver les demandes de connexion";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Délai d'expiration de la session";
 "SessionTimeoutAction" = "Action après délai d'expiration de la session";
 "AccountFingerprintPhrase" = "Phrase d'empreinte du compte";
-"OneHourAndOneMinute" = "Une heure et une minute";
-"OneHourAndXMinute" = "Une heure et %1$@ minutes";
-"XHoursAndOneMinute" = "%1$@ heures et une minute";
-"XHoursAndYMinutes" = "%1$@ heures et %2$@ minutes";
 "PasskeyManagementExplanationLong" = "Utiliser Bitwarden pour enregistrer vos clés d'accès et vous connecter avec les clés d'accès stockées dans votre coffre.";
 "AutofillServicesExplanationLong" = "Le framework de saisie automatique d'Android est utilisé pour vous accompagner à remplir les informations de connexion dans les autres applications de votre appareil.";
 "UseInlineAutofillExplanationLong" = "Utilisez le remplissage automatique en ligne si votre clavier sélectionné le supporte. Sinon, utilisez la superposition par défaut.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden ne peut pas réinitialiser un mot de passe principal perdu ou oublié.";
 "LearnAboutWaysToPreventAccountLockout" = "En savoir plus sur les moyens d'empêcher le verrouillage du compte";
 "WhatMakesAPasswordStrong" = "Qu'est-ce qui rend un mot de passe fort ?";
-"XCharacters" = "%1$@ caractères";
 "RemoveMasterPasswordMessage" = "%1$@ utilise le SSO avec un serveur de clés autohébergé. Un mot de passe principal n'est plus nécessaire aux membres de cette organisation pour se connecter.";
 "RestartRegistration" = "Recommencer l'inscription";
 "ExpiredLink" = "Lien expiré";
@@ -1049,7 +1041,7 @@
 "GotIt" = "C'est compris";
 "GenerateCrash" = "Générer un plantage";
 "GenerateErrorReport" = "Générer un rapport d'erreur";
-"GenerateSdkErrorReport" = "Generate SDK error report";
+"GenerateSdkErrorReport" = "Générer un rapport d'erreur SDK";
 "AllowAuthenticatorSyncing" = "Autoriser la synchronisation de l'authentificateur";
 "AuthenticatorSync" = "Synchronisation de l'authentificateur";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Aucun compte trouvé. Veuillez vous reconnecter si vous continuez à voir cette erreur.";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Générer une phrase de passe";
 "AllowUniversalClipboard" = "Autoriser le Presse‑papiers universel";
 "UseUniversalClipboardToCopyDescriptionLong" = "Utilisez le Presse‑papiers universel pour copier ici et coller sur d’autres appareils connectés avec le même identifiant Apple.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Votre code PIN doit comporter au moins %1$@ caractères. Vos paramètres de PIN seront réinitialisés si vous vous déconnectez complètement de l’application.";
 "RemoveMasterPasswordMessage" = "%1$@ utilise le SSO avec un serveur de clés autohébergé. Un mot de passe principal n'est plus nécessaire aux membres de cette organisation pour se connecter.";
 "RemoveMasterPasswordConfirmDomain" = "Un mot de passe principal n’est plus requis pour les membres de l’organisation suivante. Veuillez confirmer le domaine ci-dessous auprès de l'administrateur de votre organisation.";
 "ConfirmKeyConnectorDomain" = "Confirmer le domaine du Key Connector";
@@ -1273,7 +1264,18 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Les nouveaux paramètres de chiffrement recommandés amélioreront la sécurité de votre compte. Entrez votre mot de passe principal pour faire la mise à jour maintenant.";
 "Updating" = "Mise à jour…";
 "EncryptionSettingsUpdated" = "Paramètres de chiffrement mis à jour";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Quitter %1$@";
+"HowToManageMyVault" = "Comment gérer mon coffre ?";
+"YouLeftTheOrganization" = "Vous avez quitté l'organisation";
 "ThisSettingIsManagedByYourOrganization" = "Ce paramètre est géré par votre organisation.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Votre organisation a fixé le délai d'expiration de session à %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@ et %2$@.";

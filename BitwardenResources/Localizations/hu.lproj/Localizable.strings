@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A mesterjelszó az a jelszó, amelyet a széf eléréséhez használunk.";
 "MasterPasswordHint" = "Mesterjelszó emlékeztető";
 "NewMasterPasswordHint" = "Új mesterjelszó kérés";
-"MasterPasswordLengthValMessageX" = "Mesterjelszónak legalább %1$@ karakter hosszúnak kell lennie.";
 "MinNumbers" = "Legalább ennyi szám";
 "MinSpecial" = "Legalább ennyi speciális karakter";
 "MoreSettings" = "További beállítások";
@@ -389,7 +388,6 @@
 "AllItems" = "Összes elem";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "Ellenőrizzük, hogy a jelszó kiszivárgott-e.";
-"PasswordExposed" = "Ez a jelszó %1$@ alkalommal jelent meg az adatszivárgásban. Változtassuk meg.";
 "PasswordSafe" = "Ez a jelszó nem érintett egyetlen ismert adatszivárgásban sem. Biztonságos a használata.";
 "IdentityName" = "Azonosság név";
 "Value" = "Érték";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Bejelentkezés megerősítése";
 "DenyLogIn" = "Bejelentkezés megtagadása";
 "JustNow" = "Éppen most";
-"XMinutesAgo" = "%1$@ perce";
 "LogInAccepted" = "A bejelentkezés megerősítésre került.";
 "LogInDenied" = "A bejelentkezés megtagadásra került.";
 "ApproveLoginRequests" = "Bejelentkezési kérelmek jóváhagyása";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Munkamenet időkifutás";
 "SessionTimeoutAction" = "Munkamenet időkifutási művelet";
 "AccountFingerprintPhrase" = "Fiók ujjnyomat kifejezés";
-"OneHourAndOneMinute" = "Egy óra és egy perc";
-"OneHourAndXMinute" = "Egy óra és %1$@ perc";
-"XHoursAndOneMinute" = "%1$@ óra és egy perc";
-"XHoursAndYMinutes" = "%1$@ óra és %2$@ perc";
 "PasskeyManagementExplanationLong" = "A Bitwarden használata az új belépőkulcsok mentéséhez és bejelentkezés a széfben tárolt belépőkulcskkal.";
 "AutofillServicesExplanationLong" = "Az Android automatikus kitöltési keretrendszere segít a bejelentkezési adatok kitöltésében az eszközön lévő más alkalmazásokba.";
 "UseInlineAutofillExplanationLong" = "Használjuk a sorközi automatikus kitöltést, ha a kiválasztott billentyűzet azt támogatja. Ellenkező esetben használjuk az alapértelmezett átfedést.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "A Bitward nem tudja visszaállítani az elveszett vagy elfelejtett mesterjelszót.";
 "LearnAboutWaysToPreventAccountLockout" = "További információ a fiókzárolás megelőzésének módjairól";
 "WhatMakesAPasswordStrong" = "Mitől erős egy jelszó?";
-"XCharacters" = "%1$@ karakter";
 "RemoveMasterPasswordMessage" = "%1$@ jelenleg saját tárolású aláíráskulcsú SSO szervert használ. A mesterjelszó a továbbiakban nem szükséges a szervezeti tagsági bejelentkezéshez.";
 "RestartRegistration" = "Regisztráció újra indítása";
 "ExpiredLink" = "A hivatkozás lejárt.";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Jelmondat generálás";
 "AllowUniversalClipboard" = "Univerzális vágólap engedélyezése";
 "UseUniversalClipboardToCopyDescriptionLong" = "Az Univerzális vágólap segítségével másolhatunk itt, majd beilleszthetünk más eszközökre, amelyeken ugyanazzal az Apple azonosítóval vagyunk bejelentkezve.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "A PIN kódnak legalább %1$@ karakterből kell állnia. A PIN kód beállításai alaphelyzetbe kerülnek, ha valaha is teljesen kijelentkezünk az alkalmazásból.";
 "RemoveMasterPasswordMessage" = "%1$@ jelenleg saját tárolású aláíráskulcsú SSO szervert használ. A mesterjelszó a továbbiakban nem szükséges a szervezeti tagsági bejelentkezéshez.";
 "RemoveMasterPasswordConfirmDomain" = "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával.";
 "ConfirmKeyConnectorDomain" = "A Key Connector tartomány megerősítése";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Az új ajánlott titkosítási beállítások javítják a fiók biztonságát. Adjuk meg a mesterjelszót a frissítéshez most.";
 "Updating" = "Frissítés...";
 "EncryptionSettingsUpdated" = "A titkosítási beállítások frissítésre kerültek.";
+"ItemTransfer" = "Elem átvitel";
+"TransferItemsToX" = "Elemek átruházása: %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ biztonsági és megfelelőségi okokból megköveteli, hogy minden elem a szervezet tulajdonában legyen. Kattintás az Elfogadás gombra az elemek tulajdonjogának átruházásához.";
+"DeclineAndLeave" = "Elutasítás és kilépés";
+"WhyAmISeeingThis" = "Miért látható ez?";
+"AreYouSureYouWantToLeave" = "Biztosan szeretnénk kilépni?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Az elutasítással a személyes elemek a fiókban maradnak, de elveszítjük hozzáférést a megosztott elemekhez és a szervezeti funkciókhoz.";
+"ContactYourAdminToRegainAccess" = "Lépjünk kapcsolatba az adminisztrátorral a hozzáférés visszaszerzéséért.";
+"LeaveX" = "%1$@ elhagyása";
+"HowToManageMyVault" = "Hogyan kezeljük a saját széfet";
+"YouLeftTheOrganization" = "Megtörtént a szervezet elhagyása.";
 "ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet lezeli.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";

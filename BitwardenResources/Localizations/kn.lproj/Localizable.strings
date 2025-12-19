@@ -143,7 +143,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
 "NewMasterPasswordHint" = "New master password hint";
-"MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "ಕನಿಷ್ಠ ಸಂಖ್ಯೆಗಳು";
 "MinSpecial" = "ಕನಿಷ್ಠ ವಿಶೇಷ";
 "MoreSettings" = "ಹೆಚ್ಚಿನ ಸೆಟ್ಟಿಂಗ್‌ಗಳು";
@@ -390,7 +389,6 @@
 "AllItems" = "ಎಲ್ಲಾ ವಸ್ತುಗಳು";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "ಪಾಸ್ವರ್ಡ್ ಬಹಿರಂಗಗೊಂಡಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ.";
-"PasswordExposed" = "ಡೇಟಾ ಪಾಸ್‌ಗಳಲ್ಲಿ ಈ ಪಾಸ್‌ವರ್ಡ್ %1$@ ಸಮಯ (ಗಳು) ಅನ್ನು ಬಹಿರಂಗಪಡಿಸಲಾಗಿದೆ. ನೀವು ಅದನ್ನು ಬದಲಾಯಿಸಬೇಕು.";
 "PasswordSafe" = "ತಿಳಿದಿರುವ ಯಾವುದೇ ಡೇಟಾ ಉಲ್ಲಂಘನೆಗಳಲ್ಲಿ ಈ ಪಾಸ್‌ವರ್ಡ್ ಕಂಡುಬಂದಿಲ್ಲ. ಅದನ್ನು ಬಳಸಲು ಸುರಕ್ಷಿತವಾಗಿರಬೇಕು.";
 "IdentityName" = "ಹೆಸರು ಗುರುತು";
 "Value" = "ಮೌಲ್ಯ";
@@ -676,7 +674,6 @@
 "ConfirmLogIn" = "Confirm login";
 "DenyLogIn" = "Deny login";
 "JustNow" = "Just now";
-"XMinutesAgo" = "%1$@ minutes ago";
 "LogInAccepted" = "Login confirmed";
 "LogInDenied" = "Login denied";
 "ApproveLoginRequests" = "Approve login requests";
@@ -825,10 +822,6 @@
 "SessionTimeout" = "Session timeout";
 "SessionTimeoutAction" = "Session timeout action";
 "AccountFingerprintPhrase" = "Account fingerprint phrase";
-"OneHourAndOneMinute" = "One hour and one minute";
-"OneHourAndXMinute" = "One hour and %1$@ minutes";
-"XHoursAndOneMinute" = "%1$@ hours and one minute";
-"XHoursAndYMinutes" = "%1$@ hours and %2$@ minutes";
 "PasskeyManagementExplanationLong" = "Use Bitwarden to save new passkeys and log in with passkeys stored in your vault.";
 "AutofillServicesExplanationLong" = "The Android Autofill Framework is used to assist in filling login information into other apps on your device.";
 "UseInlineAutofillExplanationLong" = "Use inline autofill if your selected keyboard supports it. Otherwise, use the default overlay.";
@@ -963,7 +956,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
-"XCharacters" = "%1$@ Characters";
 "RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
 "RestartRegistration" = "Restart registration";
 "ExpiredLink" = "Expired link";
@@ -1156,7 +1148,6 @@
 "GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
 "RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
 "RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
 "ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
@@ -1274,6 +1265,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";

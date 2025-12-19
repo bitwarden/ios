@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "மாஸ்டர் கடவுச்சொல் என்பது உங்கள் பெட்டகத்தை அணுக நீங்கள் பயன்படுத்தும் கடவுச்சொல் ஆகும்.";
 "MasterPasswordHint" = "மாஸ்டர் கடவுச்சொல் குறிப்பு";
 "NewMasterPasswordHint" = "புதிய மாஸ்டர் கடவுச்சொல் குறிப்பு";
-"MasterPasswordLengthValMessageX" = "பிரதான கடவுச்சொல் குறைந்தது %1$@ வரியுருக்கள் இருக்க வேண்டும்.";
 "MinNumbers" = "குறைந்தபட்ச எண்கள்";
 "MinSpecial" = "குறைந்தபட்ச சிறப்பு";
 "MoreSettings" = "மேலும் அமைவுகள்";
@@ -390,7 +389,6 @@
 "AllItems" = "அனைத்து உருப்படிகளும்";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "கடவுச்சொல் அம்பலப்படுத்தப்பட்டதா என சரிபார்க்கவும்.";
-"PasswordExposed" = "இக்கடவுச்சொல் %1$@ முறை தரவு மீறல்களில் அம்பலப்படுத்தப்பட்டுள்ளது. நீங்கள் இதை மாற்ற வேண்டும்.";
 "PasswordSafe" = "இக்கடவுச்சொல் தரவு மீறல்கள் எவற்றிலும் காணப்படவில்லை. நீங்கள் இதை மாற்ற வேண்டும். இதைப் பயன்படுத்துவது பாதுகாப்பாக இருக்க வேண்டும்.";
 "IdentityName" = "அடையாள பெயர்";
 "Value" = "மதிப்பு";
@@ -676,7 +674,6 @@
 "ConfirmLogIn" = "உள்நுழைவை உறுதிபடுத்து";
 "DenyLogIn" = "உள்நுழைவை மறு";
 "JustNow" = "சற்று முன்";
-"XMinutesAgo" = "%1$@ நிமிடங்கள் முன்பு";
 "LogInAccepted" = "உள்நுழைவு உறுதிபடுத்தப்பட்டது";
 "LogInDenied" = "உள்நுழைவு மறுக்கப்பட்டது";
 "ApproveLoginRequests" = "உள்நுழைவு கோரிக்கைகளை ஒப்புக்கொள்";
@@ -825,10 +822,6 @@
 "SessionTimeout" = "அமர்வு நேரமுடிவு";
 "SessionTimeoutAction" = "அமர்வு நேரமுடிவு செயல்";
 "AccountFingerprintPhrase" = "கணக்கு கைரேகைச் சொற்றொடர்";
-"OneHourAndOneMinute" = "ஒரு மணிநேரம் மற்றும் ஒரு நிமிடம்";
-"OneHourAndXMinute" = "ஒரு மணிநேரம் மற்றும் %1$@ நிமிடங்கள்";
-"XHoursAndOneMinute" = "%1$@ மணிநேரம் மற்றும் ஒரு நிமிடம்";
-"XHoursAndYMinutes" = "%1$@ மணிநேரம் மற்றும் %2$@ நிமிடங்கள்";
 "PasskeyManagementExplanationLong" = "புதிய கடவுக்குறியீடுகளைச் சேமிக்கவும், உங்கள் பெட்டகத்தில் சேமிக்கப்பட்ட கடவுக்குறியீடுகளுடன் உள்நுழையவும் Bitwarden-ஐப் பயன்படுத்தவும்.";
 "AutofillServicesExplanationLong" = "தானியங்கு நிரப்புதல் சேவைகள் விளக்கம் இன்னுங்கூடுதலான.";
 "UseInlineAutofillExplanationLong" = "தானியங்கு நிரப்புதலை பயன்படுத்தவும்.";
@@ -963,7 +956,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "இழந்த அல்லது மறந்த மாஸ்டர் கடவுச்சொல்லை பிட்வார்டனால் மீட்டமைக்க முடியாது.";
 "LearnAboutWaysToPreventAccountLockout" = "கணக்கு பூட்டுதலைத் தடுப்பதற்கான வழிகளைப் பற்றி அறிக";
 "WhatMakesAPasswordStrong" = "ஒரு கடவுச்சொல்லை எது வலுவானதாக்குகிறது?";
-"XCharacters" = "%1$@ எழுத்துக்கள்";
 "RemoveMasterPasswordMessage" = "%1$@ ஒரு சுய-ஹோஸ்ட் செய்யப்பட்ட விசை சேவையகத்துடன் SSO ஐப் பயன்படுத்துகிறது. இந்த அமைப்பின் உறுப்பினர்களுக்கு உள்நுழைய மாஸ்டர் கடவுச்சொல் இனி தேவையில்லை.";
 "RestartRegistration" = "பதிவை மறுதொடக்கம் செய்";
 "ExpiredLink" = "காலாவதியான இணைப்பு";
@@ -1156,7 +1148,6 @@
 "GeneratePassphrase" = "கடவுக்குறிச்சொல்லை உருவாக்கு";
 "AllowUniversalClipboard" = "யுனிவர்சல் கிளிப்போர்டை அனுமதி";
 "UseUniversalClipboardToCopyDescriptionLong" = "இங்கே நகலெடுக்கவும், அதே ஆப்பிள் ஐடி-யில் உள்நுழைந்த பிற சாதனங்களில் ஒட்டவும் யுனிவர்சல் கிளிப்போர்டைப் பயன்படுத்தவும்.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "உங்கள் PIN குறைந்தபட்சம் %1$@ எழுத்துக்கள் இருக்க வேண்டும். நீங்கள் பயன்பாட்டிலிருந்து முழுமையாக வெளியேறினால் உங்கள் PIN அமைப்புகள் மீட்டமைக்கப்படும்.";
 "RemoveMasterPasswordMessage" = "%1$@ ஒரு சுய-ஹோஸ்ட் செய்யப்பட்ட விசை சேவையகத்துடன் SSO ஐப் பயன்படுத்துகிறது. இந்த அமைப்பின் உறுப்பினர்களுக்கு உள்நுழைய மாஸ்டர் கடவுச்சொல் இனி தேவையில்லை.";
 "RemoveMasterPasswordConfirmDomain" = "பின்வரும் அமைப்பின் உறுப்பினர்களுக்கு மாஸ்டர் கடவுச்சொல் இனி தேவையில்லை. உங்கள் அமைப்பு நிர்வாகியுடன் கீழே உள்ள டொமைனை உறுதிப்படுத்தவும்.";
 "ConfirmKeyConnectorDomain" = "முக்கிய இணைப்பான் டொமைனை உறுதிப்படுத்து";
@@ -1274,6 +1265,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";

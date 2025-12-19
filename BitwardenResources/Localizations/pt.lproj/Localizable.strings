@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A palavra-passe mestra é a palavra-passe que utiliza para aceder ao seu cofre.";
 "MasterPasswordHint" = "Dica da palavra-passe mestra";
 "NewMasterPasswordHint" = "Nova dica da palavra-passe mestra";
-"MasterPasswordLengthValMessageX" = "A palavra-passe mestra deve ter pelo menos %1$@ caracteres.";
 "MinNumbers" = "Mínimo de números";
 "MinSpecial" = "Mínimo de caracteres especiais";
 "MoreSettings" = "Mais definições";
@@ -389,7 +388,6 @@
 "AllItems" = "Todos os itens";
 "CheckingPassword" = "A verificar a palavra-passe…";
 "CheckPassword" = "Verificar se a palavra-passe foi exposta.";
-"PasswordExposed" = "Esta palavra-passe foi exposta %1$@ vez(es) em violações de dados. Deve alterá-la.";
 "PasswordSafe" = "Esta palavra-passe não foi encontrada em nenhuma violação de dados conhecida. A sua utilização deve ser segura.";
 "IdentityName" = "Nome da identidade";
 "Value" = "Valor";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Confirmar início de sessão";
 "DenyLogIn" = "Recusar início de sessão";
 "JustNow" = "Agora mesmo";
-"XMinutesAgo" = "Há %1$@ minutos";
 "LogInAccepted" = "Início de sessão confirmado";
 "LogInDenied" = "Início de sessão recusado";
 "ApproveLoginRequests" = "Aprovar pedidos de início de sessão";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Tempo limite da sessão";
 "SessionTimeoutAction" = "Ação de tempo limite da sessão";
 "AccountFingerprintPhrase" = "Frase de impressão digital da conta";
-"OneHourAndOneMinute" = "Uma hora e um minuto";
-"OneHourAndXMinute" = "Uma hora e %1$@ minutos";
-"XHoursAndOneMinute" = "%1$@ horas e um minuto";
-"XHoursAndYMinutes" = "%1$@ horas e %2$@ minutos";
 "PasskeyManagementExplanationLong" = "Utilize o Bitwarden para guardar novas chaves de acesso e iniciar sessão com chaves de acesso armazenadas no seu cofre.";
 "AutofillServicesExplanationLong" = "A estrutura de preenchimento automático do Android é utilizada para ajudar a preencher as informações de início de sessão noutras aplicações do seu dispositivo.";
 "UseInlineAutofillExplanationLong" = "Utilize o preenchimento automático em linha se o teclado selecionado o suportar. Caso contrário, utilize a sobreposição predefinida.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "O Bitwarden não pode repor uma palavra-passe mestra perdida ou esquecida.";
 "LearnAboutWaysToPreventAccountLockout" = "Saiba mais sobre formas de evitar o bloqueio da conta";
 "WhatMakesAPasswordStrong" = "O que torna uma palavra-passe forte?";
-"XCharacters" = "%1$@ caracteres";
 "RemoveMasterPasswordMessage" = "A %1$@ está a utilizar o SSO com um servidor de chaves auto-hospedado. Já não é necessária uma palavra-passe mestra para iniciar sessão para os membros desta organização.";
 "RestartRegistration" = "Reiniciar registo";
 "ExpiredLink" = "Link expirado";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Gerar frase de acesso";
 "AllowUniversalClipboard" = "Permitir Área de transferência universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Utilize a Área de transferência universal para copiar aqui e colar noutros dispositivos com sessão iniciada com o mesmo ID Apple.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "O seu PIN tem de ter, pelo menos, %1$@ caracteres. As suas definições de PIN serão repostas se alguma vez terminar completamente a sessão na aplicação.";
 "RemoveMasterPasswordMessage" = "A %1$@ está a utilizar o SSO com um servidor de chaves auto-hospedado. Já não é necessária uma palavra-passe mestra para iniciar sessão para os membros desta organização.";
 "RemoveMasterPasswordConfirmDomain" = "Já não é necessária uma palavra-passe mestra para os membros da seguinte organização. Por favor, confirme o domínio abaixo com o administrador da sua organização.";
 "ConfirmKeyConnectorDomain" = "Confirmar o domínio do Key Connector";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "As novas definições de encriptação recomendadas irão melhorar a segurança da sua conta. Introduza a sua palavra-passe mestra para atualizar agora.";
 "Updating" = "A atualizar…";
 "EncryptionSettingsUpdated" = "Definições de encriptação atualizadas";
+"ItemTransfer" = "Transferência de itens";
+"TransferItemsToX" = "Transferir itens para %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.";
+"DeclineAndLeave" = "Recusar e sair";
+"WhyAmISeeingThis" = "Porque é que estou a ver isto?";
+"AreYouSureYouWantToLeave" = "Tem a certeza de que pretende sair?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Ao recusar, os seus itens pessoais permanecerão na sua conta, mas perderá o acesso aos itens partilhados e às funcionalidades da organização.";
+"ContactYourAdminToRegainAccess" = "Entre em contacto com o seu administrador para recuperar o acesso.";
+"LeaveX" = "Sair de %1$@";
+"HowToManageMyVault" = "Como gerir o meu cofre";
+"YouLeftTheOrganization" = "Saiu da organização";
 "ThisSettingIsManagedByYourOrganization" = "Esta configuração é gerida pela sua organização.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A sua organização definiu o tempo limite predefinido da sessão como %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A sua organização definiu o tempo limite máximo da sessão para %1$@.";

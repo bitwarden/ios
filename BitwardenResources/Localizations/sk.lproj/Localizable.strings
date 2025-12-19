@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavné heslo je heslo, ktoré používate na prístup do svojho trezora.";
 "MasterPasswordHint" = "Nápoveď k hlavnému heslu";
 "NewMasterPasswordHint" = "Nová nápoveď pre hlavné heslo";
-"MasterPasswordLengthValMessageX" = "Hlavné heslo musí obsahovať aspoň %1$@ znakov.";
 "MinNumbers" = "Minimum číslic";
 "MinSpecial" = "Minimum špeciálnych znakov";
 "MoreSettings" = "Ďalšie nastavenia";
@@ -389,7 +388,6 @@
 "AllItems" = "Všetky položky";
 "CheckingPassword" = "Kontroluje sa heslo…";
 "CheckPassword" = "Overiť či došlo k úniku hesla.";
-"PasswordExposed" = "Toto heslo uniklo %1$@-krát v dátových únikoch. Mali by ste ho zmeniť.";
 "PasswordSafe" = "Heslo nebolo nájdene v žiadnom úniku dát. Malo by byť bezpečné.";
 "IdentityName" = "Názov identity";
 "Value" = "Hodnota";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Potvrdiť prihlásenie";
 "DenyLogIn" = "Odmietnuť prihlásenie";
 "JustNow" = "Práve teraz";
-"XMinutesAgo" = "Pred %1$@ min.";
 "LogInAccepted" = "Prihlásenie potvrdené";
 "LogInDenied" = "Prihlásenie zamietnuté";
 "ApproveLoginRequests" = "Schvaľovanie žiadostí o prihlásenie";
@@ -685,7 +682,7 @@
 "NoThanks" = "Nie, ďakujem";
 "ConfimLogInAttempForX" = "Potvrdiť pokus o prihlásenie pre %1$@";
 "AllNotifications" = "Všetky upozornenia";
-"PasswordType" = "Password Type";
+"PasswordType" = "Typ hesla";
 "WhatWouldYouLikeToGenerate" = "Čo by ste chceli vygenerovať?";
 "UsernameType" = "Typ používateľského mena";
 "PlusAddressedEmail" = "E-mail s plusovým aliasom";
@@ -712,7 +709,7 @@
 "CatchAllEmailDescription" = "Použiť doručenú poštu typu catch-all nastavenú na doméne.";
 "ForwardedEmailDescription" = "Vytvoriť e-mailový alias pomocou externej služby presmerovania.";
 "Random" = "Náhodné";
-"ConnectToWatch" = "Pripojiť hodinky";
+"ConnectToWatch" = "Prepojiť s hodinkami";
 "AccessibilityServiceDisclosure" = "Vyhlásenie o prístupnosti";
 "AccessibilityDisclosureText" = "Služba Bitwarden využíva službu prístupnosti na vyhľadávanie prihlasovacích polí v aplikáciách a webových lokalitách a potom po nájdení zhody pre aplikáciu alebo lokalitu vytvorí príslušné identifikátory polí na zadanie používateľského mena a hesla. Neukladáme žiadne informácie, ktoré nám služba poskytuje, ani sa nepokúšame kontrolovať žiadne prvky na obrazovke okrem textového zadávania prihlasovacích údajov.";
 "Accept" = "Prijať";
@@ -724,7 +721,7 @@
 "LoggingInAsXOnY" = "Prihlasujete sa ako %1$@ na %2$@";
 "NotYou" = "Nie ste to vy?";
 "LogInWithMasterPassword" = "Prihlásenie pomocou hlavného hesla";
-"LogInWithAnotherDevice" = "Prihlásenie pomocou iného zariadenia";
+"LogInWithAnotherDevice" = "Prihlásiť sa pomocou zariadenia";
 "LogInInitiated" = "Iniciované prihlásenie";
 "ANotificationHasBeenSentToYourDevice" = "Do vášho zariadenia bolo odoslané upozornenie.";
 "PleaseMakeSureYourVaultIsUnlockedAndTheFingerprintPhraseMatchesOnTheOtherDevice" = "Skontrolujte, či je trezor odomknutý, a či sa jedinečný identifikátor zhoduje s tým na druhom zariadení.";
@@ -766,12 +763,12 @@
 "US" = "USA";
 "EU" = "EÚ";
 "SelfHosted" = "Vlastný hosting";
-"DataRegion" = "Dátová oblasť";
+"DataRegion" = "Dátový región";
 "Region" = "Región";
 "UpdateWeakMasterPasswordWarning" = "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu.";
 "CurrentMasterPasswordRequired" = "Súčasné hlavné heslo (povinné)";
 "NewMasterPasswordRequired" = "Nové hlavné heslo (povinné)";
-"LoggedIn" = "Prihlásený!";
+"LoggedIn" = "Prihlásené!";
 "ApproveWithMyOtherDevice" = "Schváliť pomocou môjho druhého zariadenia";
 "RequestAdminApproval" = "Žiadosť o schválenie správcom";
 "ApproveWithMasterPassword" = "Schváliť pomocou hlavného hesla";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Časový limit relácie";
 "SessionTimeoutAction" = "Akcia po vypršaní relácie";
 "AccountFingerprintPhrase" = "Jedinečný identifikátor účtu";
-"OneHourAndOneMinute" = "Jedna hodina a jedna minúta";
-"OneHourAndXMinute" = "Jedna hodina a %1$@ minút";
-"XHoursAndOneMinute" = "%1$@ hodín a jedna minúta";
-"XHoursAndYMinutes" = "%1$@ hodín a %2$@ minút";
 "PasskeyManagementExplanationLong" = "Používajte Bitwarden na ukladanie nových prístupových kľúčov a prihlasovanie pomocou prístupových kľúčov uložených v trezore.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework sa používa na uľahčenie vyplňovania prihlasovacích údajov do iných aplikácií na vašom zariadení.";
 "UseInlineAutofillExplanationLong" = "Použite zabudované automatické vypĺňanie, ak ho vybraná klávesnica podporuje. V opačnom prípade použite predvolené automatické vyplnenie.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden nemôže obnoviť stratené alebo zabudnuté hlavné heslo.";
 "LearnAboutWaysToPreventAccountLockout" = "Prečítajte si o spôsoboch, ako zabrániť zablokovaniu účtu";
 "WhatMakesAPasswordStrong" = "Čo robí heslo silným?";
-"XCharacters" = "%1$@ znakov";
 "RemoveMasterPasswordMessage" = "%1$@ používa SSO s vlastným kľúčovým serverom. Na prihlásenie členov tejto organizácie už nie je potrebné hlavné heslo.";
 "RestartRegistration" = "Zopakovať registráciu";
 "ExpiredLink" = "Platnosť odkazu vypršala";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Generovať prístupovú frázu";
 "AllowUniversalClipboard" = "Povoliť Univerzálnu schránku";
 "UseUniversalClipboardToCopyDescriptionLong" = "Použiť Univerzálnu schránku na kopírovanie a vkladanie na ďalších zariadeniach prihlásených s rovnakým Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN kód musí mať aspoň %1$@ znakov. Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.";
 "RemoveMasterPasswordMessage" = "%1$@ používa SSO s vlastným kľúčovým serverom. Na prihlásenie členov tejto organizácie už nie je potrebné hlavné heslo.";
 "RemoveMasterPasswordConfirmDomain" = "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie.";
 "ConfirmKeyConnectorDomain" = "Potvrdiť doménu Key Connectora";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nové odporúčané nastavenia šifrovania zlepšia bezpečnosť vášho konta. Ak ich chcete aktualizovať teraz, zadajte vaše hlavne heslo.";
 "Updating" = "Aktualizujem...";
 "EncryptionSettingsUpdated" = "Nastavenia šifrovania boli aktualizované";
+"ItemTransfer" = "Presun položky";
+"TransferItemsToX" = "Prenos položiek do %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ vyžaduje, aby všetky položky patrili organizácii z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.";
+"DeclineAndLeave" = "Zamietnuť a odísť";
+"WhyAmISeeingThis" = "Prečo to vidím?";
+"AreYouSureYouWantToLeave" = "Naozaj chcete odísť?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Ak odmietnete, vaše osobné položky zostanú vo vašom účte, ale stratíte prístup k zdieľaným položkám a funkciám organizácie.";
+"ContactYourAdminToRegainAccess" = "Ak chcete obnoviť prístup, obráťte sa na správcu.";
+"LeaveX" = "Opustiť %1$@";
+"HowToManageMyVault" = "Ako spravovať môj trezor";
+"YouLeftTheOrganization" = "Opustili ste organizáciu";
 "ThisSettingIsManagedByYourOrganization" = "Toto nastavenie spravuje vaša organizácia.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaša organizácia nastavila predvolený časový limit relácie na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@.";
