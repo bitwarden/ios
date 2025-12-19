@@ -72,6 +72,17 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
+    /// `archiveCipherWithServer(id:_:)` archives the cipher in the backend and local storage.
+    func test_archiveCipherWithServer() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+        stateService.activeAccount = .fixture()
+
+        try await subject.archiveCipherWithServer(id: "1", .fixture())
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture())
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+
     /// `cipherCount()` returns the number of ciphers in the data store.
     func test_ciphersCount() async throws {
         stateService.activeAccount = .fixture()
@@ -323,6 +334,17 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
 
+    /// `unarchiveCipherWithServer(id:_:)` unarchives the cipher in the backend and local storage.
+    func test_unarchiveCipherWithServer() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+        stateService.activeAccount = .fixture()
+
+        try await subject.unarchiveCipherWithServer(id: "1", .fixture())
+
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture())
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+
     /// `updateCipherCollectionsWithServer(_:)` updates the cipher's collections and updates the data store.
     func test_updateCipherCollections() async throws {
         client.result = .success(.success())
@@ -397,4 +419,4 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "id")
     }
-}
+} // swiftlint:disable:this file_length
