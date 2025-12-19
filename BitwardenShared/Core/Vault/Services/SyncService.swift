@@ -119,7 +119,7 @@ protocol SyncServiceDelegate: AnyObject {
     /// - Parameter organizationId: The organization ID that requires the vault migration.
     ///
     @MainActor
-    func migrateVaultToMyItems(organizationId: String) async
+    func migrateVaultToMyItems(organizationId: String)
 }
 
 // MARK: - DefaultSyncService

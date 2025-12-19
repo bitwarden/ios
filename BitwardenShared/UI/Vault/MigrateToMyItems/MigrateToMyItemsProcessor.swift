@@ -118,7 +118,6 @@ final class MigrateToMyItemsProcessor: StateProcessor<
                 }
                 return
             }
-            
             state.organizationName = organizationName
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

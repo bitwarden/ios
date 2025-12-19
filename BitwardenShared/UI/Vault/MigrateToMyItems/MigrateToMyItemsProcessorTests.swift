@@ -64,7 +64,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
             useEvents: false,
             usePolicies: false,
             userIsManagedByOrganization: false,
-            usersGetPremium: false
+            usersGetPremium: false,
         )
         vaultRepository.fetchOrganizationResult = .success(organization)
 
