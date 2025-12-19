@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Ana parola, kasanıza erimek için kullandığınız parolanızdır.";
 "MasterPasswordHint" = "Ana parola ipucu";
 "NewMasterPasswordHint" = "Yeni ana parola ipucu";
-"MasterPasswordLengthValMessageX" = "Ana parola en az %1$@ karakter uzunluğunda olmalıdır.";
 "MinNumbers" = "En az rakam";
 "MinSpecial" = "En az özel karakter";
 "MoreSettings" = "Diğer ayarlar";
@@ -389,7 +388,6 @@
 "AllItems" = "Tüm kayıtlar";
 "CheckingPassword" = "Parola kontrol ediliyor…";
 "CheckPassword" = "Parolanız ele geçirilip geçirilmediğini kontrol edin.";
-"PasswordExposed" = "Bu parola veri ihlallerinde %1$@ kere açığa çıkmış. Değiştirmenizi tavsiye ederiz.";
 "PasswordSafe" = "Bilinen veri ihlallerinde bu parola bulunamadı. Güvenle kullanabilirsiniz.";
 "IdentityName" = "Kimlik adı";
 "Value" = "Değer";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Girişi onayla";
 "DenyLogIn" = "Girişi reddet";
 "JustNow" = "Az önce";
-"XMinutesAgo" = "%1$@ dakika önce";
 "LogInAccepted" = "Giriş onaylandı";
 "LogInDenied" = "Giriş reddedildi";
 "ApproveLoginRequests" = "Giriş isteklerini onayla";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Oturum zaman aşımı";
 "SessionTimeoutAction" = "Oturum zaman aşımı eylemi";
 "AccountFingerprintPhrase" = "Hesap parmak izi ifadesi";
-"OneHourAndOneMinute" = "1 saat 1 dakika";
-"OneHourAndXMinute" = "1 saat %1$@ dakika";
-"XHoursAndOneMinute" = "%1$@ saat 1 dakika";
-"XHoursAndYMinutes" = "%1$@ saat %2$@ dakika";
 "PasskeyManagementExplanationLong" = "Bitwarden'ı yeni anahtarlar kaydetmek ve kasadaki anahtarlar ile giriş yapmak için kullanabilirsiniz.";
 "AutofillServicesExplanationLong" = "Cihazınızdaki diğer uygulamalarda hesap bilgilerini doldurmak için Android Otomatik Doldurma Sistemi kullanılır.";
 "UseInlineAutofillExplanationLong" = "Seçtiğiniz klavye destekliyorsa satır içi otomatik doldurma kullanılır. Aksi halde varsayılan üstünde gösterme kullanılır.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden, unuttuğunuz veya kaybettiğiniz ana parolaları sıfırlayamaz.";
 "LearnAboutWaysToPreventAccountLockout" = "Hesabınıza erişimi kaybetmemenin yollarını öğrenin";
 "WhatMakesAPasswordStrong" = "Bir parola nasıl güçlü olur?";
-"XCharacters" = "%1$@ karakter";
 "RemoveMasterPasswordMessage" = "%1$@ kendi barındırdığı bir anahtar sunucusuyla SSO kullanıyor. Bu kuruluşun üyelerinin giriş yapmak için artık ana parola kullanması gerekmiyor.";
 "RestartRegistration" = "Kaydı yeniden başlat";
 "ExpiredLink" = "Bağlantının süresi dolmuş";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Parola cümlesi üret";
 "AllowUniversalClipboard" = "Evrensel Pano’ya izin ver";
 "UseUniversalClipboardToCopyDescriptionLong" = "Burada kopyaladığınız şeyleri aynı Apple ID ile giriş yapmış diğer cihazlarınıza yapıştırmak için Evrensel Pano’yu kullanabilirsiniz.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN'iniz en az %1$@ karakter olmalıdır. Uygulamadan tamamen çıkış yaparsanız PIN ayarlarınız sıfırlanacaktır.";
 "RemoveMasterPasswordMessage" = "%1$@ kendi barındırdığı bir anahtar sunucusuyla SSO kullanıyor. Bu kuruluşun üyelerinin giriş yapmak için artık ana parola kullanması gerekmiyor.";
 "RemoveMasterPasswordConfirmDomain" = "Aşağıdaki organizasyonun üyeleri için artık ana parola gerekmemektedir. Lütfen alan adını organizasyon yöneticinizle doğrulayın.";
 "ConfirmKeyConnectorDomain" = "Key Connector alan adını onaylayın";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Yeni önerilen şifreleme ayarları hesap güvenliğinizi artıracaktır. Şimdi güncellemek için ana parolanızı girin.";
 "Updating" = "Güncelleniyor…";
 "EncryptionSettingsUpdated" = "Şifreleme ayarları güncellendi";
+"ItemTransfer" = "Kayıt aktarımı";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Ayrılmak istediğinizden emin misiniz?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Reddederseniz kişisel kayıtlarınız hesabınızda kalır, ancak paylaşılan kayıtlara ve kuruluş özelliklerine erişiminizi kaybedersiniz.";
+"ContactYourAdminToRegainAccess" = "Erişiminizi yeniden kazanmak için yöneticinizle iletişime geçin.";
+"LeaveX" = "%1$@ kuruluşundan ayrıl";
+"HowToManageMyVault" = "Kasamı nasıl yönetebilirim";
+"YouLeftTheOrganization" = "Kuruluştan ayrıldınız";
 "ThisSettingIsManagedByYourOrganization" = "Bu ayar kuruluşunuz tarafından yönetiliyor.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Kuruluşunuz varsayılan oturum zaman aşımını %1$@ olarak ayarladı.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Kuruluşunuz maksimum oturum zaman aşımını %1$@ olarak ayarladı.";

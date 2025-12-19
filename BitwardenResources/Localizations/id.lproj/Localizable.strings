@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Sandi utama adalah sandi yang Anda gunakan untuk mengakses brankas Anda.";
 "MasterPasswordHint" = "Petunjuk sandi utama";
 "NewMasterPasswordHint" = "Petunjuk sandi utama baru";
-"MasterPasswordLengthValMessageX" = "Sandi utama sedikitnya harus %1$@ karakter.";
 "MinNumbers" = "Angka minimum";
 "MinSpecial" = "Karakter khusus minimum";
 "MoreSettings" = "Setelan lainnya";
@@ -389,7 +388,6 @@
 "AllItems" = "Semua Item";
 "CheckingPassword" = "Memeriksa sandi…";
 "CheckPassword" = "Periksalah jika kata sandi telah terpapar.";
-"PasswordExposed" = "Sandi ini telah terungkap %1$@ kali dalam pelanggaran data. Anda harus mengubahnya.";
 "PasswordSafe" = "Sandi ini tidak ditemukan dalam pelanggaran data apa pun. Seharusnya aman digunakan.";
 "IdentityName" = "Nama Identitas";
 "Value" = "Nilai";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Konfirmasi masuk";
 "DenyLogIn" = "Tolak masuk";
 "JustNow" = "Baru saja";
-"XMinutesAgo" = "%1$@ menit yang lalu";
 "LogInAccepted" = "Masuk terkonfirmasi";
 "LogInDenied" = "Masuk ditolak";
 "ApproveLoginRequests" = "Izinkan permintaan masuk";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Batas waktu sesi";
 "SessionTimeoutAction" = "Tindakan batas waktu sesi";
 "AccountFingerprintPhrase" = "Frasa sidik jari akun";
-"OneHourAndOneMinute" = "Satu jam satu menit";
-"OneHourAndXMinute" = "1 jam %1$@ menit";
-"XHoursAndOneMinute" = "%1$@ jam 1 menit";
-"XHoursAndYMinutes" = "%1$@ jam %2$@ menit";
 "PasskeyManagementExplanationLong" = "Gunakan Bitwarden untuk menyimpan kunci sandi baru dan masuk dengan kunci sandi tersimpan di brankas Anda.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework digunakan untuk membantu mengisi informasi login ke apl lain di perangkat Anda.";
 "UseInlineAutofillExplanationLong" = "Gunakan isi otomatis sebaris jika keyboard yang dipilih mendukung. Jika tidak, gunakan overlay bawaan.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden tidak dapat mengatur ulang sandi utama yang hilang atau terlupa.";
 "LearnAboutWaysToPreventAccountLockout" = "Pelajari cara mencegah akun terkunci";
 "WhatMakesAPasswordStrong" = "Apa yang membuat sandi kuat?";
-"XCharacters" = "%1$@ karakter";
 "RemoveMasterPasswordMessage" = "%1$@ menggunakan SSO dengan server kunci host mandiri. Sandi utama tidak lagi diperlukan untuk login bagi anggota organisasi ini.";
 "RestartRegistration" = "Mulai ulang pendaftaran";
 "ExpiredLink" = "Tautan telah kadaluwarsa";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Buat frasa sandi";
 "AllowUniversalClipboard" = "Izinkan Papan Klip Universal";
 "UseUniversalClipboardToCopyDescriptionLong" = "Gunakan Papan Klip Universal untuk menyalin di sini dan tempel di perangkat lain dengan Apple ID yang sama.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN setidaknya harus memiliki %1$@ karakter. Pengaturan PIN akan direset jika Anda keluar sepenuhnya dari aplikasi.";
 "RemoveMasterPasswordMessage" = "%1$@ menggunakan SSO dengan server kunci host mandiri. Sandi utama tidak lagi diperlukan untuk login bagi anggota organisasi ini.";
 "RemoveMasterPasswordConfirmDomain" = "Sandi utama tidak lagi diperlukan bagi anggota organisasi berikut. Harap konfirmasi domain di bawah ini dengan administrator organisasi Anda.";
 "ConfirmKeyConnectorDomain" = "Konfirmasi domain Key Connector";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Rekomendasi pengaturan enkripsi baru akan meningkatkan keamanan akun Anda. Masukkan sandi utama untuk memperbarui sekarang.";
 "Updating" = "Memperbarui...";
 "EncryptionSettingsUpdated" = "Pengaturan enkripsi diperbarui";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "Pengaturan ini dikelola oleh organisasi Anda.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Organisasi Anda telah menetapkan batas waktu sesi maksimum ke %1$@.";

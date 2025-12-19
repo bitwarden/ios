@@ -12,7 +12,7 @@
 "Credits" = "Izmantotie risinājumi";
 "Delete" = "Izdzēst";
 "DeleteAll" = "Izdzēst visu";
-"Deleting" = "Deleting…";
+"Deleting" = "Izdzēš…";
 "DoYouReallyWantToDelete" = "Vai tiešām izdzēst? To nevar atsaukt.";
 "Edit" = "Labot";
 "EditFolder" = "Labot mapi";
@@ -59,7 +59,7 @@
 "Password" = "Parole";
 "Save" = "Saglabāt";
 "Move" = "Pārvietot";
-"Saving" = "Saving…";
+"Saving" = "Saglabā…";
 "Settings" = "Iestatījumi";
 "Show" = "Parādīt";
 "ItemDeleted" = "Vienums ir izdzēsts";
@@ -107,7 +107,7 @@
 "Close" = "Aizvērt";
 "Continue" = "Turpināt";
 "CreateAccount" = "Izveidot kontu";
-"CreatingAccount" = "Creating account…";
+"CreatingAccount" = "Izveido kontu…";
 "EditItem" = "Labot vienumu";
 "EnableAutomaticSyncing" = "Iespējot automātisko sinhronizēšanu";
 "EnterEmailForHint" = "Norādīt konta e-pasta adresi, lai saņemtu galvenās paroles norādi.";
@@ -135,14 +135,13 @@
 "VaultTimeout" = "Glabātavas noildze";
 "VaultTimeoutAction" = "Glabātavas noildzes darbība";
 "VaultTimeoutLogOutConfirmation" = "Atteikšanās noņems piekļuvi glabātavai un pieprasīs tiešsaistes pieteikšanos pēc noildzes laika. Vai tiešām izmantot šo iestatījumu?";
-"LoggingIn" = "Logging in…";
+"LoggingIn" = "Piesakās…";
 "LogInToBitwarden" = "Pieteikties Bitwarden";
 "Manage" = "Pārvaldīt";
 "MasterPasswordConfirmationValMessage" = "Paroles apstiprinājums nav pareizs.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Galvenā parole ir parole, ko izmanto, lai piekļūtu savam kontam.";
 "MasterPasswordHint" = "Galvenās paroles norāde";
 "NewMasterPasswordHint" = "Jaunā galvenās paroles norāde";
-"MasterPasswordLengthValMessageX" = "Galvenajai parolei ir jābūt vismaz %1$@ rakstzīmes garai.";
 "MinNumbers" = "Mazākais pieļaujamais ciparu skaits";
 "MinSpecial" = "Mazākais pieļaujamais īpašo rakstzīmju skaits";
 "MoreSettings" = "Citi iestatījumi";
@@ -236,7 +235,7 @@
 "Attachments" = "Pielikumi";
 "UnableToDownloadFile" = "Nav iespējams lejupielādēt datni.";
 "UnableToOpenFile" = "Ierīce nevar atvērt šāda veida datni.";
-"Downloading" = "Downloading…";
+"Downloading" = "Lejupielādē…";
 "AttachmentLargeWarning" = "Šī pielikuma lielums ir %1$@. Vai tiešām to lejupielādēt šajā ierīcē?";
 "AuthenticatorKey" = "Autentificētāja atslēga";
 "VerificationCodeTotp" = "Apliecinājuma kods (TOTP)";
@@ -387,9 +386,8 @@
 "Logins" = "Pieteikšanās vienumi";
 "SecureNotes" = "Drošās piezīmes";
 "AllItems" = "Visi vienumi";
-"CheckingPassword" = "Checking password…";
+"CheckingPassword" = "Pārbauda paroli…";
 "CheckPassword" = "Pārbaudīt, vai parole ir bijusi nopludināta.";
-"PasswordExposed" = "Šī parole datu noplūdēs ir atklāta %1$@ reizi(es). To vajadzētu nomainīt.";
 "PasswordSafe" = "Šī parole netika atrasta nevienā zināmā datu noplūdē. Tai vajadzētu būt droši izmantojamai.";
 "IdentityName" = "Identitātes nosaukums";
 "Value" = "Vērtība";
@@ -496,7 +494,7 @@
 "SoftDeleting" = "Sending to trash…";
 "ItemSoftDeleted" = "Vienums tika pārvietots uz atkritni.";
 "Restore" = "Atjaunot";
-"Restoring" = "Restoring…";
+"Restoring" = "Atjauno…";
 "ItemRestored" = "Vienums tika atjaunots.";
 "Trash" = "Atkritne";
 "SearchTrash" = "Meklēt atkritnē";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Apstiprināt pieteikšanos";
 "DenyLogIn" = "Atteikt pieteikšanos";
 "JustNow" = "Tikko";
-"XMinutesAgo" = "Pirms %1$@ minūtēm";
 "LogInAccepted" = "Pieteikšanās ir apstiprināta";
 "LogInDenied" = "Pieteikšanās ir atteikta";
 "ApproveLoginRequests" = "Apstiprināt pieteikšanās pieprasījumus";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Sesijas noildze";
 "SessionTimeoutAction" = "Sesijas noildzes darbība";
 "AccountFingerprintPhrase" = "Konta atpazīšanas vārdkopa";
-"OneHourAndOneMinute" = "Viena stunda un viena minūte";
-"OneHourAndXMinute" = "Viena stunda un %1$@ minūtes";
-"XHoursAndOneMinute" = "%1$@ stundas un viena minūte";
-"XHoursAndYMinutes" = "%1$@ stundas un %2$@ minūtes";
 "PasskeyManagementExplanationLong" = "Bitwarden ir izmantojams, lai saglabātu jaunas piekļuves atslēgas un pieteiktos ar tām, kas atrodas glabātavā.";
 "AutofillServicesExplanationLong" = "Android automātiskās aizpildes ietvars tiek izmantots, lai palīdzētu aizpildīt pieteikšanās informāciju citās ierīces lietotnēs.";
 "UseInlineAutofillExplanationLong" = "Iekļautā automātiskā aizpilde ir izmantojama, ja izvēlētā tastatūra to nodrošina. Citādi ir jāizmanto noklusējuma pārklājums.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden nevar atiestatīt pazaudētu vai aizmirstu galveno paroli.";
 "LearnAboutWaysToPreventAccountLockout" = "Vairāk par veidiem, kā nepieļaut nepiekļūšanu kontam, var uzzināt";
 "WhatMakesAPasswordStrong" = "Kas paroli padara stipru?";
-"XCharacters" = "%1$@ rakstzīmes";
 "RemoveMasterPasswordMessage" = "%1$@ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.";
 "RestartRegistration" = "Sākt reģistrēšanos no jauna";
 "ExpiredLink" = "Saitei beidzies derīgums";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Izveidot paroles vārdkopu";
 "AllowUniversalClipboard" = "Ļaut Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Izmantot Universal Clipboard, lai ievietotu šeit un ielīmētu citās ierīcēs, kurās ir veikta pieteikšanās ar to pašu Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN ir jābūt vismaz %1$@ rakstzīmes garam. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.";
 "RemoveMasterPasswordMessage" = "%1$@ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.";
 "RemoveMasterPasswordConfirmDomain" = "Galvenā parole nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju.";
 "ConfirmKeyConnectorDomain" = "Apstiprināt Key Connector domēnu";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Jaunie ieteicamie šifrēšanas iestatījumi uzlabos Tava konta drošību. Jāievada sava galvenā parole, lai atjauninātu tagad.";
 "Updating" = "Atjaunina...";
 "EncryptionSettingsUpdated" = "Šifrēšanas iestatījumi ir atjaunināti";
+"ItemTransfer" = "Vienumu pārcelšana";
+"TransferItemsToX" = "Pārcelt vienumus uz %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ ir nepieciešams, lai visi vienumi piederētu apvienībai drošības un atbilstības nolūkos. Jāklikšķina “Pieņemt”, lai pārceltu savu vienumu īpašumtiesības.";
+"DeclineAndLeave" = "Noraidīt un pamest";
+"WhyAmISeeingThis" = "Kāpēc šis ir redzams?";
+"AreYouSureYouWantToLeave" = "Vai tiešām pamest?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Pēc noraidīšanas personīgie vienumi paliks Tavā kontā, bet Tu zaudēsi piekļvuvi kopīgotajiem vienumiem un apvienību iespējām.";
+"ContactYourAdminToRegainAccess" = "Jāsazinās ar savu pārvaldītāju, lai atgūtu piekļuvi.";
+"LeaveX" = "Pamest %1$@";
+"HowToManageMyVault" = "Kā pārvaldīt savu glabātavu";
+"YouLeftTheOrganization" = "Tu pameti apvienību";
 "ThisSettingIsManagedByYourOrganization" = "Šo iestatījumu pārvalda apvienība.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Apvienība ir iestatījusi noklusējuma sesijas noildzi uz %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz %1$@.";
