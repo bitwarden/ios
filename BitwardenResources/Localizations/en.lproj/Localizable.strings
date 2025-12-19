@@ -1288,3 +1288,13 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
+"HiddenItems"="Hidden items";
+"Archive"="Archive";
+"Unarchive"="Unarchive";
+"ItemArchived"="Item archived";
+"ItemUnarchived"="Item unarchived";
+"SendingToArchive"="Sending to archive...";
+"Unarchiving"="Unarchiving...";
+"doYouReallyWantToUnarchiveThisItem"="Do you really want to unarchive this item?";
+"doYouReallyWantToArchiveThisItem"="Do you really want to archive this item?";
+"ThereAreNoItemsInTheArchive"="There are no items in the archive.";
