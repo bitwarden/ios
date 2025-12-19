@@ -124,7 +124,9 @@ class VaultItemSelectionProcessor: StateProcessor<
                 searchProcessorMediator.stopSearching()
                 return
             }
-            searchProcessorMediator.startSearching(mode: nil, onNewSearchResults: searchResultsReceived)
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
+            }
             state.profileSwitcherState.isVisible = false
             dismissProfileSwitcher()
         case let .searchTextChanged(newValue):

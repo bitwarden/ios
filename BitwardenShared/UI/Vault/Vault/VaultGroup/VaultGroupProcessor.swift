@@ -167,7 +167,9 @@ final class VaultGroupProcessor: StateProcessor<
                 searchProcessorMediator.stopSearching()
                 searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: [])
             }
-            searchProcessorMediator.startSearching(mode: nil, onNewSearchResults: searchResultsReceived)
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
+            }
             state.isSearching = isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue

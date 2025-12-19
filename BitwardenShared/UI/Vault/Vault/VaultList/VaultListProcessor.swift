@@ -164,7 +164,9 @@ final class VaultListProcessor: StateProcessor<
                 searchProcessorMediator.stopSearching()
                 return
             }
-            searchProcessorMediator.startSearching(mode: nil, onNewSearchResults: searchResultsReceived)
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
+            }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue

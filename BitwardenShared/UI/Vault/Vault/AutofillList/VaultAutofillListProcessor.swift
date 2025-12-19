@@ -208,7 +208,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 searchProcessorMediator.stopSearching()
                 return
             }
-            searchProcessorMediator.startSearching(mode: autofillListMode, onNewSearchResults: searchResultsReceived)
+            searchProcessorMediator.startSearching(mode: autofillListMode) { [weak self] data in
+                self?.searchResultsReceived(data: data)
+            }
             state.searchText = ""
             state.ciphersForSearch = []
             state.showNoResults = false
