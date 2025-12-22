@@ -235,6 +235,8 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
             guard cipher.folderId == id else { return self }
         case .noFolder:
             guard cipher.folderId == nil else { return self }
+        case .archive:
+            guard cipher.archivedDate != nil else { return self }
         case .trash:
             // this case is handled at the beginning of the function.
             return self

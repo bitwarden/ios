@@ -5,6 +5,15 @@ import XCTest
 class ArchiveCipherRequestTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `init` fails if the cipher has an empty id.
+    func test_init_fail_empty() throws {
+        XCTAssertThrowsError(
+            try ArchiveCipherRequest(id: ""),
+        ) { error in
+            XCTAssertEqual(error as? CipherAPIServiceError, .updateMissingId)
+        }
+    }
+
     /// `body` returns nil.
     func test_body() throws {
         let subject = try ArchiveCipherRequest(id: "1")

@@ -51,6 +51,24 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `addItem(forGroup:with:)` adds an archived item to the prepared data when the cipher
+    /// is archived and group is archive.
+    func test_addItem_addsArchivedItemWhenCipherIsArchivedAndGroupIsArchive() async {
+        let cipher = CipherListView.fixture(archivedDate: Date())
+        let preparedData = await subject.addItem(forGroup: .archive, with: cipher).build()
+
+        XCTAssertEqual(preparedData.groupItems.count, 1)
+        XCTAssertEqual(preparedData.groupItems[0].id, cipher.id)
+    }
+
+    /// `addItem(forGroup:with:)` does not add an item when the cipher is not archived and group is archive.
+    func test_addItem_doesNotAddWhenCipherIsNotArchivedAndGroupIsArchive() async {
+        let cipher = CipherListView.fixture(archivedDate: nil)
+        let preparedData = await subject.addItem(forGroup: .archive, with: cipher).build()
+
+        XCTAssertTrue(preparedData.groupItems.isEmpty)
+    }
+
     /// `addItem(forGroup:with:)` adds a trash item to the prepared data when the cipher is deleted and group is trash.
     func test_addItem_addsTrashItemWhenCipherIsDeletedAndGroupIsTrash() async {
         let cipher = CipherListView.fixture(deletedDate: Date())

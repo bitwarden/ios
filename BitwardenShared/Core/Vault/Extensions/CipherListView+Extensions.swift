@@ -28,6 +28,8 @@ extension CipherListView {
     /// - Returns: `true` if the cipher belongs to the group, `false` otherwise.
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         switch group {
+        case .archive:
+            archivedDate != nil
         case .card:
             type.isCard
         case let .collection(id, _, _):

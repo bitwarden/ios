@@ -37,11 +37,13 @@ extension CipherType {
             self = .secureNote
         case .sshKey:
             self = .sshKey
-        case .collection,
-             .folder,
-             .noFolder,
-             .totp,
-             .trash:
+        case
+            .archive,
+            .collection,
+            .folder,
+            .noFolder,
+            .totp,
+            .trash:
             return nil
         }
     }

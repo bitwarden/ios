@@ -9,6 +9,14 @@ import XCTest
 class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
+    /// `belongsToGroup(_:)` returns `true` when the cipher is archived and the group is `.archive`.
+    func test_belongsToGroup_archive() {
+        let cipher = CipherListView.fixture(archivedDate: .now)
+        XCTAssertTrue(cipher.belongsToGroup(.archive))
+        XCTAssertFalse(cipher.belongsToGroup(.login))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+    }
+
     /// `belongsToGroup(_:)` returns `true` when the cipher is a card type and the group is `.card`.
     func test_belongsToGroup_card() {
         let cipher = CipherListView.fixture(type: .card(.fixture()))
