@@ -69,7 +69,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")
         XCTAssertEqual(VaultListGroup.sshKey.name, "SSH key")
         XCTAssertEqual(VaultListGroup.totp.name, Localizations.verificationCodes)
-        XCTAssertEqual(VaultListGroup.trash.name, Localizations.archive)
+        XCTAssertEqual(VaultListGroup.archive.name, Localizations.archive)
         XCTAssertEqual(VaultListGroup.trash.name, "Trash")
     }
 

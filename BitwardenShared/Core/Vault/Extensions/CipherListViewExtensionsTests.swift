@@ -13,7 +13,7 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
     func test_belongsToGroup_archive() {
         let cipher = CipherListView.fixture(archivedDate: .now)
         XCTAssertTrue(cipher.belongsToGroup(.archive))
-        XCTAssertFalse(cipher.belongsToGroup(.login))
+        XCTAssertFalse(cipher.belongsToGroup(.trash))
         XCTAssertFalse(cipher.belongsToGroup(.identity))
     }
 
