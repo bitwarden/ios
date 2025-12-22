@@ -248,6 +248,22 @@ extension CipherView {
 }
 
 extension CipherView {
+    /// Returns a copy of the existing cipher with an updated archived date.
+    ///
+    /// - Parameter archivedDate: The archived date of the cipher.
+    /// - Returns: A copy of the existing cipher, with the specified properties updated.
+    ///
+    func update(archivedDate: Date?) -> CipherView {
+        update(
+            archivedDate: archivedDate,
+            collectionIds: collectionIds,
+            deletedDate: deletedDate,
+            folderId: folderId,
+            login: login,
+            organizationId: organizationId,
+        )
+    }
+
     /// Returns a copy of the existing cipher with an updated list of collection IDs.
     ///
     /// - Parameter collectionIds: The identifiers of any collections containing the cipher.
@@ -255,6 +271,7 @@ extension CipherView {
     ///
     func update(collectionIds: [String]) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -270,6 +287,7 @@ extension CipherView {
     ///
     func update(deletedDate: Date?) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -285,6 +303,7 @@ extension CipherView {
     ///
     func update(folderId: String?) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -300,6 +319,7 @@ extension CipherView {
     ///
     func update(login: BitwardenSdk.LoginView) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -313,6 +333,7 @@ extension CipherView {
     /// Returns a copy of the existing cipher, updating any of the specified properties.
     ///
     /// - Parameters:
+    ///   - archivedDate: The archived date of the cipher.
     ///   - collectionIds: The identifiers of any collections containing the cipher.
     ///   - deletedDate: The deleted date of the cipher.
     ///   - folderId: The identifier of the cipher's folder
@@ -321,6 +342,7 @@ extension CipherView {
     /// - Returns: A copy of the existing cipher, with the specified properties updated.
     ///
     private func update(
+        archivedDate: Date?,
         collectionIds: [String],
         deletedDate: Date?,
         folderId: String?,
