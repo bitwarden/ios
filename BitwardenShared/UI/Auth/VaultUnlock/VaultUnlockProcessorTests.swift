@@ -884,7 +884,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// lock the selected account.
     @MainActor
     func test_receive_accountLongPressed_lock() async throws {
-        guard #available(iOS 26, *) else {
+        guard #unavailable(iOS 26) else {
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 

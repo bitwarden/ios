@@ -113,6 +113,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             """
             \(Localizations.decryptionError)
             \(Localizations.bitwardenCouldNotDecryptThisVaultItemDescriptionLong)
+
             1
             """,
         )
