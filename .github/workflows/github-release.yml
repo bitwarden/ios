@@ -143,7 +143,7 @@ jobs:
           echo "Getting product release notes"
           product_release_notes=$(python3 .github/scripts/jira-get-release-notes/jira_release_notes.py "$_RELEASE_TICKET_ID" "$_JIRA_API_EMAIL" "$_JIRA_API_TOKEN")
 
-          if [[ -z "$product_release_notes" || $product_release_notes == "Error checking"* ]]; then
+          if [[ -z "$product_release_notes" || $product_release_notes == "[jira_release_notes.py]"* ]]; then
             echo "::warning::Failed to fetch release notes from Jira. Output: $product_release_notes"
             product_release_notes="<insert product release notes here>"
           else
