@@ -26,7 +26,7 @@ class VaultListFilterTests: BitwardenTestCase {
             filterType: .myVault,
             group: .card,
             mode: .all,
-            options: [.addTOTPGroup, .addTrashGroup],
+            options: [.addTOTPGroup, .addHiddenItemsGroup],
             rpID: "example.com",
             searchText: "test",
             uri: "https://example.com",
@@ -35,7 +35,7 @@ class VaultListFilterTests: BitwardenTestCase {
         XCTAssertEqual(subject.filterType, .myVault)
         XCTAssertEqual(subject.group, .card)
         XCTAssertEqual(subject.mode, .all)
-        XCTAssertEqual(subject.options, [.addTOTPGroup, .addTrashGroup])
+        XCTAssertEqual(subject.options, [.addTOTPGroup, .addHiddenItemsGroup])
         XCTAssertEqual(subject.rpID, "example.com")
         XCTAssertEqual(subject.searchText, "test")
         XCTAssertEqual(subject.uri, "https://example.com")

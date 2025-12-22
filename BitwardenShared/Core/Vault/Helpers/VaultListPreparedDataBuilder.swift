@@ -73,6 +73,8 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     ) async -> VaultListPreparedDataBuilder
     /// Builds the prepared data.
     func build() -> VaultListPreparedData
+    /// Increments the cipher archived count in the prepared data.
+    func incrementCipherArchivedCount() -> VaultListPreparedDataBuilder
     /// Increments the cipher type count in the prepared data.
     func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Increments the cipher deleted count in the prepared data.
@@ -310,6 +312,11 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
 
     func incrementCipherDeletedCount() -> VaultListPreparedDataBuilder {
         preparedData.ciphersDeletedCount += 1
+        return self
+    }
+
+    func incrementCipherArchivedCount() -> VaultListPreparedDataBuilder {
+        preparedData.ciphersArchivedCount += 1
         return self
     }
 

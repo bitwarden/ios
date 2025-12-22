@@ -21,6 +21,11 @@ extension CipherListView {
         }
     }
 
+    /// Whether the cipher is archived.
+    var isArchived: Bool {
+        archivedDate != nil
+    }
+
     // MARK: Methods
 
     /// Whether the cipher belongs to a group.

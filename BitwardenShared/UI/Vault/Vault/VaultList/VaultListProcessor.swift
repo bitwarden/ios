@@ -520,7 +520,7 @@ extension VaultListProcessor {
                 .vaultListPublisher(
                     filter: VaultListFilter(
                         filterType: state.vaultFilterType,
-                        options: [.addTOTPGroup, .addTrashGroup],
+                        options: [.addTOTPGroup, .addHiddenItemsGroup],
                     ),
                 ) {
                 // Check if the vault needs a sync.

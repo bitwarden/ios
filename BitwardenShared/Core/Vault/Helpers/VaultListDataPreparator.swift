@@ -97,7 +97,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
 }
 
 /// Default implementation of `VaultListDataPreparator`.
-struct DefaultVaultListDataPreparator: VaultListDataPreparator {
+struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The factory to create cipher matching helpers.
@@ -131,6 +131,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -139,6 +141,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             guard decryptedCipher.type.isLogin,
                   decryptedCipher.deletedDate == nil,
                   decryptedCipher.canBeUsedInBasicLoginAutofill else {
+                return
+            }
+
+            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
                 return
             }
 
@@ -166,6 +172,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -173,6 +181,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
                   decryptedCipher.deletedDate == nil else {
+                return
+            }
+
+            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
                 return
             }
 
@@ -202,6 +214,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -209,6 +223,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
                   decryptedCipher.deletedDate == nil else {
+                return
+            }
+
+            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
                 return
             }
 
@@ -245,6 +263,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             .prepareFolders(folders: folders, filterType: filter.filterType)
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -252,6 +272,11 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         ) { decryptedCipher in
             guard decryptedCipher.deletedDate == nil else {
                 preparedDataBuilder = preparedDataBuilder.incrementCipherDeletedCount()
+                return
+            }
+
+            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
+                preparedDataBuilder = preparedDataBuilder.incrementCipherArchivedCount()
                 return
             }
 
@@ -285,12 +310,18 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
             .prepareFolders(folders: folders, filterType: filter.filterType)
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
             preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
             if filter.group != .trash, decryptedCipher.deletedDate != nil {
+                return
+            }
+
+            if archiveItemsFeatureFlagEnabled, filter.group != .archive, decryptedCipher.isArchived {
                 return
             }
 
@@ -323,6 +354,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -330,6 +363,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         ) { decryptedCipher in
             guard decryptedCipher.deletedDate == nil,
                   decryptedCipher.belongsToGroup(.login) else {
+                return
+            }
+
+            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
                 return
             }
 
@@ -357,6 +394,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -364,6 +403,12 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator {
         ) { decryptedCipher in
             if decryptedCipher.deletedDate != nil {
                 guard let group = filter.group, group == .trash else {
+                    return
+                }
+            }
+
+            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
+                guard let group = filter.group, group == .archive else {
                     return
                 }
             }

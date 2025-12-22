@@ -750,6 +750,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
                 collectionHelper: collectionHelper,
+                configService: configService,
                 errorReporter: errorReporter,
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(

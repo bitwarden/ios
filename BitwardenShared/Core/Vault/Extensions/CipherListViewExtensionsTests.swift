@@ -374,6 +374,12 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(cipher.matchesSearchQuery("mysite"), .exact)
     }
 
+    /// `isArchived` returns `true` when there's an archived date, `false` otherwise.
+    func test_isArchived() {
+        XCTAssertTrue(CipherListView.fixture(archivedDate: .now).isArchived)
+        XCTAssertFalse(CipherListView.fixture(archivedDate: nil).isArchived)
+    }
+
     /// `passesRestrictItemTypesPolicy(_:)` passes the policy when there are no organization IDs.
     func test_passesRestrictItemTypesPolicy_noOrgIds() {
         XCTAssertTrue(CipherListView.fixture().passesRestrictItemTypesPolicy([]))

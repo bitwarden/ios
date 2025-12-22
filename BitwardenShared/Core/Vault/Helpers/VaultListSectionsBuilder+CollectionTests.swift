@@ -186,6 +186,7 @@ class VaultListSectionsBuilderCollectionTests: BitwardenTestCase {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: MockConfigService(),
             errorReporter: errorReporter,
             withData: withData,
         )

@@ -1453,7 +1453,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
-        let filter = VaultListFilter(options: [.addTOTPGroup, .addTrashGroup])
+        let filter = VaultListFilter(options: [.addTOTPGroup, .addHiddenItemsGroup])
         var iterator = try await subject.vaultListPublisher(filter: filter).makeAsyncIterator()
         let vaultListData = try await iterator.next()
         let sections = try XCTUnwrap(vaultListData?.sections)
