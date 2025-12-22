@@ -341,7 +341,7 @@ extension CipherView {
     ///   - organizationId: The identifier of the cipher's organization.
     /// - Returns: A copy of the existing cipher, with the specified properties updated.
     ///
-    private func update(
+    private func update( // swiftlint:disable:this function_parameter_count
         archivedDate: Date?,
         collectionIds: [String],
         deletedDate: Date?,
@@ -398,4 +398,4 @@ extension BitwardenSdk.LoginView {
             fido2Credentials: fido2Credentials,
         )
     }
-}
+} // swiftlint:disable:this file_length
