@@ -45,6 +45,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
             cipher: .fixture(
                 type: .login(.fixture()),
             ),
+            archiveVaultItemsFF: false,
         )
         XCTAssertEqual(result, .none)
     }
@@ -58,6 +59,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 cipher: .fixture(
                     type: type,
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .none)
         }
@@ -70,6 +72,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
             cipher: .fixture(
                 type: .login(.fixture()),
             ),
+            archiveVaultItemsFF: false,
         )
         XCTAssertEqual(result, .none)
     }
@@ -82,8 +85,37 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 type: .login(.fixture(uris: [.fixture()])),
                 deletedDate: .now,
             ),
+            archiveVaultItemsFF: false,
         )
         XCTAssertEqual(result, .none)
+    }
+
+    /// `doesCipherMatch(cipher:)` returns `.none` when cipher is archived and feature flag is enabled.
+    func test_doesCipherMatch_archivedWithFlagEnabled() async {
+        subject.uriToMatch = "https://google.com"
+        subject.matchingDomains = ["google.com"]
+        let result = subject.doesCipherMatch(
+            cipher: .fixture(
+                type: .login(.fixture(uris: [.fixture(uri: "https://google.com", match: .domain)])),
+                archivedDate: .now,
+            ),
+            archiveVaultItemsFF: true,
+        )
+        XCTAssertEqual(result, .none)
+    }
+
+    /// `doesCipherMatch(cipher:)` returns `.exact` when cipher is archived but feature flag is disabled.
+    func test_doesCipherMatch_archivedWithFlagDisabled() async {
+        subject.uriToMatch = "https://google.com"
+        subject.matchingDomains = ["google.com"]
+        let result = subject.doesCipherMatch(
+            cipher: .fixture(
+                type: .login(.fixture(uris: [.fixture(uri: "https://google.com", match: .domain)])),
+                archivedDate: .now,
+            ),
+            archiveVaultItemsFF: false,
+        )
+        XCTAssertEqual(result, .exact)
     }
 
     /// `doesCipherMatch(cipher:)` returns `.exact` when match type is `.domain` and the match URI base domain
@@ -102,6 +134,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .exact)
         }
@@ -123,6 +156,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .none)
         }
@@ -143,6 +177,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .exact, "On \(uri)")
         }
@@ -164,6 +199,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .domain)])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .fuzzy)
         }
@@ -184,6 +220,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .exact)
         }
@@ -207,6 +244,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                 cipher: .fixture(
                     type: .login(.fixture(uris: [.fixture(uri: uri, match: .host)])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .none)
         }
@@ -230,6 +268,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                         .fixture(uri: uri, match: .startsWith),
                     ])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .exact)
         }
@@ -254,6 +293,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                         .fixture(uri: uri, match: .startsWith),
                     ])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .none)
         }
@@ -271,6 +311,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                     .fixture(uri: "https://vault.bitwarden.com", match: .exact),
                 ])),
             ),
+            archiveVaultItemsFF: false,
         )
         XCTAssertEqual(result, .exact)
     }
@@ -294,6 +335,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                         .fixture(uri: uri, match: .exact),
                     ])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .none)
         }
@@ -317,6 +359,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                         .fixture(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, match: .regularExpression),
                     ])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .exact)
         }
@@ -339,6 +382,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                         .fixture(uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#, match: .regularExpression),
                     ])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .none)
         }
@@ -361,6 +405,7 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
                         .fixture(uri: uri, match: .never),
                     ])),
                 ),
+                archiveVaultItemsFF: false,
             )
             XCTAssertEqual(result, .none)
         }

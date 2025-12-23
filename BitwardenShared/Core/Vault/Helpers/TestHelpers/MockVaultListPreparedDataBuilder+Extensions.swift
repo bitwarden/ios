@@ -41,6 +41,10 @@ extension MockVaultListPreparedDataBuilder {
             helper.recordCall("addSearchResultItem")
             return self
         }
+        incrementCipherArchivedCountClosure = { () -> VaultListPreparedDataBuilder in
+            helper.recordCall("incrementCipherArchivedCount")
+            return self
+        }
         incrementCipherTypeCountClosure = { _ -> VaultListPreparedDataBuilder in
             helper.recordCall("incrementCipherTypeCount")
             return self

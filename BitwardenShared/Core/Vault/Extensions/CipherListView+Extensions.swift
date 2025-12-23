@@ -21,6 +21,16 @@ extension CipherListView {
         }
     }
 
+    /// Whether the cipher is archived.
+    var isArchived: Bool {
+        archivedDate != nil
+    }
+
+    /// Whether the cipher is normally hidden for flows by being archived or deleted.
+    var isHidden: Bool {
+        archivedDate != nil || deletedDate != nil
+    }
+
     // MARK: Methods
 
     /// Whether the cipher belongs to a group.
@@ -28,6 +38,8 @@ extension CipherListView {
     /// - Returns: `true` if the cipher belongs to the group, `false` otherwise.
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         switch group {
+        case .archive:
+            archivedDate != nil
         case .card:
             type.isCard
         case let .collection(id, _, _):
@@ -49,6 +61,27 @@ extension CipherListView {
         case .trash:
             deletedDate != nil
         }
+    }
+
+    /// Whether the cipher is normally hidden for flows by being archived or deleted.
+    /// This is similar to the above `isHidden` property but taking into consideration
+    /// the `FeatureFlag.archiveVaultItems` flag.
+    ///
+    /// TODO: PM-30129 When FF gets removed, replace all calls to this function with the above `isHidden` property
+    /// and remove this function.
+    ///
+    /// - Parameter archiveVaultItemsFeatureFlagEnabled: The `FeatureFlag.archiveVaultItems` flag value.
+    /// - Returns: `true` if hidden, `false` othewise.
+    func isHiddenWithArchiveFF(flag archiveVaultItemsFeatureFlagEnabled: Bool) -> Bool {
+        if deletedDate != nil {
+            return true
+        }
+
+        guard archiveVaultItemsFeatureFlagEnabled else {
+            return false
+        }
+
+        return archivedDate != nil
     }
 
     /// Determines how well the cipher matches a search query.
