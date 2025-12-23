@@ -15,6 +15,9 @@ public enum AppRoute: Equatable {
     /// A route to show a login request.
     case loginRequest(LoginRequest)
 
+    /// A route to show the migrate to my items screen.
+    case migrateToMyItems(organizationId: String)
+
     /// A route to the send interface.
     case sendItem(SendItemRoute)
 

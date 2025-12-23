@@ -43,6 +43,13 @@ protocol PolicyService: AnyObject {
     ///
     func isSendHideEmailDisabledByPolicy() async -> Bool
 
+    /// Gets the organization ID with the earliest revision date that is applying a policy to the active user.
+    ///
+    /// - Parameter policyType: The policy to check.
+    /// - Returns: The organization ID with the earliest revision date applying the policy, or `nil` if none.
+    ///
+    func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String?
+
     /// Gets the organizations IDs that are applying the policy to the active user.
     ///
     /// - Parameter policyType: The policy to check.
@@ -371,6 +378,18 @@ extension DefaultPolicyService {
         }
 
         return [.card]
+    }
+
+    func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
+        let policies = await policiesApplyingToUser(policyType, filter: nil)
+        guard !policies.isEmpty else { return nil }
+
+        // Sort by revision date (earliest first) and return the organization ID of the first one
+        return policies
+            .min(by: { p1, p2 in
+                (p1.revisionDate ?? .distantFuture) < (p2.revisionDate ?? .distantFuture)
+            })?
+            .organizationId
     }
 
     func isSendHideEmailDisabledByPolicy() async -> Bool {

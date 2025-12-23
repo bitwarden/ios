@@ -20,6 +20,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         & NavigatorBuilderModule
         & SendItemModule
         & TabModule
+        & VaultItemModule
         & VaultModule
 
     // MARK: Private Properties
@@ -123,6 +124,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showExtensionSetup(route: extensionSetupRoute)
         case let .loginRequest(loginRequest):
             showLoginRequest(loginRequest)
+        case let .migrateToMyItems(organizationId):
+            showMigrateToMyItems(organizationId: organizationId)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
         case let .tab(tabRoute):
@@ -276,6 +279,32 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         }
     }
 
+    /// Show the migrate to my items screen.
+    ///
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    ///
+    private func showMigrateToMyItems(organizationId: String) {
+        DispatchQueue.main.async {
+            // Make sure that the user is authenticated and not currently viewing the migrate to my items view.
+            guard self.childCoordinator is AnyCoordinator<TabRoute, Void> else { return }
+            let currentView = self.rootNavigator?.rootViewController?.topmostViewController()
+            guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
+
+            // Create the migrate to my items view.
+            let navigationController = self.module.makeNavigationController()
+            navigationController.isModalInPresentation = true
+            let coordinator = self.module.makeVaultItemCoordinator(stackNavigator: navigationController)
+            coordinator.start()
+            coordinator.navigate(to: .migrateToMyItems(organizationId: organizationId), context: self)
+
+            // Present the migrate to my items view.
+            self.rootNavigator?.rootViewController?.topmostViewController().present(
+                navigationController,
+                animated: true,
+            )
+        }
+    }
+
     /// Adds a transparent navigation controller to the root navigator.
     /// This is needed for the Autofill Fido2 flow when unlocking with the never unlock key
     /// and performing user verification. If we don't do this, the biometrics prompt may not be presented
@@ -394,6 +423,16 @@ extension AppCoordinator: LoginRequestDelegate {
     ///
     func loginRequestAnswered(approved: Bool) {
         showToast(approved ? Localizations.loginApproved : Localizations.logInDenied)
+    }
+}
+
+// MARK: - MigrateToMyItemsProcessorDelegate
+
+extension AppCoordinator: MigrateToMyItemsProcessorDelegate {
+    func didLeaveOrganization() {
+        rootNavigator?.rootViewController?.topmostViewController().dismiss(animated: true) {
+            self.showToast(Localizations.youLeftTheOrganization)
+        }
     }
 }
 

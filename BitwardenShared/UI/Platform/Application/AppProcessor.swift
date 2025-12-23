@@ -655,6 +655,14 @@ extension AppProcessor: SyncServiceDelegate {
             coordinator?.navigate(to: .auth(.setMasterPassword(organizationIdentifier: orgIdentifier)))
         }
     }
+
+    func migrateVaultToMyItems(organizationId: String) {
+        // Don't show the migrate vault screen if running in an app extension.
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+
+        coordinator?.hideLoadingOverlay()
+        coordinator?.navigate(to: .migrateToMyItems(organizationId: organizationId))
+    }
 }
 
 // MARK: - Fido2 credentials
