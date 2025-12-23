@@ -1,4 +1,5 @@
 import BitwardenKit
+import Combine
 
 // MARK: - VaultListDirectorStrategyFactory
 
@@ -7,7 +8,16 @@ import BitwardenKit
 /// create them by using this factory.
 protocol VaultListDirectorStrategyFactory { // sourcery: AutoMockable
     /// Makes a `VaultListDirectorStrategy` from the specified filter.
+    /// - Parameter filter: The filter to choose the correct strategy.
+    /// - Returns: The correct director strategy for the given filter.
     func make(filter: VaultListFilter) -> VaultListDirectorStrategy
+
+    /// Makes a `VaultListSearchDirectorStrategy` from the specified mode.
+    /// - Parameter mode: The `AutofillListMode` to choose the correct strategy, if any.
+    /// - Returns: The search director strategy for the given mode.
+    func makeSearchStrategy(
+        mode: AutofillListMode?,
+    ) -> VaultListSearchDirectorStrategy
 }
 
 // MARK: - DefaultVaultListDirectorStrategyFactory
@@ -28,23 +38,7 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
     /// The helper used to prepare data for the vault list builder.
     let vaultListDataPreparator: VaultListDataPreparator
 
-    func make(filter: VaultListFilter) -> VaultListDirectorStrategy { // swiftlint:disable:this function_body_length
-        guard filter.searchText == nil else {
-            if case .combinedMultipleSections = filter.mode {
-                return SearchCombinedMultipleAutofillListDirectorStrategy(
-                    builderFactory: vaultListBuilderFactory,
-                    cipherService: cipherService,
-                    fido2UserInterfaceHelper: fido2UserInterfaceHelper,
-                    vaultListDataPreparator: vaultListDataPreparator,
-                )
-            }
-            return SearchVaultListDirectorStrategy(
-                builderFactory: vaultListBuilderFactory,
-                cipherService: cipherService,
-                vaultListDataPreparator: vaultListDataPreparator,
-            )
-        }
-
+    func make(filter: VaultListFilter) -> VaultListDirectorStrategy {
         switch filter.mode {
         case .combinedMultipleSections:
             return CombinedMultipleAutofillVaultListDirectorStrategy(
@@ -84,5 +78,23 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
                 vaultListDataPreparator: vaultListDataPreparator,
             )
         }
+    }
+
+    func makeSearchStrategy(
+        mode: AutofillListMode?,
+    ) -> VaultListSearchDirectorStrategy {
+        if case .combinedMultipleSections = mode {
+            return SearchCombinedMultipleAutofillListDirectorStrategy(
+                builderFactory: vaultListBuilderFactory,
+                cipherService: cipherService,
+                fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                vaultListDataPreparator: vaultListDataPreparator,
+            )
+        }
+        return SearchVaultListDirectorStrategy(
+            builderFactory: vaultListBuilderFactory,
+            cipherService: cipherService,
+            vaultListDataPreparator: vaultListDataPreparator,
+        )
     }
 }

@@ -7,9 +7,10 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
     // MARK: Properties
 
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!
@@ -19,6 +20,8 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var textAutofillHelper: MockTextAutofillHelper!
@@ -39,6 +42,11 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         stateService = MockStateService()
         textAutofillHelper = MockTextAutofillHelper()
         textAutofillHelperFactory = MockTextAutofillHelperFactory()
@@ -55,6 +63,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
                 textAutofillHelperFactory: textAutofillHelperFactory,
                 totpExpirationManagerFactory: totpExpirationManagerFactory,
@@ -74,6 +83,8 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
         totpExpirationManagerFactory = nil
@@ -97,106 +108,39 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
+    /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor
+    /// mediator that the filter changed
     @MainActor
-    func test_perform_search() {
-        let items = [
-            VaultListItem(
-                id: "1",
-                itemType: .cipher(
-                    .fixture(
-                        id: "1",
-                        type: .card(.init(brand: nil)),
-                    ),
-                ),
-            ),
-            VaultListItem(
-                id: "2",
-                itemType: .cipher(
-                    .fixture(
-                        id: "2",
-                        type: .identity,
-                    ),
-                ),
-            ),
-        ]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: items,
-            name: "",
-        )
-        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
-        XCTAssertFalse(subject.state.showNoResults)
+    func test_perform_search() async {
+        await subject.perform(.search("example"))
         XCTAssertEqual(
-            vaultRepository.vaultListFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: nil,
                 mode: .all,
                 rpID: nil,
-                searchText: "bit",
+                searchText: "example",
             ),
         )
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
-    /// when filtering by group.
+    /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor mediator
+    /// a filter with group has changed.
     @MainActor
-    func test_perform_searchWithGroup() {
-        let items = [
-            VaultListItem(
-                id: "1",
-                itemType: .cipher(
-                    .fixture(
-                        id: "1",
-                        type: .card(.init(brand: nil)),
-                    ),
-                ),
-            ),
-            VaultListItem(
-                id: "2",
-                itemType: .cipher(
-                    .fixture(
-                        id: "2",
-                        type: .card(.init(brand: nil)),
-                    ),
-                ),
-            ),
-        ]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: items,
-            name: "",
-        )
-        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
+    func test_perform_searchWithGroup() async {
         subject.state.group = .card
 
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
+        await subject.perform(.search("example"))
 
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
-        XCTAssertFalse(subject.state.showNoResults)
         XCTAssertEqual(
-            vaultRepository.vaultListFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .card,
                 mode: .all,
                 rpID: nil,
-                searchText: "bit",
+                searchText: "example",
             ),
         )
     }

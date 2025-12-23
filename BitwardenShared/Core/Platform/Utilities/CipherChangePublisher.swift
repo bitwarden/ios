@@ -131,7 +131,7 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
     ///
     /// - Parameter notification: The notification containing the saved changes.
     ///
-    private func handleContextSave(_ notification: Notification) {
+    private func handleContextSave(_ notification: Notification) { // swiftlint:disable:this cyclomatic_complexity
         guard let subscriber,
               let userInfo = notification.userInfo else {
             return
@@ -145,7 +145,7 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
                           cipherData.userId == userId else {
                         continue
                     }
-                    _ = subscriber.receive(.inserted(try Cipher(cipherData: cipherData)))
+                    _ = try subscriber.receive(.inserted(Cipher(cipherData: cipherData)))
                 }
             }
 
@@ -156,7 +156,7 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
                           cipherData.userId == userId else {
                         continue
                     }
-                    _ = subscriber.receive(.updated(try Cipher(cipherData: cipherData)))
+                    _ = try subscriber.receive(.updated(Cipher(cipherData: cipherData)))
                 }
             }
 
@@ -167,7 +167,7 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
                           cipherData.userId == userId else {
                         continue
                     }
-                    _ = subscriber.receive(.deleted(try Cipher(cipherData: cipherData)))
+                    _ = try subscriber.receive(.deleted(Cipher(cipherData: cipherData)))
                 }
             }
         } catch {
