@@ -19,6 +19,57 @@
         <string>Bitwarden no ha pogut desxifrar %d elements de la caixa forta</string>
       </dict>
     </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Master password must be at least %#@characters@ long.</string>
+      <key>characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d character</string>
+        <key>other</key>
+        <string>%d characters</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
+      <key>times</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d time</string>
+        <key>other</key>
+        <string>%d times</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@characters@</string>
+      <key>characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d character</string>
+        <key>other</key>
+        <string>%d characters</string>
+      </dict>
+    </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
@@ -34,6 +85,23 @@
         <string>%d dia</string>
         <key>other</key>
         <string>%d dies</string>
+      </dict>
+    </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@hours@</string>
+      <key>hours</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d hora</string>
+        <key>other</key>
+        <string>%d hores</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -68,23 +136,6 @@
         <string>%d element</string>
         <key>other</key>
         <string>%d elements</string>
-      </dict>
-    </dict>
-    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
-    <key>XHours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d hora</string>
-        <key>other</key>
-        <string>%d hores</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -136,6 +187,23 @@
         <string>%d setmana</string>
         <key>other</key>
         <string>%d setmanes</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Your PIN must be at least %#@characters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <key>characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d character</string>
+        <key>other</key>
+        <string>%d characters</string>
       </dict>
     </dict>
   </dict>

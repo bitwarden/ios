@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Мастер-пароль - это пароль, используемый для доступа к вашему хранилищу.";
 "MasterPasswordHint" = "Подсказка к мастер-паролю";
 "NewMasterPasswordHint" = "Новая подсказка к мастер-паролю";
-"MasterPasswordLengthValMessageX" = "Мастер-пароль должен содержать не менее %1$@ символов.";
 "MinNumbers" = "Минимум цифр";
 "MinSpecial" = "Минимум символов";
 "MoreSettings" = "Дополнительные настройки";
@@ -389,7 +388,6 @@
 "AllItems" = "Все элементы";
 "CheckingPassword" = "Проверка пароля…";
 "CheckPassword" = "Проверьте, не скомпрометирован ли пароль.";
-"PasswordExposed" = "Этот пароль был скомпрометирован %1$@ раз(а). Вам следует его изменить.";
 "PasswordSafe" = "Этот пароль не обнаружен в известных базах утечек. Можно продолжать его использовать.";
 "IdentityName" = "Название личной информации";
 "Value" = "Значение";
@@ -465,7 +463,7 @@
 "Download" = "Загрузить";
 "Shared" = "Общие";
 "ToggleVisibility" = "Вкл/выкл видимость";
-"LoginExpired" = "Истек срок действия вашего сеанса.";
+"LoginExpired" = "Истек срок действия вашей сессии.";
 "BiometricsDirection" = "Биометрическая верификация.";
 "Biometrics" = "биометрией";
 "UseBiometricsToUnlock" = "Использовать биометрию";
@@ -594,7 +592,7 @@
 "CaptchaFailed" = "Ошибка капчи. Попробуйте еще раз.";
 "UpdatedMasterPassword" = "Мастер-пароль обновлен";
 "UpdateMasterPassword" = "Обновить мастер-пароль";
-"UpdateMasterPasswordWarning" = "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить мастер-пароль сейчас. В результате текущий сеанс будет завершен, потребуется повторный вход. Активные сеансы на других устройствах могут оставаться активными в течение одного часа.";
+"UpdateMasterPasswordWarning" = "Мастер-пароль недавно был изменен администратором вашей организации. Чтобы получить доступ к хранилищу, вы должны обновить мастер-пароль сейчас. В результате текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение одного часа.";
 "UpdatingPassword" = "Обновление пароля";
 "UpdatePasswordError" = "В настоящее время обновить пароль невозможно";
 "RemoveMasterPassword" = "Удалить мастер-пароль";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Подтвердить вход";
 "DenyLogIn" = "Запретить вход";
 "JustNow" = "Только что";
-"XMinutesAgo" = "%1$@ мин. назад";
 "LogInAccepted" = "Вход подтвержден";
 "LogInDenied" = "Вход запрещен";
 "ApproveLoginRequests" = "Одобрение запросов на вход";
@@ -768,7 +765,7 @@
 "SelfHosted" = "Собственный хостинг";
 "DataRegion" = "Регион данных";
 "Region" = "Регион";
-"UpdateWeakMasterPasswordWarning" = "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа.";
+"UpdateWeakMasterPasswordWarning" = "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущая сессия будет завершена и потребуется повторная авторизация. Сессии на других устройствах могут оставаться активными в течение часа.";
 "CurrentMasterPasswordRequired" = "Текущий мастер-пароль (обязательно)";
 "NewMasterPasswordRequired" = "Новый мастер-пароль (обязательно)";
 "LoggedIn" = "Выполнен вход!";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Тайм-аут сессии";
 "SessionTimeoutAction" = "Действие при тайм-ауте сессии";
 "AccountFingerprintPhrase" = "Фраза отпечатка аккаунта";
-"OneHourAndOneMinute" = "Один час и одна минута";
-"OneHourAndXMinute" = "Один час и %1$@ минут";
-"XHoursAndOneMinute" = "%1$@ часов и одна минута";
-"XHoursAndYMinutes" = "%1$@ часов и %2$@ минут";
 "PasskeyManagementExplanationLong" = "Использовать Bitwarden для сохранения новых passkeys и авторизации при помощи passkeys, хранящимися в вашем хранилище.";
 "AutofillServicesExplanationLong" = "Использовать фреймворк автозаполнения Android для заполнения информации о входе в другие приложения на устройстве
 
@@ -964,7 +957,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden не может сбросить утерянный или забытый мастер-пароль.";
 "LearnAboutWaysToPreventAccountLockout" = "Узнайте о способах предотвращения блокировки аккаунта";
 "WhatMakesAPasswordStrong" = "Какой пароль считается надежным?";
-"XCharacters" = "Символов: %1$@";
 "RemoveMasterPasswordMessage" = "%1$@ использует SSO с собственным сервером ключей. Для авторизации пользователям этой организации больше не требуется мастер-пароль.";
 "RestartRegistration" = "Перезапустить регистрацию";
 "ExpiredLink" = "Истекшая ссылка";
@@ -1157,7 +1149,6 @@
 "GeneratePassphrase" = "Создать парольную фразу";
 "AllowUniversalClipboard" = "Разрешить универсальный буфер обмена";
 "UseUniversalClipboardToCopyDescriptionLong" = "Используйте универсальный буфер обмена, чтобы копировать здесь и вставлять на других устройствах, авторизованных с тем же Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-код для Bitwarden должен состоять как минимум из %1$@ символов. Настройки PIN-кода будут сброшены, если вы полностью выйдете из приложения.";
 "RemoveMasterPasswordMessage" = "%1$@ использует SSO с собственным сервером ключей. Для авторизации пользователям этой организации больше не требуется мастер-пароль.";
 "RemoveMasterPasswordConfirmDomain" = "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации.";
 "ConfirmKeyConnectorDomain" = "Подтвердите домен соединителя ключей";
@@ -1275,7 +1266,18 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас.";
 "Updating" = "Обновление…";
 "EncryptionSettingsUpdated" = "Настройки шифрования обновлены";
+"ItemTransfer" = "Передача элементов";
+"TransferItemsToX" = "Переместить элементы в %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.";
+"DeclineAndLeave" = "Отклонить и покинуть";
+"WhyAmISeeingThis" = "Почему я это вижу?";
+"AreYouSureYouWantToLeave" = "Вы уверены, что хотите покинуть?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации.";
+"ContactYourAdminToRegainAccess" = "Свяжитесь с вашим администратором для восстановления доступа.";
+"LeaveX" = "Покинуть %1$@";
+"HowToManageMyVault" = "Как управлять моим хранилищем";
+"YouLeftTheOrganization" = "Вы покинули организацию";
 "ThisSettingIsManagedByYourOrganization" = "Эта настройка управляется вашей организацией.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организация установила максимальный тайм-аут сеанса равным %1$@.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организация установила максимальный тайм-аут сеанса %1$@ и %2$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша организация установила тайм-аут сессии по умолчанию равным %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организация установила максимальный тайм-аут сессии равным %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организация установила максимальный тайм-аут сессии %1$@ и %2$@.";

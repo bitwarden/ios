@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hasło główne to hasło, które zapewnia dostęp do sejfu.";
 "MasterPasswordHint" = "Podpowiedź do hasła głównego";
 "NewMasterPasswordHint" = "Nowa podpowiedź do hasła głównego";
-"MasterPasswordLengthValMessageX" = "Hasło główne musi składać się z co najmniej %1$@ znaków.";
 "MinNumbers" = "Minimalna liczba cyfr";
 "MinSpecial" = "Minimalna liczba znaków specjalnych";
 "MoreSettings" = "Więcej ustawień";
@@ -389,7 +388,6 @@
 "AllItems" = "Wszystkie elementy";
 "CheckingPassword" = "Sprawdzanie hasła…";
 "CheckPassword" = "Sprawdź, czy hasło zostało ujawnione.";
-"PasswordExposed" = "Hasło zostało ujawnione %1$@ raz(y) w wyciekach danych. Zmień je.";
 "PasswordSafe" = "To hasło nie znajduje się w żadnej znanej wykradzionej bazie danych. Powinno być bezpieczne w użyciu.";
 "IdentityName" = "Nazwa profilu";
 "Value" = "Wartość";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Potwierdź logowanie";
 "DenyLogIn" = "Odrzuć logowanie";
 "JustNow" = "Teraz";
-"XMinutesAgo" = "%1$@ min temu";
 "LogInAccepted" = "Logowanie zostało potwierdzone";
 "LogInDenied" = "Logowanie zostało odrzucone";
 "ApproveLoginRequests" = "Zatwierdź prośby logowania";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Blokada aplikacji";
 "SessionTimeoutAction" = "Sposób blokady";
 "AccountFingerprintPhrase" = "Unikalny identyfikator konta";
-"OneHourAndOneMinute" = "1 godz. i 1 min";
-"OneHourAndXMinute" = "1 godz. %1$@ 1 min";
-"XHoursAndOneMinute" = "%1$@ godz. i 1 min";
-"XHoursAndYMinutes" = "%1$@ godz. i %2$@ min";
 "PasskeyManagementExplanationLong" = "Użyj aplikacji Bitwarden do zapisywania nowych kluczy dostępu i logowania się za pomocą nich.";
 "AutofillServicesExplanationLong" = "Autouzupełnianie systemu Android służy do uzupełniania danych logowania w innych aplikacjach na urządzeniu.";
 "UseInlineAutofillExplanationLong" = "Użyj usługi autouzupełniania w klawiaturze. Jeśli opcja jest niedostępna, użyj domyślnej nakładki.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden nie może zresetować utraconego hasła głównego.";
 "LearnAboutWaysToPreventAccountLockout" = "Dowiedz się więcej o sposobach zapobiegania blokowaniu konta";
 "WhatMakesAPasswordStrong" = "Co czyni hasło silnym?";
-"XCharacters" = "%1$@ znaków";
 "RemoveMasterPasswordMessage" = "%1$@ używa logowania jednokrotnego z własnym serwerem klucza. Hasło główne nie jest już wymagane dla członków tej organizacji.";
 "RestartRegistration" = "Rozpocznij rejestrację od początku";
 "ExpiredLink" = "Link wygasł";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Wygeneruj hasło wyrazowe";
 "AllowUniversalClipboard" = "Zezwalaj na uniwersalny schowek";
 "UseUniversalClipboardToCopyDescriptionLong" = "Użyj uniwersalnego schowka, aby skopiować i wkleić dane na innych urządzeniach zalogowanych przy użyciu tego samego Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Kod PIN musi składać się z co najmniej %1$@ znaków. Ustawienia kodu PIN zostaną zresetowane po wylogowaniu się z aplikacji.";
 "RemoveMasterPasswordMessage" = "%1$@ używa logowania jednokrotnego z własnym serwerem klucza. Hasło główne nie jest już wymagane dla członków tej organizacji.";
 "RemoveMasterPasswordConfirmDomain" = "Hasło główne nie jest już wymagane dla członków następującej organizacji. Potwierdź poniższą domenę z administratorem organizacji.";
 "ConfirmKeyConnectorDomain" = "Potwierdź domenę Key Connector";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia.";
 "Updating" = "Aktualizowanie…";
 "EncryptionSettingsUpdated" = "Ustawienia szyfrowania zostały zaktualizowane";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "Ustawienie jest zarządzane przez Twoją organizację.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@.";
