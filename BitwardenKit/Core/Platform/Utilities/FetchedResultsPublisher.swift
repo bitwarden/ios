@@ -137,17 +137,19 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType, Outpu
 
         controller?.delegate = self
 
-        context.perform {
+        context.perform { [weak self] in
+            guard let self else { return }
+
             do {
-                try self.controller?.performFetch()
-                if self.controller?.fetchedObjects != nil {
-                    self.queue.async {
+                try controller?.performFetch()
+                if controller?.fetchedObjects != nil {
+                    queue.async {
                         self.hasChangesToSend = true
                         self.fulfillDemand()
                     }
                 }
             } catch {
-                self.queue.async {
+                queue.async {
                     self.subscriber?.receive(completion: .failure(error))
                 }
             }
