@@ -1182,7 +1182,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
-        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedArguments?.cipher)
     }
 
     /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data including cipher as it's archived
@@ -1213,7 +1213,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "addItemWithMatchResultCipher",
         ])
         XCTAssertNotNil(result)
-        XCTAssertEqual(cipherMatchingHelper.doesCipherMatchReceivedCipher?.id, "1")
+        XCTAssertEqual(cipherMatchingHelper.doesCipherMatchReceivedArguments?.cipher.id, "1")
     }
 
     /// `prepareAutofillPasswordsData(from::filter:)` returns `nil` when no ciphers passed.
@@ -1259,7 +1259,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "addItemWithMatchResultCipher",
         ])
         XCTAssertNotNil(result)
-        XCTAssertEqual(cipherMatchingHelper.doesCipherMatchReceivedCipher?.id, "1")
+        XCTAssertEqual(cipherMatchingHelper.doesCipherMatchReceivedArguments?.cipher.id, "1")
     }
 
     /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it doesn't pass
@@ -1289,7 +1289,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
-        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedArguments?.cipher)
     }
 
     /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher
@@ -1317,7 +1317,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
-        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedArguments?.cipher)
     }
 
     /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it's deleted.
@@ -1344,7 +1344,7 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
             "prepareRestrictItemsPolicyOrganizations",
         ])
         XCTAssertNotNil(result)
-        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedCipher)
+        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedArguments?.cipher)
     }
 
     // MARK: Private

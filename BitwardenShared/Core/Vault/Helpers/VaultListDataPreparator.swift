@@ -148,7 +148,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 return
             }
 
-            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
+            let matchResult = cipherMatchingHelper.doesCipherMatch(
+                cipher: decryptedCipher,
+                archiveVaultItemsFF: archiveItemsFeatureFlagEnabled,
+            )
 
             preparedDataBuilder = await preparedDataBuilder.addItem(
                 withMatchResult: matchResult,
@@ -188,7 +191,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 return
             }
 
-            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
+            let matchResult = cipherMatchingHelper.doesCipherMatch(
+                cipher: decryptedCipher,
+                archiveVaultItemsFF: archiveItemsFeatureFlagEnabled,
+            )
             guard matchResult != .none else {
                 return
             }
@@ -230,7 +236,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 return
             }
 
-            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
+            let matchResult = cipherMatchingHelper.doesCipherMatch(
+                cipher: decryptedCipher,
+                archiveVaultItemsFF: archiveItemsFeatureFlagEnabled,
+            )
             guard matchResult != .none else {
                 return
             }

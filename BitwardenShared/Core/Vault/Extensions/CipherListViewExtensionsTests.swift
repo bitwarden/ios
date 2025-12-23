@@ -380,6 +380,49 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(CipherListView.fixture(archivedDate: nil).isArchived)
     }
 
+    /// `isHidden` return `true` when the cipher is hidden, i.e. archived or deleted; `false` otherwise.
+    func test_isHidden() {
+        XCTAssertTrue(CipherListView.fixture(archivedDate: .now).isHidden)
+        XCTAssertTrue(CipherListView.fixture(deletedDate: .now).isHidden)
+        XCTAssertTrue(CipherListView.fixture(deletedDate: .now, archivedDate: .now).isHidden)
+        XCTAssertFalse(CipherListView.fixture(deletedDate: nil, archivedDate: nil).isHidden)
+    }
+
+    /// `isHiddenWithArchiveFF` returns `true` when cipher is deleted, regardless of feature flag state.
+    func test_isHiddenWithArchiveFF_deleted() {
+        let deletedCipher = CipherListView.fixture(deletedDate: .now, archivedDate: nil)
+        XCTAssertTrue(deletedCipher.isHiddenWithArchiveFF(flag: true))
+        XCTAssertTrue(deletedCipher.isHiddenWithArchiveFF(flag: false))
+    }
+
+    /// `isHiddenWithArchiveFF` returns `true` when cipher is both archived and deleted,
+    /// regardless of feature flag state.
+    func test_isHiddenWithArchiveFF_archivedAndDeleted() {
+        let archivedAndDeletedCipher = CipherListView.fixture(deletedDate: .now, archivedDate: .now)
+        XCTAssertTrue(archivedAndDeletedCipher.isHiddenWithArchiveFF(flag: true))
+        XCTAssertTrue(archivedAndDeletedCipher.isHiddenWithArchiveFF(flag: false))
+    }
+
+    /// `isHiddenWithArchiveFF` returns `true` when cipher is archived and feature flag is enabled.
+    func test_isHiddenWithArchiveFF_archivedWithFlagEnabled() {
+        let archivedCipher = CipherListView.fixture(deletedDate: nil, archivedDate: .now)
+        XCTAssertTrue(archivedCipher.isHiddenWithArchiveFF(flag: true))
+    }
+
+    /// `isHiddenWithArchiveFF` returns `false` when cipher is archived but feature flag is disabled.
+    func test_isHiddenWithArchiveFF_archivedWithFlagDisabled() {
+        let archivedCipher = CipherListView.fixture(deletedDate: nil, archivedDate: .now)
+        XCTAssertFalse(archivedCipher.isHiddenWithArchiveFF(flag: false))
+    }
+
+    /// `isHiddenWithArchiveFF` returns `false` when cipher is neither archived nor deleted,
+    /// regardless of feature flag state.
+    func test_isHiddenWithArchiveFF_notHidden() {
+        let normalCipher = CipherListView.fixture(deletedDate: nil, archivedDate: nil)
+        XCTAssertFalse(normalCipher.isHiddenWithArchiveFF(flag: true))
+        XCTAssertFalse(normalCipher.isHiddenWithArchiveFF(flag: false))
+    }
+
     /// `passesRestrictItemTypesPolicy(_:)` passes the policy when there are no organization IDs.
     func test_passesRestrictItemTypesPolicy_noOrgIds() {
         XCTAssertTrue(CipherListView.fixture().passesRestrictItemTypesPolicy([]))
