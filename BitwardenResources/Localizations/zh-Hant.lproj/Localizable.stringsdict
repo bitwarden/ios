@@ -21,7 +21,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Master password must be at least %#@characters@ long.</string>
+      <string>主密碼需要至少 %#@characters@ 個字符。</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -29,14 +29,14 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d 個字元</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
+      <string>此密碼在資料外洩事件中被暴露了%#@times@ 次，應立即變更它。</string>
       <key>times</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -44,7 +44,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d times</string>
+        <string>%d 次</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -59,7 +59,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d 個字元</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -171,7 +171,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Your PIN must be at least %#@characters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>您的 PIN 必須至少為 %#@characters@。如果您曾經完全登出應用程式，您的 PIN 設定將會被重設。</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -179,7 +179,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d 個字元</string>
       </dict>
     </dict>
   </dict>

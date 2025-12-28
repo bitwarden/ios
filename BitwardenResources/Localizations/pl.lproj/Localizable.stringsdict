@@ -27,7 +27,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Master password must be at least %#@characters@ long.</string>
+      <string>Hasło główne musi zawierać co najmniej %#@characters@.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -35,20 +35,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaki</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
+      <string>Hasło zostało ujawnione %#@times@ w wyciekach danych. Zmień je.</string>
       <key>times</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d time</string>
+        <string>%d raz</string>
         <key>few</key>
-        <string>%d times</string>
+        <string>%d razy</string>
         <key>many</key>
-        <string>%d times</string>
+        <string>%d razy</string>
         <key>other</key>
-        <string>%d times</string>
+        <string>%d razy</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaki</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -237,7 +237,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Your PIN must be at least %#@characters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>Kod PIN musi zawierać co najmniej %#@characters@. Ustawienia kodu PIN zostaną zresetowane po wylogowaniu się z aplikacji.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -245,13 +245,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaki</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
       </dict>
     </dict>
   </dict>

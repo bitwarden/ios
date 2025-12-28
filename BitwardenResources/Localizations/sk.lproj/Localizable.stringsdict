@@ -27,7 +27,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Master password must be at least %#@characters@ long.</string>
+      <string>Hlavné heslo musí obsahovať aspoň %#@characters@.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -35,20 +35,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaky</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
+      <string>Toto heslo uniklo %#@times@ v dátových únikoch. Mali by ste ho zmeniť.</string>
       <key>times</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d time</string>
+        <string>%d-krát</string>
         <key>few</key>
-        <string>%d times</string>
+        <string>%d-krát</string>
         <key>many</key>
-        <string>%d times</string>
+        <string>%d-krát</string>
         <key>other</key>
-        <string>%d times</string>
+        <string>%d-krát</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaky</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -237,7 +237,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Your PIN must be at least %#@characters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>Váš PIN kód musí mať aspoň %#@characters@. Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -245,13 +245,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaky</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
       </dict>
     </dict>
   </dict>
