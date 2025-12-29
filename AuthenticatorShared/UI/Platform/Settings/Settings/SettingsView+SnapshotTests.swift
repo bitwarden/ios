@@ -12,7 +12,7 @@ import XCTest
 class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    let copyrightText = "© Bitwarden Inc. 2015-2024"
+    let copyrightText = "© Bitwarden Inc. 2015-2024" // Copyrights with snapshot tests shouldn't be dynamic
     let version = "Version: 1.0.0 (1)"
 
     var processor: MockProcessor<SettingsState, SettingsAction, SettingsEffect>!
