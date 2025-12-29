@@ -14,7 +14,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 85885c16aff570bd29a22a61f558cd87f54d3f8a # 2.0.0-3646-8fc779b
+    revision: 839763586a9d52bcc720099c5c7a8ac2a1a39bae # 2.0.0-3648-2fb9fea
     branch: km/fix-cherry-pick
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
