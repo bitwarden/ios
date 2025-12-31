@@ -1272,9 +1272,9 @@
 "AreYouSureYouWantToLeave" = "Tərk etmək istədiyinizə əminsiniz?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Rədd cavabı versəniz, fərdi elementləriniz hesabınızda qalacaq, paylaşılan elementlərə və təşkilat özəlliklərinə erişimi itirəcəksiniz.";
 "ContactYourAdminToRegainAccess" = "Erişimi təkrar qazanmaq üçün admininizlə əlaqə saxlayın.";
-"LeaveX" = "Leave %1$@";
-"HowToManageMyVault" = "How to manage My vault";
-"YouLeftTheOrganization" = "You left the organization";
+"LeaveX" = "%1$@ - tərk et";
+"HowToManageMyVault" = "Seyfimi necə idarə edim";
+"YouLeftTheOrganization" = "Təşkilatı tərk etmisiniz";
 "ThisSettingIsManagedByYourOrganization" = "Bu ayar, təşkilatınız tərəfindən idarə olunur.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Təşkilatınız, seansın ilkin bitmə vaxtını %1$@ olaraq təyin etdi.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
