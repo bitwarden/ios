@@ -5,7 +5,7 @@ import Combine
 // MARK: - SearchVaultListDirectorStrategy
 
 /// The director strategy to be used to build the search vault sections.
-struct SearchVaultListDirectorStrategy: VaultListDirectorStrategy {
+struct SearchVaultListDirectorStrategy: VaultListSearchDirectorStrategy {
     // MARK: Properties
 
     /// The factory for creating vault list builders.
@@ -16,14 +16,17 @@ struct SearchVaultListDirectorStrategy: VaultListDirectorStrategy {
     let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
-        filter: VaultListFilter,
+        filterPublisher: AnyPublisher<VaultListFilter, Error>,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
-        try await cipherService.ciphersPublisher()
-            .asyncTryMap { ciphers in
-                try await build(from: ciphers, filter: filter)
-            }
-            .eraseToAnyPublisher()
-            .values
+        try await Publishers.CombineLatest(
+            filterPublisher,
+            cipherService.ciphersPublisher(),
+        )
+        .asyncTryMap { filter, ciphers in
+            try await build(from: ciphers, filter: filter)
+        }
+        .eraseToAnyPublisher()
+        .values
     }
 
     // MARK: Private methods
