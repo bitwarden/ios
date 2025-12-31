@@ -553,9 +553,6 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         await fido2UserInterfaceHelper.setupDelegate(
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
         )
-        await fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
-            userVerificationPreference: request.options.uv,
-        )
 
         #if DEBUG
         Fido2DebuggingReportBuilder.builder.withGetAssertionRequest(request)

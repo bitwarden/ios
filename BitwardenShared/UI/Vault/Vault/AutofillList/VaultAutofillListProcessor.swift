@@ -618,9 +618,6 @@ extension VaultAutofillListProcessor {
                 ),
                 extensions: nil,
             )
-            services.fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
-                userVerificationPreference: userVerificationPreference,
-            )
             let createdCredential = try await services.clientService.platform().fido2()
                 .authenticator(
                     userInterface: services.fido2UserInterfaceHelper,
