@@ -35,7 +35,6 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     )
     var isVerificationEnabledResult = false
     var fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate?
-    var userVerificationPreferenceSetup: Uv?
 
     nonisolated init() {}
 
@@ -83,15 +82,11 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         try checkAndPickCredentialForCreationResult.get()
     }
 
-    func isVerificationEnabled() async -> Bool {
+    func isVerificationEnabled() -> Bool {
         isVerificationEnabledResult
     }
 
     func setupDelegate(fido2UserInterfaceHelperDelegate: any BitwardenShared.Fido2UserInterfaceHelperDelegate) {
         self.fido2UserInterfaceHelperDelegate = fido2UserInterfaceHelperDelegate
-    }
-
-    func setupCurrentUserVerificationPreference(userVerificationPreference: BitwardenSdk.Uv) {
-        userVerificationPreferenceSetup = userVerificationPreference
     }
 }

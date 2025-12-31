@@ -67,10 +67,6 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     /// Sets up the delegate to use on Fido2 user verification flows and to get information of the FIdo2 flow.
     /// - Parameter fido2UserInterfaceHelperDelegate: The delegate to use
     func setupDelegate(fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate)
-
-    /// Sets up the user verification preference of the current Fido2 flow.
-    /// - Parameter userVerificationPreference: User verification preference to set up.
-    func setupCurrentUserVerificationPreference(userVerificationPreference: Uv)
 }
 
 // MARK: - DefaultFido2UserInterfaceHelper
@@ -93,11 +89,6 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     )
     private(set) var fido2CreationOptions: BitwardenSdk.CheckUserOptions?
     private(set) var fido2CredentialNewView: BitwardenSdk.Fido2CredentialNewView?
-
-    /// The user verification preference of the current Fido2 flow.
-    /// This is needed as a workaround to be used in `isVerificationEnabled`
-    /// as currently we don't have the UV value provided by the SDK.
-    private var userVerificationPreference: Uv?
 
     /// Initializes a `DefaultFido2UserInterfaceHelper`.
     /// - Parameter fido2UserVerificationMediator: Mediator which manages user verification on Fido2 flows
@@ -187,18 +178,8 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     }
 
     func isVerificationEnabled() -> Bool {
-        guard let userVerificationPreference else {
-            return false
-        }
-
-        switch userVerificationPreference {
-        case .discouraged:
-            return false
-        case .preferred:
-            return true
-        case .required:
-            return true
-        }
+        // TODO: PM-30454 We should consider subsuming this into the SDK, since this value is constant across all our current clients
+        true
     }
 
     func pickedCredentialForAuthentication(result: Result<CipherView, Error>) {
@@ -214,10 +195,6 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         fido2UserVerificationMediator.setupDelegate(
             fido2UserVerificationMediatorDelegate: fido2UserInterfaceHelperDelegate,
         )
-    }
-
-    func setupCurrentUserVerificationPreference(userVerificationPreference: Uv) {
-        self.userVerificationPreference = userVerificationPreference
     }
 
     // MARK: Private
