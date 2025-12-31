@@ -70,4 +70,4 @@ jobs:
             --base main \
             --head "$BRANCH_NAME" \
             --label "automated-pr" \
-            --label "t:ci")
+            --label "t:deps")
