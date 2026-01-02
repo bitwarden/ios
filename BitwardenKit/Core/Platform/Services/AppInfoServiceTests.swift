@@ -47,7 +47,7 @@ class AppInfoServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             subject.appInfoString,
             """
-            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+            © Bitwarden Inc. 2015–2025
 
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
@@ -64,7 +64,7 @@ class AppInfoServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             subject.appInfoString,
             """
-            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+            © Bitwarden Inc. 2015–2025
 
             📝 Bitwarden 1.0 (1)
             📦 Bundle: Unknown
@@ -86,7 +86,7 @@ class AppInfoServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             subject.appInfoString,
             """
-            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+            © Bitwarden Inc. 2015–2025
 
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
@@ -112,7 +112,7 @@ class AppInfoServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             subject.appInfoString,
             """
-            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+            © Bitwarden Inc. 2015–2025
 
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
@@ -148,7 +148,7 @@ class AppInfoServiceTests: BitwardenTestCase {
 
     /// `copyrightString` returns the app's formatted copyright string.
     func test_copyrightString() {
-        XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))")
+        XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015–2025")
 
         timeProvider.timeConfig = .mockTime(Date(year: 2020, month: 1, day: 2))
         XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015–2020")
