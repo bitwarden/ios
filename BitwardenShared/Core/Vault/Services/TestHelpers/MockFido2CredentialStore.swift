@@ -9,7 +9,7 @@ class MockFido2CredentialStore: Fido2CredentialStore {
     var saveCredentialCalled = false
     var saveCredentialError: (any Error)?
 
-    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+    func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [BitwardenSdk.CipherView] {
         try findCredentialsResult.get()
     }
 

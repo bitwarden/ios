@@ -16,8 +16,6 @@ extension BitwardenSdk.InitUserCryptoMethod {
             "Key Connector"
         case .masterPasswordUnlock:
             "Master Password Unlock"
-        case .password:
-            "Password (Legacy - Deprecated)"
         case .pin:
             "PIN"
         case .pinEnvelope:

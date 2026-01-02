@@ -46,6 +46,15 @@ class MockCryptoClient: CryptoClientProtocol {
     var initializeUserCryptoRequest: InitUserCryptoRequest?
     var initializeUserCryptoResult: Result<Void, Error> = .success(())
 
+    var makePrfUserKeySetPrf: B64?
+    var makePrfUserKeySetResult: Result<RotateableKeySet, Error> = .success(
+        RotateableKeySet(
+            encapsulatedDownstreamKey: "ENCAPSULATED_DOWNSTREAM_KEY",
+            encryptedEncapsulationKey: "ENCRYPTED_ENCAPSULATION_KEY",
+            encryptedDecapsulationKey: "ENCRYPTED_DECAPSULATION_KEY",
+        ),
+    )
+
     var makeUpdateKdfKdf: Kdf?
     var makeUpdateKdfPassword: String?
     var makeUpdateKdfResult: Result<UpdateKdfResponse, Error> = .success(
@@ -118,6 +127,11 @@ class MockCryptoClient: CryptoClientProtocol {
     func initializeUserCrypto(req: InitUserCryptoRequest) async throws {
         initializeUserCryptoRequest = req
         return try initializeUserCryptoResult.get()
+    }
+
+    func makePrfUserKeySet(prf: BitwardenSdk.B64) throws -> BitwardenSdk.RotateableKeySet {
+        makePrfUserKeySetPrf = prf
+        return try makePrfUserKeySetResult.get()
     }
 
     func makeUpdateKdf(password: String, kdf: Kdf) throws -> UpdateKdfResponse {

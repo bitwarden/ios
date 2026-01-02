@@ -49,20 +49,28 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
         XCTAssertEqual(request.userId, "1")
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
+
+        guard case let .v2(privateKey, signedPublicKey, signingKey, securityState) = request.accountCryptographicState
+        else {
+            XCTFail("Expected V2 accountCryptographicState")
+            return
+        }
+        
         XCTAssertEqual(
             request.method,
-            .masterPasswordUnlock(
-                password: "password123",
-                masterPasswordUnlock: MasterPasswordUnlockData(
-                    kdf: .pbkdf2(iterations: 600_000),
-                    masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
-                    salt: "SALT",
+                .masterPasswordUnlock(
+                    password: "password123",
+                    masterPasswordUnlock: MasterPasswordUnlockData(
+                        kdf: .pbkdf2(iterations: 600_000),
+                        masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                        salt: "SALT",
+                    ),
                 ),
-            ),
         )
-        XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(request.securityState, "SECURITY_STATE")
-        XCTAssertEqual(request.signingKey, "WRAPPED_SIGNING_KEY")
+        XCTAssertEqual(privateKey, "PRIVATE_KEY")
+        XCTAssertEqual(signedPublicKey, "VERIFYING_KEY")
+        XCTAssertEqual(signingKey, "WRAPPED_SIGNING_KEY")
+        XCTAssertEqual(securityState, "SECURITY_STATE")
     }
 
     // `initializeUserCrypto(account:encryptionKeys:method:)` initializes the user crypto using a
@@ -83,8 +91,15 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
         XCTAssertEqual(request.method, .pin(pin: "1234", pinProtectedUserKey: "pinProtectedUserKey"))
-        XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(request.securityState, "SECURITY_STATE")
-        XCTAssertEqual(request.signingKey, "WRAPPED_SIGNING_KEY")
+
+        guard case let .v2(privateKey, signedPublicKey, signingKey, securityState) = request.accountCryptographicState
+        else {
+            XCTFail("Expected V2 accountCryptographicState")
+            return
+        }
+        XCTAssertEqual(privateKey, "PRIVATE_KEY")
+        XCTAssertEqual(signedPublicKey, "VERIFYING_KEY")
+        XCTAssertEqual(signingKey, "WRAPPED_SIGNING_KEY")
+        XCTAssertEqual(securityState, "SECURITY_STATE")
     }
 }
