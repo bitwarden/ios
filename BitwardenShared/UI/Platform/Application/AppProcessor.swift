@@ -514,11 +514,11 @@ extension AppProcessor {
     private func logOutAutomatically(userId: String? = nil) async {
         coordinator?.hideLoadingOverlay()
         do {
-            try await services.authRepository.logout(userId: userId, userInitiated: false)
+            try await services.authRepository.logout(userId: userId, userInitiated: true)
         } catch {
             services.errorReporter.log(error: error)
         }
-        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
+        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: true))
     }
 
     /// Starts timer to send organization events regularly
