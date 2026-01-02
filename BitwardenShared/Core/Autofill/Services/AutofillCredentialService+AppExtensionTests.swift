@@ -22,6 +22,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
     var autofillCredentialServiceDelegate: MockAutofillCredentialServiceDelegate!
     var cipherService: MockCipherService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
@@ -47,6 +48,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         autofillCredentialServiceDelegate = MockAutofillCredentialServiceDelegate()
         cipherService = MockCipherService()
         clientService = MockClientService()
+        configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
@@ -64,6 +66,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
             errorReporter: errorReporter,
             eventService: eventService,
@@ -85,6 +88,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         autofillCredentialServiceDelegate = nil
         cipherService = nil
         clientService = nil
+        configService = nil
         credentialIdentityFactory = nil
         errorReporter = nil
         eventService = nil

@@ -110,6 +110,77 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
     }
 
+    /// `update(archivedDate:)` updates the archived date and preserves all other properties.
+    func test_update_archivedDate() {
+        let originalCipher = CipherView.fixture(
+            archivedDate: nil,
+            id: "123",
+            name: "Test Cipher",
+        )
+        let archivedDate = Date(year: 2024, month: 3, day: 15)
+
+        let updatedCipher = originalCipher.update(archivedDate: archivedDate)
+
+        XCTAssertEqual(updatedCipher.archivedDate, archivedDate)
+        XCTAssertEqual(updatedCipher.id, originalCipher.id)
+        XCTAssertEqual(updatedCipher.name, originalCipher.name)
+        XCTAssertEqual(updatedCipher.organizationId, originalCipher.organizationId)
+        XCTAssertEqual(updatedCipher.folderId, originalCipher.folderId)
+        XCTAssertEqual(updatedCipher.collectionIds, originalCipher.collectionIds)
+        XCTAssertEqual(updatedCipher.deletedDate, originalCipher.deletedDate)
+        XCTAssertEqual(updatedCipher.type, originalCipher.type)
+        XCTAssertEqual(updatedCipher.login, originalCipher.login)
+        XCTAssertEqual(updatedCipher.notes, originalCipher.notes)
+        XCTAssertEqual(updatedCipher.favorite, originalCipher.favorite)
+        XCTAssertEqual(updatedCipher.reprompt, originalCipher.reprompt)
+        XCTAssertEqual(updatedCipher.creationDate, originalCipher.creationDate)
+        XCTAssertEqual(updatedCipher.revisionDate, originalCipher.revisionDate)
+    }
+
+    /// `update(archivedDate:)` sets archived date to nil when unarchiving.
+    func test_update_archivedDate_nil() {
+        let originalCipher = CipherView.fixture(
+            archivedDate: Date(year: 2024, month: 3, day: 15),
+            id: "123",
+            name: "Test Cipher",
+        )
+
+        let updatedCipher = originalCipher.update(archivedDate: nil)
+
+        XCTAssertNil(updatedCipher.archivedDate)
+        XCTAssertEqual(updatedCipher.id, originalCipher.id)
+        XCTAssertEqual(updatedCipher.name, originalCipher.name)
+        XCTAssertEqual(updatedCipher.organizationId, originalCipher.organizationId)
+        XCTAssertEqual(updatedCipher.folderId, originalCipher.folderId)
+        XCTAssertEqual(updatedCipher.collectionIds, originalCipher.collectionIds)
+        XCTAssertEqual(updatedCipher.deletedDate, originalCipher.deletedDate)
+        XCTAssertEqual(updatedCipher.type, originalCipher.type)
+        XCTAssertEqual(updatedCipher.login, originalCipher.login)
+        XCTAssertEqual(updatedCipher.notes, originalCipher.notes)
+        XCTAssertEqual(updatedCipher.favorite, originalCipher.favorite)
+        XCTAssertEqual(updatedCipher.reprompt, originalCipher.reprompt)
+        XCTAssertEqual(updatedCipher.creationDate, originalCipher.creationDate)
+        XCTAssertEqual(updatedCipher.revisionDate, originalCipher.revisionDate)
+    }
+
+    /// `update(archivedDate:)` updates an existing archived date.
+    func test_update_archivedDate_updateExisting() {
+        let originalDate = Date(year: 2024, month: 1, day: 1)
+        let newDate = Date(year: 2024, month: 3, day: 15)
+        let originalCipher = CipherView.fixture(
+            archivedDate: originalDate,
+            id: "123",
+            name: "Test Cipher",
+        )
+
+        let updatedCipher = originalCipher.update(archivedDate: newDate)
+
+        XCTAssertEqual(updatedCipher.archivedDate, newDate)
+        XCTAssertNotEqual(updatedCipher.archivedDate, originalDate)
+        XCTAssertEqual(updatedCipher.id, originalCipher.id)
+        XCTAssertEqual(updatedCipher.name, originalCipher.name)
+    }
+
     /// Tests that the update succeeds with new properties.
     func test_update_card_edits_succeeds() {
         cipherItemState.type = .card

@@ -132,6 +132,8 @@ extension VaultListItem {
                 SharedAsset.Icons.clock24
             case .trash:
                 SharedAsset.Icons.trash24
+            case .archive:
+                SharedAsset.Icons.archive24
             }
         case .totp:
             SharedAsset.Icons.clock24

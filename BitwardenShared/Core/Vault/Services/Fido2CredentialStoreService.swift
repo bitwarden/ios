@@ -13,6 +13,9 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -25,16 +28,19 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
         cipherService: CipherService,
         clientService: ClientService,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
         syncService: SyncService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.configService = configService
         self.errorReporter = errorReporter
         self.syncService = syncService
     }
@@ -42,8 +48,13 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     /// Gets all the active login ciphers that have Fido2 credentials.
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
-        try await clientService.vault().ciphers().decryptList(
-            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials),
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
+        return try await clientService.vault().ciphers().decryptList(
+            ciphers: cipherService.fetchAllCiphers().filter { cipher in
+                cipher.isActiveWithFido2Credentials
+                    && (cipher.archivedDate == nil || !archiveItemsFeatureFlagEnabled)
+            },
         )
     }
 
@@ -102,6 +113,8 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 private extension Cipher {
     /// Whether the cipher is active, is a login and has Fido2 credentials.
     var isActiveWithFido2Credentials: Bool {
+        // TODO: PM-30129 When FF gets removed, replace `deletedDate == nil` with
+        // `isHidden`.
         deletedDate == nil
             && type == .login
             && login?.fido2Credentials?.isEmpty == false

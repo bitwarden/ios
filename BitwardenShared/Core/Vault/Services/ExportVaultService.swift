@@ -212,8 +212,10 @@ class DefultExportVaultService: ExportVaultService {
     func fetchAllCiphersToExport() async throws -> [Cipher] {
         let restrictedTypes = await policyService.getRestrictedItemCipherTypes()
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         return try await cipherService.fetchAllCiphers().filter { cipher in
-            cipher.deletedDate == nil
+            !cipher.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled)
                 && cipher.organizationId == nil
                 && !restrictedTypes.contains(BitwardenShared.CipherType(type: cipher.type))
         }
