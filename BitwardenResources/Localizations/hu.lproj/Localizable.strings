@@ -59,7 +59,7 @@
 "Password" = "Jelszó";
 "Save" = "Mentés";
 "Move" = "Áthelyezés";
-"Saving" = "Saving…";
+"Saving" = "Mentés…";
 "Settings" = "Beállítások";
 "Show" = "Mutat";
 "ItemDeleted" = "Az elem törlésre került.";
@@ -107,7 +107,7 @@
 "Close" = "Bezár";
 "Continue" = "Folytatás";
 "CreateAccount" = "Fiók létrehozása";
-"CreatingAccount" = "Creating account…";
+"CreatingAccount" = "Fiók létrehozása…";
 "EditItem" = "Elem szerkesztése";
 "EnableAutomaticSyncing" = "Automatikus szinkronizálás engedélyezése";
 "EnterEmailForHint" = "Írd be a fiókod e-mail címét, hogy megkapd a mesterjelszó emlékeztetőt.";
@@ -116,7 +116,7 @@
 "ExtensionEnable" = "Alkalmazáskiegészítő engedélyezése";
 "ExtensionInSafari" = "A Safariban keressük meg a Bitwardent a megosztás ikon használatával (tipp: gördítés a menü alsó sorának jobb oldalára).";
 "ExtensionInstantAccess" = "Kérj azonnali hozzáférést a jelszavakhoz!";
-"ExtensionReady" = "You’re ready to log in!";
+"ExtensionReady" = "Készen állsz a bejelentkezéshez!";
 "ExtensionSetup" = "A bejelentkezések mostantól könnyen hozzáférhetők a Safariból, a Chrome-ból és más támogatott alkalmazásból.";
 "ExtensionSetup2" = "A Safariban és a Chrome-ban keressük meg a Bitwardent a megosztás ikon használatával (tipp: gördítés a menü alsó sorának jobb oldalára).";
 "ExtensionTapIcon" = "Koppintás a Bitwarden ikonra a menüben a bővítmény elindításához.";
@@ -135,7 +135,7 @@
 "VaultTimeout" = "Széf időkifutás";
 "VaultTimeoutAction" = "Széf időkifutás művelet";
 "VaultTimeoutLogOutConfirmation" = "Kijelentkezve az összes széf elérés eltávolításra kerül és webes hitelesítésre van szükség az időkifutás után. Biztosan szeretnénk használni ezt a beállítást?";
-"LoggingIn" = "Logging in…";
+"LoggingIn" = "Bejelentkezés…";
 "LogInToBitwarden" = "Bejelentkezés a Bitwardenbe";
 "Manage" = "Kezelés";
 "MasterPasswordConfirmationValMessage" = "A megadott két jelszó nem egyezik.";
@@ -171,7 +171,7 @@
 "SetPIN" = "PIN beállítása";
 "SetPINDirection" = "Egy 4 számjegyű PIN-kód beállítása az alkalmazás kinyitásához.";
 "ItemUpdated" = "Az elem frissítésre került.";
-"Submitting" = "Submitting…";
+"Submitting" = "Beküldés…";
 "Syncing" = "Syncing…";
 "SyncingLogins" = "Bejelentkezések szinkronizálása...";
 "SyncingComplete" = "A szinkronizálás kész.";
@@ -235,7 +235,7 @@
 "Attachments" = "Mellékletek";
 "UnableToDownloadFile" = "Nem lehet letölteni a fájlt.";
 "UnableToOpenFile" = "A készülék nem tudja megnyitni az ilyen típusú fájlt.";
-"Downloading" = "Downloading…";
+"Downloading" = "Letöltés…";
 "AttachmentLargeWarning" = "Ez a melléklet %1$@ méretű. Biztosan le akarod tölteni a készülékedre?";
 "AuthenticatorKey" = "Hitelesítő kulcs";
 "VerificationCodeTotp" = "Ellenőrzőkód (TOTP)";
@@ -386,7 +386,7 @@
 "Logins" = "Bejelentkezések";
 "SecureNotes" = "Védett jegyzetek";
 "AllItems" = "Összes elem";
-"CheckingPassword" = "Checking password…";
+"CheckingPassword" = "Jelszó ellenőrzése…";
 "CheckPassword" = "Ellenőrizzük, hogy a jelszó kiszivárgott-e.";
 "PasswordSafe" = "Ez a jelszó nem érintett egyetlen ismert adatszivárgásban sem. Biztonságos a használata.";
 "IdentityName" = "Azonosság név";
@@ -494,7 +494,7 @@
 "SoftDeleting" = "Sending to trash…";
 "ItemSoftDeleted" = "Az elem a lomtárba került.";
 "Restore" = "Visszaállítás";
-"Restoring" = "Restoring…";
+"Restoring" = "Visszaállítás…";
 "ItemRestored" = "Az elem visszaállításra került.";
 "Trash" = "Lomtár";
 "SearchTrash" = "Keresés a lomtárban";
