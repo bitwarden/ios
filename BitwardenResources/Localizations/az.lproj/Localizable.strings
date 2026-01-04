@@ -166,7 +166,7 @@
 "RateTheAppDescription" = "Gözəl bir rəy ilə bizə dəstək ola bilərsiniz!";
 "RegeneratePassword" = "Parolu yenidən yarat";
 "SearchVault" = "Seyfdə axtar";
-"Security" = "Güvənlik";
+"Security" = "Təhlükəsizlik";
 "Select" = "Seçin";
 "SetPIN" = "PIN təyin et";
 "SetPINDirection" = "Tətbiq kilidini açmaq üçün 4 rəqəmli PIN kod daxil edin.";
@@ -230,7 +230,7 @@
 "VerificationEmailNotSent" = "Doğrulama e-poçtu göndərilə bilmədi. Yenidən sınayın.";
 "VerificationEmailSent" = "Doğrulama e-poçtu göndərildi";
 "YubiKeyInstruction" = "Davam etmək üçün Yubikey NEO açarınızı cihazınızın arxasına tutun və ya YubiKey-i cihazınızın USB portuna taxıb düyməsinə toxunun.";
-"YubiKeyTitle" = "YubiKey güvənlik açarı";
+"YubiKeyTitle" = "YubiKey təhlükəsizlik açarı";
 "AddNewAttachment" = "Yeni qoşma əlavə et";
 "Attachments" = "Qoşmalar";
 "UnableToDownloadFile" = "Fayl endirilə bilmir.";
@@ -275,9 +275,9 @@
 "BitwardenAutofillServiceNotificationContentOld" = "Seyfinizdəki elementlərə baxmaq üçün bu bildirişə toxunun.";
 "CustomFields" = "Özəl xanalar";
 "CopyNumber" = "Nömrəni kopyala";
-"CopySecurityCode" = "Güvənlik kodunu kopyala";
+"CopySecurityCode" = "Təhlükəsizlik kodunu kopyala";
 "Number" = "Nömrə";
-"SecurityCode" = "Güvənlik kodu";
+"SecurityCode" = "Təhlükəsizlik kodu";
 "TypeCard" = "Kart";
 "TypeIdentity" = "Kimlik";
 "TypeLogin" = "Giriş";
@@ -316,7 +316,7 @@
 "PassportNumber" = "Pasport nömrəsi";
 "Phone" = "Telefon";
 "September" = "Sentyabr";
-"SSN" = "Sosial güvənlik nömrəsi";
+"SSN" = "Sosial Təhlükəsizlik nömrəsi";
 "StateProvince" = "Ölkə/Əyalət";
 "Title" = "Başlıq";
 "ZipPostalCode" = "Zip/ Poçt kodu";
@@ -601,8 +601,8 @@
 "LeaveOrganization" = "Təşkilatı tərk et";
 "LeaveOrganizationName" = "%1$@ tərk edilsin?";
 "Fido2Title" = "FIDO2 WebAuthn";
-"Fido2Instruction" = "Davam etmək üçün FIDO2 WebAuthn üçün fəal olan güvənlik açarınızı hazır saxlayın, daha sonra növbəti ekranda “WebAuthn-u doğrula”ya kliklədikdən sonra təlimatları izləyin.";
-"Fido2Desc" = "Kimlik doğrulama, FIDO2 WebAuthn istifadə edir, xarici güvənlik açarı istifadə edərək kimliyi doğrulaya bilərsiniz.";
+"Fido2Instruction" = "Davam etmək üçün FIDO2 WebAuthn üçün fəal olan təhlükəsizlik açarınızı hazır saxlayın, daha sonra növbəti ekranda “WebAuthn-u doğrula”ya kliklədikdən sonra təlimatları izləyin.";
+"Fido2Desc" = "Kimlik doğrulama, FIDO2 WebAuthn istifadə edir, xarici təhlükəsizlik açarı istifadə edərək kimliyi doğrulaya bilərsiniz.";
 "Fido2AuthenticateWebAuthn" = "WebAuthn kimlik doğrulama";
 "Fido2ReturnToApp" = "Tətbiqə qayıt";
 "Fido2CheckBrowser" = "Lütfən ilkin brauzerinizin WebAuthn-u dəstəklədiyinə əmin olub yenidən sınayın.";
@@ -910,7 +910,7 @@
 "UserVerificationForPasskey" = "Keçid açarı üçün istifadəçi doğrulaması";
 "NewItem" = "Yeni element";
 "ExploreTheGenerator" = "Yaradıcını kəşf et";
-"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Bələdçili tur ilə güvənlik giriş üzrə kimlik məlumatlarının yaradılması barədə ətraflı öyrənin.";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Bələdçili tur ilə təhlükəsiz giriş kimlik məlumatlarının yaradılması barədə ətraflı öyrənin.";
 "ExportVaultFilePwProtectInfo" = "Bu faylın xaricə köçürülməsi, parolla qorunacaq və şifrəsini açmaq üçün fayl parolu tələb olunacaq.";
 "IntroCarouselPage1Title" = "Təhlükəsizlik, prioritet";
 "IntroCarouselPage1Message" = "Girişləri, kart və kimlik məlumatlarınızı güvənli seyfinizdə saxlayın. Bitwarden, sizin üçün mühüm olanları qorumaq üçün zero-knowledge və ucdan-uca şifrələmə istifadə edir.";
