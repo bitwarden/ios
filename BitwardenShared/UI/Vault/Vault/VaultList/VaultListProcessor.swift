@@ -142,6 +142,12 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .addFolder)
         case let .addItemPressed(type):
             addItem(type: type)
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
@@ -165,12 +171,6 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
-        case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
         case .showArchiveOnboarding:
             // TODO: Show archive onboarding
             break
