@@ -39,6 +39,9 @@ enum VaultListAction: Equatable {
     /// The text in the search bar was changed.
     case searchTextChanged(String)
 
+    /// The user tapped the button to take a tour of the archive onboarding
+    case showArchiveOnboarding
+
     /// The user tapped the get started button on the import logins action card.
     case showImportLogins
 

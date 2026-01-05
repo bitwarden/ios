@@ -1264,6 +1264,9 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"IntroducingArchive" = "Introducing Archive";
+"KeepItemsSafeInYourVaultWithoutShowingThemInSearchOrAutofill" = "Keep items safe in your vault without showing them in search or autofill.";
+"TakeTheTour" = "Take the tour";
 "ItemTransfer" = "Item transfer";
 "TransferItemsToX" = "Transfer items to %1$@";
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";

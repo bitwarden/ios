@@ -93,6 +93,9 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissArchiveOnboardingActionCard:
+            // TODO: Perform the onboarding
+            break
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
@@ -168,6 +171,9 @@ final class VaultListProcessor: StateProcessor<
                 await services.reviewPromptService.setReviewPromptShownVersion()
                 await services.reviewPromptService.clearUserActions()
             }
+        case .showArchiveOnboarding:
+            // TODO: Show archive onboarding
+            break
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):

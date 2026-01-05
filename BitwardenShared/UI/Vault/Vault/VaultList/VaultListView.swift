@@ -75,6 +75,25 @@ private struct SearchableVaultListView: View {
 
     // MARK: Private Properties
 
+    /// The action card for importing login items.
+    @ViewBuilder private var archiveOnboardingActionCard: some View {
+        if store.state.shouldShowArchiveOnboardingActionCard {
+            ActionCard(
+                title: Localizations.introducingArchive,
+                message: Localizations.keepItemsSafeInYourVaultWithoutShowingThemInSearchOrAutofill,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.takeTheTour) {
+                    store.send(.showArchiveOnboarding)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissArchiveOnboardingActionCard)
+                },
+            ) {
+                // TODO: Use correct icon.
+                SharedAsset.Icons.warning24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+        }
+    }
+
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
         VStack(spacing: 24) {
@@ -250,6 +269,8 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
+            archiveOnboardingActionCard
+
             vaultFilterRow
 
             ForEach(sections) { section in
