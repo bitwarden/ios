@@ -170,7 +170,6 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         fido2UserVerificationMediator.checkUserResult = .success(
             CheckUserResult(userPresent: true, userVerified: false),
         )
-        subject.setupCurrentUserVerificationPreference(userVerificationPreference: .preferred)
         fido2UserVerificationMediator.isPreferredVerificationEnabledResult = true
         await assertAsyncThrows(error: Fido2UserVerificationError.requiredEnforcementFailed) {
             _ = try await subject.checkUser(
@@ -359,22 +358,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `isVerificationEnabled()`  returns what the mediator returns.
     func test_isVerificationEnabled() async throws {
-        subject.setupCurrentUserVerificationPreference(userVerificationPreference: .discouraged)
-        let resultDiscouraged = await subject.isVerificationEnabled()
-        XCTAssertFalse(resultDiscouraged)
-
-        subject.setupCurrentUserVerificationPreference(userVerificationPreference: .required)
-        let resultRequired = await subject.isVerificationEnabled()
-        XCTAssertTrue(resultRequired)
-
-        subject.setupCurrentUserVerificationPreference(userVerificationPreference: .preferred)
-        fido2UserVerificationMediator.isPreferredVerificationEnabledResult = true
-        let resultPreferredTrue = await subject.isVerificationEnabled()
-        XCTAssertTrue(resultPreferredTrue)
-
-        fido2UserVerificationMediator.isPreferredVerificationEnabledResult = false
-        let resultPreferredFalse = await subject.isVerificationEnabled()
-        XCTAssertFalse(resultPreferredFalse)
+        XCTAssertTrue(subject.isVerificationEnabled())
     }
 
     /// `setupDelegate(fido2UserVerificationMediatorDelegate:)`  sets up delegate in inner mediator.

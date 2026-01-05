@@ -54,7 +54,7 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   When `nil` the `credentialId` filter is not applied.
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
     /// - Returns: All the ciphers that matches the filter.
-    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+    func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [BitwardenSdk.CipherView] {
         do {
             try await syncService.fetchSync(forceSync: false)
         } catch {
@@ -80,6 +80,10 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 
             if let ids,
                !ids.contains(fido2CredentialAutofillView.credentialId) {
+                continue
+            }
+            
+            if let userHandle, fido2CredentialAutofillView.userHandle != userHandle {
                 continue
             }
 
@@ -118,9 +122,9 @@ class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
         self.fido2CredentialStore = fido2CredentialStore
     }
 
-    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+    func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [BitwardenSdk.CipherView] {
         do {
-            let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId)
+            let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId, userHandle: userHandle)
             Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.success(result))
             return result
         } catch {
