@@ -19,6 +19,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appLocale: String?
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
+    var archiveOnboardingShown = false
     var cachedActiveUserId: String?
     var disableWebIcons = false
     var flightRecorderData: FlightRecorderData?
