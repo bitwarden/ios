@@ -23,7 +23,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>A senha principal deve ter pelo menos %#@characters@ caracteres.</string>
+      <string>A senha principal deve ter pelo menos %#@characters@.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -40,7 +40,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Esta senha foi exposta %#@times@ vezes em vazamentos de dados. Você deve alterá-la.</string>
+      <string>Esta senha foi exposta %#@times@ em vazamentos de dados. Você deve alterá-la.</string>
       <key>times</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
