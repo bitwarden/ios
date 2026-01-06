@@ -9,6 +9,15 @@ import Foundation
 struct VaultListState: Equatable {
     // MARK: Properties
 
+    // TODO: Documentation
+    var archiveOnboardingViewState: GuidedTourViewState = GuidedTourViewState(
+        guidedTourStepStates: [
+            .loginStep1,
+            .loginStep2,
+            .loginStep3,
+        ],
+    )
+
     /// List of available item type for creation.
     var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
 
@@ -105,4 +114,13 @@ struct VaultListState: Equatable {
     var userInitials: String {
         profileSwitcherState.activeAccountInitials
     }
+}
+
+// TODO: Documentation
+extension GuidedTourStepState {
+    static let archiveOnboardingStep1 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.aNotificationHasBeenSentToYourDevice
+    )
 }

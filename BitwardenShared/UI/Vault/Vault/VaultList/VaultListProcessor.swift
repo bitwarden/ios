@@ -147,6 +147,8 @@ final class VaultListProcessor: StateProcessor<
                 await services.reviewPromptService.setReviewPromptShownVersion()
                 await services.reviewPromptService.clearUserActions()
             }
+        case let .archiveOnboardingViewAction(action):
+            state.archiveOnboardingViewState.updateStateForGuidedTourViewAction(action)
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
@@ -172,7 +174,9 @@ final class VaultListProcessor: StateProcessor<
             state.searchVaultFilterType = newValue
         case .showArchiveOnboarding:
             // TODO: Show archive onboarding
-            break
+//            break
+            state.archiveOnboardingViewState.currentIndex = 0
+            state.archiveOnboardingViewState.showGuidedTour = true
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):

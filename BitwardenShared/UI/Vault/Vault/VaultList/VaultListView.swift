@@ -34,8 +34,8 @@ private struct SearchableVaultListView: View {
 
         ZStack {
             let isSearching = isSearching
-                || !store.state.searchText.isEmpty
-                || !store.state.searchResults.isEmpty
+            || !store.state.searchText.isEmpty
+            || !store.state.searchResults.isEmpty
 
             vault
                 .hidden(isSearching)
@@ -184,7 +184,7 @@ private struct SearchableVaultListView: View {
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
-                        .searchVaultFilterChanged(type)
+                            .searchVaultFilterChanged(type)
                     }
                 },
                 mapEffect: nil,
@@ -223,7 +223,7 @@ private struct SearchableVaultListView: View {
                 mapAction: { action in
                     switch action {
                     case let .searchVaultFilterChanged(type):
-                        .vaultFilterChanged(type)
+                            .vaultFilterChanged(type)
                     }
                 },
                 mapEffect: nil,
@@ -268,23 +268,31 @@ private struct SearchableVaultListView: View {
     ///
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
-        VStack(spacing: 20) {
-            archiveOnboardingActionCard
+        GuidedTourScrollView(
+            store: store.child(
+                state: \.archiveOnboardingViewState,
+                mapAction: VaultListAction.archiveOnboardingViewAction,
+                mapEffect: nil,
+            ),
+        ) {
+            VStack(spacing: 20) {
+                archiveOnboardingActionCard
 
-            vaultFilterRow
+                vaultFilterRow
 
-            ForEach(sections) { section in
-                VaultListSectionView(section: section) { item in
-                    Button {
-                        store.send(.itemPressed(item: item))
-                    } label: {
-                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
+                ForEach(sections) { section in
+                    VaultListSectionView(section: section) { item in
+                        Button {
+                            store.send(.itemPressed(item: item))
+                        } label: {
+                            vaultItemRow(for: item, isLastInSection: section.items.last == item)
+                        }
                     }
                 }
             }
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+            .scrollView()
         }
-        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.

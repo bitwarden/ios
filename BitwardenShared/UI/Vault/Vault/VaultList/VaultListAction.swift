@@ -11,6 +11,9 @@ enum VaultListAction: Equatable {
     /// The app review prompt was attempted to be shown.
     case appReviewPromptShown
 
+    // TODO: Documentation and alphabetize
+    case archiveOnboardingViewAction(GuidedTourViewAction)
+
     /// The add item button was pressed.
     case addItemPressed(CipherType)
 
