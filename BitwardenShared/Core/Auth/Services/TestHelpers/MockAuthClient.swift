@@ -76,6 +76,8 @@ class MockAuthClient: AuthClientProtocol {
     var validatePasswordUserKeyResult: Result<String, Error> = .success("MASTER_PASSWORD_HASH")
 
     var validatePinResult: Result<Bool, Error> = .success(false)
+    
+    var validatePinProtectedUserKeyEnvelopeResult = false
 
     var trustDeviceResult: Result<TrustDeviceResponse, Error> = .success(
         TrustDeviceResponse(
@@ -163,5 +165,9 @@ class MockAuthClient: AuthClientProtocol {
 
     func validatePin(pin: String, pinProtectedUserKey: BitwardenSdk.EncString) throws -> Bool {
         try validatePinResult.get()
+    }
+
+    func validatePinProtectedUserKeyEnvelope(pin: String, pinProtectedUserKeyEnvelope: BitwardenSdk.PasswordProtectedKeyEnvelope) -> Bool {
+        return validatePinProtectedUserKeyEnvelopeResult
     }
 }

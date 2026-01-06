@@ -520,6 +520,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String)
 
+    /// Sets the unlock other devices with this device setting for the user.
+    ///
+    /// - Parameters:
+    ///   - unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///   - userId: The user ID associated with the unlock other devices value.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String)
+
     /// Sets the user's timeout action.
     ///
     /// - Parameters:
@@ -589,6 +597,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func syncToAuthenticator(userId: String) -> Bool
 
+    /// Gets the unlock other devices with this device setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the unlock other devices value.
+    ///
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func unlockOtherDevices(userId: String) -> Bool
+
     /// Returns the action taken upon a session timeout.
     ///
     /// - Parameter userId: The user ID associated with the session timeout action.
@@ -638,6 +654,11 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The userId `String` of the active account
     ///
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never>
+
+    /// A publisher for whether an unlock passkey is enabled.
+    ///
+    /// - Returns: The userId `String` of the active account
+    func unlockPasskeyPublisher() -> AnyPublisher<[String: Bool], Never>
 }
 
 // MARK: - DefaultAppSettingsStore
@@ -652,6 +673,9 @@ class DefaultAppSettingsStore {
 
     /// A subject containing a `String?` for the userId of the active account.
     lazy var activeAccountIdSubject = CurrentValueSubject<String?, Never>(state?.activeUserId)
+
+    /// A subject containing a userId and flag for the presence of the unlock passkey for logged in accounts.
+    let unlockPasskeySubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     /// The bundleId used to set values that are bundleId dependent.
     var bundleId: String {
@@ -807,6 +831,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
+        case unlockOtherDevices(userId: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
@@ -920,6 +945,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
+            case let .unlockOtherDevices(userId):
+                "unlockOtherDevices_\(userId)"
             case let .unsuccessfulUnlockAttempts(userId):
                 "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
@@ -1283,6 +1310,13 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(syncToAuthenticator, for: .syncToAuthenticator(userId: userId))
     }
 
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String) {
+        store(unlockOtherDevices, for: .unlockOtherDevices(userId: userId))
+        var curVal = unlockPasskeySubject.value
+        curVal[userId] = unlockOtherDevices
+        unlockPasskeySubject.send(curVal)
+    }
+
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         store(key, for: .vaultTimeoutAction(userId: userId))
     }
@@ -1307,12 +1341,20 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(siriAndShortcutsAccess, for: .siriAndShortcutsAccess(userId: userId))
     }
 
+    func shouldTrustDevice(userId: String) -> Bool? {
+        fetch(for: .shouldTrustDevice(userId: userId))
+    }
+
     func siriAndShortcutsAccess(userId: String) -> Bool {
         fetch(for: .siriAndShortcutsAccess(userId: userId))
     }
 
     func syncToAuthenticator(userId: String) -> Bool {
         fetch(for: .syncToAuthenticator(userId: userId))
+    }
+
+    func unlockOtherDevices(userId: String) -> Bool {
+        fetch(for: .unlockOtherDevices(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {
@@ -1343,11 +1385,13 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(attempts, for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 
+    // MARK: Publishers
+
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         activeAccountIdSubject.eraseToAnyPublisher()
     }
 
-    func shouldTrustDevice(userId: String) -> Bool? {
-        fetch(for: .shouldTrustDevice(userId: userId))
+    func unlockPasskeyPublisher() -> AnyPublisher<[String: Bool], Never> {
+        unlockPasskeySubject.eraseToAnyPublisher()
     }
 }

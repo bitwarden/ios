@@ -19,6 +19,9 @@ struct CipherLoginFido2Credential: Codable, Equatable {
     /// Whether the FIDO2 credential is discoverable.
     let discoverable: String
 
+    /// The credWithUv seed for the hmacSecret extension.
+    let hmacSecret: String?
+
     /// The public key algorithm of the credential.
     let keyAlgorithm: String
 

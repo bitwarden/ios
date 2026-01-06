@@ -653,7 +653,7 @@ extension DefaultVaultRepository: VaultRepository {
                   let code = try? vault.generateTOTPCode(for: model.cipherListView, date: timeProvider.presentTime)
             else {
                 errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
                 return item
             }
             var updatedModel = model
@@ -867,7 +867,7 @@ extension DefaultVaultRepository: VaultRepository {
         let decryptedFido2Credentials = try await clientService
             .platform()
             .fido2()
-            .decryptFido2AutofillCredentials(cipherView: cipherView)
+            .decryptFido2AutofillCredentials(cipherView: cipherView, encryptionKey: nil)
 
         guard let fido2CredentialAutofillView = decryptedFido2Credentials.first else {
             errorReporter.log(error: Fido2Error.decryptFido2AutofillCredentialsEmpty)

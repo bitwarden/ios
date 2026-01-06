@@ -20,6 +20,7 @@ typealias Services = HasAPIService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
+    & HasDevicePasskeyService
     & HasEnvironmentService
     & HasErrorReportBuilder
     & HasErrorReporter
@@ -165,6 +166,13 @@ protocol HasDeviceAPIService {
     var deviceAPIService: DeviceAPIService { get }
 }
 
+/// Protocol for an object that provides a `DevicePasskeyService`.
+///
+protocol HasDevicePasskeyService {
+    /// The service used by the application to make and use the device passkey.
+    var devicePasskeyService: DevicePasskeyService { get }
+}
+ 
 /// Protocol for an object that provides an `EventService`.
 ///
 protocol HasEventService {

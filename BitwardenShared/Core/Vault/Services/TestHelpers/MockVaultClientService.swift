@@ -119,7 +119,8 @@ class MockClientCiphers: CiphersClientProtocol {
     var moveToOrganizationOrganizationId: String?
     var moveToOrganizationCalled: Bool?
     var moveToOrganizationResult: Result<CipherView, Error> = .success(.fixture())
-
+    var prepareCiphersForBulkShareResult: Result<[EncryptionContext], Error> = .success([])
+    
     func decrypt(cipher: Cipher) throws -> CipherView {
         try decryptResult(cipher)
     }
@@ -171,6 +172,14 @@ class MockClientCiphers: CiphersClientProtocol {
         moveToOrganizationCipher = cipher
         moveToOrganizationOrganizationId = organizationId
         return try moveToOrganizationResult.get()
+    }
+
+    func prepareCiphersForBulkShare(
+        ciphers: [BitwardenSdk.CipherView],
+        organizationId: BitwardenSdk.OrganizationId,
+        collectionIds: [BitwardenSdk.CollectionId]
+    ) async throws -> [BitwardenSdk.EncryptionContext] {
+            return try prepareCiphersForBulkShareResult.get()
     }
 }
 

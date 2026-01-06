@@ -151,7 +151,7 @@ protocol AuthService {
     func loginWithDevice(
         _ loginRequest: LoginRequest,
         email: String,
-        isAuthenticated: Bool,
+        isAuthenticated: Bool
     ) async throws -> (String, String)
 
     /// Login with the master password.
@@ -191,7 +191,7 @@ protocol AuthService {
         email: String,
         code: String,
         method: TwoFactorAuthMethod,
-        remember: Bool,
+        remember: Bool
     ) async throws -> LoginUnlockMethod
 
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
@@ -694,7 +694,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         email: String,
         code: String,
         method: TwoFactorAuthMethod,
-        remember: Bool,
+        remember: Bool
     ) async throws -> LoginUnlockMethod {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
         // Add the two factor information to the request.

@@ -16,8 +16,10 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasAuthService
         & HasConfigService
         & HasDeviceAPIService
+        & HasDevicePasskeyService
         & HasErrorReporter
         & HasPolicyService
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -106,6 +108,22 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
 
             // Unlock the vault.
             try await services.authRepository.unlockVaultWithPassword(password: state.masterPassword)
+
+            // Create device passkey if enabled but missing.
+            // TODO: Instead, we should query for the device passkey's existence,
+            // and this disable the "canUnlockOtherDevices" setting if not found,
+            // letting the user manually re-enable the option
+            if try await services.stateService.getUnlockOtherDevices() {
+                let masterPasswordHash = try await services.authService.hashPassword(
+                    password: state.masterPassword,
+                    purpose: .serverAuthorization
+                )
+                _ = try await services.devicePasskeyService
+                    .createDevicePasskey(
+                        masterPasswordHash: masterPasswordHash,
+                        overwrite: false
+                    )
+            }
             // Complete the login flow.
             coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)

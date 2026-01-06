@@ -51,6 +51,7 @@ class CompleteRegistrationProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasClientService
+        & HasDevicePasskeyService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService

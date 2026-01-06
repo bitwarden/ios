@@ -15,8 +15,10 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasAuthService
         & HasBiometricsRepository
         & HasConfigService
+        & HasDevicePasskeyService
         & HasErrorReporter
         & HasPolicyService
         & HasSettingsRepository
@@ -83,6 +85,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             await setBioMetricAuth(isOn)
         case let .toggleUnlockWithPINCode(isOn):
             await toggleUnlockWithPIN(isOn)
+        case let .toggleUnlockOtherDevices(isOn):
+            await toggleUnlockOtherDevices(isOn)
         }
     }
 
@@ -179,6 +183,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             }
 
             state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
+
+            state.isUnlockOtherDevicesOn = try await services.stateService.getUnlockOtherDevices()
 
             if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
                 await completeAccountSetupVaultUnlockIfNeeded()
@@ -382,6 +388,75 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
 
         if isOn {
             await completeAccountSetupVaultUnlockIfNeeded()
+        }
+    }
+
+    /// Toggles the unlock other devices setting.
+    ///
+    /// - Parameter isOn: Whether or not the toggle value is true or false.
+    ///
+    private func toggleUnlockOtherDevices(_ isOn: Bool) async {
+        if isOn {
+            // When enabling, prompt for master password and create device passkey
+            coordinator.showAlert(.masterPasswordPrompt(
+                onCancelled: {
+                    // Reset the toggle state on cancellation
+                    self.state.isUnlockOtherDevicesOn = false
+                },
+                completion: { password in
+                    await self.validatePasswordAndCreatePasskey(password)
+                }
+            ))
+        } else {
+            // When disabling, just update the state
+            do {
+                try await services.stateService.setUnlockOtherDevices(false)
+                state.isUnlockOtherDevicesOn = false
+            } catch {
+                services.errorReporter.log(error: error)
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            }
+        }
+    }
+
+    /// Validates the master password and creates a device passkey.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    private func validatePasswordAndCreatePasskey(_ password: String) async {
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer {
+            coordinator.hideLoadingOverlay()
+        }
+
+        do {
+            // First, validate the password
+            let isValid = try await services.authRepository.validatePassword(password)
+            guard isValid else {
+                state.isUnlockOtherDevicesOn = false
+                coordinator.showAlert(.invalidMasterPassword())
+                return
+            }
+
+            // Calculate the password hash for server authorization
+            let masterPasswordHash = try await services.authService.hashPassword(
+                password: password,
+                purpose: .serverAuthorization,
+            )
+
+            // Create the device passkey
+            _ = try await services.devicePasskeyService.createDevicePasskey(
+                masterPasswordHash: masterPasswordHash,
+                overwrite: true,
+            )
+
+            // Save the state
+            try await services.stateService.setUnlockOtherDevices(true)
+            state.isUnlockOtherDevicesOn = true
+        } catch {
+            state.isUnlockOtherDevicesOn = false
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 }

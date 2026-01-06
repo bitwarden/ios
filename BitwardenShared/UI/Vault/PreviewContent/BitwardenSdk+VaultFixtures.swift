@@ -58,6 +58,7 @@ extension Cipher {
         Cipher(
             id: id,
             organizationId: organizationId,
+            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -223,6 +224,7 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
+            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -278,6 +280,7 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
+            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -333,6 +336,7 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
+            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -450,6 +454,7 @@ extension Fido2Credential {
         creationDate: Date = Date(year: 2024, month: 3, day: 15, hour: 9, minute: 15),
         credentialId: String = "",
         discoverable: String = "",
+        hmacSecret: String = "",
         keyAlgorithm: String = "",
         keyCurve: String = "",
         keyType: String = "",
@@ -473,7 +478,8 @@ extension Fido2Credential {
             rpName: rpName,
             userDisplayName: userDisplayName,
             discoverable: discoverable,
-            creationDate: creationDate,
+            hmacSecret: hmacSecret,
+            creationDate: creationDate
         )
     }
 }
@@ -524,6 +530,7 @@ extension Fido2CredentialView {
         creationDate: Date = Date(year: 2024, month: 3, day: 15, hour: 9, minute: 15),
         credentialId: String = "",
         discoverable: String = "",
+        hmacSecret: String = "",
         keyAlgorithm: String = "",
         keyCurve: String = "",
         keyType: String = "",
@@ -547,7 +554,8 @@ extension Fido2CredentialView {
             rpName: rpName,
             userDisplayName: userDisplayName,
             discoverable: discoverable,
-            creationDate: creationDate,
+            hmacSecret: hmacSecret,
+            creationDate: creationDate
         )
     }
 }

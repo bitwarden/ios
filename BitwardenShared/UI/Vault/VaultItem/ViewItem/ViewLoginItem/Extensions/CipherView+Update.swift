@@ -179,6 +179,7 @@ extension CipherView {
         return CipherView(
             id: id,
             organizationId: organizationId,
+            deviceBound: deviceBound,
             folderId: addEditState.folderId,
             collectionIds: collectionIds,
             key: key,
@@ -330,6 +331,7 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
+            deviceBound: deviceBound,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,

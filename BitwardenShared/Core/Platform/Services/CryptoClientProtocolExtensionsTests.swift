@@ -60,9 +60,15 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
                 ),
             ),
         )
-        XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(request.securityState, "SECURITY_STATE")
-        XCTAssertEqual(request.signingKey, "WRAPPED_SIGNING_KEY")
+        XCTAssertEqual(
+            request.accountCryptographicState,
+            WrappedAccountCryptographicState.v2(
+                privateKey: "PRIVATE_KEY",
+                signedPublicKey: Optional("SIGNED_PUBLIC_KEY"),
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE"
+            )
+        )
     }
 
     // `initializeUserCrypto(account:encryptionKeys:method:)` initializes the user crypto using a
@@ -83,8 +89,14 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
         XCTAssertEqual(request.method, .pin(pin: "1234", pinProtectedUserKey: "pinProtectedUserKey"))
-        XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(request.securityState, "SECURITY_STATE")
-        XCTAssertEqual(request.signingKey, "WRAPPED_SIGNING_KEY")
+        XCTAssertEqual(
+            request.accountCryptographicState,
+            WrappedAccountCryptographicState.v2(
+                privateKey: "PRIVATE_KEY",
+                signedPublicKey: Optional("SIGNED_PUBLIC_KEY"),
+                signingKey: "WRAPPED_SIGNING_KEY",
+                securityState: "SECURITY_STATE",
+            ),
+        )
     }
 }
