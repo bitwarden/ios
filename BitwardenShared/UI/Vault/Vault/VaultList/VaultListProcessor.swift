@@ -94,8 +94,7 @@ final class VaultListProcessor: StateProcessor<
                 state.isEligibleForAppReview = false
             }
         case .dismissArchiveOnboardingActionCard:
-            // TODO: Perform the onboarding
-            break
+            await services.stateService.setArchiveOnboardingShown(true)
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:

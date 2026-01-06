@@ -507,6 +507,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` sets the archive onboarding shown
+    /// property to true.
+    @MainActor
+    func test_perform_dismissArchiveOnboardingActionCard() async {
+        XCTAssertFalse(stateService.archiveOnboardingShown)
+
+        await subject.perform(.dismissArchiveOnboardingActionCard)
+
+        XCTAssertTrue(stateService.archiveOnboardingShown)
+    }
+
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
     @MainActor
     func test_perform_dismissFlightRecorderToastBanner() async {
