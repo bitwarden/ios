@@ -69,17 +69,29 @@ public class CipherChangePublisher: Publisher {
 /// A `Subscription` to a `CipherChangePublisher` which observes Core Data save notifications
 /// and notifies the subscriber of individual cipher changes.
 ///
+/// This subscription respects Combine's backpressure system by buffering changes when the subscriber's
+/// demand is exhausted, ensuring no cipher changes are lost.
+///
 private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscription
     where SubscriberType: Subscriber,
     SubscriberType.Input == CipherChange,
     SubscriberType.Failure == Error {
     // MARK: Properties
 
-    /// The subscriber to notify of cipher changes.
-    private var subscriber: SubscriberType?
+    /// Buffer for changes that arrive when demand is exhausted. Queue-confined.
+    private var buffer: [CipherChange] = []
 
     /// The cancellable for the notification observation.
     private var cancellable: AnyCancellable?
+
+    /// Tracks the current demand from the subscriber. Queue-confined.
+    private var demand: Subscribers.Demand = .none
+
+    /// Serial queue for synchronizing all state access.
+    private let queue = DispatchQueue(label: "com.bitwarden.CipherChangeSubscription")
+
+    /// The subscriber to notify of cipher changes.
+    private var subscriber: SubscriberType?
 
     /// The user ID to filter cipher changes.
     private let userId: String
@@ -114,28 +126,59 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
     // MARK: Subscription
 
     func request(_ demand: Subscribers.Demand) {
-        // Unlimited demand - we emit all changes
+        queue.async { [weak self] in
+            guard let self else { return }
+            self.demand += demand
+            fulfillDemand()
+        }
     }
 
     // MARK: Cancellable
 
     func cancel() {
-        cancellable?.cancel()
-        cancellable = nil
-        subscriber = nil
+        queue.async { [weak self] in
+            self?.cancellable?.cancel()
+            self?.cancellable = nil
+            self?.subscriber = nil
+        }
     }
 
     // MARK: Private Methods
+
+    /// Attempts to send changes to the subscriber, queuing it if demand is exhausted.
+    ///
+    /// - Parameter changes: The cipher changes to send.
+    ///
+    private func send(_ changes: [CipherChange]) {
+        queue.async { [weak self] in
+            guard let self else { return }
+            buffer.append(contentsOf: changes)
+            fulfillDemand()
+        }
+    }
+
+    /// Delivers pending changes to the subscriber based on available demand.
+    ///
+    private func fulfillDemand() {
+        while !buffer.isEmpty, demand > .none, let subscriber {
+            let change = buffer.removeFirst()
+            let newDemand = subscriber.receive(change)
+            demand -= 1
+            demand += newDemand
+        }
+    }
 
     /// Handles Core Data context save notifications and emits cipher changes.
     ///
     /// - Parameter notification: The notification containing the saved changes.
     ///
-    private func handleContextSave(_ notification: Notification) {
-        guard let subscriber,
-              let userInfo = notification.userInfo else {
+    private func handleContextSave(_ notification: Notification) { // swiftlint:disable:this cyclomatic_complexity
+        guard let userInfo = notification.userInfo else {
             return
         }
+
+        // Collect all changes
+        var changes: [CipherChange] = []
 
         do {
             // Check inserted objects
@@ -145,7 +188,7 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
                           cipherData.userId == userId else {
                         continue
                     }
-                    _ = subscriber.receive(.inserted(try Cipher(cipherData: cipherData)))
+                    try changes.append(.inserted(Cipher(cipherData: cipherData)))
                 }
             }
 
@@ -156,7 +199,7 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
                           cipherData.userId == userId else {
                         continue
                     }
-                    _ = subscriber.receive(.updated(try Cipher(cipherData: cipherData)))
+                    try changes.append(.updated(Cipher(cipherData: cipherData)))
                 }
             }
 
@@ -167,11 +210,18 @@ private final class CipherChangeSubscription<SubscriberType>: NSObject, Subscrip
                           cipherData.userId == userId else {
                         continue
                     }
-                    _ = subscriber.receive(.deleted(try Cipher(cipherData: cipherData)))
+                    try changes.append(.deleted(Cipher(cipherData: cipherData)))
                 }
             }
         } catch {
-            subscriber.receive(completion: .failure(error))
+            queue.async { [weak self] in
+                self?.subscriber?.receive(completion: .failure(error))
+            }
+            return
+        }
+
+        if !changes.isEmpty {
+            send(changes)
         }
     }
 }
