@@ -813,6 +813,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownCarousel)
     }
 
+    /// `getArchiveOnboardingShown()` returns whether the archive onboarding has been shown.
+    func test_getArchiveOnboardingShown() async {
+        var hasShownOnboarding = await subject.getArchiveOnboardingShown()
+        XCTAssertFalse(hasShownOnboarding)
+
+        appSettingsStore.archiveOnboardingShown = true
+        hasShownOnboarding = await subject.getArchiveOnboardingShown()
+        XCTAssertTrue(hasShownOnboarding)
+    }
+
     /// `getLearnNewLoginActionCardStatus()` returns the status of the learn new login action card.
     func test_getLearnNewLoginActionCardStatus() async {
         var learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
@@ -1904,6 +1914,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setIntroCarouselShown(false)
         XCTAssertFalse(appSettingsStore.introCarouselShown)
+    }
+
+    /// `setArchiveOnboardingShown(_:)` sets whether the archive onboarding has been shown.
+    func test_setArchiveOnboardingShown() async {
+        await subject.setArchiveOnboardingShown(true)
+        XCTAssertTrue(appSettingsStore.archiveOnboardingShown)
+
+        await subject.setArchiveOnboardingShown(false)
+        XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
     }
 
     /// `setLastSyncTime(_:userId:)` sets the last sync time for a user.

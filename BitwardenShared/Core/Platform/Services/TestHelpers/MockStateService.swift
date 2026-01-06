@@ -49,6 +49,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var getHasPerformedSyncAfterLoginError: Error?
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var introCarouselShown = false
+    var archiveOnboardingShown = false
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var lastActiveTime = [String: Date]()
@@ -294,6 +295,10 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 
     func getIntroCarouselShown() async -> Bool {
         introCarouselShown
+    }
+
+    func getArchiveOnboardingShown() async -> Bool {
+        archiveOnboardingShown
     }
 
     func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
@@ -596,6 +601,10 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 
     func setIntroCarouselShown(_ shown: Bool) async {
         introCarouselShown = shown
+    }
+
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        archiveOnboardingShown = shown
     }
 
     func setIsAuthenticated() {

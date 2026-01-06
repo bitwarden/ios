@@ -218,6 +218,12 @@ protocol StateService: AnyObject {
     ///
     func getIntroCarouselShown() async -> Bool
 
+    /// Gets whether the archive onboarding has been shown.
+    ///
+    /// - Returns: Whether the archive onboarding has been shown.
+    ///
+    func getArchiveOnboardingShown() async -> Bool
+
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -592,6 +598,12 @@ protocol StateService: AnyObject {
     /// - Parameter shown: Whether the intro carousel screen has been shown.
     ///
     func setIntroCarouselShown(_ shown: Bool) async
+
+    /// Sets whether the archive onboarding has been shown.
+    ///
+    /// - Parameter shown: Whether the archive onboarding has been shown.
+    ///
+    func setArchiveOnboardingShown(_ shown: Bool) async
 
     /// Sets the status of Learn generator Action Card.
     ///
@@ -1692,6 +1704,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.introCarouselShown
     }
 
+    func getArchiveOnboardingShown() async -> Bool {
+        appSettingsStore.archiveOnboardingShown
+    }
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastActiveTime(userId: userId)
@@ -2042,6 +2058,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setIntroCarouselShown(_ shown: Bool) async {
         appSettingsStore.introCarouselShown = shown
+    }
+
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        appSettingsStore.archiveOnboardingShown = shown
     }
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
