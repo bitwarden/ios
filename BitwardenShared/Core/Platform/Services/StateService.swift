@@ -146,6 +146,12 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
+    /// Gets whether the archive onboarding has been shown.
+    ///
+    /// - Returns: Whether the archive onboarding has been shown.
+    ///
+    func getArchiveOnboardingShown() async -> Bool
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -217,12 +223,6 @@ protocol StateService: AnyObject {
     /// - Returns: Whether the intro carousel screen has been shown.
     ///
     func getIntroCarouselShown() async -> Bool
-
-    /// Gets whether the archive onboarding has been shown.
-    ///
-    /// - Returns: Whether the archive onboarding has been shown.
-    ///
-    func getArchiveOnboardingShown() async -> Bool
 
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
@@ -533,6 +533,12 @@ protocol StateService: AnyObject {
     ///
     func setAppTheme(_ appTheme: AppTheme) async
 
+    /// Sets whether the archive onboarding has been shown.
+    ///
+    /// - Parameter shown: Whether the archive onboarding has been shown.
+    ///
+    func setArchiveOnboardingShown(_ shown: Bool) async
+
     /// Sets the clear clipboard value for an account.
     ///
     /// - Parameters:
@@ -598,12 +604,6 @@ protocol StateService: AnyObject {
     /// - Parameter shown: Whether the intro carousel screen has been shown.
     ///
     func setIntroCarouselShown(_ shown: Bool) async
-
-    /// Sets whether the archive onboarding has been shown.
-    ///
-    /// - Parameter shown: Whether the archive onboarding has been shown.
-    ///
-    func setArchiveOnboardingShown(_ shown: Bool) async
 
     /// Sets the status of Learn generator Action Card.
     ///
@@ -1651,6 +1651,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         AppTheme(appSettingsStore.appTheme)
     }
 
+    func getArchiveOnboardingShown() async -> Bool {
+        appSettingsStore.archiveOnboardingShown
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -1702,10 +1706,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getIntroCarouselShown() async -> Bool {
         appSettingsStore.introCarouselShown
-    }
-
-    func getArchiveOnboardingShown() async -> Bool {
-        appSettingsStore.archiveOnboardingShown
     }
 
     func getLastActiveTime(userId: String?) async throws -> Date? {
@@ -2008,6 +2008,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appThemeSubject.send(appTheme)
     }
 
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        appSettingsStore.archiveOnboardingShown = shown
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
@@ -2058,10 +2062,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setIntroCarouselShown(_ shown: Bool) async {
         appSettingsStore.introCarouselShown = shown
-    }
-
-    func setArchiveOnboardingShown(_ shown: Bool) async {
-        appSettingsStore.archiveOnboardingShown = shown
     }
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
