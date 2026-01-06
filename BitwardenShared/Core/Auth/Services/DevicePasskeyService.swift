@@ -144,6 +144,7 @@ struct DefaultDevicePasskeyService: DevicePasskeyService {
         }
 
         let origin = deriveWebOrigin()
+        // Manually serialize to JSON to make sure it's ordered and formatted according to the spec.
         let clientDataJson = #"{"type":"webauthn.create","challenge":"\#(options.challenge)","origin":"\#(origin)"}"#
         let clientDataHash = Data(SHA256.hash(data: clientDataJson.data(using: .utf8)!))
 
