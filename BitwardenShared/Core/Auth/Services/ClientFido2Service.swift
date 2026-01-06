@@ -15,8 +15,7 @@ protocol ClientFido2Service: AnyObject {
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2AuthenticatorProtocol
-    
-    /// Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks on keychain items.
+
     /// - Parameters:
     ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
     ///   - credentialStore: `Fido2CredentialStore` with necessary platform side logic related to credential storage.
@@ -25,9 +24,9 @@ protocol ClientFido2Service: AnyObject {
     func deviceAuthenticator(
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
-        deviceKey: SymmetricKey
+        deviceKey: SymmetricKey,
     ) throws -> ClientFido2AuthenticatorProtocol
-    
+
     /// Returns the `ClientFido2Client` to perform Fido2 client tasks.
     /// - Parameters:
     ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
@@ -37,7 +36,7 @@ protocol ClientFido2Service: AnyObject {
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol
-    
+
     /// Decrypts the `CipherView` Fido2 credentials but returning an array of `Fido2CredentialAutofillView`
     /// - Parameter cipherView: `CipherView` containing the Fido2 credentials to decrypt.
     /// - Returns: An array of decrypted Fido2 credentials of type `Fido2CredentialAutofillView`.
@@ -59,7 +58,7 @@ extension ClientFido2: ClientFido2Service {
             credentialStore: credentialStore
         ) as ClientFido2Authenticator
     }
-    
+
     func deviceAuthenticator(
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
@@ -74,14 +73,14 @@ extension ClientFido2: ClientFido2Service {
             encryptionKey: encryptionKey
         ) as ClientFido2Authenticator
     }
-    
+
     func client(
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol {
         client(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Client
     }
-    
+
     func decryptFido2AutofillCredentials(
         cipherView: CipherView,
         encryptionKey: SymmetricKey?
