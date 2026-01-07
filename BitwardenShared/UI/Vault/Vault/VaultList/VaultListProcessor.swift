@@ -94,6 +94,7 @@ final class VaultListProcessor: StateProcessor<
                 state.isEligibleForAppReview = false
             }
         case .dismissArchiveOnboardingActionCard:
+            state.shouldShowArchiveOnboardingActionCard = false
             await services.stateService.setArchiveOnboardingShown(true)
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
@@ -215,6 +216,7 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+        state.shouldShowArchiveOnboardingActionCard = await !services.stateService.getArchiveOnboardingShown()
     }
 
     /// Checks if the user needs to update their KDF settings.

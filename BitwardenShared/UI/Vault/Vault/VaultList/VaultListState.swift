@@ -91,9 +91,7 @@ struct VaultListState: Equatable {
     }
 
     /// Whether the Archive Onboarding action card should be shown.
-    var shouldShowArchiveOnboardingActionCard: Bool {
-        true // TODO: Make dynamic or otherwise adjust
-    }
+    var shouldShowArchiveOnboardingActionCard: Bool = false
 
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
