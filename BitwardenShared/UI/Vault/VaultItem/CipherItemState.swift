@@ -258,7 +258,8 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// The flag indicating if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool {
-        isLearnNewLoginActionCardEligible && configuration == .add && type == .login
+        true
+//        isLearnNewLoginActionCardEligible && configuration == .add && type == .login
     }
 
     /// The view state of the item.

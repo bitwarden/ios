@@ -12,9 +12,10 @@ struct VaultListState: Equatable {
     // TODO: Documentation
     var archiveOnboardingViewState: GuidedTourViewState = GuidedTourViewState(
         guidedTourStepStates: [
-            .loginStep1,
-            .loginStep2,
-            .loginStep3,
+            .archiveOnboardingStep1,
+            .archiveOnboardingStep2,
+            .archiveOnboardingStep3,
+            .archiveOnboardingStep4,
         ],
     )
 
@@ -119,6 +120,24 @@ extension GuidedTourStepState {
     static let archiveOnboardingStep1 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.aNotificationHasBeenSentToYourDevice
+        title: Localizations.aNotificationHasBeenSentToYourDevice,
+    )
+
+    static let archiveOnboardingStep2 = GuidedTourStepState(
+        arrowHorizontalPosition: .left,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.aNotificationHasBeenSentToYourDevice,
+    )
+
+    static let archiveOnboardingStep3 = GuidedTourStepState(
+        arrowHorizontalPosition: .right,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.aNotificationHasBeenSentToYourDevice,
+    )
+
+    static let archiveOnboardingStep4 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.aNotificationHasBeenSentToYourDevice,
     )
 }
