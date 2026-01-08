@@ -115,6 +115,14 @@ protocol StateService: AnyObject {
     ///
     func getActiveAccountId() async throws -> String
 
+    /// Gets the stored aaaaa for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored aaaaa. Defaults to the active
+    ///   account if `nil`.
+    /// - Returns: The aaaaa value.
+    ///
+    func getAaaaa(userId: String?) async throws -> String?
+
     /// Gets whether the autofill info prompt has been shown.
     ///
     /// - Returns: Whether the autofill info prompt has been shown.
@@ -498,6 +506,15 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user Id of the account to set as active.
     ///
     func setActiveAccount(userId: String) async throws
+
+    /// Stores the aaaaa for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The aaaaa value to store.
+    ///   - userId: The user's ID, used to get back the value later on. Defaults to the active
+    ///     account if `nil`.
+    ///
+    func setAaaaa(_ value: String?, userId: String?) async throws
 
     /// Sets whether the autofill info prompt has been shown.
     ///
@@ -918,6 +935,14 @@ extension StateService {
         try await getActiveAccount().profile.userId
     }
 
+    /// Gets the stored aaaaa for the active account from the keychain.
+    ///
+    /// - Returns: The aaaaa value.
+    ///
+    func getAaaaa() async throws -> String? {
+        try await getAaaaa(userId: nil)
+    }
+
     /// Gets the active account.
     ///
     /// - Returns: The active user account.
@@ -1187,6 +1212,14 @@ extension StateService {
     func setAccountMasterPasswordUnlock(_ masterPasswordUnlock: MasterPasswordUnlockResponseModel) async throws {
         let userId = try await getActiveAccountId()
         await setAccountMasterPasswordUnlock(masterPasswordUnlock, userId: userId)
+    }
+
+    /// Stores the aaaaa for the active account in the keychain.
+    ///
+    /// - Parameter value: The aaaaa value to store.
+    ///
+    func setAaaaa(_ value: String?) async throws {
+        try await setAaaaa(value, userId: nil)
     }
 
     /// Sets the active user's progress for setting up autofill.
@@ -1616,6 +1649,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return activeAccount
     }
 
+    func getAaaaa(userId: String?) async throws -> String? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await keychainRepository.getAaaaa(userId: userId)
+    }
+
     func getAddSitePromptShown() async -> Bool {
         appSettingsStore.addSitePromptShown
     }
@@ -1971,6 +2009,15 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
             throw StateServiceError.noAccounts
         }
         state.activeUserId = userId
+    }
+
+    func setAaaaa(_ value: String?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        if let value {
+            try await keychainRepository.setAaaaa(value, userId: userId)
+        } else {
+            try await keychainRepository.deleteAaaaa(userId: userId)
+        }
     }
 
     func setAddSitePromptShown(_ shown: Bool) async {
