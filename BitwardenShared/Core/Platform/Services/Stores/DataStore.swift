@@ -42,7 +42,7 @@ class DataStore {
     }()
 
     /// A subject that emits cipher changes for all users.
-    let cipherChangeSubject = PassthroughSubject<(userId: String, change: CipherChange), Error>()
+    let cipherChangeSubject = PassthroughSubject<(userId: String, change: CipherChange), Never>()
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter

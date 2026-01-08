@@ -11,7 +11,7 @@ class MockCipherService: CipherService {
 
     var cipherCountResult: Result<Int, Error> = .success(0)
 
-    var cipherChangesSubject = CurrentValueSubject<CipherChange, Error>(
+    var cipherChangesSubject = CurrentValueSubject<CipherChange, Never>(
         .upserted(.fixture()), // stub data that will be dropped and not published.
     )
 
@@ -163,7 +163,7 @@ class MockCipherService: CipherService {
         try updateCipherCollectionsWithServerResult.get()
     }
 
-    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Error> {
+    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Never> {
         cipherChangesSubject.dropFirst().eraseToAnyPublisher()
     }
 
