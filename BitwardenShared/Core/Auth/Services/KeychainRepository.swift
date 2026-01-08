@@ -6,8 +6,6 @@ import Foundation
 
 // swiftlint:disable file_length
 enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
-    case aaaaa(userId: String)
-
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
 
@@ -29,18 +27,21 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for a user's vault timeout.
+    case vaultTimeout(userId: String)
+
     /// The `SecAccessControlCreateFlags` level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
     var accessControlFlags: SecAccessControlCreateFlags? {
         switch self {
-        case .aaaaa,
-             .accessToken,
+        case .accessToken,
              .authenticatorVaultKey,
              .deviceKey,
              .neverLock,
              .pendingAdminLoginRequest,
-             .refreshToken:
+             .refreshToken,
+             .vaultTimeout:
             nil
         case .biometrics:
             .biometryCurrentSet
@@ -50,11 +51,11 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The protection level for this keychain item.
     var protection: CFTypeRef {
         switch self {
-        case .aaaaa,
-             .biometrics,
+        case .biometrics,
              .deviceKey,
              .neverLock,
-             .pendingAdminLoginRequest:
+             .pendingAdminLoginRequest,
+             .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
@@ -67,8 +68,6 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     ///
     var unformattedKey: String {
         switch self {
-        case let .aaaaa(userId):
-            "aaaaa_\(userId)"
         case let .accessToken(userId):
             "accessToken_\(userId)"
         case let .authenticatorVaultKey(userId):
@@ -83,6 +82,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .vaultTimeout(userId):
+            "vaultTimeout_\(userId)"
         }
     }
 }
@@ -93,12 +94,6 @@ protocol KeychainRepository: AnyObject {
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws
-
-    /// Attempts to delete the aaaaa from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the aaaaa.
-    ///
-    func deleteAaaaa(userId: String) async throws
 
     /// Attempts to delete the authenticator vault key from the keychain.
     ///
@@ -129,13 +124,6 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the stored device key.
     ///
     func deletePendingAdminLoginRequest(userId: String) async throws
-
-    /// Gets the stored aaaaa for a user from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the stored aaaaa.
-    /// - Returns: The aaaaa value.
-    ///
-    func getAaaaa(userId: String) async throws -> String?
 
     /// Gets the stored access token for a user from the keychain.
     ///
@@ -179,14 +167,6 @@ protocol KeychainRepository: AnyObject {
     ///
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String
 
-    /// Stores the aaaaa for a user in the keychain.
-    ///
-    /// - Parameters:
-    ///   - value: The aaaaa value to store.
-    ///   - userId: The user's ID, used to get back the value later on.
-    ///
-    func setAaaaa(_ value: String, userId: String) async throws
-
     /// Stores the access token for a user in the keychain.
     ///
     /// - Parameters:
@@ -218,6 +198,27 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the token later on.
     ///
     func setRefreshToken(_ value: String, userId: String) async throws
+
+    /// Attempts to delete the vault timeout from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the vault timeout.
+    ///
+    func deleteVaultTimeout(userId: String) async throws
+
+    /// Gets the stored vault timeout for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored vault timeout.
+    /// - Returns: The vault timeout value.
+    ///
+    func getVaultTimeout(userId: String) async throws -> String?
+
+    /// Stores the vault timeout for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The vault timeout to store.
+    ///   - userId: The user's ID, used to get back the vault timeout later on.
+    ///
+    func setVaultTimeout(_ value: String, userId: String) async throws
 
     /// Sets the pending admin login request for a user ID.
     ///
@@ -397,12 +398,6 @@ extension DefaultKeychainRepository {
         }
     }
 
-    func deleteAaaaa(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .aaaaa(userId: userId)),
-        )
-    }
-
     func deleteAuthenticatorVaultKey(userId: String) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: .authenticatorVaultKey(userId: userId)),
@@ -443,10 +438,6 @@ extension DefaultKeychainRepository {
         )
     }
 
-    func getAaaaa(userId: String) async throws -> String? {
-        try await getValue(for: .aaaaa(userId: userId))
-    }
-
     func getAccessToken(userId: String) async throws -> String {
         try await getValue(for: .accessToken(userId: userId))
     }
@@ -471,10 +462,6 @@ extension DefaultKeychainRepository {
         try await getValue(for: item)
     }
 
-    func setAaaaa(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .aaaaa(userId: userId))
-    }
-
     func setAccessToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .accessToken(userId: userId))
     }
@@ -489,6 +476,20 @@ extension DefaultKeychainRepository {
 
     func setRefreshToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .refreshToken(userId: userId))
+    }
+
+    func deleteVaultTimeout(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .vaultTimeout(userId: userId)),
+        )
+    }
+
+    func getVaultTimeout(userId: String) async throws -> String? {
+        try await getValue(for: .vaultTimeout(userId: userId))
+    }
+
+    func setVaultTimeout(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .vaultTimeout(userId: userId))
     }
 
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws {
