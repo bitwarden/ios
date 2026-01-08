@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Главна лозинка је лозинка коју користите за приступ вашем трезору.";
 "MasterPasswordHint" = "Помоћ за главну лозинку";
 "NewMasterPasswordHint" = "Савет за нову Главну Лозинку";
-"MasterPasswordLengthValMessageX" = "Главна лозинка мора имати барем %1$@ карактера.";
 "MinNumbers" = "Минимално Бројева";
 "MinSpecial" = "Минимално специјалних";
 "MoreSettings" = "Још подешавања";
@@ -389,7 +388,6 @@
 "AllItems" = "Све ставке";
 "CheckingPassword" = "Проверaвање лозинкe…";
 "CheckPassword" = "Проверите да ли је лозинка изложена.";
-"PasswordExposed" = "Ова лозинка је изложена %1$@ пута. Требали би да је промените.";
 "PasswordSafe" = "Ова лозинка није никада изложена. Треба да је сигурна за употребу.";
 "IdentityName" = "Име идентитета";
 "Value" = "Вредност";
@@ -676,7 +674,6 @@
 "ConfirmLogIn" = "Потврди пријављивање";
 "DenyLogIn" = "Одбиј пријављивање";
 "JustNow" = "Управо сада";
-"XMinutesAgo" = "пре %1$@ минута";
 "LogInAccepted" = "Пријава потврђена";
 "LogInDenied" = "Пријава одбијена";
 "ApproveLoginRequests" = "Одобравање захтева за пријављивање";
@@ -825,10 +822,6 @@
 "SessionTimeout" = "Истек сесије";
 "SessionTimeoutAction" = "Акција на истек сесије";
 "AccountFingerprintPhrase" = "Сигурносна фраза налога";
-"OneHourAndOneMinute" = "Један сат и један минут";
-"OneHourAndXMinute" = "Један сат и %1$@ минута";
-"XHoursAndOneMinute" = "%1$@ сата/и и један минута";
-"XHoursAndYMinutes" = "%1$@ сата/и и %2$@ минута";
 "PasskeyManagementExplanationLong" = "Употребити Bitwarden да сачувате нове приступне кључеве и пријавите се са приступним кључевима ускладиштеним у вашем трезору.";
 "AutofillServicesExplanationLong" = "Android Autofill Framework се користи за помоћ при попуњавању података за пријаву у друге апликације на вашем уређају.";
 "UseInlineAutofillExplanationLong" = "Користите ауто-попуњавање на линији ако га ваша изабрана тастатура подржава. У супротном, користите подразумевано преклапање.";
@@ -963,7 +956,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden не може да рисетује изгубљену или заборављену главну лозинку.";
 "LearnAboutWaysToPreventAccountLockout" = "Сазнајте више о начинима да спречите закључавање налога";
 "WhatMakesAPasswordStrong" = "Шта лозинку чини јаком?";
-"XCharacters" = "%1$@ знакова";
 "RemoveMasterPasswordMessage" = "%1$@ користи SSO уз сопствени сервер за кључеве. Главна лозинка за пријаву више није неопходна за чланове ове организације.";
 "RestartRegistration" = "Поново покрените регистрацију";
 "ExpiredLink" = "Истекла веза";
@@ -1050,7 +1042,7 @@
 "GotIt" = "Разумем";
 "GenerateCrash" = "Генерирај извештај пада";
 "GenerateErrorReport" = "Генеришите извештај о грешци";
-"GenerateSdkErrorReport" = "Generate SDK error report";
+"GenerateSdkErrorReport" = "Генеришите SDK извештај о грешци";
 "AllowAuthenticatorSyncing" = "Дозволи синхронизацију аутентификатора";
 "AuthenticatorSync" = "Синхронизација аутентификатора";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Није пронађен ниједан налог. Пријавите се поново ако и даље видите ову грешку.";
@@ -1156,7 +1148,6 @@
 "GeneratePassphrase" = "Генеришите приступну фразу";
 "AllowUniversalClipboard" = "Дозволи универзални међуспремник";
 "UseUniversalClipboardToCopyDescriptionLong" = "Користите Универсал Међуспремник да бисте копирали овде и залепили на друге уређаје пријављене са истим Apple ID-ом.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Ваш ПИН PIN треба да има најмање %1$@ слова. Подешавања ПИН-а ће се ресетовати ако се икада у потпуности одјавите из апликације.";
 "RemoveMasterPasswordMessage" = "%1$@ користи SSO уз сопствени сервер за кључеве. Главна лозинка за пријаву више није неопходна за чланове ове организације.";
 "RemoveMasterPasswordConfirmDomain" = "Главна лозинка више није потребна за чланове следеће организације. Молимо потврдите домен са администратором организације.";
 "ConfirmKeyConnectorDomain" = "Потврдите домен конектора кључа";
@@ -1274,7 +1265,18 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нова препоручена подешавања шифрирања побољшаће вашу сигурност налога. Унесите своју главну лозинку за ажурирање.";
 "Updating" = "Ажурирање...";
 "EncryptionSettingsUpdated" = "Подешавања шифровања су ажурирани";
-"ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
-"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Напустити %1$@";
+"HowToManageMyVault" = "Како да управљам својим сефом";
+"YouLeftTheOrganization" = "Напустили сте организацију";
+"ThisSettingIsManagedByYourOrganization" = "Овим подешавањем управља ваша организација.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша организација је поставила подразумевано временско ограничење сесије на %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организација је поставила максимално временско ограничење сесије на %1$@.";
+"YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организација је подесила максимално временско ограничење сесије на %1$@ и %2$@.";

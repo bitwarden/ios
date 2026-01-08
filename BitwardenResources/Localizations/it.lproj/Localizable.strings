@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "La parola d'accesso principale è la parola d'accesso che usi per accedere alla tua cassaforte.";
 "MasterPasswordHint" = "Suggerimento per la password principale";
 "NewMasterPasswordHint" = "Nuovo suggerimento parola d'accesso principale";
-"MasterPasswordLengthValMessageX" = "La password principale deve essere lunga almeno %1$@ caratteri.";
 "MinNumbers" = "Minimo numeri";
 "MinSpecial" = "Minimo caratteri speciali";
 "MoreSettings" = "Altre impostazioni";
@@ -389,7 +388,6 @@
 "AllItems" = "Tutti gli elementi";
 "CheckingPassword" = "Verifica password…";
 "CheckPassword" = "Verifica se la password è stata esposta.";
-"PasswordExposed" = "Questa password è stata trovata %1$@ volta(e) in archivi di dati trafugati. Dovresti cambiarla.";
 "PasswordSafe" = "Questa password non è stata trovata in violazioni di dati note. Dovrebbe essere sicura da usare.";
 "IdentityName" = "Nome dell'identità";
 "Value" = "Valore";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Consenti accesso";
 "DenyLogIn" = "Nega accesso";
 "JustNow" = "Adesso";
-"XMinutesAgo" = "%1$@ minuti fa";
 "LogInAccepted" = "Accesso consentito";
 "LogInDenied" = "Accesso negato";
 "ApproveLoginRequests" = "Approva richieste di accesso";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Timeout della sessione";
 "SessionTimeoutAction" = "Azione timeout cassaforte";
 "AccountFingerprintPhrase" = "Frase impronta dell'account";
-"OneHourAndOneMinute" = "Un'ora e un minuto";
-"OneHourAndXMinute" = "Un'ora e %1$@ minuti";
-"XHoursAndOneMinute" = "%1$@ ore e un minuto";
-"XHoursAndYMinutes" = "%1$@ ore e %2$@ minuti";
 "PasskeyManagementExplanationLong" = "Usa Bitwarden per salvare nuove passkey ed accedere con le passkey memorizzate nella tua cassaforte.";
 "AutofillServicesExplanationLong" = "La struttura di riempimento automatico di Android è usata per aiutare a inserire le tue credenziali su altre app nel tuo dispositivo.";
 "UseInlineAutofillExplanationLong" = "Usa il riempimento automatico in linea se la tua tastiera lo supporta. Altrimenti, usa la sovrapposizione predefinita.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Non è possibile recuperare una password principale: non perderla e non dimenticarla!";
 "LearnAboutWaysToPreventAccountLockout" = "Scopri di più su come evitare il blocco dell'account";
 "WhatMakesAPasswordStrong" = "Cosa rende una password efficace e sicura?";
-"XCharacters" = "%1$@ caratteri";
 "RemoveMasterPasswordMessage" = "%1$@ sta usando SSO con un server self-hosted. Non è necessaria una password principale per i membri di questa organizzazione.";
 "RestartRegistration" = "Ricomincia la registrazione";
 "ExpiredLink" = "Link scaduto";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Genera frase segreta";
 "AllowUniversalClipboard" = "Consenti Appunti Universali";
 "UseUniversalClipboardToCopyDescriptionLong" = "Usa gli Appunti Universali per copiare e incollare da/verso questo dispositivo ed altri collegati allo stesso ID Apple.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Il PIN deve avere una lunghezza minima di %1$@ caratteri. Tutte le impostazioni relative al PIN sono azzerate alla chiusura della sessione (logout).";
 "RemoveMasterPasswordMessage" = "%1$@ sta usando SSO con un server self-hosted. Non è necessaria una password principale per i membri di questa organizzazione.";
 "RemoveMasterPasswordConfirmDomain" = "La password principale non è più richiesta per i membri dell'organizzazione. Per favore, conferma il dominio qui sotto con l'amministratore.";
 "ConfirmKeyConnectorDomain" = "Conferma dominio Key Connector";
@@ -1273,7 +1264,18 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Le nuove impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la tua password principale per aggiornare.";
 "Updating" = "Aggiornamento…";
 "EncryptionSettingsUpdated" = "Impostazioni di crittografia aggiornate";
+"ItemTransfer" = "Trasferimento elementi";
+"TransferItemsToX" = "Trasferisci gli elementi in %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di conformità e sicurezza. Clicca su 'Accetta' per trasferire la proprietà.";
+"DeclineAndLeave" = "Rifiuta e abbandona";
+"WhyAmISeeingThis" = "Perché vedo questo avviso?";
+"AreYouSureYouWantToLeave" = "Vuoi davvero abbandonare?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Se rifiuti, tutti gli elementi esistenti resteranno nel tuo account, ma perderai l'accesso agli oggetti condivisi e alle funzioni organizzative.";
+"ContactYourAdminToRegainAccess" = "Contatta il tuo amministratore per recuperare l'accesso.";
+"LeaveX" = "Abbandona %1$@";
+"HowToManageMyVault" = "Come si gestisce la cassaforte?";
+"YouLeftTheOrganization" = "Hai lasciato l'organizzazione";
 "ThisSettingIsManagedByYourOrganization" = "Questa impostazione è gestita dalla tua organizzazione.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "La tua organizzazione ha impostato il timeout massimo per la sessione a %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "La tua organizzazione ha impostato il timeout massimo per la sessione a %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "La tua organizzazione ha impostato %1$@ e %2$@ come durata massima della sessione.";

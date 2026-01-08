@@ -1,6 +1,6 @@
 "Lock all ${applicationName} accounts" = "Заблокировать все аккаунты ${applicationName}";
 "Secure every ${applicationName} account" = "Защитите каждый аккаунт ${applicationName}";
-"Lock down all ${applicationName} sessions" = "Заблокировать все сеансы ${applicationName}";
+"Lock down all ${applicationName} sessions" = "Заблокировать все сессии ${applicationName}";
 "${applicationName}, lock all vaults" = "${applicationName}, заблокировать все хранилища";
 "Activate full lock for ${applicationName}" = "Активировать полную блокировку для ${applicationName}";
 "Freeze every ${applicationName} account" = "Заморозить все аккаунты ${applicationName}";

@@ -40,40 +40,6 @@ protocol KeychainService: AnyObject {
     func search(query: CFDictionary) throws -> AnyObject?
 }
 
-// MARK: - KeychainServiceError
-
-enum KeychainServiceError: Error, Equatable, CustomNSError {
-    /// When creating an accessControl fails.
-    ///
-    /// - Parameter CFError: The potential system error.
-    ///
-    case accessControlFailed(CFError?)
-
-    /// When a `KeychainService` is unable to locate an auth key for a given storage key.
-    ///
-    /// - Parameter KeychainItem: The potential storage key for the auth key.
-    ///
-    case keyNotFound(KeychainItem)
-
-    /// A passthrough for OSService Error cases.
-    ///
-    /// - Parameter OSStatus: The `OSStatus` returned from a keychain operation.
-    ///
-    case osStatusError(OSStatus)
-
-    /// The user-info dictionary.
-    var errorUserInfo: [String: Any] {
-        switch self {
-        case .accessControlFailed:
-            [:]
-        case let .keyNotFound(keychainItem):
-            ["Keychain Item": keychainItem.unformattedKey]
-        case let .osStatusError(osStatus):
-            ["OS Status": osStatus]
-        }
-    }
-}
-
 // MARK: - DefaultKeychainService
 
 class DefaultKeychainService: KeychainService {

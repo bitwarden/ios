@@ -21,6 +21,63 @@
         <string>Bitwarden nevarēja atšifrēt %d glabātavas vienumus</string>
       </dict>
     </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Galvenajai parolei ir jābūt vismaz %#@characters@ garai.</string>
+      <key>characters</key>
+      <dict>
+        <key>zero</key>
+        <string>%d rakstzīmju</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d rakstzīme</string>
+        <key>other</key>
+        <string>%d rakstzīmes</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Šī parole datu noplūdēs ir atklāta %#@times@. To vajadzētu nomainīt.</string>
+      <key>times</key>
+      <dict>
+        <key>zero</key>
+        <string>%d reižu</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d reizi</string>
+        <key>other</key>
+        <string>%d reizes</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@characters@</string>
+      <key>characters</key>
+      <dict>
+        <key>zero</key>
+        <string>%d rakstzīmju</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d rakstzīme</string>
+        <key>other</key>
+        <string>%d rakstzīmes</string>
+      </dict>
+    </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
@@ -38,6 +95,25 @@
         <string>%d diena</string>
         <key>other</key>
         <string>%d dienas</string>
+      </dict>
+    </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@hours@</string>
+      <key>hours</key>
+      <dict>
+        <key>zero</key>
+        <string>%d stundu</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d stunda</string>
+        <key>other</key>
+        <string>%d stundas</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -76,25 +152,6 @@
         <string>%d vienums</string>
         <key>other</key>
         <string>%d vienumi</string>
-      </dict>
-    </dict>
-    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
-    <key>XHours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
-      <dict>
-        <key>zero</key>
-        <string>%d stundu</string>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d stunda</string>
-        <key>other</key>
-        <string>%d stundas</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -152,6 +209,25 @@
         <string>%d nedēļa</string>
         <key>other</key>
         <string>%d nedēļas</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>PIN ir jābūt vismaz %#@characters@ garam. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.</string>
+      <key>characters</key>
+      <dict>
+        <key>zero</key>
+        <string>%d rakstzīmju</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d rakstzīme</string>
+        <key>other</key>
+        <string>%d rakstzīmes</string>
       </dict>
     </dict>
   </dict>

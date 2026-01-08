@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Mật khẩu chính là mật khẩu bạn dùng để mở khóa kho lưu trữ.";
 "MasterPasswordHint" = "Gợi ý mật khẩu chính";
 "NewMasterPasswordHint" = "Gợi ý mật khẩu chính mới";
-"MasterPasswordLengthValMessageX" = "Mật khẩu chính phải có tối thiểu %1$@ kí tự.";
 "MinNumbers" = "Số chữ số tối thiểu";
 "MinSpecial" = "Số kí tự đặc biệt tối thiểu";
 "MoreSettings" = "Cài đặt khác";
@@ -389,7 +388,6 @@
 "AllItems" = "Tất cả các mục";
 "CheckingPassword" = "Đang kiểm tra mật khẩu…";
 "CheckPassword" = "Kiểm tra xem mật khẩu có bị lộ không.";
-"PasswordExposed" = "Mật khẩu này đã bị lộ %1$@ lần trong các vụ rò rỉ dữ liệu. Bạn nên thay đổi nó.";
 "PasswordSafe" = "Không tìm thấy mật khẩu này trong các vụ rò rỉ dữ liệu trước đây. Nó an toàn để sử dụng.";
 "IdentityName" = "Tên định danh";
 "Value" = "Giá trị";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Xác nhận đăng nhập";
 "DenyLogIn" = "Từ chối đăng nhập";
 "JustNow" = "Vừa xong";
-"XMinutesAgo" = "%1$@ phút trước";
 "LogInAccepted" = "Đăng nhập được xác nhận";
 "LogInDenied" = "Đăng nhập bị từ chối";
 "ApproveLoginRequests" = "Phê duyệt yêu cầu đăng nhập";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Thời gian đóng kho";
 "SessionTimeoutAction" = "Hành động sau khi đóng kho";
 "AccountFingerprintPhrase" = "Cụm từ xác thực tài khoản";
-"OneHourAndOneMinute" = "Một giờ một phút";
-"OneHourAndXMinute" = "Một giờ %1$@ phút";
-"XHoursAndOneMinute" = "%1$@ giờ một phút";
-"XHoursAndYMinutes" = "%1$@ giờ %2$@ phút";
 "PasskeyManagementExplanationLong" = "Sử dụng Bitwarden để lưu các mã khóa mới và đăng nhập bằng các mã khóa đã lưu trong kho của bạn.";
 "AutofillServicesExplanationLong" = "Khung Tự động điền của Android được sử dụng để hỗ trợ việc điền thông tin đăng nhập vào các ứng dụng khác trên thiết bị của bạn.";
 "UseInlineAutofillExplanationLong" = "Sử dụng tính năng tự động điền cùng dòng nếu bàn phím bạn sử dụng hỗ trợ tính năng này. Nếu không, dùng giao diện phủ mặc định.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden không thể đặt lại mật khẩu chính đã bị mất hoặc quên.";
 "LearnAboutWaysToPreventAccountLockout" = "Tìm hiểu các cách để tránh bị khóa tài khoản";
 "WhatMakesAPasswordStrong" = "Điều gì giúp một mật khẩu mạnh?";
-"XCharacters" = "%1$@ ký tự";
 "RemoveMasterPasswordMessage" = "%1$@ đang sử dụng Đăng nhập một lần với khóa máy chủ tự lưu trữ. Mật khẩu chính không còn cần để đăng nhập cho các thành viên của tổ chức này.";
 "RestartRegistration" = "Tiến hành đăng ký lại";
 "ExpiredLink" = "Liên kết đã hết hạn";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Tạo cụm mật khẩu";
 "AllowUniversalClipboard" = "Cho phép Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Sử dụng Universal Clipboard để sao chép ở đây và dán vào các thiết bị khác đã đăng nhập bằng cùng một Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Mã PIN của bạn phải có ít nhất %1$@ ký tự. Cài đặt mã PIN sẽ được đặt lại nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.";
 "RemoveMasterPasswordMessage" = "%1$@ đang sử dụng Đăng nhập một lần với khóa máy chủ tự lưu trữ. Mật khẩu chính không còn cần để đăng nhập cho các thành viên của tổ chức này.";
 "RemoveMasterPasswordConfirmDomain" = "Mật khẩu chính không còn được yêu cầu đối với các thành viên của tổ chức sau đây. Vui lòng xác nhận tên miền bên dưới với quản trị viên của tổ chức.";
 "ConfirmKeyConnectorDomain" = "Xác nhận tên miền Key Connector";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Cài đặt mã hóa được khuyến nghị sẽ cải thiện bảo mật cho tài khoản của bạn. Nhập mật khẩu chính để cập nhật ngay.";
 "Updating" = "Đang cập nhật...";
 "EncryptionSettingsUpdated" = "Cài đặt mã hóa đã được cập nhật";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "Cài đặt này do tổ chức của bạn quản lý.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Tổ chức của bạn đã đặt thời gian phiên tối đa thành %1$@.";

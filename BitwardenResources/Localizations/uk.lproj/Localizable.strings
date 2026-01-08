@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Головний пароль призначений для доступу до вашого сховища.";
 "MasterPasswordHint" = "Підказка для головного пароля";
 "NewMasterPasswordHint" = "Нова підказка для головного пароля";
-"MasterPasswordLengthValMessageX" = "Довжина головного пароля має бути принаймні %1$@ символів.";
 "MinNumbers" = "Мінімум цифр";
 "MinSpecial" = "Мінімум спеціальних символів";
 "MoreSettings" = "Додаткові налаштування";
@@ -180,10 +179,10 @@
 "SyncVaultNow" = "Синхронізувати зараз";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Двоетапна перевірка";
-"UnlockWithBiometrics" = "Розблокувати з біометрією";
-"UnlockWithFaceID" = "Розблокувати з Face ID";
-"UnlockWithTouchID" = "Розблокувати з Touch ID";
-"UnlockWithOpticID" = "Розблокувати з Optic ID";
+"UnlockWithBiometrics" = "Розблокування з біометрією";
+"UnlockWithFaceID" = "Розблокування з Face ID";
+"UnlockWithTouchID" = "Розблокування з Touch ID";
+"UnlockWithOpticID" = "Розблокування з Optic ID";
 "UnlockWithPIN" = "Розблокування з PIN-кодом";
 "Validating" = "Перевірка";
 "VerificationCode" = "Код підтвердження";
@@ -389,7 +388,6 @@
 "AllItems" = "Усі записи";
 "CheckingPassword" = "Перевірка пароля…";
 "CheckPassword" = "Перевірити чи пароль було викрито.";
-"PasswordExposed" = "Цей пароль було викрито %1$@ разів з витоком даних. Вам слід його змінити.";
 "PasswordSafe" = "Цей пароль не було знайдено у жодних відомих витоках даних. Його можна безпечно використовувати.";
 "IdentityName" = "Назва посвідчення";
 "Value" = "Значення";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "Підтвердити вхід";
 "DenyLogIn" = "Заборонити вхід";
 "JustNow" = "Щойно";
-"XMinutesAgo" = "%1$@ хвилин тому";
 "LogInAccepted" = "Вхід підтверджено";
 "LogInDenied" = "Вхід заборонено";
 "ApproveLoginRequests" = "Схвалювати запити на вхід";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "Час очікування сеансу";
 "SessionTimeoutAction" = "Дія після часу очікування сеансу";
 "AccountFingerprintPhrase" = "Фраза відбитка облікового запису";
-"OneHourAndOneMinute" = "Одна година й одна хвилина";
-"OneHourAndXMinute" = "Одна година й %1$@ хвилин";
-"XHoursAndOneMinute" = "%1$@ години й одна хвилина";
-"XHoursAndYMinutes" = "%1$@ години й %2$@ хвилин";
 "PasskeyManagementExplanationLong" = "Використовуйте Bitwarden для збереження нових ключів доступу та виконуйте вхід за допомогою збережених у сховищі ключів доступу.";
 "AutofillServicesExplanationLong" = "Для автозаповнення даних входу в інших програмах на вашому пристрої використовується Android Autofill Framework.";
 "UseInlineAutofillExplanationLong" = "Використовуйте вбудоване автозаповнення, якщо його підтримує ваша клавіатура. Інакше, використовуйте типову функцію накладання.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden не може скинути втрачений чи забутий головний пароль.";
 "LearnAboutWaysToPreventAccountLockout" = "Дізнайтеся про способи запобігання блокуванню облікового запису";
 "WhatMakesAPasswordStrong" = "Який пароль вважається надійним?";
-"XCharacters" = "%1$@ символів";
 "RemoveMasterPasswordMessage" = "%1$@ використовує SSO з власним сервером ключів. Головний пароль для учасників цієї організації більше не вимагається.";
 "RestartRegistration" = "Перезапустити реєстрацію";
 "ExpiredLink" = "Протерміноване посилання";
@@ -1049,7 +1041,7 @@
 "GotIt" = "Зрозуміло";
 "GenerateCrash" = "Генерувати звіт про збій";
 "GenerateErrorReport" = "Генерувати звіт про помилку";
-"GenerateSdkErrorReport" = "Generate SDK error report";
+"GenerateSdkErrorReport" = "Генерувати звіт про помилку SDK";
 "AllowAuthenticatorSyncing" = "Дозволити синхронізацію автентифікатора";
 "AuthenticatorSync" = "Синхронізація автентифікатора";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Обліковий запис не знайдено. Якщо ця помилка з'являтиметься й надалі, повторно виконайте вхід.";
@@ -1075,7 +1067,7 @@
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Можливо, необхідно ввімкнути код допуску або біометричну перевірку пристрою.";
 "StartImportCXFDescriptionLong" = "Імпортуйте паролі, ключі доступу, кредитні картки та будь-яку особисту інформацію з іншого менеджера паролів.\n\nВаші дані з іншого менеджера паролів **не** видаляться.";
 "ImportPasswords" = "Імпортувати паролі";
-"ImportingEllipsis" = "Триває імпортування...";
+"ImportingEllipsis" = "Триває імпортування…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Ви дійсно хочете скасувати процес імпортування?";
 "ImportFailed" = "Не вдалося імпортувати";
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "Виникла проблема під час імпортування ваших паролів.\n\nЖодних даних не видалено.";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "Генерувати парольну фразу";
 "AllowUniversalClipboard" = "Дозволити універсальний буфер обміну";
 "UseUniversalClipboardToCopyDescriptionLong" = "Використовуйте універсальний буфер обміну, щоб копіювати дані тут і вставити на інших пристроях, на яких виконано вхід із цим Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-код має складатися принаймні з %1$@ символів. Налаштування PIN-коду буде скинуто, якщо ви коли-небудь вийдете зі сховища.";
 "RemoveMasterPasswordMessage" = "%1$@ використовує SSO з власним сервером ключів. Головний пароль для учасників цієї організації більше не вимагається.";
 "RemoveMasterPasswordConfirmDomain" = "Головний пароль більше не є обов'язковим для учасників зазначеної організації. Підтвердьте вказаний нижче домен з адміністратором вашої організації.";
 "ConfirmKeyConnectorDomain" = "Підтвердити домен Key Connector";
@@ -1184,7 +1175,7 @@
 "LoggingEndsOnDateAtTime" = "Запис закінчується %1$@, %2$@";
 "YouMustAttachAFileToSaveThisSend" = "Необхідно додати файл, щоб зберегти це відправлення";
 "SendUpdated" = "Відправлення оновлено";
-"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Ми не розпізнаємо цей пристрій. Введіть код, надісланий на вашу електронну пошту, щоб підтвердити вашу особу.";
+"WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "Ми не розпізнаємо цей пристрій. Для підтвердження входу ведіть код, надісланий на вашу електронну пошту.";
 "Created" = "Створено: %1$@";
 "LastEdited" = "Востаннє редаговано: %1$@";
 "PasswordLastUpdated" = "Пароль востаннє оновлено: %1$@";
@@ -1273,7 +1264,18 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Нові рекомендовані налаштування шифрування покращать безпеку вашого облікового запису. Щоб оновити їх, введіть свій головний пароль.";
 "Updating" = "Оновлення…";
 "EncryptionSettingsUpdated" = "Налаштування шифрування оновлено";
+"ItemTransfer" = "Переміщення запису";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Ви дійсно хочете покинути?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Відхиливши, ваші особисті записи залишаться у вашому обліковому записі, але ви втратите доступ до спільних записів та функцій організації.";
+"ContactYourAdminToRegainAccess" = "Зверніться до свого адміністратора, щоб відновити доступ.";
+"LeaveX" = "Покинути %1$@";
+"HowToManageMyVault" = "Як керувати моїм сховищем";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "Цим параметром керує ваша організація.";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша організація встановила максимальний час очікування сеансу %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша організація встановила максимальний час сеансу %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша організація встановила максимальний час сеансу %1$@ і %2$@.";

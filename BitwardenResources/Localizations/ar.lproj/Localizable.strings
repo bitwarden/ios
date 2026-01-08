@@ -1,5 +1,5 @@
 "About" = "عن التطبيق";
-"Add" = "أضِف";
+"Add" = "إضافة";
 "AddFolder" = "إضافة مجلّد";
 "AddItem" = "إضافة عنصر";
 "AnErrorHasOccurred" = "لقد حدث خطأ.";
@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "كلمة المرور الرئيسية هي كلمة المرور التي تستخدمها للوصول إلى خزانك.";
 "MasterPasswordHint" = "تلميح كلمة المرور الرئيسي";
 "NewMasterPasswordHint" = "تلميح كلمة المرور الرئيسية";
-"MasterPasswordLengthValMessageX" = "كلمة المرور الرئيسية يجب أن تكون على الأقل %1$@ حرفاً.";
 "MinNumbers" = "الحد الأدنى للأرقام";
 "MinSpecial" = "الحد الأدنى من الأحرف الخاصة";
 "MoreSettings" = "المزيد من الإعدادات";
@@ -389,7 +388,6 @@
 "AllItems" = "كافة العناصر";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "تحقق مما إذا تم الكشف عن كلمة المرور.";
-"PasswordExposed" = "تم كشف كلمة المرور هذه %1$@ مرة (مرات) في عمليات اختراق البيانات. يجب عليك تغييرها.";
 "PasswordSafe" = "لم يتم العثور على كلمة المرور هذه في أي عمليات اختراق معروفة للبيانات. يجب أن تكون آمنة للاستخدام.";
 "IdentityName" = "اسم الهوية";
 "Value" = "القيمة";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "تأكيد تسجيل الدخول";
 "DenyLogIn" = "رفض تسجيل الدخول";
 "JustNow" = "للتو";
-"XMinutesAgo" = "منذ %1$@ دقائق";
 "LogInAccepted" = "تم تأكيد تسجيل الدخول";
 "LogInDenied" = "تم رفض تسجيل الدخول";
 "ApproveLoginRequests" = "الموافقة على طلبات تسجيل الدخول";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "مهلة الجلسة";
 "SessionTimeoutAction" = "إجراء مهلة الجلسة";
 "AccountFingerprintPhrase" = "عبارة بصمة الحساب";
-"OneHourAndOneMinute" = "ساعة واحدة ودقيقة واحدة";
-"OneHourAndXMinute" = "ساعة واحدة و %1$@ دقيقة";
-"XHoursAndOneMinute" = "%1$@ ساعات ودقيقة واحدة";
-"XHoursAndYMinutes" = "%1$@ ساعات و %2$@ دقيقة";
 "PasskeyManagementExplanationLong" = "استخدم بت واردن لحفظ مفاتيح المرور الجديدة وتسجيل الدخول باستخدام مفاتيح المرور المخزنة في خزانتك.";
 "AutofillServicesExplanationLong" = "يتم استخدام إطار التعبئة التلقائية لأندرويد للمساعدة في ملء معلومات تسجيل الدخول في تطبيقات أخرى على جهازك.";
 "UseInlineAutofillExplanationLong" = "استخدم التعبئة التلقائية المضمنة إذا كانت لوحة المفاتيح المحددة تدعمها. وإلا استخدم التراكب الافتراضي.";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "لا يمكن لبت واردن إعادة تعيين كلمة مرور رئيسية مفقودة أو منسية.";
 "LearnAboutWaysToPreventAccountLockout" = "تعرف على طرق منع قفل الحساب";
 "WhatMakesAPasswordStrong" = "ما الذي يجعل كلمة المرور قوية؟";
-"XCharacters" = "%1$@ أحرف";
 "RemoveMasterPasswordMessage" = "%1$@ يستخدم SSO مع خادم المفتاح المستضاف ذاتيا. لم تعد هناك حاجة إلى كلمة مرور رئيسية لتسجيل الدخول لأعضاء هذه المؤسسة.";
 "RestartRegistration" = "إعادة تشغيل التسجيل";
 "ExpiredLink" = "رابط منتهي الصلاحية";
@@ -1156,7 +1148,6 @@
 "AllowUniversalClipboard" = "السماح بالحافظة العامة";
 "UseUniversalClipboardToCopyDescriptionLong" = "استخدم الحافظة العامة للنسخ هنا وللصق على أجهزة أخرى مسجلة بنفس معرف آبل.
 ";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "يجب ألا يقل رَقْم التعريف الشخصي عن %1$@ من الأحرف. ستتم إعادة تعيين إعدادات رَقْم التعريف الشخصي إذا سجلت الخروج من التطبيق بالكامل.";
 "RemoveMasterPasswordMessage" = "%1$@ يستخدم SSO مع خادم المفتاح المستضاف ذاتيا. لم تعد هناك حاجة إلى كلمة مرور رئيسية لتسجيل الدخول لأعضاء هذه المؤسسة.";
 "RemoveMasterPasswordConfirmDomain" = "لم تعد كلمة المرور الرئيسية مطلوبة لأعضاء المنظمة التالية. يرجى تأكيد النطاق أدناه مع مسؤول مؤسستك.";
 "ConfirmKeyConnectorDomain" = "تأكيد نطاق موصل المفتاح";
@@ -1274,6 +1265,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";

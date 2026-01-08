@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "マスターパスワードとは、保管庫にアクセスするためのパスワードです。";
 "MasterPasswordHint" = "マスターパスワードのヒント";
 "NewMasterPasswordHint" = "新しいマスターパスワードのヒント";
-"MasterPasswordLengthValMessageX" = "マスターパスワードは、少なくとも%1$@文字以上で設定してください。";
 "MinNumbers" = "数字の最小個数";
 "MinSpecial" = "最低限必要な記号の個数";
 "MoreSettings" = "その他の設定";
@@ -389,7 +388,6 @@
 "AllItems" = "すべてのアイテム";
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "パスワードが漏洩していないか確認する";
-"PasswordExposed" = "このパスワードは過去に %1$@ 回漏洩しています。変更するべきです。";
 "PasswordSafe" = "このパスワードは過去に漏洩したデータにはありません。安全だと思われます。";
 "IdentityName" = "固有名";
 "Value" = "値";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "ログインを承認";
 "DenyLogIn" = "ログインを拒否";
 "JustNow" = "たった今";
-"XMinutesAgo" = "%1$@ 分前";
 "LogInAccepted" = "ログインを承認しました";
 "LogInDenied" = "ログインを拒否しました";
 "ApproveLoginRequests" = "ログインリクエストを承認する";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "セッションタイムアウト";
 "SessionTimeoutAction" = "セッションタイムアウト時のアクション";
 "AccountFingerprintPhrase" = "アカウントのフィンガープリントフレーズ";
-"OneHourAndOneMinute" = "1 時間1分";
-"OneHourAndXMinute" = "1時間%1$@分";
-"XHoursAndOneMinute" = "%1$@時間1分";
-"XHoursAndYMinutes" = "%1$@時間%2$@分";
 "PasskeyManagementExplanationLong" = "Bitwarden を使って新しいパスキーを保存し、保管庫に保存されているパスキーでログインします。";
 "AutofillServicesExplanationLong" = "Android Autofill Frameworkは、お使いのデバイス上の他のアプリケーションにログイン情報を入力する際に使用されます。";
 "UseInlineAutofillExplanationLong" = "選択したキーボードがインライン入力をサポートしている場合は、インライン入力を使用します。そうでない場合は、デフォルトの自動入力を使用します。";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden は紛失した、または忘れられたマスターパスワードをリセットできません。";
 "LearnAboutWaysToPreventAccountLockout" = "アカウントのロックアウトを防ぐ方法について学ぶ";
 "WhatMakesAPasswordStrong" = "パスワードを強くする方法は?";
-"XCharacters" = "%1$@ 文字";
 "RemoveMasterPasswordMessage" = "%1$@ は自己ホストの鍵サーバで SSO を使用しています。この組織のメンバーのログインにマスターパスワードは必要ありません。";
 "RestartRegistration" = "登録を再度始める";
 "ExpiredLink" = "期限切れのリンク";
@@ -1155,7 +1147,6 @@
 "GeneratePassphrase" = "パスフレーズを生成";
 "AllowUniversalClipboard" = "ユニバーサルクリップボードを許可";
 "UseUniversalClipboardToCopyDescriptionLong" = "ユニバーサルクリップボードを使用すると、このデバイスでコピーした内容を同じ Apple ID でサインインしている別のデバイスにペーストすることができます。";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
 "RemoveMasterPasswordMessage" = "%1$@ は自己ホストの鍵サーバで SSO を使用しています。この組織のメンバーのログインにマスターパスワードは必要ありません。";
 "RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
 "ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
@@ -1273,6 +1264,17 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "The new recommended encryption settings will improve your account security. Enter your master password to update now.";
 "Updating" = "Updating…";
 "EncryptionSettingsUpdated" = "Encryption settings updated";
+"ItemTransfer" = "Item transfer";
+"TransferItemsToX" = "Transfer items to %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
+"DeclineAndLeave" = "Decline and leave";
+"WhyAmISeeingThis" = "Why am I seeing this?";
+"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
+"ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
+"LeaveX" = "Leave %1$@";
+"HowToManageMyVault" = "How to manage My vault";
+"YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";

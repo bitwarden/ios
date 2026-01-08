@@ -126,7 +126,7 @@
 "GeneratePassword" = "生成密码";
 "GetPasswordHint" = "获取主密码提示";
 "ImportItems" = "导入项目";
-"ImportItemsConfirmation" = "您可以在 bitwarden.com 网页版密码库批量导入项目。您现在要访问这个网站吗？";
+"ImportItemsConfirmation" = "您可以在 bitwarden.com 网页版密码库批量导入项目。现在要访问此网站吗？";
 "ImportItemsDescription" = "从其他密码管理 App 中快速批量导入您的项目。";
 "LastSync" = "上次同步：";
 "Length" = "长度";
@@ -142,7 +142,6 @@
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "主密码是用于访问您的密码库的密码。";
 "MasterPasswordHint" = "主密码提示";
 "NewMasterPasswordHint" = "新主密码提示";
-"MasterPasswordLengthValMessageX" = "主密码长度必须至少为 %1$@ 个字符。";
 "MinNumbers" = "数字最少个数";
 "MinSpecial" = "符号最少个数";
 "MoreSettings" = "更多设置";
@@ -389,7 +388,6 @@
 "AllItems" = "所有项目";
 "CheckingPassword" = "正在检查密码…";
 "CheckPassword" = "检查密码是否已经被公开。";
-"PasswordExposed" = "此密码在泄露数据中已被公开 %1$@ 次。请立即修改。";
 "PasswordSafe" = "没有在已知的数据泄露中发现此密码，它暂时比较安全。";
 "IdentityName" = "身份名称";
 "Value" = "值";
@@ -480,7 +478,7 @@
 "ExportVaultMasterPasswordDescription" = "输入您的主密码以导出您的密码库数据。";
 "SendVerificationCodeToEmail" = "发送验证码到您的电子邮箱";
 "CodeSent" = "验证码已发送！";
-"ConfirmYourIdentity" = "请先确认您的身份后继续。";
+"ConfirmYourIdentity" = "确认您的身份以继续。";
 "ExportVaultWarning" = "此导出包含未加密格式的密码库数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。";
 "ExportVaultConfirmationTitle" = "确认密码库导出";
 "Warning" = "警告";
@@ -589,7 +587,7 @@
 "SendFileEmailVerificationRequired" = "您必须验证电子邮箱以使用文件 Send。您可以在网页版密码库中验证您的电子邮箱。";
 "PasswordPrompt" = "主密码重新提示";
 "PasswordConfirmation" = "确认主密码";
-"PasswordConfirmationDesc" = "此操作受到保护，要继续，请重新输入主密码以验证您的身份。";
+"PasswordConfirmationDesc" = "此操作受到保护。若要继续，请重新输入您的主密码以验证您的身份。";
 "CaptchaRequired" = "请完成 Captcha 验证";
 "CaptchaFailed" = "Captcha 验证失败。请重试。";
 "UpdatedMasterPassword" = "已更新主密码";
@@ -601,7 +599,7 @@
 "RemoveMasterPasswordWarning" = "%1$@ 正在使用客户管理加密的 SSO。继续操作将移除您的账户主密码并要求 SSO 登录。";
 "RemoveMasterPasswordWarning2" = "如果您不想移除您的主密码，您可以退出该组织。";
 "LeaveOrganization" = "退出组织";
-"LeaveOrganizationName" = "退出 %1$@？";
+"LeaveOrganizationName" = "退出 %1$@ 吗？";
 "Fido2Title" = "FIDO2 WebAuthn";
 "Fido2Instruction" = "要继续，请准备好 FIDO2 WebAuthn 兼容的安全密钥，然后在下一个界面点击「验证 WebAuthn」，然后遵循说明。";
 "Fido2Desc" = "使用 FIDO2 WebAuthn 进行身份验证，您可以使用外部安全密钥来进行身份验证。";
@@ -675,7 +673,6 @@
 "ConfirmLogIn" = "确认登录";
 "DenyLogIn" = "拒绝登录";
 "JustNow" = "刚刚";
-"XMinutesAgo" = "%1$@ 分钟前";
 "LogInAccepted" = "登录已确认";
 "LogInDenied" = "登录被拒绝";
 "ApproveLoginRequests" = "批准登录请求";
@@ -824,10 +821,6 @@
 "SessionTimeout" = "会话超时";
 "SessionTimeoutAction" = "会话超时动作";
 "AccountFingerprintPhrase" = "账户指纹短语";
-"OneHourAndOneMinute" = "1 小时 1 分钟";
-"OneHourAndXMinute" = "1 小时 %1$@ 分钟";
-"XHoursAndOneMinute" = "%1$@ 小时 1 分钟";
-"XHoursAndYMinutes" = "%1$@ 小时 %2$@ 分钟";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 保存新的通行密钥并使用存储在密码库中的通行密钥登录。";
 "AutofillServicesExplanationLong" = "Android 自动填充框架用于帮助将登录信息填充到您设备上的其他 App。";
 "UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，将使用内嵌自动填充。否则，将使用默认的叠加层自动填充。";
@@ -962,7 +955,6 @@
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden 无法重置丢失或遗忘的主密码。";
 "LearnAboutWaysToPreventAccountLockout" = "了解防止账户被锁住的方法";
 "WhatMakesAPasswordStrong" = "如何使密码更安全？";
-"XCharacters" = "%1$@ 个字符";
 "RemoveMasterPasswordMessage" = "%1$@ 正在使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
 "RestartRegistration" = "重启注册";
 "ExpiredLink" = "失效链接";
@@ -1119,10 +1111,10 @@
 "VerifyYourIdentity" = "验证您的身份";
 "LockCurrentAccount" = "锁定当前账户";
 "ThisOperationIsNotAllowedOnThisAccount" = "此账户上不允许此操作";
-"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "尝试锁定当前用户时出错";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "尝试锁定当前用户时发生错误";
 "LockAllAccounts" = "锁定所有账户";
 "AllAccountsHaveBeenLocked" = "所有账户已锁定";
-"AnErrorOccurredWhileTryingToLockAllAccounts" = "尝试锁定所有账户时出错";
+"AnErrorOccurredWhileTryingToLockAllAccounts" = "尝试锁定所有账户时发生错误";
 "ShareErrorDetails" = "分享错误详细信息";
 "FlightRecorder" = "飞行记录器";
 "EnableFlightRecorder" = "启用飞行记录器";
@@ -1148,14 +1140,13 @@
 "DateRangeXToY" = "%1$@ 至 %2$@";
 "LogOutAllAccounts" = "注销所有账户";
 "AllAccountsHaveBeenLoggedOut" = "所有账户已注销";
-"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "尝试注销所有账户时出错";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "尝试注销所有账户时发生错误";
 "SelfHostServerURL" = "自托管服务器 URL";
 "OpenGenerator" = "打开生成器";
 "OpenPasswordGenerator" = "打开密码生成器";
 "GeneratePassphrase" = "生成密码短语";
 "AllowUniversalClipboard" = "允许通用剪贴板";
 "UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪贴板，可以在这里复制然后粘贴到使用相同 Apple ID 登录的其他设备上。";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "您的 PIN 码必须至少包含 %1$@ 个字符。您的 PIN 设置将在您完全注销应用程序时被重置。";
 "RemoveMasterPasswordMessage" = "%1$@ 正在使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
 "RemoveMasterPasswordConfirmDomain" = "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。";
 "ConfirmKeyConnectorDomain" = "确认 Key Connector 域名";
@@ -1273,7 +1264,18 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "新的推荐加密设置将提高您的账户安全性。输入您的主密码以立即更新。";
 "Updating" = "正在更新…";
 "EncryptionSettingsUpdated" = "加密设置已更新";
+"ItemTransfer" = "项目转移";
+"TransferItemsToX" = "转移项目到 %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "出于安全和合规考虑，%1$@ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。";
+"DeclineAndLeave" = "拒绝并退出";
+"WhyAmISeeingThis" = "为什么我会看到这个？";
+"AreYouSureYouWantToLeave" = "确定要退出吗？";
+"ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "拒绝后，您的个人项目将保留在您的账户中，但您将失去对共享项目和组织功能的访问权限。";
+"ContactYourAdminToRegainAccess" = "联系您的管理员以重新获取访问权限。";
+"LeaveX" = "退出 %1$@";
+"HowToManageMyVault" = "如何管理我的密码库";
+"YouLeftTheOrganization" = "您已退出该组织";
 "ThisSettingIsManagedByYourOrganization" = "此设置由您的组织管理。";
-"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "您的组织已将默认会话超时设置为 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的组织已将最大会话超时设置为 %1$@ 。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "您的组织已将最大会话超时设置为 %1$@ 小时 %2$@ 分钟。";

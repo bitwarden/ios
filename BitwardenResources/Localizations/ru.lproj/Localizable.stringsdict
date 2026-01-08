@@ -23,6 +23,69 @@
         <string>Bitwarden не смог расшифровать %d элемента хранилища</string>
       </dict>
     </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Мастер-пароль должен содержать не менее %#@characters@ символов.</string>
+      <key>characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d символ</string>
+        <key>few</key>
+        <string>%d символа</string>
+        <key>many</key>
+        <string>%d символов</string>
+        <key>other</key>
+        <string>%d символа</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Этот пароль был скомпрометирован %#@times@ раз(а). Вам следует его изменить.</string>
+      <key>times</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d раз</string>
+        <key>few</key>
+        <string>%d раза</string>
+        <key>many</key>
+        <string>%d раз</string>
+        <key>other</key>
+        <string>%d раза</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@characters@</string>
+      <key>characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d символ</string>
+        <key>few</key>
+        <string>%d символа</string>
+        <key>many</key>
+        <string>%d символов</string>
+        <key>other</key>
+        <string>%d символа</string>
+      </dict>
+    </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
@@ -42,6 +105,27 @@
         <string>%d дней</string>
         <key>other</key>
         <string>%d дня</string>
+      </dict>
+    </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@hours@</string>
+      <key>hours</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d час</string>
+        <key>few</key>
+        <string>%d часа</string>
+        <key>many</key>
+        <string>%d часов</string>
+        <key>other</key>
+        <string>%d часа</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -84,27 +168,6 @@
         <string>%d элементов</string>
         <key>other</key>
         <string>%d элемента</string>
-      </dict>
-    </dict>
-    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
-    <key>XHours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d час</string>
-        <key>few</key>
-        <string>%d часа</string>
-        <key>many</key>
-        <string>%d часов</string>
-        <key>other</key>
-        <string>%d часа</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -168,6 +231,27 @@
         <string>%d недель</string>
         <key>other</key>
         <string>%d недели</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>PIN-код для Bitwarden должен состоять как минимум из %#@characters@ символов. Настройки PIN-кода будут сброшены, если вы полностью выйдете из приложения.</string>
+      <key>characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d символ</string>
+        <key>few</key>
+        <string>%d символа</string>
+        <key>many</key>
+        <string>%d символов</string>
+        <key>other</key>
+        <string>%d символа</string>
       </dict>
     </dict>
   </dict>
