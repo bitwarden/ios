@@ -12,7 +12,7 @@ class MockCipherService: CipherService {
     var cipherCountResult: Result<Int, Error> = .success(0)
 
     var cipherChangesSubject = CurrentValueSubject<CipherChange, Error>(
-        .inserted(.fixture()), // stub data that will be dropped and not published.
+        .upserted(.fixture()), // stub data that will be dropped and not published.
     )
 
     var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])

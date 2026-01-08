@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenSdk
+import Combine
 import CoreData
 
 // MARK: - StoreType
@@ -39,6 +40,9 @@ class DataStore {
         context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
         return context
     }()
+
+    /// A subject that emits cipher changes for all users.
+    let cipherChangeSubject = PassthroughSubject<(userId: String, change: CipherChange), Error>()
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter

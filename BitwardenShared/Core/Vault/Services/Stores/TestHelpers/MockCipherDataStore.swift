@@ -57,7 +57,7 @@ class MockCipherDataStore: CipherDataStore {
         if let subject = cipherChangesSubjectByUserId[userId] {
             return subject.eraseToAnyPublisher()
         } else {
-            let subject = CurrentValueSubject<CipherChange, Error>(.inserted(.fixture()))
+            let subject = CurrentValueSubject<CipherChange, Error>(.upserted(.fixture()))
             cipherChangesSubjectByUserId[userId] = subject
             return subject.dropFirst().eraseToAnyPublisher()
         }

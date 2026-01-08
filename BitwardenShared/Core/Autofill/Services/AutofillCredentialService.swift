@@ -237,9 +237,12 @@ class DefaultAutofillCredentialService {
                     switch cipherChange {
                     case let .deleted(cipher):
                         await removeCredentialsInStore(for: cipher)
-                    case let .inserted(cipher),
-                         let .updated(cipher):
+                    case let .upserted(cipher):
                         await upsertCredentialsInStore(for: cipher)
+                    case .replaced:
+                        // NOTE: [PM-28855] Since the cipher changes subscription is only used in the
+                        // extension, don't replace all credentials since it can be memory intensive.
+                        break
                     }
                 }
             } catch {

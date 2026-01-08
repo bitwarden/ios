@@ -132,10 +132,7 @@ protocol CipherService {
 
     // MARK: Publishers
 
-    /// A publisher that emits individual cipher changes (insert, update, delete) as they occur for the current user.
-    ///
-    /// This publisher only emits for individual cipher operations
-    /// Batch operations like `replaceCiphers` do not trigger emissions from this publisher.
+    /// A publisher that emits cipher changes (upsert, delete, replace) as they occur for the current user.
     ///
     /// - Returns: A publisher that emits cipher changes.
     ///

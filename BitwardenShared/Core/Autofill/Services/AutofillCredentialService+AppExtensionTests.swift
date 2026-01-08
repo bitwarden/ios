@@ -112,9 +112,9 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return subject.hasCipherChangesSubscription
         }
 
-        // Send an inserted cipher
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .inserted(.fixture(
+            .upserted(.fixture(
                 id: "1",
                 login: .fixture(
                     password: "password123",
@@ -164,9 +164,9 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
                 }
             }
 
-        // Send an updated cipher
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .updated(.fixture(
+            .upserted(.fixture(
                 id: "3",
                 login: .fixture(
                     password: "newpassword",
@@ -226,6 +226,28 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         )
     }
 
+    /// `subscribeToCipherChanges()` does not do a full replace when ciphers are replaced to avoid
+    /// memory issues in extensions.
+    func test_subscribeToCipherChanges_replace_doesNotReplaceAll() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.hasCipherChangesSubscription
+        }
+
+        // Send a replaced event
+        cipherService.cipherChangesSubject.send(.replaced)
+
+        // Wait a bit to ensure no full replacement is triggered
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        // Verify that a full replace was NOT performed
+        XCTAssertFalse(identityStore.replaceCredentialIdentitiesCalled)
+        XCTAssertFalse(cipherService.fetchAllCiphersCalled)
+    }
+
     /// `subscribeToCipherChanges()` does not update the store when identity store is disabled.
     func test_subscribeToCipherChanges_storeDisabled() async throws {
         prepareDataForIdentitiesReplacement()
@@ -237,9 +259,9 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return subject.hasCipherChangesSubscription
         }
 
-        // Send an inserted cipher
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .inserted(.fixture(
+            .upserted(.fixture(
                 id: "1",
                 login: .fixture(
                     password: "password123",
@@ -266,9 +288,9 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return subject.hasCipherChangesSubscription
         }
 
-        // Send an inserted cipher
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .inserted(.fixture(
+            .upserted(.fixture(
                 id: "1",
                 login: .fixture(
                     password: "password123",
