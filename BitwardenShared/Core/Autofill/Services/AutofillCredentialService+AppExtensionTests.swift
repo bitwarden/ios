@@ -10,6 +10,8 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 /// The tests for `DefaultAutofillCredentialService` when the app context is `.appExtension`.
 /// This new file is needed given that the app context is necessary on `DefaultAutofillCredentialService`
 /// initialization to see if the subscription to the `VaultTimeoutService` is necessary. So it's easier to test
@@ -28,6 +30,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var flightRecorder: MockFlightRecorder!
     var identityStore: MockCredentialIdentityStore!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
@@ -53,6 +56,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        flightRecorder = MockFlightRecorder()
         identityStore = MockCredentialIdentityStore()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
@@ -69,6 +73,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             identityStore: identityStore,
             pasteboardService: pasteboardService,
             stateService: stateService,
@@ -91,6 +96,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         fido2UserInterfaceHelperDelegate = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        flightRecorder = nil
         identityStore = nil
         pasteboardService = nil
         stateService = nil

@@ -123,6 +123,9 @@ class DefaultAutofillCredentialService {
     /// of the `Fido2UserInterface` from the SDK.
     private let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
 
@@ -162,6 +165,7 @@ class DefaultAutofillCredentialService {
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
     ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
@@ -178,6 +182,7 @@ class DefaultAutofillCredentialService {
         eventService: EventService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
+        flightRecorder: FlightRecorder,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         pasteboardService: PasteboardService,
         stateService: StateService,
@@ -193,6 +198,7 @@ class DefaultAutofillCredentialService {
         self.eventService = eventService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
+        self.flightRecorder = flightRecorder
         self.identityStore = identityStore
         self.pasteboardService = pasteboardService
         self.stateService = stateService
@@ -234,6 +240,9 @@ class DefaultAutofillCredentialService {
 
             do {
                 for try await cipherChange in try await cipherService.cipherChangesPublisher().values {
+                    await flightRecorder.log(
+                        "[AutofillCredentialService] Received cipher change \(cipherChange.debugDescription)",
+                    )
                     switch cipherChange {
                     case let .deleted(cipher):
                         await removeCredentialsInStore(for: cipher)
@@ -284,7 +293,7 @@ class DefaultAutofillCredentialService {
         guard await identityStore.state().isEnabled else { return }
 
         do {
-            Logger.application.info("AutofillCredentialService: removing all credential identities")
+            await flightRecorder.log("[AutofillCredentialService] Removing all credential identities")
             try await identityStore.removeAllCredentialIdentities()
         } catch {
             errorReporter.log(error: error)
@@ -300,7 +309,7 @@ class DefaultAutofillCredentialService {
         guard await identityStore.state().isEnabled else { return }
 
         do {
-            Logger.application.info("AutofillCredentialService: replacing all credential identities")
+            await flightRecorder.log("[AutofillCredentialService] Replacing all credential identities")
 
             let decryptedCiphers = try await cipherService.fetchAllCiphers()
                 .filter { $0.type == .login && $0.deletedDate == nil }
@@ -325,13 +334,17 @@ class DefaultAutofillCredentialService {
                 identities.append(contentsOf: fido2Identities)
 
                 try await identityStore.replaceCredentialIdentities(identities)
-                Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
+                await flightRecorder.log(
+                    "[AutofillCredentialService] Replaced \(identities.count) credential identities",
+                )
             } else {
                 let identities = decryptedCiphers.compactMap { cipher in
                     credentialIdentityFactory.tryCreatePasswordCredentialIdentity(from: cipher)
                 }
                 try await identityStore.replaceCredentialIdentities(with: identities)
-                Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
+                await flightRecorder.log(
+                    "[AutofillCredentialService] Replaced \(identities.count) credential identities",
+                )
             }
             lastSyncedUserId = userId
         } catch {
@@ -611,7 +624,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             let identities = try await getCredentialIdentities(from: cipher)
             try await identityStore.removeCredentialIdentities(identities)
 
-            Logger.application.debug(
+            await flightRecorder.log(
                 "[AutofillCredentialService] Removed \(identities.count) identities from \(cipher.id ?? "nil")",
             )
         } catch {
@@ -632,7 +645,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             let identities = try await getCredentialIdentities(from: cipher)
             try await identityStore.saveCredentialIdentities(identities)
 
-            Logger.application.debug(
+            await flightRecorder.log(
                 "[AutofillCredentialService] Upserted \(identities.count) identities from \(cipher.id ?? "nil")",
             )
         } catch {

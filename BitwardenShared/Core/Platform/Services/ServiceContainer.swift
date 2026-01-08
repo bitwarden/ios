@@ -823,6 +823,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,

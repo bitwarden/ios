@@ -14,3 +14,18 @@ public enum CipherChange {
     /// All ciphers were replaced (bulk operation).
     case replaced
 }
+
+// MARK: - CustomDebugStringConvertible
+
+extension CipherChange: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        switch self {
+        case let .upserted(cipher):
+            "upserted(\(cipher.id ?? "nil"))"
+        case let .deleted(cipher):
+            "deleted(\(cipher.id ?? "nil"))"
+        case .replaced:
+            "replaced"
+        }
+    }
+}
