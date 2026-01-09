@@ -1998,6 +1998,54 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
+    /// `unlockVaultWithBiometrics()` clears the PIN if enrolling the PIN fails.
+    func test_unlockVaultWithBiometrics_enrollPinWithEncryptedPinError() async throws {
+        let account = Account.fixture()
+        clientService.mockCrypto.enrollPinWithEncryptedPinResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
+        biometricsRepository.getUserAuthKeyResult = .success("DECRYPTED_USER_KEY")
+
+        try await subject.unlockVaultWithBiometrics()
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: KdfConfig().sdkKdf,
+                email: "user@bitwarden.com",
+                accountCryptographicState: .v2(
+                    privateKey: "PRIVATE_KEY",
+                    signedPublicKey: "VERIFYING_KEY",
+                    signingKey: "WRAPPED_SIGNING_KEY",
+                    securityState: "SECURITY_STATE",
+                ),
+                method: .decryptedKey(decryptedUserKey: "DECRYPTED_USER_KEY"),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        // Existing PIN is cleared if enrolling the PIN fails.
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinEncryptedPin, "encryptedPin")
+        XCTAssertNil(stateService.accountVolatileData["1"]?.pinProtectedUserKey)
+        XCTAssertNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertEqual(flightRecorder.logMessages, [
+            "[Auth] Vault unlocked, method: Decrypted Key (Never Lock/Biometrics)",
+            "[Auth] enrollPinWithEncryptedPin failed: example, clearing existing PIN keys",
+        ])
+    }
+
     /// `unlockVaultWithKeyConnectorKey()` unlocks the user's vault with their key connector key.
     func test_unlockVaultWithKeyConnectorKey() async {
         clientService.mockCrypto.initializeUserCryptoResult = .success(())

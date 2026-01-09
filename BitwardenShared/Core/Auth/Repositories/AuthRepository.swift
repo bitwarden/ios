@@ -1276,6 +1276,9 @@ extension DefaultAuthRepository: AuthRepository {
             await flightRecorder.log("[Auth] enrollPinWithEncryptedPin failed: \(error), clearing existing PIN keys")
             // If `enrollPinWithEncryptedPin` fails, the user's key was likely rotated and the
             // existing PIN keys need to be removed since they are no longer valid.
+            // Note: We handle all errors broadly here because the SDK doesn't provide specific
+            // error types to distinguish key rotation failures from other errors. Clearing the
+            // PIN keys on any error is the safest approach to maintain data consistency.
             try await stateService.clearPins()
             // Return `nil` instead of throwing to avoid erroring out of the unlock process.
             return nil
