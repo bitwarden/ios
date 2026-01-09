@@ -1,4 +1,5 @@
 import BitwardenSdk
+import Foundation
 import TestHelpers
 
 @testable import AuthenticatorShared
@@ -23,7 +24,7 @@ class MockClientFido2Authenticator: ClientFido2AuthenticatorProtocol {
         try makeCredentialMocker.invoke(param: request)
     }
 
-    func silentlyDiscoverCredentials(rpId: String) async throws -> [Fido2CredentialAutofillView] {
+    func silentlyDiscoverCredentials(rpId: String, userHandle: Data?) async throws -> [Fido2CredentialAutofillView] {
         try silentlyDiscoverCredentialsResult.get()
     }
 }
