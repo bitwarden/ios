@@ -142,6 +142,29 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `deleteVaultTimeout(userId:)` succeeds quietly.
+    ///
+    func test_deleteVaultTimeout_success() async throws {
+        let item = KeychainItem.vaultTimeout(userId: "1")
+        keychainService.deleteResult = .success(())
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.deleteVaultTimeout(userId: "1")
+        XCTAssertEqual(
+            keychainService.deleteQueries,
+            [expectedQuery],
+        )
+    }
+
+    /// `deleteVaultTimeout(userId:)` throws an error if one occurs.
+    ///
+    func test_deleteVaultTimeout_error() async {
+        keychainService.deleteResult = .failure(.osStatusError(-1))
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
+            try await subject.deleteVaultTimeout(userId: "1")
+        }
+    }
+
     /// The service should generate a storage key for a` KeychainItem`.
     ///
     func test_formattedKey_biometrics() async {
@@ -279,6 +302,24 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainService.searchResult = .success(results)
         let key = try await subject.getUserAuthKeyValue(for: item)
         XCTAssertEqual(key, expectedKey)
+    }
+
+    /// `getVaultTimeout(userId:)` returns the stored vault timeout.
+    ///
+    func test_getVaultTimeout() async throws {
+        keychainService.setSearchResultData(string: "15")
+        let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
+        XCTAssertEqual(vaultTimeout, "15")
+    }
+
+    /// `getVaultTimeout(userId:)` throws an error if one occurs.
+    ///
+    func test_getVaultTimeout_error() async {
+        let error = KeychainServiceError.keyNotFound(KeychainItem.vaultTimeout(userId: "1"))
+        keychainService.searchResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getVaultTimeout(userId: "1")
+        }
     }
 
     /// The service should generate keychain Query Key/Values` KeychainItem`.
@@ -485,5 +526,38 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(keychainService.accessControlFlags, [])
         let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
         XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+    }
+
+    /// `setVaultTimeout(_:userId:)` stores the vault timeout with correct attributes.
+    ///
+    func test_setVaultTimeout() async throws {
+        keychainService.accessControlResult = .success(
+            SecAccessControlCreateWithFlags(
+                nil,
+                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                [],
+                nil,
+            )!,
+        )
+        keychainService.setSearchResultData(string: "30")
+        try await subject.setVaultTimeout("30", userId: "1")
+
+        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
+        try XCTAssertEqual(
+            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
+            "30",
+        )
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+    }
+
+    /// `setVaultTimeout(_:userId:)` throws an error if one occurs.
+    ///
+    func test_setVaultTimeout_accessControlError() async {
+        let error = KeychainServiceError.accessControlFailed(nil)
+        keychainService.accessControlResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            try await subject.setVaultTimeout("30", userId: "1")
+        }
     }
 }
