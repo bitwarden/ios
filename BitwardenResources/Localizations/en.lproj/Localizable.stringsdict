@@ -23,34 +23,34 @@
 	<key>MasterPasswordMustBeAtLeastXCharactersLong</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
-		<string>Master password must be at least %#@characters@ long.</string>
-		<key>characters</key>
+		<string>%#@masterpasswordcharacters@.</string>
+		<key>masterpasswordcharacters</key>
 		<dict>
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d character</string>
+			<string>Master password must be at least %d character long</string>
 			<key>other</key>
-			<string>%d characters</string>
+			<string>Master password must be at least %d characters long</string>
 		</dict>
 	</dict>
 	<!-- A warning if we have determined that a password has been exposed in a data breach. -->
 	<key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
-		<string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
-		<key>times</key>
+		<string>%#@passwordexposedtimes@. You should change it.</string>
+		<key>passwordexposedtimes</key>
 		<dict>
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d time</string>
+			<string>This password has been exposed %d time in data breaches</string>
 			<key>other</key>
-			<string>%d times</string>
+			<string>This password has been exposed %d times in data breaches</string>
 		</dict>
 	</dict>
 	<!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -125,17 +125,17 @@
 	<key>XItemsSuccessfullyImported</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
-		<string>%#@items@ successfully imported</string>
-		<key>items</key>
+		<string>%#@itemssuccessfullyimported@</string>
+		<key>itemssuccessfullyimported</key>
 		<dict>
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d item</string>
+			<string>%d item successfully imported</string>
 			<key>other</key>
-			<string>%d items</string>
+			<string>%d items successfully imported</string>
 		</dict>
 	</dict>
 	<!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -193,17 +193,17 @@
 	<key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
 	<dict>
 		<key>NSStringLocalizedFormatKey</key>
-		<string>Your PIN must be at least %#@characters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
-		<key>characters</key>
+		<string>%#@pinmustbecharacters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
+		<key>pinmustbecharacters</key>
 		<dict>
 			<key>NSStringFormatSpecTypeKey</key>
 			<string>NSStringPluralRuleType</string>
 			<key>NSStringFormatValueTypeKey</key>
 			<string>d</string>
 			<key>one</key>
-			<string>%d character</string>
+			<string>Your PIN must be at least %d character</string>
 			<key>other</key>
-			<string>%d characters</string>
+			<string>Your PIN must be at least %d characters</string>
 		</dict>
 	</dict>
 </dict>
