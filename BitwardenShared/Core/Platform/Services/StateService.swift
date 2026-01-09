@@ -1824,7 +1824,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
         guard let stringValue = try? await keychainRepository.getVaultTimeout(userId: userId),
               let rawValue = Int(stringValue)
-            else {
+        else {
             // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
             // So if the never lock key exists, set the timeout to never, otherwise to default.
             return userAuthKey != nil ? .never : .fifteenMinutes

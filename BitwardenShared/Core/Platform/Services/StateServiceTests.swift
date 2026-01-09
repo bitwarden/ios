@@ -1213,13 +1213,21 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         try await subject.setVaultTimeout(value: .custom(20), userId: "1")
+        let key = keychainRepository.formattedKey(for: .vaultTimeout(userId: "1"))
+        XCTAssertEqual(
+            keychainRepository.mockStorage[key],
+            "20",
+        )
+
+        keychainRepository.getVaultTimeoutResult = .success("20")
         let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
         XCTAssertEqual(vaultTimeout, .custom(20))
     }
 
     /// `.getVaultTimeout(userId:)` gets the default vault timeout for the user if a value isn't set.
     func test_getVaultTimeout_default() async throws {
-        appSettingsStore.vaultTimeout["1"] = nil
+        let item = KeychainItem.vaultTimeout(userId: "1")
+        keychainRepository.getVaultTimeoutResult = .failure(KeychainServiceError.keyNotFound(item))
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
@@ -1229,7 +1237,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `.getVaultTimeout(userId:)` gets the user's vault timeout when it's set to never lock.
     func test_getVaultTimeout_neverLock() async throws {
-        appSettingsStore.vaultTimeout["1"] = nil
+        let item = KeychainItem.vaultTimeout(userId: "1")
+        keychainRepository.getVaultTimeoutResult = .failure(KeychainServiceError.keyNotFound(item))
         keychainRepository.mockStorage[keychainRepository.formattedKey(for: .neverLock(userId: "1"))] = "NEVER_LOCK_KEY"
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -2614,7 +2623,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setVaultTimeout(value: .custom(20))
 
-        XCTAssertEqual(appSettingsStore.vaultTimeout["1"], 20)
+        let key = keychainRepository.formattedKey(for: .vaultTimeout(userId: "1"))
+        let storedValue = keychainRepository.mockStorage[key]
+        XCTAssertEqual(storedValue, "20")
     }
 
     /// `showWebIconsPublisher()` returns a publisher for the show web icons value.
