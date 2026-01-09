@@ -7,33 +7,30 @@ class MockKeychainRepository: KeychainRepository {
     var appId: String = "mockAppId"
     var mockStorage = [String: String]()
     var securityType: SecAccessControlCreateFlags?
-    var deleteAllItemsCalled = false
-    var deleteAllItemsResult: Result<Void, Error> = .success(())
-    var deleteItemsForUserIds = [String]()
-    var deleteItemsForUserResult: Result<Void, Error> = .success(())
+
     var deleteResult: Result<Void, Error> = .success(())
     var getResult: Result<String, Error>?
     var setResult: Result<Void, Error> = .success(())
 
+    var deleteAllItemsCalled = false
+    var deleteAllItemsResult: Result<Void, Error> = .success(())
+    var deleteItemsForUserIds = [String]()
+    var deleteItemsForUserResult: Result<Void, Error> = .success(())
+    var deleteVaultTimeoutResult: Result<Void, Error> = .success(())
+
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
-
     var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
-
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
-
-    var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
-
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
+    var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
+    var getVaultTimeoutResult: Result<String, Error> = .success("15")
 
     var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
-
     var setAccessTokenResult: Result<Void, Error> = .success(())
-
     var setDeviceKeyResult: Result<Void, Error> = .success(())
-
-    var setRefreshTokenResult: Result<Void, Error> = .success(())
-
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
+    var setRefreshTokenResult: Result<Void, Error> = .success(())
+    var setVaultTimeoutResult: Result<Void, Error> = .success(())
 
     func deleteAllItems() async throws {
         deleteAllItemsCalled = true
@@ -67,6 +64,12 @@ class MockKeychainRepository: KeychainRepository {
     func deleteUserAuthKey(for item: KeychainItem) async throws {
         try deleteResult.get()
         let formattedKey = formattedKey(for: item)
+        mockStorage = mockStorage.filter { $0.key != formattedKey }
+    }
+
+    func deleteVaultTimeout(userId: String) async throws {
+        try deleteVaultTimeoutResult.get()
+        let formattedKey = formattedKey(for: .vaultTimeout(userId: userId))
         mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 
@@ -111,6 +114,10 @@ class MockKeychainRepository: KeychainRepository {
         return value
     }
 
+    func getVaultTimeout(userId: String) async throws -> String? {
+        try getVaultTimeoutResult.get()
+    }
+
     func formattedKey(for item: KeychainItem) -> String {
         String(format: storageKeyFormat, appId, item.unformattedKey)
     }
@@ -144,5 +151,10 @@ class MockKeychainRepository: KeychainRepository {
         securityType = item.accessControlFlags
         try setResult.get()
         mockStorage[formattedKey] = value
+    }
+
+    func setVaultTimeout(_ value: String, userId: String) async throws {
+        try setVaultTimeoutResult.get()
+        mockStorage[formattedKey(for: .vaultTimeout(userId: userId))] = value
     }
 }
