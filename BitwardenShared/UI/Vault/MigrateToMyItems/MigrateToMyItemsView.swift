@@ -126,7 +126,10 @@ struct MigrateToMyItemsView: View {
     MigrateToMyItemsView(
         store: Store(
             processor: StateProcessor(
-                state: MigrateToMyItemsState(organizationName: "Acme"),
+                state: MigrateToMyItemsState(
+                    organizationId: "org-123",
+                    organizationName: "Acme",
+                ),
             ),
         ),
     )
@@ -138,6 +141,7 @@ struct MigrateToMyItemsView: View {
         store: Store(
             processor: StateProcessor(
                 state: MigrateToMyItemsState(
+                    organizationId: "org-123",
                     organizationName: "Acme",
                     page: .declineConfirmation,
                 ),

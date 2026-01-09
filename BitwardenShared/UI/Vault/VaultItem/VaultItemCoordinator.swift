@@ -121,6 +121,11 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
+        case let .migrateToMyItems(organizationId):
+            showMigrateToMyItems(
+                organizationId: organizationId,
+                delegate: context as? MigrateToMyItemsProcessorDelegate,
+            )
         case let .moveToOrganization(cipher):
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case let .passwordHistory(passwordHistory):
@@ -380,6 +385,26 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         coordinator.start()
         coordinator.navigate(to: .manualKeyEntry, context: nil)
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the migrate to my items screen.
+    ///
+    /// - Parameters:
+    ///   - organizationId: The organization ID that requires the vault migration.
+    ///   - delegate: The delegate to notify of events.
+    ///
+    private func showMigrateToMyItems(
+        organizationId: String,
+        delegate: MigrateToMyItemsProcessorDelegate?,
+    ) {
+        let processor = MigrateToMyItemsProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: MigrateToMyItemsState(organizationId: organizationId),
+        )
+        let view = MigrateToMyItemsView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
     }
 
     /// Shows the move to organization screen.

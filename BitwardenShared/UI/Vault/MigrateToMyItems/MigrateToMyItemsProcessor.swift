@@ -25,7 +25,6 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasErrorReporter
-        & HasPolicyService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -107,20 +106,21 @@ final class MigrateToMyItemsProcessor: StateProcessor<
         delegate?.didLeaveOrganization()
     }
 
-    /// Loads the organization name from the policy service and vault repository.
+    /// Loads the organization name from the vault repository using the organization ID.
     ///
     private func loadOrganizationName() async {
         do {
-            let organizationIds = await services.policyService.organizationsApplyingPolicyToUser(.personalOwnership)
-            guard let organizationId = organizationIds.first else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            let organization = try await services.vaultRepository.fetchOrganization(withId: state.organizationId)
+
+            guard let organizationName = organization?.name else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.organizationNotFound)) {
+                    self.coordinator.navigate(to: .dismiss())
+                }
                 return
             }
-            let organization = try await services.vaultRepository.fetchOrganization(withId: organizationId)
-            // TODO: PM-29113 Validate if user must do vault migration and error handling
-
-            state.organizationName = organization?.name ?? ""
+            state.organizationName = organizationName
         } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
     }
