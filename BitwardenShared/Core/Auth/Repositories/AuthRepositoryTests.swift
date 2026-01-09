@@ -1832,6 +1832,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
+        stateService.pinUnlockRequiresPasswordAfterRestartValue = true
 
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithPassword(password: "password")
@@ -1985,6 +1986,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.activeAccount = .fixture()
         stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
+        stateService.pinUnlockRequiresPasswordAfterRestartValue = true
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
 
         await assertAsyncDoesNotThrow {
@@ -2499,9 +2501,73 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
+    // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and clears an
+    // existing PIN if `enrollPinWithEncryptedPin(encryptedPin:)` fails.
+    func test_unlockVaultWithPassword_enrollPinWithEncryptedPinError() async throws {
+        // swiftlint:disable:previous function_body_length
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        clientService.mockCrypto.enrollPinWithEncryptedPinResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertEqual(
+            clientService.mockCrypto.initializeUserCryptoRequest,
+            InitUserCryptoRequest(
+                userId: "1",
+                kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                email: "user@bitwarden.com",
+                accountCryptographicState: .v2(
+                    privateKey: "PRIVATE_KEY",
+                    signedPublicKey: "VERIFYING_KEY",
+                    signingKey: "WRAPPED_SIGNING_KEY",
+                    securityState: "SECURITY_STATE",
+                ),
+                method: .masterPasswordUnlock(
+                    password: "password",
+                    masterPasswordUnlock: MasterPasswordUnlockData(
+                        kdf: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
+                        masterKeyWrappedUserKey: "MASTER_KEY_ENCRYPTED_USER_KEY",
+                        salt: "SALT",
+                    ),
+                ),
+            ),
+        )
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
+
+        // Existing PIN is cleared if enrolling the PIN fails.
+        XCTAssertEqual(clientService.mockCrypto.enrollPinWithEncryptedPinEncryptedPin, "encryptedPin")
+        XCTAssertNil(stateService.accountVolatileData["1"]?.pinProtectedUserKey)
+        XCTAssertNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertEqual(flightRecorder.logMessages, [
+            "[Auth] Vault unlocked, method: Master Password Unlock",
+            "[Auth] enrollPinWithEncryptedPin failed: example, clearing existing PIN keys",
+        ])
+    }
+
     // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and migrates the
     // legacy pin keys.
     func test_unlockVaultWithPassword_migratesPinProtectedUserKey() async throws {
+        // swiftlint:disable:previous function_body_length
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
@@ -2569,6 +2635,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and sets the
     // PIN-protected user key in memory.
     func test_unlockVaultWithPassword_setsPinProtectedUserKeyInMemory() async throws {
+        // swiftlint:disable:previous function_body_length
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
@@ -2592,6 +2659,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         stateService.encryptedPinByUserId[account.profile.userId] = "encryptedPin"
+        stateService.pinUnlockRequiresPasswordAfterRestartValue = true
 
         try await subject.unlockVaultWithPassword(password: "password")
 
