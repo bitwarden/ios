@@ -62,8 +62,8 @@ public struct VaultListOptions: OptionSet, Sendable {
     /// Whether to add the TOTP group to the vault list.
     static let addTOTPGroup = VaultListOptions(rawValue: 1 << 0)
 
-    /// Whether to add the trash group to the vault list.
-    static let addTrashGroup = VaultListOptions(rawValue: 1 << 1)
+    /// Whether to add the hidden items group to the vault list.
+    static let addHiddenItemsGroup = VaultListOptions(rawValue: 1 << 1)
 
     /// Whether the vault list is being displayed in picker mode.
     static let isInPickerMode = VaultListOptions(rawValue: 1 << 2)

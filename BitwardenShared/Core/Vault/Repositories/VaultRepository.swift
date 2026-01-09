@@ -28,6 +28,12 @@ public protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Archives a cipher.
+    ///
+    /// - Parameter cipher: The cipher that the user is archiving.
+    ///
+    func archiveCipher(_ cipher: CipherView) async throws
+
     /// Whether the vault filter can be shown to the user. It might not be shown to the user if the
     /// policies are set up to disable personal vault ownership and only allow the user to be in a
     /// single organization.
@@ -187,6 +193,12 @@ public protocol VaultRepository: AnyObject {
     /// - Parameter cipher: The cipher that the user is soft deleting.
     ///
     func softDeleteCipher(_ cipher: CipherView) async throws
+
+    /// Unarchives a cipher from the vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is unarchiving.
+    ///
+    func unarchiveCipher(_ cipher: CipherView) async throws
 
     /// Updates a cipher in the user's vault.
     ///
@@ -458,6 +470,15 @@ extension DefaultVaultRepository: VaultRepository {
             cipherEncryptionContext.cipher,
             encryptedFor: cipherEncryptionContext.encryptedFor,
         )
+    }
+
+    func archiveCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else {
+            throw CipherAPIServiceError.updateMissingId
+        }
+        let archivedCipher = cipher.update(archivedDate: timeProvider.presentTime)
+        let encryptCipher = try await encryptAndUpdateCipher(archivedCipher)
+        try await cipherService.archiveCipherWithServer(id: id, encryptCipher)
     }
 
     func canShowVaultFilter() async -> Bool {
@@ -742,6 +763,15 @@ extension DefaultVaultRepository: VaultRepository {
         let softDeletedCipher = cipher.update(deletedDate: timeProvider.presentTime)
         let encryptedCipher = try await encryptAndUpdateCipher(softDeletedCipher)
         try await cipherService.softDeleteCipherWithServer(id: id, encryptedCipher)
+    }
+
+    func unarchiveCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else {
+            throw CipherAPIServiceError.updateMissingId
+        }
+        let archivedCipher = cipher.update(archivedDate: nil)
+        let encryptCipher = try await encryptAndUpdateCipher(archivedCipher)
+        try await cipherService.unarchiveCipherWithServer(id: id, encryptCipher)
     }
 
     func updateCipher(_ cipherView: CipherView) async throws {

@@ -12,6 +12,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     // MARK: Properties
 
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var subject: DefaultVaultListSectionsBuilder!
 
@@ -21,6 +22,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         super.setUp()
 
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
     }
 
@@ -28,6 +30,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         super.tearDown()
 
         clientService = nil
+        configService = nil
         errorReporter = nil
         subject = nil
     }
@@ -362,6 +365,44 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
+    /// `addHiddenItemsSection()` adds the hidden items section to the list of sections with the count
+    /// of deleted ciphers when the archive feature flag is off.
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagDisabled() async {
+        configService.featureFlagsBool[.archiveVaultItems] = false
+        setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Trash]: Trash (10)
+            """
+        }
+    }
+
+    /// `addHiddenItemsSection()` adds the hidden items section to the list of sections with the count of
+    /// archived and deleted ciphers when the archive feature flag is on.
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagEnabled() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        setUpSubject(withData: VaultListPreparedData(
+            ciphersArchivedCount: 5,
+            ciphersDeletedCount: 10,
+        ))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Archive]: Archive (5)
+              - Group[Trash]: Trash (10)
+            """
+        }
+    }
+
     /// `addTOTPSection()` adds the TOTP section with an item when there are TOTP items.
     func test_addTOTPSection() {
         setUpSubject(
@@ -392,20 +433,6 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            """
-        }
-    }
-
-    /// `addTrashSection()` adds the trash section to the list of sections with the count of deleted ciphers.
-    func test_addTrashSection() {
-        setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
-
-        let vaultListData = subject.addTrashSection().build()
-
-        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
-            """
-            Section[Trash]: Trash
-              - Group[Trash]: Trash (10)
             """
         }
     }
@@ -708,7 +735,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         )
 
         let vaultListData = try await subject
-            .addTrashSection()
+            .addHiddenItemsSection()
             .addCollectionsSection()
             .addFavoritesSection()
             .addFoldersSection()
@@ -719,7 +746,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Trash]: Trash
+            Section[HiddenItems]: Hidden items
               - Group[Trash]: Trash (10)
             Section[Collections]: Collections
               - Group[1]: Collection 1 (5)
@@ -751,6 +778,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: configService,
             errorReporter: errorReporter,
             withData: withData,
         )
