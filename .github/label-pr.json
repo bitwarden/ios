@@ -46,7 +46,8 @@
     "t:feature-tool": [
       "TestHarness/",
       "TestHarnessShared/",
-      "project-bwth.yml"
+      "project-bwth.yml",
+      "swiftgen-bwth.yml"
     ],
     "t:ci": [
       ".checkmarx/",
