@@ -18,6 +18,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
+    /// The keychain item for a user's last active time.
+    case lastActiveTime(userId: String)
+
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
 
@@ -38,6 +41,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         case .accessToken,
              .authenticatorVaultKey,
              .deviceKey,
+             .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken,
@@ -53,6 +57,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         switch self {
         case .biometrics,
              .deviceKey,
+             .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
              .vaultTimeout:
@@ -76,6 +81,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
             "deviceKey_" + id
+        case let .lastActiveTime(userId):
+            "lastActiveTime_\(userId)"
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .pendingAdminLoginRequest(userId):
@@ -107,11 +114,11 @@ protocol KeychainRepository: AnyObject {
     ///
     func deleteItems(for userId: String) async throws
 
-    /// Attempts to delete the userAuthKey from the keychain.
+    /// Attempts to delete the last active time from the keychain.
     ///
-    /// - Parameter item: The KeychainItem to be deleted.
+    /// - Parameter userId: The user ID associated with the last active time.
     ///
-    func deleteUserAuthKey(for item: KeychainItem) async throws
+    func deleteLastActiveTime(userId: String) async throws
 
     /// Attempts to delete the device key from the keychain.
     ///
@@ -124,6 +131,12 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the stored device key.
     ///
     func deletePendingAdminLoginRequest(userId: String) async throws
+
+    /// Attempts to delete the userAuthKey from the keychain.
+    ///
+    /// - Parameter item: The KeychainItem to be deleted.
+    ///
+    func deleteUserAuthKey(for item: KeychainItem) async throws
 
     /// Attempts to delete the vault timeout from the keychain.
     ///
@@ -151,6 +164,13 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: The device key.
     ///
     func getDeviceKey(userId: String) async throws -> String?
+
+    /// Gets the stored last active time for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored last active time.
+    /// - Returns: The last active time value.
+    ///
+    func getLastActiveTime(userId: String) async throws -> String?
 
     /// Gets the stored refresh token for a user from the keychain.
     ///
@@ -203,6 +223,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the device key later on.
     ///
     func setDeviceKey(_ value: String, userId: String) async throws
+
+    /// Stores the last active time for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The last active time to store.
+    ///   - userId: The user's ID, used to get back the last active time later on.
+    ///
+    func setLastActiveTime(_ value: String, userId: String) async throws
 
     /// Stores the refresh token for a user in the keychain.
     ///
@@ -432,6 +460,12 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteLastActiveTime(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .lastActiveTime(userId: userId)),
+        )
+    }
+
     func deletePendingAdminLoginRequest(userId: String) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId)),
@@ -454,6 +488,10 @@ extension DefaultKeychainRepository {
 
     func getDeviceKey(userId: String) async throws -> String? {
         try await getValue(for: .deviceKey(userId: userId))
+    }
+
+    func getLastActiveTime(userId: String) async throws -> String? {
+        try await getValue(for: .lastActiveTime(userId: userId))
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -482,6 +520,10 @@ extension DefaultKeychainRepository {
 
     func setDeviceKey(_ value: String, userId: String) async throws {
         try await setValue(value, for: .deviceKey(userId: userId))
+    }
+
+    func setLastActiveTime(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .lastActiveTime(userId: userId))
     }
 
     func setRefreshToken(_ value: String, userId: String) async throws {
