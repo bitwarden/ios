@@ -27,6 +27,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for a user's vault timeout.
+    case vaultTimeout(userId: String)
+
     /// The `SecAccessControlCreateFlags` level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
@@ -37,7 +40,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .deviceKey,
              .neverLock,
              .pendingAdminLoginRequest,
-             .refreshToken:
+             .refreshToken,
+             .vaultTimeout:
             nil
         case .biometrics:
             .biometryCurrentSet
@@ -50,7 +54,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         case .biometrics,
              .deviceKey,
              .neverLock,
-             .pendingAdminLoginRequest:
+             .pendingAdminLoginRequest,
+             .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
@@ -77,6 +82,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .vaultTimeout(userId):
+            "vaultTimeout_\(userId)"
         }
     }
 }
@@ -117,6 +124,12 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the stored device key.
     ///
     func deletePendingAdminLoginRequest(userId: String) async throws
+
+    /// Attempts to delete the vault timeout from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the vault timeout.
+    ///
+    func deleteVaultTimeout(userId: String) async throws
 
     /// Gets the stored access token for a user from the keychain.
     ///
@@ -159,6 +172,13 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: A string representing the user auth key.
     ///
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String
+
+    /// Gets the stored vault timeout for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored vault timeout.
+    /// - Returns: The vault timeout value.
+    ///
+    func getVaultTimeout(userId: String) async throws -> String?
 
     /// Stores the access token for a user in the keychain.
     ///
@@ -207,6 +227,14 @@ protocol KeychainRepository: AnyObject {
     ///    - value: A `String` representing the user auth key.
     ///
     func setUserAuthKey(for item: KeychainItem, value: String) async throws
+
+    /// Stores the vault timeout for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The vault timeout to store.
+    ///   - userId: The user's ID, used to get back the vault timeout later on.
+    ///
+    func setVaultTimeout(_ value: String, userId: String) async throws
 }
 
 extension KeychainRepository {
@@ -410,6 +438,12 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteVaultTimeout(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .vaultTimeout(userId: userId)),
+        )
+    }
+
     func getAccessToken(userId: String) async throws -> String {
         try await getValue(for: .accessToken(userId: userId))
     }
@@ -434,6 +468,10 @@ extension DefaultKeychainRepository {
         try await getValue(for: item)
     }
 
+    func getVaultTimeout(userId: String) async throws -> String? {
+        try await getValue(for: .vaultTimeout(userId: userId))
+    }
+
     func setAccessToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .accessToken(userId: userId))
     }
@@ -456,6 +494,10 @@ extension DefaultKeychainRepository {
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
         try await setValue(value, for: item)
+    }
+
+    func setVaultTimeout(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .vaultTimeout(userId: userId))
     }
 }
 
