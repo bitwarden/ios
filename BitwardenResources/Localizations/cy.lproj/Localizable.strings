@@ -1187,7 +1187,7 @@
 "AccountsSyncedFromBitwardenApp" = "Accounts synced from Bitwarden app";
 "AddANewCodeToSecure" = "Add a new code to secure your accounts.";
 "AddCode" = "Add code";
-"Advanced" = "Advanced";
+"Advanced" = "Uwch";
 "Algorithm" = "Algorithm";
 "AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Allow Authenticator app syncing in settings to view all your verification codes here.";
 "Backup" = "Backup";
@@ -1203,8 +1203,8 @@
 "ExportItemsWarning" = "This export contains your item data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it.";
 "FileCouldNotBeProcessed" = "File could not be processed";
 "GetVerificationCodesForAllYourAccounts" = "Get verification codes for all your accounts using 2-step verification.";
-"Help" = "Help";
-"Import" = "Import";
+"Help" = "Cymorth";
+"Import" = "Mewnforio";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "Importing from 2FAS password protected files is not supported. Try again with an exported file that is not password protected.";
 "ItemInformation" = "Gwybodaeth am yr eitem";
 "ItemsExported" = "Verification codes exported";
@@ -1232,7 +1232,7 @@
 "SetSaveLocallyAsYourDefaultSaveOption" = "Set “Save locally” as your default save option?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Set “Save to Bitwarden” as your default save option?";
 "SignInUsingUniqueCodes" = "Sign in using unique codes";
-"Skip" = "Skip";
+"Skip" = "Hepgor";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Store all of your logins and sync verification codes directly with the Authenticator app.";
 "SyncWithBitwardenApp" = "Sync with Bitwarden app";
@@ -1268,7 +1268,7 @@
 "TransferItemsToX" = "Transfer items to %1$@";
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
 "DeclineAndLeave" = "Decline and leave";
-"WhyAmISeeingThis" = "Why am I seeing this?";
+"WhyAmISeeingThis" = "Pam rydw i'n gweld hyn?";
 "AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
