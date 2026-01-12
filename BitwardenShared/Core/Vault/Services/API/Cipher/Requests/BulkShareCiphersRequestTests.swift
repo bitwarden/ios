@@ -8,10 +8,10 @@ class BulkShareCiphersRequestTests: BitwardenTestCase {
 
     var subject: BulkShareCiphersRequest!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
 
-        subject = try! BulkShareCiphersRequest( // swiftlint:disable:this force_try
+        subject = try BulkShareCiphersRequest(
             ciphers: [
                 .fixture(
                     collectionIds: ["1", "2"],
