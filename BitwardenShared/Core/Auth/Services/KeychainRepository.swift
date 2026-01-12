@@ -114,12 +114,6 @@ protocol KeychainRepository: AnyObject {
     ///
     func deleteItems(for userId: String) async throws
 
-    /// Attempts to delete the last active time from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the last active time.
-    ///
-    func deleteLastActiveTime(userId: String) async throws
-
     /// Attempts to delete the device key from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored device key.
@@ -137,12 +131,6 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter item: The KeychainItem to be deleted.
     ///
     func deleteUserAuthKey(for item: KeychainItem) async throws
-
-    /// Attempts to delete the vault timeout from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the vault timeout.
-    ///
-    func deleteVaultTimeout(userId: String) async throws
 
     /// Gets the stored access token for a user from the keychain.
     ///
@@ -430,21 +418,9 @@ extension DefaultKeychainRepository {
         )
     }
 
-    func deleteLastActiveTime(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .lastActiveTime(userId: userId)),
-        )
-    }
-
     func deletePendingAdminLoginRequest(userId: String) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId)),
-        )
-    }
-
-    func deleteVaultTimeout(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .vaultTimeout(userId: userId)),
         )
     }
 
@@ -534,39 +510,15 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
 
 // MARK: UserSessionKeychainRepository
 
-protocol UserSessionKeychainRepository { // sourcery: AutoMockable
-    /// Gets the stored last active time for a user from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the stored last active time.
-    /// - Returns: The last active time value.
-    ///
-    func getLastActiveTime(userId: String) async throws -> Date?
-
-    /// Gets the stored vault timeout for a user from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the stored vault timeout.
-    /// - Returns: The vault timeout value.
-    ///
-    func getVaultTimeout(userId: String) async throws -> Int?
-
-    /// Stores the last active time for a user in the keychain.
-    ///
-    /// - Parameters:
-    ///   - date: The last active time to store.
-    ///   - userId: The user's ID, used to get back the last active time later on.
-    ///
-    func setLastActiveTime(_ date: Date?, userId: String) async throws
-
-    /// Stores the vault timeout for a user in the keychain.
-    ///
-    /// - Parameters:
-    ///   - minutes: The vault timeout to store, in minutes.
-    ///   - userId: The user's ID, used to get back the vault timeout later on.
-    ///
-    func setVaultTimeout(minutes: Int, userId: String) async throws
-}
-
 extension DefaultKeychainRepository: UserSessionKeychainRepository {
+    // MARK: Last Active Time
+
+    func deleteLastActiveTime(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .lastActiveTime(userId: userId)),
+        )
+    }
+
     func getLastActiveTime(userId: String) async throws -> Date? {
         let stored = try await getValue(for: .lastActiveTime(userId: userId))
         guard let timeInterval = TimeInterval(stored) else {
@@ -575,14 +527,22 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
         return Date(timeIntervalSince1970: timeInterval)
     }
 
-    func getVaultTimeout(userId: String) async throws -> Int? {
-        let stored = try await getValue(for: .vaultTimeout(userId: userId))
-        return Int(stored)
-    }
-
     func setLastActiveTime(_ date: Date?, userId: String) async throws {
         let value = date.map(\.timeIntervalSince1970).map(String.init(describing:)) ?? ""
         try await setValue(value, for: .lastActiveTime(userId: userId))
+    }
+
+    // MARK: Vault Timeout
+
+    func deleteVaultTimeout(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .vaultTimeout(userId: userId)),
+        )
+    }
+
+    func getVaultTimeout(userId: String) async throws -> Int? {
+        let stored = try await getValue(for: .vaultTimeout(userId: userId))
+        return Int(stored)
     }
 
     func setVaultTimeout(minutes: Int, userId: String) async throws {
