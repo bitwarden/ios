@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import InlineSnapshotTesting
 import TestHelpers
 import XCTest
 
@@ -19,6 +20,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var pasteboardService: MockPasteboardService!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
@@ -36,6 +39,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         pasteboardService = MockPasteboardService()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
 
@@ -49,6 +57,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 pasteboardService: pasteboardService,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
                 vaultRepository: vaultRepository,
             ),
@@ -67,12 +76,20 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
         pasteboardService = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
     }
 
     // MARK: Tests
+
+    /// `init(appExtensionDelegate:coordinator:services:state:)` initializes
+    /// the search process mediator.
+    func test_init() {
+        XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
+    }
 
     /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
     @MainActor
@@ -274,34 +291,19 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.routes.last, .viewProfileSwitcher)
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
+    /// `perform(.search)` with a keyword should indicate the search processor mediator that the filter changed.
     @MainActor
-    func test_perform_search() {
-        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-            name: "",
-        )
-        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
+    func test_perform_search() async throws {
+        await subject.perform(.search("example"))
 
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
-        XCTAssertFalse(subject.state.showNoResults)
         XCTAssertEqual(
-            vaultRepository.vaultListFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,
                 mode: .passwords,
                 rpID: nil,
-                searchText: "bit",
+                searchText: "example",
             ),
         )
     }
@@ -313,35 +315,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
         XCTAssertFalse(subject.state.showNoResults)
-    }
-
-    /// `perform(_:)` with `.search()` performs a cipher search and logs an error if one occurs.
-    @MainActor
-    func test_perform_search_error() {
-        let task = Task {
-            await subject.perform(.search("example"))
-        }
-
-        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
-        waitFor(!coordinator.alertShown.isEmpty)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `perform(_:)` with `.search()` sets the `showNoResults` flag if the search resulted in no results.
-    @MainActor
-    func test_perform_search_noResults() {
-        let task = Task {
-            await subject.perform(.search("example"))
-        }
-        waitFor(subject.state.showNoResults)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
-        XCTAssertTrue(subject.state.showNoResults)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
@@ -393,6 +367,55 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         waitFor(subject.state.showWebIcons == false)
 
         task.cancel()
+    }
+
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search results with the new items.
+    @MainActor
+    func test_onNewSearchResults() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
+                sections: [
+                    VaultListSection(
+                        id: "SearchResults",
+                        items: [
+                            VaultListItem(cipherListView: .fixture(name: "Result 1")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 2")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 3")),
+                        ].compactMap(\.self),
+                        name: "Search Results",
+                    ),
+                ],
+            ),
+        )
+
+        assertInlineSnapshot(of: subject.state.ciphersForSearch.dump(), as: .lines) {
+            """
+            Section[SearchResults]: Search Results
+              - Cipher: Result 1
+              - Cipher: Result 2
+              - Cipher: Result 3
+            """
+        }
+    }
+
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search to empty
+    /// when there are no sections in the data.
+    @MainActor
+    func test_onNewSearchResults_noSections() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
+                sections: [],
+            ),
+        )
+
+        assertInlineSnapshot(of: subject.state.ciphersForSearch.dump(), as: .lines) {
+            """
+            """
+        }
     }
 
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
