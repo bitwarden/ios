@@ -347,7 +347,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 .fixture(collectionIds: ["1", "2"], id: "2"),
             ],
             collectionIds: ["1", "2"],
-            encryptedFor: "user-1"
+            encryptedFor: "user-1",
         )
 
         XCTAssertEqual(client.requests.count, 1)

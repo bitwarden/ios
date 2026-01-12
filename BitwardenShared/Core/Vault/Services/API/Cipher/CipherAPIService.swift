@@ -213,7 +213,7 @@ extension APIService: CipherAPIService {
         try await apiService.send(BulkShareCiphersRequest(
             ciphers: ciphers,
             collectionIds: collectionIds,
-            encryptedFor: encryptedFor
+            encryptedFor: encryptedFor,
         ))
     }
 

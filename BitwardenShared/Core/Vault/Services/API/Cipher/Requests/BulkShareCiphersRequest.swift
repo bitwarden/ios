@@ -46,7 +46,7 @@ struct BulkShareCiphersRequest: Request {
         requestModel = BulkShareCiphersRequestModel(
             ciphers: ciphers,
             collectionIds: collectionIds,
-            encryptedFor: encryptedFor
+            encryptedFor: encryptedFor,
         )
     }
 }

@@ -16,16 +16,16 @@ class BulkShareCiphersRequestTests: BitwardenTestCase {
                 .fixture(
                     collectionIds: ["1", "2"],
                     id: "123",
-                    revisionDate: Date(year: 2023, month: 10, day: 31)
+                    revisionDate: Date(year: 2023, month: 10, day: 31),
                 ),
                 .fixture(
                     collectionIds: ["1", "2"],
                     id: "456",
-                    revisionDate: Date(year: 2023, month: 10, day: 31)
+                    revisionDate: Date(year: 2023, month: 10, day: 31),
                 ),
             ],
             collectionIds: ["1", "2"],
-            encryptedFor: "user-1"
+            encryptedFor: "user-1",
         )
     }
 
@@ -90,8 +90,8 @@ class BulkShareCiphersRequestTests: BitwardenTestCase {
                     .fixture(id: nil),
                 ],
                 collectionIds: ["1"],
-                encryptedFor: "user-1"
-            )
+                encryptedFor: "user-1",
+            ),
         ) { error in
             XCTAssertEqual(error as? BulkShareCiphersRequestError, .missingCipherId)
         }
