@@ -14,6 +14,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var dataStore: DataStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var userSessionKeychainRepository: MockUserSessionKeychainRepository!
     var subject: DefaultStateService!
 
     // MARK: Setup & Teardown
@@ -25,12 +26,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        userSessionKeychainRepository = MockUserSessionKeychainRepository()
 
         subject = DefaultStateService(
             appSettingsStore: appSettingsStore,
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            userSessionKeychainRepository: userSessionKeychainRepository,
         )
     }
 

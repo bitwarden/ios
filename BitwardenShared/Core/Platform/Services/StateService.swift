@@ -1462,6 +1462,9 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
 
+    /// A service used to access user session data in the keychain.
+    private let userSessionKeychainRepository: UserSessionKeychainRepository
+
     /// A subject containing the pending App Intent actions.
     private var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
 
@@ -1489,11 +1492,13 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         dataStore: DataStore,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
+        userSessionKeychainRepository: UserSessionKeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
+        self.userSessionKeychainRepository = userSessionKeychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -1822,8 +1827,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
         let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-        guard let stringValue = try? await keychainRepository.getVaultTimeout(userId: userId),
-              let rawValue = Int(stringValue)
+        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
         else {
             // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
             // So if the never lock key exists, set the timeout to never, otherwise to default.
@@ -2212,8 +2216,8 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        try await keychainRepository.setVaultTimeout(
-            String(value.rawValue),
+        try await userSessionKeychainRepository.setVaultTimeout(
+            minutes: value.rawValue,
             userId: userId,
         )
     }
@@ -2375,4 +2379,43 @@ extension DefaultStateService: BiometricsStateService {
         let userId = try getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
+}
+
+// MARK: User Session
+
+protocol UserSessionStateService {
+    /// Gets the user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Parameter userId: The user ID associated with the last active time within the app.
+    /// - Returns: The date of the last active time.
+    ///
+    func getLastActiveTime(userId: String?) async throws -> Date?
+
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameters:
+    ///   - date: The current time.
+    ///   - userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws
+
+    /// Gets the session timeout value.
+    ///
+    /// - Parameter userId: The user ID for the account.
+    /// - Returns: The session timeout value.
+    ///
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue
+
+    /// Sets the session timeout value.
+    ///
+    /// - Parameters:
+    ///   - value: The value that dictates how many seconds in the future a timeout should occur.
+    ///   - userId: The user ID associated with the timeout value.
+    ///
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+}
+
+extension DefaultStateService: UserSessionStateService {
+
 }

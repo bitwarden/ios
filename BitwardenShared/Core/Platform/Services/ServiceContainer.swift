@@ -422,6 +422,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            userSessionKeychainRepository: keychainRepository,
         )
 
         let flightRecorder = DefaultFlightRecorder(
