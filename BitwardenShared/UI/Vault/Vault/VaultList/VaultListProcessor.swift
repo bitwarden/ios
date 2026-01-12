@@ -27,6 +27,7 @@ final class VaultListProcessor: StateProcessor<
         & HasPasteboardService
         & HasPolicyService
         & HasReviewPromptService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -45,6 +46,9 @@ final class VaultListProcessor: StateProcessor<
 
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// The services used by this processor.
     private let services: Services
@@ -72,8 +76,10 @@ final class VaultListProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
+
         super.init(state: state)
     }
 
@@ -155,7 +161,11 @@ final class VaultListProcessor: StateProcessor<
             guard isSearching else {
                 state.searchText = ""
                 state.searchResults = []
+                searchProcessorMediator.stopSearching()
                 return
+            }
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
             }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
@@ -418,6 +428,15 @@ extension VaultListProcessor {
         )
     }
 
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+    }
+
     /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
@@ -427,20 +446,13 @@ extension VaultListProcessor {
             state.searchResults = []
             return
         }
-        do {
-            let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
-                    filterType: state.searchVaultFilterType,
-                    searchText: searchText,
-                ),
-            )
-            for try await vaultListData in publisher {
-                let items = vaultListData.sections.first?.items ?? []
-                state.searchResults = items
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+
+        searchProcessorMediator.updateFilter(
+            VaultListFilter(
+                filterType: state.searchVaultFilterType,
+                searchText: searchText,
+            ),
+        )
     }
 
     /// Sets the user's import logins progress.
