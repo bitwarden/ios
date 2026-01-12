@@ -1216,13 +1216,11 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         try await subject.setVaultTimeout(value: .custom(20), userId: "1")
-        let key = keychainRepository.formattedKey(for: .vaultTimeout(userId: "1"))
-        XCTAssertEqual(
-            keychainRepository.mockStorage[key],
-            "20",
-        )
+        let key = userSessionKeychainRepository.setVaultTimeoutReceivedArguments
+        XCTAssertEqual(key?.minutes, 20)
+        XCTAssertEqual(key?.userId, "1")
 
-        keychainRepository.getVaultTimeoutResult = .success("20")
+        userSessionKeychainRepository.getVaultTimeoutReturnValue = 20
         let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
         XCTAssertEqual(vaultTimeout, .custom(20))
     }
@@ -2626,9 +2624,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setVaultTimeout(value: .custom(20))
 
-        let key = keychainRepository.formattedKey(for: .vaultTimeout(userId: "1"))
-        let storedValue = keychainRepository.mockStorage[key]
-        XCTAssertEqual(storedValue, "20")
+        let key = userSessionKeychainRepository.setVaultTimeoutReceivedArguments
+        XCTAssertEqual(key?.minutes, 20)
+        XCTAssertEqual(key?.userId, "1")
     }
 
     /// `showWebIconsPublisher()` returns a publisher for the show web icons value.
