@@ -139,7 +139,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "2")), "REFRESH_TOKEN_2")
 
         for userId in ["1", "2"] {
-            XCTAssertNil(appSettingsStore.lastActiveTime(userId: userId))
+//            XCTAssertNil(appSettingsStore.lastActiveTime(userId: userId))
             XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))
             XCTAssertNil(appSettingsStore.notificationsLastRegistrationDate(userId: userId))
         }

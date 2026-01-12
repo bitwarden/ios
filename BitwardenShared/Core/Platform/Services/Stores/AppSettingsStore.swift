@@ -194,9 +194,12 @@ protocol AppSettingsStore: AnyObject {
 
     /// The user's last active time within the app.
     /// This value is set when the app is backgrounded.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameter userId: The user ID associated with the last active time within the app.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func lastActiveTime(userId: String) -> Date?
 
     /// Get the user's Biometric Authentication Preference.
@@ -419,11 +422,14 @@ protocol AppSettingsStore: AnyObject {
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
 
     /// Sets the last active time within the app.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameters:
     ///   - date: The current time.
     ///   - userId: The user ID associated with the last active time within the app.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func setLastActiveTime(_ date: Date?, userId: String)
 
     /// Sets the time of the last sync for the user ID.
@@ -553,11 +559,14 @@ protocol AppSettingsStore: AnyObject {
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String)
 
     /// Sets the user's session timeout, in minutes.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameters:
     ///   - key: The session timeout, in minutes.
     ///   - userId: The user ID associated with the session timeout.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func setVaultTimeout(minutes: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
@@ -625,10 +634,13 @@ protocol AppSettingsStore: AnyObject {
     func usesKeyConnector(userId: String) -> Bool
 
     /// Returns the session timeout in minutes.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameter userId: The user ID associated with the session timeout.
     /// - Returns: The user's session timeout in minutes.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func vaultTimeout(userId: String) -> Int?
 
     // MARK: Publishers

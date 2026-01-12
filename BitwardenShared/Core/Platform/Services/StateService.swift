@@ -1697,10 +1697,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.introCarouselShown
     }
 
-    func getLastActiveTime(userId: String?) async throws -> Date? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.lastActiveTime(userId: userId)
-    }
+//    func getLastActiveTime(userId: String?) async throws -> Date? {
+//        let userId = try userId ?? getActiveAccountUserId()
+//        return appSettingsStore.lastActiveTime(userId: userId)
+//    }
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
@@ -2052,11 +2052,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         appSettingsStore.learnNewLoginActionCardStatus = status
-    }
-
-    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setLastActiveTime(date, userId: userId)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
@@ -2417,5 +2412,16 @@ protocol UserSessionStateService {
 }
 
 extension DefaultStateService: UserSessionStateService {
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
+        //        return appSettingsStore.lastActiveTime(userId: userId)
+//        return nil
+    }
 
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+//        appSettingsStore.setLastActiveTime(date, userId: userId)
+    }
 }
