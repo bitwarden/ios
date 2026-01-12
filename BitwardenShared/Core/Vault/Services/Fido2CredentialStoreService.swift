@@ -59,9 +59,11 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ids: An array of possible `credentialId` to filter credentials that matches one of them.
     ///   When `nil` the `credentialId` filter is not applied.
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
+    ///   - userHandle: The user handle (user.id) to match the Fido2 credential. When `nil`, the filter is not applied.
+    ///   This is used to ensure credentials are only returned for the specific user account.
     /// - Returns: All the ciphers that matches the filter.
-    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
-        try await findCredentials(ids: ids, ripId: ripId, shouldCheckSync: true)
+    func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [BitwardenSdk.CipherView] {
+        try await findCredentials(ids: ids, ripId: ripId, shouldCheckSync: true, userHandle: userHandle)
     }
 
     /// Saves a cipher credential that contains a Fido2 credential, either creating it or updating it to server.
@@ -84,11 +86,14 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
     ///   - shouldCheckSync: Whether it should check if sync is needed. This is particular useful to avoid
     ///   infinite loops by calling this method recursively.
+    ///   - userHandle: The user handle (user.id) to match the Fido2 credential. When `nil`, the filter is not applied.
+    ///   This is used to ensure credentials are only returned for the specific user account.
     /// - Returns: All the ciphers that matches the filter.
     private func findCredentials(
         ids: [Data]?,
         ripId: String,
         shouldCheckSync: Bool,
+        userHandle: Data?,
     ) async throws -> [BitwardenSdk.CipherView] {
         let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
             .filter(\.isActiveWithFido2Credentials)
@@ -117,13 +122,24 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
                 continue
             }
 
+            // Filter by userHandle if provided to ensure credential belongs to the specific user
+            if let userHandle,
+               fido2CredentialAutofillView.userHandle != userHandle {
+                continue
+            }
+
             // Only perform sync if it's needed and there are Fido2 credentials with counter.
             if needsSync, fido2CredentialAutofillViews.contains(where: \.hasCounter) {
                 do {
                     try await syncService.fetchSync(forceSync: false, isPeriodic: true)
 
                     // After sync re-call this function to find the up-to-date credentials.
-                    return try await findCredentials(ids: ids, ripId: ripId, shouldCheckSync: false)
+                    return try await findCredentials(
+                        ids: ids,
+                        ripId: ripId,
+                        shouldCheckSync: false,
+                        userHandle: userHandle,
+                    )
                 } catch {
                     errorReporter.log(error: error)
                 }
@@ -166,9 +182,9 @@ final class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
         self.fido2CredentialStore = fido2CredentialStore
     }
 
-    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+    func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [BitwardenSdk.CipherView] {
         do {
-            let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId)
+            let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId, userHandle: userHandle)
             Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.success(result))
             return result
         } catch {
