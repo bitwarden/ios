@@ -112,7 +112,7 @@ class AppInfoServiceTests: BitwardenTestCase {
         XCTAssertEqual(
             subject.appInfoString,
             """
-            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+            © Bitwarden Inc. 2015–2025
 
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden

@@ -200,15 +200,6 @@ class DefaultAutofillCredentialService {
         self.totpService = totpService
         self.vaultTimeoutService = vaultTimeoutService
 
-        guard appContextHelper.appContext == .mainApp else {
-            // NOTE: [PM-28855] when in the context of iOS extensions
-            // subscribe to individual cipher changes to update the local OS store
-            // to improve memory performance and avoid crashes by not loading
-            // nor potentially decrypting the whole vault.
-            subscribeToCipherChanges()
-            return
-        }
-
         Task {
             for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
                 syncIdentities(vaultLockStatus: vaultLockStatus)

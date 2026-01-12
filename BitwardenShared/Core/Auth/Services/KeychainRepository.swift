@@ -5,7 +5,7 @@ import Foundation
 // MARK: - KeychainItem
 
 // swiftlint:disable file_length
-enum KeychainItem: Equatable {
+enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
 
@@ -456,5 +456,24 @@ extension DefaultKeychainRepository {
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
         try await setValue(value, for: item)
+    }
+}
+
+// MARK: BiometricsKeychainRepository
+
+extension DefaultKeychainRepository: BiometricsKeychainRepository {
+    func deleteUserBiometricAuthKey(userId: String) async throws {
+        let key = KeychainItem.biometrics(userId: userId)
+        try await deleteUserAuthKey(for: key)
+    }
+
+    func getUserBiometricAuthKey(userId: String) async throws -> String {
+        let key = KeychainItem.biometrics(userId: userId)
+        return try await getUserAuthKeyValue(for: key)
+    }
+
+    func setUserBiometricAuthKey(userId: String, value: String) async throws {
+        let key = KeychainItem.biometrics(userId: userId)
+        try await setUserAuthKey(for: key, value: value)
     }
 }
