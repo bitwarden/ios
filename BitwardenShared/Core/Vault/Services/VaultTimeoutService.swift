@@ -139,6 +139,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
+    ///   - userSessionStateService: A service that provides state management functionality around user session values.
     ///
     init(
         biometricsRepository: BiometricsRepository,
