@@ -9,7 +9,7 @@ import XCTest
 
 // MARK: - StateServiceUserSessionTests
 
-class StateServiceUserSessionTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class StateServiceUserSessionTests: BitwardenTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!

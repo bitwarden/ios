@@ -1824,24 +1824,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.usesKeyConnector(userId: userId)
     }
 
-    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
-        let userId = try getAccount(userId: userId).profile.userId
-        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
-        else {
-            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
-            // So if the never lock key exists, set the timeout to never, otherwise to default.
-            return userAuthKey != nil ? .never : .fifteenMinutes
-        }
-
-        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
-        if timeoutValue == .never, userAuthKey == nil {
-            // If never lock but no key (possibly due to logging out), return the default timeout.
-            return .fifteenMinutes
-        }
-        return timeoutValue
-    }
-
     func isAuthenticated(userId: String?) async throws -> Bool {
         do {
             let userId = try getAccount(userId: userId).profile.userId
@@ -2209,14 +2191,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
     }
 
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        try await userSessionKeychainRepository.setVaultTimeout(
-            minutes: value.rawValue,
-            userId: userId,
-        )
-    }
-
     func updateProfile(from response: ProfileResponseModel, userId: String) async {
         var state = appSettingsStore.state ?? State()
         defer { appSettingsStore.state = state }
@@ -2379,6 +2353,8 @@ extension DefaultStateService: BiometricsStateService {
 // MARK: User Session
 
 extension DefaultStateService: UserSessionStateService {
+    // MARK: Last Active Time
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
@@ -2387,5 +2363,33 @@ extension DefaultStateService: UserSessionStateService {
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+    }
+
+    // MARK: Vault Timeout
+
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
+        let userId = try getAccount(userId: userId).profile.userId
+        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
+        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
+        else {
+            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
+        }
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
+        if timeoutValue == .never, userAuthKey == nil {
+            // If never lock but no key (possibly due to logging out), return the default timeout.
+            return .fifteenMinutes
+        }
+        return timeoutValue
+    }
+
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setVaultTimeout(
+            minutes: value.rawValue,
+            userId: userId,
+        )
     }
 }
