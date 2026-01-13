@@ -1010,15 +1010,6 @@ extension StateService {
         try await getHasPerformedSyncAfterLogin(userId: nil)
     }
 
-    /// Gets the user's last active time within the app.
-    /// This value is set when the app is backgrounded.
-    ///
-    /// - Returns: The date of the last active time.
-    ///
-//    func getLastActiveTime() async throws -> Date? {
-//        try await getLastActiveTime(userId: nil)
-//    }
-
     /// Gets the time of the last sync for a user.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -1107,14 +1098,6 @@ extension StateService {
     ///
     func getUsesKeyConnector() async throws -> Bool {
         try await getUsesKeyConnector(userId: nil)
-    }
-
-    /// Gets the session timeout value.
-    ///
-    /// - Returns: The session timeout value.
-    ///
-    func getVaultTimeout() async throws -> SessionTimeoutValue {
-        try await getVaultTimeout(userId: nil)
     }
 
     /// Whether the active user account is authenticated.
@@ -1279,14 +1262,6 @@ extension StateService {
         try await setHasPerformedSyncAfterLogin(hasBeenPerformed, userId: nil)
     }
 
-    /// Sets the last active time within the app.
-    ///
-    /// - Parameter date: The current time.
-    ///
-//    func setLastActiveTime(_ date: Date?) async throws {
-//        try await setLastActiveTime(date, userId: nil)
-//    }
-
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
@@ -1373,14 +1348,6 @@ extension StateService {
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool) async throws {
         try await setUsesKeyConnector(usesKeyConnector, userId: nil)
-    }
-
-    /// Sets the session timeout value.
-    ///
-    /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
-    ///
-    func setVaultTimeout(value: SessionTimeoutValue) async throws {
-        try await setVaultTimeout(value: value, userId: nil)
     }
 }
 

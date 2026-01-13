@@ -37,3 +37,38 @@ protocol UserSessionStateService {
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 }
+
+extension UserSessionStateService {
+    /// Gets the user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Returns: The date of the last active time.
+    ///
+    func getLastActiveTime() async throws -> Date? {
+        try await getLastActiveTime(userId: nil)
+    }
+
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameter date: The current time.
+    ///
+    func setLastActiveTime(_ date: Date?) async throws {
+        try await setLastActiveTime(date, userId: nil)
+    }
+
+    /// Gets the session timeout value.
+    ///
+    /// - Returns: The session timeout value.
+    ///
+    func getVaultTimeout() async throws -> SessionTimeoutValue {
+        try await getVaultTimeout(userId: nil)
+    }
+
+    /// Sets the session timeout value.
+    ///
+    /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
+    ///
+    func setVaultTimeout(value: SessionTimeoutValue) async throws {
+        try await setVaultTimeout(value: value, userId: nil)
+    }
+}
