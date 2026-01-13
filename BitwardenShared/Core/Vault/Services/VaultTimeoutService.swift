@@ -173,7 +173,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             return false
         default:
             // Otherwise, calculate a timeout.
-            guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+            guard let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
             else { return true }
 
             return timeProvider.presentTime.timeIntervalSince(lastActiveTime)

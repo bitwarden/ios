@@ -224,7 +224,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID associated with the last active time within the app.
     /// - Returns: The date of the last active time.
     ///
-    func getLastActiveTime(userId: String?) async throws -> Date?
+//    func getLastActiveTime(userId: String?) async throws -> Date?
 
     /// Gets the time of the last sync for a user.
     ///
@@ -611,7 +611,7 @@ protocol StateService: AnyObject {
     ///   - date: The current time.
     ///   - userId: The user ID associated with the last active time within the app.
     ///
-    func setLastActiveTime(_ date: Date?, userId: String?) async throws
+//    func setLastActiveTime(_ date: Date?, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -1015,9 +1015,9 @@ extension StateService {
     ///
     /// - Returns: The date of the last active time.
     ///
-    func getLastActiveTime() async throws -> Date? {
-        try await getLastActiveTime(userId: nil)
-    }
+//    func getLastActiveTime() async throws -> Date? {
+//        try await getLastActiveTime(userId: nil)
+//    }
 
     /// Gets the time of the last sync for a user.
     ///
@@ -1283,9 +1283,9 @@ extension StateService {
     ///
     /// - Parameter date: The current time.
     ///
-    func setLastActiveTime(_ date: Date?) async throws {
-        try await setLastActiveTime(date, userId: nil)
-    }
+//    func setLastActiveTime(_ date: Date?) async throws {
+//        try await setLastActiveTime(date, userId: nil)
+//    }
 
     /// Sets the time of the last sync for a user ID.
     ///

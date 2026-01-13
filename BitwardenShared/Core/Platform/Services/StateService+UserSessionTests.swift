@@ -57,7 +57,7 @@ class StateServiceUserSessionTests: BitwardenTestCase { // swiftlint:disable:thi
 
         let date = Date(timeIntervalSince1970: 1_234_567_890)
         userSessionKeychainRepository.getLastActiveTimeReturnValue = date
-        let lastActiveTime = try await subject.getLastActiveTime()
+        let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
         XCTAssertEqual(lastActiveTime, date)
     }
 
@@ -66,7 +66,7 @@ class StateServiceUserSessionTests: BitwardenTestCase { // swiftlint:disable:thi
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
         let date = Date(timeIntervalSince1970: 1_234_567_890)
-        try await subject.setLastActiveTime(date)
+        try await subject.setLastActiveTime(date, userId: "1")
 
         let actual = userSessionKeychainRepository.setLastActiveTimeReceivedArguments
 
