@@ -9,6 +9,15 @@ import XCTest
 class CipherExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `belongsToGroup(_:)` returns `true` when the cipher is archived and the group is `.archive`.
+    func test_belongsToGroup_archive() {
+        let cipher = Cipher.fixture(archivedDate: .now, type: .login)
+        XCTAssertTrue(cipher.belongsToGroup(.archive))
+        XCTAssertFalse(cipher.belongsToGroup(.card))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+        XCTAssertFalse(Cipher.fixture(archivedDate: nil, type: .login).belongsToGroup(.archive))
+    }
+
     /// `belongsToGroup(_:)` returns `true` when the cipher is a card type and the group is `.card`.
     func test_belongsToGroup_card() {
         let cipher = Cipher.fixture(type: .card)

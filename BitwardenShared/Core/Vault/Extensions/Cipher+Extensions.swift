@@ -15,6 +15,8 @@ extension Cipher {
     /// - Returns: `true` if the cipher belongs to the group, `false` otherwise.
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         switch group {
+        case .archive:
+            archivedDate != nil
         case .card:
             type == .card
         case let .collection(id, _, _):
