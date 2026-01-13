@@ -13,6 +13,11 @@ class MockVaultRepository: VaultRepository {
     var addCipherCiphers = [CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
 
+    var bulkShareCiphersCiphers = [[CipherView]]()
+    var bulkShareCiphersOrganizationId: String?
+    var bulkShareCiphersCollectionIds: [String]?
+    var bulkShareCiphersResult: Result<Void, Error> = .success(())
+
     var canShowVaultFilter = true
 
     var ciphersAutofillPublisherUriCalled: String?
@@ -126,6 +131,17 @@ class MockVaultRepository: VaultRepository {
     func addCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         addCipherCiphers.append(cipher)
         try addCipherResult.get()
+    }
+
+    func bulkShareCiphers(
+        _ ciphers: [CipherView],
+        newOrganizationId: String,
+        newCollectionIds: [String]
+    ) async throws {
+        bulkShareCiphersCiphers.append(ciphers)
+        bulkShareCiphersOrganizationId = newOrganizationId
+        bulkShareCiphersCollectionIds = newCollectionIds
+        try bulkShareCiphersResult.get()
     }
 
     func canShowVaultFilter() async -> Bool {

@@ -72,6 +72,27 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
+    /// `bulkShareCiphersWithServer(_:collectionIds:encryptedFor:)` shares multiple ciphers with the
+    /// organization and updates the data store.
+    func test_bulkShareCiphersWithServer() async throws {
+        client.result = .httpSuccess(testData: .bulkShareCiphersResponse)
+        stateService.activeAccount = .fixture()
+
+        let ciphers = [
+            Cipher.fixture(id: "1"),
+            Cipher.fixture(id: "2"),
+        ]
+        let collectionIds = ["col-1", "col-2"]
+        try await subject.bulkShareCiphersWithServer(ciphers, collectionIds: collectionIds, encryptedFor: "1")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/share")
+        // The last cipher upserted is the second one from the response
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "4892bf8b-5552-22ff-cf67-1353bd231113")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, collectionIds)
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
+    }
+    
     /// `cipherCount()` returns the number of ciphers in the data store.
     func test_ciphersCount() async throws {
         stateService.activeAccount = .fixture()

@@ -9,6 +9,11 @@ class MockCipherService: CipherService {
     var addCipherWithServerEncryptedFor: String?
     var addCipherWithServerResult: Result<Void, Error> = .success(())
 
+    var bulkShareCiphersWithServerCiphers = [[Cipher]]()
+    var bulkShareCiphersWithServerCollectionIds: [String]?
+    var bulkShareCiphersWithServerEncryptedFor: String?
+    var bulkShareCiphersWithServerResult: Result<Void, Error> = .success(())
+
     var cipherCountResult: Result<Int, Error> = .success(0)
 
     var cipherChangesSubject = CurrentValueSubject<CipherChange, Error>(
@@ -72,6 +77,17 @@ class MockCipherService: CipherService {
         addCipherWithServerCiphers.append(cipher)
         addCipherWithServerEncryptedFor = encryptedFor
         try addCipherWithServerResult.get()
+    }
+
+    func bulkShareCiphersWithServer(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String
+    ) async throws {
+        bulkShareCiphersWithServerCiphers.append(ciphers)
+        bulkShareCiphersWithServerCollectionIds = collectionIds
+        bulkShareCiphersWithServerEncryptedFor = encryptedFor
+        try bulkShareCiphersWithServerResult.get()
     }
 
     func cipherCount() async throws -> Int {
