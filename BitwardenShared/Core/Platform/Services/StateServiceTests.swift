@@ -2097,19 +2097,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.hasPerformedSyncAfterLogin["1"]!)
     }
 
-    /// `setLastActiveTime(userId:)` sets the user's last active time.
-//    func test_setLastActiveTime() async throws {
-//        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-//
-//        try await subject.setLastActiveTime(Date())
-//
-//        XCTAssertEqual(
-//            appSettingsStore.lastActiveTime["1"]!.timeIntervalSince1970,
-//            Date().timeIntervalSince1970,
-//            accuracy: 1.0,
-//        )
-//    }
-
     /// `setLearnGeneratorActionCardStatus(_:)` sets the learn generator action card status.
     func test_setLearnGeneratorActionCardStatus() async {
         await subject.setLearnGeneratorActionCardStatus(.incomplete)
@@ -2557,17 +2544,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setTimeoutAction(action: .logout, userId: nil)
         XCTAssertEqual(appSettingsStore.timeoutAction["1"], 1)
-    }
-
-    /// `.setVaultTimeout(value:userId:)` sets the vault timeout value for the user.
-    func test_setVaultTimeout() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setVaultTimeout(value: .custom(20))
-
-        let key = userSessionKeychainRepository.setVaultTimeoutReceivedArguments
-        XCTAssertEqual(key?.minutes, 20)
-        XCTAssertEqual(key?.userId, "1")
     }
 
     /// `showWebIconsPublisher()` returns a publisher for the show web icons value.

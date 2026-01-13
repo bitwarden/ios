@@ -2382,13 +2382,10 @@ extension DefaultStateService: UserSessionStateService {
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
-        //        return appSettingsStore.lastActiveTime(userId: userId)
-//        return nil
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
-//        appSettingsStore.setLastActiveTime(date, userId: userId)
     }
 }

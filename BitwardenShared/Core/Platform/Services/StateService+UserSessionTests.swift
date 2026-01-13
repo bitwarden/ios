@@ -1,28 +1,78 @@
 // swiftlint:disable:this file_name
 
 import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-// MARK: - StateService UserSession Tests
+// MARK: - StateServiceUserSessionTests
 
-extension StateServiceTests {
+class StateServiceUserSessionTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+    // MARK: Properties
+
+    var appSettingsStore: MockAppSettingsStore!
+    var dataStore: DataStore!
+    var errorReporter: MockErrorReporter!
+    var keychainRepository: MockKeychainRepository!
+    var userSessionKeychainRepository: MockUserSessionKeychainRepository!
+    var subject: DefaultStateService!
+
+    // MARK: Setup & Teardown
+
+    override func setUp() {
+        super.setUp()
+
+        appSettingsStore = MockAppSettingsStore()
+        dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        errorReporter = MockErrorReporter()
+        keychainRepository = MockKeychainRepository()
+        userSessionKeychainRepository = MockUserSessionKeychainRepository()
+
+        subject = DefaultStateService(
+            appSettingsStore: appSettingsStore,
+            dataStore: dataStore,
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            userSessionKeychainRepository: userSessionKeychainRepository,
+        )
+    }
+
+    override func tearDown() {
+        super.tearDown()
+
+        appSettingsStore = nil
+        dataStore = nil
+        errorReporter = nil
+        keychainRepository = nil
+        subject = nil
+    }
+
     // MARK: Last Active Time
 
     /// `getLastActiveTime(userId:)` gets the user's last active time.
-//    func test_getLastActiveTime() async throws {
-//        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-//
-//        try await subject.setLastActiveTime(Date())
-//        let lastActiveTime = try await subject.getLastActiveTime()
-//        XCTAssertEqual(
-//            lastActiveTime!.timeIntervalSince1970,
-//            Date().timeIntervalSince1970,
-//            accuracy: 1.0,
-//        )
-//    }
+    func test_getLastActiveTime() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(timeIntervalSince1970: 1_234_567_890)
+        userSessionKeychainRepository.getLastActiveTimeReturnValue = date
+        let lastActiveTime = try await subject.getLastActiveTime()
+        XCTAssertEqual(lastActiveTime, date)
+    }
+
+    /// `setLastActiveTime(userId:)` sets the user's last active time.
+    func test_setLastActiveTime() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(timeIntervalSince1970: 1_234_567_890)
+        try await subject.setLastActiveTime(date)
+
+        let actual = userSessionKeychainRepository.setLastActiveTimeReceivedArguments
+
+        XCTAssertEqual(actual?.userId, "1")
+        XCTAssertEqual(actual?.date, date)
+    }
 
     // MARK: Vault Timeout
 
@@ -72,5 +122,16 @@ extension StateServiceTests {
 
         let vaultTimeout = try await subject.getVaultTimeout()
         XCTAssertEqual(vaultTimeout, .fifteenMinutes)
+    }
+
+    /// `.setVaultTimeout(value:userId:)` sets the vault timeout value for the user.
+    func test_setVaultTimeout() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setVaultTimeout(value: .custom(20))
+
+        let key = userSessionKeychainRepository.setVaultTimeoutReceivedArguments
+        XCTAssertEqual(key?.minutes, 20)
+        XCTAssertEqual(key?.userId, "1")
     }
 }
