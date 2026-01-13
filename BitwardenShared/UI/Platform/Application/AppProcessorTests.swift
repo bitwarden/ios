@@ -1385,9 +1385,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, "1")
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: true)])
     }
 
     /// `securityStampChanged(userId:)` throws logging the user out which is logged and notifies the coordinator.
@@ -1401,7 +1401,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when a 401 is
@@ -1414,9 +1414,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, nil)
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator a 403 is
@@ -1429,9 +1429,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, nil)
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when error is `.invalidGrant`.
@@ -1443,9 +1443,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, nil)
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` throws logging the user out which is logged and notifies the coordinator
@@ -1460,7 +1460,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` doesn't perform log out when error is not `.invalidGrant`.

@@ -103,7 +103,7 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
-    let preparedData: VaultListPreparedData
+    var preparedData: VaultListPreparedData
     /// The vault list data to build.
     private var vaultListData = VaultListData()
 
@@ -425,7 +425,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func build() -> VaultListData {
-        vaultListData
+        defer { preparedData = VaultListPreparedData() }
+        return vaultListData
     }
 }
 

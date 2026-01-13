@@ -23,7 +23,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Master password must be at least %#@characters@ long.</string>
+      <string>Hoofdwachtwoord moet minstens %#@characters@ tekens lang zijn.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -31,16 +31,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d teken</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d tekens</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
+      <string>Dit wachtwoord is %#@times@ blootgesteld in datalekken. Je kunt het beter veranderen.</string>
       <key>times</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -50,7 +50,7 @@
         <key>one</key>
         <string>%d time</string>
         <key>other</key>
-        <string>%d times</string>
+        <string>%d keer</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -65,9 +65,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d teken</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d tekens</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -193,7 +193,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Your PIN must be at least %#@characters@. Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>Je PIN moet tenminste %#@characters@ tekens bevatten. Je PIN-instellingen worden gereset als je je ooit volledig uitlogt.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,9 +201,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d teken</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d tekens</string>
       </dict>
     </dict>
   </dict>

@@ -140,7 +140,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 ]
             }
 
-        let result = try await subject.findCredentials(ids: credentialIds, ripId: expectedRpId)
+        let result = try await subject.findCredentials(ids: credentialIds, ripId: expectedRpId, userHandle: nil)
 
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(result.count == 1)
@@ -175,7 +175,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 ]
             }
 
-        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId)
+        let result = try await subject.findCredentials(ids: nil, ripId: expectedRpId, userHandle: nil)
 
         XCTAssertTrue(result.count == 2)
         XCTAssertTrue(result[0].id == expectedCipherIds[0])
@@ -186,7 +186,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     func test_findCredentials_empty() async throws {
         cipherService.fetchAllCiphersResult = .success([])
 
-        let result = try await subject.findCredentials(ids: nil, ripId: "something")
+        let result = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
 
         XCTAssertTrue(result.isEmpty)
     }
@@ -195,7 +195,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
     func test_findCredentials_throwsSync() async throws {
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
 
-        _ = try await subject.findCredentials(ids: nil, ripId: "something")
+        _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
 
         XCTAssertFalse(errorReporter.errors.isEmpty)
         XCTAssertTrue(cipherService.fetchAllCiphersCalled)
@@ -206,7 +206,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.findCredentials(ids: nil, ripId: "something")
+            _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
         }
     }
 
@@ -228,7 +228,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         }
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.findCredentials(ids: nil, ripId: "something")
+            _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
         }
     }
 
@@ -249,7 +249,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
             .throwing(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.findCredentials(ids: nil, ripId: "something")
+            _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
         }
     }
 
@@ -389,7 +389,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
     /// `.findCredentials(ids:ripId:)` returns found credentials and reports it.
     func test_findCredentials() async throws {
         fido2CredentialStore.findCredentialsResult = .success([.fixture()])
-        let result = try await subject.findCredentials(ids: nil, ripId: "something")
+        let result = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
         XCTAssert(result.count == 1)
         XCTAssertFalse(
             (try? Fido2DebuggingReportBuilder.builder
@@ -401,7 +401,7 @@ class DebuggingFido2CredentialStoreServiceTests: BitwardenTestCase {
     func test_findCredentialsthrows() async throws {
         fido2CredentialStore.findCredentialsResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.findCredentials(ids: nil, ripId: "something")
+            _ = try await subject.findCredentials(ids: nil, ripId: "something", userHandle: nil)
         }
         XCTAssertNil(try? Fido2DebuggingReportBuilder.builder.getReport()?
             .findCredentialsResult?.get())

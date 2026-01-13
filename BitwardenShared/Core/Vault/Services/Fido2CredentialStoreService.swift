@@ -64,8 +64,10 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ids: An array of possible `credentialId` to filter credentials that matches one of them.
     ///   When `nil` the `credentialId` filter is not applied.
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
+    ///   - userHandle: The user handle (user.id) to match the Fido2 credential. When `nil`, the filter is not applied.
+    ///   This is used to ensure credentials are only returned for the specific user account.
     /// - Returns: All the ciphers that matches the filter.
-    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+    func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [BitwardenSdk.CipherView] {
         do {
             try await syncService.fetchSync(forceSync: false)
         } catch {
@@ -91,6 +93,12 @@ final class Fido2CredentialStoreService: Fido2CredentialStore {
 
             if let ids,
                !ids.contains(fido2CredentialAutofillView.credentialId) {
+                continue
+            }
+
+            // Filter by userHandle if provided to ensure credential belongs to the specific user
+            if let userHandle,
+               fido2CredentialAutofillView.userHandle != userHandle {
                 continue
             }
 
@@ -131,9 +139,9 @@ class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
         self.fido2CredentialStore = fido2CredentialStore
     }
 
-    func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+    func findCredentials(ids: [Data]?, ripId: String, userHandle: Data?) async throws -> [BitwardenSdk.CipherView] {
         do {
-            let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId)
+            let result = try await fido2CredentialStore.findCredentials(ids: ids, ripId: ripId, userHandle: userHandle)
             Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.success(result))
             return result
         } catch {
