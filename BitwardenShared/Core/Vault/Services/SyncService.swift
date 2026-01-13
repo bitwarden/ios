@@ -164,6 +164,9 @@ class DefaultSyncService: SyncService {
     /// The time provider for this service.
     private let timeProvider: TimeProvider
 
+    /// The service used by the application to manage user session state.
+    private let userSessionStateService: UserSessionStateService
+
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -185,6 +188,7 @@ class DefaultSyncService: SyncService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///   - timeProvider: The time provider for this service.
+    ///   - userSessionStateService: The service used by the application to manage user session state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -201,6 +205,7 @@ class DefaultSyncService: SyncService {
         stateService: StateService,
         syncAPIService: SyncAPIService,
         timeProvider: TimeProvider,
+        userSessionStateService: UserSessionStateService,
         vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
@@ -216,6 +221,7 @@ class DefaultSyncService: SyncService {
         self.stateService = stateService
         self.syncAPIService = syncAPIService
         self.timeProvider = timeProvider
+        self.userSessionStateService = userSessionStateService
         self.vaultTimeoutService = vaultTimeoutService
     }
 
@@ -459,19 +465,19 @@ extension DefaultSyncService {
         guard let value = timeoutPolicyValues.timeoutValue?.rawValue else { return }
 
         let timeoutAction = try await stateService.getTimeoutAction()
-        let timeoutValue = try await stateService.getVaultTimeout()
+        let timeoutValue = try await userSessionStateService.getVaultTimeout()
 
         // For onAppRestart and never policy types, preserve the user's current timeout value
         // as these policy types don't restrict the value itself, only the behavior
         if type == SessionTimeoutType.onAppRestart || type == SessionTimeoutType.never {
-            try await stateService.setVaultTimeout(
+            try await userSessionStateService.setVaultTimeout(
                 value: timeoutValue,
             )
         } else {
             // Only update the user's stored vault timeout value if
             // their stored timeout value is > the policy's timeout value.
             if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
-                try await stateService.setVaultTimeout(
+                try await userSessionStateService.setVaultTimeout(
                     value: SessionTimeoutValue(rawValue: value),
                 )
             }
