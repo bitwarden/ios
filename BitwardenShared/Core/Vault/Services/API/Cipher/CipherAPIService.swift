@@ -35,6 +35,20 @@ protocol CipherAPIService {
     ///
     func addCipherWithCollections(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
 
+    /// Performs an API request to share multiple ciphers with an organization.
+    ///
+    /// - Parameters:
+    ///   - ciphers: The ciphers to share.
+    ///   - collectionIds: The collection identifiers to share the ciphers with.
+    ///   - encryptedFor: The user ID who encrypted the ciphers.
+    /// - Returns: The response containing the shared ciphers.
+    ///
+    func bulkShareCiphers(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String?,
+    ) async throws -> BulkShareCiphersResponseModel
+    
     /// Performs an API request to delete an existing attachment in the user's vault.
     ///
     /// - Parameters:
@@ -149,6 +163,18 @@ extension APIService: CipherAPIService {
         try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher, encryptedFor: encryptedFor))
     }
 
+    func bulkShareCiphers(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String?,
+    ) async throws -> BulkShareCiphersResponseModel {
+        try await apiService.send(BulkShareCiphersRequest(
+            ciphers: ciphers,
+            collectionIds: collectionIds,
+            encryptedFor: encryptedFor,
+        ))
+    }
+    
     func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> DeleteAttachmentResponse {
         try await apiService.send(DeleteAttachmentRequest(attachmentId: attachmentId, cipherId: cipherId))
     }
