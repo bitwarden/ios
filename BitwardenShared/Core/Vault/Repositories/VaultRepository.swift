@@ -28,6 +28,19 @@ public protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Shares multiple ciphers with an organization.
+    ///
+    /// - Parameters:
+    ///   - ciphers: The ciphers to share.
+    ///   - newOrganizationId: The ID of the organization that the ciphers are moving to.
+    ///   - newCollectionIds: The IDs of the collections to include the ciphers in.
+    ///
+    func bulkShareCiphers(
+        _ ciphers: [CipherView],
+        newOrganizationId: String,
+        newCollectionIds: [String]
+    ) async throws
+
     /// Whether the vault filter can be shown to the user. It might not be shown to the user if the
     /// policies are set up to disable personal vault ownership and only allow the user to be in a
     /// single organization.
@@ -457,6 +470,51 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.addCipherWithServer(
             cipherEncryptionContext.cipher,
             encryptedFor: cipherEncryptionContext.encryptedFor,
+        )
+    }
+
+    func bulkShareCiphers(
+        _ ciphers: [CipherView],
+        newOrganizationId: String,
+        newCollectionIds: [String]
+    ) async throws {
+        var preparedCiphers = [CipherView]()
+
+        for cipher in ciphers {
+            // Ensure the cipher has a cipher key.
+            let encryptedCipher = try await encryptAndUpdateCipher(cipher)
+            var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+
+            // Migrate any attachments without an encryption key.
+            if let attachments = cipherView.attachments {
+                for attachment in attachments where attachment.key == nil {
+                    cipherView = try await fixCipherAttachment(
+                        attachment,
+                        cipher: cipherView
+                    )
+                }
+            }
+
+            preparedCiphers.append(cipherView)
+        }
+
+        // Use the SDK to prepare and encrypt all ciphers for bulk share.
+        // The SDK handles moveToOrganization internally.
+        let encryptionContexts = try await clientService.vault().ciphers()
+            .prepareCiphersForBulkShare(
+                ciphers: preparedCiphers,
+                organizationId: newOrganizationId,
+                collectionIds: newCollectionIds
+            )
+
+        guard let firstContext = encryptionContexts.first else {
+            return
+        }
+
+        try await cipherService.bulkShareCiphersWithServer(
+            encryptionContexts.map(\.cipher),
+            collectionIds: newCollectionIds,
+            encryptedFor: firstContext.encryptedFor
         )
     }
 

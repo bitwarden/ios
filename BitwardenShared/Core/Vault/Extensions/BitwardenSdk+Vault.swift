@@ -359,6 +359,39 @@ extension BitwardenSdk.Cipher {
             data: nil,
         )
     }
+
+    init(cipherMiniResponseModel model: CipherMiniResponseModel, collectionIds: [String]) {
+        self.init(
+            id: model.id,
+            organizationId: model.organizationId,
+            folderId: nil,
+            collectionIds: collectionIds,
+            key: model.key,
+            name: model.name,
+            notes: model.notes,
+            type: BitwardenSdk.CipherType(model.type),
+            login: model.login.map(Login.init),
+            identity: model.identity.map(Identity.init),
+            card: model.card.map(Card.init),
+            secureNote: model.secureNote.map(SecureNote.init),
+            sshKey: model.sshKey.map(SshKey.init),
+            favorite: false,
+            reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
+            organizationUseTotp: model.organizationUseTotp,
+            edit: true,
+            permissions: nil,
+            viewPassword: true,
+            localData: nil,
+            attachments: model.attachments?.map(Attachment.init),
+            fields: model.fields?.map(Field.init),
+            passwordHistory: model.passwordHistory?.map(PasswordHistory.init),
+            creationDate: model.creationDate,
+            deletedDate: model.deletedDate,
+            revisionDate: model.revisionDate,
+            archivedDate: model.archivedDate,
+            data: nil,
+        )
+    }
 }
 
 extension BitwardenSdk.CipherListView: @retroactive Identifiable, Fido2UserVerifiableCipherView {}

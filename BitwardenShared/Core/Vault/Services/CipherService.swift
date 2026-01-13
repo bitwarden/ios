@@ -14,6 +14,18 @@ protocol CipherService {
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
 
+    /// Shares multiple ciphers with an organization and updates the locally stored data.
+    ///
+    /// - Parameters:
+    ///   - ciphers: The ciphers to share.
+    ///   - collectionIds: The collection IDs to associate with the ciphers.
+    ///   - encryptedFor: The user ID who encrypted the ciphers.
+    func bulkShareCiphersWithServer(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String
+    ) async throws
+
     /// Returns the count of ciphers in the data store for the current user.
     ///
     func cipherCount() async throws -> Int
@@ -204,6 +216,28 @@ extension DefaultCipherService {
 
         // Add the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
+    }
+
+    func bulkShareCiphersWithServer(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String
+    ) async throws {
+        let userId = try await stateService.getActiveAccountId()
+
+        // Share the ciphers with the backend.
+        let response = try await cipherAPIService.bulkShareCiphers(
+            ciphers,
+            collectionIds: collectionIds,
+            encryptedFor: encryptedFor
+        )
+
+        // Update ciphers in local storage.
+        for cipherResponse in response.data {
+            // The API doesn't return the collectionIds, so pass them during initialization.
+            let updatedCipher = Cipher(cipherMiniResponseModel: cipherResponse, collectionIds: collectionIds)
+            try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
+        }
     }
 
     func cipherCount() async throws -> Int {
