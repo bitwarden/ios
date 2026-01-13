@@ -676,6 +676,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             policyService: policyService,
             stateService: stateService,
             trustDeviceService: trustDeviceService,
+            userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,
         )
 
