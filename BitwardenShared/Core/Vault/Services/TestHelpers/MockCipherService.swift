@@ -82,7 +82,7 @@ class MockCipherService: CipherService {
     func bulkShareCiphersWithServer(
         _ ciphers: [Cipher],
         collectionIds: [String],
-        encryptedFor: String
+        encryptedFor: String,
     ) async throws {
         bulkShareCiphersWithServerCiphers.append(ciphers)
         bulkShareCiphersWithServerCollectionIds = collectionIds

@@ -136,7 +136,7 @@ class MockVaultRepository: VaultRepository {
     func bulkShareCiphers(
         _ ciphers: [CipherView],
         newOrganizationId: String,
-        newCollectionIds: [String]
+        newCollectionIds: [String],
     ) async throws {
         bulkShareCiphersCiphers.append(ciphers)
         bulkShareCiphersOrganizationId = newOrganizationId

@@ -23,7 +23,7 @@ protocol CipherService {
     func bulkShareCiphersWithServer(
         _ ciphers: [Cipher],
         collectionIds: [String],
-        encryptedFor: String
+        encryptedFor: String,
     ) async throws
 
     /// Returns the count of ciphers in the data store for the current user.
@@ -221,7 +221,7 @@ extension DefaultCipherService {
     func bulkShareCiphersWithServer(
         _ ciphers: [Cipher],
         collectionIds: [String],
-        encryptedFor: String
+        encryptedFor: String,
     ) async throws {
         let userId = try await stateService.getActiveAccountId()
 
@@ -229,7 +229,7 @@ extension DefaultCipherService {
         let response = try await cipherAPIService.bulkShareCiphers(
             ciphers,
             collectionIds: collectionIds,
-            encryptedFor: encryptedFor
+            encryptedFor: encryptedFor,
         )
 
         // Update ciphers in local storage.

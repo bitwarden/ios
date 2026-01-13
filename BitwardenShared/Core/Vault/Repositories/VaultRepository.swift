@@ -38,7 +38,7 @@ public protocol VaultRepository: AnyObject {
     func bulkShareCiphers(
         _ ciphers: [CipherView],
         newOrganizationId: String,
-        newCollectionIds: [String]
+        newCollectionIds: [String],
     ) async throws
 
     /// Whether the vault filter can be shown to the user. It might not be shown to the user if the
@@ -476,7 +476,7 @@ extension DefaultVaultRepository: VaultRepository {
     func bulkShareCiphers(
         _ ciphers: [CipherView],
         newOrganizationId: String,
-        newCollectionIds: [String]
+        newCollectionIds: [String],
     ) async throws {
         var preparedCiphers = [CipherView]()
 
@@ -490,7 +490,7 @@ extension DefaultVaultRepository: VaultRepository {
                 for attachment in attachments where attachment.key == nil {
                     cipherView = try await fixCipherAttachment(
                         attachment,
-                        cipher: cipherView
+                        cipher: cipherView,
                     )
                 }
             }
@@ -504,7 +504,7 @@ extension DefaultVaultRepository: VaultRepository {
             .prepareCiphersForBulkShare(
                 ciphers: preparedCiphers,
                 organizationId: newOrganizationId,
-                collectionIds: newCollectionIds
+                collectionIds: newCollectionIds,
             )
 
         guard let firstContext = encryptionContexts.first else {
@@ -514,7 +514,7 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.bulkShareCiphersWithServer(
             encryptionContexts.map(\.cipher),
             collectionIds: newCollectionIds,
-            encryptedFor: firstContext.encryptedFor
+            encryptedFor: firstContext.encryptedFor,
         )
     }
 

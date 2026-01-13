@@ -168,7 +168,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(fileName: "file.txt", id: "1", key: nil),
                 .fixture(fileName: "existing-attachment-key.txt", id: "2", key: "abc"),
             ],
-            id: "1"
+            id: "1",
         )
 
         // The cipher after saving the new attachment, encrypted with an attachment key.
@@ -178,7 +178,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
                 .fixture(id: "3", fileName: "file.txt", key: "def"),
             ],
-            id: "1"
+            id: "1",
         )
         cipherService.saveAttachmentWithServerResult = .success(cipherAfterAttachmentSave)
 
@@ -188,7 +188,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
                 .fixture(id: "3", fileName: "file.txt", key: "def"),
             ],
-            id: "1"
+            id: "1",
         )
         cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
         cipherService.fetchCipherResult = .success(cipherAfterAttachmentSave)

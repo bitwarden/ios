@@ -92,7 +92,7 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, collectionIds)
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
-    
+
     /// `cipherCount()` returns the number of ciphers in the data store.
     func test_ciphersCount() async throws {
         stateService.activeAccount = .fixture()
