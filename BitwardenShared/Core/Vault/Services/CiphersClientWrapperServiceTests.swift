@@ -48,7 +48,12 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
             decryptedCiphers.append(decryptedCipher)
         }
 
-        await subject.decryptAndProcessCiphersInBatch(batchSize: 100, ciphers: ciphers, onCipher: onCipherClosure)
+        await subject.decryptAndProcessCiphersInBatch(
+            batchSize: 100,
+            ciphers: ciphers,
+            preFilter: { _ in true },
+            onCipher: onCipherClosure,
+        )
 
         XCTAssertEqual(onCipherCallCount, 950)
         let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
@@ -80,7 +85,12 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
             return DecryptCipherListResult(successes: successes, failures: failures)
         }
 
-        await subject.decryptAndProcessCiphersInBatch(batchSize: 100, ciphers: ciphers, onCipher: onCipherClosure)
+        await subject.decryptAndProcessCiphersInBatch(
+            batchSize: 100,
+            ciphers: ciphers,
+            preFilter: { _ in true },
+            onCipher: onCipherClosure,
+        )
 
         XCTAssertEqual(onCipherCallCount, 950)
         let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
@@ -117,7 +127,12 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
             decryptedCiphers.append(decryptedCipher)
         }
 
-        await subject.decryptAndProcessCiphersInBatch(batchSize: 100, ciphers: ciphers, onCipher: onCipherClosure)
+        await subject.decryptAndProcessCiphersInBatch(
+            batchSize: 100,
+            ciphers: ciphers,
+            preFilter: { _ in true },
+            onCipher: onCipherClosure,
+        )
 
         XCTAssertEqual(onCipherCallCount, 850)
         let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
@@ -131,5 +146,70 @@ class CiphersClientWrapperServiceTests: BitwardenTestCase {
         XCTAssertEqual(decryptListWithFailuresInvocations[4][0].id, "400")
         XCTAssertEqual(decryptListWithFailuresInvocations[9][20].id, "920")
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `decryptAndProcessCiphersInBatch(batchSize:ciphers:preFilter:onCipher:)` applies the preFilter
+    /// to exclude ciphers before decryption, reducing the number of ciphers sent to the decrypt method.
+    func test_decryptAndProcessCiphersInBatch_withPreFilter() async {
+        // Given - 950 ciphers where even IDs should be filtered out
+        var ciphers: [Cipher] = []
+        for index in 0 ..< 950 {
+            ciphers.append(.fixture(id: "\(index)", type: index % 2 == 0 ? .card : .login))
+        }
+
+        var decryptedCiphers: [CipherListView] = []
+        var onCipherCallCount = 0
+        let onCipherClosure: (CipherListView) async throws -> Void = { decryptedCipher in
+            onCipherCallCount += 1
+            decryptedCiphers.append(decryptedCipher)
+        }
+
+        // When - applying preFilter to only include login ciphers (odd IDs)
+        let preFilter: (Cipher) throws -> Bool = { cipher in
+            cipher.type == .login
+        }
+
+        await subject.decryptAndProcessCiphersInBatch(
+            batchSize: 100,
+            ciphers: ciphers,
+            preFilter: preFilter,
+            onCipher: onCipherClosure,
+        )
+
+        // Then - only 475 ciphers should be decrypted (odd IDs = logins)
+        XCTAssertEqual(onCipherCallCount, 475)
+        XCTAssertEqual(decryptedCiphers.count, 475)
+
+        // Verify decryption was called 10 times (10 batches)
+        let decryptListWithFailuresInvocations = clientService.mockVault.clientCiphers
+            .decryptListWithFailuresReceivedCiphersInvocations
+        XCTAssertEqual(decryptListWithFailuresInvocations.count, 10)
+
+        // Verify batch sizes after filtering (each batch should have ~50 items instead of 100)
+        // First 9 batches: 100 ciphers total, but only 50 pass filter (odd IDs)
+        for invocationIndex in 0 ..< 9 {
+            XCTAssertEqual(decryptListWithFailuresInvocations[invocationIndex].count, 50)
+        }
+        // Last batch: 50 ciphers total, only 25 pass filter
+        XCTAssertEqual(decryptListWithFailuresInvocations[9].count, 25)
+
+        // Verify that only login ciphers (odd IDs) were decrypted
+        XCTAssertTrue(decryptedCiphers.allSatisfy { cipher in
+            guard let id = cipher.id, let idInt = Int(id) else { return false }
+            return idInt % 2 == 1
+        })
+
+        // Verify specific cipher IDs that should have been processed
+        let decryptedIds = decryptedCiphers.compactMap(\.id)
+        XCTAssertTrue(decryptedIds.contains("1"))
+        XCTAssertTrue(decryptedIds.contains("3"))
+        XCTAssertTrue(decryptedIds.contains("401"))
+        XCTAssertTrue(decryptedIds.contains("949"))
+
+        // Verify specific cipher IDs that should NOT have been processed (even IDs = cards)
+        XCTAssertFalse(decryptedIds.contains("0"))
+        XCTAssertFalse(decryptedIds.contains("2"))
+        XCTAssertFalse(decryptedIds.contains("400"))
+        XCTAssertFalse(decryptedIds.contains("948"))
     }
 }

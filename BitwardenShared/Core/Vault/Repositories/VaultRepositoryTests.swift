@@ -33,6 +33,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
     var vaultListDirectorStrategy: MockVaultListDirectorStrategy!
+    var vaultListSearchDirectorStrategy: MockVaultListSearchDirectorStrategy!
     var vaultListDirectorStrategyFactory: MockVaultListDirectorStrategyFactory!
     var vaultTimeoutService: MockVaultTimeoutService!
 
@@ -63,7 +64,9 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService = MockStateService()
 
         vaultListDirectorStrategy = MockVaultListDirectorStrategy()
+        vaultListSearchDirectorStrategy = MockVaultListSearchDirectorStrategy()
         vaultListDirectorStrategyFactory.makeReturnValue = vaultListDirectorStrategy
+        vaultListDirectorStrategyFactory.makeSearchStrategyReturnValue = vaultListSearchDirectorStrategy
 
         subject = DefaultVaultRepository(
             cipherService: cipherService,
@@ -1529,6 +1532,38 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(vaultListDirectorStrategyFactory.makeCalled)
         XCTAssertNotNil(vaultListDirectorStrategyFactory.makeReceivedFilter)
         XCTAssertTrue(vaultListDirectorStrategy.buildCalled)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
+        XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")
+        XCTAssertEqual(sections[safeIndex: 0]?.items.count, 1)
+    }
+
+    /// `vaultSearchListPublisher(filterPublisher:)` makes a strategy and builds the vault list sections for search.
+    func test_vaultSearchListPublisher() async throws {
+        let expectedSections = [
+            VaultListSection(
+                id: "1",
+                items: [VaultListItem(cipherListView: .fixture())!],
+                name: "TestingSection",
+            ),
+        ]
+        let publisher = Just(VaultListData(sections: expectedSections))
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+
+        vaultListSearchDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
+
+        let filter = VaultListFilter(options: [.addTOTPGroup, .addTrashGroup])
+        var iterator = try await subject.vaultSearchListPublisher(
+            mode: .all,
+            filterPublisher: filter.asPublisher(),
+        ).makeAsyncIterator()
+        let vaultListData = try await iterator.next()
+        let sections = try XCTUnwrap(vaultListData?.sections)
+
+        XCTAssertTrue(vaultListDirectorStrategyFactory.makeSearchStrategyCalled)
+        XCTAssertEqual(vaultListDirectorStrategyFactory.makeSearchStrategyReceivedMode, .all)
+        XCTAssertTrue(vaultListSearchDirectorStrategy.buildCalled)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
         XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")

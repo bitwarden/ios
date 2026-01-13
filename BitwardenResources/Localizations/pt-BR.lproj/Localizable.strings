@@ -92,15 +92,15 @@
 "AccountCreated" = "Sua conta nova foi criada! Você pode se conectar agora.";
 "AddAnItem" = "Adicionar um item";
 "AppExtension" = "Extensão do aplicativo";
-"AutofillAccessibilityDescription" = "Utilize o serviço de acessibilidade do Bitwarden para preencher automaticamente as suas credenciais entre aplicativos e a web.";
+"AutofillAccessibilityDescription" = "Use o serviço de acessibilidade do Bitwarden para preencher as suas credenciais entre aplicativos e a web.";
 "AutofillService" = "Serviço de preenchimento automático";
 "SetBitwardenAsPasskeyManagerDescription" = "Configure o Bitwarden como seu provedor de chaves de acesso nas configurações do seu dispositivo.";
 "AvoidAmbiguousCharacters" = "Evitar caracteres ambíguos";
 "BitwardenAppExtension" = "Extensão do aplicativo do Bitwarden";
 "BitwardenAppExtensionAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é através da extensão do aplicativo do Bitwarden. Saiba mais sobre como usar a extensão do Bitwarden acessando a tela de Configurações.";
-"BitwardenAppExtensionDescription" = "Use o Bitwarden no Safari e em outros aplicativos para preencher automaticamente suas credenciais.";
+"BitwardenAppExtensionDescription" = "Use o Bitwarden no Safari e em outros aplicativos para preencher suas credenciais.";
 "BitwardenAutofillService" = "Serviço de preenchimento automático do Bitwarden";
-"BitwardenAutofillAccessibilityServiceDescription" = "Use o serviço de acessibilidade do Bitwarden para preencher automaticamente as suas credenciais.";
+"BitwardenAutofillAccessibilityServiceDescription" = "Use o serviço de acessibilidade do Bitwarden para preencher as suas credenciais.";
 "ChangeEmailAddress" = "Alterar endereço de e-mail";
 "ChangeEmailConfirmation" = "Você pode alterar o seu endereço de e-mail no cofre web do bitwarden.com. Você deseja visitar o site agora?";
 "ChangeMasterPassword" = "Alterar senha principal";
@@ -196,7 +196,7 @@
 "ItemsForUri" = "Itens para %1$@";
 "NoItemsForUri" = "Não há itens no seu cofre para %1$@.";
 "BitwardenAutofillServiceOverlay" = "Quando você selecionar um campo de entrada e ver uma sobreposição do preenchimento automático do Bitwarden, você pode tocar nela para abrir o serviço de preenchimento automático.";
-"BitwardenAutofillServiceNotificationContent" = "Toque nesta notificação para preencher um item do do seu cofre automaticamente.";
+"BitwardenAutofillServiceNotificationContent" = "Toque nesta notificação para preencher um item do seu cofre.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Abra as configurações de acessibilidade";
 "BitwardenAutofillServiceStep1" = "1. Na tela de Configurações de Acessibilidade do Android, toque em \"Bitwarden\" debaixo do cabeçalho de Serviços.";
 "BitwardenAutofillServiceStep2" = "2. Ative o interruptor e pressione OK para aceitar.";
@@ -208,7 +208,7 @@
 "BitwardenAutofillServiceAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é a partir do Serviço de Preenchimento Automático do Bitwarden. Saiba mais sobre como usar o Serviço de Preenchimento Automático do Bitwarden navegando até a tela de \"Configurações\".";
 "Autofill" = "Preenchimento automático";
 "AutofillOrView" = "Quer preencher ou ver este item?";
-"BitwardenAutofillServiceMatchConfirm" = "Tem certeza que quer preencher este item automaticamente? Ele não é uma correspondência completa de \"%1$@\".";
+"BitwardenAutofillServiceMatchConfirm" = "Tem certeza que quer preencher este item? Ele não é uma correspondência completa de \"%1$@\".";
 "MatchingItems" = "Itens correspondentes";
 "PossibleMatchingItems" = "Itens possivelmente correspondentes";
 "Search" = "Buscar";
@@ -325,7 +325,7 @@
 "ShowWebsiteIcons" = "Mostrar ícones dos sites";
 "ShowWebsiteIconsDescription" = "Mostre uma imagem reconhecível ao lado de cada credencial.";
 "IconsUrl" = "URL do servidor de ícones";
-"AutofillWithBitwarden" = "Preencher automaticamente com Bitwarden";
+"AutofillWithBitwarden" = "Preencher com Bitwarden";
 "VaultIsLocked" = "O cofre está bloqueado";
 "GoToMyVault" = "Ir ao meu cofre";
 "Collections" = "Conjuntos";
@@ -361,7 +361,7 @@
 "URIMatchDetection" = "Detecção de correspondência de URI";
 "MatchDetection" = "Detecção de correspondência";
 "YesAndSave" = "Sim, e salvar";
-"AutofillAndSave" = "Preencher automaticamente e salvar";
+"AutofillAndSave" = "Preencher e salvar";
 "Organization" = "Organização";
 "HoldYubikeyNearTop" = "Segure a sua Yubikey perto do topo do dispositivo.";
 "TryAgain" = "Tentar novamente";
@@ -529,8 +529,8 @@
 "InlineAutofill" = "Usar preenchimento automático embutido";
 "InlineAutofillDescription" = "Usar o preenchimento automático embutido se o IME (teclado) selecionado o suporta. Se sua configuração não for suportada (ou esta opção estiver desativada), será usada a sobreposição de preenchimento automático padrão.";
 "Accessibility" = "Usar acessibilidade";
-"AccessibilityDescription" = "Use o serviço de acessibilidade do Bitwarden para preencher as suas credenciais automaticamente nos aplicativos e na web. Ao configurar, mostraremos um pop-up quando campos de senha forem selecionados.";
-"AccessibilityDescription2" = "Use o serviço de acessibilidade do Bitwarden para preencher as suas credenciais automaticamente nos aplicativos e na web. (Requer sobreposição ativada)";
+"AccessibilityDescription" = "Use o serviço de acessibilidade do Bitwarden para preencher as suas credenciais nos aplicativos e na web. Ao configurar, mostraremos um pop-up quando campos de senha forem selecionados.";
+"AccessibilityDescription2" = "Use o serviço de acessibilidade do Bitwarden para preencher as suas credenciais nos aplicativos e na web. (Requer sobreposição ativada)";
 "AccessibilityDescription3" = "Use o serviço de acessibilidade do Bitwarden para usar o bloco de preenchimento automático, e/ou mostre um pop-up usando a sobreposição (se ativada).";
 "AccessibilityDescription4" = "Necessário para usar o bloco de preenchimento automático, ou para melhorar o serviço de preenchimento automático usando a sobreposição (se ativada).";
 "DrawOver" = "Usar sobreposição";
@@ -922,7 +922,7 @@
 "IntroCarouselPage4Message" = "Salve senhas ilimitadas em dispositivos ilimitados com o aplicativo móvel, para computador, e navegador do Bitwarden.";
 "AccountSetup" = "Configuração da conta";
 "SetUpUnlock" = "Configurar desbloqueio";
-"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Configure a biometria ou escolha um código PIN para acessar rapidamente o seu cofre e preencher as suas credenciais automaticamente.";
+"SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Configure a biometria ou escolha um código PIN para acessar rapidamente o seu cofre e preencher as suas credenciais.";
 "SetUpLater" = "Configurar mais tarde";
 "GenerateMasterPassword" = "Gerar senha principal";
 "Generate" = "Gerar";
@@ -1060,9 +1060,9 @@
 "SSHKeys" = "Chaves SSH";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Usar Optic ID para desbloquear";
-"NothingAvailableToAutofill" = "Nada para preencher automaticamente";
+"NothingAvailableToAutofill" = "Nada para preencher";
 "FailedToGenerateVerificationCode" = "Falha ao gerar código de verificação";
-"FailedToAutofillItem" = "Falha ao preencher o item %1$@ automaticamente";
+"FailedToAutofillItem" = "Falha ao preencher o item %1$@";
 "ExportingFailed" = "Falha na exportação";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Você pode precisar ativar o código ou a biometria do dispositivo.";
 "StartImportCXFDescriptionLong" = "Importe senhas, chaves de acesso, cartões de crédito e quaisquer informações de identidade pessoal de outro gerenciador de senhas.\n\nOs seus dados **não** serão apagados do seu provedor anterior.";
