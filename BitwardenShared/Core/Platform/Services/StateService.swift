@@ -2378,6 +2378,8 @@ extension DefaultStateService: BiometricsStateService {
 
 // MARK: User Session
 
+/// A service that provides state management functionality around user session values.
+///
 protocol UserSessionStateService {
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.

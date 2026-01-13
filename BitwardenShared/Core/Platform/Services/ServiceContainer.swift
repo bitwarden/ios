@@ -586,6 +586,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
+            userSessionStateService: stateService,
         )
 
         let reviewPromptService = DefaultReviewPromptService(

@@ -22,6 +22,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
     var timeProvider: MockTimeProvider!
+//    var userSessionStateService: MockUserSessionStateService!
 
     // MARK: Setup & Teardown
 
@@ -48,6 +49,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
+            userSessionStateService: stateService,
         )
     }
 
