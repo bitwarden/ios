@@ -148,6 +148,12 @@ public protocol VaultRepository: AnyObject {
     ///
     func isVaultEmpty() async throws -> Bool
 
+    /// Migrates the user's personal vault items to an organization's default collection.
+    ///
+    /// - Parameter organizationId: The ID of the organization to migrate items to.
+    ///
+    func migratePersonalVault(to organizationId: String) async throws
+
     /// Regenerates the TOTP code for a given key.
     ///
     /// - Parameter key: The key for a TOTP code.
@@ -699,6 +705,34 @@ extension DefaultVaultRepository: VaultRepository {
 
     func isVaultEmpty() async throws -> Bool {
         try await cipherService.cipherCount() == 0
+    }
+
+    func migratePersonalVault(to organizationId: String) async throws {
+        // Fetch all ciphers and filter to get personal vault items.
+        let allCiphers = try await cipherService.fetchAllCiphers()
+        let personalCiphers = allCiphers.filter { cipher in
+            cipher.organizationId == nil
+        }
+
+        guard !personalCiphers.isEmpty else {
+            return
+        }
+
+        // Decrypt personal ciphers to CipherViews.
+        let cipherViews = try await personalCiphers.asyncMap { cipher in
+            try await clientService.vault().ciphers().decrypt(cipher: cipher)
+        }
+
+        // Fetch collections and find the default collection for the organization.
+        let collections = try await fetchCollections(includeReadOnly: false)
+        guard let defaultCollection = collections.first(where: { collection in
+            collection.organizationId == organizationId && collection.type == .defaultUserCollection
+        }), let collectionId = defaultCollection.id else {
+            throw BitwardenError.dataError("No default collection found for organization \(organizationId)")
+        }
+
+        // Share all personal vault ciphers with the organization's default collection.
+        try await bulkShareCiphers(cipherViews, newOrganizationId: organizationId, newCollectionIds: [collectionId])
     }
 
     func needsSync() async throws -> Bool {

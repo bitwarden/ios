@@ -360,11 +360,23 @@ extension BitwardenSdk.Cipher {
         )
     }
 
-    init(cipherMiniResponseModel model: CipherMiniResponseModel, collectionIds: [String]) {
+    /// Creates a Cipher from a CipherMiniResponseModel, preserving fields from the original cipher
+    /// that are not included in the mini response model.
+    ///
+    /// - Parameters:
+    ///   - model: The mini response model from the API.
+    ///   - collectionIds: The collection IDs to associate with the cipher.
+    ///   - originalCipher: The original cipher to preserve fields from (folderId, favorite, edit,
+    ///     permissions, viewPassword, localData).
+    init(
+        cipherMiniResponseModel model: CipherMiniResponseModel,
+        collectionIds: [String],
+        originalCipher: Cipher?,
+    ) {
         self.init(
             id: model.id,
             organizationId: model.organizationId,
-            folderId: nil,
+            folderId: originalCipher?.folderId,
             collectionIds: collectionIds,
             key: model.key,
             name: model.name,
@@ -375,13 +387,13 @@ extension BitwardenSdk.Cipher {
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
             sshKey: model.sshKey.map(SshKey.init),
-            favorite: false,
+            favorite: originalCipher?.favorite ?? false,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
-            edit: true,
-            permissions: nil,
-            viewPassword: true,
-            localData: nil,
+            edit: originalCipher?.edit ?? true,
+            permissions: originalCipher?.permissions,
+            viewPassword: originalCipher?.viewPassword ?? true,
+            localData: originalCipher?.localData,
             attachments: model.attachments?.map(Attachment.init),
             fields: model.fields?.map(Field.init),
             passwordHistory: model.passwordHistory?.map(PasswordHistory.init),

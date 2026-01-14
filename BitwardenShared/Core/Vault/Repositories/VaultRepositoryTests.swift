@@ -1120,6 +1120,75 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(isEmpty)
     }
 
+    /// `migratePersonalVault(to:)` migrates all personal vault items to the organization's default collection,
+    /// including items in the trash.
+    func test_migratePersonalVault() async throws {
+        // Set up personal ciphers (no organizationId), one org cipher, and one deleted personal cipher.
+        let personalCipher1 = Cipher.fixture(id: "1", organizationId: nil)
+        let personalCipher2 = Cipher.fixture(id: "2", organizationId: nil)
+        let orgCipher = Cipher.fixture(id: "3", organizationId: "existing-org")
+        let deletedPersonalCipher = Cipher.fixture(deletedDate: Date(), id: "4", organizationId: nil)
+        cipherService.fetchAllCiphersResult = .success([
+            personalCipher1,
+            personalCipher2,
+            orgCipher,
+            deletedPersonalCipher,
+        ])
+
+        // Set up the default collection for the organization.
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ]
+
+        // Mock the prepareCiphersForBulkShare call.
+        clientService.mockVault.clientCiphers.prepareCiphersForBulkShareResult = .success([
+            EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: "1")),
+            EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: "2")),
+            EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: "4")),
+        ])
+
+        try await subject.migratePersonalVault(to: "target-org")
+
+        // Verify that bulkShareCiphers was called with all 3 personal ciphers (including deleted).
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.count, 1)
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.first?.count, 3)
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["default-collection-id"])
+    }
+
+    /// `migratePersonalVault(to:)` does nothing when there are no personal vault items.
+    func test_migratePersonalVault_noPersonalItems() async throws {
+        // Set up only organization ciphers.
+        let orgCipher = Cipher.fixture(id: "1", organizationId: "existing-org")
+        cipherService.fetchAllCiphersResult = .success([orgCipher])
+
+        try await subject.migratePersonalVault(to: "target-org")
+
+        // Verify that no bulk share was attempted.
+        XCTAssertTrue(cipherService.bulkShareCiphersWithServerCiphers.isEmpty)
+    }
+
+    /// `migratePersonalVault(to:)` throws an error when no default collection is found.
+    func test_migratePersonalVault_noDefaultCollection() async throws {
+        // Set up personal ciphers.
+        let personalCipher = Cipher.fixture(id: "1", organizationId: nil)
+        cipherService.fetchAllCiphersResult = .success([personalCipher])
+
+        // Set up collections without a default collection for the target org.
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "shared-collection-id", organizationId: "target-org", type: .sharedCollection),
+        ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "shared-collection-id", organizationId: "target-org", type: .sharedCollection),
+        ]
+
+        await assertAsyncThrows {
+            try await subject.migratePersonalVault(to: "target-org")
+        }
+    }
+
     /// `refreshTOTPCode(:)` rethrows errors.
     func test_refreshTOTPCode_error() async throws {
         clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)

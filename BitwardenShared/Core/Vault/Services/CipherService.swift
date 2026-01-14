@@ -225,6 +225,11 @@ extension DefaultCipherService {
     ) async throws {
         let userId = try await stateService.getActiveAccountId()
 
+        // Create a dictionary for quick lookup of original ciphers by ID.
+        let ciphersById = Dictionary(uniqueKeysWithValues: ciphers.compactMap { cipher in
+            cipher.id.map { ($0, cipher) }
+        })
+
         // Share the ciphers with the backend.
         let response = try await cipherAPIService.bulkShareCiphers(
             ciphers,
@@ -234,8 +239,15 @@ extension DefaultCipherService {
 
         // Update ciphers in local storage.
         for cipherResponse in response.data {
-            // The API doesn't return the collectionIds, so pass them during initialization.
-            let updatedCipher = Cipher(cipherMiniResponseModel: cipherResponse, collectionIds: collectionIds)
+            // Find the original cipher to preserve fields not returned by the API.
+            let originalCipher = ciphersById[cipherResponse.id]
+
+            // The API doesn't return all fields, so preserve them from the original cipher.
+            let updatedCipher = Cipher(
+                cipherMiniResponseModel: cipherResponse,
+                collectionIds: collectionIds,
+                originalCipher: originalCipher,
+            )
             try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
         }
     }

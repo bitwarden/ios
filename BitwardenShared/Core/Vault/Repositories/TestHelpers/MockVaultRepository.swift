@@ -77,6 +77,9 @@ class MockVaultRepository: VaultRepository {
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
+    var migratePersonalVaultOrganizationId: String?
+    var migratePersonalVaultResult: Result<Void, Error> = .success(())
+
     var needsSyncCalled = false
     var needsSyncResult: Result<Bool, Error> = .success(false)
 
@@ -250,14 +253,19 @@ class MockVaultRepository: VaultRepository {
         try getTOTPKeyIfAllowedToCopyResult.get()
     }
 
-    func needsSync() async throws -> Bool {
-        needsSyncCalled = true
-        return try needsSyncResult.get()
-    }
-
     func isVaultEmpty() async throws -> Bool {
         isVaultEmptyCalled = true
         return try isVaultEmptyResult.get()
+    }
+
+    func migratePersonalVault(to organizationId: String) async throws {
+        migratePersonalVaultOrganizationId = organizationId
+        try migratePersonalVaultResult.get()
+    }
+
+    func needsSync() async throws -> Bool {
+        needsSyncCalled = true
+        return try needsSyncResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
