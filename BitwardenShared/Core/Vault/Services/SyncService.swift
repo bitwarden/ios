@@ -516,7 +516,7 @@ extension DefaultSyncService {
     /// The user needs to migrate if:
     /// - The feature flag is enabled
     /// - The user is a member of an organization with the Personal Ownership policy enabled
-    /// - The user has one or more items in their personal vault
+    /// - The user has one or more items in their personal vault (including deleted items)
     ///
     private func checkUserNeedsVaultMigration() async throws {
         // Check if feature flag is enabled
@@ -525,10 +525,10 @@ extension DefaultSyncService {
         guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
         else { return }
 
-        // Check if user has personal vault items (items not belonging to any organization)
+        // Check if user has personal vault items (items not belonging to any organization, including deleted items)
         let allCiphers = try await cipherService.fetchAllCiphers()
         let hasPersonalVaultItems = allCiphers.contains { cipher in
-            cipher.organizationId == nil && cipher.deletedDate == nil
+            cipher.organizationId == nil
         }
 
         guard hasPersonalVaultItems else { return }

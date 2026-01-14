@@ -193,22 +193,22 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertNil(syncServiceDelegate.migrateVaultToMyItemsOrganizationId)
     }
 
-    /// `checkUserNeedsVaultMigration()` does not call delegate when user only has deleted items in personal vault.
+    /// `checkUserNeedsVaultMigration()` calls delegate when user only has deleted items in personal vault.
     @MainActor
     func test_checkUserNeedsVaultMigration_onlyDeletedPersonalVaultItems() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
         configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
         policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
-        // Personal vault item is deleted
+        // Personal vault item is deleted - should still trigger migration
         cipherService.fetchAllCiphersResult = .success([
             .fixture(deletedDate: Date(), id: "1", organizationId: nil),
         ])
 
         try await subject.fetchSync(forceSync: false)
 
-        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
-        XCTAssertNil(syncServiceDelegate.migrateVaultToMyItemsOrganizationId)
+        XCTAssertTrue(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertEqual(syncServiceDelegate.migrateVaultToMyItemsOrganizationId, "org-123")
     }
 
     /// `checkUserNeedsVaultMigration()` calls delegate when all conditions are met.
@@ -218,7 +218,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
         configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
         policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
-        // User has personal vault items (not deleted, no organizationId)
+        // User has personal vault items (no organizationId)
         cipherService.fetchAllCiphersResult = .success([
             .fixture(id: "1", organizationId: nil),
             .fixture(id: "2", organizationId: "org-123"),
