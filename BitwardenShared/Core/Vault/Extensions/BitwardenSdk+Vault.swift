@@ -360,7 +360,7 @@ extension BitwardenSdk.Cipher {
         )
     }
 
-    /// Creates a Cipher from a CipherMiniResponseModel, preserving fields from the original cipher
+    /// Creates a `Cipher` from a `CipherMiniResponseModel`, preserving fields from the original cipher
     /// that are not included in the mini response model.
     ///
     /// - Parameters:
