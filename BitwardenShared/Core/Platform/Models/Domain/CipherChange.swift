@@ -12,7 +12,7 @@ public enum CipherChange {
     case deleted(Cipher)
 
     /// All ciphers were replaced (bulk operation).
-    case replaced
+    case replacedAll
 }
 
 // MARK: - CustomDebugStringConvertible
@@ -24,8 +24,8 @@ extension CipherChange: CustomDebugStringConvertible {
             "upserted(\(cipher.id ?? "nil"))"
         case let .deleted(cipher):
             "deleted(\(cipher.id ?? "nil"))"
-        case .replaced:
-            "replaced"
+        case .replacedAll:
+            "replacedAll"
         }
     }
 }

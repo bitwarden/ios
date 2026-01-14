@@ -148,7 +148,7 @@ class CipherDataStoreTests: BitwardenTestCase {
         try await subject.replaceCiphers(ciphers, userId: "1")
 
         waitFor { publishedChanges.count == 1 }
-        guard case .replaced = publishedChanges[0] else {
+        guard case .replacedAll = publishedChanges[0] else {
             XCTFail("Expected replaced change")
             return
         }

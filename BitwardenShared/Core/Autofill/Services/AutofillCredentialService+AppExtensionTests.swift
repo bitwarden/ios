@@ -244,7 +244,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         }
 
         // Send a replaced event
-        cipherService.cipherChangesSubject.send(.replaced)
+        cipherService.cipherChangesSubject.send(.replacedAll)
 
         // Wait a bit to ensure no full replacement is triggered
         try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds

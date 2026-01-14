@@ -147,7 +147,7 @@ extension DataStore: CipherDataStore {
             insertRequest: insertRequest,
         )
 
-        cipherChangeSubject.send((userId, .replaced))
+        cipherChangeSubject.send((userId, .replacedAll))
     }
 
     func upsertCipher(_ cipher: Cipher, userId: String) async throws {
