@@ -59,6 +59,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var profileSwitcherState: ProfileSwitcherState?
     var requestOtpCalled = false
     var requestOtpResult: Result<Void, Error> = .success(())
+    var revokeSelfFromOrganizationCalled = false
+    var revokeSelfFromOrganizationOrganizationId: String?
+    var revokeSelfFromOrganizationResult: Result<Void, Error> = .success(())
     var sessionTimeoutAction = [String: SessionTimeoutAction]()
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
@@ -297,6 +300,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func requestOtp() async throws {
         requestOtpCalled = true
         try requestOtpResult.get()
+    }
+
+    func revokeSelfFromOrganization(organizationId: String) async throws {
+        revokeSelfFromOrganizationCalled = true
+        revokeSelfFromOrganizationOrganizationId = organizationId
+        try revokeSelfFromOrganizationResult.get()
     }
 
     func setActiveAccount(userId: String) async throws -> Account {

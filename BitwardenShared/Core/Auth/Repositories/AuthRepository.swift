@@ -174,6 +174,13 @@ protocol AuthRepository: AnyObject {
     ///
     func requestOtp() async throws
 
+    /// Revokes the current user's access to an organization.
+    ///
+    /// - Parameters:
+    ///   - organizationId: The ID of the organization the user is revoking access from.
+    ///
+    func revokeSelfFromOrganization(organizationId: String) async throws
+
     /// Gets the `SessionTimeoutAction` for a user.
     ///
     ///  - Parameter userId: The userId of the account. Defaults to the active user if nil.
@@ -794,6 +801,10 @@ extension DefaultAuthRepository: AuthRepository {
 
     func requestOtp() async throws {
         try await accountAPIService.requestOtp()
+    }
+
+    func revokeSelfFromOrganization(organizationId: String) async throws {
+        try await organizationAPIService.revokeSelfFromOrganization(organizationId: organizationId)
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {

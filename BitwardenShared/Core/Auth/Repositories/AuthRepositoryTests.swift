@@ -1138,6 +1138,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
     }
 
+    /// `revokeSelfFromOrganization(organizationId:)` makes an API request to revoke the user's access.
+    func test_revokeSelfFromOrganization() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        try await subject.revokeSelfFromOrganization(organizationId: "ORG_ID")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/organizations/ORG_ID/users/revoke-self"
+        )
+    }
+
     /// `setVaultTimeout` correctly configures the user's timeout value.
     func test_sessionTimeoutValue_active_noUser() async {
         vaultTimeoutService.sessionTimeoutValueError = StateServiceError.noActiveAccount
