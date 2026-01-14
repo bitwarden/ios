@@ -708,6 +708,14 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func migratePersonalVault(to organizationId: String) async throws {
+        // Fetch collections and find the default collection for the organization.
+        let collections = try await fetchCollections(includeReadOnly: false)
+        guard let defaultCollection = collections.first(where: { collection in
+            collection.organizationId == organizationId && collection.type == .defaultUserCollection
+        }), let collectionId = defaultCollection.id else {
+            throw BitwardenError.dataError("No default collection found for organization \(organizationId)")
+        }
+
         // Fetch all ciphers and filter to get personal vault items.
         let allCiphers = try await cipherService.fetchAllCiphers()
         let personalCiphers = allCiphers.filter { cipher in
@@ -721,14 +729,6 @@ extension DefaultVaultRepository: VaultRepository {
         // Decrypt personal ciphers to CipherViews.
         let cipherViews = try await personalCiphers.asyncMap { cipher in
             try await clientService.vault().ciphers().decrypt(cipher: cipher)
-        }
-
-        // Fetch collections and find the default collection for the organization.
-        let collections = try await fetchCollections(includeReadOnly: false)
-        guard let defaultCollection = collections.first(where: { collection in
-            collection.organizationId == organizationId && collection.type == .defaultUserCollection
-        }), let collectionId = defaultCollection.id else {
-            throw BitwardenError.dataError("No default collection found for organization \(organizationId)")
         }
 
         // Share all personal vault ciphers with the organization's default collection.

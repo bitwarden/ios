@@ -1152,17 +1152,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try await subject.migratePersonalVault(to: "target-org")
 
-        // Verify that bulkShareCiphers was called with all 3 personal ciphers (including deleted).
-        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.count, 1)
-        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.first?.count, 3)
+        // Verify that prepareCiphersForBulkShare was called with only personal ciphers (IDs 1, 2, 4).
+        let cipherIds = clientService.mockVault.clientCiphers.prepareCiphersForBulkShareCiphers?.compactMap(\.id)
+        XCTAssertEqual(cipherIds?.sorted(), ["1", "2", "4"])
+        XCTAssertEqual(clientService.mockVault.clientCiphers.prepareCiphersForBulkShareOrganizationId, "target-org")
+        XCTAssertEqual(
+            clientService.mockVault.clientCiphers.prepareCiphersForBulkShareCollectionIds,
+            ["default-collection-id"],
+        )
+
+        // Verify that bulkShareCiphers was called with the correct cipher IDs.
+        let sharedCipherIds = cipherService.bulkShareCiphersWithServerCiphers.first?.compactMap(\.id)
+        XCTAssertEqual(sharedCipherIds?.sorted(), ["1", "2", "4"])
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["default-collection-id"])
     }
 
     /// `migratePersonalVault(to:)` does nothing when there are no personal vault items.
     func test_migratePersonalVault_noPersonalItems() async throws {
         // Set up only organization ciphers.
-        let orgCipher = Cipher.fixture(id: "1", organizationId: "existing-org")
+        let orgCipher = Cipher.fixture(id: "1", organizationId: "target-org")
         cipherService.fetchAllCiphersResult = .success([orgCipher])
+        // Set up the default collection for the organization.
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ]
 
         try await subject.migratePersonalVault(to: "target-org")
 
