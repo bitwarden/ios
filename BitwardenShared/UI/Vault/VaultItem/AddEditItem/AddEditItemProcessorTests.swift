@@ -2849,15 +2849,21 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemAddedCalled = false
     var itemAddedShouldDismiss = true
+    var itemArchivedCalled = false
     var itemDeletedCalled = false
     var itemRestoredCalled = false
     var itemSoftDeletedCalled = false
     var itemUpdatedCalled = false
     var itemUpdatedShouldDismiss = true
+    var itemUnarchivedCalled = false
 
     func itemAdded() -> Bool {
         itemAddedCalled = true
         return itemAddedShouldDismiss
+    }
+
+    func itemArchived() {
+        itemArchivedCalled = true
     }
 
     func itemDeleted() {
@@ -2875,5 +2881,9 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     func itemUpdated() -> Bool {
         itemUpdatedCalled = true
         return itemUpdatedShouldDismiss
+    }
+
+    func itemUnarchived() {
+        itemUnarchivedCalled = true
     }
 }

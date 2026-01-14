@@ -129,6 +129,28 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
     }
 
+    /// `itemArchived()` presents the dismiss action alert and calls the delegate.
+    @MainActor
+    func test_itemArchived() async throws {
+        subject.itemArchived()
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemArchivedCalled)
+    }
+
+    /// `itemUnarchived()` calls the delegate.
+    @MainActor
+    func test_itemUnarchived() async throws {
+        subject.itemUnarchived()
+
+        XCTAssertTrue(delegate.itemUnarchivedCalled)
+    }
+
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
     func test_perform_appeared() { // swiftlint:disable:this function_body_length

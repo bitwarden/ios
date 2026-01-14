@@ -1485,7 +1485,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         vaultListSearchDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
-        let filter = VaultListFilter(options: [.addTOTPGroup, .addTrashGroup])
+        let filter = VaultListFilter(options: [.addTOTPGroup, .addHiddenItemsGroup])
         var iterator = try await subject.vaultSearchListPublisher(
             mode: .all,
             filterPublisher: filter.asPublisher(),
