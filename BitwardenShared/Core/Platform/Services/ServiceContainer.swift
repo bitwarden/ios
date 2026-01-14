@@ -700,6 +700,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            userSessionStateService: stateService,
         )
 
         let notificationService = DefaultNotificationService(

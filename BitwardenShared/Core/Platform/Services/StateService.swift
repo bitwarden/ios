@@ -2321,7 +2321,7 @@ extension DefaultStateService: UserSessionStateService {
         return timeoutValue
     }
 
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         try await userSessionKeychainRepository.setVaultTimeout(
             minutes: value.rawValue,

@@ -244,7 +244,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
-        try await userSessionStateService.setVaultTimeout(value: value, userId: userId)
+        try await userSessionStateService.setVaultTimeout(value, userId: userId)
         guard let userId else { return }
         let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
         try await updateSharedTimeout(

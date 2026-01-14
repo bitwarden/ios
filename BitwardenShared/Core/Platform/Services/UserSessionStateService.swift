@@ -35,7 +35,7 @@ protocol UserSessionStateService {
     ///   - value: The value that dictates how many seconds in the future a timeout should occur.
     ///   - userId: The user ID associated with the timeout value.
     ///
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws
 }
 
 extension UserSessionStateService {
@@ -68,7 +68,7 @@ extension UserSessionStateService {
     ///
     /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
     ///
-    func setVaultTimeout(value: SessionTimeoutValue) async throws {
-        try await setVaultTimeout(value: value, userId: nil)
+    func setVaultTimeout(_ value: SessionTimeoutValue) async throws {
+        try await setVaultTimeout(value, userId: nil)
     }
 }

@@ -15,6 +15,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
     var keychainService: MockKeychainService!
     var standardUserDefaults: UserDefaults!
     var subject: DefaultMigrationService!
+    var userSessionStateService: MockUserSessionStateService!
 
     /// A keychain service name to use during tests to avoid corrupting the app's keychain items.
     private let testKeychainServiceName = "com.bitwarden.test"
@@ -30,6 +31,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         keychainRepository = MockKeychainRepository()
         keychainService = MockKeychainService()
         standardUserDefaults = UserDefaults(suiteName: "test")
+        userSessionStateService = MockUserSessionStateService()
 
         for key in appGroupUserDefaults.dictionaryRepresentation().map(\.key) {
             appGroupUserDefaults.removeObject(forKey: key)
@@ -50,6 +52,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             keychainService: keychainService,
             keychainServiceName: testKeychainServiceName,
             standardUserDefaults: standardUserDefaults,
+            userSessionStateService: userSessionStateService,
         )
     }
 
@@ -63,6 +66,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         keychainService = nil
         standardUserDefaults = nil
         subject = nil
+        userSessionStateService = nil
     }
 
     // MARK: Tests

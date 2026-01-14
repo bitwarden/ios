@@ -40,6 +40,9 @@ class DefaultMigrationService {
     /// not one in the app group).
     let standardUserDefaults: UserDefaults
 
+    /// The service used by the application to manage user session state.
+    let userSessionStateService: UserSessionStateService
+
     // MARK: Initialization
 
     /// Initialize a `DefaultMigrationService`.
@@ -52,6 +55,7 @@ class DefaultMigrationService {
     ///   - keychainService: The service used to access & store data on the device keychain.
     ///   - keychainServiceName: The service name associated with the app's keychain items.
     ///   - standardUserDefaults: The shared UserDefaults instance.
+    ///   - userSessionStateService: The service used by the application to manage user session state.
     ///
     init(
         appGroupUserDefaults: UserDefaults = .standard,
@@ -61,6 +65,7 @@ class DefaultMigrationService {
         keychainService: KeychainService,
         keychainServiceName: String = Bundle.main.appIdentifier,
         standardUserDefaults: UserDefaults = .standard,
+        userSessionStateService: UserSessionStateService,
     ) {
         self.appGroupUserDefaults = appGroupUserDefaults
         self.appSettingsStore = appSettingsStore
@@ -69,6 +74,7 @@ class DefaultMigrationService {
         self.keychainService = keychainService
         self.keychainServiceName = keychainServiceName
         self.standardUserDefaults = standardUserDefaults
+        self.userSessionStateService = userSessionStateService
     }
 
     // MARK: Private
@@ -211,6 +217,35 @@ class DefaultMigrationService {
             )
         }
     }
+
+    /// Performs migration 5.
+    ///
+    /// Notes:
+    ///  - This migrates several fields from the AppSettingsStore into the Keychain:
+    ///    - vaultTimeout
+    ///    - lastActiveTime
+    ///  - These are items related to the user session, so they can be used between PM and the extensions.
+    ///
+    private func performMigration5() async throws {
+        guard let state = appSettingsStore.state else { return }
+
+        for (accountId, _) in state.accounts {
+            let lastActiveKey = "bwPreferencesStorage:lastActiveTime_\(accountId)"
+            if let lastActiveString = appGroupUserDefaults.string(forKey: lastActiveKey),
+               let lastActiveTimeInterval = TimeInterval(lastActiveString) {
+                let lastActiveTime = Date(timeIntervalSince1970: lastActiveTimeInterval)
+                try await userSessionStateService.setLastActiveTime(lastActiveTime, userId: accountId)
+                appGroupUserDefaults.removeObject(forKey: lastActiveKey)
+            }
+            let vaultTimeoutKey = "bwPreferencesStorage:vaultTimeout_\(accountId)"
+            if let vaultTimeoutString = appGroupUserDefaults.string(forKey: vaultTimeoutKey),
+               let vaultTimeoutInt = Int(vaultTimeoutString) {
+                let vaultTimeout = SessionTimeoutValue(rawValue: vaultTimeoutInt)
+                try await userSessionStateService.setVaultTimeout(vaultTimeout, userId: accountId)
+                appGroupUserDefaults.removeObject(forKey: vaultTimeoutKey)
+            }
+        }
+    }
 }
 
 extension DefaultMigrationService {
@@ -221,6 +256,7 @@ extension DefaultMigrationService {
             performMigration2,
             performMigration3,
             performMigration4,
+            performMigration5,
         ]
     }
 
