@@ -132,6 +132,9 @@ class DefaultSyncService: SyncService {
     /// The services used by the application to make account related API requests.
     private let accountAPIService: AccountAPIService
 
+    /// Helper to know about the app context.
+    private let appContextHelper: AppContextHelper
+
     /// The service for managing the ciphers for the user.
     private let cipherService: CipherService
 
@@ -183,6 +186,7 @@ class DefaultSyncService: SyncService {
     ///
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
+    ///   - appContextHelper: Helper to know about the app context.
     ///   - cipherService: The service for managing the ciphers for the user.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
@@ -200,6 +204,7 @@ class DefaultSyncService: SyncService {
     ///
     init(
         accountAPIService: AccountAPIService,
+        appContextHelper: AppContextHelper,
         cipherService: CipherService,
         clientService: ClientService,
         collectionService: CollectionService,
@@ -216,6 +221,7 @@ class DefaultSyncService: SyncService {
         vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
+        self.appContextHelper = appContextHelper
         self.cipherService = cipherService
         self.clientService = clientService
         self.collectionService = collectionService
@@ -514,18 +520,17 @@ extension DefaultSyncService {
     /// Checks if the user needs to migrate their personal vault items to an organization.
     ///
     /// The user needs to migrate if:
+    /// - The app is running in the main app context (not an extension)
     /// - The feature flag is enabled
     /// - The user is a member of an organization with the Personal Ownership policy enabled
     /// - The user has one or more items in their personal vault (including deleted items)
     ///
     private func checkUserNeedsVaultMigration() async throws {
-        // Check if feature flag is enabled
+        guard appContextHelper.appContext == .mainApp else { return }
         guard await configService.getFeatureFlag(.migrateMyVaultToMyItems) else { return }
-        // Get the earliest organization applying the personal ownership policy
         guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
         else { return }
 
-        // Check if user has personal vault items (items not belonging to any organization, including deleted items)
         let allCiphers = try await cipherService.fetchAllCiphers()
         let hasPersonalVaultItems = allCiphers.contains { cipher in
             cipher.organizationId == nil
@@ -533,7 +538,6 @@ extension DefaultSyncService {
 
         guard hasPersonalVaultItems else { return }
 
-        // All conditions met, notify delegate
         await delegate?.migrateVaultToMyItems(organizationId: organizationId)
     }
 

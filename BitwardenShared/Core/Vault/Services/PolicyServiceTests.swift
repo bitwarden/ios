@@ -428,6 +428,41 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(organizationId, "org-2")
     }
 
+    /// `getEarliestOrganizationApplyingPolicy()` returns an organization when all policies have nil revision dates.
+    func test_getEarliestOrganizationApplyingPolicy_allNilRevisionDates() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+            .fixture(id: "org-3"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: nil,
+                type: .personalOwnership,
+            ),
+            .fixture(
+                id: "policy-2",
+                organizationId: "org-2",
+                revisionDate: nil,
+                type: .personalOwnership,
+            ),
+            .fixture(
+                id: "policy-3",
+                organizationId: "org-3",
+                revisionDate: nil,
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        // When all policies have nil revisionDate (treated as distantFuture), any organization is acceptable
+        XCTAssertNotNil(organizationId)
+    }
+
     /// `getEarliestOrganizationApplyingPolicy()` returns nil when no active account.
     func test_getEarliestOrganizationApplyingPolicy_noActiveAccount() async {
         stateService.activeAccount = nil

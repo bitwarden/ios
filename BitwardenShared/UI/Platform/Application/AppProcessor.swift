@@ -657,9 +657,6 @@ extension AppProcessor: SyncServiceDelegate {
     }
 
     func migrateVaultToMyItems(organizationId: String) {
-        // Don't show the migrate vault screen if running in an app extension.
-        guard appExtensionDelegate?.isInAppExtension != true else { return }
-
         coordinator?.hideLoadingOverlay()
         coordinator?.navigate(to: .migrateToMyItems(organizationId: organizationId))
     }

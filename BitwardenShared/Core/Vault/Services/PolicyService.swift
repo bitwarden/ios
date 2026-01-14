@@ -382,9 +382,6 @@ extension DefaultPolicyService {
 
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
         let policies = await policiesApplyingToUser(policyType, filter: nil)
-        guard !policies.isEmpty else { return nil }
-
-        // Sort by revision date (earliest first) and return the organization ID of the first one
         return policies
             .min(by: { p1, p2 in
                 (p1.revisionDate ?? .distantFuture) < (p2.revisionDate ?? .distantFuture)

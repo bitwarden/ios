@@ -12,6 +12,7 @@ import BitwardenSdk
 class SyncServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appContextHelper: MockAppContextHelper!
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientService: MockClientService!
@@ -34,6 +35,7 @@ class SyncServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        appContextHelper = MockAppContextHelper()
         cipherService = MockCipherService()
         client = MockHTTPClient()
         clientService = MockClientService()
@@ -60,6 +62,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         subject = DefaultSyncService(
             accountAPIService: APIService(client: client),
+            appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
@@ -81,6 +84,7 @@ class SyncServiceTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        appContextHelper = nil
         cipherService = nil
         client = nil
         clientService = nil
@@ -143,6 +147,22 @@ class SyncServiceTests: BitwardenTestCase {
     }
 
     // MARK: - checkUserNeedsVaultMigration Tests
+
+    /// `checkUserNeedsVaultMigration()` does not call delegate when running in an app extension.
+    @MainActor
+    func test_checkUserNeedsVaultMigration_appExtension() async throws {
+        appContextHelper.appContext = .appExtension
+        client.result = .httpSuccess(testData: .syncWithCiphers)
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        cipherService.fetchAllCiphersResult = .success([.fixture(organizationId: nil)])
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
+        XCTAssertNil(syncServiceDelegate.migrateVaultToMyItemsOrganizationId)
+    }
 
     /// `checkUserNeedsVaultMigration()` does not call delegate when feature flag is disabled.
     @MainActor

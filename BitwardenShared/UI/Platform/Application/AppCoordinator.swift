@@ -284,25 +284,23 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// - Parameter organizationId: The organization ID that requires the vault migration.
     ///
     private func showMigrateToMyItems(organizationId: String) {
-        DispatchQueue.main.async {
-            // Make sure that the user is authenticated and not currently viewing the migrate to my items view.
-            guard self.childCoordinator is AnyCoordinator<TabRoute, Void> else { return }
-            let currentView = self.rootNavigator?.rootViewController?.topmostViewController()
-            guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
+        // Make sure that the user is authenticated and not currently viewing the migrate to my items view.
+        guard childCoordinator is AnyCoordinator<TabRoute, Void> else { return }
+        let currentView = rootNavigator?.rootViewController?.topmostViewController()
+        guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
 
-            // Create the migrate to my items view.
-            let navigationController = self.module.makeNavigationController()
-            navigationController.isModalInPresentation = true
-            let coordinator = self.module.makeVaultItemCoordinator(stackNavigator: navigationController)
-            coordinator.start()
-            coordinator.navigate(to: .migrateToMyItems(organizationId: organizationId), context: self)
+        // Create the migrate to my items view.
+        let navigationController = module.makeNavigationController()
+        navigationController.isModalInPresentation = true
+        let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .migrateToMyItems(organizationId: organizationId), context: self)
 
-            // Present the migrate to my items view.
-            self.rootNavigator?.rootViewController?.topmostViewController().present(
-                navigationController,
-                animated: true,
-            )
-        }
+        // Present the migrate to my items view.
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            navigationController,
+            animated: true,
+        )
     }
 
     /// Adds a transparent navigation controller to the root navigator.
