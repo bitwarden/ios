@@ -1230,51 +1230,58 @@ extension DefaultAuthRepository: AuthRepository {
     /// - Parameter method: The unlocking `InitUserCryptoMethod` method.
     ///
     private func configurePinUnlockIfNeeded(method: InitUserCryptoMethod) async throws {
-        switch method {
-        case .authRequest,
-             .deviceKey,
-             .keyConnector,
-             .pin:
-            // If the user has a legacy pin, migrate to a pin protected user key envelope.
-            guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
-            let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
-                encryptedPin: encryptedPin,
-            )
+        guard let encryptedPin = try await stateService.getEncryptedPin(),
+              let enrollPinResponse = try await enrollPinWithErrorHandling(encryptedPin: encryptedPin)
+        else {
+            return
+        }
+
+        // `pinProtectedUserKey` is a legacy PIN-protected user key or
+        // in-memory PIN-protected user key envelope (MP required after restart).
+        let pinProtectedUserKey = try await stateService.pinProtectedUserKey()
+        // Master password is required after restart if there's no stored PIN-protected user key
+        // envelope or legacy PIN-protected user key.
+        let pinUnlockRequiresPasswordAfterRestart = try await stateService.pinUnlockRequiresPasswordAfterRestart()
+
+        if pinProtectedUserKey != nil, !pinUnlockRequiresPasswordAfterRestart {
+            // The stored PIN-protected user key needs to be migrated to a PIN-protected user key envelope.
             try await stateService.setPinKeys(
                 enrollPinResponse: enrollPinResponse,
-                requirePasswordAfterRestart: stateService.pinUnlockRequiresPasswordAfterRestart(),
+                requirePasswordAfterRestart: pinUnlockRequiresPasswordAfterRestart,
             )
             await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
-        case .decryptedKey,
-             .masterPasswordUnlock:
-            guard let encryptedPin = try await stateService.getEncryptedPin(),
-                  try await stateService.pinProtectedUserKeyEnvelope() == nil
-            else {
-                break
-            }
+        } else if pinProtectedUserKey == nil, pinUnlockRequiresPasswordAfterRestart {
+            // If the user has a PIN (encryptedPin), but requires master password after restart, set
+            // the PIN-protected user key in memory for future unlocks prior to app restart.
+            try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
+            await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
+        }
+    }
 
-            let enrollPinResponse = try await clientService.crypto().enrollPinWithEncryptedPin(
-                encryptedPin: encryptedPin,
-            )
-            let pinProtectedUserKey = try await stateService.pinProtectedUserKey()
-            let pinUnlockRequiresPasswordAfterRestart = try await stateService.pinUnlockRequiresPasswordAfterRestart()
-
-            if pinProtectedUserKey != nil, !pinUnlockRequiresPasswordAfterRestart {
-                // The stored PIN-protected user key needs to be migrated to a PIN-protected user key envelope.
-                try await stateService.setPinKeys(
-                    enrollPinResponse: enrollPinResponse,
-                    requirePasswordAfterRestart: pinUnlockRequiresPasswordAfterRestart,
-                )
-                await flightRecorder.log("[Auth] Migrated from legacy PIN to PIN-protected user key envelope")
-            } else {
-                // If the user has a PIN, but requires master password after restart, set the
-                // PIN-protected user key in memory for future unlocks prior to app restart.
-                try await stateService.setPinProtectedUserKeyToMemory(enrollPinResponse.pinProtectedUserKeyEnvelope)
-                await flightRecorder.log("[Auth] Set PIN-protected user key in memory")
-            }
-        case .password,
-             .pinEnvelope:
-            break
+    /// Attempts to enroll a PIN with error handling for key rotation scenarios.
+    ///
+    /// This method wraps the SDK's `enrollPinWithEncryptedPin` call and handles errors that occur when
+    /// the user's encryption key has been rotated, making the existing PIN keys invalid. If enrollment
+    /// fails, the PIN keys are cleared to maintain a consistent state.
+    ///
+    /// - Parameter encryptedPin: The encrypted PIN to enroll.
+    /// - Returns: The `EnrollPinResponse` if enrollment succeeds, or `nil` if it fails (allowing the
+    ///   unlock process to continue without erroring).
+    /// - Throws: An error if clearing the PIN keys fails.
+    ///
+    private func enrollPinWithErrorHandling(encryptedPin: String) async throws -> EnrollPinResponse? {
+        do {
+            return try await clientService.crypto().enrollPinWithEncryptedPin(encryptedPin: encryptedPin)
+        } catch {
+            await flightRecorder.log("[Auth] enrollPinWithEncryptedPin failed: \(error), clearing existing PIN keys")
+            // If `enrollPinWithEncryptedPin` fails, the user's key was likely rotated and the
+            // existing PIN keys need to be removed since they are no longer valid.
+            // Note: We handle all errors broadly here because the SDK doesn't provide specific
+            // error types to distinguish key rotation failures from other errors. Clearing the
+            // PIN keys on any error is the safest approach to maintain data consistency.
+            try await stateService.clearPins()
+            // Return `nil` instead of throwing to avoid erroring out of the unlock process.
+            return nil
         }
     }
 }
