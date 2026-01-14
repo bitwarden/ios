@@ -28,6 +28,15 @@ protocol OrganizationAPIService {
     func leaveOrganization(
         organizationId: String,
     ) async throws
+
+    /// Performs the API request to revoke the current user's access to an organization.
+    ///
+    /// - Parameters:
+    ///   - organizationId: The organization identifier for the organization the user wants to revoke access from.
+    ///
+    func revokeSelfFromOrganization(
+        organizationId: String,
+    ) async throws
 }
 
 extension APIService: OrganizationAPIService {
@@ -46,6 +55,12 @@ extension APIService: OrganizationAPIService {
     func leaveOrganization(organizationId: String) async throws {
         _ = try await apiService.send(
             OrganizationLeaveRequest(identifier: organizationId),
+        )
+    }
+
+    func revokeSelfFromOrganization(organizationId: String) async throws {
+        _ = try await apiService.send(
+            OrganizationRevokeSelfRequest(organizationId: organizationId),
         )
     }
 }
