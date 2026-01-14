@@ -218,14 +218,6 @@ protocol StateService: AnyObject {
     ///
     func getIntroCarouselShown() async -> Bool
 
-    /// Gets the user's last active time within the app.
-    /// This value is set when the app is backgrounded.
-    ///
-    /// - Parameter userId: The user ID associated with the last active time within the app.
-    /// - Returns: The date of the last active time.
-    ///
-//    func getLastActiveTime(userId: String?) async throws -> Date?
-
     /// Gets the time of the last sync for a user.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -381,13 +373,6 @@ protocol StateService: AnyObject {
     /// - Returns: Whether the user uses key connector.
     ///
     func getUsesKeyConnector(userId: String?) async throws -> Bool
-
-    /// Gets the session timeout value.
-    ///
-    /// - Parameter userId: The user ID for the account.
-    /// - Returns: The session timeout value.
-    ///
-    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue
 
     /// Whether the user is authenticated.
     ///
@@ -605,14 +590,6 @@ protocol StateService: AnyObject {
     ///
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async
 
-    /// Sets the last active time within the app.
-    ///
-    /// - Parameters:
-    ///   - date: The current time.
-    ///   - userId: The user ID associated with the last active time within the app.
-    ///
-//    func setLastActiveTime(_ date: Date?, userId: String?) async throws
-
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameters:
@@ -775,14 +752,6 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID to set whether they use key connector.
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
-
-    /// Sets the session timeout value.
-    ///
-    /// - Parameters:
-    ///   - value: The value that dictates how many seconds in the future a timeout should occur.
-    ///   - userId: The user ID associated with the timeout value.
-    ///
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 
     /// Updates the profile information for a user.
     ///

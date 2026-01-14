@@ -72,21 +72,3 @@ extension UserSessionStateService {
         try await setVaultTimeout(value: value, userId: nil)
     }
 }
-
-extension StateService {
-    /// Gets the session timeout value.
-    ///
-    /// - Returns: The session timeout value.
-    ///
-    func getVaultTimeout() async throws -> SessionTimeoutValue {
-        try await getVaultTimeout(userId: nil)
-    }
-
-    /// Sets the session timeout value.
-    ///
-    /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
-    ///
-    func setVaultTimeout(value: SessionTimeoutValue) async throws {
-        try await setVaultTimeout(value: value, userId: nil)
-    }
-}
