@@ -518,4 +518,75 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.switchToSettingsTab(route: .about)
         XCTAssertEqual(module.tabCoordinator.routes, [.settings(.about)])
     }
+
+    // MARK: - MigrateToMyItems Tests
+
+    /// `navigate(to:)` with `.migrateToMyItems` shows the migrate to my items view.
+    @MainActor
+    func test_navigateTo_migrateToMyItems() {
+        // Set up.
+        rootNavigator.rootViewController = MockUIViewController()
+        subject.navigate(to: .tab(.vault(.list)))
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .migrateToMyItems(organizationId: "org-123"))
+    }
+
+    /// `navigate(to:)` with `.migrateToMyItems` doesn't show if the user is not authenticated (no tab coordinator).
+    @MainActor
+    func test_navigateTo_migrateToMyItems_notAuthenticated() {
+        // Set up - don't navigate to tab first, so childCoordinator is not a tab coordinator.
+        rootNavigator.rootViewController = MockUIViewController()
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))
+        }
+
+        // Wait a bit to ensure the navigation would have happened if it was going to.
+        let expectation = expectation(description: "Wait for potential navigation")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        task.cancel()
+
+        // Validate - presentation should not have occurred.
+        XCTAssertFalse((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled ?? true)
+    }
+
+    /// `didLeaveOrganization()` dismisses the view and shows a toast.
+    @MainActor
+    func test_didLeaveOrganization() {
+        // Set up with a view controller in the window hierarchy.
+        let viewController = UIViewController()
+        let window = UIWindow()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        rootNavigator.rootViewController = viewController
+
+        // Navigate to tab so the coordinator is authenticated.
+        subject.navigate(to: .tab(.vault(.list)))
+
+        // Test - call the delegate method.
+        // This verifies the delegate method can be called without error.
+        // The actual dismiss behavior is tested through integration since
+        // the dismiss is called on topmostViewController which requires
+        // full UIKit view hierarchy.
+        subject.didLeaveOrganization()
+
+        // Validate - toast should be shown after dismiss completes.
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
 } // swiftlint:disable:this file_length

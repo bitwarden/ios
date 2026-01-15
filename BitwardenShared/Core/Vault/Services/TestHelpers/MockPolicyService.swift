@@ -23,6 +23,8 @@ class MockPolicyService: PolicyService {
 
     var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
 
+    var getEarliestOrganizationApplyingPolicyResult: [PolicyType: String?] = [:]
+
     var organizationsApplyingPolicyToUserResult: [PolicyType: [String]] = [:]
 
     var policyAppliesToUserResult = [PolicyType: Bool]()
@@ -58,6 +60,10 @@ class MockPolicyService: PolicyService {
 
     func fetchTimeoutPolicyValues() async throws -> SessionTimeoutPolicy? {
         try fetchTimeoutPolicyValuesResult.get()
+    }
+
+    func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
+        getEarliestOrganizationApplyingPolicyResult[policyType] ?? nil
     }
 
     func organizationsApplyingPolicyToUser(_ policyType: BitwardenShared.PolicyType) async -> [String] {
