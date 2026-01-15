@@ -69,7 +69,6 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         try await subject.setLastActiveTime(date, userId: "1")
 
         let actual = userSessionKeychainRepository.setLastActiveTimeReceivedArguments
-
         XCTAssertEqual(actual?.userId, "1")
         XCTAssertEqual(actual?.date, date)
     }
@@ -80,7 +79,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
     func test_getUnsuccessfulUnlockAttempts() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        appSettingsStore.unsuccessfulUnlockAttempts["1"] = 4
+        userSessionKeychainRepository.getUnsuccessfulUnlockAttemptsReturnValue = 4
 
         let unsuccessfulUnlockAttempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
         XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
@@ -92,7 +91,9 @@ class StateServiceUserSessionTests: BitwardenTestCase {
 
         try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
 
-        XCTAssertEqual(appSettingsStore.unsuccessfulUnlockAttempts["1"], 3)
+        let actual = userSessionKeychainRepository.setUnsuccessfulUnlockAttemptsReceivedArguments
+        XCTAssertEqual(actual?.userId, "1")
+        XCTAssertEqual(actual?.attempts, 3)
     }
 
     // MARK: Vault Timeout

@@ -28,6 +28,23 @@ protocol UserSessionKeychainRepository { // sourcery: AutoMockable
     ///
     func setLastActiveTime(_ date: Date?, userId: String) async throws
 
+    // MARK: Unsuccessful Unlock Attempts
+
+    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// - Returns: The number of unsuccessful attempts to unlock the vault.
+    ///
+    func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int
+
+    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
+    ///
+    /// - Parameters:
+    ///  -  attempts: The number of unsuccessful unlock attempts.
+    ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
+    ///
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) async throws
+
     // MARK: Vault Timeout
 
     /// Attempts to delete the vault timeout from the keychain.

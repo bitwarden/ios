@@ -113,6 +113,44 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         }
     }
 
+    // MARK: Tests - Unsuccessful Unlock Attempts
+
+    /// `getUnsuccessfulUnlockAttempts(userId:)` returns `0` if there isn't a previously stored value.
+    func test_unsuccessfulUnlockAttempts_nil() async throws {
+        let attempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+        XCTAssertEqual(attempts, 0)
+    }
+
+    /// `getUnsuccessfulUnlockAttempts(userId:)` returns the stored value of unsuccessful unlock attempts.
+    func test_getUnsuccessfulUnlockAttempts() async throws {
+        keychainService.setSearchResultData(string: "4")
+        let attempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+        XCTAssertEqual(attempts, 4)
+    }
+
+    /// `setUnsuccessfulUnlockAttempts(_:userId:)` stores the number of unsuccessful unlock attempts.
+    ///
+    func test_setUnsuccessfulUnlockAttempts() async throws {
+        keychainService.accessControlResult = .success(
+            SecAccessControlCreateWithFlags(
+                nil,
+                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                [],
+                nil,
+            )!,
+        )
+        keychainService.setSearchResultData(string: "2")
+        try await subject.setVaultTimeout("3", userId: "1")
+
+        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
+        try XCTAssertEqual(
+            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
+            "3",
+        )
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+    }
+
     // MARK: Tests - Vault Timeout
 
     /// `getVaultTimeout(userId:)` returns the stored vault timeout.

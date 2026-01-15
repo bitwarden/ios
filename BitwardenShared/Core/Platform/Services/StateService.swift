@@ -2261,12 +2261,12 @@ extension DefaultStateService: UserSessionStateService {
 
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId)
+        return try await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
+        try await userSessionKeychainRepository.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
     // MARK: Vault Timeout

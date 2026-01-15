@@ -30,6 +30,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for the number of unsuccessful unlock attempts.
+    case unsuccessfulUnlockAttempts(userId: String)
+
     /// The keychain item for a user's vault timeout.
     case vaultTimeout(userId: String)
 
@@ -45,6 +48,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken,
+             .unsuccessfulUnlockAttempts,
              .vaultTimeout:
             nil
         case .biometrics:
@@ -60,6 +64,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
+             .unsuccessfulUnlockAttempts,
              .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
@@ -89,6 +94,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .unsuccessfulUnlockAttempts(userId):
+            "unsuccessfulUnlockAttempts_\(userId)"
         case let .vaultTimeout(userId):
             "vaultTimeout_\(userId)"
         }
@@ -530,6 +537,22 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
     func setLastActiveTime(_ date: Date?, userId: String) async throws {
         let value = date.map(\.timeIntervalSince1970).map(String.init(describing:)) ?? ""
         try await setValue(value, for: .lastActiveTime(userId: userId))
+    }
+
+    // MARK: Unsuccessful Unlock Attempts
+
+    func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int {
+        do {
+            let stored = try await getValue(for: .unsuccessfulUnlockAttempts(userId: userId))
+            return Int(stored) ?? 0
+        } catch {
+            return 0
+        }
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) async throws {
+        let value = String(attempts)
+        try await setValue(value, for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 
     // MARK: Vault Timeout
