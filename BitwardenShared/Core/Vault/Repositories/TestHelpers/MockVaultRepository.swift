@@ -143,7 +143,7 @@ class MockVaultRepository: VaultRepository {
 
     func archiveCipher(_ cipher: CipherView) async throws {
         archiveCipher.append(cipher)
-        try unarchiveCipherResult.get()
+        try archiveCipherResult.get()
     }
 
     func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>> {

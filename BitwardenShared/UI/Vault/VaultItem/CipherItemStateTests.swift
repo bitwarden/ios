@@ -100,6 +100,44 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(subject.canAssignToCollection)
     }
 
+    /// `canBeArchived` is `true` if the cipher is not already archived or deleted.
+    func test_canBeArchived() throws {
+        XCTAssertTrue(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(login: .fixture()),
+                hasPremium: true,
+            )).canBeArchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(login: .fixture()),
+                hasPremium: false,
+            )).canBeArchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(archivedDate: .now, login: .fixture()),
+                hasPremium: true,
+            )).canBeArchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(deletedDate: .now, login: .fixture()),
+                hasPremium: true,
+            )).canBeArchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(
+                    archivedDate: .now,
+                    deletedDate: .now,
+                    login: .fixture(),
+                ),
+                hasPremium: true,
+            )).canBeArchived,
+        )
+    }
+
     /// `canBeDeleted` is true
     /// if the cipher does not belong to a collection
     func test_canBeDeleted_notCollection() throws {
@@ -242,6 +280,28 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(state.canBeRestored)
     }
 
+    /// `canBeUnarchived` returns `true` when the cipher has an archived date.
+    func test_canBeUnarchived() throws {
+        XCTAssertTrue(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(archivedDate: .now, login: .fixture()),
+                hasPremium: true,
+            )).canBeUnarchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(archivedDate: nil, login: .fixture()),
+                hasPremium: true,
+            )).canBeUnarchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(archivedDate: .now, deletedDate: .now, login: .fixture()),
+                hasPremium: true,
+            )).canBeUnarchived,
+        )
+    }
+
     /// `canMoveToOrganization` returns false if the cipher is in an existing organization.
     func test_canMoveToOrganization_cipherInExistingOrganization() throws {
         let cipher = CipherView.fixture(organizationId: "1")
@@ -362,6 +422,38 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let cipher = CipherView.fixture()
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertEqual(state.iconAccessibilityId, "CipherIcon")
+    }
+
+    /// `isArchived` is `true` if the cipher is not already archived or deleted.
+    func test_isArchived() throws {
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(login: .fixture()),
+                hasPremium: true,
+            )).isArchived,
+        )
+        XCTAssertTrue(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(archivedDate: .now, login: .fixture()),
+                hasPremium: true,
+            )).isArchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(deletedDate: .now, login: .fixture()),
+                hasPremium: true,
+            )).isArchived,
+        )
+        XCTAssertFalse(
+            try XCTUnwrap(CipherItemState(
+                existing: CipherView.loginFixture(
+                    archivedDate: .now,
+                    deletedDate: .now,
+                    login: .fixture(),
+                ),
+                hasPremium: true,
+            )).isArchived,
+        )
     }
 
     /// `getter:loginView` returns login of the cipher.

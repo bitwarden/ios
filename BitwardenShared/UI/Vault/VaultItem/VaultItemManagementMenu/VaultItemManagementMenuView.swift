@@ -9,6 +9,9 @@ import SwiftUI
 struct VaultItemManagementMenuView: View {
     // MARK: Properties
 
+    /// The flag for whether to show the archive option.
+    let isArchiveEnabled: Bool
+
     /// The flag for showing/hiding clone option.
     let isCloneEnabled: Bool
 
@@ -23,6 +26,9 @@ struct VaultItemManagementMenuView: View {
 
     /// The flag for whether to show the restore option.
     let isRestoreEnabled: Bool
+
+    /// The flag for whether to show the unarchive option.
+    let isUnarchiveEnabled: Bool
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<Void, VaultItemManagementMenuAction, VaultItemManagementMenuEffect>
@@ -58,6 +64,18 @@ struct VaultItemManagementMenuView: View {
                 }
             }
 
+            if isArchiveEnabled {
+                AsyncButton(Localizations.archive) {
+                    await store.perform(.archiveItem)
+                }
+                .accessibilityIdentifier("ArchiveButton")
+            } else if isUnarchiveEnabled {
+                AsyncButton(Localizations.unarchive) {
+                    await store.perform(.unarchiveItem)
+                }
+                .accessibilityIdentifier("UnarchiveButton")
+            }
+
             if isDeleteEnabled {
                 AsyncButton(Localizations.delete, role: .destructive) {
                     await store.perform(.deleteItem)
@@ -74,11 +92,13 @@ struct VaultItemManagementMenuView: View {
 
 #Preview {
     VaultItemManagementMenuView(
+        isArchiveEnabled: true,
         isCloneEnabled: true,
         isCollectionsEnabled: true,
         isDeleteEnabled: true,
         isMoveToOrganizationEnabled: true,
         isRestoreEnabled: true,
+        isUnarchiveEnabled: false,
         store: Store(
             processor: StateProcessor(
                 state: (),

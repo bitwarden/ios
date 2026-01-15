@@ -139,6 +139,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlags()
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
@@ -412,6 +413,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.sshKeyState.isPrivateKeyVisible.toggle()
             // TODO: PM-11977 Collect visibility toggled event
         }
+    }
+
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isArchiveVaultItemsFFEnabled = await services.configService.getFeatureFlag(.archiveVaultItems)
     }
 
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates

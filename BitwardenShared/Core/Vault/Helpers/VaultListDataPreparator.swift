@@ -330,7 +330,10 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 return
             }
 
-            if archiveItemsFeatureFlagEnabled, filter.group != .archive, decryptedCipher.isArchived {
+            if archiveItemsFeatureFlagEnabled,
+               filter.group != .archive,
+               filter.group != .trash,
+               decryptedCipher.isArchived {
                 return
             }
 

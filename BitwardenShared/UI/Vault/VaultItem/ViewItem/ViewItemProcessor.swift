@@ -111,6 +111,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             } catch {
                 services.errorReporter.log(error: error)
             }
+        case .archivedPressed:
+            await showArchiveItemConfirmation()
         case .deletePressed:
             guard case let .data(cipherState) = state.loadingState else { return }
             if cipherState.cipher.deletedDate == nil {
@@ -122,6 +124,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             toggleDisplayMultipleCollections()
         case .totpCodeExpired:
             await updateTOTPCode()
+        case .unarchivePressed:
+            await showUnarchiveItemConfirmation()
         }
     }
 
@@ -443,6 +447,40 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Archives the item currently stored in `state`.
+    ///
+    private func archiveItem(_ cipher: CipherView) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: Localizations.sendingToArchive))
+
+            try await services.vaultRepository.archiveCipher(cipher)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemArchived()
+            })))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Unarchives the item currently stored in `state`.
+    ///
+    private func unarchiveItem(_ cipher: CipherView) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: Localizations.unarchiving))
+
+            try await services.vaultRepository.unarchiveCipher(cipher)
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                self?.delegate?.itemUnarchived()
+            })))
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Shows a permanent delete cipher confirmation alert.
     ///
     private func showPermanentDeleteConfirmation(_ cipher: CipherView) async {
@@ -486,6 +524,50 @@ private extension ViewItemProcessor {
         coordinator.showAlert(alert)
     }
 
+    /// Shows unarchive cipher confirmation alert.
+    ///
+    private func showUnarchiveItemConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+        let alert = Alert(
+            title: Localizations.doYouReallyWantToUnarchiveThisItem,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { [weak self] _ in
+                        guard let self else { return }
+                        await unarchiveItem(cipherState.cipher)
+                    },
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        coordinator.showAlert(alert)
+    }
+
+    /// Shows archive cipher confirmation alert.
+    ///
+    private func showArchiveItemConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+        let alert = Alert(
+            title: Localizations.doYouReallyWantToArchiveThisItem,
+            message: nil,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { [weak self] _ in
+                        guard let self else { return }
+                        await archiveItem(cipherState.cipher)
+                    },
+                ),
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        coordinator.showAlert(alert)
+    }
+
     /// Stream the cipher details.
     private func streamCipherDetails() async {
         do {
@@ -513,6 +595,8 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
+                let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
+
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasPremium: hasPremium,
@@ -526,6 +610,8 @@ private extension ViewItemProcessor {
                     itemState.organizationName = organization?.name
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
+                    itemState.isArchiveVaultItemsFFEnabled = isArchiveVaultItemsFFEnabled
+
                     newState.loadingState = .data(itemState)
                 }
                 state = newState
