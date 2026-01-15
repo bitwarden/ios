@@ -13,6 +13,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockMigrateToMyItemsProcessorDelegate!
     var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
     var subject: MigrateToMyItemsProcessor!
     var vaultRepository: MockVaultRepository!
 
@@ -25,6 +26,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator()
         delegate = MockMigrateToMyItemsProcessorDelegate()
         errorReporter = MockErrorReporter()
+        eventService = MockEventService()
         vaultRepository = MockVaultRepository()
 
         subject = MigrateToMyItemsProcessor(
@@ -33,6 +35,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 errorReporter: errorReporter,
+                eventService: eventService,
                 vaultRepository: vaultRepository,
             ),
             state: MigrateToMyItemsState(organizationId: "org-123"),
@@ -46,6 +49,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         coordinator = nil
         delegate = nil
         errorReporter = nil
+        eventService = nil
         subject = nil
         vaultRepository = nil
     }
@@ -60,6 +64,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         await subject.perform(.acceptTransferTapped)
 
         XCTAssertEqual(vaultRepository.migratePersonalVaultOrganizationId, "org-123")
+        XCTAssertEqual(eventService.collectEventType, .organizationItemOrganizationAccepted)
         XCTAssertEqual(coordinator.routes.last, .dismiss())
         XCTAssertTrue(coordinator.alertShown.isEmpty)
     }
@@ -93,6 +98,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(authRepository.revokeSelfFromOrganizationCalled)
         XCTAssertEqual(authRepository.revokeSelfFromOrganizationOrganizationId, "org-123")
+        XCTAssertEqual(eventService.collectEventType, .organizationItemOrganizationDeclined)
         XCTAssertTrue(delegate.didLeaveOrganizationCalled)
         XCTAssertTrue(coordinator.alertShown.isEmpty)
     }

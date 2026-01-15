@@ -26,6 +26,7 @@ final class MigrateToMyItemsProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasEventService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -93,6 +94,7 @@ final class MigrateToMyItemsProcessor: StateProcessor<
         do {
             try await services.vaultRepository.migratePersonalVault(to: state.organizationId)
             coordinator.hideLoadingOverlay()
+            await services.eventService.collect(eventType: .organizationItemOrganizationAccepted)
             coordinator.navigate(to: .dismiss())
         } catch {
             coordinator.hideLoadingOverlay()
@@ -111,6 +113,7 @@ final class MigrateToMyItemsProcessor: StateProcessor<
         do {
             try await services.authRepository.revokeSelfFromOrganization(organizationId: state.organizationId)
             coordinator.hideLoadingOverlay()
+            await services.eventService.collect(eventType: .organizationItemOrganizationDeclined)
             delegate?.didLeaveOrganization()
         } catch {
             coordinator.hideLoadingOverlay()
