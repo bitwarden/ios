@@ -80,7 +80,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
     func test_getVaultTimeout() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setVaultTimeout(value: .custom(20), userId: "1")
+        try await subject.setVaultTimeout(.custom(20), userId: "1")
         let key = userSessionKeychainRepository.setVaultTimeoutReceivedArguments
         XCTAssertEqual(key?.minutes, 20)
         XCTAssertEqual(key?.userId, "1")
@@ -128,7 +128,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
     func test_setVaultTimeout() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 
-        try await subject.setVaultTimeout(value: .custom(20))
+        try await subject.setVaultTimeout(.custom(20))
 
         let key = userSessionKeychainRepository.setVaultTimeoutReceivedArguments
         XCTAssertEqual(key?.minutes, 20)

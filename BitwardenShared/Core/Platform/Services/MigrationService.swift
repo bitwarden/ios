@@ -102,8 +102,9 @@ class DefaultMigrationService {
 
         for (accountId, account) in state.accounts {
             // Reset date values.
-            // TODO: Migrations!
-            appSettingsStore.setLastActiveTime(nil, userId: accountId)
+            let lastActiveKey = "bwPreferencesStorage:lastActiveTime_\(accountId)"
+            appGroupUserDefaults.removeObject(forKey: lastActiveKey)
+            try await userSessionStateService.setLastActiveTime(nil, userId: accountId)
             appSettingsStore.setLastSyncTime(nil, userId: accountId)
             appSettingsStore.setNotificationsLastRegistrationDate(nil, userId: accountId)
 

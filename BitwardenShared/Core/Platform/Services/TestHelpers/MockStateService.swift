@@ -753,7 +753,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, UserSessionSta
         self.usesKeyConnector[userId] = usesKeyConnector
     }
 
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
         if let setVaultTimeoutError { throw setVaultTimeoutError }
         let userId = try unwrapUserId(userId)
         vaultTimeout[userId] = value
