@@ -65,7 +65,7 @@ extension ServiceContainer {
         totpExpirationManagerFactory: TOTPExpirationManagerFactory = MockTOTPExpirationManagerFactory(),
         totpService: TOTPService = MockTOTPService(),
         twoStepLoginService: TwoStepLoginService = MockTwoStepLoginService(),
-        userSessionStateService: UserSessionStateService = MockStateService(),
+        userSessionStateService: UserSessionStateService = MockUserSessionStateService(),
         userVerificationHelperFactory: UserVerificationHelperFactory = MockUserVerificationHelperFactory(),
         vaultRepository: VaultRepository = MockVaultRepository(),
         vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService(),

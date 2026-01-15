@@ -22,6 +22,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var twoStepLoginService: MockTwoStepLoginService!
     var vaultTimeoutService: MockVaultTimeoutService!
     var subject: AccountSecurityProcessor!
+    var userSessionStateService: MockUserSessionStateService!
     var vaultUnlockSetupHelper: MockVaultUnlockSetupHelper!
 
     // MARK: Setup & Teardown
@@ -39,6 +40,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         twoStepLoginService = MockTwoStepLoginService()
+        userSessionStateService = MockUserSessionStateService()
         vaultTimeoutService = MockVaultTimeoutService()
         vaultUnlockSetupHelper = MockVaultUnlockSetupHelper()
 
@@ -53,6 +55,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 settingsRepository: settingsRepository,
                 stateService: stateService,
                 twoStepLoginService: twoStepLoginService,
+                userSessionStateService: userSessionStateService,
                 vaultTimeoutService: vaultTimeoutService,
             ),
             state: AccountSecurityState(),
@@ -72,6 +75,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         policyService = nil
         settingsRepository = nil
         subject = nil
+        twoStepLoginService = nil
+        userSessionStateService = nil
         vaultUnlockSetupHelper = nil
     }
 
@@ -84,6 +89,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account: Account = .fixture()
         let userId = account.profile.userId
         stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         authRepository.activeAccount = account
         authRepository.sessionTimeoutAction[userId] = .logout
 
@@ -108,6 +114,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
@@ -186,6 +194,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
@@ -229,6 +239,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
@@ -270,6 +281,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
 
         await subject.perform(.appeared)
         subject.state.sessionTimeoutValue = SessionTimeoutValue(rawValue: 60)
