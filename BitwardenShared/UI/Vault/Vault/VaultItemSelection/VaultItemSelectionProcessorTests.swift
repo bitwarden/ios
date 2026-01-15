@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import InlineSnapshotTesting
 import TestHelpers
 import XCTest
 
@@ -17,6 +18,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultItemSelectionProcessor!
     var userVerificationHelper: MockUserVerificationHelper!
@@ -32,6 +35,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         stateService = MockStateService()
         userVerificationHelper = MockUserVerificationHelper()
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
@@ -43,6 +51,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
                 authRepository: authRepository,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
                 vaultRepository: vaultRepository,
             ),
@@ -62,6 +71,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
         userVerificationHelper = nil
@@ -70,6 +81,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     }
 
     // MARK: Tests
+
+    /// `init(coordinator:services:state:userVerificationHelper:vaultItemMoreOptionsHelper:)` initializes
+    /// the search process mediator.
+    func test_init() {
+        XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
+    }
 
     /// `itemAdded()` requests the coordinator dismiss the view.
     @MainActor
@@ -252,36 +269,17 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(coordinator.routes.last, .viewProfileSwitcher)
     }
 
-    /// `perform(_:)` with `.search()` performs a vault search and updates the state with the results.
+    /// `perform(.search)` with a keyword should indicate the search processor mediator that the filter changed.
     @MainActor
-    func test_perform_search() throws {
-        let vaultItems: [VaultListItem] = try [
-            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "1"))),
-            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "2"))),
-            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
-        ]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: vaultItems,
-            name: "",
-        )
-        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
+    func test_perform_search() async throws {
+        await subject.perform(.search("example"))
 
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.searchResults.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.searchResults, vaultItems)
-        XCTAssertFalse(subject.state.showNoResults)
         XCTAssertEqual(
-            vaultRepository.vaultListFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,
-                searchText: "bit",
+                searchText: "example",
             ),
         )
     }
@@ -293,35 +291,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         XCTAssertTrue(subject.state.searchResults.isEmpty)
         XCTAssertFalse(subject.state.showNoResults)
-    }
-
-    /// `perform(_:)` with `.search()` performs a vault search and logs an error if one occurs.
-    @MainActor
-    func test_perform_search_error() {
-        let task = Task {
-            await subject.perform(.search("example"))
-        }
-
-        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
-        waitFor(!coordinator.alertShown.isEmpty)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.searchResults.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `perform(_:)` with `.search()` sets the `showNoResults` flag if the search resulted in no results.
-    @MainActor
-    func test_perform_search_noResults() {
-        let task = Task {
-            await subject.perform(.search("example"))
-        }
-        waitFor(subject.state.showNoResults)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.searchResults.isEmpty)
-        XCTAssertTrue(subject.state.showNoResults)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
     }
 
     /// `perform(_:)` with `.streamVaultItems` streams the list of vault items.
@@ -505,6 +475,57 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
     }
 
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search results with the new items.
+    @MainActor
+    func test_onNewSearchResults() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
+                sections: [
+                    VaultListSection(
+                        id: "SearchResults",
+                        items: [
+                            VaultListItem(cipherListView: .fixture(name: "Result 1")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 2")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 3")),
+                        ].compactMap(\.self),
+                        name: "Search Results",
+                    ),
+                ],
+            ),
+        )
+
+        assertInlineSnapshot(of: subject.state.searchResults.dump(), as: .lines) {
+            """
+            - Cipher: Result 1
+            - Cipher: Result 2
+            - Cipher: Result 3
+            """
+        }
+        XCTAssertFalse(subject.state.showNoResults)
+    }
+
+    /// `onNewSearchResults(data:)` closure from search mediatorupdates the state's search to empty
+    /// when there are no sections in the data.
+    @MainActor
+    func test_onNewSearchResults_noSections() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
+                sections: [],
+            ),
+        )
+
+        assertInlineSnapshot(of: subject.state.searchResults.dump(), as: .lines) {
+            """
+            (empty)
+            """
+        }
+        XCTAssertTrue(subject.state.showNoResults)
+    }
+
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
     @MainActor
     func test_receive_addTapped() {
@@ -584,12 +605,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
-    /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes.
+    /// `receive(_:)` with `.searchStateChanged(isSearching: false)` doesn't hide the profile switcher
+    /// and stops the search process in the mediator.
     @MainActor
     func test_receive_searchStateChanged() {
-        subject.receive(.searchStateChanged(isSearching: true))
-
-        subject.receive(.searchTextChanged("Bit"))
+        subject.state.searchText = "Search text"
         subject.state.searchResults = [.fixture()]
         subject.state.showNoResults = true
 
@@ -598,9 +618,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(subject.state.searchResults.isEmpty)
         XCTAssertTrue(subject.state.searchText.isEmpty)
         XCTAssertFalse(subject.state.showNoResults)
+        XCTAssertFalse(searchProcessorMediator.startSearchingCalled)
+        XCTAssertTrue(searchProcessorMediator.stopSearchingCalled)
     }
 
-    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` hides the profile switcher.
+    /// `receive(_:)` with `.searchStateChanged(isSearching: true)` hides the profile switcher
+    /// and starts the search process in the mediator.
     @MainActor
     func test_receive_searchStateChanged_true_profilesHide() {
         subject.state.profileSwitcherState.isVisible = true
@@ -608,6 +631,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertTrue(searchProcessorMediator.startSearchingCalled)
+        XCTAssertFalse(searchProcessorMediator.stopSearchingCalled)
     }
 
     /// `receive(_:)` with `.searchTextChanged` updates the state's search text value.
