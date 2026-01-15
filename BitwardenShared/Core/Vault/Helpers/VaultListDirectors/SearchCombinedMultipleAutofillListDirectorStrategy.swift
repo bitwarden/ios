@@ -6,7 +6,7 @@ import Combine
 
 /// The director strategy to be used to build the search Autofill's passwords + Fido2 combined in multiple sections.
 /// This would show two sections where passwords and Fido2 credentials are displayed in each section accordingly.
-struct SearchCombinedMultipleAutofillListDirectorStrategy: VaultListDirectorStrategy {
+struct SearchCombinedMultipleAutofillListDirectorStrategy: VaultListSearchDirectorStrategy {
     // MARK: Properties
 
     /// The factory for creating vault list builders.
@@ -20,13 +20,14 @@ struct SearchCombinedMultipleAutofillListDirectorStrategy: VaultListDirectorStra
     let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
-        filter: VaultListFilter,
+        filterPublisher: AnyPublisher<VaultListFilter, Error>,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
-        try await Publishers.CombineLatest(
+        try await Publishers.CombineLatest3(
+            filterPublisher,
             cipherService.ciphersPublisher(),
             fido2UserInterfaceHelper.availableCredentialsForAuthenticationPublisher(),
         )
-        .asyncTryMap { ciphers, availableFido2Credentials in
+        .asyncTryMap { filter, ciphers, availableFido2Credentials in
             try await build(
                 from: ciphers,
                 filter: filter,

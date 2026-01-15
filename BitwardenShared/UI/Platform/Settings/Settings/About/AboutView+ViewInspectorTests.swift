@@ -9,7 +9,7 @@ import XCTest
 class AboutViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    let copyrightText = "© Bitwarden Inc. 2015-2023"
+    let copyrightText = "© Bitwarden Inc. 2015-2023" // No need to be dynamic
     let version = "Version: 1.0.0 (1)"
 
     var processor: MockProcessor<AboutState, AboutAction, AboutEffect>!

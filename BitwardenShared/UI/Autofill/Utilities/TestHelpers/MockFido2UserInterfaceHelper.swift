@@ -83,7 +83,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         try checkAndPickCredentialForCreationResult.get()
     }
 
-    func isVerificationEnabled() async -> Bool {
+    func isVerificationEnabled() -> Bool {
         isVerificationEnabledResult
     }
 

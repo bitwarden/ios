@@ -115,6 +115,9 @@ class MockVaultRepository: VaultRepository {
     var vaultListSubject = CurrentValueSubject<VaultListData, Error>(VaultListData())
     var vaultListFilter: VaultListFilter?
 
+    var vaultSearchListPublisherMode: AutofillListMode?
+    var vaultSearchListSubject = CurrentValueSubject<VaultListData, Error>(VaultListData())
+
     // MARK: Computed Properties
 
     var refreshedTOTPKey: String? {
@@ -304,5 +307,13 @@ class MockVaultRepository: VaultRepository {
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         vaultListFilter = filter
         return vaultListSubject.eraseToAnyPublisher().values
+    }
+
+    func vaultSearchListPublisher(
+        mode: AutofillListMode?,
+        filterPublisher: AnyPublisher<VaultListFilter, any Error>,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, any Error>> {
+        vaultSearchListPublisherMode = mode
+        return vaultSearchListSubject.eraseToAnyPublisher().values
     }
 }
