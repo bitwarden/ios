@@ -223,9 +223,10 @@ class DefaultMigrationService {
     ///
     /// Notes:
     ///  - This migrates several fields from the AppSettingsStore into the Keychain:
-    ///    - vaultTimeout
     ///    - lastActiveTime
-    ///  - These are items related to the user session, so they can be used between PM and the extensions.
+    ///    - unsuccessfulUnlockAttempts
+    ///    - vaultTimeout
+    ///  - These are items related to the user session, ultimately so they can be used between PM and the extensions.
     ///
     private func performMigration5() async throws {
         guard let state = appSettingsStore.state else { return }
@@ -237,6 +238,12 @@ class DefaultMigrationService {
                 let lastActiveTime = Date(timeIntervalSince1970: lastActiveTimeInterval)
                 try await userSessionStateService.setLastActiveTime(lastActiveTime, userId: accountId)
                 appGroupUserDefaults.removeObject(forKey: lastActiveKey)
+            }
+            let unsuccessfulUnlocksKey = "bwPreferencesStorage:invalidUnlockAttempts_\(accountId)"
+            if let unsuccessfulUnlocksString = appGroupUserDefaults.string(forKey: unsuccessfulUnlocksKey),
+               let unsuccessfulUnlocks = Int(unsuccessfulUnlocksString) {
+                try await userSessionStateService.setUnsuccessfulUnlockAttempts(unsuccessfulUnlocks, userId: accountId)
+                appGroupUserDefaults.removeObject(forKey: unsuccessfulUnlocksKey)
             }
             let vaultTimeoutKey = "bwPreferencesStorage:vaultTimeout_\(accountId)"
             if let vaultTimeoutString = appGroupUserDefaults.string(forKey: vaultTimeoutKey),
