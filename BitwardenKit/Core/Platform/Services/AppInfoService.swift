@@ -8,6 +8,9 @@ import UIKit
 public protocol AppAdditionalInfo {
     /// CI Build information.
     var ciBuildInfo: KeyValuePairs<String, String> { get }
+
+    /// SDK version information.
+    var sdkVersion: String { get }
 }
 
 // MARK: - DefaultAppAdditionalInfo
@@ -17,6 +20,10 @@ public protocol AppAdditionalInfo {
 public struct DefaultAppAdditionalInfo: AppAdditionalInfo {
     public var ciBuildInfo: KeyValuePairs<String, String> {
         CIBuildInfo.info
+    }
+
+    public var sdkVersion: String {
+        SDKVersionInfo.version
     }
 
     public init() {}
@@ -102,11 +109,11 @@ public extension DefaultAppInfoService {
             "",
             appNameAndVersionString,
             bundleString,
-            // TODO: PM-18404 - Include server and SDK version
-            // sdkString,
+            // TODO: PM-18404 - Include server version
             // serverString,
             deviceString,
             systemOSString,
+            sdkString,
             additionalInfoString,
         ]
         .compactMap(\.self)
@@ -118,11 +125,11 @@ public extension DefaultAppInfoService {
         [
             appNameAndVersionString,
             bundleString,
-            // TODO: PM-18404 - Include server and SDK version
-            // sdkString,
+            // TODO: PM-18404 - Include server version
             // serverString,
             deviceString,
             systemOSString,
+            sdkString,
             additionalInfoString,
         ]
         .compactMap(\.self)
@@ -165,6 +172,13 @@ public extension DefaultAppInfoService {
     /// A string containing the device info.
     private var deviceString: String {
         "📱 Device: \(systemDevice.modelIdentifier)"
+    }
+
+    /// A string containing the SDK version info.
+    private var sdkString: String? {
+        let version = appAdditionalInfo.sdkVersion
+        guard version != "Unknown", !version.isEmpty else { return nil }
+        return "🦀 SDK: \(version)"
     }
 
     /// A string containing the OS info.
