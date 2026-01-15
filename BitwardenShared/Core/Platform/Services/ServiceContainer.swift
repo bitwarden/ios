@@ -809,6 +809,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 cipherService: cipherService,
                 clientService: clientService,
                 errorReporter: errorReporter,
+                stateService: stateService,
                 syncService: syncService,
             ),
         )
@@ -817,6 +818,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
+            stateService: stateService,
             syncService: syncService,
         )
         #endif
