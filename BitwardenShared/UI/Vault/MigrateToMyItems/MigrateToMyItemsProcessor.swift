@@ -89,10 +89,17 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     private func acceptTransfer() async {
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.loading))
 
-        // TODO: PM-29709 Implement accept transfer API call
-
-        defer { coordinator.hideLoadingOverlay() }
-        coordinator.navigate(to: .dismiss())
+        do {
+            try await services.vaultRepository.migratePersonalVault(to: state.organizationId)
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .dismiss())
+        } catch {
+            coordinator.hideLoadingOverlay()
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred)) {
+                self.coordinator.navigate(to: .dismiss())
+            }
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Leaves the organization after declining the item transfer.
