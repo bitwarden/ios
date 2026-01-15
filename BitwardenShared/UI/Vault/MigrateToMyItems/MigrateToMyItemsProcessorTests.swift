@@ -9,6 +9,7 @@ import XCTest
 class MigrateToMyItemsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockMigrateToMyItemsProcessorDelegate!
     var errorReporter: MockErrorReporter!
@@ -20,6 +21,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         delegate = MockMigrateToMyItemsProcessorDelegate()
         errorReporter = MockErrorReporter()
@@ -29,6 +31,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
+                authRepository: authRepository,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -39,6 +42,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
         coordinator = nil
         delegate = nil
         errorReporter = nil
@@ -68,6 +72,41 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         await subject.perform(.acceptTransferTapped)
 
         XCTAssertEqual(vaultRepository.migratePersonalVaultOrganizationId, "org-123")
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+
+        // Simulate alert dismissal to trigger the dismiss navigation.
+        coordinator.alertOnDismissed?()
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    // MARK: Tests - LeaveOrganizationTapped Effect
+
+    /// `perform(_:)` with `.leaveOrganizationTapped` revokes the user from the organization and notifies the delegate.
+    @MainActor
+    func test_perform_leaveOrganizationTapped_success() async {
+        authRepository.revokeSelfFromOrganizationResult = .success(())
+
+        await subject.perform(.leaveOrganizationTapped)
+
+        XCTAssertTrue(authRepository.revokeSelfFromOrganizationCalled)
+        XCTAssertEqual(authRepository.revokeSelfFromOrganizationOrganizationId, "org-123")
+        XCTAssertTrue(delegate.didLeaveOrganizationCalled)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.leaveOrganizationTapped` shows an error alert and dismisses when revocation fails.
+    @MainActor
+    func test_perform_leaveOrganizationTapped_error() async {
+        authRepository.revokeSelfFromOrganizationResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.leaveOrganizationTapped)
+
+        XCTAssertTrue(authRepository.revokeSelfFromOrganizationCalled)
+        XCTAssertEqual(authRepository.revokeSelfFromOrganizationOrganizationId, "org-123")
+        XCTAssertFalse(delegate.didLeaveOrganizationCalled)
         XCTAssertEqual(coordinator.alertShown.count, 1)
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
