@@ -102,6 +102,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(errorReporter.errors as? [KeychainServiceError], [KeychainServiceError.osStatusError(-1)])
     }
 
+    // MARK: Migration 1 (Tokens to Keychain)
+
     /// `performMigrations()` performs migration 1 and moves the user's tokens to the keychain.
     func test_performMigrations_1_withAccounts() async throws {
         appSettingsStore.migrationVersion = 0
@@ -184,6 +186,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(errorReporter.isEnabled)
     }
 
+    // MARK: Migration 2 (Update Keychain Security)
+
     /// `performMigrations()` for migration 2 migrates keychain data in kSecAttrGeneric to kSecValueData.
     func test_performMigrations_2() async throws {
         let itemsToAdd: [(account: String, value: String)] = [
@@ -234,6 +238,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(appSettingsStore.migrationVersion, 2)
     }
 
+    // MARK: Migration 3 (Remove MAUI Biometrics Integrity State)
+
     /// `performMigrations()` for migration 3 removes the integrity state values from MAUI.
     func test_performMigrations_3() async throws {
         appGroupUserDefaults.set(
@@ -269,6 +275,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource"),
         )
     }
+
+    // MARK: Migration 4 (Remove Native Biometrics Integrity State)
 
     /// `performMigrations()` for migration 4 removes the native integrity state values.
     func test_performMigrations_4() async throws {
