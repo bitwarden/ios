@@ -74,6 +74,27 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         XCTAssertEqual(actual?.date, date)
     }
 
+    // MARK: Unsuccessful Unlock Attempts
+
+    /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
+    func test_getUnsuccessfulUnlockAttempts() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.unsuccessfulUnlockAttempts["1"] = 4
+
+        let unsuccessfulUnlockAttempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+        XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
+    }
+
+    /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.
+    func test_setUnsuccessfulUnlockAttempts() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
+
+        XCTAssertEqual(appSettingsStore.unsuccessfulUnlockAttempts["1"], 3)
+    }
+
     // MARK: Vault Timeout
 
     /// `.getVaultTimeout(userId:)` gets the user's vault timeout.

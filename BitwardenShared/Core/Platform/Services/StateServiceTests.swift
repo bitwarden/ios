@@ -1056,16 +1056,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, "yay_you_win!")
     }
 
-    /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
-    func test_getUnsuccessfulUnlockAttempts() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        appSettingsStore.unsuccessfulUnlockAttempts["1"] = 4
-
-        let unsuccessfulUnlockAttempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
-        XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
-    }
-
     /// `getUserHasMasterPassword(userId:)` gets whether a user has a master password for a user
     /// with a master password.
     func test_getUserHasMasterPassword() async throws {
@@ -2412,15 +2402,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setTwoFactorToken() async {
         await subject.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
         XCTAssertEqual(appSettingsStore.twoFactorToken(email: "winner@email.com"), "yay_you_win!")
-    }
-
-    /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.
-    func test_setUnsuccessfulUnlockAttempts() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
-
-        XCTAssertEqual(appSettingsStore.unsuccessfulUnlockAttempts["1"], 3)
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for an account.

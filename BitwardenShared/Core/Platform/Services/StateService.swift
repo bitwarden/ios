@@ -338,14 +338,6 @@ protocol StateService: AnyObject {
     ///
     func getTwoFactorToken(email: String) async -> String?
 
-    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
-    /// if `nil` defaults to currently active user.
-    /// - Returns: The number of unsuccessful attempts to unlock the vault.
-    ///
-    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
-
     /// Gets whether a user has a master password.
     ///
     /// - Parameter userId: The user ID of the user to determine whether they have a master password.
@@ -724,13 +716,6 @@ protocol StateService: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String) async
 
-    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
-    /// if `nil` defaults to currently active user.
-    ///
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
-
     /// Sets whether the user has a master password.
     ///
     /// - Parameter hasMasterPassword: Whether the user has a master password.
@@ -1034,17 +1019,6 @@ extension StateService {
         try await getTimeoutAction(userId: nil)
     }
 
-    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
-    ///
-    /// - Returns: The number of unsuccessful unlock attempts for the active account.
-    ///
-    func getUnsuccessfulUnlockAttempts() async -> Int {
-        if let attempts = try? await getUnsuccessfulUnlockAttempts(userId: nil) {
-            return attempts
-        }
-        return 0
-    }
-
     /// Gets whether a user has a master password.
     ///
     /// - Returns: Whether the user has a master password.
@@ -1293,14 +1267,6 @@ extension StateService {
     ///
     func setTimeoutAction(action: SessionTimeoutAction) async throws {
         try await setTimeoutAction(action: action, userId: nil)
-    }
-
-    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
-    ///
-    /// - Parameter attempts: The number of unsuccessful unlock attempts.
-    ///
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int) async {
-        try? await setUnsuccessfulUnlockAttempts(attempts, userId: nil)
     }
 
     /// Sets the username generation options for the active account.
@@ -1735,11 +1701,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.twoFactorToken(email: email)
     }
 
-    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId)
-    }
-
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         try getAccount(userId: userId).profile.userDecryptionOptions?.hasMasterPassword ?? true
     }
@@ -2101,11 +2062,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setTwoFactorToken(token, email: email)
     }
 
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
-    }
-
     func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try getActiveAccountUserId()
         var state = appSettingsStore.state ?? State()
@@ -2299,6 +2255,18 @@ extension DefaultStateService: UserSessionStateService {
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+    }
+
+    // MARK: Unsuccessful Unlock Attempts
+
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId)
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
     }
 
     // MARK: Vault Timeout
