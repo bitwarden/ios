@@ -50,6 +50,38 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         vaultRepository = nil
     }
 
+    // MARK: Tests - AcceptTransferTapped Effect
+
+    /// `perform(_:)` with `.acceptTransferTapped` migrates the personal vault and dismisses.
+    @MainActor
+    func test_perform_acceptTransferTapped_success() async {
+        vaultRepository.migratePersonalVaultResult = .success(())
+
+        await subject.perform(.acceptTransferTapped)
+
+        XCTAssertEqual(vaultRepository.migratePersonalVaultOrganizationId, "org-123")
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.acceptTransferTapped` shows an error alert and dismisses when migration fails.
+    @MainActor
+    func test_perform_acceptTransferTapped_error() async {
+        vaultRepository.migratePersonalVaultResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.acceptTransferTapped)
+
+        XCTAssertEqual(vaultRepository.migratePersonalVaultOrganizationId, "org-123")
+        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+
+        // Simulate alert dismissal to trigger the dismiss navigation.
+        coordinator.alertOnDismissed?()
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
     // MARK: Tests - LeaveOrganizationTapped Effect
 
     /// `perform(_:)` with `.leaveOrganizationTapped` revokes the user from the organization and notifies the delegate.
