@@ -45,10 +45,10 @@ public protocol HasAppInfoService {
 ///
 public protocol AppInfoService {
     /// A formatted string containing detailed information about the app and device.
-    var appInfoString: String { get }
+    var appInfoString: String { get async }
 
     /// The `appInfoString` without copyright information.
-    var appInfoWithoutCopyrightString: String { get }
+    var appInfoWithoutCopyrightString: String { get async }
 
     /// The app's formatted copyright string.
     var copyrightString: String { get }
@@ -70,6 +70,10 @@ public class DefaultAppInfoService: AppInfoService {
     /// The app's bundle.
     private let bundle: BundleProtocol
 
+    /// A closure that provides the service to get server-specified configuration when needed.
+    /// This is a closure rather than a stored service to avoid circular dependencies.
+    private let configServiceProvider: () -> ConfigService?
+
     /// An object used to retrieve information about this device.
     private let systemDevice: SystemDevice
 
@@ -83,17 +87,22 @@ public class DefaultAppInfoService: AppInfoService {
     /// - Parameters:
     ///   - additionalInfo: Additional build details to include in the app info string.
     ///   - bundle: The app's bundle.
+    ///   - configServiceProvider: A closure that provides the service to get server-specified
+    ///     configuration when needed. This is lazily evaluated to allow configService to be
+    ///     injected after initialization, breaking circular dependencies.
     ///   - systemDevice: An object used to retrieve information about this device.
     ///   - timeProvider: The service used to get the present time.
     ///
     public init(
         appAdditionalInfo: AppAdditionalInfo = DefaultAppAdditionalInfo(),
         bundle: BundleProtocol = Bundle.main,
+        configServiceProvider: @escaping () -> ConfigService?,
         systemDevice: SystemDevice = UIDevice.current,
         timeProvider: TimeProvider = CurrentTime(),
     ) {
         self.appAdditionalInfo = appAdditionalInfo
         self.bundle = bundle
+        self.configServiceProvider = configServiceProvider
         self.systemDevice = systemDevice
         self.timeProvider = timeProvider
     }
@@ -104,36 +113,38 @@ public class DefaultAppInfoService: AppInfoService {
 public extension DefaultAppInfoService {
     /// A single string containing relevant app information for debugging and logging purposes.
     var appInfoString: String {
-        [
-            copyrightString,
-            "",
-            appNameAndVersionString,
-            bundleString,
-            // TODO: PM-18404 - Include server version
-            // serverString,
-            deviceString,
-            systemOSString,
-            sdkString,
-            additionalInfoString,
-        ]
-        .compactMap(\.self)
-        .joined(separator: "\n")
+        get async {
+            await [
+                copyrightString,
+                "",
+                appNameAndVersionString,
+                bundleString,
+                deviceString,
+                systemOSString,
+                sdkString,
+                serverString,
+                additionalInfoString,
+            ]
+            .compactMap(\.self)
+            .joined(separator: "\n")
+        }
     }
 
     /// The application information without including copyright information.
     var appInfoWithoutCopyrightString: String {
-        [
-            appNameAndVersionString,
-            bundleString,
-            // TODO: PM-18404 - Include server version
-            // serverString,
-            deviceString,
-            systemOSString,
-            sdkString,
-            additionalInfoString,
-        ]
-        .compactMap(\.self)
-        .joined(separator: "\n")
+        get async {
+            await [
+                appNameAndVersionString,
+                bundleString,
+                deviceString,
+                systemOSString,
+                sdkString,
+                serverString,
+                additionalInfoString,
+            ]
+            .compactMap(\.self)
+            .joined(separator: "\n")
+        }
     }
 
     /// The copyright information for the app.
@@ -179,6 +190,27 @@ public extension DefaultAppInfoService {
         let version = appAdditionalInfo.sdkVersion
         guard version != "Unknown", !version.isEmpty else { return nil }
         return "🦀 SDK: \(version)"
+    }
+
+    /// A string containing the server version info.
+    private var serverString: String? {
+        get async {
+            guard let configService = configServiceProvider(),
+                  let serverConfig = await configService.getConfig() else {
+                return nil
+            }
+            let serverName = serverConfig.server?.name
+            let serverVersion = serverConfig.version
+            let cloudRegion = serverConfig.environment?.cloudRegion.map { "@ \($0)" }
+            return [
+                "🌩️ Server:",
+                serverName,
+                serverVersion,
+                cloudRegion,
+            ]
+            .compactMap(\.self)
+            .joined(separator: " ")
+        }
     }
 
     /// A string containing the OS info.

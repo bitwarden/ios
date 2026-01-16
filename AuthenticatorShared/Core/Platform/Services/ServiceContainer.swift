@@ -182,7 +182,19 @@ public class ServiceContainer: Services {
         )
 
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
-        let appInfoService = DefaultAppInfoService()
+
+        // Create holder for breaking circular dependency.
+        // This is set later in this initializer, after configService is created.
+        var configServiceHolder: ConfigService?
+        defer {
+            precondition(configServiceHolder != nil, "`configServiceHolder` needs to be set prior to this defer block.")
+        }
+
+        // Create appInfoService with a provider closure that captures the holder.
+        // The provider will be called when server version info is needed.
+        let appInfoService = DefaultAppInfoService(
+            configServiceProvider: { configServiceHolder },
+        )
 
         let biometricsService = DefaultBiometricsService()
         let cameraService = DefaultCameraService()
@@ -235,6 +247,7 @@ public class ServiceContainer: Services {
             stateService: stateService,
             timeProvider: timeProvider,
         )
+        configServiceHolder = configService
 
         let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
         let clientService = DefaultClientService(

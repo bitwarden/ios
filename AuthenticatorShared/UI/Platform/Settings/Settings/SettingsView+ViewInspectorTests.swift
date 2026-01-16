@@ -153,11 +153,12 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .tutorialTapped)
     }
 
-    /// Tapping the version button dispatches the `.versionTapped` action.
+    /// Tapping the version button performs the `.copyVersionInfo` effect.
     @MainActor
-    func test_versionButton_tap() throws {
+    func test_versionButton_tap() async throws {
         let button = try subject.inspect().find(button: version)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .versionTapped)
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects.last, .copyVersionInfo)
     }
 }
