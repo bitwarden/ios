@@ -148,6 +148,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_itemUnarchived() async throws {
         subject.itemUnarchived()
 
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
         XCTAssertTrue(delegate.itemUnarchivedCalled)
     }
 
@@ -759,9 +765,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         // Ensure the generic error alert is displayed.
         let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
@@ -789,9 +793,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         // Ensure the generic error alert is displayed.
         let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
@@ -857,9 +859,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
@@ -892,9 +892,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
@@ -1307,9 +1305,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
         XCTAssertNil(alert?.message)
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         // Ensure the generic error alert is displayed.
         let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
@@ -1337,9 +1333,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
         XCTAssertNil(alert?.message)
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is deleted and the view is dismissed.
@@ -1374,9 +1368,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToArchiveThisItem)
         XCTAssertNil(alert?.message)
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is archived and the view is dismissed.
@@ -1412,9 +1404,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToArchiveThisItem)
         XCTAssertNil(alert?.message)
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         // Ensure the network error alert is displayed.
         XCTAssertEqual(coordinator.alertShown.count, 2)
@@ -1442,9 +1432,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToUnarchiveThisItem)
         XCTAssertNil(alert?.message)
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         XCTAssertNil(errorReporter.errors.first)
         // Ensure the cipher is unarchived and the view is dismissed.
@@ -1480,9 +1468,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToUnarchiveThisItem)
         XCTAssertNil(alert?.message)
 
-        // Tap the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert?.tapAction(title: Localizations.yes)
 
         // Ensure the network error alert is displayed.
         XCTAssertEqual(coordinator.alertShown.count, 2)

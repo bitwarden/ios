@@ -691,7 +691,9 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     }
 
     func itemUnarchived() {
-        delegate?.itemUnarchived()
+        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+            self?.delegate?.itemUnarchived()
+        })))
     }
 }
 

@@ -70,6 +70,8 @@ extension VaultListGroup {
     /// The display name for the group.
     var name: String {
         switch self {
+        case .archive:
+            Localizations.archive
         case .card:
             Localizations.typeCard
         case let .collection(_, name, _):
@@ -90,14 +92,14 @@ extension VaultListGroup {
             Localizations.trash
         case .noFolder:
             Localizations.folderNone
-        case .archive:
-            Localizations.archive
         }
     }
 
     /// The navigation title for the group.
     var navigationTitle: String {
         switch self {
+        case .archive:
+            Localizations.archive
         case .card:
             Localizations.cards
         case let .collection(_, name, _):
@@ -118,8 +120,6 @@ extension VaultListGroup {
             Localizations.trash
         case .noFolder:
             Localizations.folderNone
-        case .archive:
-            Localizations.archive
         }
     }
 

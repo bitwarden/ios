@@ -1284,8 +1284,8 @@
 "Unarchive" = "Unarchive";
 "ItemArchived" = "Item archived";
 "ItemUnarchived" = "Item unarchived";
-"SendingToArchive" = "Sending to archive...";
-"Unarchiving" = "Unarchiving...";
+"SendingToArchive" = "Sending to archive…";
+"Unarchiving" = "Unarchiving…";
 "DoYouReallyWantToUnarchiveThisItem" = "Do you really want to unarchive this item?";
 "DoYouReallyWantToArchiveThisItem" = "Do you really want to archive this item?";
 "ThereAreNoItemsInTheArchive" = "There are no items in the archive.";
