@@ -164,6 +164,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             }
         case .loadData:
             await refreshProfileState()
+            await fetchInitialSyncIfNecessary()
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
         case let .search(text):
@@ -237,6 +238,19 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
+    }
+
+    /// Fetches initial sync if necessary, checking if the user has synced before.
+    private func fetchInitialSyncIfNecessary() async {
+        do {
+            let lastSyncTime = try await services.stateService.getLastSyncTime()
+            // Only sync if the user hasn't yet synced (e.g. fresh login).
+            guard lastSyncTime == nil else { return }
+            try await services.vaultRepository.fetchSync(forceSync: false, isPeriodic: false)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
     }
 
     /// Handles receiving a `ProfileSwitcherAction`.

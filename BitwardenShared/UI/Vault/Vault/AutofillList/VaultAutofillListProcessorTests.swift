@@ -184,6 +184,47 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
     }
 
+    /// `perform(_:)` with `.loadData` performs initial sync when user has never synced before.
+    @MainActor
+    func test_perform_loadData_firstSync() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+        XCTAssertEqual(vaultRepository.fetchSyncIsPeriodic, false)
+    }
+
+    /// `perform(_:)` with `.loadData` skips sync when user has synced before.
+    @MainActor
+    func test_perform_loadData_skipsSyncWhenAlreadySynced() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [Account.fixture().profile.userId: Date()]
+
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.loadData` logs error when sync fails during first sync.
+    @MainActor
+    func test_perform_loadData_firstSync_error() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+    }
+
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
     /// visibility and navigates to switch account.
     @MainActor
