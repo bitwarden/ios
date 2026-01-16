@@ -24,7 +24,8 @@ final class MigrateToMyItemsProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -100,10 +101,17 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     private func leaveOrganization() async {
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.loading))
 
-        // TODO: PM-29710 Implement leave organization API call
-
-        defer { coordinator.hideLoadingOverlay() }
-        delegate?.didLeaveOrganization()
+        do {
+            try await services.authRepository.revokeSelfFromOrganization(organizationId: state.organizationId)
+            coordinator.hideLoadingOverlay()
+            delegate?.didLeaveOrganization()
+        } catch {
+            coordinator.hideLoadingOverlay()
+            await coordinator.showErrorAlert(error: error, onDismissed: {
+                self.coordinator.navigate(to: .dismiss())
+            })
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Loads the organization name from the vault repository using the organization ID.
