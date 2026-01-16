@@ -318,22 +318,35 @@ final class VaultGroupProcessor: StateProcessor<
 // MARK: - CipherItemOperationDelegate
 
 extension VaultGroupProcessor: CipherItemOperationDelegate {
+    // MARK: Methods
+
+    func itemArchived() {
+        displayToastAndRefresh(toastTitle: Localizations.itemArchived)
+    }
+
     func itemDeleted() {
-        state.toast = Toast(title: Localizations.itemDeleted)
-        Task {
-            await perform(.refresh)
-        }
+        displayToastAndRefresh(toastTitle: Localizations.itemDeleted)
     }
 
     func itemSoftDeleted() {
-        state.toast = Toast(title: Localizations.itemSoftDeleted)
-        Task {
-            await perform(.refresh)
-        }
+        displayToastAndRefresh(toastTitle: Localizations.itemSoftDeleted)
     }
 
     func itemRestored() {
-        state.toast = Toast(title: Localizations.itemRestored)
+        displayToastAndRefresh(toastTitle: Localizations.itemRestored)
+    }
+
+    func itemUnarchived() {
+        displayToastAndRefresh(toastTitle: Localizations.itemUnarchived)
+    }
+
+    // MARK: Private methods
+
+    /// Displays a toast and performs a refresh.
+    ///
+    /// - Parameter toastTitle: The title of the toast.
+    func displayToastAndRefresh(toastTitle: String) {
+        state.toast = Toast(title: toastTitle)
         Task {
             await perform(.refresh)
         }

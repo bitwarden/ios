@@ -567,6 +567,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let watchService = DefaultWatchService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             organizationService: organizationService,
@@ -771,6 +772,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
                 collectionHelper: collectionHelper,
+                configService: configService,
                 errorReporter: errorReporter,
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
@@ -821,6 +823,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2CredentialStore: Fido2CredentialStoreService(
                 cipherService: cipherService,
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 syncService: syncService,
@@ -830,6 +833,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let fido2CredentialStore = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -841,6 +845,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
             errorReporter: errorReporter,
             eventService: eventService,

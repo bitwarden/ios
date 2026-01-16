@@ -5,6 +5,9 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
+    /// A feature flag to enable/disable ciphers archive option.
+    static let archiveVaultItems = FeatureFlag(rawValue: "pm-19148-innovation-archive")
+
     /// Flag to enable/disable Credential Exchange export flow.
     static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
 
@@ -28,6 +31,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
+            .archiveVaultItems,
             .cxpExportMobile,
             .cxpImportMobile,
             .cipherKeyEncryption,

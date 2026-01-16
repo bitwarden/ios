@@ -97,6 +97,22 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertFalse(shouldDismiss)
     }
 
+    /// `itemArchived()` requests the coordinator dismiss the view.
+    @MainActor
+    func test_itemArchived() {
+        subject.itemArchived()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
+    /// `itemUnarchived()` requests the coordinator dismiss the view.
+    @MainActor
+    func test_itemUnarchived() {
+        subject.itemUnarchived()
+
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
     /// `itemUpdated()` requests the coordinator dismiss the view.
     @MainActor
     func test_itemUpdated() {

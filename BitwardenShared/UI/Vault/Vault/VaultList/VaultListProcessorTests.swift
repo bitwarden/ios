@@ -147,6 +147,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast?.title)
     }
 
+    /// `itemArchived()` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_itemArchived() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemArchived()
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemArchived))
+    }
+
     /// `itemDeleted()` delegate method shows the expected toast.
     @MainActor
     func test_delegate_itemDeleted() {
@@ -172,6 +181,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.itemRestored()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemRestored))
+    }
+
+    /// `itemUnarchived()` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_itemUnarchived() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemUnarchived()
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUnarchived))
     }
 
     /// `init()` has default values set in the state.

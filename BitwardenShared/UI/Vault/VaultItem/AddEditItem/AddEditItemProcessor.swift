@@ -17,6 +17,9 @@ protocol CipherItemOperationDelegate: AnyObject {
     ///
     func itemAdded() -> Bool
 
+    /// Called when the cipher item has been successfully archived.
+    func itemArchived()
+
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
@@ -25,6 +28,9 @@ protocol CipherItemOperationDelegate: AnyObject {
 
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
+
+    /// Called when the cipher item has been successfully unarchived.
+    func itemUnarchived()
 
     /// Called when a cipher item has been successfully updated.
     ///
@@ -37,11 +43,15 @@ protocol CipherItemOperationDelegate: AnyObject {
 extension CipherItemOperationDelegate {
     func itemAdded() -> Bool { true }
 
+    func itemArchived() {}
+
     func itemDeleted() {}
 
     func itemRestored() {}
 
     func itemSoftDeleted() {}
+
+    func itemUnarchived() {}
 
     func itemUpdated() -> Bool { true }
 }
@@ -129,6 +139,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlags()
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
@@ -402,6 +413,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.sshKeyState.isPrivateKeyVisible.toggle()
             // TODO: PM-11977 Collect visibility toggled event
         }
+    }
+
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isArchiveVaultItemsFFEnabled = await services.configService.getFeatureFlag(.archiveVaultItems)
     }
 
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates

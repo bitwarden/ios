@@ -21,6 +21,16 @@ extension CipherListView {
         }
     }
 
+    /// Whether the cipher is archived.
+    var isArchived: Bool {
+        archivedDate != nil
+    }
+
+    /// Whether the cipher is normally hidden for flows by being archived or deleted.
+    var isHidden: Bool {
+        archivedDate != nil || deletedDate != nil
+    }
+
     // MARK: Methods
 
     /// Whether the cipher belongs to a group.
@@ -28,6 +38,8 @@ extension CipherListView {
     /// - Returns: `true` if the cipher belongs to the group, `false` otherwise.
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         switch group {
+        case .archive:
+            archivedDate != nil
         case .card:
             type.isCard
         case let .collection(id, _, _):

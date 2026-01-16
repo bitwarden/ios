@@ -1,6 +1,13 @@
 import BitwardenSdk
 
 extension Cipher {
+    // MARK: Properties
+
+    /// Whether the cipher is normally hidden for flows by being archived or deleted.
+    var isHidden: Bool {
+        archivedDate != nil || deletedDate != nil
+    }
+
     // MARK: Methods
 
     /// Whether the cipher belongs to a group.
@@ -8,6 +15,8 @@ extension Cipher {
     /// - Returns: `true` if the cipher belongs to the group, `false` otherwise.
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         switch group {
+        case .archive:
+            archivedDate != nil
         case .card:
             type == .card
         case let .collection(id, _, _):

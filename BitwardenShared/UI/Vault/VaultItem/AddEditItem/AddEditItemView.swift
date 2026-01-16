@@ -119,11 +119,13 @@ struct AddEditItemView: View {
                 versionDependentOrderingToolbarItemGroup(
                     alfa: {
                         VaultItemManagementMenuView(
+                            isArchiveEnabled: store.state.canBeArchived,
                             isCloneEnabled: false,
                             isCollectionsEnabled: store.state.canAssignToCollection,
                             isDeleteEnabled: store.state.canBeDeleted,
                             isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
                             isRestoreEnabled: false,
+                            isUnarchiveEnabled: store.state.canBeUnarchived,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },

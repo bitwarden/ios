@@ -39,6 +39,9 @@ class VaultGroupStateTests: BitwardenTestCase {
         let subjectTotp = VaultGroupState(group: .totp, vaultFilterType: .myVault)
         XCTAssertNil(subjectTotp.newItemButtonType)
 
+        let subjectArchive = VaultGroupState(group: .archive, vaultFilterType: .myVault)
+        XCTAssertNil(subjectArchive.newItemButtonType)
+
         let subjectTrash = VaultGroupState(group: .trash, vaultFilterType: .myVault)
         XCTAssertNil(subjectTrash.newItemButtonType)
     }

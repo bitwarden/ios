@@ -140,6 +140,18 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         )
     }
 
+    /// `archiveCipher()` performs the archive cipher request.
+    func test_archiveCipher() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        _ = try await subject.archiveCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/archive/")
+    }
+
     /// `bulkShareCiphers()` performs the bulk share ciphers request and decodes the response.
     func test_bulkShareCiphers() async throws {
         client.result = .httpSuccess(testData: .bulkShareCiphersResponse)
@@ -373,6 +385,18 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertNil(client.requests[0].body)
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/delete")
+    }
+
+    /// `unarchiveCipher()` performs the unarchive cipher request.
+    func test_unarchiveCipher() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        _ = try await subject.unarchiveCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/unarchive/")
     }
 
     /// `updateCipherCollections()` performs the update cipher collections request.

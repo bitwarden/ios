@@ -107,6 +107,9 @@ class DefaultAutofillCredentialService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The factory to create credential identities.
     private let credentialIdentityFactory: CredentialIdentityFactory
 
@@ -159,6 +162,7 @@ class DefaultAutofillCredentialService {
     ///   - appContextHelper: The helper to know about the app context.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - credentialIdentityFactory: The factory to create credential identities.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service to manage events.
@@ -177,6 +181,7 @@ class DefaultAutofillCredentialService {
         appContextHelper: AppContextHelper,
         cipherService: CipherService,
         clientService: ClientService,
+        configService: ConfigService,
         credentialIdentityFactory: CredentialIdentityFactory,
         errorReporter: ErrorReporter,
         eventService: EventService,
@@ -193,6 +198,7 @@ class DefaultAutofillCredentialService {
         self.appContextHelper = appContextHelper
         self.cipherService = cipherService
         self.clientService = clientService
+        self.configService = configService
         self.credentialIdentityFactory = credentialIdentityFactory
         self.errorReporter = errorReporter
         self.eventService = eventService
@@ -311,8 +317,10 @@ class DefaultAutofillCredentialService {
         do {
             await flightRecorder.log("[AutofillCredentialService] Replacing all credential identities")
 
+            let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
             let decryptedCiphers = try await cipherService.fetchAllCiphers()
-                .filter { $0.type == .login && $0.deletedDate == nil }
+                .filter { $0.type == .login && !$0.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled) }
                 .asyncMap { cipher in
                     try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
                 }

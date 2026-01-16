@@ -59,7 +59,7 @@ struct VaultGroupState: Equatable, Sendable {
             return .button
         case .collection, .folder, .noFolder:
             return .menu
-        case .sshKey, .totp, .trash:
+        case .archive, .sshKey, .totp, .trash:
             return nil
         }
     }
@@ -101,6 +101,8 @@ struct VaultGroupState: Equatable, Sendable {
             Localizations.thereAreNoSSHKeysInYourVault
         case .trash:
             Localizations.noItemsTrash
+        case .archive:
+            Localizations.thereAreNoItemsInTheArchive
         default:
             Localizations.noItems
         }
