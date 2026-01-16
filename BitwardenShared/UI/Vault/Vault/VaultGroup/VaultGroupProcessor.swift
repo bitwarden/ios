@@ -342,6 +342,9 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
 
     // MARK: Private methods
 
+    /// Displays a toast and performs a refresh.
+    ///
+    /// - Parameter toastTitle: The title of the toast.
     func displayToastAndRefresh(toastTitle: String) {
         state.toast = Toast(title: toastTitle)
         Task {
