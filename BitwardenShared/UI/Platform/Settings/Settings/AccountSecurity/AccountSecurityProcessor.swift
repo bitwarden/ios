@@ -23,6 +23,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         & HasStateService
         & HasTimeProvider
         & HasTwoStepLoginService
+        & HasUserSessionStateService
 
     // MARK: Private Properties
 
@@ -132,7 +133,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
                 return
             }
 
-            state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
+            state.sessionTimeoutValue = try await services.userSessionStateService.getVaultTimeout()
             state.sessionTimeoutType = SessionTimeoutType(value: state.sessionTimeoutValue)
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

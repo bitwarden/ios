@@ -7,7 +7,7 @@ import Foundation
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:disable:this type_body_length
+class MockStateService: StateService, ActiveAccountStateProvider, UserSessionStateService { // swiftlint:disable:this type_body_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
@@ -753,7 +753,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         self.usesKeyConnector[userId] = usesKeyConnector
     }
 
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
+    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
         if let setVaultTimeoutError { throw setVaultTimeoutError }
         let userId = try unwrapUserId(userId)
         vaultTimeout[userId] = value

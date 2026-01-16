@@ -131,6 +131,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             policyService: policyService,
             stateService: stateService,
             trustDeviceService: trustDeviceService,
+            userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,
         )
     }

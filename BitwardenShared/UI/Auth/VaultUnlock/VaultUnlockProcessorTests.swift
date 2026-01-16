@@ -42,6 +42,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
                 stateService: stateService,
+                userSessionStateService: stateService,
             ),
             state: VaultUnlockState(account: .fixture()),
         )

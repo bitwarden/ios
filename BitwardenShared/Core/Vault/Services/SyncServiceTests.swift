@@ -76,6 +76,7 @@ class SyncServiceTests: BitwardenTestCase {
             stateService: stateService,
             syncAPIService: APIService(client: client),
             timeProvider: timeProvider,
+            userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,
         )
         subject.delegate = syncServiceDelegate

@@ -18,6 +18,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
+    /// The keychain item for a user's last active time.
+    case lastActiveTime(userId: String)
+
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
 
@@ -27,6 +30,12 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for the number of unsuccessful unlock attempts.
+    case unsuccessfulUnlockAttempts(userId: String)
+
+    /// The keychain item for a user's vault timeout.
+    case vaultTimeout(userId: String)
+
     /// The `SecAccessControlCreateFlags` level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
@@ -35,9 +44,12 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         case .accessToken,
              .authenticatorVaultKey,
              .deviceKey,
+             .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
-             .refreshToken:
+             .refreshToken,
+             .unsuccessfulUnlockAttempts,
+             .vaultTimeout:
             nil
         case .biometrics:
             .biometryCurrentSet
@@ -49,8 +61,11 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         switch self {
         case .biometrics,
              .deviceKey,
+             .lastActiveTime,
              .neverLock,
-             .pendingAdminLoginRequest:
+             .pendingAdminLoginRequest,
+             .unsuccessfulUnlockAttempts,
+             .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
@@ -71,12 +86,18 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
             "deviceKey_" + id
+        case let .lastActiveTime(userId):
+            "lastActiveTime_\(userId)"
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .pendingAdminLoginRequest(userId):
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .unsuccessfulUnlockAttempts(userId):
+            "unsuccessfulUnlockAttempts_\(userId)"
+        case let .vaultTimeout(userId):
+            "vaultTimeout_\(userId)"
         }
     }
 }
@@ -100,12 +121,6 @@ protocol KeychainRepository: AnyObject {
     ///
     func deleteItems(for userId: String) async throws
 
-    /// Attempts to delete the userAuthKey from the keychain.
-    ///
-    /// - Parameter item: The KeychainItem to be deleted.
-    ///
-    func deleteUserAuthKey(for item: KeychainItem) async throws
-
     /// Attempts to delete the device key from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored device key.
@@ -117,6 +132,12 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the stored device key.
     ///
     func deletePendingAdminLoginRequest(userId: String) async throws
+
+    /// Attempts to delete the userAuthKey from the keychain.
+    ///
+    /// - Parameter item: The KeychainItem to be deleted.
+    ///
+    func deleteUserAuthKey(for item: KeychainItem) async throws
 
     /// Gets the stored access token for a user from the keychain.
     ///
@@ -422,6 +443,10 @@ extension DefaultKeychainRepository {
         try await getValue(for: .deviceKey(userId: userId))
     }
 
+//    func getLastActiveTime(userId: String) async throws -> String? {
+//        try await getValue(for: .lastActiveTime(userId: userId))
+//    }
+
     func getRefreshToken(userId: String) async throws -> String {
         try await getValue(for: .refreshToken(userId: userId))
     }
@@ -433,6 +458,10 @@ extension DefaultKeychainRepository {
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
         try await getValue(for: item)
     }
+
+//    func getVaultTimeout(userId: String) async throws -> String? {
+//        try await getValue(for: .vaultTimeout(userId: userId))
+//    }
 
     func setAccessToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .accessToken(userId: userId))
@@ -446,6 +475,10 @@ extension DefaultKeychainRepository {
         try await setValue(value, for: .deviceKey(userId: userId))
     }
 
+    func setLastActiveTime(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .lastActiveTime(userId: userId))
+    }
+
     func setRefreshToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .refreshToken(userId: userId))
     }
@@ -456,6 +489,10 @@ extension DefaultKeychainRepository {
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
         try await setValue(value, for: item)
+    }
+
+    func setVaultTimeout(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .vaultTimeout(userId: userId))
     }
 }
 
@@ -475,5 +512,64 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func setUserBiometricAuthKey(userId: String, value: String) async throws {
         let key = KeychainItem.biometrics(userId: userId)
         try await setUserAuthKey(for: key, value: value)
+    }
+}
+
+// MARK: UserSessionKeychainRepository
+
+extension DefaultKeychainRepository: UserSessionKeychainRepository {
+    // MARK: Last Active Time
+
+    func deleteLastActiveTime(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .lastActiveTime(userId: userId)),
+        )
+    }
+
+    func getLastActiveTime(userId: String) async throws -> Date? {
+        let stored = try await getValue(for: .lastActiveTime(userId: userId))
+        guard let timeInterval = TimeInterval(stored) else {
+            return nil
+        }
+        return Date(timeIntervalSince1970: timeInterval)
+    }
+
+    func setLastActiveTime(_ date: Date?, userId: String) async throws {
+        let value = date.map(\.timeIntervalSince1970).map(String.init(describing:)) ?? ""
+        try await setValue(value, for: .lastActiveTime(userId: userId))
+    }
+
+    // MARK: Unsuccessful Unlock Attempts
+
+    func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int {
+        do {
+            let stored = try await getValue(for: .unsuccessfulUnlockAttempts(userId: userId))
+            return Int(stored) ?? 0
+        } catch {
+            return 0
+        }
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) async throws {
+        let value = String(attempts)
+        try await setValue(value, for: .unsuccessfulUnlockAttempts(userId: userId))
+    }
+
+    // MARK: Vault Timeout
+
+    func deleteVaultTimeout(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .vaultTimeout(userId: userId)),
+        )
+    }
+
+    func getVaultTimeout(userId: String) async throws -> Int? {
+        let stored = try await getValue(for: .vaultTimeout(userId: userId))
+        return Int(stored)
+    }
+
+    func setVaultTimeout(minutes: Int, userId: String) async throws {
+        let value = String(minutes)
+        try await setValue(value, for: .vaultTimeout(userId: userId))
     }
 }

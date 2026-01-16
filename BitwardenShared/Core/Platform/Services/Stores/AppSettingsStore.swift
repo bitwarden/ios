@@ -194,9 +194,12 @@ protocol AppSettingsStore: AnyObject {
 
     /// The user's last active time within the app.
     /// This value is set when the app is backgrounded.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameter userId: The user ID associated with the last active time within the app.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func lastActiveTime(userId: String) -> Date?
 
     /// Get the user's Biometric Authentication Preference.
@@ -419,11 +422,14 @@ protocol AppSettingsStore: AnyObject {
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
 
     /// Sets the last active time within the app.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameters:
     ///   - date: The current time.
     ///   - userId: The user ID associated with the last active time within the app.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func setLastActiveTime(_ date: Date?, userId: String)
 
     /// Sets the time of the last sync for the user ID.
@@ -536,14 +542,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String)
 
-    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameters:
-    ///  -  attempts: The number of unsuccessful unlock attempts.
-    ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
-    ///
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
-
     /// Sets whether the user uses key connector.
     ///
     /// - Parameters:
@@ -553,11 +551,14 @@ protocol AppSettingsStore: AnyObject {
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String)
 
     /// Sets the user's session timeout, in minutes.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameters:
     ///   - key: The session timeout, in minutes.
     ///   - userId: The user ID associated with the session timeout.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func setVaultTimeout(minutes: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
@@ -610,13 +611,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
 
-    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
-    /// - Returns: The number of unsuccessful attempts to unlock the vault.
-    ///
-    func unsuccessfulUnlockAttempts(userId: String) -> Int
-
     /// Gets whether the user uses key connector.
     ///
     /// - Parameter userId: The user ID to check if they use key connector.
@@ -625,10 +619,13 @@ protocol AppSettingsStore: AnyObject {
     func usesKeyConnector(userId: String) -> Bool
 
     /// Returns the session timeout in minutes.
+    /// This is deprecated in favor of the KeychainRepository version,
+    /// and only remains for migration compatibility.
     ///
     /// - Parameter userId: The user ID associated with the session timeout.
     /// - Returns: The user's session timeout in minutes.
     ///
+    @available(*, deprecated, message: "Use KeychainRepository version instead")
     func vaultTimeout(userId: String) -> Int?
 
     // MARK: Publishers
@@ -754,7 +751,7 @@ class DefaultAppSettingsStore {
 extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
-    enum Keys {
+    enum Keys { // TODO: Delete keys
         case accessTokenExpirationDate(userId: String)
         case accountKeys(userId: String)
         case accountSetupAutofill(userId: String)
@@ -1327,20 +1324,12 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .vaultTimeout(userId: userId))
     }
 
-    func unsuccessfulUnlockAttempts(userId: String) -> Int {
-        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
-    }
-
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
 
     func usesKeyConnector(userId: String) -> Bool {
         fetch(for: .usesKeyConnector(userId: userId))
-    }
-
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
-        store(attempts, for: .unsuccessfulUnlockAttempts(userId: userId))
     }
 
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {

@@ -190,6 +190,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// A factory protocol to create `UserVerificationHelper`s.
     let userVerificationHelperFactory: UserVerificationHelperFactory
 
+    /// The service used by the application to manage user session state.
+    let userSessionStateService: UserSessionStateService
+
     /// The repository used by the application to manage vault data for the UI layer.
     let vaultRepository: VaultRepository
 
@@ -264,6 +267,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - trustDeviceService: The service used to handle device trust.
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
+    ///   - userSessionStateService: The service used by the application to manage user session state.
+    ///   - userVerificationHelperFactory: A factory protocol to create `UserVerificationHelper`s.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///   - watchService: The service used by the application to connect to and communicate with the watch app.
@@ -324,6 +329,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         totpService: TOTPService,
         trustDeviceService: TrustDeviceService,
         twoStepLoginService: TwoStepLoginService,
+        userSessionStateService: UserSessionStateService,
         userVerificationHelperFactory: UserVerificationHelperFactory,
         vaultRepository: VaultRepository,
         vaultTimeoutService: VaultTimeoutService,
@@ -383,6 +389,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.totpService = totpService
         self.trustDeviceService = trustDeviceService
         self.twoStepLoginService = twoStepLoginService
+        self.userSessionStateService = userSessionStateService
         self.userVerificationHelperFactory = userVerificationHelperFactory
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
@@ -440,6 +447,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            userSessionKeychainRepository: keychainRepository,
         )
 
         let flightRecorder = DefaultFlightRecorder(
@@ -604,6 +612,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
+            userSessionStateService: stateService,
         )
 
         let reviewPromptService = DefaultReviewPromptService(
@@ -627,6 +636,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             syncAPIService: apiService,
             timeProvider: timeProvider,
+            userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,
         )
 
@@ -695,6 +705,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             policyService: policyService,
             stateService: stateService,
             trustDeviceService: trustDeviceService,
+            userSessionStateService: stateService,
             vaultTimeoutService: vaultTimeoutService,
         )
 
@@ -710,6 +721,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
+            userSessionStateService: stateService,
         )
 
         let notificationService = DefaultNotificationService(
@@ -996,6 +1008,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             totpService: totpService,
             trustDeviceService: trustDeviceService,
             twoStepLoginService: twoStepLoginService,
+            userSessionStateService: stateService,
             userVerificationHelperFactory: userVerificationHelperFactory,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
