@@ -55,7 +55,7 @@ protocol CipherAPIService {
         collectionIds: [String],
         encryptedFor: String?,
     ) async throws -> BulkShareCiphersResponseModel
-    
+
     /// Performs an API request to delete an existing attachment in the user's vault.
     ///
     /// - Parameters:
@@ -192,7 +192,7 @@ extension APIService: CipherAPIService {
             encryptedFor: encryptedFor,
         ))
     }
-    
+
     func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> DeleteAttachmentResponse {
         try await apiService.send(DeleteAttachmentRequest(attachmentId: attachmentId, cipherId: cipherId))
     }
