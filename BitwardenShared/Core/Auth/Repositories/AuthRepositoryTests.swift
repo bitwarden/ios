@@ -1149,7 +1149,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(
             client.requests[0].url.absoluteString,
-            "https://example.com/api/organizations/ORG_ID/users/revoke-self"
+            "https://example.com/api/organizations/ORG_ID/users/revoke-self",
         )
     }
 

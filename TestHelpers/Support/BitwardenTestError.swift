@@ -15,7 +15,7 @@ public enum BitwardenTestError: Equatable, LocalizedError {
         switch self {
         case .example:
             "An example error used to test throwing capabilities."
-        case .mock(let string):
+        case let .mock(string):
             "A mock error with the string: \(string)."
         }
     }
