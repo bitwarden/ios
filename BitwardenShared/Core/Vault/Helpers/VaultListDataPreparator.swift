@@ -144,10 +144,6 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 return
             }
 
-            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
-                return
-            }
-
             let matchResult = cipherMatchingHelper.doesCipherMatch(
                 cipher: decryptedCipher,
                 archiveVaultItemsFF: archiveItemsFeatureFlagEnabled,

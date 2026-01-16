@@ -1155,36 +1155,6 @@ class VaultListDataPreparatorTests: BitwardenTestCase { // swiftlint:disable:thi
         XCTAssertNotNil(result)
     }
 
-    /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data filtering out cipher as it's archived
-    /// when feature flag is enabled.
-    @MainActor
-    func test_prepareAutofillPasswordsData_archivedCipherFeatureFlagEnabled() async throws {
-        configService.featureFlagsBool[.archiveVaultItems] = true
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            archivedDate: .now,
-            copyableFields: [.loginPassword],
-        )
-        cipherMatchingHelper.doesCipherMatchReturnValue = .exact
-
-        let result = await subject.prepareAutofillPasswordsData(
-            from: [
-                .fixture(
-                    login: .fixture(
-                        uris: [.fixture(uri: "https://example.com", match: .exact)],
-                    ),
-                ),
-            ],
-            filter: VaultListFilter(uri: "https://example.com"),
-        )
-
-        XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
-        ])
-        XCTAssertNotNil(result)
-        XCTAssertNil(cipherMatchingHelper.doesCipherMatchReceivedArguments?.cipher)
-    }
-
     /// `prepareAutofillPasswordsData(from:filter:)` returns the prepared data including cipher as it's archived
     /// when feature flag is disabled.
     @MainActor
