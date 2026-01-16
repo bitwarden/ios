@@ -125,11 +125,11 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let cipher = Cipher.fixture(id: "1", name: "Test Cipher")
         let userId = stateService.activeAccount?.profile.userId ?? ""
-        cipherDataStore.cipherChangesSubjectByUserId[userId]?.send(.inserted(cipher))
+        cipherDataStore.cipherChangesSubjectByUserId[userId]?.send(.upserted(cipher))
 
         let change = try await iterator.next()
-        guard case let .inserted(insertedCipher) = change else {
-            XCTFail("Expected inserted change")
+        guard case let .upserted(insertedCipher) = change else {
+            XCTFail("Expected upserted change")
             return
         }
         XCTAssertEqual(insertedCipher.id, cipher.id)

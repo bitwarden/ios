@@ -601,9 +601,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
+            appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
+            configService: configService,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
@@ -810,6 +812,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 clientService: clientService,
                 configService: configService,
                 errorReporter: errorReporter,
+                stateService: stateService,
                 syncService: syncService,
             ),
         )
@@ -819,6 +822,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            stateService: stateService,
             syncService: syncService,
         )
         #endif
@@ -834,6 +838,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,

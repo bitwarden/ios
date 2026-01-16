@@ -124,6 +124,67 @@ class AppInfoServiceTests: BitwardenTestCase {
         )
     }
 
+    /// `appInfoString` includes SDK version when available.
+    func test_appInfoString_withSDKVersion() {
+        appAdditionalInfo.sdkVersion = "1.0.0-1234-abc1234"
+
+        XCTAssertEqual(
+            subject.appInfoString,
+            """
+            © Bitwarden Inc. 2015–2025
+
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            🦀 SDK: 1.0.0-1234-abc1234
+            """,
+        )
+    }
+
+    /// `appInfoString` excludes SDK version when unknown.
+    func test_appInfoString_withUnknownSDKVersion() {
+        appAdditionalInfo.sdkVersion = "Unknown"
+
+        XCTAssertEqual(
+            subject.appInfoString,
+            """
+            © Bitwarden Inc. 2015–2025
+
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            """,
+        )
+    }
+
+    /// `appInfoString` includes both SDK version and CI build info when both available.
+    func test_appInfoString_withSDKVersionAndCIBuildInfo() {
+        appAdditionalInfo.sdkVersion = "1.0.0-1234-abc1234"
+        appAdditionalInfo.ciBuildInfo = [
+            "🧱 Commit": "bitwarden/ios/main@abc123",
+            "💻 Build Source": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ Compiler Flags": "DEBUG_MENU",
+        ]
+
+        XCTAssertEqual(
+            subject.appInfoString,
+            """
+            © Bitwarden Inc. 2015–2025
+
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            🦀 SDK: 1.0.0-1234-abc1234
+            🧱 Commit: bitwarden/ios/main@abc123
+            💻 Build Source: bitwarden/ios/actions/runs/123/attempts/123
+            🛠️ Compiler Flags: DEBUG_MENU
+            """,
+        )
+    }
+
     /// `debugAppInfoString` returns the app info string without copyright info.
     func test_appInfoWithoutCopyrightString() {
         appAdditionalInfo.ciBuildInfo = [
@@ -169,8 +230,17 @@ class AppInfoServiceTests: BitwardenTestCase {
     func test_appAdditionalInfo_ciBuildInfo() {
         XCTAssertTrue(DefaultAppAdditionalInfo().ciBuildInfo.isEmpty)
     }
+
+    /// `sdkVersion` returns the SDK version from SDKVersionInfo.
+    func test_appAdditionalInfo_sdkVersion() {
+        let info = DefaultAppAdditionalInfo()
+        XCTAssertNotNil(info.sdkVersion)
+        XCTAssertFalse(info.sdkVersion.isEmpty)
+        XCTAssertEqual(info.sdkVersion, SDKVersionInfo.version)
+    }
 }
 
 class MockAppAdditionalInfo: AppAdditionalInfo {
     var ciBuildInfo: KeyValuePairs<String, String> = [:]
+    var sdkVersion: String = "Unknown"
 }
