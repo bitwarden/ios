@@ -13,6 +13,11 @@ class MockVaultRepository: VaultRepository {
     var addCipherCiphers = [CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
 
+    var bulkShareCiphersCiphers = [[CipherView]]()
+    var bulkShareCiphersOrganizationId: String?
+    var bulkShareCiphersCollectionIds: [String]?
+    var bulkShareCiphersResult: Result<Void, Error> = .success(())
+
     var canShowVaultFilter = true
 
     var ciphersAutofillPublisherUriCalled: String?
@@ -72,6 +77,9 @@ class MockVaultRepository: VaultRepository {
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
+    var migratePersonalVaultOrganizationId: String?
+    var migratePersonalVaultResult: Result<Void, Error> = .success(())
+
     var needsSyncCalled = false
     var needsSyncResult: Result<Bool, Error> = .success(false)
 
@@ -129,6 +137,17 @@ class MockVaultRepository: VaultRepository {
     func addCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         addCipherCiphers.append(cipher)
         try addCipherResult.get()
+    }
+
+    func bulkShareCiphers(
+        _ ciphers: [CipherView],
+        newOrganizationId: String,
+        newCollectionIds: [String],
+    ) async throws {
+        bulkShareCiphersCiphers.append(ciphers)
+        bulkShareCiphersOrganizationId = newOrganizationId
+        bulkShareCiphersCollectionIds = newCollectionIds
+        try bulkShareCiphersResult.get()
     }
 
     func canShowVaultFilter() async -> Bool {
@@ -234,14 +253,19 @@ class MockVaultRepository: VaultRepository {
         try getTOTPKeyIfAllowedToCopyResult.get()
     }
 
-    func needsSync() async throws -> Bool {
-        needsSyncCalled = true
-        return try needsSyncResult.get()
-    }
-
     func isVaultEmpty() async throws -> Bool {
         isVaultEmptyCalled = true
         return try isVaultEmptyResult.get()
+    }
+
+    func migratePersonalVault(to organizationId: String) async throws {
+        migratePersonalVaultOrganizationId = organizationId
+        try migratePersonalVaultResult.get()
+    }
+
+    func needsSync() async throws -> Bool {
+        needsSyncCalled = true
+        return try needsSyncResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
