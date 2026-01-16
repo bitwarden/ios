@@ -129,7 +129,7 @@ public struct SettingsPickerField: View {
         pickerValue: .constant(1),
         customTimeoutAccessibilityLabel: "one hour, zero minutes",
     )
-    
+
     SettingsPickerField(
         title: "",
         footer: nil,

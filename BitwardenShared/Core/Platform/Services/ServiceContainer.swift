@@ -409,7 +409,19 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
-        let appInfoService = DefaultAppInfoService()
+
+        // Create holder for breaking circular dependency.
+        // This is set later in this initializer, after configService is created.
+        var configServiceHolder: ConfigService?
+        defer {
+            precondition(configServiceHolder != nil, "`configServiceHolder` needs to be set prior to this defer block.")
+        }
+
+        // Create appInfoService with a provider closure that captures the holder.
+        // The provider will be called when server version info is needed.
+        let appInfoService = DefaultAppInfoService(
+            configServiceProvider: { configServiceHolder },
+        )
 
         let dataStore = DataStore(errorReporter: errorReporter)
 
@@ -470,6 +482,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             timeProvider: timeProvider,
         )
+        configServiceHolder = configService
 
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,

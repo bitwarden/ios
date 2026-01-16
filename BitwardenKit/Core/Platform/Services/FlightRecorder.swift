@@ -314,7 +314,7 @@ public actor DefaultFlightRecorder {
     ///
     private func createLogFile(for log: FlightRecorderData.LogMetadata) async throws {
         let userId = await (try? stateService.getActiveAccountId()) ?? "n/a"
-        let contents = """
+        let contents = await """
         Bitwarden iOS Flight Recorder
         Log Start: \(dateFormatter.string(from: log.startDate))
         Log Duration: \(log.duration.shortDescription)

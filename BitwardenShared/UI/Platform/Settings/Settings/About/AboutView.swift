@@ -83,7 +83,9 @@ struct AboutView: View {
             externalLinkRow(Localizations.learnOrg, action: .learnAboutOrganizationsTapped)
 
             SettingsListItem(store.state.version) {
-                store.send(.versionTapped)
+                Task {
+                    await store.perform(.copyVersionInfo)
+                }
             } trailingContent: {
                 SharedAsset.Icons.copy24.swiftUIImage
                     .imageStyle(.rowIcon)

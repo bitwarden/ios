@@ -41,7 +41,4 @@ enum SettingsAction: Equatable {
 
     /// The tutorial button was tapped
     case tutorialTapped
-
-    /// The version was tapped.
-    case versionTapped
 }
