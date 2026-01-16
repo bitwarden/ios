@@ -112,7 +112,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 services.errorReporter.log(error: error)
             }
         case .archivedPressed:
-            await showArchiveItemConfirmation()
+            await archiveItemWithConfirmation()
         case .deletePressed:
             guard case let .data(cipherState) = state.loadingState else { return }
             if cipherState.cipher.deletedDate == nil {
@@ -125,7 +125,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .totpCodeExpired:
             await updateTOTPCode()
         case .unarchivePressed:
-            await showUnarchiveItemConfirmation()
+            await unarchiveItemWithConfirmation()
         }
     }
 
@@ -199,6 +199,24 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
 private extension ViewItemProcessor {
     // MARK: Private Methods
+
+    /// Archives a cipher with a pre confirmation alert.
+    ///
+    private func archiveItemWithConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+        let alert = Alert.confirmation(title: Localizations.doYouReallyWantToArchiveThisItem) { [weak self] in
+            guard let self else { return }
+
+            await performOperationAndDismiss(
+                loadingTitle: Localizations.sendingToArchive,
+                operation: {
+                    try await self.services.vaultRepository.archiveCipher(cipherState.cipher)
+                },
+                onDismiss: { $0.delegate?.itemArchived() },
+            )
+        }
+        coordinator.showAlert(alert)
+    }
 
     /// Navigates to the clone item view. If the cipher contains FIDO2 credentials, an alert is
     /// shown confirming that the user wants to proceed cloning the cipher without a FIDO2 credential.
@@ -430,6 +448,32 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Performs an operation and dismisses the view with an action.
+    /// - Parameters:
+    ///   - loadingTitle: The title of the loading overlay.
+    ///   - operation: The operation to execute.
+    ///   - onDismiss: The action to execute when dismissing.
+    private func performOperationAndDismiss(
+        loadingTitle: String,
+        operation: () async throws -> Void,
+        onDismiss: @escaping (ViewItemProcessor) -> Void,
+    ) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: loadingTitle))
+
+            try await operation()
+
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                guard let self else { return }
+                onDismiss(self)
+            })))
+        } catch {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Restores the item currently stored in `state`.
     ///
     private func restoreItem(_ cipher: CipherView) async {
@@ -443,40 +487,6 @@ private extension ViewItemProcessor {
             })))
         } catch {
             await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Archives the item currently stored in `state`.
-    ///
-    private func archiveItem(_ cipher: CipherView) async {
-        defer { coordinator.hideLoadingOverlay() }
-        do {
-            coordinator.showLoadingOverlay(.init(title: Localizations.sendingToArchive))
-
-            try await services.vaultRepository.archiveCipher(cipher)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemArchived()
-            })))
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Unarchives the item currently stored in `state`.
-    ///
-    private func unarchiveItem(_ cipher: CipherView) async {
-        defer { coordinator.hideLoadingOverlay() }
-        do {
-            coordinator.showLoadingOverlay(.init(title: Localizations.unarchiving))
-
-            try await services.vaultRepository.unarchiveCipher(cipher)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemUnarchived()
-            })))
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }
@@ -516,50 +526,6 @@ private extension ViewItemProcessor {
                     handler: { [weak self] _ in
                         guard let self else { return }
                         await restoreItem(cipherState.cipher)
-                    },
-                ),
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-        )
-        coordinator.showAlert(alert)
-    }
-
-    /// Shows unarchive cipher confirmation alert.
-    ///
-    private func showUnarchiveItemConfirmation() async {
-        guard case let .data(cipherState) = state.loadingState else { return }
-        let alert = Alert(
-            title: Localizations.doYouReallyWantToUnarchiveThisItem,
-            message: nil,
-            alertActions: [
-                AlertAction(
-                    title: Localizations.yes,
-                    style: .default,
-                    handler: { [weak self] _ in
-                        guard let self else { return }
-                        await unarchiveItem(cipherState.cipher)
-                    },
-                ),
-                AlertAction(title: Localizations.cancel, style: .cancel),
-            ],
-        )
-        coordinator.showAlert(alert)
-    }
-
-    /// Shows archive cipher confirmation alert.
-    ///
-    private func showArchiveItemConfirmation() async {
-        guard case let .data(cipherState) = state.loadingState else { return }
-        let alert = Alert(
-            title: Localizations.doYouReallyWantToArchiveThisItem,
-            message: nil,
-            alertActions: [
-                AlertAction(
-                    title: Localizations.yes,
-                    style: .default,
-                    handler: { [weak self] _ in
-                        guard let self else { return }
-                        await archiveItem(cipherState.cipher)
                     },
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -631,6 +597,25 @@ private extension ViewItemProcessor {
         cipherState.isShowingMultipleCollections.toggle()
 
         state.loadingState = .data(cipherState)
+    }
+
+    /// Unarchives cipher with pre confirmation alert.
+    ///
+    private func unarchiveItemWithConfirmation() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+
+        let alert = Alert.confirmation(title: Localizations.doYouReallyWantToUnarchiveThisItem) { [weak self] in
+            guard let self else { return }
+
+            await performOperationAndDismiss(
+                loadingTitle: Localizations.unarchiving,
+                operation: {
+                    try await self.services.vaultRepository.unarchiveCipher(cipherState.cipher)
+                },
+                onDismiss: { $0.delegate?.itemUnarchived() },
+            )
+        }
+        coordinator.showAlert(alert)
     }
 }
 

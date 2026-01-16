@@ -1407,7 +1407,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         try await alert?.tapAction(title: Localizations.yes)
 
         // Ensure the network error alert is displayed.
-        XCTAssertEqual(coordinator.alertShown.count, 2)
+        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
@@ -1471,7 +1471,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         try await alert?.tapAction(title: Localizations.yes)
 
         // Ensure the network error alert is displayed.
-        XCTAssertEqual(coordinator.alertShown.count, 2)
+        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
