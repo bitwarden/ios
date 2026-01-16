@@ -163,39 +163,4 @@ class CipherExtensionsTests: BitwardenTestCase {
         XCTAssertTrue(Cipher.fixture(archivedDate: .now, deletedDate: .now).isHidden)
         XCTAssertFalse(Cipher.fixture(archivedDate: nil, deletedDate: nil).isHidden)
     }
-
-    /// `isHiddenWithArchiveFF` returns `true` when cipher is deleted, regardless of feature flag state.
-    func test_isHiddenWithArchiveFF_deleted() {
-        let deletedCipher = Cipher.fixture(archivedDate: nil, deletedDate: .now)
-        XCTAssertTrue(deletedCipher.isHiddenWithArchiveFF(flag: true))
-        XCTAssertTrue(deletedCipher.isHiddenWithArchiveFF(flag: false))
-    }
-
-    /// `isHiddenWithArchiveFF` returns `true` when cipher is both archived and deleted,
-    /// regardless of feature flag state.
-    func test_isHiddenWithArchiveFF_archivedAndDeleted() {
-        let archivedAndDeletedCipher = Cipher.fixture(archivedDate: .now, deletedDate: .now)
-        XCTAssertTrue(archivedAndDeletedCipher.isHiddenWithArchiveFF(flag: true))
-        XCTAssertTrue(archivedAndDeletedCipher.isHiddenWithArchiveFF(flag: false))
-    }
-
-    /// `isHiddenWithArchiveFF` returns `true` when cipher is archived and feature flag is enabled.
-    func test_isHiddenWithArchiveFF_archivedWithFlagEnabled() {
-        let archivedCipher = Cipher.fixture(archivedDate: .now, deletedDate: nil)
-        XCTAssertTrue(archivedCipher.isHiddenWithArchiveFF(flag: true))
-    }
-
-    /// `isHiddenWithArchiveFF` returns `false` when cipher is archived but feature flag is disabled.
-    func test_isHiddenWithArchiveFF_archivedWithFlagDisabled() {
-        let archivedCipher = Cipher.fixture(archivedDate: .now, deletedDate: nil)
-        XCTAssertFalse(archivedCipher.isHiddenWithArchiveFF(flag: false))
-    }
-
-    /// `isHiddenWithArchiveFF` returns `false` when cipher is neither archived nor deleted,
-    /// regardless of feature flag state.
-    func test_isHiddenWithArchiveFF_notHidden() {
-        let normalCipher = Cipher.fixture(archivedDate: nil, deletedDate: nil)
-        XCTAssertFalse(normalCipher.isHiddenWithArchiveFF(flag: true))
-        XCTAssertFalse(normalCipher.isHiddenWithArchiveFF(flag: false))
-    }
 }
