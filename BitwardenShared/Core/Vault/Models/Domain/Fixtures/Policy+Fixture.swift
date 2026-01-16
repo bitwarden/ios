@@ -1,5 +1,6 @@
 import BitwardenKit
 import Foundation
+
 @testable import BitwardenShared
 
 extension Policy {
