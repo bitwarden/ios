@@ -932,22 +932,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
 
         // If it's not a forced sync, it should sync.
-        try await subject.fetchSync(
-            forceSync: false,
-            filter: .allVaults,
-            isPeriodic: true,
-        )
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
 
         // Same as before but to check `isPeriodic` is passed correctly.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
-        try await subject.fetchSync(
-            forceSync: false,
-            filter: .allVaults,
-            isPeriodic: false,
-        )
+        try await subject.fetchSync(forceSync: false, isPeriodic: false)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
 
@@ -955,11 +947,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // it should sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
-        try await subject.fetchSync(
-            forceSync: true,
-            filter: .myVault,
-            isPeriodic: true,
-        )
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(syncService.fetchSyncIsPeriodic == true)
 
@@ -967,11 +955,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // it should not sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = false
-        try await subject.fetchSync(
-            forceSync: true,
-            filter: .allVaults,
-            isPeriodic: true,
-        )
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
         XCTAssertFalse(syncService.didFetchSync)
     }
 

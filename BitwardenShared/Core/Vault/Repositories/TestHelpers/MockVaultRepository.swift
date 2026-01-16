@@ -243,7 +243,6 @@ class MockVaultRepository: VaultRepository {
 
     func fetchSync(
         forceSync: Bool,
-        filter _: VaultFilterType,
         isPeriodic: Bool,
     ) async throws {
         fetchSyncCalled = true

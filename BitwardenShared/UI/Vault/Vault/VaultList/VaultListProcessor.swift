@@ -360,7 +360,6 @@ extension VaultListProcessor {
 
             try await services.vaultRepository.fetchSync(
                 forceSync: false,
-                filter: state.vaultFilterType,
                 isPeriodic: syncWithPeriodicCheck,
             )
 
