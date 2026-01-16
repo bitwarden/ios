@@ -188,7 +188,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_delegate_itemUnarchived() {
         XCTAssertNil(subject.state.toast)
 
-        subject.itemArchived()
+        subject.itemUnarchived()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUnarchived))
     }
 
