@@ -95,7 +95,7 @@ final class MigrateToMyItemsProcessor: StateProcessor<
             coordinator.navigate(to: .dismiss())
         } catch {
             coordinator.hideLoadingOverlay()
-            await coordinator.showErrorAlert(error: error, onDismissed:  {
+            await coordinator.showErrorAlert(error: error, onDismissed: {
                 self.coordinator.navigate(to: .dismiss())
             })
             services.errorReporter.log(error: error)
