@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Apvienība ir iestatījusi noklusējuma sesijas noildzi uz %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz %1$@ un %2$@.";
+"OrganizationNotFound" = "Apvienība nav atrasta.";

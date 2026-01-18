@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "องค์กรของคุณได้ตั้งค่าเวลาหมดอายุเซสชันเริ่มต้นเป็น %1$@";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "องค์กรของคุณกำหนดการหมดเวลาเซสชันสูงสุดเป็น %1$@";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "องค์กรของคุณกำหนดการหมดเวลาเซสชันสูงสุดเป็น %1$@ %2$@";
+"OrganizationNotFound" = "Organization not found.";

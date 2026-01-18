@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@ i %2$@.";
+"OrganizationNotFound" = "Organization not found.";

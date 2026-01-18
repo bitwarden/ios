@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "您的组织已将默认会话超时设置为 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的组织已将最大会话超时设置为 %1$@ 。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "您的组织已将最大会话超时设置为 %1$@ 小时 %2$@ 分钟。";
+"OrganizationNotFound" = "未找到组织。";

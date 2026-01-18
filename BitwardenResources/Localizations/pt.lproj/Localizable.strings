@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A sua organização definiu o tempo limite predefinido da sessão como %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A sua organização definiu o tempo limite máximo da sessão para %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A sua organização definiu o tempo limite máximo da sessão para %1$@ e %2$@.";
+"OrganizationNotFound" = "Organização não encontrada.";

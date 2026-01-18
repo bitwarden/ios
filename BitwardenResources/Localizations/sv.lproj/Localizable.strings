@@ -1280,3 +1280,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Din organisation har ställt in standardtidsgräns för sessionen till %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Din organisation har ställt in maximal tidsgräns för sessionen till %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Din organisation har ställt in maximal tidsgräns för sessionen till %1$@ och %2$@.";
+"OrganizationNotFound" = "Organisationen kunde inte hittas.";

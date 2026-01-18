@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Tổ chức của bạn đã đặt thời gian phiên tối đa thành %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Tổ chức của bạn đã đặt thời gian phiên tối đa thành %1$@ và %2$@.";
+"OrganizationNotFound" = "Organization not found.";
