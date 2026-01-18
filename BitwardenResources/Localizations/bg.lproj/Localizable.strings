@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Организацията Ви е настроила стандартното разрешено време за достъп да бъде %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Организацията Ви е настроила максималното разрешено време за достъп на %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Организацията Ви е настроила максималното разрешено време за достъп на %1$@ и %2$@.";
+"OrganizationNotFound" = "Организацията не е намерена.";

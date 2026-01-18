@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Votre organisation a fixé le délai d'expiration de session à %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@ et %2$@.";
+"OrganizationNotFound" = "Organization not found.";

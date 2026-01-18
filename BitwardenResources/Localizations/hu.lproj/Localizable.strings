@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A szervezet a maximális munkamenet időkifutást %1$@ és %2$@ értékre állította.";
+"OrganizationNotFound" = "A szervezet nem található.";

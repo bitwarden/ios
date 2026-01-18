@@ -1281,3 +1281,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша организация установила тайм-аут сессии по умолчанию равным %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организация установила максимальный тайм-аут сессии равным %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организация установила максимальный тайм-аут сессии %1$@ и %2$@.";
+"OrganizationNotFound" = "Организация не найдена.";

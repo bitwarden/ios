@@ -1281,3 +1281,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "הארגון שלך הגדיר את פסק הזמן המרבי להפעלה ל־%1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "הארגון שלך הגדיר את פסק הזמן המרבי להפעלה ל־%1$@ ו־%2$@.";
+"OrganizationNotFound" = "Organization not found.";

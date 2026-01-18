@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organisation has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organisation has set the maximum session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organisation has set the maximum session timeout to %1$@ and %2$@.";
+"OrganizationNotFound" = "Organisation not found.";

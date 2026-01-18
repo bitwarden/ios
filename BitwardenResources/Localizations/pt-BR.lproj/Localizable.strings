@@ -1280,3 +1280,4 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A sua organização configurou o limite de tempo padrão da sessão para %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A sua organização configurou o limite de tempo máximo da sessão para %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A sua organização configurou o limite de tempo máximo da sessão para %1$@ e %2$@.";
+"OrganizationNotFound" = "Organização não encontrada.";

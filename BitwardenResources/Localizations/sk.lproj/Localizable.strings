@@ -1279,3 +1279,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaša organizácia nastavila predvolený časový limit relácie na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@ a %2$@.";
+"OrganizationNotFound" = "Organizácia sa nenašla.";

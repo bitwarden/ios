@@ -1280,3 +1280,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "您的組織已將預設工作階段逾時設定為 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的組織已將最長工作階段逾時設為 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "您的組織已將最長工作階段逾時設為 %1$@ 和 %2$@。";
+"OrganizationNotFound" = "Organization not found.";

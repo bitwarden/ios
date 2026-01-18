@@ -1280,3 +1280,4 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша организација је поставила подразумевано временско ограничење сесије на %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организација је поставила максимално временско ограничење сесије на %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организација је подесила максимално временско ограничење сесије на %1$@ и %2$@.";
+"OrganizationNotFound" = "Organization not found.";
