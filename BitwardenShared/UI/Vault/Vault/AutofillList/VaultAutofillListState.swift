@@ -40,6 +40,9 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// Whether the extension mode is creating a Fido2 credential.
     var isCreatingFido2Credential: Bool = false
 
+    /// The loading state of the autofill list screen.
+    var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
+
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
 
@@ -54,9 +57,6 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// A toast message to show in the view.
     var toast: Toast?
-
-    /// The list of sections to display for matching vault items.
-    var vaultListSections = [VaultListSection]()
 
     /// Whether to show the add item button.
     var showAddItemButton: Bool {

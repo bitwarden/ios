@@ -196,18 +196,25 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
         XCTAssertEqual(vaultRepository.fetchSyncIsPeriodic, false)
+        // Loading state should remain as loading until data is published
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
     }
 
-    /// `perform(_:)` with `.loadData` skips sync when user has synced before.
+    /// `perform(_:)` with `.loadData` does not log or alert when sync is cancelled during first sync.
     @MainActor
-    func test_perform_loadData_skipsSyncWhenAlreadySynced() async {
+    func test_perform_loadData_firstSync_cancelled() async {
         authRepository.profileSwitcherState = .empty()
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [Account.fixture().profile.userId: Date()]
+        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        vaultRepository.fetchSyncResult = .failure(URLError(.cancelled))
 
         await subject.perform(.loadData)
 
-        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(coordinator.errorAlertsShown.isEmpty)
+        // Loading state should remain as loading since it was cancelled
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
     }
 
     /// `perform(_:)` with `.loadData` logs error when sync fails during first sync.
@@ -223,6 +230,78 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .error(errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs),
+        )
+    }
+
+    /// `perform(_:)` with `.loadData` logs error when getLastSyncTime() fails during initial sync check.
+    @MainActor
+    func test_perform_loadData_firstSync_getLastSyncTimeError() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = nil // Causes getLastSyncTime to throw StateServiceError.noActiveAccount
+
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `perform(_:)` with `.loadData` doesn't reset loading state when already loading with cached sections.
+    @MainActor
+    func test_perform_loadData_firstSync_preservesCachedSectionsWhileSyncing() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        vaultRepository.fetchSyncResult = .success(())
+
+        let cachedSection = VaultListSection(
+            id: "cached",
+            items: [VaultListItem(cipherListView: .fixture(name: "Cached Item"))].compactMap(\.self),
+            name: "Cached",
+        )
+        subject.state.loadingState = .loading([cachedSection])
+
+        await subject.perform(.loadData)
+
+        // Sync was called and completed, transitioning cached sections from loading to data
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(subject.state.loadingState, .data([cachedSection]))
+    }
+
+    /// `perform(_:)` with `.loadData` transitions from error state to loading on retry.
+    @MainActor
+    func test_perform_loadData_firstSync_retryFromErrorState() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+
+        subject.state.loadingState = .error(errorMessage: "Previous error")
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        // Should transition from error to loading(nil) when retrying
+        if case .loading(nil) = subject.state.loadingState {
+            // Success - correctly transitioned
+        } else if case let .loading(sections) = subject.state.loadingState {
+            XCTAssertNil(sections, "Should set to .loading(nil) when retrying from error state")
+        } else {
+            XCTFail("Expected loading state after retry")
+        }
+    }
+
+    /// `perform(_:)` with `.loadData` skips sync when user has synced before.
+    @MainActor
+    func test_perform_loadData_firstSync_skipsSyncWhenAlreadySynced() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [Account.fixture().profile.userId: Date()]
+
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
@@ -374,10 +453,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.
@@ -394,6 +473,66 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.streamAutofillItems` caches sections during initial sync.
+    @MainActor
+    func test_perform_streamAutofillItems_cachesSectionsDuringSync() {
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        subject.state.loadingState = .loading(nil)
+
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2")]
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
+            name: "",
+        )
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+        defer { task.cancel() }
+
+        waitFor {
+            if case let .loading(sections) = self.subject.state.loadingState {
+                return sections != nil
+            }
+            return false
+        }
+
+        // Should cache sections in loading state during sync
+        if case let .loading(sections) = subject.state.loadingState {
+            XCTAssertEqual(sections, [expectedSection])
+        } else {
+            XCTFail("Expected loading state with cached sections")
+        }
+    }
+
+    /// `perform(_:)` with `.streamAutofillItems` displays sections when sync not required.
+    @MainActor
+    func test_perform_streamAutofillItems_displaysSectionsWhenSyncNotRequired() {
+        stateService.activeAccount = .fixture()
+        stateService.lastSyncTimeByUserId = [Account.fixture().profile.userId: Date()] // Already synced
+
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2")]
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
+            name: "",
+        )
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.loadingState.data != nil)
+
+        // Should display sections immediately since sync is not required
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
     }
 
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
