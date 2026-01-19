@@ -32,6 +32,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -86,11 +87,17 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             let canEdit = cipherView.deletedDate == nil
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
+            let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
+
             coordinator.showAlert(.moreOptions(
-                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
-                cipherView: cipherView,
-                id: item.id,
-                showEdit: canEdit,
+                context: MoreOptionsAlertContext(
+                    canArchive: isArchiveVaultItemsFFEnabled && hasPremium && cipherView.canBeArchived,
+                    canCopyTotp: hasPremium || cipherView.organizationUseTotp,
+                    canUnarchive: isArchiveVaultItemsFFEnabled && cipherView.canBeUnarchived,
+                    cipherView: cipherView,
+                    id: item.id,
+                    showEdit: canEdit,
+                ),
             ) { action in
                 await self.handleMoreOptionsAction(
                     action,
@@ -134,13 +141,21 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     ///
     /// - Parameter action: The selected action.
     ///
-    private func handleMoreOptionsAction(
+    private func handleMoreOptionsAction( // swiftlint:disable:this function_body_length
         _ action: MoreOptionsAction,
         cipherView: CipherView,
         handleDisplayToast: @escaping (Toast) -> Void,
         handleOpenURL: (URL) -> Void,
     ) async {
         switch action {
+        case let .archive(cipher):
+            await performOperationAndShowToast(
+                handleDisplayToast: handleDisplayToast,
+                loadingTitle: Localizations.sendingToArchive,
+                toastTitle: Localizations.itemMovedToArchive,
+            ) {
+                try await services.vaultRepository.archiveCipher(cipher)
+            }
         case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
             let copyBlock = {
                 self.services.pasteboardService.copy(value)
@@ -171,10 +186,42 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             }
         case let .launch(url):
             handleOpenURL(url.sanitized)
+        case let .unarchive(cipher):
+            await performOperationAndShowToast(
+                handleDisplayToast: handleDisplayToast,
+                loadingTitle: Localizations.unarchiving,
+                toastTitle: Localizations.itemUnarchived,
+            ) {
+                try await services.vaultRepository.unarchiveCipher(cipher)
+            }
         case let .view(id):
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
                 self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
             }
+        }
+    }
+
+    /// Performs an operation and shows a toast.
+    /// - Parameters:
+    ///   - loadingTitle: The title of the loading overlay.
+    ///   - operation: The operation to execute.
+    ///   - toastTitle: The title of the toast.
+    private func performOperationAndShowToast(
+        handleDisplayToast: @escaping (Toast) -> Void,
+        loadingTitle: String,
+        toastTitle: String,
+        operation: () async throws -> Void,
+    ) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: loadingTitle))
+
+            try await operation()
+
+            handleDisplayToast(Toast(title: toastTitle))
+        } catch {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
         }
     }
 }

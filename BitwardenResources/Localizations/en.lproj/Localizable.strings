@@ -1282,7 +1282,7 @@
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
 "Unarchive" = "Unarchive";
-"ItemArchived" = "Item archived";
+"ItemMovedToArchive" = "Item moved to Archive";
 "ItemUnarchived" = "Item unarchived";
 "SendingToArchive" = "Sending to archive…";
 "Unarchiving" = "Unarchiving…";

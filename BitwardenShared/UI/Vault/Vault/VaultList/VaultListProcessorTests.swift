@@ -153,7 +153,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast)
 
         subject.itemArchived()
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemArchived))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemMovedToArchive))
     }
 
     /// `itemDeleted()` delegate method shows the expected toast.

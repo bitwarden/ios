@@ -574,7 +574,7 @@ extension VaultListProcessor {
 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemArchived() {
-        state.toast = Toast(title: Localizations.itemArchived)
+        state.toast = Toast(title: Localizations.itemMovedToArchive)
     }
 
     func itemDeleted() {
@@ -598,6 +598,9 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 
 /// The actions available from the More Options alert.
 enum MoreOptionsAction: Equatable {
+    /// Archives a  cipher.
+    case archive(cipherView: CipherView)
+
     /// Copy the `value` and show a toast with the `toast` string.
     case copy(
         toast: String,
@@ -615,6 +618,9 @@ enum MoreOptionsAction: Equatable {
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)
+
+    /// Unarchives a  cipher.
+    case unarchive(cipherView: CipherView)
 
     /// Navigate to view the item with the given `id`.
     case view(id: String)

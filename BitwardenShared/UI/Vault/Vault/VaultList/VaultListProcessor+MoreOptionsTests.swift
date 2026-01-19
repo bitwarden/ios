@@ -28,7 +28,9 @@ class VaultListProcessorMoreOptionsTests: BitwardenTestCase {
             viewPassword: true,
         )
         let alert = Alert.moreOptions(
+            canArchive: false,
             canCopyTotp: false,
+            canUnarchive: false,
             cipherView: cipher,
             id: cipher.id!,
             showEdit: true,
@@ -112,7 +114,9 @@ class VaultListProcessorMoreOptionsTests: BitwardenTestCase {
             viewPassword: false,
         )
         let alert = Alert.moreOptions(
+            canArchive: false,
             canCopyTotp: false,
+            canUnarchive: false,
             cipherView: cipher,
             id: cipher.id!,
             showEdit: true,

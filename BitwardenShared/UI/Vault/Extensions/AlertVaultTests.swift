@@ -222,6 +222,75 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertTrue(actionCalled)
     }
 
+    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` includes
+    /// archive option when `canArchive` is `true`.
+    @MainActor
+    func test_moreOptions_archive() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: true,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertTrue(alert.alertActions.contains(where: { $0.title == Localizations.archive }))
+
+        try await alert.tapAction(title: Localizations.archive)
+        XCTAssertEqual(capturedAction, .archive(cipherView: cipher))
+    }
+
+    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` does not
+    /// include archive option when `canArchive` is `false`.
+    @MainActor
+    func test_moreOptions_noArchive() async throws {
+        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: { _ in },
+        )
+
+        XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.archive }))
+    }
+
+    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` does not
+    /// include unarchive option when `canUnarchive` is `false`.
+    @MainActor
+    func test_moreOptions_noUnarchive() async throws {
+        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: { _ in },
+        )
+
+        XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
+    }
+
     /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
     /// the appropirate options for `.sshKey` type
     @MainActor
@@ -239,10 +308,14 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             viewPassword: true,
         )
         let alert = Alert.moreOptions(
-            canCopyTotp: false,
-            cipherView: cipher,
-            id: cipher.id!,
-            showEdit: true,
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
             action: action,
         )
         XCTAssertEqual(alert.title, cipher.name)
@@ -303,6 +376,35 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertNil(capturedAction)
     }
 
+    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` includes
+    /// unarchive option when `canUnarchive` is `true`.
+    @MainActor
+    func test_moreOptions_unarchive() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.loginFixture(archivedDate: .now, id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: true,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertTrue(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
+
+        try await alert.tapAction(title: Localizations.unarchive)
+        XCTAssertEqual(capturedAction, .unarchive(cipherView: cipher))
+    }
+
     /// `passwordAutofillInformation()` constructs an `Alert` that informs the user about password
     /// autofill.
     func test_passwordAutofillInformation() {
@@ -347,4 +449,4 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         try await subject.tapAction(title: Localizations.submit)
         XCTAssertEqual(enteredPassword, "password123!")
     }
-}
+} // swiftlint:disable:this file_length
