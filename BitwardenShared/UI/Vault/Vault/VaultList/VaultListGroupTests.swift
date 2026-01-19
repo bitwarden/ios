@@ -21,6 +21,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.secureNote.collectionId)
         XCTAssertNil(VaultListGroup.sshKey.collectionId)
         XCTAssertNil(VaultListGroup.totp.collectionId)
+        XCTAssertNil(VaultListGroup.archive.collectionId)
         XCTAssertNil(VaultListGroup.trash.collectionId)
     }
 
@@ -35,6 +36,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertFalse(VaultListGroup.secureNote.isFolder)
         XCTAssertFalse(VaultListGroup.sshKey.isFolder)
         XCTAssertFalse(VaultListGroup.totp.isFolder)
+        XCTAssertFalse(VaultListGroup.archive.isFolder)
         XCTAssertFalse(VaultListGroup.trash.isFolder)
     }
 
@@ -50,6 +52,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.secureNote.folderId)
         XCTAssertNil(VaultListGroup.sshKey.folderId)
         XCTAssertNil(VaultListGroup.totp.folderId)
+        XCTAssertNil(VaultListGroup.archive.folderId)
         XCTAssertNil(VaultListGroup.trash.folderId)
     }
 
@@ -66,6 +69,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")
         XCTAssertEqual(VaultListGroup.sshKey.name, "SSH key")
         XCTAssertEqual(VaultListGroup.totp.name, Localizations.verificationCodes)
+        XCTAssertEqual(VaultListGroup.archive.name, Localizations.archive)
         XCTAssertEqual(VaultListGroup.trash.name, "Trash")
     }
 
@@ -82,6 +86,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.secureNote.navigationTitle, Localizations.secureNotes)
         XCTAssertEqual(VaultListGroup.sshKey.navigationTitle, Localizations.sshKeys)
         XCTAssertEqual(VaultListGroup.totp.navigationTitle, Localizations.verificationCodes)
+        XCTAssertEqual(VaultListGroup.archive.navigationTitle, Localizations.archive)
         XCTAssertEqual(VaultListGroup.trash.navigationTitle, Localizations.trash)
     }
 
@@ -98,6 +103,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.secureNote.organizationId)
         XCTAssertNil(VaultListGroup.sshKey.organizationId)
         XCTAssertNil(VaultListGroup.totp.organizationId)
+        XCTAssertNil(VaultListGroup.archive.organizationId)
         XCTAssertNil(VaultListGroup.trash.organizationId)
     }
 }
