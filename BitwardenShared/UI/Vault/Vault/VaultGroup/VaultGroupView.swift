@@ -73,12 +73,11 @@ struct VaultGroupView: View {
 
     /// A view that displays an empty state for this vault group.
     @ViewBuilder private var emptyView: some View {
-        VStack(spacing: 24) {
-            Text(store.state.noItemsString)
-                .multilineTextAlignment(.center)
-                .styleGuide(.callout)
-                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-
+        IllustratedMessageView(
+            image: Asset.Images.Illustrations.noItems.swiftUIImage,
+            title: store.state.noItemsTitle,
+            message: store.state.noItemsString,
+        ) {
             if let newItemButtonType = store.state.newItemButtonType {
                 let newItemLabel = Label(
                     store.state.addItemButtonTitle,
