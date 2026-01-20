@@ -12,7 +12,7 @@ protocol MigrateToMyItemsProcessorDelegate: AnyObject {
     ///
     func didLeaveOrganization()
 
-    /// Called when the user has accepted the item transfer.
+    /// Called when the vault has been successfully migrated to the organization.
     ///
     func didMigrateVault()
 }
