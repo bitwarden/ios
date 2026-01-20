@@ -128,7 +128,9 @@ targets:
     preBuildScripts:
       - name: Generate SDK Version Info
         path: Scripts/generate-sdk-version-info.sh
-        basedOnDependencyAnalysis: false
+        basedOnDependencyAnalysis: true
+        inputFiles:
+          - $(SRCROOT)/project-common.yml
         outputFiles:
           - $(SRCROOT)/BitwardenKit/Core/Platform/Utilities/SDKVersionInfo.swift
     dependencies:
