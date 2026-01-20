@@ -321,7 +321,7 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
     // MARK: Methods
 
     func itemArchived() {
-        displayToastAndRefresh(toastTitle: Localizations.itemArchived)
+        displayToastAndRefresh(toastTitle: Localizations.itemMovedToArchive)
     }
 
     func itemDeleted() {

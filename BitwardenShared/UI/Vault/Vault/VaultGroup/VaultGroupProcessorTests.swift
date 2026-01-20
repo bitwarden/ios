@@ -104,7 +104,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(subject.state.toast)
 
         subject.itemArchived()
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemArchived))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemMovedToArchive))
         waitFor(vaultRepository.fetchSyncCalled)
     }
 

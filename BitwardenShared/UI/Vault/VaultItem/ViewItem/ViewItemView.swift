@@ -90,7 +90,7 @@ struct ViewItemView: View {
                         state: { _ in },
                         mapAction: { .morePressed($0) },
                         mapEffect: { effect in
-                            return switch effect {
+                            switch effect {
                             case .archiveItem:
                                 .archivedPressed
                             case .deleteItem:
@@ -99,7 +99,7 @@ struct ViewItemView: View {
                                 .unarchivePressed
                             }
                         },
-                    )
+                    ),
                 )
             }
         }
