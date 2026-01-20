@@ -251,7 +251,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(capturedAction, .archive(cipherView: cipher))
     }
 
-    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` does not
+    /// `moreOptions(context:action:)` does not
     /// include archive option when `canArchive` is `false`.
     @MainActor
     func test_moreOptions_noArchive() async throws {
@@ -271,7 +271,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.archive }))
     }
 
-    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` does not
+    /// `moreOptions(context:action:)` does not
     /// include unarchive option when `canUnarchive` is `false`.
     @MainActor
     func test_moreOptions_noUnarchive() async throws {
@@ -376,7 +376,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertNil(capturedAction)
     }
 
-    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` includes
+    /// `moreOptions(context:action:)` includes
     /// unarchive option when `canUnarchive` is `true`.
     @MainActor
     func test_moreOptions_unarchive() async throws {
