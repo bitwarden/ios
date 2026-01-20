@@ -28,12 +28,14 @@ class VaultListProcessorMoreOptionsTests: BitwardenTestCase {
             viewPassword: true,
         )
         let alert = Alert.moreOptions(
-            canArchive: false,
-            canCopyTotp: false,
-            canUnarchive: false,
-            cipherView: cipher,
-            id: cipher.id!,
-            showEdit: true,
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
             action: action,
         )
         XCTAssertEqual(alert.title, cipher.name)
@@ -114,12 +116,14 @@ class VaultListProcessorMoreOptionsTests: BitwardenTestCase {
             viewPassword: false,
         )
         let alert = Alert.moreOptions(
-            canArchive: false,
-            canCopyTotp: false,
-            canUnarchive: false,
-            cipherView: cipher,
-            id: cipher.id!,
-            showEdit: true,
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
             action: action,
         )
         XCTAssertEqual(alert.title, cipher.name)
