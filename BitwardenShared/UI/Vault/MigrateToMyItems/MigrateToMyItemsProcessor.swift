@@ -11,6 +11,10 @@ protocol MigrateToMyItemsProcessorDelegate: AnyObject {
     /// Called when the user has left the organization.
     ///
     func didLeaveOrganization()
+
+    /// Called when the user has accepted the item transfer.
+    ///
+    func didMigrateVault()
 }
 
 // MARK: - MigrateToMyItemsProcessor
@@ -95,7 +99,7 @@ final class MigrateToMyItemsProcessor: StateProcessor<
             try await services.vaultRepository.migratePersonalVault(to: state.organizationId)
             coordinator.hideLoadingOverlay()
             await services.eventService.collect(eventType: .organizationItemOrganizationAccepted)
-            coordinator.navigate(to: .dismiss())
+            delegate?.didMigrateVault()
         } catch {
             coordinator.hideLoadingOverlay()
             await coordinator.showErrorAlert(error: error, onDismissed: {
