@@ -222,7 +222,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertTrue(actionCalled)
     }
 
-    /// `moreOptions(canArchive:canCopyTotp:canUnarchive:cipherView:id:showEdit:action:)` includes
+    /// `moreOptions(context:action:)` includes
     /// archive option when `canArchive` is `true`.
     @MainActor
     func test_moreOptions_archive() async throws {
