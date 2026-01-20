@@ -222,17 +222,17 @@ extension DefaultCipherService {
     ) async throws {
         let userId = try await stateService.getActiveAccountId()
 
-        // Create a dictionary for quick lookup of original ciphers by ID.
-        let ciphersById = Dictionary(uniqueKeysWithValues: ciphers.compactMap { cipher in
-            cipher.id.map { ($0, cipher) }
-        })
-
         // Share the ciphers with the backend.
         let response = try await cipherAPIService.bulkShareCiphers(
             ciphers,
             collectionIds: collectionIds,
             encryptedFor: encryptedFor,
         )
+
+        // Create a dictionary for quick lookup of original ciphers by ID.
+        let ciphersById = Dictionary(uniqueKeysWithValues: ciphers.compactMap { cipher in
+            cipher.id.map { ($0, cipher) }
+        })
 
         // Update ciphers in local storage.
         for cipherResponse in response.data {

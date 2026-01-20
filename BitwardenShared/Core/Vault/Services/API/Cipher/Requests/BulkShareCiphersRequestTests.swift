@@ -44,32 +44,22 @@ class BulkShareCiphersRequestTests: BitwardenTestCase {
             {
               "ciphers" : [
                 {
-                  "cipher" : {
-                    "encryptedFor" : "user-1",
-                    "favorite" : false,
-                    "lastKnownRevisionDate" : 720403200,
-                    "name" : "Bitwarden",
-                    "reprompt" : 0,
-                    "type" : 1
-                  },
-                  "collectionIds" : [
-                    "1",
-                    "2"
-                  ]
+                  "encryptedFor" : "user-1",
+                  "favorite" : false,
+                  "id" : "123",
+                  "lastKnownRevisionDate" : 720403200,
+                  "name" : "Bitwarden",
+                  "reprompt" : 0,
+                  "type" : 1
                 },
                 {
-                  "cipher" : {
-                    "encryptedFor" : "user-1",
-                    "favorite" : false,
-                    "lastKnownRevisionDate" : 720403200,
-                    "name" : "Bitwarden",
-                    "reprompt" : 0,
-                    "type" : 1
-                  },
-                  "collectionIds" : [
-                    "1",
-                    "2"
-                  ]
+                  "encryptedFor" : "user-1",
+                  "favorite" : false,
+                  "id" : "456",
+                  "lastKnownRevisionDate" : 720403200,
+                  "name" : "Bitwarden",
+                  "reprompt" : 0,
+                  "type" : 1
                 }
               ],
               "collectionIds" : [
