@@ -24,8 +24,9 @@ final class MigrateToMyItemsProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
-        & HasPolicyService
+    typealias Services = HasAuthRepository
+        & HasErrorReporter
+        & HasEventService
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -90,10 +91,18 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     private func acceptTransfer() async {
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.loading))
 
-        // TODO: PM-29709 Implement accept transfer API call
-
-        defer { coordinator.hideLoadingOverlay() }
-        coordinator.navigate(to: .dismiss())
+        do {
+            try await services.vaultRepository.migratePersonalVault(to: state.organizationId)
+            coordinator.hideLoadingOverlay()
+            await services.eventService.collect(eventType: .organizationItemOrganizationAccepted)
+            coordinator.navigate(to: .dismiss())
+        } catch {
+            coordinator.hideLoadingOverlay()
+            await coordinator.showErrorAlert(error: error, onDismissed: {
+                self.coordinator.navigate(to: .dismiss())
+            })
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Leaves the organization after declining the item transfer.
@@ -101,26 +110,35 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     private func leaveOrganization() async {
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.loading))
 
-        // TODO: PM-29710 Implement leave organization API call
-
-        defer { coordinator.hideLoadingOverlay() }
-        delegate?.didLeaveOrganization()
+        do {
+            try await services.authRepository.revokeSelfFromOrganization(organizationId: state.organizationId)
+            coordinator.hideLoadingOverlay()
+            await services.eventService.collect(eventType: .organizationItemOrganizationDeclined)
+            delegate?.didLeaveOrganization()
+        } catch {
+            coordinator.hideLoadingOverlay()
+            await coordinator.showErrorAlert(error: error, onDismissed: {
+                self.coordinator.navigate(to: .dismiss())
+            })
+            services.errorReporter.log(error: error)
+        }
     }
 
-    /// Loads the organization name from the policy service and vault repository.
+    /// Loads the organization name from the vault repository using the organization ID.
     ///
     private func loadOrganizationName() async {
         do {
-            let organizationIds = await services.policyService.organizationsApplyingPolicyToUser(.personalOwnership)
-            guard let organizationId = organizationIds.first else {
-                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            let organization = try await services.vaultRepository.fetchOrganization(withId: state.organizationId)
+
+            guard let organizationName = organization?.name else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.organizationNotFound)) {
+                    self.coordinator.navigate(to: .dismiss())
+                }
                 return
             }
-            let organization = try await services.vaultRepository.fetchOrganization(withId: organizationId)
-            // TODO: PM-29113 Validate if user must do vault migration and error handling
-
-            state.organizationName = organization?.name ?? ""
+            state.organizationName = organizationName
         } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
         }
     }

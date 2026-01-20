@@ -135,6 +135,146 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `archiveCipher()` throws on id errors.
+    func test_archiveCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.archiveCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `archiveCipher()` archives cipher for the back end and in local storage.
+    func test_archiveCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(id: "123")
+        cipherService.archiveCipherResult = .success(())
+        try await subject.archiveCipher(cipherView)
+        XCTAssertNil(cipherView.archivedDate)
+        XCTAssertNotNil(cipherService.archiveCipher?.archivedDate)
+        XCTAssertEqual(cipherService.archiveCipherId, "123")
+    }
+
+    /// `archiveCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_archiveCipher_updatesMigratedCipher() async throws {
+        stateService.activeAccount = .fixture()
+        let cipherView = CipherView.fixture()
+        let cipher = Cipher.fixture(key: "new key")
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
+
+        try await subject.archiveCipher(cipherView)
+
+        XCTAssertEqual(cipherService.archiveCipher, cipher)
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
+    }
+
+    /// `bulkShareCiphers()` ensures cipher keys, prepares ciphers and calls the cipher service.
+    func test_bulkShareCiphers() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let ciphers = [
+            CipherView.fixture(id: "1"),
+            CipherView.fixture(id: "2"),
+        ]
+        let encryptionContexts = [
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "1")),
+            EncryptionContext(encryptedFor: "1", cipher: .fixture(id: "2")),
+        ]
+        clientCiphers.prepareCiphersForBulkShareResult = .success(encryptionContexts)
+
+        try await subject.bulkShareCiphers(ciphers, newOrganizationId: "org-123", newCollectionIds: ["col-1", "col-2"])
+
+        // Verify ciphers were encrypted (to ensure cipher key).
+        XCTAssertEqual(clientCiphers.encryptedCiphers.count, 2)
+
+        // Verify bulk share was called.
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.last, encryptionContexts.map(\.cipher))
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["col-1", "col-2"])
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerEncryptedFor, "1")
+    }
+
+    /// `bulkShareCiphers()` migrates attachments without an attachment key.
+    func test_bulkShareCiphers_attachmentMigration() async throws {
+        let account = Account.fixtureAccountLogin()
+        stateService.activeAccount = account
+
+        // The original cipher with an attachment without a key.
+        let cipherViewOriginal = CipherView.fixture(
+            attachments: [
+                .fixture(fileName: "file.txt", id: "1", key: nil),
+                .fixture(fileName: "existing-attachment-key.txt", id: "2", key: "abc"),
+            ],
+            id: "1",
+        )
+
+        // The cipher after saving the new attachment, encrypted with an attachment key.
+        let cipherAfterAttachmentSave = Cipher.fixture(
+            attachments: [
+                .fixture(id: "1", fileName: "file.txt", key: nil),
+                .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
+                .fixture(id: "3", fileName: "file.txt", key: "def"),
+            ],
+            id: "1",
+        )
+        cipherService.saveAttachmentWithServerResult = .success(cipherAfterAttachmentSave)
+
+        // The cipher after deleting the old attachment without an attachment key.
+        let cipherAfterAttachmentDelete = Cipher.fixture(
+            attachments: [
+                .fixture(id: "2", fileName: "existing-attachment-key.txt", key: "abc"),
+                .fixture(id: "3", fileName: "file.txt", key: "def"),
+            ],
+            id: "1",
+        )
+        cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        cipherService.fetchCipherResult = .success(cipherAfterAttachmentSave)
+
+        // Temporary download file (would normally be created by the network layer).
+        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("file.txt")
+        try Data("📁".utf8).write(to: downloadUrl)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+
+        // Decrypted download file (would normally be created by the SDK when decrypting the attachment).
+        let attachmentsUrl = try FileManager.default.attachmentsUrl(for: account.profile.userId)
+        try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
+        let decryptUrl = attachmentsUrl.appendingPathComponent("file.txt")
+        try Data("🗂️".utf8).write(to: decryptUrl)
+
+        let encryptionContexts = [
+            EncryptionContext(encryptedFor: "1", cipher: cipherAfterAttachmentDelete),
+        ]
+        clientCiphers.prepareCiphersForBulkShareResult = .success(encryptionContexts)
+
+        try await subject.bulkShareCiphers([cipherViewOriginal], newOrganizationId: "org-123", newCollectionIds: ["col-1"])
+
+        // Attachment migration: download attachment, save updated and delete old.
+        XCTAssertEqual(cipherService.downloadAttachmentId, "1")
+        XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherViewOriginal))
+        XCTAssertEqual(cipherService.deleteAttachmentWithServerAttachmentId, "1")
+        XCTAssertThrowsError(try Data(contentsOf: downloadUrl))
+        XCTAssertThrowsError(try Data(contentsOf: decryptUrl))
+
+        // Verify bulk share was called.
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.last, encryptionContexts.map(\.cipher))
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["col-1"])
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerEncryptedFor, "1")
+    }
+
+    /// `bulkShareCiphers()` does not call the cipher service when encryption contexts are empty.
+    func test_bulkShareCiphers_emptyContexts() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+
+        let ciphers = [CipherView.fixture(id: "1")]
+        clientCiphers.prepareCiphersForBulkShareResult = .success([])
+
+        try await subject.bulkShareCiphers(ciphers, newOrganizationId: "org-123", newCollectionIds: ["col-1"])
+
+        XCTAssertTrue(cipherService.bulkShareCiphersWithServerCiphers.isEmpty)
+    }
+
     /// `canShowVaultFilter()` returns true if only org and personal ownership policies are disabled.
     func test_canShowVaultFilter_onlyOrgAndPersonalOwnershipDisabled() async {
         policyService.policyAppliesToUserResult[.onlyOrg] = false
@@ -1016,6 +1156,91 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(isEmpty)
     }
 
+    /// `migratePersonalVault(to:)` migrates all personal vault items to the organization's default collection,
+    /// including items in the trash.
+    func test_migratePersonalVault() async throws {
+        // Set up personal ciphers (no organizationId), one org cipher, and one deleted personal cipher.
+        let personalCipher1 = Cipher.fixture(id: "1", organizationId: nil)
+        let personalCipher2 = Cipher.fixture(id: "2", organizationId: nil)
+        let orgCipher = Cipher.fixture(id: "3", organizationId: "existing-org")
+        let deletedPersonalCipher = Cipher.fixture(deletedDate: Date(), id: "4", organizationId: nil)
+        cipherService.fetchAllCiphersResult = .success([
+            personalCipher1,
+            personalCipher2,
+            orgCipher,
+            deletedPersonalCipher,
+        ])
+
+        // Set up the default collection for the organization.
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ]
+
+        // Mock the prepareCiphersForBulkShare call.
+        clientService.mockVault.clientCiphers.prepareCiphersForBulkShareResult = .success([
+            EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: "1")),
+            EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: "2")),
+            EncryptionContext(encryptedFor: "user-1", cipher: .fixture(id: "4")),
+        ])
+
+        try await subject.migratePersonalVault(to: "target-org")
+
+        // Verify that prepareCiphersForBulkShare was called with only personal ciphers (IDs 1, 2, 4).
+        let cipherIds = clientService.mockVault.clientCiphers.prepareCiphersForBulkShareCiphers?.compactMap(\.id)
+        XCTAssertEqual(cipherIds?.sorted(), ["1", "2", "4"])
+        XCTAssertEqual(clientService.mockVault.clientCiphers.prepareCiphersForBulkShareOrganizationId, "target-org")
+        XCTAssertEqual(
+            clientService.mockVault.clientCiphers.prepareCiphersForBulkShareCollectionIds,
+            ["default-collection-id"],
+        )
+
+        // Verify that bulkShareCiphers was called with the correct cipher IDs.
+        let sharedCipherIds = cipherService.bulkShareCiphersWithServerCiphers.first?.compactMap(\.id)
+        XCTAssertEqual(sharedCipherIds?.sorted(), ["1", "2", "4"])
+        XCTAssertEqual(cipherService.bulkShareCiphersWithServerCollectionIds, ["default-collection-id"])
+    }
+
+    /// `migratePersonalVault(to:)` does nothing when there are no personal vault items.
+    func test_migratePersonalVault_noPersonalItems() async throws {
+        // Set up only organization ciphers.
+        let orgCipher = Cipher.fixture(id: "1", organizationId: "target-org")
+        cipherService.fetchAllCiphersResult = .success([orgCipher])
+        // Set up the default collection for the organization.
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "default-collection-id", organizationId: "target-org", type: .defaultUserCollection),
+        ]
+
+        try await subject.migratePersonalVault(to: "target-org")
+
+        // Verify that no bulk share was attempted.
+        XCTAssertTrue(cipherService.bulkShareCiphersWithServerCiphers.isEmpty)
+    }
+
+    /// `migratePersonalVault(to:)` throws an error when no default collection is found.
+    func test_migratePersonalVault_noDefaultCollection() async throws {
+        // Set up personal ciphers.
+        let personalCipher = Cipher.fixture(id: "1", organizationId: nil)
+        cipherService.fetchAllCiphersResult = .success([personalCipher])
+
+        // Set up collections without a default collection for the target org.
+        collectionService.fetchAllCollectionsResult = .success([
+            .fixture(id: "shared-collection-id", organizationId: "target-org", type: .sharedCollection),
+        ])
+        collectionHelper.orderReturnValue = [
+            .fixture(id: "shared-collection-id", organizationId: "target-org", type: .sharedCollection),
+        ]
+
+        await assertAsyncThrows {
+            try await subject.migratePersonalVault(to: "target-org")
+        }
+    }
+
     /// `refreshTOTPCode(:)` rethrows errors.
     func test_refreshTOTPCode_error() async throws {
         clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
@@ -1420,7 +1645,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
-        let filter = VaultListFilter(options: [.addTOTPGroup, .addTrashGroup])
+        let filter = VaultListFilter(options: [.addTOTPGroup, .addHiddenItemsGroup])
         var iterator = try await subject.vaultListPublisher(filter: filter).makeAsyncIterator()
         let vaultListData = try await iterator.next()
         let sections = try XCTUnwrap(vaultListData?.sections)
@@ -1449,7 +1674,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         vaultListSearchDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
-        let filter = VaultListFilter(options: [.addTOTPGroup, .addTrashGroup])
+        let filter = VaultListFilter(options: [.addTOTPGroup, .addHiddenItemsGroup])
         var iterator = try await subject.vaultSearchListPublisher(
             mode: .all,
             filterPublisher: filter.asPublisher(),
@@ -1464,6 +1689,42 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
         XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")
         XCTAssertEqual(sections[safeIndex: 0]?.items.count, 1)
+    }
+
+    /// `unarchiveCipher()` throws on id errors.
+    func test_unarchiveCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.unarchiveCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `unarchiveCipher()` unarchives cipher for the back end and in local storage.
+    func test_unarchiveCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(archivedDate: .now, id: "123")
+        cipherService.unarchiveCipherResult = .success(())
+        try await subject.unarchiveCipher(cipherView)
+        XCTAssertNotNil(cipherView.archivedDate)
+        XCTAssertNil(cipherService.unarchiveCipher?.archivedDate)
+        XCTAssertEqual(cipherService.unarchiveCipherId, "123")
+    }
+
+    /// `unarchiveCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_unarchiveCipher_updatesMigratedCipher() async throws {
+        stateService.activeAccount = .fixture()
+        let cipherView = CipherView.fixture(archivedDate: .now)
+        let cipher = Cipher.fixture(key: "new key")
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
+
+        try await subject.unarchiveCipher(cipherView)
+
+        XCTAssertEqual(cipherService.unarchiveCipher, cipher)
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     // MARK: Private

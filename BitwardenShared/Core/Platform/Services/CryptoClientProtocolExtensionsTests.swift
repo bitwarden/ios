@@ -55,17 +55,17 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
             XCTFail("Expected V2 accountCryptographicState")
             return
         }
-        
+
         XCTAssertEqual(
             request.method,
-                .masterPasswordUnlock(
-                    password: "password123",
-                    masterPasswordUnlock: MasterPasswordUnlockData(
-                        kdf: .pbkdf2(iterations: 600_000),
-                        masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
-                        salt: "SALT",
-                    ),
+            .masterPasswordUnlock(
+                password: "password123",
+                masterPasswordUnlock: MasterPasswordUnlockData(
+                    kdf: .pbkdf2(iterations: 600_000),
+                    masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                    salt: "SALT",
                 ),
+            ),
         )
         XCTAssertEqual(privateKey, "PRIVATE_KEY")
         XCTAssertEqual(signedPublicKey, "VERIFYING_KEY")

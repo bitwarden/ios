@@ -146,7 +146,7 @@ class MockClientCiphers: CiphersClientProtocol {
     func prepareCiphersForBulkShare(
         ciphers: [CipherView],
         organizationId: OrganizationId,
-        collectionIds: [CollectionId]
+        collectionIds: [CollectionId],
     ) async throws -> [EncryptionContext] {
         try prepareCiphersForBulkShareResult.get()
     }

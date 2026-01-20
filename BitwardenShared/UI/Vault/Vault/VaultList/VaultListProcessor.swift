@@ -532,7 +532,7 @@ extension VaultListProcessor {
                 .vaultListPublisher(
                     filter: VaultListFilter(
                         filterType: state.vaultFilterType,
-                        options: [.addTOTPGroup, .addTrashGroup],
+                        options: [.addTOTPGroup, .addHiddenItemsGroup],
                     ),
                 ) {
                 // Check if the vault needs a sync.
@@ -573,6 +573,10 @@ extension VaultListProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemArchived() {
+        state.toast = Toast(title: Localizations.itemMovedToArchive)
+    }
+
     func itemDeleted() {
         state.toast = Toast(title: Localizations.itemDeleted)
     }
@@ -584,12 +588,19 @@ extension VaultListProcessor: CipherItemOperationDelegate {
     func itemRestored() {
         state.toast = Toast(title: Localizations.itemRestored)
     }
+
+    func itemUnarchived() {
+        state.toast = Toast(title: Localizations.itemUnarchived)
+    }
 }
 
 // MARK: - MoreOptionsAction
 
 /// The actions available from the More Options alert.
 enum MoreOptionsAction: Equatable {
+    /// Archives a  cipher.
+    case archive(cipherView: CipherView)
+
     /// Copy the `value` and show a toast with the `toast` string.
     case copy(
         toast: String,
@@ -607,6 +618,9 @@ enum MoreOptionsAction: Equatable {
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)
+
+    /// Unarchives a  cipher.
+    case unarchive(cipherView: CipherView)
 
     /// Navigate to view the item with the given `id`.
     case view(id: String)

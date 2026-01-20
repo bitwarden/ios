@@ -9,6 +9,14 @@ import XCTest
 class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
+    /// `belongsToGroup(_:)` returns `true` when the cipher is archived and the group is `.archive`.
+    func test_belongsToGroup_archive() {
+        let cipher = CipherListView.fixture(archivedDate: .now)
+        XCTAssertTrue(cipher.belongsToGroup(.archive))
+        XCTAssertFalse(cipher.belongsToGroup(.trash))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+    }
+
     /// `belongsToGroup(_:)` returns `true` when the cipher is a card type and the group is `.card`.
     func test_belongsToGroup_card() {
         let cipher = CipherListView.fixture(type: .card(.fixture()))
@@ -364,6 +372,20 @@ class CipherListViewExtensionsTests: BitwardenTestCase { // swiftlint:disable:th
         let cipher = CipherListView.fixture(login: login, name: "MySite")
         XCTAssertEqual(cipher.matchesSearchQuery("example.com"), .none)
         XCTAssertEqual(cipher.matchesSearchQuery("mysite"), .exact)
+    }
+
+    /// `isArchived` returns `true` when there's an archived date, `false` otherwise.
+    func test_isArchived() {
+        XCTAssertTrue(CipherListView.fixture(archivedDate: .now).isArchived)
+        XCTAssertFalse(CipherListView.fixture(archivedDate: nil).isArchived)
+    }
+
+    /// `isHidden` return `true` when the cipher is hidden, i.e. archived or deleted; `false` otherwise.
+    func test_isHidden() {
+        XCTAssertTrue(CipherListView.fixture(archivedDate: .now).isHidden)
+        XCTAssertTrue(CipherListView.fixture(deletedDate: .now).isHidden)
+        XCTAssertTrue(CipherListView.fixture(deletedDate: .now, archivedDate: .now).isHidden)
+        XCTAssertFalse(CipherListView.fixture(deletedDate: nil, archivedDate: nil).isHidden)
     }
 
     /// `passesRestrictItemTypesPolicy(_:)` passes the policy when there are no organization IDs.

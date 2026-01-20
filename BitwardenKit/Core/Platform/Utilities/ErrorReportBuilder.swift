@@ -82,7 +82,7 @@ public struct DefaultErrorReportBuilder {
 extension DefaultErrorReportBuilder: ErrorReportBuilder {
     public func buildShareErrorLog(for error: Error, callStack: String) async -> String {
         let userId = await (try? activeAccountStateProvider.getActiveAccountId()) ?? "n/a"
-        return """
+        return await """
         \(error as NSError)
         \(error.localizedDescription)
 

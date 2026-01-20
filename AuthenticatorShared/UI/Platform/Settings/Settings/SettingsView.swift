@@ -71,7 +71,9 @@ struct SettingsView: View {
                 externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
 
                 SettingsListItem(store.state.version) {
-                    store.send(.versionTapped)
+                    Task {
+                        await store.perform(.copyVersionInfo)
+                    }
                 } trailingContent: {
                     SharedAsset.Icons.copy24.swiftUIImage
                         .imageStyle(.rowIcon)

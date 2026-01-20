@@ -416,7 +416,19 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
-        let appInfoService = DefaultAppInfoService()
+
+        // Create holder for breaking circular dependency.
+        // This is set later in this initializer, after configService is created.
+        var configServiceHolder: ConfigService?
+        defer {
+            precondition(configServiceHolder != nil, "`configServiceHolder` needs to be set prior to this defer block.")
+        }
+
+        // Create appInfoService with a provider closure that captures the holder.
+        // The provider will be called when server version info is needed.
+        let appInfoService = DefaultAppInfoService(
+            configServiceProvider: { configServiceHolder },
+        )
 
         let dataStore = DataStore(errorReporter: errorReporter)
 
@@ -478,6 +490,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             timeProvider: timeProvider,
         )
+        configServiceHolder = configService
 
         let cipherService = DefaultCipherService(
             cipherAPIService: apiService,
@@ -562,6 +575,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let watchService = DefaultWatchService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             organizationService: organizationService,
@@ -609,9 +623,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
+            appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
+            configService: configService,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
@@ -768,6 +784,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
                 collectionHelper: collectionHelper,
+                configService: configService,
                 errorReporter: errorReporter,
             ),
             vaultListDataPreparator: DefaultVaultListDataPreparator(
@@ -818,7 +835,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2CredentialStore: Fido2CredentialStoreService(
                 cipherService: cipherService,
                 clientService: clientService,
+                configService: configService,
                 errorReporter: errorReporter,
+                stateService: stateService,
                 syncService: syncService,
             ),
         )
@@ -826,7 +845,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let fido2CredentialStore = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             errorReporter: errorReporter,
+            stateService: stateService,
             syncService: syncService,
         )
         #endif
@@ -836,11 +857,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,

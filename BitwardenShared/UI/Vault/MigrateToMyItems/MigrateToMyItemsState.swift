@@ -19,6 +19,9 @@ struct MigrateToMyItemsState: Equatable, Sendable {
 
     // MARK: Properties
 
+    /// The ID of the organization requesting the item transfer.
+    var organizationId: String
+
     /// The name of the organization requesting the item transfer.
     var organizationName: String = ""
 

@@ -1482,4 +1482,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
         XCTAssertTrue(configService.configMocker.called)
     }
+
+    // MARK: - MigrateVaultToMyItems Tests
+
+    /// `migrateVaultToMyItems(organizationId:)` hides the loading overlay and navigates to the migrate to my items route.
+    @MainActor
+    func test_migrateVaultToMyItems() {
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.migrateVaultToMyItems(organizationId: "org-123")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
+    }
 }

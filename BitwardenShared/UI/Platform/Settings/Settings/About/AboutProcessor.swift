@@ -53,6 +53,8 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
 
     override func perform(_ effect: AboutEffect) async {
         switch effect {
+        case .copyVersionInfo:
+            await copyVersionInfo()
         case let .flightRecorder(flightRecorderEffect):
             switch flightRecorderEffect {
             case let .toggleFlightRecorder(isOn):
@@ -97,8 +99,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
             services.errorReporter.isEnabled = isOn
-        case .versionTapped:
-            handleVersionTapped()
         case .webVaultTapped:
             coordinator.showAlert(.webVaultAlert {
                 self.state.url = self.services.environmentService.webVaultURL
@@ -108,9 +108,10 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
 
     // MARK: - Private Methods
 
-    /// Prepare the text to be copied.
-    private func handleVersionTapped() {
-        services.pasteboardService.copy(services.appInfoService.appInfoString)
+    /// Copies the app's version info to the pasteboard.
+    private func copyVersionInfo() async {
+        let appInfo = await services.appInfoService.appInfoString
+        services.pasteboardService.copy(appInfo)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 
