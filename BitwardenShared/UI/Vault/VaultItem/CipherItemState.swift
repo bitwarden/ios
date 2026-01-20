@@ -78,6 +78,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded = false
 
+    /// Whether archive vault items feature flag is enabled.
+    var isArchiveVaultItemsFFEnabled = false
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn = false
 
@@ -142,6 +145,12 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         self
     }
 
+    /// Whether or not this item can be archived by the user.
+    var canBeArchived: Bool {
+        isArchiveVaultItemsFFEnabled && accountHasPremium && cipher.archivedDate == nil && cipher.deletedDate == nil
+    }
+
+    /// Whether the cipher belongs to any organization.
     var hasOrganizations: Bool {
         cipher.organizationId != nil || ownershipOptions.contains { !$0.isPersonal }
     }
@@ -183,6 +192,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
         // New permission model from PM-18091
         return cipherPermissions.restore && isSoftDeleted
+    }
+
+    /// Whether or not this item can be unarchived by the user.
+    var canBeUnarchived: Bool {
+        cipher.archivedDate != nil && cipher.deletedDate == nil
     }
 
     /// Whether or not this item can be moved to an organization.
@@ -484,6 +498,10 @@ extension CipherItemState: ViewVaultItemState {
 
     var belongsToMultipleCollections: Bool {
         cipher.collectionIds.count > 1
+    }
+
+    var isArchived: Bool {
+        cipher.archivedDate != nil && cipher.deletedDate == nil
     }
 
     var cardItemViewState: any ViewCardItemState {

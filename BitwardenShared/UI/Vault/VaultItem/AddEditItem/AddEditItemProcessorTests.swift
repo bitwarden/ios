@@ -675,6 +675,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         )
     }
 
+    /// `perform(_:)` with `.appeared` loads the archive vault items feature flag.
+    @MainActor
+    func test_perform_appeared_featureFlags() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isArchiveVaultItemsFFEnabled)
+    }
+
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
     @MainActor
     func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
@@ -2849,15 +2857,21 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     var itemAddedCalled = false
     var itemAddedShouldDismiss = true
+    var itemArchivedCalled = false
     var itemDeletedCalled = false
     var itemRestoredCalled = false
     var itemSoftDeletedCalled = false
     var itemUpdatedCalled = false
     var itemUpdatedShouldDismiss = true
+    var itemUnarchivedCalled = false
 
     func itemAdded() -> Bool {
         itemAddedCalled = true
         return itemAddedShouldDismiss
+    }
+
+    func itemArchived() {
+        itemArchivedCalled = true
     }
 
     func itemDeleted() {
@@ -2875,5 +2889,9 @@ class MockCipherItemOperationDelegate: CipherItemOperationDelegate {
     func itemUpdated() -> Bool {
         itemUpdatedCalled = true
         return itemUpdatedShouldDismiss
+    }
+
+    func itemUnarchived() {
+        itemUnarchivedCalled = true
     }
 }

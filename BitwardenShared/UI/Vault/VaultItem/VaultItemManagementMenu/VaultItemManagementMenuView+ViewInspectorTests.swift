@@ -24,11 +24,13 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         processor = MockProcessor(state: ())
         let store = Store(processor: processor)
         subject = VaultItemManagementMenuView(
+            isArchiveEnabled: true,
             isCloneEnabled: true,
             isCollectionsEnabled: true,
             isDeleteEnabled: true,
             isMoveToOrganizationEnabled: true,
             isRestoreEnabled: true,
+            isUnarchiveEnabled: false,
             store: store,
         )
     }
@@ -40,6 +42,14 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// Tapping the archive option dispatches the `.archive` action.
+    @MainActor
+    func test_archiveOption_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.archive)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .archiveItem)
+    }
 
     /// Tapping the attachments option dispatches the `.attachments` action.
     @MainActor

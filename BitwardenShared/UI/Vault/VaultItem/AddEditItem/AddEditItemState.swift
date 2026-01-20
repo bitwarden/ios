@@ -14,8 +14,14 @@ protocol AddEditItemState: Sendable {
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool { get }
 
+    /// Whether the user is able to archive the item.
+    var canBeArchived: Bool { get }
+
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
+
+    /// Whether the user is able to unarchive the item.
+    var canBeUnarchived: Bool { get }
 
     /// Whether or not this item can be moved to an organization.
     var canMoveToOrganization: Bool { get }
@@ -58,6 +64,9 @@ protocol AddEditItemState: Sendable {
 
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded: Bool { get set }
+
+    /// Whether archive vault items feature flag is enabled.
+    var isArchiveVaultItemsFFEnabled: Bool { get set }
 
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }

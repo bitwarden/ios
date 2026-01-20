@@ -270,6 +270,14 @@ extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
         return false
     }
 
+    func itemArchived() {
+        coordinator.navigate(to: .dismiss)
+    }
+
+    func itemUnarchived() {
+        coordinator.navigate(to: .dismiss)
+    }
+
     func itemUpdated() -> Bool {
         coordinator.navigate(to: .dismiss)
         // Return false to notify the calling processor that the dismissal occurs here.

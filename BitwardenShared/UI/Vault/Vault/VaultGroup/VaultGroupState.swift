@@ -59,7 +59,7 @@ struct VaultGroupState: Equatable, Sendable {
             return .button
         case .collection, .folder, .noFolder:
             return .menu
-        case .sshKey, .totp, .trash:
+        case .archive, .sshKey, .totp, .trash:
             return nil
         }
     }
@@ -85,6 +85,8 @@ struct VaultGroupState: Equatable, Sendable {
     /// The string to use in the empty view.
     var noItemsString: String {
         switch group {
+        case .archive:
+            Localizations.archiveEmptyDescriptionLong
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
@@ -103,6 +105,16 @@ struct VaultGroupState: Equatable, Sendable {
             Localizations.noItemsTrash
         default:
             Localizations.noItems
+        }
+    }
+
+    /// The string to use as the title of the empty view.
+    var noItemsTitle: String? {
+        switch group {
+        case .archive:
+            Localizations.archiveIsEmpty
+        default:
+            nil
         }
     }
 

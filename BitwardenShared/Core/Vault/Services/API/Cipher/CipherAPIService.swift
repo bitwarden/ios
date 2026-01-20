@@ -25,6 +25,13 @@ protocol CipherAPIService {
     ///
     func addCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
 
+    /// Performs an API request to archive an existing cipher in the user's vault.
+    ///
+    /// - Parameter id: The cipher id that to be archived.
+    /// - Returns: The `EmptyResponse`.
+    ///
+    func archiveCipher(withID id: String) async throws -> EmptyResponse
+
     /// Performs an API request to add a new cipher contained within one or more collections to the
     /// user's vault.
     ///
@@ -131,6 +138,13 @@ protocol CipherAPIService {
     ///
     func softDeleteCipher(withID id: String) async throws -> EmptyResponse
 
+    /// Performs an API request to unarchive a cipher in the user's vault.
+    ///
+    /// - Parameter id: The id of the cipher to be unarchived.
+    /// - Returns: The `EmptyResponse`.
+    ///
+    func unarchiveCipher(withID id: String) async throws -> EmptyResponse
+
     /// Performs an API request to update an existing cipher in the user's vault.
     ///
     /// - Parameters:
@@ -157,6 +171,10 @@ protocol CipherAPIService {
 extension APIService: CipherAPIService {
     func addCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
         try await apiService.send(AddCipherRequest(cipher: cipher, encryptedFor: encryptedFor))
+    }
+
+    func archiveCipher(withID id: String) async throws -> Networking.EmptyResponse {
+        try await apiService.send(ArchiveCipherRequest(id: id))
     }
 
     func addCipherWithCollections(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
@@ -219,6 +237,10 @@ extension APIService: CipherAPIService {
 
     func softDeleteCipher(withID id: String) async throws -> EmptyResponse {
         try await apiService.send(SoftDeleteCipherRequest(id: id))
+    }
+
+    func unarchiveCipher(withID id: String) async throws -> Networking.EmptyResponse {
+        try await apiService.send(UnarchiveCipherRequest(id: id))
     }
 
     func updateCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {

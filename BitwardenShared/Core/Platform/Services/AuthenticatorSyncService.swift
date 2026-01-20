@@ -222,8 +222,10 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func decryptTOTPs(_ ciphers: [Cipher],
                               account: Account) async throws -> [AuthenticatorBridgeItemDataView] {
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         let totpCiphers = ciphers.filter { cipher in
-            cipher.deletedDate == nil
+            !cipher.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled)
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }

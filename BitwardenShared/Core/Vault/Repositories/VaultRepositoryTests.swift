@@ -135,6 +135,42 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `archiveCipher()` throws on id errors.
+    func test_archiveCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.archiveCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `archiveCipher()` archives cipher for the back end and in local storage.
+    func test_archiveCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(id: "123")
+        cipherService.archiveCipherResult = .success(())
+        try await subject.archiveCipher(cipherView)
+        XCTAssertNil(cipherView.archivedDate)
+        XCTAssertNotNil(cipherService.archiveCipher?.archivedDate)
+        XCTAssertEqual(cipherService.archiveCipherId, "123")
+    }
+
+    /// `archiveCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_archiveCipher_updatesMigratedCipher() async throws {
+        stateService.activeAccount = .fixture()
+        let cipherView = CipherView.fixture()
+        let cipher = Cipher.fixture(key: "new key")
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
+
+        try await subject.archiveCipher(cipherView)
+
+        XCTAssertEqual(cipherService.archiveCipher, cipher)
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
+    }
+
     /// `bulkShareCiphers()` ensures cipher keys, prepares ciphers and calls the cipher service.
     func test_bulkShareCiphers() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
@@ -1609,7 +1645,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         vaultListDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
-        let filter = VaultListFilter(options: [.addTOTPGroup, .addTrashGroup])
+        let filter = VaultListFilter(options: [.addTOTPGroup, .addHiddenItemsGroup])
         var iterator = try await subject.vaultListPublisher(filter: filter).makeAsyncIterator()
         let vaultListData = try await iterator.next()
         let sections = try XCTUnwrap(vaultListData?.sections)
@@ -1638,7 +1674,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         vaultListSearchDirectorStrategy.buildReturnValue = AsyncThrowingPublisher(publisher)
 
-        let filter = VaultListFilter(options: [.addTOTPGroup, .addTrashGroup])
+        let filter = VaultListFilter(options: [.addTOTPGroup, .addHiddenItemsGroup])
         var iterator = try await subject.vaultSearchListPublisher(
             mode: .all,
             filterPublisher: filter.asPublisher(),
@@ -1653,6 +1689,42 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(sections[safeIndex: 0]?.id, "1")
         XCTAssertEqual(sections[safeIndex: 0]?.name, "TestingSection")
         XCTAssertEqual(sections[safeIndex: 0]?.items.count, 1)
+    }
+
+    /// `unarchiveCipher()` throws on id errors.
+    func test_unarchiveCipher_idError_nil() async throws {
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        await assertAsyncThrows(error: CipherAPIServiceError.updateMissingId) {
+            try await subject.unarchiveCipher(.fixture(id: nil))
+        }
+    }
+
+    /// `unarchiveCipher()` unarchives cipher for the back end and in local storage.
+    func test_unarchiveCipher() async throws {
+        client.result = .httpSuccess(testData: APITestData(data: Data()))
+        stateService.accounts = [.fixtureAccountLogin()]
+        stateService.activeAccount = .fixtureAccountLogin()
+        let cipherView: CipherView = .fixture(archivedDate: .now, id: "123")
+        cipherService.unarchiveCipherResult = .success(())
+        try await subject.unarchiveCipher(cipherView)
+        XCTAssertNotNil(cipherView.archivedDate)
+        XCTAssertNil(cipherService.unarchiveCipher?.archivedDate)
+        XCTAssertEqual(cipherService.unarchiveCipherId, "123")
+    }
+
+    /// `unarchiveCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
+    func test_unarchiveCipher_updatesMigratedCipher() async throws {
+        stateService.activeAccount = .fixture()
+        let cipherView = CipherView.fixture(archivedDate: .now)
+        let cipher = Cipher.fixture(key: "new key")
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
+
+        try await subject.unarchiveCipher(cipherView)
+
+        XCTAssertEqual(cipherService.unarchiveCipher, cipher)
+        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     // MARK: Private
