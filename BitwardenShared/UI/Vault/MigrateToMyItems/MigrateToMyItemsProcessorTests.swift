@@ -56,7 +56,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests - AcceptTransferTapped Effect
 
-    /// `perform(_:)` with `.acceptTransferTapped` migrates the personal vault and dismisses.
+    /// `perform(_:)` with `.acceptTransferTapped` migrates the personal vault and notifies the delegate.
     @MainActor
     func test_perform_acceptTransferTapped_success() async {
         vaultRepository.migratePersonalVaultResult = .success(())
@@ -65,7 +65,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(vaultRepository.migratePersonalVaultOrganizationId, "org-123")
         XCTAssertEqual(eventService.collectEventType, .organizationItemOrganizationAccepted)
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertTrue(delegate.didMigrateVaultCalled)
         XCTAssertTrue(coordinator.alertShown.isEmpty)
     }
 
@@ -77,6 +77,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         await subject.perform(.acceptTransferTapped)
 
         XCTAssertEqual(vaultRepository.migratePersonalVaultOrganizationId, "org-123")
+        XCTAssertFalse(delegate.didMigrateVaultCalled)
         XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
@@ -185,8 +186,13 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
 
 class MockMigrateToMyItemsProcessorDelegate: MigrateToMyItemsProcessorDelegate {
     var didLeaveOrganizationCalled = false
+    var didMigrateVaultCalled = false
 
     func didLeaveOrganization() {
         didLeaveOrganizationCalled = true
+    }
+
+    func didMigrateVault() {
+        didMigrateVaultCalled = true
     }
 }
