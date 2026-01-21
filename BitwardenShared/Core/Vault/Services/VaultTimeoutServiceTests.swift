@@ -381,11 +381,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_setLastActiveTime_neverOrOnAppRestart() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.vaultTimeout[account.profile.userId] = .never
+        userSessionStateService.getVaultTimeoutReturnValue = .never
         try await subject.setLastActiveTime(userId: account.profile.userId)
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
 
-        stateService.vaultTimeout[account.profile.userId] = .onAppRestart
+        userSessionStateService.getVaultTimeoutReturnValue = .onAppRestart
         try await subject.setLastActiveTime(userId: account.profile.userId)
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1", "1"])
     }
@@ -394,7 +394,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_setLastActiveTime_lock() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         stateService.timeoutAction[account.profile.userId] = .lock
 
         try await subject.setLastActiveTime(userId: account.profile.userId)
