@@ -73,8 +73,8 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             .addCollectionsSection()
             .addCipherDecryptionFailureIds()
 
-        if filter.options.contains(.addTrashGroup) {
-            builder = builder.addTrashSection()
+        if filter.options.contains(.addHiddenItemsGroup) {
+            builder = await builder.addHiddenItemsSection()
         }
 
         return builder.build()

@@ -432,6 +432,12 @@ extension AppCoordinator: MigrateToMyItemsProcessorDelegate {
             self.showToast(Localizations.youLeftTheOrganization)
         }
     }
+
+    func didMigrateVault() {
+        rootNavigator?.rootViewController?.topmostViewController().dismiss(animated: true) {
+            self.showToast(Localizations.itemsTransferred)
+        }
+    }
 }
 
 // MARK: - SendItemDelegate

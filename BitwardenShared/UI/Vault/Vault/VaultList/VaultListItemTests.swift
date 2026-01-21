@@ -180,8 +180,8 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.clock24.name,
         )
         XCTAssertEqual(
-            VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,
-            SharedAsset.Icons.trash24.name,
+            VaultListItem(id: "", itemType: .group(.archive, 1)).icon.name,
+            SharedAsset.Icons.archive24.name,
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,

@@ -1,4 +1,5 @@
 import BitwardenSdk
+import BitwardenSharedMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -7,6 +8,15 @@ import XCTest
 
 class CipherExtensionsTests: BitwardenTestCase {
     // MARK: Tests
+
+    /// `belongsToGroup(_:)` returns `true` when the cipher is archived and the group is `.archive`.
+    func test_belongsToGroup_archive() {
+        let cipher = Cipher.fixture(archivedDate: .now, type: .login)
+        XCTAssertTrue(cipher.belongsToGroup(.archive))
+        XCTAssertFalse(cipher.belongsToGroup(.card))
+        XCTAssertFalse(cipher.belongsToGroup(.identity))
+        XCTAssertFalse(Cipher.fixture(archivedDate: nil, type: .login).belongsToGroup(.archive))
+    }
 
     /// `belongsToGroup(_:)` returns `true` when the cipher is a card type and the group is `.card`.
     func test_belongsToGroup_card() {
@@ -144,5 +154,13 @@ class CipherExtensionsTests: BitwardenTestCase {
     func test_belongsToGroup_trash_notDeleted() {
         let cipher = Cipher.fixture(deletedDate: nil)
         XCTAssertFalse(cipher.belongsToGroup(.trash))
+    }
+
+    /// `isHidden` return `true` when the cipher is hidden, i.e. archived or deleted; `false` otherwise.
+    func test_isHidden() {
+        XCTAssertTrue(Cipher.fixture(archivedDate: .now).isHidden)
+        XCTAssertTrue(Cipher.fixture(deletedDate: .now).isHidden)
+        XCTAssertTrue(Cipher.fixture(archivedDate: .now, deletedDate: .now).isHidden)
+        XCTAssertFalse(Cipher.fixture(archivedDate: nil, deletedDate: nil).isHidden)
     }
 }

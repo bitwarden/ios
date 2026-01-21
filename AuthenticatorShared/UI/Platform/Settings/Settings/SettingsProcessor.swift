@@ -52,6 +52,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     override func perform(_ effect: SettingsEffect) async {
         switch effect {
+        case .copyVersionInfo:
+            await copyVersionInfo()
         case let .flightRecorder(flightRecorderEffect):
             switch flightRecorderEffect {
             case let .toggleFlightRecorder(isOn):
@@ -125,16 +127,15 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             state.toast = newValue
         case .tutorialTapped:
             coordinator.navigate(to: .tutorial)
-        case .versionTapped:
-            handleVersionTapped()
         }
     }
 
     // MARK: - Private Methods
 
-    /// Prepare the text to be copied.
-    private func handleVersionTapped() {
-        services.pasteboardService.copy(services.appInfoService.appInfoString)
+    /// Copies the app's version info to the pasteboard.
+    private func copyVersionInfo() async {
+        let appInfo = await services.appInfoService.appInfoString
+        services.pasteboardService.copy(appInfo)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 

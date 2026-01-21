@@ -1279,4 +1279,16 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
+"HiddenItems" = "Hidden items";
+"Archive" = "Archive";
+"Unarchive" = "Unarchive";
+"ItemMovedToArchive" = "Item moved to Archive";
+"ItemUnarchived" = "Item unarchived";
+"SendingToArchive" = "Sending to archive…";
+"Unarchiving" = "Unarchiving…";
+"DoYouReallyWantToUnarchiveThisItem" = "Do you really want to unarchive this item?";
+"DoYouReallyWantToArchiveThisItem" = "Do you really want to archive this item?";
 "OrganizationNotFound" = "Organization not found.";
+"ItemsTransferred" = "Items transferred";
+"ArchiveIsEmpty" = "Archive is empty";
+"ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";

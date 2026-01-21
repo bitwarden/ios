@@ -98,6 +98,16 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Tests
 
+    /// `itemArchived()` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_itemArchived() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemArchived()
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemMovedToArchive))
+        waitFor(vaultRepository.fetchSyncCalled)
+    }
+
     /// `itemDeleted()` delegate method shows the expected toast.
     @MainActor
     func test_delegate_itemDeleted() {
@@ -105,6 +115,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject.itemDeleted()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
+        waitFor(vaultRepository.fetchSyncCalled)
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.
@@ -114,6 +125,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject.itemSoftDeleted()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemSoftDeleted))
+        waitFor(vaultRepository.fetchSyncCalled)
     }
 
     /// `itemRestored()` delegate method shows the expected toast.
@@ -123,6 +135,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject.itemRestored()
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemRestored))
+        waitFor(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `itemUnarchived()` delegate method shows the expected toast.
+    @MainActor
+    func test_delegate_itemUnarchived() {
+        XCTAssertNil(subject.state.toast)
+
+        subject.itemUnarchived()
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUnarchived))
+        waitFor(vaultRepository.fetchSyncCalled)
     }
 
     /// `init(coordinator:masterPasswordRepromptHelper:services:state:vaultItemMoreOptionsHelper:)` initializes

@@ -4,6 +4,9 @@ import BitwardenKit
 
 /// Effects that can be processed by an `SettingsProcessor`.
 enum SettingsEffect: Equatable {
+    /// Copy the version information to the pasteboard.
+    case copyVersionInfo
+
     /// An effect for the flight recorder feature.
     case flightRecorder(FlightRecorderSettingsSectionEffect)
 

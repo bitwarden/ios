@@ -9,6 +9,15 @@ class MockCipherService: CipherService {
     var addCipherWithServerEncryptedFor: String?
     var addCipherWithServerResult: Result<Void, Error> = .success(())
 
+    var archiveCipherId: String?
+    var archiveCipher: Cipher?
+    var archiveCipherResult: Result<Void, Error> = .success(())
+
+    var bulkShareCiphersWithServerCiphers = [[Cipher]]()
+    var bulkShareCiphersWithServerCollectionIds: [String]?
+    var bulkShareCiphersWithServerEncryptedFor: String?
+    var bulkShareCiphersWithServerResult: Result<Void, Error> = .success(())
+
     var cipherCountResult: Result<Int, Error> = .success(0)
 
     var cipherChangesSubject = CurrentValueSubject<CipherChange, Never>(
@@ -58,6 +67,10 @@ class MockCipherService: CipherService {
     var syncCipherWithServerId: String?
     var syncCipherWithServerResult: Result<Void, Error> = .success(())
 
+    var unarchiveCipherId: String?
+    var unarchiveCipher: Cipher?
+    var unarchiveCipherResult: Result<Void, Error> = .success(())
+
     var updateCipherWithLocalStorageCiphers = [BitwardenSdk.Cipher]()
     var updateCipherWithLocalStorageResult: Result<Void, Error> = .success(())
 
@@ -68,10 +81,31 @@ class MockCipherService: CipherService {
     var updateCipherCollectionsWithServerCiphers = [Cipher]()
     var updateCipherCollectionsWithServerResult: Result<Void, Error> = .success(())
 
+    var unarchivedCipherId: String?
+    var unarchivedCipher: Cipher?
+    var unarchiveWithServerResult: Result<Void, Error> = .success(())
+
     func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         addCipherWithServerCiphers.append(cipher)
         addCipherWithServerEncryptedFor = encryptedFor
         try addCipherWithServerResult.get()
+    }
+
+    func archiveCipherWithServer(id: String, _ cipher: Cipher) async throws {
+        archiveCipherId = id
+        archiveCipher = cipher
+        try archiveCipherResult.get()
+    }
+
+    func bulkShareCiphersWithServer(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String,
+    ) async throws {
+        bulkShareCiphersWithServerCiphers.append(ciphers)
+        bulkShareCiphersWithServerCollectionIds = collectionIds
+        bulkShareCiphersWithServerEncryptedFor = encryptedFor
+        try bulkShareCiphersWithServerResult.get()
     }
 
     func cipherCount() async throws -> Int {
@@ -145,6 +179,12 @@ class MockCipherService: CipherService {
     func syncCipherWithServer(withId id: String) async throws {
         syncCipherWithServerId = id
         return try syncCipherWithServerResult.get()
+    }
+
+    func unarchiveCipherWithServer(id: String, _ cipher: Cipher) async throws {
+        unarchiveCipherId = id
+        unarchiveCipher = cipher
+        try unarchiveCipherResult.get()
     }
 
     func updateCipherWithLocalStorage(_ cipher: Cipher) async throws {
