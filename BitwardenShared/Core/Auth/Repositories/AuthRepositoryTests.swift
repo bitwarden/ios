@@ -29,8 +29,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var policyService: MockPolicyService!
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
-    var vaultTimeoutService: MockVaultTimeoutService!
     var trustDeviceService: MockTrustDeviceService!
+    var userSessionStateService: MockUserSessionStateService!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     let anneAccount = Account
         .fixture(
@@ -110,7 +111,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         policyService = MockPolicyService()
         stateService = MockStateService()
         trustDeviceService = MockTrustDeviceService()
+        userSessionStateService = MockUserSessionStateService()
         vaultTimeoutService = MockVaultTimeoutService()
+
+        // These are the defaults served up by StateService
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+        userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
 
         subject = DefaultAuthRepository(
             accountAPIService: accountAPIService,
@@ -131,7 +137,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             policyService: policyService,
             stateService: stateService,
             trustDeviceService: trustDeviceService,
-            userSessionStateService: stateService,
+            userSessionStateService: userSessionStateService,
             vaultTimeoutService: vaultTimeoutService,
         )
     }
@@ -769,13 +775,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail.profile.userId: false,
             shortName.profile.userId: true,
         ]
-        stateService.vaultTimeout = [
-            anneAccount.profile.userId: .never,
-            beeAccount.profile.userId: .never,
-            empty.profile.userId: .never,
-            shortEmail.profile.userId: .never,
-            shortName.profile.userId: .fifteenMinutes,
-        ]
+        userSessionStateService.getVaultTimeoutClosure = { userId in
+            switch userId {
+            case self.anneAccount.profile.userId: .never
+            case self.beeAccount.profile.userId: .never
+            case self.empty.profile.userId: .never
+            case self.shortEmail.profile.userId: .never
+            case self.shortName.profile.userId: .fifteenMinutes
+            default: .fourHours
+            }
+        }
         stateService.manuallyLockedAccounts = [
             anneAccount.profile.userId: true,
             beeAccount.profile.userId: false,
@@ -1185,7 +1194,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
     /// unlocks the vault.
-    func test_setMasterPassword() async throws {
+    func test_setMasterPassword() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
@@ -2264,7 +2273,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // `unlockVaultWithPassword(_:)` unlocks the vault with the user's password and checks if the
     // user's KDF settings need to be updated. If updating the user's KDF fails, an error is logged
     // but vault unlock still succeeds.
-    func test_unlockVaultWithPassword_checksForKdfUpdate_error() async throws {
+    func test_unlockVaultWithPassword_checksForKdfUpdate_error() async throws { // swiftlint:disable:this function_body_length line_length
         let account = Account.fixture(profile: .fixture(
             kdfIterations: 100_000,
             userDecryptionOptions: UserDecryptionOptions(
