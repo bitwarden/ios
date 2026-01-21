@@ -589,4 +589,28 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Validate - toast should be shown after dismiss completes.
         XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
     }
+
+    /// `didMigrateVault()` dismisses the view and shows a toast.
+    @MainActor
+    func test_didMigrateVault() {
+        // Set up with a view controller in the window hierarchy.
+        let viewController = UIViewController()
+        let window = UIWindow()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        rootNavigator.rootViewController = viewController
+
+        // Navigate to tab so the coordinator is authenticated.
+        subject.navigate(to: .tab(.vault(.list)))
+
+        // Test - call the delegate method.
+        // This verifies the delegate method can be called without error.
+        // The actual dismiss behavior is tested through integration since
+        // the dismiss is called on topmostViewController which requires
+        // full UIKit view hierarchy.
+        subject.didMigrateVault()
+
+        // Validate - toast should be shown after dismiss completes.
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
 } // swiftlint:disable:this file_length
