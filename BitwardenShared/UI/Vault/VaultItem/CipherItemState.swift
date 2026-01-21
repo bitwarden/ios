@@ -222,7 +222,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// show more/less for this to have one or more collections the cipher
     /// belongs to.
     var cipherCollectionsToDisplay: [CollectionView] {
-        guard !cipherCollections.isEmpty else {
+        guard !cipherCollections.isEmpty, !shouldDisplayAsArchived else {
             return []
         }
 
@@ -268,6 +268,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             collectionIds = []
             selectDefaultCollectionIfNeeded()
         }
+    }
+
+    /// Whether the item should be displayed as archived.
+    var shouldDisplayAsArchived: Bool {
+        isArchiveVaultItemsFFEnabled && canBeUnarchived
     }
 
     /// The flag indicating if we should show the learn new login action card.
@@ -563,6 +568,7 @@ extension CipherItemState: ViewVaultItemState {
 
     var shouldDisplayFolder: Bool {
         !folderName.isEmptyOrNil
+            && !shouldDisplayAsArchived
             && (!belongsToMultipleCollections || isShowingMultipleCollections)
     }
 
@@ -570,6 +576,7 @@ extension CipherItemState: ViewVaultItemState {
         organizationId == nil
             && folderId == nil
             && collectionIds.isEmpty
+            && !shouldDisplayAsArchived
     }
 
     var shouldUseCustomPlaceholderContent: Bool {

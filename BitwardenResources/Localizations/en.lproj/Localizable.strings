@@ -1281,6 +1281,7 @@
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
+"Archived" = "Archived";
 "Unarchive" = "Unarchive";
 "ItemMovedToArchive" = "Item moved to Archive";
 "ItemUnarchived" = "Item unarchived";
@@ -1291,3 +1292,4 @@
 "OrganizationNotFound" = "Organization not found.";
 "ArchiveIsEmpty" = "Archive is empty";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ThisItemIsArchived" = "This item is archived.";
