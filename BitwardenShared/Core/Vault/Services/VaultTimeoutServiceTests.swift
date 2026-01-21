@@ -22,7 +22,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
     var timeProvider: MockTimeProvider!
-//    var userSessionStateService: MockUserSessionStateService!
+    var userSessionStateService: MockUserSessionStateService!
 
     // MARK: Setup & Teardown
 
@@ -41,6 +41,12 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
                 .init(year: 2024, month: 1, day: 1),
             ),
         )
+        userSessionStateService = MockUserSessionStateService()
+
+        // These are the defaults served up by StateService
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+        userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
+
         subject = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,
             clientService: clientService,
@@ -49,7 +55,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
-            userSessionStateService: stateService,
+            userSessionStateService: userSessionStateService,
         )
     }
 
@@ -72,31 +78,31 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_hasPassedSessionTimeout() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.vaultTimeout[account.profile.userId] = .fiveMinutes
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
 
         let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
         timeProvider.timeConfig = .mockTime(currentTime)
 
         // Last active 4 minutes ago, no timeout.
-        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -4, to: currentTime)
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
 
         // Last active 5 minutes ago, timeout.
-        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -5, to: currentTime)
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active 6 minutes ago, timeout.
-        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -6, to: currentTime)
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active in the distant past, timeout.
-        stateService.lastActiveTime[account.profile.userId] = .distantPast
+        userSessionStateService.getLastActiveTimeReturnValue = .distantPast
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
     }
@@ -105,8 +111,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_hasPassedSessionTimeout_appRestart() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = .distantPast
-        stateService.vaultTimeout[account.profile.userId] = .onAppRestart
+        userSessionStateService.getLastActiveTimeReturnValue = .distantPast
+        userSessionStateService.getVaultTimeoutReturnValue = .onAppRestart
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
@@ -116,31 +122,31 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_hasPassedSessionTimeout_custom() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.vaultTimeout[account.profile.userId] = .custom(120)
+        userSessionStateService.getVaultTimeoutReturnValue = .custom(120)
 
         let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
         timeProvider.timeConfig = .mockTime(currentTime)
 
         // Last active 119 minutes ago, no timeout.
-        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -119, to: currentTime)
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
 
         // Last active 120 minutes ago, timeout.
-        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -120, to: currentTime)
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active 121 minutes ago, timeout.
-        stateService.lastActiveTime[account.profile.userId] = Calendar.current
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -121, to: currentTime)
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active in the distant past, timeout.
-        stateService.lastActiveTime[account.profile.userId] = .distantPast
+        userSessionStateService.getLastActiveTimeReturnValue = .distantPast
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
     }
@@ -149,7 +155,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_hasPassedSessionTimeout_noLastActiveTime() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.vaultTimeout[account.profile.userId] = .fiveMinutes
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
@@ -159,8 +165,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_hasPassedSessionTimeout_never() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = .distantPast
-        stateService.vaultTimeout[account.profile.userId] = .never
+        userSessionStateService.getLastActiveTimeReturnValue = .distantPast
+        userSessionStateService.getVaultTimeoutReturnValue = .never
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
@@ -367,7 +373,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.activeAccount = account
         try await subject.setLastActiveTime(userId: account.profile.userId)
         XCTAssertEqual(
-            stateService.lastActiveTime[account.profile.userId]!,
+            userSessionStateService.setLastActiveTimeReceivedArguments?.date,
             timeProvider.presentTime,
         )
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
@@ -401,7 +407,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_setLastActiveTime_logout() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.vaultTimeout[account.profile.userId] = .oneMinute
+        userSessionStateService.getVaultTimeoutReturnValue = .oneMinute
         stateService.timeoutAction[account.profile.userId] = .logout
 
         try await subject.setLastActiveTime(userId: account.profile.userId)
@@ -413,7 +419,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `.setLastActiveTime(userId:)` throws errors.
     func test_setLastActive_time_error() async throws {
-        stateService.setLastActiveTimeError = BitwardenTestError.example
+        userSessionStateService.setLastActiveTimeThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setLastActiveTime(userId: "1")
@@ -425,7 +431,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let account = Account.fixture()
         stateService.activeAccount = account
         try await subject.setVaultTimeout(value: .custom(120), userId: account.profile.userId)
-        XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], .custom(120))
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutReceivedArguments?.userId, account.profile.userId)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutReceivedArguments?.value, .custom(120))
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }
 
@@ -434,7 +441,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let account = Account.fixture()
         stateService.activeAccount = account
         try await subject.setVaultTimeout(value: .onAppRestart, userId: account.profile.userId)
-        XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], .onAppRestart)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutReceivedArguments?.userId, account.profile.userId)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutReceivedArguments?.value, .onAppRestart)
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }
 
@@ -443,7 +451,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let account = Account.fixture()
         stateService.activeAccount = account
         try await subject.setVaultTimeout(value: .never, userId: account.profile.userId)
-        XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], .never)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutReceivedArguments?.userId, account.profile.userId)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutReceivedArguments?.value, .never)
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }
 
@@ -461,7 +470,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_setVaultTimeout_logout() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = timeProvider.presentTime
+        userSessionStateService.getLastActiveTimeReturnValue = timeProvider.presentTime
         stateService.timeoutAction[account.profile.userId] = .logout
 
         try await subject.setVaultTimeout(value: .oneMinute, userId: account.profile.userId)
@@ -473,7 +482,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `.setVaultTimeout(value:userId:)` throws errors.
     func test_setVaultTimeout_error() async throws {
-        stateService.setVaultTimeoutError = BitwardenTestError.example
+        userSessionStateService.setVaultTimeoutThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.setVaultTimeout(value: .fiveMinutes, userId: "1")
