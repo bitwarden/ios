@@ -120,9 +120,9 @@ struct DefaultDevicePasskeyService: DevicePasskeyService {
         let record = try await getRecordFromKeychain()!
         return record
     }
-    
+
     // MARK: Private
-    
+
     private func createPasskey(
         options: PublicKeyCredentialCreationOptions,
         userId: String,
@@ -224,7 +224,6 @@ struct DevicePasskeyRecord: Decodable, Encodable {
     let cipherId: String
     let cipherName: String
     let credentialId: String
-    let deviceBound: Bool
     let keyType: String
     let keyAlgorithm: String
     let keyCurve: String
@@ -243,7 +242,6 @@ struct DevicePasskeyRecord: Decodable, Encodable {
         CipherView(
             id: cipherId,
             organizationId: nil,
-            deviceBound: true,
             folderId: nil,
             collectionIds: [],
             key: nil,
@@ -301,7 +299,6 @@ struct DevicePasskeyRecord: Decodable, Encodable {
         Cipher(
             id: cipherId,
             organizationId: nil,
-            deviceBound: true,
             folderId: nil,
             collectionIds: [],
             key: nil,
@@ -466,7 +463,6 @@ final class DevicePasskeyCredentialStore: Fido2CredentialStore {
                 cipherId: UUID().uuidString,
                 cipherName: cred.cipher.name,
                 credentialId: fido2cred.credentialId,
-                deviceBound: cred.cipher.deviceBound,
                 keyType: fido2cred.keyType,
                 keyAlgorithm: fido2cred.keyAlgorithm,
                 keyCurve: fido2cred.keyCurve,

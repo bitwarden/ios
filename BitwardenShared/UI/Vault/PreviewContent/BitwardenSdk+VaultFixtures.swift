@@ -58,7 +58,6 @@ extension Cipher {
         Cipher(
             id: id,
             organizationId: organizationId,
-            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -224,7 +223,6 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
-            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -280,7 +278,6 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
-            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,
@@ -336,7 +333,6 @@ extension CipherView {
         CipherView(
             id: id,
             organizationId: organizationId,
-            deviceBound: false,
             folderId: folderId,
             collectionIds: collectionIds,
             key: key,

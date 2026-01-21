@@ -9,9 +9,9 @@ import Combine
 /// The processor used to manage state and handle actions for the autofill list screen.
 ///
 class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_body_length
-VaultAutofillListState,
-VaultAutofillListAction,
-VaultAutofillListEffect,
+    VaultAutofillListState,
+    VaultAutofillListAction,
+    VaultAutofillListEffect,
 >, HasTOTPCodesSections {
     // MARK: Types
     
