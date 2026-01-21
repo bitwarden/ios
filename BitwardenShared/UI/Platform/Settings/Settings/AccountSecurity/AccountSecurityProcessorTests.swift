@@ -44,6 +44,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         vaultTimeoutService = MockVaultTimeoutService()
         vaultUnlockSetupHelper = MockVaultUnlockSetupHelper()
 
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
@@ -89,7 +91,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         let account: Account = .fixture()
         let userId = account.profile.userId
         stateService.activeAccount = account
-        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         authRepository.activeAccount = account
         authRepository.sessionTimeoutAction[userId] = .logout
 
@@ -114,7 +115,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
-        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
 
         await subject.perform(.appeared)
 
@@ -194,7 +194,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
-        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
 
         await subject.perform(.appeared)
 
@@ -239,7 +238,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
-        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
@@ -281,7 +279,6 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
-        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
 
         await subject.perform(.appeared)
         subject.state.sessionTimeoutValue = SessionTimeoutValue(rawValue: 60)
