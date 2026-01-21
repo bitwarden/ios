@@ -35,10 +35,8 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         stateService = MockStateService()
         userSessionStateService = MockUserSessionStateService()
 
-        // These are the defaults served up by StateService
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
-
         userSessionStateService.setUnsuccessfulUnlockAttemptsClosure = { attempts, _ in
             self.userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = attempts
         }

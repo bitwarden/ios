@@ -28,6 +28,7 @@ class SyncServiceTests: BitwardenTestCase {
     var subject: SyncService!
     var syncServiceDelegate: MockSyncServiceDelegate!
     var timeProvider: MockTimeProvider!
+    var userSessionStateService: MockUserSessionStateService!
     var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
@@ -58,7 +59,10 @@ class SyncServiceTests: BitwardenTestCase {
                 ),
             ),
         )
+        userSessionStateService = MockUserSessionStateService()
         vaultTimeoutService = MockVaultTimeoutService()
+
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
 
         subject = DefaultSyncService(
             accountAPIService: APIService(client: client),
@@ -76,7 +80,7 @@ class SyncServiceTests: BitwardenTestCase {
             stateService: stateService,
             syncAPIService: APIService(client: client),
             timeProvider: timeProvider,
-            userSessionStateService: stateService,
+            userSessionStateService: userSessionStateService,
             vaultTimeoutService: vaultTimeoutService,
         )
         subject.delegate = syncServiceDelegate
@@ -101,6 +105,7 @@ class SyncServiceTests: BitwardenTestCase {
         subject = nil
         syncServiceDelegate = nil
         timeProvider = nil
+        userSessionStateService = nil
         vaultTimeoutService = nil
     }
 
@@ -295,7 +300,7 @@ class SyncServiceTests: BitwardenTestCase {
     func test_checkVaultTimeoutPolicy_actionAndValue() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
-        stateService.vaultTimeout["1"] = SessionTimeoutValue(rawValue: 120)
+        userSessionStateService.getVaultTimeoutReturnValue = SessionTimeoutValue(rawValue: 120)
 
         policyService.fetchTimeoutPolicyValuesResult = .success(
             SessionTimeoutPolicy(
@@ -308,14 +313,17 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(stateService.timeoutAction["1"], .logout)
-        XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue(rawValue: 60))
+        XCTAssertEqual(
+            userSessionStateService.setVaultTimeoutReceivedArguments?.value,
+            SessionTimeoutValue(rawValue: 60),
+        )
     }
 
     /// `fetchSync()` updates the user's timeout action and ignores the time value.
     func test_checkVaultTimeoutPolicy_setActionForOnAppRestartType() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
-        stateService.vaultTimeout["1"] = SessionTimeoutValue(rawValue: 120)
+        userSessionStateService.getVaultTimeoutReturnValue = SessionTimeoutValue(rawValue: 120)
 
         policyService.fetchTimeoutPolicyValuesResult = .success(
             SessionTimeoutPolicy(
@@ -328,7 +336,10 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(stateService.timeoutAction["1"], .logout)
-        XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue(rawValue: 120))
+        XCTAssertEqual(
+            userSessionStateService.setVaultTimeoutReceivedArguments?.value,
+            SessionTimeoutValue(rawValue: 120),
+        )
     }
 
     /// `fetchSync()` updates the user's timeout action and value - if the timeout value is set to
@@ -336,7 +347,7 @@ class SyncServiceTests: BitwardenTestCase {
     func test_checkVaultTimeoutPolicy_valueNever() async throws {
         client.result = .httpSuccess(testData: .syncWithCiphers)
         stateService.activeAccount = .fixture()
-        stateService.vaultTimeout["1"] = .never
+        userSessionStateService.getVaultTimeoutReturnValue = .never
 
         policyService.fetchTimeoutPolicyValuesResult = .success(
             SessionTimeoutPolicy(
@@ -349,7 +360,10 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchSync(forceSync: false)
 
         XCTAssertEqual(stateService.timeoutAction["1"], .lock)
-        XCTAssertEqual(stateService.vaultTimeout["1"], SessionTimeoutValue.fifteenMinutes)
+        XCTAssertEqual(
+            userSessionStateService.setVaultTimeoutReceivedArguments?.value,
+            SessionTimeoutValue.fifteenMinutes,
+        )
     }
 
     /// `fetchSync()` performs the sync API request.
@@ -1084,6 +1098,8 @@ class SyncServiceTests: BitwardenTestCase {
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {
+    var migrateVaultToMyItemsCalled = false
+    var migrateVaultToMyItemsOrganizationId: String?
     var onFetchSyncSucceededCalledWithuserId: String?
     var removeMasterPasswordCalled = false
     var removeMasterPasswordOrganizationName: String?
@@ -1114,9 +1130,6 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
         setMasterPasswordCalled = true
         setMasterPasswordOrgId = orgIdentifier
     }
-
-    var migrateVaultToMyItemsCalled = false
-    var migrateVaultToMyItemsOrganizationId: String?
 
     func migrateVaultToMyItems(organizationId: String) {
         migrateVaultToMyItemsCalled = true
