@@ -622,23 +622,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
     }
 
-    /// `lastActiveTime(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_lastActiveTime_isInitiallyNil() {
-        XCTAssertNil(subject.lastActiveTime(userId: "-1"))
-    }
-
-    /// `lastActiveTime(userId:)` can be used to get the last active time for a user.
-    func test_lastActiveTime_withValue() {
-        let date1 = Date(year: 2023, month: 12, day: 1)
-        let date2 = Date(year: 2023, month: 10, day: 2)
-
-        subject.setLastActiveTime(date1, userId: "1")
-        subject.setLastActiveTime(date2, userId: "2")
-
-        XCTAssertEqual(subject.lastActiveTime(userId: "1"), date1)
-        XCTAssertEqual(subject.lastActiveTime(userId: "2"), date2)
-    }
-
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
     func test_lastSyncTime_isInitiallyNil() {
         XCTAssertNil(subject.lastSyncTime(userId: "-1"))
@@ -1282,13 +1265,5 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             .logout,
         )
-    }
-
-    /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
-    func test_vaultTimeout() throws {
-        subject.setVaultTimeout(minutes: 60, userId: "1")
-
-        XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
-        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:vaultTimeout_1"), 60)
     }
 }

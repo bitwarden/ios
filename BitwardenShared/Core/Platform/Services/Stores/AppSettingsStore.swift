@@ -192,16 +192,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func hasPerformedSyncAfterLogin(userId: String) -> Bool
 
-    /// The user's last active time within the app.
-    /// This value is set when the app is backgrounded.
-    /// This is deprecated in favor of the KeychainRepository version,
-    /// and only remains for migration compatibility.
-    ///
-    /// - Parameter userId: The user ID associated with the last active time within the app.
-    ///
-    @available(*, deprecated, message: "Use KeychainRepository version instead")
-    func lastActiveTime(userId: String) -> Date?
-
     /// Get the user's Biometric Authentication Preference.
     ///
     /// - Parameter userId: The user ID associated with the biometric authentication preference.
@@ -421,17 +411,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
 
-    /// Sets the last active time within the app.
-    /// This is deprecated in favor of the KeychainRepository version,
-    /// and only remains for migration compatibility.
-    ///
-    /// - Parameters:
-    ///   - date: The current time.
-    ///   - userId: The user ID associated with the last active time within the app.
-    ///
-    @available(*, deprecated, message: "Use KeychainRepository version instead")
-    func setLastActiveTime(_ date: Date?, userId: String)
-
     /// Sets the time of the last sync for the user ID.
     ///
     /// - Parameters:
@@ -550,17 +529,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String)
 
-    /// Sets the user's session timeout, in minutes.
-    /// This is deprecated in favor of the KeychainRepository version,
-    /// and only remains for migration compatibility.
-    ///
-    /// - Parameters:
-    ///   - key: The session timeout, in minutes.
-    ///   - userId: The user ID associated with the session timeout.
-    ///
-    @available(*, deprecated, message: "Use KeychainRepository version instead")
-    func setVaultTimeout(minutes: Int, userId: String)
-
     /// Sets the username generation options for a user ID.
     ///
     /// - Parameters:
@@ -617,16 +585,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the user uses key connector.
     ///
     func usesKeyConnector(userId: String) -> Bool
-
-    /// Returns the session timeout in minutes.
-    /// This is deprecated in favor of the KeychainRepository version,
-    /// and only remains for migration compatibility.
-    ///
-    /// - Parameter userId: The user ID associated with the session timeout.
-    /// - Returns: The user's session timeout in minutes.
-    ///
-    @available(*, deprecated, message: "Use KeychainRepository version instead")
-    func vaultTimeout(userId: String) -> Int?
 
     // MARK: Publishers
 
@@ -779,7 +737,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
-        case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
         case learnGeneratorActionCardStatus
@@ -807,7 +764,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
-        case vaultTimeout(userId: String)
         case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -867,8 +823,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "introCarouselShown"
             case .learnNewLoginActionCardStatus:
                 "learnNewLoginActionCardStatus"
-            case let .lastActiveTime(userId):
-                "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 "lastSync_\(userId)"
             case .learnGeneratorActionCardStatus:
@@ -923,8 +877,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
                 "usesKeyConnector_\(userId)"
-            case let .vaultTimeout(userId):
-                "vaultTimeout_\(userId)"
             case let .vaultTimeoutAction(userId):
                 "vaultTimeoutAction_\(userId)"
             }
@@ -1110,10 +1062,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
-    func lastActiveTime(userId: String) -> Date? {
-        fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
-    }
-
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
@@ -1232,10 +1180,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
-    func setLastActiveTime(_ date: Date?, userId: String) {
-        store(date?.timeIntervalSince1970, for: .lastActiveTime(userId: userId))
-    }
-
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
@@ -1296,10 +1240,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
     }
 
-    func setVaultTimeout(minutes: Int, userId: String) {
-        store(minutes, for: .vaultTimeout(userId: userId))
-    }
-
     func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
         store(siriAndShortcutsAccess, for: .siriAndShortcutsAccess(userId: userId))
     }
@@ -1318,10 +1258,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func twoFactorToken(email: String) -> String? {
         fetch(for: .twoFactorToken(email: email))
-    }
-
-    func vaultTimeout(userId: String) -> Int? {
-        fetch(for: .vaultTimeout(userId: userId))
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
