@@ -467,10 +467,6 @@ extension DefaultKeychainRepository {
         try await setValue(value, for: .deviceKey(userId: userId))
     }
 
-    func setLastActiveTime(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .lastActiveTime(userId: userId))
-    }
-
     func setRefreshToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .refreshToken(userId: userId))
     }
@@ -481,10 +477,6 @@ extension DefaultKeychainRepository {
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
         try await setValue(value, for: item)
-    }
-
-    func setVaultTimeout(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .vaultTimeout(userId: userId))
     }
 }
 
