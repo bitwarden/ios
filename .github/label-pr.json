@@ -66,10 +66,10 @@
       "Brewfile",
       "Gemfile",
       "Gemfile.lock",
-      "Mintfile"
+      "Mintfile",
+      "Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
     ],
     "t:misc": [
-      "Bitwarden.xcworkspace/",
       "GlobalTestHelpers/",
       "GlobalTestHelpers-bwa/",
       "GlobalTestHelpers-bwth/",
