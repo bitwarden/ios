@@ -69,12 +69,12 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
             )!,
         )
         keychainService.setSearchResultData(string: "1234567890")
-        try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1234567890), userId: "1")
+        try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1_234_567_890), userId: "1")
 
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
-            "1234567890",
+            "1234567890.0",
         )
         let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
         XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
@@ -86,7 +86,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         let error = KeychainServiceError.accessControlFailed(nil)
         keychainService.accessControlResult = .failure(error)
         await assertAsyncThrows(error: error) {
-            try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1234567890), userId: "1")
+            try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1_234_567_890), userId: "1")
         }
     }
 
