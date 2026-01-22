@@ -7,6 +7,9 @@ import Networking
 struct CipherRequestModel: JSONRequestBody {
     // MARK: Properties
 
+    /// The date the cipher was archived.
+    let archivedDate: Date?
+
     /// The cipher's attachment data.
     ///
     /// - Note: `attachments2` is the newer version of the `attachment` API property for sending
@@ -82,6 +85,7 @@ extension CipherRequestModel {
     ///
     init(cipher: Cipher, encryptedFor: String? = nil, includeId: Bool = false) {
         self.init(
+            archivedDate: cipher.archivedDate,
             attachments2: cipher.attachments?.reduce(into: [String: AttachmentRequestModel]()) { result, attachment in
                 guard let id = attachment.id else { return }
                 result[id] = AttachmentRequestModel(attachment: attachment)

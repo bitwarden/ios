@@ -110,6 +110,9 @@ protocol AddEditItemState: Sendable {
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
 
+    /// Whether the item should be displayed as archived.
+    var shouldDisplayAsArchived: Bool { get }
+
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
 
