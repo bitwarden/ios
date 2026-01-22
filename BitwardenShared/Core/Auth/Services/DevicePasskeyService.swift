@@ -65,11 +65,9 @@ struct DefaultDevicePasskeyService: DevicePasskeyService {
         masterPasswordHash: String,
         overwrite: Bool
     ) async throws -> DevicePasskeyRecord {
-        if !overwrite {
-            let record = try? await getRecordFromKeychain()
-            guard record == nil else {
-                return record!
-            }
+        let record = try? await getRecordFromKeychain()
+        guard overwrite || record == nil else {
+            return record!
         }
         let userId = try await stateService.getActiveAccountId()
         let deviceKey = try await ensureDeviceKeyIsSet(userId: userId)
@@ -117,8 +115,12 @@ struct DefaultDevicePasskeyService: DevicePasskeyService {
         try await authAPIService.saveCredential(request)
 
         // at this point, there should be a device passkey in the store, with an unencrypted PRF seed.
-        let record = try await getRecordFromKeychain()!
-        return record
+        let result = if record == nil {
+            try await getRecordFromKeychain()!
+        } else {
+            record!
+        }
+        return result
     }
 
     // MARK: Private
@@ -211,6 +213,19 @@ struct DefaultDevicePasskeyService: DevicePasskeyService {
         } else { return nil }
     }
 
+    private func getMetadataFromKeychain() async throws -> DevicePasskeyMetadata? {
+        if let json = try? await keychainRepository.getDevicePasskeyMetadata(userId: stateService.getActiveAccountId()) {
+            let record: DevicePasskeyMetadata = try JSONDecoder.defaultDecoder.decode(
+                DevicePasskeyMetadata.self,
+                from: json.data(
+                    using: .utf8
+                )!
+            )
+            Logger.application.debug("Metadata: \(json) })")
+            return record
+        } else { return nil }
+    }
+
     private func deriveWebOrigin() -> String {
         // TODO: Should we be using the web vault as the origin, and is this the best way to get it?
         let url = environmentService.webVaultURL
@@ -220,6 +235,7 @@ struct DefaultDevicePasskeyService: DevicePasskeyService {
 
 // MARK: DevicePasskeyRecord
 
+/// Stored key material needed to assert the device passkey.
 struct DevicePasskeyRecord: Decodable, Encodable {
     let cipherId: String
     let cipherName: String
@@ -352,6 +368,24 @@ struct DevicePasskeyRecord: Decodable, Encodable {
             data: nil,
         )
     }
+    
+    func toMetadata() -> DevicePasskeyMetadata {
+        DevicePasskeyMetadata(
+            cipherId: cipherId,
+            credentialId: credentialId,
+            rpId: rpId,
+            creationDate: creationDate
+        )
+    }
+}
+
+// MARK: DevicePasskeyMetadata
+/// Metadata needed for matching a request to the device passkey before decrypting the secret data.
+struct DevicePasskeyMetadata: Decodable, Encodable {
+    let cipherId: String
+    let credentialId: String
+    let rpId: String
+    let creationDate: DateTime
 }
 
 // MARK: DevicePasskeyCredentialStore
@@ -478,7 +512,8 @@ final class DevicePasskeyCredentialStore: Fido2CredentialStore {
                 creationDate: cred.cipher.creationDate
             )
             let recordJson = try String(data: JSONEncoder.defaultEncoder.encode(record), encoding: .utf8)!
-            try await keychainRepository.setDevicePasskey(recordJson, userId: cred.encryptedFor)
+            let metadataJson = try String(data: JSONEncoder.defaultEncoder.encode(record.toMetadata()), encoding: .utf8)!
+            try await keychainRepository.setDevicePasskey(recordJson: recordJson, metadataJson: metadataJson, userId: cred.encryptedFor)
         }
     }
 
