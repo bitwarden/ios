@@ -93,18 +93,6 @@ struct AddEditItemView: View {
                 if store.state.shouldDisplayAsArchived {
                     InfoContainer(text: Localizations.thisItemIsArchived, icon: SharedAsset.Icons.archive24)
                         .accessibilityIdentifier("ArchivedLabel")
-//                    InfoContainer {
-//                        HStack(alignment: .center) {
-//                            Image(decorative: SharedAsset.Icons.archive24)
-//                                .resizable()
-//                                .foregroundStyle(SharedAsset.Colors.iconPrimary.swiftUIColor)
-//                                .scaledToFit()
-//                                .imageStyle(.accessoryIcon16(scaleWithFont: true))
-//
-//                            Text(Localizations.thisItemIsArchived)
-//                        }
-//                    }
-//                    .accessibilityIdentifier("ArchivedLabel")
                 }
 
                 itemDetailsSection
