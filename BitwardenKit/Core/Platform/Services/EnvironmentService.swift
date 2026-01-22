@@ -41,6 +41,9 @@ public protocol EnvironmentService {
     /// The URL for setting up two-factor login.
     var setUpTwoFactorURL: URL { get }
 
+    /// The URL for upgrading to premium.
+    var upgradeToPremiumURL: URL { get }
+
     /// The URL for the web vault.
     var webVaultURL: URL { get }
 

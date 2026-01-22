@@ -54,13 +54,4 @@ extension ExternalLinksConstants {
 
     /// A link to Bitwarden's help page for URI match detection.
     static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
-
-    // MARK: Methods
-
-    /// A link to the upgrade to premium page.
-    /// - Parameter base: The base environemnt URL.
-    /// - Returns: The URL to upgrate to premium.
-    static func upgradeToPremium(base: URL) -> URL {
-        URL(string: "\(base.absoluteString)/#/settings/subscription/premium?callToAction=upgradeToPremium")!
-    }
 }

@@ -38,6 +38,9 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for setting up two-factor login.
     public let setUpTwoFactorURL: URL
 
+    /// The URL for upgrading to premium.
+    public let upgradeToPremiumURL: URL
+
     /// The URL for the web vault.
     public let webVaultURL: URL
 
@@ -55,6 +58,7 @@ public struct EnvironmentURLs: Equatable {
     ///   - sendShareURL: The URL for sharing a send.
     ///   - settingsURL: The URL for vault settings.
     ///   - setUpTwoFactorURL: The URL for setting up two-factor login.
+    ///   - upgradeToPremiumURL: The URL for upgrading to premium.
     ///   - webVaultURL: The URL for the web vault.
     public init(
         apiURL: URL,
@@ -68,6 +72,7 @@ public struct EnvironmentURLs: Equatable {
         sendShareURL: URL,
         settingsURL: URL,
         setUpTwoFactorURL: URL,
+        upgradeToPremiumURL: URL,
         webVaultURL: URL,
     ) {
         self.apiURL = apiURL
@@ -81,6 +86,7 @@ public struct EnvironmentURLs: Equatable {
         self.sendShareURL = sendShareURL
         self.settingsURL = settingsURL
         self.setUpTwoFactorURL = setUpTwoFactorURL
+        self.upgradeToPremiumURL = upgradeToPremiumURL
         self.webVaultURL = webVaultURL
     }
 }
@@ -121,5 +127,6 @@ public extension EnvironmentURLs {
         settingsURL = environmentURLData.settingsURL ?? webVaultURL
         changeEmailURL = environmentURLData.changeEmailURL ?? settingsURL
         setUpTwoFactorURL = environmentURLData.setUpTwoFactorURL ?? settingsURL
+        upgradeToPremiumURL = environmentURLData.upgradeToPremiumURL ?? settingsURL
     }
 }

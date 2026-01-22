@@ -69,10 +69,10 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
     ) async {
         guard await services.vaultRepository.doesActiveAccountHavePremium() else {
             await coordinator.showAlert(
-                Alert.archiveUnavailable(
-                    baseURL: services.environmentService.baseURL,
-                    handleOpenURL: handleOpenURL,
-                ),
+                Alert.archiveUnavailable(action: { [weak self] in
+                    guard let self else { return }
+                    handleOpenURL(services.environmentService.upgradeToPremiumURL)
+                }),
             )
             return
         }

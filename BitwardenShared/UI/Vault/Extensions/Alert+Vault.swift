@@ -11,20 +11,16 @@ extension Alert {
     /// Returns an alert for when archive is unavailable.
     ///
     /// - Parameters:
-    ///   - baseURL: The base environment URL.
-    ///   - handleOpenURL: A closure to open a link when user chooses "Upgrade to premium" option.
+    ///   - action: A closure to execute on upgrading to premium.
     /// - Returns: The alert when archive is unavailable.
     static func archiveUnavailable(
-        baseURL: URL,
-        handleOpenURL: @escaping (URL) -> Void,
+        action: @escaping () -> Void,
     ) -> Alert {
         Alert(
             title: Localizations.archiveUnavailable,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
             alertActions: [
-                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in
-                    handleOpenURL(ExternalLinksConstants.upgradeToPremium(base: baseURL))
-                },
+                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ],
         )

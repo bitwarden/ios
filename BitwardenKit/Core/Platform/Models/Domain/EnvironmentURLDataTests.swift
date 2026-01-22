@@ -217,6 +217,17 @@ class EnvironmentURLDataTests: XCTestCase {
         )
     }
 
+    /// `upgradeToPremiumURL` returns the upgrate to premium URL.
+    func test_upgradeToPremiumURL() {
+        let subject = EnvironmentURLData(
+            base: URL(string: "https://vault.example.com"),
+        )
+        XCTAssertEqual(
+            subject.upgradeToPremiumURL?.absoluteString,
+            "https://vault.example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+        )
+    }
+
     /// `webVaultHost` returns the host for the base URL if no web vault URL is set.
     func test_webVaultHost_baseURL() {
         let subject = EnvironmentURLData(base: URL(string: "https://vault.example.com"))

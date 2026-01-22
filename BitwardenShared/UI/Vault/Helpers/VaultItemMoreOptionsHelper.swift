@@ -131,10 +131,10 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     ) async {
         guard hasPremium else {
             coordinator.showAlert(
-                Alert.archiveUnavailable(
-                    baseURL: services.environmentService.baseURL,
-                    handleOpenURL: handleOpenURL,
-                ),
+                Alert.archiveUnavailable(action: { [weak self] in
+                    guard let self else { return }
+                    handleOpenURL(services.environmentService.upgradeToPremiumURL)
+                }),
             )
             return
         }

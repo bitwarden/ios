@@ -19,6 +19,9 @@ public class MockEnvironmentService: EnvironmentService {
     public var sendShareURL = URL(string: "https://example.com/#/send")!
     public var settingsURL = URL(string: "https://example.com/#/settings")!
     public var setUpTwoFactorURL = URL(string: "https://example.com/#/settings/security/two-factor")!
+    public var upgradeToPremiumURL = URL(
+        string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+    )!
     public var webVaultURL = URL(string: "https://example.com")!
 
     public init() {}

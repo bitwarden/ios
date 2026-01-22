@@ -54,6 +54,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// The stack navigator that is managed by this coordinator.
     private(set) weak var stackNavigator: StackNavigator?
 
+    /// The helper to use to execute vault item actions centralized.
+    private lazy var vaultItemActionHelper = DefaultVaultItemActionHelper(
+        coordinator: asAnyCoordinator(),
+        services: services,
+    )
+
     // MARK: Initialization
 
     /// Creates a new `VaultCoordinator`.
@@ -211,10 +217,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             delegate: delegate,
             services: services,
             state: state,
-            vaultItemActionHelper: DefaultVaultItemActionHelper(
-                coordinator: asAnyCoordinator(),
-                services: services,
-            ),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
@@ -275,10 +278,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 delegate: delegate,
                 services: services,
                 state: state,
-                vaultItemActionHelper: DefaultVaultItemActionHelper(
-                    coordinator: asAnyCoordinator(),
-                    services: services,
-                ),
+                vaultItemActionHelper: vaultItemActionHelper,
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -324,10 +324,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 delegate: delegate,
                 services: services,
                 state: state,
-                vaultItemActionHelper: DefaultVaultItemActionHelper(
-                    coordinator: asAnyCoordinator(),
-                    services: services,
-                ),
+                vaultItemActionHelper: vaultItemActionHelper,
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -465,10 +462,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             itemId: id,
             services: services,
             state: ViewItemState(),
-            vaultItemActionHelper: DefaultVaultItemActionHelper(
-                coordinator: asAnyCoordinator(),
-                services: services,
-            ),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         let store = Store(processor: processor)
         let view = ViewItemView(
