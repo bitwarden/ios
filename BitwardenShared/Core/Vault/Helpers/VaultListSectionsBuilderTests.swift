@@ -14,6 +14,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: DefaultVaultListSectionsBuilder!
 
     // MARK: Setup & Teardown
@@ -24,6 +25,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         clientService = MockClientService()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
     }
 
     override func tearDown() {
@@ -32,6 +34,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         clientService = nil
         configService = nil
         errorReporter = nil
+        stateService = nil
         subject = nil
     }
 
@@ -382,11 +385,12 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addHiddenItemsSection()` adds the hidden items section to the list of sections with the count of
-    /// archived and deleted ciphers when the archive feature flag is on.
+    /// `addHiddenItemsSection()` adds the hidden items section with archive when the feature flag is on
+    /// and the user has premium.
     @MainActor
-    func test_addHiddenItemsSection_archiveFeatureFlagEnabled() async {
+    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_hasPremium() async {
         configService.featureFlagsBool[.archiveVaultItems] = true
+        stateService.doesActiveAccountHavePremiumResult = true
         setUpSubject(withData: VaultListPreparedData(
             ciphersArchivedCount: 5,
             ciphersDeletedCount: 10,
@@ -398,6 +402,49 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             """
             Section[HiddenItems]: Hidden items
               - Group[Archive]: Archive (5)
+              - Group[Trash]: Trash (10)
+            """
+        }
+    }
+
+    /// `addHiddenItemsSection()` does not add archive when the feature flag is on but the user
+    /// does not have premium and there are no archived items.
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_noArchivedItems() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        stateService.doesActiveAccountHavePremiumResult = false
+        setUpSubject(withData: VaultListPreparedData(
+            ciphersArchivedCount: 0,
+            ciphersDeletedCount: 10,
+        ))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Trash]: Trash (10)
+            """
+        }
+    }
+
+    /// `addHiddenItemsSection()` adds archive when the feature flag is on and the user
+    /// does not have premium but there are archived items (grandfathered).
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_hasArchivedItems() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        stateService.doesActiveAccountHavePremiumResult = false
+        setUpSubject(withData: VaultListPreparedData(
+            ciphersArchivedCount: 3,
+            ciphersDeletedCount: 10,
+        ))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Archive]: Archive (3)
               - Group[Trash]: Trash (10)
             """
         }
@@ -780,6 +827,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
             collectionHelper: collectionHelper,
             configService: configService,
             errorReporter: errorReporter,
+            stateService: stateService,
             withData: withData,
         )
     }
