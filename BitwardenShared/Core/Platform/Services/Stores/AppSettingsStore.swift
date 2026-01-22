@@ -709,7 +709,7 @@ class DefaultAppSettingsStore {
 extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
-    enum Keys { // TODO: Delete keys
+    enum Keys {
         case accessTokenExpirationDate(userId: String)
         case accountKeys(userId: String)
         case accountSetupAutofill(userId: String)
@@ -761,7 +761,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
-        case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
         case vaultTimeoutAction(userId: String)
@@ -871,8 +870,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
-            case let .unsuccessfulUnlockAttempts(userId):
-                "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
