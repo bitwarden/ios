@@ -1396,6 +1396,53 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(isAuthenticated)
     }
 
+    /// `isInitialSyncRequired(userId:)` returns `true` when user has never synced before.
+    func test_isInitialSyncRequired_noLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let isRequired = await subject.isInitialSyncRequired(userId: "1")
+        XCTAssertTrue(isRequired)
+    }
+
+    /// `isInitialSyncRequired(userId:)` returns `false` when user has synced before.
+    func test_isInitialSyncRequired_hasLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(timeIntervalSince1970: 1_704_067_200)
+        appSettingsStore.lastSyncTimeByUserId["1"] = date
+
+        let isRequired = await subject.isInitialSyncRequired(userId: "1")
+        XCTAssertFalse(isRequired)
+    }
+
+    /// `isInitialSyncRequired(userId:)` returns `false` when there's an error getting last sync time.
+    func test_isInitialSyncRequired_error() async {
+        // No account added, which will cause getLastSyncTime to throw StateServiceError.noActiveAccount
+
+        let isRequired = await subject.isInitialSyncRequired(userId: nil)
+        XCTAssertFalse(isRequired)
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `isInitialSyncRequired()` returns `true` for active account when it has never synced.
+    func test_isInitialSyncRequired_activeAccount_noLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let isRequired = await subject.isInitialSyncRequired()
+        XCTAssertTrue(isRequired)
+    }
+
+    /// `isInitialSyncRequired()` returns `false` for active account when it has synced before.
+    func test_isInitialSyncRequired_activeAccount_hasLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(timeIntervalSince1970: 1_704_067_200)
+        appSettingsStore.lastSyncTimeByUserId["1"] = date
+
+        let isRequired = await subject.isInitialSyncRequired()
+        XCTAssertFalse(isRequired)
+    }
+
     /// `logoutAccount()` clears any account data.
     func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))

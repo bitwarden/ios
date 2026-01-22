@@ -51,6 +51,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
+    var isInitialSyncRequiredByUserId = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
@@ -428,6 +429,11 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         let userId = try unwrapUserId(userId)
         if let isAuthenticatedError { throw isAuthenticatedError }
         return isAuthenticated[userId] ?? false
+    }
+
+    func isInitialSyncRequired(userId: String?) async -> Bool {
+        guard let userId = try? unwrapUserId(userId) else { return false }
+        return isInitialSyncRequiredByUserId[userId] ?? false
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {

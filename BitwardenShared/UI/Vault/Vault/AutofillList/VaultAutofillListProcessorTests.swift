@@ -189,7 +189,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_loadData_firstSync() async {
         authRepository.profileSwitcherState = .empty()
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        stateService.isInitialSyncRequiredByUserId["1"] = true
 
         await subject.perform(.loadData)
 
@@ -205,7 +205,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_loadData_firstSync_cancelled() async {
         authRepository.profileSwitcherState = .empty()
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        stateService.isInitialSyncRequiredByUserId["1"] = true
         vaultRepository.fetchSyncResult = .failure(URLError(.cancelled))
 
         await subject.perform(.loadData)
@@ -222,7 +222,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_loadData_firstSync_error() async {
         authRepository.profileSwitcherState = .empty()
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        stateService.isInitialSyncRequiredByUserId["1"] = true
         vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.loadData)
@@ -236,24 +236,12 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         )
     }
 
-    /// `perform(_:)` with `.loadData` logs error when getLastSyncTime() fails during initial sync check.
-    @MainActor
-    func test_perform_loadData_firstSync_getLastSyncTimeError() async {
-        authRepository.profileSwitcherState = .empty()
-        stateService.activeAccount = nil // Causes getLastSyncTime to throw StateServiceError.noActiveAccount
-
-        await subject.perform(.loadData)
-
-        XCTAssertFalse(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
-    }
-
     /// `perform(_:)` with `.loadData` doesn't reset loading state when already loading with cached sections.
     @MainActor
     func test_perform_loadData_firstSync_preservesCachedSectionsWhileSyncing() async {
         authRepository.profileSwitcherState = .empty()
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        stateService.isInitialSyncRequiredByUserId["1"] = true
         vaultRepository.fetchSyncResult = .success(())
 
         let cachedSection = VaultListSection(
@@ -275,7 +263,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_loadData_firstSync_retryFromErrorState() async {
         authRepository.profileSwitcherState = .empty()
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        stateService.isInitialSyncRequiredByUserId["1"] = true
 
         subject.state.loadingState = .error(errorMessage: "Previous error")
 
@@ -297,7 +285,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_loadData_firstSync_skipsSyncWhenAlreadySynced() async {
         authRepository.profileSwitcherState = .empty()
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [Account.fixture().profile.userId: Date()]
+        stateService.isInitialSyncRequiredByUserId["1"] = false
 
         await subject.perform(.loadData)
 
@@ -479,7 +467,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_streamAutofillItems_cachesSectionsDuringSync() {
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [:] // No last sync time recorded
+        stateService.isInitialSyncRequiredByUserId["1"] = true
         subject.state.loadingState = .loading(nil)
 
         let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2")]
@@ -514,7 +502,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_streamAutofillItems_displaysSectionsWhenSyncNotRequired() {
         stateService.activeAccount = .fixture()
-        stateService.lastSyncTimeByUserId = [Account.fixture().profile.userId: Date()] // Already synced
+        stateService.isInitialSyncRequiredByUserId["1"] = false
 
         let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2")]
         let expectedSection = VaultListSection(

@@ -243,7 +243,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Fetches initial sync if necessary, checking if the user has synced before.
     private func fetchInitialSyncIfNecessary() async {
         do {
-            guard await isInitialSyncRequired() else { return }
+            guard await services.stateService.isInitialSyncRequired() else { return }
 
             if !state.loadingState.isLoading {
                 // Set the loading state if not loading. This transitions to the loading state on a
@@ -340,20 +340,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 }
             },
         )
-    }
-
-    /// Checks if an initial sync is required (user hasn't synced before).
-    ///
-    /// - Returns: `true` if initial sync is needed, `false` otherwise.
-    ///
-    private func isInitialSyncRequired() async -> Bool {
-        do {
-            let lastSyncTime = try await services.stateService.getLastSyncTime()
-            return lastSyncTime == nil
-        } catch {
-            services.errorReporter.log(error: error)
-            return false
-        }
     }
 
     /// Refreshes the vault group's TOTP Codes.
@@ -455,7 +441,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
 
-                if await isInitialSyncRequired(), case .loading = state.loadingState {
+                if await services.stateService.isInitialSyncRequired(), case .loading = state.loadingState {
                     // Sync hasn't completed yet, store the sections in the loading state.
                     state.loadingState = .loading(sections)
                 } else {

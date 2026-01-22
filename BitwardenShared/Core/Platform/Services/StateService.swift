@@ -396,6 +396,13 @@ protocol StateService: AnyObject {
     ///
     func isAuthenticated(userId: String?) async throws -> Bool
 
+    /// Checks if an initial sync is required (user hasn't synced before).
+    ///
+    /// - Parameter userId: The user ID to check. Defaults to the active account if `nil`.
+    /// - Returns: `true` if initial sync is needed, `false` otherwise.
+    ///
+    func isInitialSyncRequired(userId: String?) async -> Bool
+
     /// Logs the user out of an account.
     ///
     /// - Parameters:
@@ -1125,6 +1132,14 @@ extension StateService {
         try await isAuthenticated(userId: nil)
     }
 
+    /// Checks if an initial sync is required for the active account (user hasn't synced before).
+    ///
+    /// - Returns: `true` if initial sync is needed, `false` otherwise.
+    ///
+    func isInitialSyncRequired() async -> Bool {
+        await isInitialSyncRequired(userId: nil)
+    }
+
     /// Logs the user out of the active account.
     ///
     /// - Parameters userInitiated: Whether the logout was user initiated or a result of a logout
@@ -1846,6 +1861,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         } catch StateServiceError.noAccounts {
             return false
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return false
+        }
+    }
+
+    func isInitialSyncRequired(userId: String?) async -> Bool {
+        do {
+            let lastSyncTime = try await getLastSyncTime(userId: userId)
+            return lastSyncTime == nil
+        } catch {
+            errorReporter.log(error: error)
             return false
         }
     }
