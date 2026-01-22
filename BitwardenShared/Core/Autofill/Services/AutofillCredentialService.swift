@@ -492,25 +492,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         )
 
         // Before trying to unlock the device, try to satisfy credential with device passkey.
-        // TODO: Change this only to use device passkey if the device passkey cipher ID matches the passkeyRequest.credentialIdentity.recordIdentifier
         // That way, this will only be selected if the user explicitly selects it.
-        if let deviceKeyB64 = try? await keychainRepository.getDeviceKey(userId: stateService.getActiveAccountId()) {
-            let deviceKey = SymmetricKey(data: Data(base64Encoded: deviceKeyB64)!)
-            if let devicePasskeyAssertionResult = try? await clientService.platform().fido2().deviceAuthenticator(
-                userInterface: DevicePasskeyUserInterface(),
-                credentialStore: DevicePasskeyCredentialStore(
-                    clientService: clientService,
-                    keychainRepository: keychainRepository,
-                    userId: stateService.getActiveAccountId()
-                ),
-                deviceKey: deviceKey
-            ).getAssertion(request: request) {
-                return ASPasskeyAssertionCredential(
-                    assertionResult: devicePasskeyAssertionResult,
-                    rpId: request.rpId,
-                    clientDataHash: request.clientDataHash
-                )
-            }
+        if let recordIdentifier = passkeyRequest.credentialIdentity.recordIdentifier,
+           let deviceResult = try? await provideFido2CredentialWithDevice(with: request, for: recordIdentifier) {
+            return deviceResult
         }
 
         try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
@@ -681,6 +666,64 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             #endif
             throw error
         }
+    }
+    
+    @available(
+        iOS 17.0,
+        *
+    )
+    private func provideFido2CredentialWithDevice(
+        with request: GetAssertionRequest,
+        for recordIdentifier: String
+    ) async throws -> ASPasskeyAssertionCredential? {
+        guard let json = try await keychainRepository.getDevicePasskeyMetadata(
+            userId: stateService
+                .getActiveAccountId()
+        ),
+              !json.isEmpty else {
+            return nil
+        }
+        guard let metadata: DevicePasskeyMetadata = try? JSONDecoder.defaultDecoder.decode(
+            DevicePasskeyMetadata.self,
+            from: json
+                .data(
+                    using: .utf8
+                )!
+        ) else {
+            return nil
+        }
+        guard recordIdentifier == metadata.cipherId && request.rpId == metadata.rpId else {
+            return nil
+        }
+        guard let deviceKeyB64 = try await keychainRepository.getDeviceKey(
+            userId: stateService.getActiveAccountId()
+        ) else {
+            return nil
+        }
+        let deviceKey = SymmetricKey(
+            data: Data(
+                base64Encoded: deviceKeyB64
+            )!
+        )
+        guard let result = try? await clientService.platform().fido2().deviceAuthenticator(
+            userInterface: DevicePasskeyUserInterface(),
+            credentialStore: DevicePasskeyCredentialStore(
+                clientService: clientService,
+                keychainRepository: keychainRepository,
+                userId: stateService
+                    .getActiveAccountId()
+            ),
+            deviceKey: deviceKey
+        ).getAssertion(
+            request: request
+        ) else {
+            return nil
+        }
+        return ASPasskeyAssertionCredential(
+            assertionResult: result,
+            rpId: request.rpId,
+            clientDataHash: request.clientDataHash
+        )
     }
 
     /// Removes the credential identities associated with the cipher on the store.

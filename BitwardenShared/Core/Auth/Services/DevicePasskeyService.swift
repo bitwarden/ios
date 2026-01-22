@@ -201,16 +201,24 @@ struct DefaultDevicePasskeyService: DevicePasskeyService {
     }
 
     private func getRecordFromKeychain() async throws -> DevicePasskeyRecord? {
-        if let json = try? await keychainRepository.getDevicePasskey(userId: stateService.getActiveAccountId()) {
+        if let json = try? await keychainRepository.getDevicePasskey(
+            userId: stateService.getActiveAccountId()
+        ) {
             let record: DevicePasskeyRecord = try JSONDecoder.defaultDecoder.decode(
                 DevicePasskeyRecord.self,
-                from: json.data(
-                    using: .utf8
-                )!
+                from: json
+                    .data(
+                        using: .utf8
+                    )!
             )
-            Logger.application.debug("Record: \(json) })")
+            Logger.application
+                .debug(
+                    "Record: \(json) })"
+                )
             return record
-        } else { return nil }
+        } else {
+            return nil
+        }
     }
 
     private func getMetadataFromKeychain() async throws -> DevicePasskeyMetadata? {
@@ -368,15 +376,6 @@ struct DevicePasskeyRecord: Decodable, Encodable {
             data: nil,
         )
     }
-    
-    func toMetadata() -> DevicePasskeyMetadata {
-        DevicePasskeyMetadata(
-            cipherId: cipherId,
-            credentialId: credentialId,
-            rpId: rpId,
-            creationDate: creationDate
-        )
-    }
 }
 
 // MARK: DevicePasskeyMetadata
@@ -385,7 +384,11 @@ struct DevicePasskeyMetadata: Decodable, Encodable {
     let cipherId: String
     let credentialId: String
     let rpId: String
-    let creationDate: DateTime
+    init(cipherId: String, credentialId: String, rpId: String) {
+        self.cipherId = cipherId
+        self.credentialId = credentialId
+        self.rpId = rpId
+    }
 }
 
 // MARK: DevicePasskeyCredentialStore
@@ -512,7 +515,24 @@ final class DevicePasskeyCredentialStore: Fido2CredentialStore {
                 creationDate: cred.cipher.creationDate
             )
             let recordJson = try String(data: JSONEncoder.defaultEncoder.encode(record), encoding: .utf8)!
-            let metadataJson = try String(data: JSONEncoder.defaultEncoder.encode(record.toMetadata()), encoding: .utf8)!
+            // The record contains encrypted data, we need to decrypt it before storing metadata
+            let deviceKey = try await SymmetricKey(
+                data: Data(
+                    base64Encoded: keychainRepository.getDeviceKey(
+                        userId: userId
+                    )!
+                )!
+            )
+            let fido2CredentialAutofillViews = try await clientService.platform()
+                .fido2()
+                .decryptFido2AutofillCredentials(cipherView: record.toCipherView(), encryptionKey: deviceKey)
+
+            let fido2CredentialAutofillView = fido2CredentialAutofillViews[safeIndex: 0]!
+            let metadata = DevicePasskeyMetadata(cipherId: fido2CredentialAutofillView.cipherId,
+                                                 credentialId: fido2CredentialAutofillView.credentialId.base64EncodedString(),
+                                                 rpId: fido2CredentialAutofillView.rpId)
+            let metadataJson = try String(data: JSONEncoder.defaultEncoder.encode(metadata), encoding: .utf8)!
+
             try await keychainRepository.setDevicePasskey(recordJson: recordJson, metadataJson: metadataJson, userId: cred.encryptedFor)
         }
     }
