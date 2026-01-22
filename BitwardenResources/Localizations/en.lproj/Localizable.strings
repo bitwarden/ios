@@ -1292,3 +1292,6 @@
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "Archive is empty";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ArchiveUnavailable" = "Archive unavailable";
+"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
+"UpgradeToPremium" = "Upgrade to premium";

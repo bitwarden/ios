@@ -24,6 +24,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var rehydrationHelper: MockRehydrationHelper!
     var stateService: MockStateService!
     var subject: ViewItemProcessor!
+    var vaultItemActionHelper: MockVaultItemActionHelper!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -40,6 +41,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         pasteboardService = MockPasteboardService()
         rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
+        vaultItemActionHelper = MockVaultItemActionHelper()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
@@ -58,6 +60,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             itemId: "id",
             services: services,
             state: ViewItemState(),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
     }
 
@@ -72,6 +75,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         rehydrationHelper = nil
         stateService = nil
         subject = nil
+        vaultItemActionHelper = nil
         vaultRepository = nil
     }
 
@@ -122,6 +126,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             itemId: "id",
             services: services,
             state: ViewItemState(),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         waitFor(
             !rehydrationHelper.rehydratableTargets.isEmpty
@@ -745,6 +750,69 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.streamCipherDetailsTask)
     }
 
+    /// `perform(_:)` with `.archivedPressed` calls the vault item action helper to archive the item.
+    @MainActor
+    func test_perform_archivedPressed() async {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
+        XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
+    }
+
+    /// `perform(_:)` with `.archivedPressed` handles URL opening and completion.
+    @MainActor
+    func test_perform_archivedPressed_withURLAndCompletion() async {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
+
+        let testURL = URL(string: "https://vault.bitwarden.com")!
+        vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL(testURL)
+        XCTAssertEqual(subject.state.url, testURL)
+
+        vaultItemActionHelper.archiveReceivedArguments?.completionHandler()
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemArchivedCalled)
+    }
+
+    /// `perform(_:)` with `.archivedPressed` does nothing when data is not loaded.
+    @MainActor
+    func test_perform_archivedPressed_noData() async {
+        subject.state.loadingState = .loading(nil)
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertFalse(vaultItemActionHelper.archiveCalled)
+    }
+
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// generic error alert if soft deleting fails.
     @MainActor
@@ -1031,6 +1099,72 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         }
         XCTAssertEqual(cipherState.cipherCollectionsToDisplay.count, 1)
         XCTAssertEqual(cipherState.cipherCollectionsToDisplay[0].id, "2")
+    }
+
+    /// `perform(_:)` with `.unarchivePressed` calls the vault item action helper to unarchive the item.
+    @MainActor
+    func test_perform_unarchivePressed() async {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(archivedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+
+        await subject.perform(.unarchivePressed)
+
+        XCTAssertEqual(vaultItemActionHelper.unarchiveCalled, true)
+        XCTAssertEqual(vaultItemActionHelper.unarchiveReceivedArguments?.cipher.id, "123")
+    }
+
+    /// `perform(_:)` with `.unarchivePressed` handles completion.
+    @MainActor
+    func test_perform_unarchivePressed_withCompletion() async {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(archivedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState),
+        )
+        subject.state = state
+
+        await subject.perform(.unarchivePressed)
+
+        XCTAssertEqual(vaultItemActionHelper.unarchiveCalled, true)
+        XCTAssertNotNil(vaultItemActionHelper.unarchiveReceivedArguments?.completionHandler)
+
+        vaultItemActionHelper.unarchiveReceivedArguments?.completionHandler()
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemUnarchivedCalled)
+    }
+
+    /// `perform(_:)` with `.unarchivePressed` does nothing when data is not loaded.
+    @MainActor
+    func test_perform_unarchivePressed_noData() async {
+        subject.state.loadingState = .loading(nil)
+
+        await subject.perform(.unarchivePressed)
+
+        XCTAssertFalse(vaultItemActionHelper.unarchiveCalled)
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert and downloads the attachment for large attachments.
@@ -1345,134 +1479,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertTrue(delegate.itemRestoredCalled)
-    }
-
-    /// `perform(_:)` with `.archivedPressed` presents the confirmation alert before archiving
-    /// the item and archives successfully.
-    @MainActor
-    func test_perform_archivedPressed_success() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(id: "123"),
-            hasPremium: false,
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState),
-        )
-        subject.state = state
-        vaultRepository.archiveCipherResult = .success(())
-        await subject.perform(.archivedPressed)
-
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToArchiveThisItem)
-        XCTAssertNil(alert?.message)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
-        XCTAssertNil(errorReporter.errors.first)
-        // Ensure the cipher is archived and the view is dismissed.
-        XCTAssertEqual(vaultRepository.archiveCipher.last?.id, "123")
-        var dismissAction: DismissAction?
-        if case let .dismiss(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
-        XCTAssertTrue(delegate.itemArchivedCalled)
-    }
-
-    /// `perform(_:)` with `.archivedPressed` presents the confirmation alert before archiving
-    /// the item and displays generic error alert if archiving fails.
-    @MainActor
-    func test_perform_archivedPressed_genericError() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(id: "123"),
-            hasPremium: false,
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState),
-        )
-        subject.state = state
-        struct TestError: Error, Equatable {}
-        vaultRepository.archiveCipherResult = .failure(TestError())
-        await subject.perform(.archivedPressed)
-
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToArchiveThisItem)
-        XCTAssertNil(alert?.message)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
-        // Ensure the network error alert is displayed.
-        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
-        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
-    }
-
-    /// `perform(_:)` with `.unarchivePressed` presents the confirmation alert before unarchiving
-    /// the item and unarchives successfully.
-    @MainActor
-    func test_perform_unarchivePressed_success() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(id: "123"),
-            hasPremium: false,
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState),
-        )
-        subject.state = state
-        vaultRepository.unarchiveCipherResult = .success(())
-        await subject.perform(.unarchivePressed)
-
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToUnarchiveThisItem)
-        XCTAssertNil(alert?.message)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
-        XCTAssertNil(errorReporter.errors.first)
-        // Ensure the cipher is unarchived and the view is dismissed.
-        XCTAssertEqual(vaultRepository.unarchiveCipher.last?.id, "123")
-        var dismissAction: DismissAction?
-        if case let .dismiss(onDismiss) = coordinator.routes.last {
-            dismissAction = onDismiss
-        }
-        XCTAssertNotNil(dismissAction)
-        dismissAction?.action()
-        XCTAssertTrue(delegate.itemUnarchivedCalled)
-    }
-
-    /// `perform(_:)` with `.unarchivePressed` presents the confirmation alert before unarchiving
-    /// the item and displays generic error alert if unarchiving fails.
-    @MainActor
-    func test_perform_unarchivePressed_genericError() async throws {
-        let cipherState = CipherItemState(
-            existing: CipherView.loginFixture(id: "123"),
-            hasPremium: false,
-        )!
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState),
-        )
-        subject.state = state
-        struct TestError: Error, Equatable {}
-        vaultRepository.unarchiveCipherResult = .failure(TestError())
-        await subject.perform(.unarchivePressed)
-
-        // Ensure the alert is shown.
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToUnarchiveThisItem)
-        XCTAssertNil(alert?.message)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
-        // Ensure the network error alert is displayed.
-        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
-        XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
     /// `receive` with `.passwordHistoryPressed` navigates to the password history view.

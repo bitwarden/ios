@@ -33,13 +33,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
+    var vaultItemActionHelper: MockVaultItemActionHelper!
     var vaultRepository: MockVaultRepository!
 
     let step1Spotlight = CGRect(x: 5, y: 5, width: 25, height: 25)
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         authRepository = MockAuthRepository()
@@ -58,6 +59,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         totpService = MockTOTPService()
+        vaultItemActionHelper = MockVaultItemActionHelper()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
             appExtensionDelegate: appExtensionDelegate,
@@ -89,6 +91,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 ],
                 hasPremium: true,
             ),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
     }
 
@@ -109,6 +112,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         stateService = nil
         subject = nil
         totpService = nil
+        vaultItemActionHelper = nil
         vaultRepository = nil
     }
 
@@ -637,6 +641,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 addItem: .login,
                 hasPremium: false,
             ),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         XCTAssertTrue(rehydrationHelper.rehydratableTargets.isEmpty)
     }
@@ -668,6 +673,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 existing: CipherView.fixture(),
                 hasPremium: false,
             )!,
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         waitFor(
             !rehydrationHelper.rehydratableTargets.isEmpty
@@ -715,6 +721,49 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(stateService.addSitePromptShown)
     }
 
+    /// `perform(_:)` with `.archivedPressed` calls the vault item action helper to archive the item.
+    @MainActor
+    func test_perform_archivedPressed() async {
+        subject.state = CipherItemState(
+            existing: .loginFixture(id: "123"),
+            hasPremium: false,
+        )!
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
+        XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
+    }
+
+    /// `perform(_:)` with `.archivedPressed` handles URL opening and completion.
+    @MainActor
+    func test_perform_archivedPressed_withURLAndCompletion() async {
+        subject.state = CipherItemState(
+            existing: .loginFixture(id: "123"),
+            hasPremium: false,
+        )!
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
+
+        let testURL = URL(string: "https://vault.bitwarden.com")!
+        vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL(testURL)
+        XCTAssertEqual(subject.state.url, testURL)
+
+        vaultItemActionHelper.archiveReceivedArguments?.completionHandler()
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemArchivedCalled)
+    }
+
     /// `perform(:)` with `.appeared` should set the `isLearnNewLoginActionCardEligible` to `true`
     /// if the `learnNewLoginActionCardStatus` is `incomplete`.
     @MainActor
@@ -749,6 +798,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 ],
                 hasPremium: true,
             ),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.isLearnNewLoginActionCardEligible)
@@ -788,6 +838,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 ],
                 hasPremium: true,
             ),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
@@ -988,6 +1039,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 existing: CipherView.fixture(id: "100"),
                 hasPremium: true,
             )!,
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design"),
@@ -1725,6 +1777,44 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `perform(_:)` with `.unarchivePressed` calls the vault item action helper to unarchive the item.
+    @MainActor
+    func test_perform_unarchivePressed() async {
+        subject.state = CipherItemState(
+            existing: .loginFixture(archivedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        await subject.perform(.unarchivePressed)
+
+        XCTAssertEqual(vaultItemActionHelper.unarchiveCalled, true)
+        XCTAssertEqual(vaultItemActionHelper.unarchiveReceivedArguments?.cipher.id, "123")
+    }
+
+    /// `perform(_:)` with `.unarchivePressed` handles completion.
+    @MainActor
+    func test_perform_unarchivePressed_withCompletion() async {
+        subject.state = CipherItemState(
+            existing: .loginFixture(archivedDate: .now, id: "123"),
+            hasPremium: false,
+        )!
+
+        await subject.perform(.unarchivePressed)
+
+        XCTAssertEqual(vaultItemActionHelper.unarchiveCalled, true)
+        XCTAssertNotNil(vaultItemActionHelper.unarchiveReceivedArguments?.completionHandler)
+
+        vaultItemActionHelper.unarchiveReceivedArguments?.completionHandler()
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemUnarchivedCalled)
+    }
+
     /// `receive(_:)` with `.addFolder` navigates to the add folder view.
     @MainActor
     func test_receive_addFolder() {
@@ -2220,6 +2310,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 existing: CipherView.fixture(id: "100"),
                 hasPremium: true,
             )!,
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         subject.state.loginState.isPasswordVisible = false
 

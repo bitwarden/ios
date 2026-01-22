@@ -119,6 +119,11 @@ struct ViewItemView: View {
         .onDisappear {
             store.send(.disappeared)
         }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
     // MARK: Private Views

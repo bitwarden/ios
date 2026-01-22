@@ -61,6 +61,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The task that streams cipher details.
     private(set) var streamCipherDetailsTask: Task<Void, Never>?
 
+    /// The helper to execute vault item actions.
+    private let vaultItemActionHelper: VaultItemActionHelper
+
     // MARK: Initialization
 
     /// Creates a new `ViewItemProcessor`.
@@ -71,6 +74,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///   - itemId: The id of the item that is being viewed.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of this processor.
+    ///   - vaultItemActionHelper: The helper to execute vault item actions.
     ///
     init(
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
@@ -78,12 +82,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         itemId: String,
         services: Services,
         state: ViewItemState,
+        vaultItemActionHelper: VaultItemActionHelper,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
         self.itemId = itemId
         self.services = services
+        self.vaultItemActionHelper = vaultItemActionHelper
+
         super.init(state: state)
+
         Task {
             await self.services.rehydrationHelper.addRehydratableTarget(self)
         }
@@ -112,7 +120,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 services.errorReporter.log(error: error)
             }
         case .archivedPressed:
-            await archiveItemWithConfirmation()
+            await archiveItem()
         case .deletePressed:
             guard case let .data(cipherState) = state.loadingState else { return }
             if cipherState.cipher.deletedDate == nil {
@@ -125,7 +133,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .totpCodeExpired:
             await updateTOTPCode()
         case .unarchivePressed:
-            await unarchiveItemWithConfirmation()
+            await unarchiveItem()
         }
     }
 
@@ -133,6 +141,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch action {
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
+        case .clearURL:
+            state.url = nil
         case let .copyPressed(value, field):
             copyValue(value, field)
         case let .customFieldVisibilityPressed(customFieldState):
@@ -200,22 +210,18 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 private extension ViewItemProcessor {
     // MARK: Private Methods
 
-    /// Archives a cipher with a pre confirmation alert.
+    /// Archives a cipher.
     ///
-    private func archiveItemWithConfirmation() async {
+    private func archiveItem() async {
         guard case let .data(cipherState) = state.loadingState else { return }
-        let alert = Alert.confirmation(title: Localizations.doYouReallyWantToArchiveThisItem) { [weak self] in
-            guard let self else { return }
 
-            await performOperationAndDismiss(
-                loadingTitle: Localizations.sendingToArchive,
-                operation: {
-                    try await self.services.vaultRepository.archiveCipher(cipherState.cipher)
-                },
-                onDismiss: { $0.delegate?.itemArchived() },
-            )
+        await vaultItemActionHelper.archive(cipher: cipherState.cipher) { [weak self] url in
+            self?.state.url = url
+        } completionHandler: { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemArchived()
+            }
         }
-        coordinator.showAlert(alert)
     }
 
     /// Navigates to the clone item view. If the cipher contains FIDO2 credentials, an alert is
@@ -302,6 +308,12 @@ private extension ViewItemProcessor {
             coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Dismisses with an action.
+    /// - Parameter action: Action to execute when dismissing this view.
+    private func dismiss(action: @escaping () -> Void) {
+        coordinator.navigate(to: .dismiss(DismissAction(action: action)))
     }
 
     /// Triggers the edit state for the item currently stored in `state`.
@@ -599,23 +611,16 @@ private extension ViewItemProcessor {
         state.loadingState = .data(cipherState)
     }
 
-    /// Unarchives cipher with pre confirmation alert.
+    /// Unarchives cipher.
     ///
-    private func unarchiveItemWithConfirmation() async {
+    private func unarchiveItem() async {
         guard case let .data(cipherState) = state.loadingState else { return }
 
-        let alert = Alert.confirmation(title: Localizations.doYouReallyWantToUnarchiveThisItem) { [weak self] in
-            guard let self else { return }
-
-            await performOperationAndDismiss(
-                loadingTitle: Localizations.unarchiving,
-                operation: {
-                    try await self.services.vaultRepository.unarchiveCipher(cipherState.cipher)
-                },
-                onDismiss: { $0.delegate?.itemUnarchived() },
-            )
+        await vaultItemActionHelper.unarchive(cipher: cipherState.cipher) { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemUnarchived()
+            }
         }
-        coordinator.showAlert(alert)
     }
 }
 

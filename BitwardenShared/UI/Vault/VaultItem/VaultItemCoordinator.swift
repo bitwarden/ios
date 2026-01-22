@@ -84,7 +84,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         }
     }
 
-    func navigate(to route: VaultItemRoute, context: AnyObject?) {
+    func navigate(to route: VaultItemRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .addFolder:
             showAddFolder(delegate: context as? AddEditFolderDelegate)
@@ -211,6 +211,10 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             delegate: delegate,
             services: services,
             state: state,
+            vaultItemActionHelper: DefaultVaultItemActionHelper(
+                coordinator: asAnyCoordinator(),
+                services: services,
+            ),
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
@@ -271,6 +275,10 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 delegate: delegate,
                 services: services,
                 state: state,
+                vaultItemActionHelper: DefaultVaultItemActionHelper(
+                    coordinator: asAnyCoordinator(),
+                    services: services,
+                ),
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -316,6 +324,10 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 delegate: delegate,
                 services: services,
                 state: state,
+                vaultItemActionHelper: DefaultVaultItemActionHelper(
+                    coordinator: asAnyCoordinator(),
+                    services: services,
+                ),
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -453,6 +465,10 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             itemId: id,
             services: services,
             state: ViewItemState(),
+            vaultItemActionHelper: DefaultVaultItemActionHelper(
+                coordinator: asAnyCoordinator(),
+                services: services,
+            ),
         )
         let store = Store(processor: processor)
         let view = ViewItemView(
