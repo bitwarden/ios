@@ -16,8 +16,6 @@ class MockKeychainRepository: KeychainRepository {
     var deleteAllItemsResult: Result<Void, Error> = .success(())
     var deleteItemsForUserIds = [String]()
     var deleteItemsForUserResult: Result<Void, Error> = .success(())
-    var deleteLastActiveTimeResult: Result<Void, Error> = .success(())
-    var deleteVaultTimeoutResult: Result<Void, Error> = .success(())
 
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
     var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
@@ -67,18 +65,6 @@ class MockKeychainRepository: KeychainRepository {
     func deleteUserAuthKey(for item: KeychainItem) async throws {
         try deleteResult.get()
         let formattedKey = formattedKey(for: item)
-        mockStorage = mockStorage.filter { $0.key != formattedKey }
-    }
-
-    func deleteVaultTimeout(userId: String) async throws {
-        try deleteVaultTimeoutResult.get()
-        let formattedKey = formattedKey(for: .vaultTimeout(userId: userId))
-        mockStorage = mockStorage.filter { $0.key != formattedKey }
-    }
-
-    func deleteLastActiveTime(userId: String) async throws {
-        try deleteLastActiveTimeResult.get()
-        let formattedKey = formattedKey(for: .lastActiveTime(userId: userId))
         mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 

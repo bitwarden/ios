@@ -69,7 +69,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
             )!,
         )
         keychainService.setSearchResultData(string: "1234567890")
-        try await subject.setLastActiveTime("1234567890", userId: "1")
+        try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1234567890), userId: "1")
 
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
@@ -86,7 +86,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         let error = KeychainServiceError.accessControlFailed(nil)
         keychainService.accessControlResult = .failure(error)
         await assertAsyncThrows(error: error) {
-            try await subject.setLastActiveTime("1234567890", userId: "1")
+            try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1234567890), userId: "1")
         }
     }
 
@@ -117,7 +117,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
             )!,
         )
         keychainService.setSearchResultData(string: "2")
-        try await subject.setVaultTimeout("3", userId: "1")
+        try await subject.setVaultTimeout(minutes: 3, userId: "1")
 
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
@@ -160,7 +160,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
             )!,
         )
         keychainService.setSearchResultData(string: "30")
-        try await subject.setVaultTimeout("30", userId: "1")
+        try await subject.setVaultTimeout(minutes: 30, userId: "1")
 
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
@@ -177,7 +177,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         let error = KeychainServiceError.accessControlFailed(nil)
         keychainService.accessControlResult = .failure(error)
         await assertAsyncThrows(error: error) {
-            try await subject.setVaultTimeout("30", userId: "1")
+            try await subject.setVaultTimeout(minutes: 30, userId: "1")
         }
     }
 }
