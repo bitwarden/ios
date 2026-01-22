@@ -58,7 +58,9 @@ class VaultItemActionHelperTests: BitwardenTestCase {
         let cipher = CipherView.loginFixture(id: "123")
 
         vaultRepository.doesActiveAccountHavePremiumResult = false
-        environmentService.baseURL = URL(string: "https://vault.bitwarden.com")!
+        environmentService.upgradeToPremiumURL = URL(
+            string: "https://example.com/someURLToUpgradeToPremium",
+        )!
 
         await subject.archive(
             cipher: cipher,
@@ -76,7 +78,7 @@ class VaultItemActionHelperTests: BitwardenTestCase {
         try? await alert?.tapAction(title: Localizations.upgradeToPremium)
         XCTAssertEqual(
             openedURL,
-            URL(string: "https://vault.bitwarden.com/#/settings/subscription/premium?callToAction=upgradeToPremium"),
+            URL(string: "https://example.com/someURLToUpgradeToPremium"),
         )
     }
 
