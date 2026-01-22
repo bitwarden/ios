@@ -39,29 +39,6 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
     // MARK: Tests - Last Active Time
 
-    /// `deleteLastActiveTime(userId:)` succeeds quietly.
-    ///
-    func test_deleteLastActiveTime() async throws {
-        let item = KeychainItem.lastActiveTime(userId: "1")
-        keychainService.deleteResult = .success(())
-        let expectedQuery = await subject.keychainQueryValues(for: item)
-
-        try await subject.deleteLastActiveTime(userId: "1")
-        XCTAssertEqual(
-            keychainService.deleteQueries,
-            [expectedQuery],
-        )
-    }
-
-    /// `deleteLastActiveTime(userId:)` throws an error if one occurs.
-    ///
-    func test_deleteLastActiveTime_error() async {
-        keychainService.deleteResult = .failure(.osStatusError(-1))
-        await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
-            try await subject.deleteLastActiveTime(userId: "1")
-        }
-    }
-
     /// `getLastActiveTime(userId:)` returns the stored last active time.
     ///
     func test_getLastActiveTime() async throws {

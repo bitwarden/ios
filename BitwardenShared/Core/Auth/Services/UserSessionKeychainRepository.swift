@@ -7,12 +7,6 @@ import Foundation
 protocol UserSessionKeychainRepository { // sourcery: AutoMockable
     // MARK: Last Active Time
 
-    /// Attempts to delete the last active time from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the last active time.
-    ///
-    func deleteLastActiveTime(userId: String) async throws
-
     /// Gets the stored last active time for a user from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored last active time.
@@ -46,12 +40,6 @@ protocol UserSessionKeychainRepository { // sourcery: AutoMockable
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) async throws
 
     // MARK: Vault Timeout
-
-    /// Attempts to delete the vault timeout from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the vault timeout.
-    ///
-    func deleteVaultTimeout(userId: String) async throws
 
     /// Gets the stored vault timeout for a user from the keychain.
     ///

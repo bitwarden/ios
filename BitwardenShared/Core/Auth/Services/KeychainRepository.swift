@@ -443,10 +443,6 @@ extension DefaultKeychainRepository {
         try await getValue(for: .deviceKey(userId: userId))
     }
 
-//    func getLastActiveTime(userId: String) async throws -> String? {
-//        try await getValue(for: .lastActiveTime(userId: userId))
-//    }
-
     func getRefreshToken(userId: String) async throws -> String {
         try await getValue(for: .refreshToken(userId: userId))
     }
@@ -458,10 +454,6 @@ extension DefaultKeychainRepository {
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
         try await getValue(for: item)
     }
-
-//    func getVaultTimeout(userId: String) async throws -> String? {
-//        try await getValue(for: .vaultTimeout(userId: userId))
-//    }
 
     func setAccessToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .accessToken(userId: userId))
@@ -520,12 +512,6 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
 extension DefaultKeychainRepository: UserSessionKeychainRepository {
     // MARK: Last Active Time
 
-    func deleteLastActiveTime(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .lastActiveTime(userId: userId)),
-        )
-    }
-
     func getLastActiveTime(userId: String) async throws -> Date? {
         let stored = try await getValue(for: .lastActiveTime(userId: userId))
         guard let timeInterval = TimeInterval(stored) else {
@@ -556,12 +542,6 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
     }
 
     // MARK: Vault Timeout
-
-    func deleteVaultTimeout(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .vaultTimeout(userId: userId)),
-        )
-    }
 
     func getVaultTimeout(userId: String) async throws -> Int? {
         let stored = try await getValue(for: .vaultTimeout(userId: userId))
