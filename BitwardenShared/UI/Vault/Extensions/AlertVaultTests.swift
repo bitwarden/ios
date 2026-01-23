@@ -6,6 +6,33 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+    /// `archiveUnavailable(baseURL:handleOpenURL:)` returns an `Alert` notifying the user that
+    /// archiving is unavailable and requires premium.
+    func test_archiveUnavailable() async throws {
+        var called = false
+        let subject = Alert.archiveUnavailable { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.archiveUnavailable)
+        XCTAssertEqual(subject.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `archiveUnavailable(baseURL:handleOpenURL:)` doesn't open URL when cancel is tapped.
+    func test_archiveUnavailable_cancel() async throws {
+        var called = false
+        let subject = Alert.archiveUnavailable { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
     /// vault was unable to be decrypted for when a cipher which failed to decrypt is tapped.
     func test_cipherDecryptionFailure() async throws {

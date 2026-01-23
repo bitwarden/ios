@@ -134,7 +134,16 @@ struct AddEditItemView: View {
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },
-                                mapEffect: { _ in .deletePressed },
+                                mapEffect: { effect in
+                                    switch effect {
+                                    case .archiveItem:
+                                        .archivedPressed
+                                    case .deleteItem:
+                                        .deletePressed
+                                    case .unarchiveItem:
+                                        .unarchivePressed
+                                    }
+                                },
                             ),
                         )
                     },

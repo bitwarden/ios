@@ -16,6 +16,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     var authRepository: MockAuthRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var pasteboardService: MockPasteboardService!
@@ -32,6 +33,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         configService = MockConfigService()
         configService.featureFlagsBool[.archiveVaultItems] = true
         coordinator = MockCoordinator()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         pasteboardService = MockPasteboardService()
@@ -44,6 +46,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 configService: configService,
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 stateService: stateService,
@@ -58,6 +61,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         authRepository = nil
         configService = nil
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
         masterPasswordRepromptHelper = nil
         pasteboardService = nil
@@ -98,6 +102,44 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.sendingToArchive)
         XCTAssertEqual(vaultRepository.archiveCipher, [cipherView])
         XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToArchive))
+    }
+
+    /// `showMoreOptionsAlert()` shows archive option and calls `handleMoreOptionsAction` with
+    /// `.archive` when the archive action is tapped but it's unavailable so it displays an alert stating it so.
+    @MainActor
+    func test_showMoreOptionsAlert_archiveUnavailable() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+
+        let cipherView = CipherView.loginFixture(archivedDate: nil, deletedDate: nil)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var toastToDisplay: Toast?
+        var url: URL?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { toastToDisplay = $0 },
+            handleOpenURL: { url = $0 },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertTrue(optionsAlert.alertActions.contains(where: { $0.title == Localizations.archive }))
+
+        coordinator.loadingOverlaysShown = []
+        vaultRepository.archiveCipherResult = .success(())
+        try await optionsAlert.tapAction(title: Localizations.archive)
+
+        let archiveUnavailableAlert = try XCTUnwrap(coordinator.alertShown.last)
+
+        try await archiveUnavailableAlert.tapAction(title: Localizations.upgradeToPremium)
+
+        XCTAssertNil(coordinator.loadingOverlaysShown.last?.title)
+        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
+        XCTAssertNil(toastToDisplay)
+        XCTAssertNotNil(url)
     }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a card cipher.

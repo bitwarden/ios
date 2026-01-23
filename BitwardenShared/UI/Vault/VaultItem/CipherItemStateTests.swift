@@ -108,7 +108,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(
             try CipherItemState.initForArchive(archivedDate: nil, isArchiveVaultItemsFFEnabled: false).canBeArchived,
         )
-        XCTAssertFalse(
+        XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: nil, hasPremium: false).canBeArchived,
         )
         XCTAssertFalse(
@@ -268,6 +268,9 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeUnarchived() throws {
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: .now).canBeUnarchived,
+        )
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(archivedDate: .now, isArchiveVaultItemsFFEnabled: false).canBeUnarchived,
         )
         XCTAssertFalse(
             try CipherItemState.initForArchive(archivedDate: nil).canBeUnarchived,

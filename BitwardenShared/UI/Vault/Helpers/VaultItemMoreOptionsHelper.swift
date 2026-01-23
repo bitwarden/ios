@@ -33,6 +33,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
 
     typealias Services = HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -91,7 +92,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
 
             coordinator.showAlert(.moreOptions(
                 context: MoreOptionsAlertContext(
-                    canArchive: isArchiveVaultItemsFFEnabled && hasPremium && cipherView.canBeArchived,
+                    canArchive: isArchiveVaultItemsFFEnabled && cipherView.canBeArchived,
                     canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                     canUnarchive: isArchiveVaultItemsFFEnabled && cipherView.canBeUnarchived,
                     cipherView: cipherView,
@@ -104,6 +105,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                     cipherView: cipherView,
                     handleDisplayToast: handleDisplayToast,
                     handleOpenURL: handleOpenURL,
+                    hasPremium: hasPremium,
                 )
             })
         } catch {
@@ -113,6 +115,38 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     }
 
     // MARK: Private Methods
+
+    /// Archives a cipher.
+    ///
+    /// - Parameters:
+    ///   - cipher: The cipher to archive.
+    ///   - handleDisplayToast: A closure to display a toast.
+    ///   - handleOpenURL: A closure called to open a URL.
+    ///   - hasPremium: Whether the user has premium account.
+    private func archive(
+        _ cipher: CipherView,
+        handleDisplayToast: @escaping (Toast) -> Void,
+        handleOpenURL: @escaping (URL) -> Void,
+        hasPremium: Bool,
+    ) async {
+        guard hasPremium else {
+            coordinator.showAlert(
+                Alert.archiveUnavailable(action: { [weak self] in
+                    guard let self else { return }
+                    handleOpenURL(services.environmentService.upgradeToPremiumURL)
+                }),
+            )
+            return
+        }
+
+        await performOperationAndShowToast(
+            handleDisplayToast: handleDisplayToast,
+            loadingTitle: Localizations.sendingToArchive,
+            toastTitle: Localizations.itemMovedToArchive,
+        ) {
+            try await services.vaultRepository.archiveCipher(cipher)
+        }
+    }
 
     /// Generates and copies a TOTP code for the cipher's TOTP key.
     ///
@@ -137,25 +171,29 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
         }
     }
 
-    /// Handle the result of the selected option on the More Options alert..
+    /// Handle the result of the selected option on the More Options alert.
     ///
-    /// - Parameter action: The selected action.
-    ///
+    /// - Parameters:
+    ///   - action: The selected action.
+    ///   - cipherView: The cipher to act upon.
+    ///   - handleDisplayToast: A closure to display a toast.
+    ///   - handleOpenURL: A closure to open an URL.
+    ///   - hasPremium: Whether the user has premium account.
     private func handleMoreOptionsAction( // swiftlint:disable:this function_body_length
         _ action: MoreOptionsAction,
         cipherView: CipherView,
         handleDisplayToast: @escaping (Toast) -> Void,
-        handleOpenURL: (URL) -> Void,
+        handleOpenURL: @escaping (URL) -> Void,
+        hasPremium: Bool,
     ) async {
         switch action {
         case let .archive(cipher):
-            await performOperationAndShowToast(
+            await archive(
+                cipher,
                 handleDisplayToast: handleDisplayToast,
-                loadingTitle: Localizations.sendingToArchive,
-                toastTitle: Localizations.itemMovedToArchive,
-            ) {
-                try await services.vaultRepository.archiveCipher(cipher)
-            }
+                handleOpenURL: handleOpenURL,
+                hasPremium: hasPremium,
+            )
         case let .copy(toast, value, requiresMasterPasswordReprompt, event, cipherId):
             let copyBlock = {
                 self.services.pasteboardService.copy(value)

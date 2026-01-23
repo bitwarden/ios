@@ -8,6 +8,24 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Returns an alert for when archive is unavailable.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert when archive is unavailable.
+    static func archiveUnavailable(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.archiveUnavailable,
+            message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+    }
+
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
     /// decrypted.
     ///
