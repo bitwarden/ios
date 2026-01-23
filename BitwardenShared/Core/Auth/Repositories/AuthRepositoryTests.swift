@@ -162,7 +162,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_canBeLocked_hasFaceId() async {
         stateService.userHasMasterPassword["1"] = false
         stateService.pinProtectedUserKeyValue["1"] = "123"
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .available(.faceID, enabled: true)
         let result = await subject.canBeLocked(userId: "1")
         XCTAssertTrue(result)
     }
@@ -170,7 +170,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `.canBeLocked(userId:)` should true when user has master password.
     func test_canBeLocked_hasMasterPassword() async {
         stateService.userHasMasterPassword["1"] = true
-        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .notAvailable
         let result = await subject.canBeLocked(userId: "1")
         XCTAssertTrue(result)
     }
@@ -179,7 +179,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_canBeLocked_hasPin() async {
         stateService.userHasMasterPassword["1"] = false
         stateService.pinProtectedUserKeyValue["1"] = "123"
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .available(.faceID, enabled: true)
         let result = await subject.canBeLocked(userId: "1")
         XCTAssertTrue(result)
     }
@@ -188,7 +188,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_canBeLocked_hasNothing() async {
         stateService.userHasMasterPassword["1"] = false
         stateService.pinProtectedUserKeyValue = [:]
-        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .notAvailable
         let result = await subject.canBeLocked(userId: "1")
         XCTAssertFalse(result)
     }
@@ -439,7 +439,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let key = "userKey"
         clientService.mockCrypto.getUserEncryptionKeyResult = .success(key)
         try await subject.allowBioMetricUnlock(true)
-        XCTAssertEqual(biometricsRepository.capturedUserAuthKey, key)
+        XCTAssertEqual(biometricsRepository.setBiometricUnlockKeyActiveUser, key)
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
@@ -449,7 +449,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let key = "userKey"
         clientService.mockCrypto.getUserEncryptionKeyResult = .success(key)
         try await subject.allowBioMetricUnlock(false)
-        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertNil(biometricsRepository.setBiometricUnlockKeyActiveUser)
     }
 
     /// `allowBioMetricUnlock(:)` throws an error if required.
@@ -457,7 +457,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository.setBiometricUnlockKeyError = nil
         clientService.mockCrypto.getUserEncryptionKeyResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         try await subject.allowBioMetricUnlock(false)
-        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertNil(biometricsRepository.setBiometricUnlockKeyActiveUser)
     }
 
     /// `checkSessionTimeout()` locks an account when the session timeout action is lock.
@@ -2563,7 +2563,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
-        biometricsRepository.capturedUserAuthKey = "Value"
+        biometricsRepository.setBiometricUnlockKeyByUserId["1"] = "Value"
         biometricsRepository.setBiometricUnlockKeyError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
@@ -2572,7 +2572,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.logout(userInitiated: true)
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertNil(biometricsRepository.setBiometricUnlockKeyByUserId["1"])
         XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
@@ -2587,7 +2587,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
-        biometricsRepository.capturedUserAuthKey = "Value"
+        biometricsRepository.setBiometricUnlockKeyByUserId["1"] = "Value"
         biometricsRepository.setBiometricUnlockKeyError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
@@ -2596,7 +2596,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await subject.logout(userInitiated: true)
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertNil(biometricsRepository.setBiometricUnlockKeyByUserId["1"])
         XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
@@ -2610,7 +2610,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         stateService.activeAccount = nil
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
-        biometricsRepository.capturedUserAuthKey = "Value"
+        biometricsRepository.setBiometricUnlockKeyByUserId["1"] = "Value"
         biometricsRepository.setBiometricUnlockKeyError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
@@ -2621,7 +2621,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
 
         XCTAssertEqual([], stateService.accountsLoggedOut)
-        XCTAssertNotNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertNotNil(biometricsRepository.setBiometricUnlockKeyByUserId["1"])
         XCTAssertEqual(keychainService.deleteItemsForUserIds, [])
         XCTAssertFalse(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [])

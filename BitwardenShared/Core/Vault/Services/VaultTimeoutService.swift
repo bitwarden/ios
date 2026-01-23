@@ -212,7 +212,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         let hasMasterPassword = try await stateService.getUserHasMasterPassword(userId: userId)
         let timeoutAction = try await stateService.getTimeoutAction(userId: userId)
         guard hasMasterPassword else {
-            let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus().isEnabled
+            let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
             let isPinEnabled = try await isPinUnlockAvailable(userId: userId)
             if isPinEnabled || isBiometricsEnabled {
                 return timeoutAction
