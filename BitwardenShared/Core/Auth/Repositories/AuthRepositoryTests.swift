@@ -531,6 +531,155 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `checkSessionTimeout()` logs out an inactive account with no unlock method after app restart.
+    func test_checkSessionTimeout_noUnlockMethod_logoutAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        // Account is locked (simulating app restart)
+        vaultTimeoutService.isClientLocked[anneAccount.profile.userId] = true
+        // No time-based timeout
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+        // No unlock methods available (no master password, PIN, or biometrics)
+        stateService.userHasMasterPassword[anneAccount.profile.userId] = false
+        stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        vaultTimeoutService.sessionTimeoutAction[anneAccount.profile.userId] = .logout
+        // Account is authenticated (logged in)
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertTrue(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` doesn't attempt to log out an account that is already logged out.
+    func test_checkSessionTimeout_noUnlockMethod_alreadyLoggedOut() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        // Account is locked (simulating app restart)
+        vaultTimeoutService.isClientLocked[anneAccount.profile.userId] = true
+        // No time-based timeout
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+        // No unlock methods available (no master password, PIN, or biometrics)
+        stateService.userHasMasterPassword[anneAccount.profile.userId] = false
+        stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        // Account is already logged out
+        stateService.isAuthenticated[anneAccount.profile.userId] = false
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        // Should NOT attempt to log out an already logged out account
+        XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` doesn't log out an inactive account that is unlocked.
+    func test_checkSessionTimeout_noUnlockMethod_accountUnlocked() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        // Account is unlocked
+        vaultTimeoutService.isClientLocked[anneAccount.profile.userId] = false
+        // No time-based timeout
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+        // No unlock methods available
+        stateService.userHasMasterPassword[anneAccount.profile.userId] = false
+        stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` doesn't log out an inactive locked account that has a master password.
+    func test_checkSessionTimeout_noUnlockMethod_hasMasterPassword() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        // Account is locked
+        vaultTimeoutService.isClientLocked[anneAccount.profile.userId] = true
+        // No time-based timeout
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+        // Has master password
+        stateService.userHasMasterPassword[anneAccount.profile.userId] = true
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` doesn't log out an inactive locked account that has PIN unlock available.
+    func test_checkSessionTimeout_noUnlockMethod_hasPinUnlock() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        // Account is locked
+        vaultTimeoutService.isClientLocked[anneAccount.profile.userId] = true
+        // No time-based timeout
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+        // Has PIN unlock
+        stateService.userHasMasterPassword[anneAccount.profile.userId] = false
+        stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = "encrypted-pin-key"
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` doesn't log out an inactive locked account that has biometrics enabled.
+    func test_checkSessionTimeout_noUnlockMethod_hasBiometrics() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        // Account is locked
+        vaultTimeoutService.isClientLocked[anneAccount.profile.userId] = true
+        // No time-based timeout
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+        // Has biometrics enabled
+        stateService.userHasMasterPassword[anneAccount.profile.userId] = false
+        stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` calls handleActiveUser for active account with no unlock method.
+    func test_checkSessionTimeout_noUnlockMethod_activeAccount_handleActiveUser() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .logout]
+        // Active account is locked
+        vaultTimeoutService.isClientLocked[beeAccount.profile.userId] = true
+        // No time-based timeout
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = false
+        // No unlock methods available
+        stateService.userHasMasterPassword[beeAccount.profile.userId] = false
+        stateService.pinProtectedUserKeyValue[beeAccount.profile.userId] = nil
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        // Account is authenticated (logged in)
+        stateService.isAuthenticated[beeAccount.profile.userId] = true
+
+        var handledUserId: String?
+        await subject.checkSessionTimeouts { userId in
+            handledUserId = userId
+        }
+
+        XCTAssertEqual(handledUserId, beeAccount.profile.userId)
+    }
+
     /// `getProfilesState()` throws an error when the accounts are nil.
     func test_getProfilesState_empty() async {
         let state = await subject.getProfilesState(
@@ -1184,7 +1333,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
     /// unlocks the vault.
-    func test_setMasterPassword() async throws {
+    func test_setMasterPassword() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
@@ -2264,6 +2413,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // user's KDF settings need to be updated. If updating the user's KDF fails, an error is logged
     // but vault unlock still succeeds.
     func test_unlockVaultWithPassword_checksForKdfUpdate_error() async throws {
+        // swiftlint:disable:previous function_body_length
         let account = Account.fixture(profile: .fixture(
             kdfIterations: 100_000,
             userDecryptionOptions: UserDecryptionOptions(

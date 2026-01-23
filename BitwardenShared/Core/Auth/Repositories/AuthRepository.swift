@@ -576,8 +576,15 @@ extension DefaultAuthRepository: AuthRepository {
 
             for account in accounts {
                 let userId = account.userId
+
+                // Check time-based timeout
                 let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
-                if shouldTimeout {
+                // Check if account can't be unlocked after restart (no master password, PIN, or biometrics)
+                let shouldLogoutDueToNoUnlockMethod = !account.isUnlocked // Account locked
+                    && !account.canBeLocked // Doesn't have an unlock method
+                    && !account.isLoggedOut // Isn't already logged out (soft-logout)
+
+                if shouldTimeout || shouldLogoutDueToNoUnlockMethod {
                     if userId == activeUserId {
                         await handleActiveUser?(activeUserId)
                     } else {
