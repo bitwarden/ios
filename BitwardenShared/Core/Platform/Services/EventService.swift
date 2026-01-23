@@ -97,10 +97,20 @@ class DefaultEventService: EventService {
                 return
             }
 
+            let organizationIds = organizations.map(\.id)
+
+            if let organizationId, !organizationIds.contains(organizationId) {
+                return
+            }
+
             if let cipherId {
                 guard let cipher = try await cipherService.fetchCipher(withId: cipherId),
-                      let orgId = cipher.organizationId,
-                      organizations.map(\.id).contains(orgId) else {
+                      let cipherOrgId = cipher.organizationId,
+                      organizationIds.contains(cipherOrgId) else {
+                    return
+                }
+
+                if let organizationId, cipherOrgId != organizationId {
                     return
                 }
             }
