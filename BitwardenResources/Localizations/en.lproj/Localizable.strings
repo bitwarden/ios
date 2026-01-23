@@ -1281,6 +1281,7 @@
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
+"Archived" = "Archived";
 "Unarchive" = "Unarchive";
 "ItemMovedToArchive" = "Item moved to Archive";
 "ItemUnarchived" = "Item unarchived";
@@ -1295,3 +1296,4 @@
 "ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Upgrade to premium";
+"ThisItemIsArchived" = "This item is archived.";

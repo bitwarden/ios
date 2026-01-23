@@ -588,6 +588,50 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subject.collectionIds, [])
     }
 
+    /// `shouldDisplayAsArchived` returns `true` when the feature flag is enabled and cipher can be unarchived.
+    func test_shouldDisplayAsArchived_true() throws {
+        XCTAssertTrue(
+            try CipherItemState.initForArchive(archivedDate: .now).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the feature flag is disabled.
+    func test_shouldDisplayAsArchived_false_featureFlagDisabled() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(
+                archivedDate: .now,
+                isArchiveVaultItemsFFEnabled: false,
+            ).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the cipher is not archived.
+    func test_shouldDisplayAsArchived_false_notArchived() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(archivedDate: nil).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the cipher is deleted.
+    func test_shouldDisplayAsArchived_false_deleted() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(
+                archivedDate: .now,
+                deletedDate: .now,
+            ).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the cipher is both not archived and feature flag is disabled.
+    func test_shouldDisplayAsArchived_false_notArchivedAndFeatureFlagDisabled() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(
+                archivedDate: nil,
+                isArchiveVaultItemsFFEnabled: false,
+            ).shouldDisplayAsArchived,
+        )
+    }
+
     /// `shouldShowLearnNewLoginActionCard` should be `true`, if the cipher is a login type and configuration is `.add`.
     func test_shouldShowLearnNewLoginActionCard_true() {
         let cipher = CipherView.loginFixture(login: .fixture(fido2Credentials: [.fixture()]))

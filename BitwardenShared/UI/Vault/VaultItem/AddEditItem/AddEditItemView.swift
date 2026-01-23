@@ -90,6 +90,11 @@ struct AddEditItemView: View {
                     )
                 }
 
+                if store.state.shouldDisplayAsArchived {
+                    InfoContainer(text: Localizations.thisItemIsArchived, icon: SharedAsset.Icons.archive24)
+                        .accessibilityIdentifier("ArchivedLabel")
+                }
+
                 itemDetailsSection
                 itemTypeSection
                     .disabled(store.state.isReadOnly)

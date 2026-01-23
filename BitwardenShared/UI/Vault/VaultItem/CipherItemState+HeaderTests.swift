@@ -116,6 +116,24 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertTrue(state.cipherCollectionsToDisplay.isEmpty)
     }
 
+    /// `cipherCollectionsToDisplay` returns empty when cipher should display as archived.
+    func test_cipherCollectionsToDisplay_emptyWhenDisplayedAsArchived() throws {
+        let cipher = CipherView.loginFixture(
+            archivedDate: .now,
+            collectionIds: ["2", "3"],
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.isArchiveVaultItemsFFEnabled = true
+        state.allUserCollections = [
+            CollectionView.fixture(id: "1"),
+            CollectionView.fixture(id: "2"),
+            CollectionView.fixture(id: "3"),
+            CollectionView.fixture(id: "4"),
+            CollectionView.fixture(id: "5"),
+        ]
+        XCTAssertTrue(state.cipherCollectionsToDisplay.isEmpty)
+    }
+
     /// `collectionsForOwner` contains collections that are not read-only
     func test_collectionsForOwner() throws {
         let cipher = CipherView.loginFixture(
@@ -210,6 +228,14 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertFalse(state.shouldDisplayFolder)
     }
 
+    /// `getter:shouldDisplayFolder` returns `false` when cipher should display as archived.
+    func test_shouldDisplayFolder_falseDisplayedAsArchived() throws {
+        var state = try XCTUnwrap(CipherItemState(existing: .fixture(archivedDate: .now), hasPremium: true))
+        state.isArchiveVaultItemsFFEnabled = true
+        state.folderName = "Folder"
+        XCTAssertFalse(state.shouldDisplayFolder)
+    }
+
     /// `getter:shouldDisplayNoFolder` returns `true` when there's no organization, no folder and no collections.
     func test_shouldDisplayNoFolder_true() throws {
         let state = try XCTUnwrap(CipherItemState(existing: .fixture(), hasPremium: true))
@@ -247,6 +273,13 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
                 hasPremium: true,
             ),
         )
+        XCTAssertFalse(state.shouldDisplayNoFolder)
+    }
+
+    /// `getter:shouldDisplayNoFolder` returns `false` when cipher should display as archived.
+    func test_shouldDisplayNoFolder_falseDisplayedAsArchived() throws {
+        var state = try XCTUnwrap(CipherItemState(existing: .fixture(archivedDate: .now), hasPremium: true))
+        state.isArchiveVaultItemsFFEnabled = true
         XCTAssertFalse(state.shouldDisplayNoFolder)
     }
 
@@ -391,4 +424,4 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         )
         XCTAssertEqual(state.totalHeaderAdditionalItems, 2)
     }
-}
+} // swiftlint:disable:this file_length

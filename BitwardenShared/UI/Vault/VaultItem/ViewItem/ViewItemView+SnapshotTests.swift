@@ -86,6 +86,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     func loginState( // swiftlint:disable:this function_body_length
+        archivedDate: Date? = nil,
         canViewPassword: Bool = true,
         collectionIds: [String] = ["1", "2"],
         isFavorite: Bool = false,
@@ -95,6 +96,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     ) -> CipherItemState {
         var cipherState = CipherItemState(
             existing: .fixture(
+                archivedDate: archivedDate,
                 collectionIds: collectionIds,
                 favorite: isFavorite,
                 id: "fake-id",
@@ -110,6 +112,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         cipherState.folderName = "Folder"
+        cipherState.isArchiveVaultItemsFFEnabled = true
         cipherState.name = "Example"
         cipherState.notes = "Notes"
         cipherState.organizationName = "Organization"
@@ -277,6 +280,12 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func disabletest_snapshot_login_withAllValuesShowMore() {
         let state = loginState(isFavorite: true)
         processor.state.loadingState = .data(state)
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_login_withAllValuesArchived() {
+        processor.state.loadingState = .data(loginState(archivedDate: .now, isFavorite: true))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
