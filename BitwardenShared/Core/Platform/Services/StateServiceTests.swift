@@ -758,8 +758,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(noEvents, [])
 
         let events = [
-            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
-            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", organizationId: nil, date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, organizationId: nil, date: .now),
         ]
         appSettingsStore.eventsByUserId["1"] = events
         let actual = try await subject.getEvents(userId: "1")
@@ -1948,8 +1948,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setEvents() async throws {
         await subject.addAccount(.fixture())
         let events = [
-            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
-            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", organizationId: nil, date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, organizationId: nil, date: .now),
         ]
 
         try await subject.setEvents(events, userId: "1")
