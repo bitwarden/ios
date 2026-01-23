@@ -746,9 +746,9 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.unarchiveCipherResult = .success(())
         try await optionsAlert.tapAction(title: Localizations.unarchive)
 
-        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.unarchiving)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.movingItemToVault)
         XCTAssertEqual(vaultRepository.unarchiveCipher, [cipherView])
-        XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemUnarchived))
+        XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToVault))
     }
 }
 

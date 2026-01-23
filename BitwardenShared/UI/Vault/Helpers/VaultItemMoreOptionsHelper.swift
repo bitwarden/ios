@@ -227,8 +227,8 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
         case let .unarchive(cipher):
             await performOperationAndShowToast(
                 handleDisplayToast: handleDisplayToast,
-                loadingTitle: Localizations.unarchiving,
-                toastTitle: Localizations.itemUnarchived,
+                loadingTitle: Localizations.movingItemToVault,
+                toastTitle: Localizations.itemMovedToVault,
             ) {
                 try await services.vaultRepository.unarchiveCipher(cipher)
             }
