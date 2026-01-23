@@ -77,36 +77,26 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
             return
         }
 
-        let alert = Alert.confirmation(title: Localizations.doYouReallyWantToArchiveThisItem) { [weak self] in
-            guard let self else { return }
-
-            await performOperation(
-                loadingTitle: Localizations.sendingToArchive,
-                operation: {
-                    try await self.services.vaultRepository.archiveCipher(cipher)
-                },
-                completionHandler: completionHandler,
-            )
-        }
-        await coordinator.showAlert(alert)
+        await performOperation(
+            loadingTitle: Localizations.sendingToArchive,
+            operation: {
+                try await self.services.vaultRepository.archiveCipher(cipher)
+            },
+            completionHandler: completionHandler,
+        )
     }
 
     func unarchive(
         cipher: CipherView,
         completionHandler: @escaping () -> Void,
     ) async {
-        let alert = Alert.confirmation(title: Localizations.doYouReallyWantToUnarchiveThisItem) { [weak self] in
-            guard let self else { return }
-
-            await performOperation(
-                loadingTitle: Localizations.unarchiving,
-                operation: {
-                    try await self.services.vaultRepository.unarchiveCipher(cipher)
-                },
-                completionHandler: completionHandler,
-            )
-        }
-        await coordinator.showAlert(alert)
+        await performOperation(
+            loadingTitle: Localizations.movingItemToVault,
+            operation: {
+                try await self.services.vaultRepository.unarchiveCipher(cipher)
+            },
+            completionHandler: completionHandler,
+        )
     }
 
     // MARK: Private methods

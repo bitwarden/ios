@@ -189,7 +189,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast)
 
         subject.itemUnarchived()
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUnarchived))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemMovedToVault))
     }
 
     /// `init()` has default values set in the state.

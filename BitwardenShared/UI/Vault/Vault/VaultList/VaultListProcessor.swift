@@ -590,7 +590,7 @@ extension VaultListProcessor: CipherItemOperationDelegate {
     }
 
     func itemUnarchived() {
-        state.toast = Toast(title: Localizations.itemUnarchived)
+        state.toast = Toast(title: Localizations.itemMovedToVault)
     }
 }
 

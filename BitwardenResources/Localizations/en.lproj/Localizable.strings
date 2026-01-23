@@ -1282,12 +1282,10 @@
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
 "Unarchive" = "Unarchive";
-"ItemMovedToArchive" = "Item moved to Archive";
-"ItemUnarchived" = "Item unarchived";
+"ItemMovedToArchive" = "Item moved to archive";
+"ItemMovedToVault" = "Item moved to vault";
 "SendingToArchive" = "Sending to archive…";
-"Unarchiving" = "Unarchiving…";
-"DoYouReallyWantToUnarchiveThisItem" = "Do you really want to unarchive this item?";
-"DoYouReallyWantToArchiveThisItem" = "Do you really want to archive this item?";
+"MovingItemToVault" = "Moving item to vault";
 "OrganizationNotFound" = "Organization not found.";
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "Archive is empty";

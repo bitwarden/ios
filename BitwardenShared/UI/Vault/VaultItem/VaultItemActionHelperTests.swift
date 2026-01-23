@@ -98,11 +98,6 @@ class VaultItemActionHelperTests: BitwardenTestCase {
             completionHandler: { completionCalled = true },
         )
 
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToArchiveThisItem)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.sendingToArchive)
 
         XCTAssertEqual(vaultRepository.archiveCipher.last?.id, "123")
@@ -125,38 +120,8 @@ class VaultItemActionHelperTests: BitwardenTestCase {
             completionHandler: { completionCalled = true },
         )
 
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToArchiveThisItem)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
         XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertFalse(completionCalled)
-    }
-
-    /// `archive(cipher:handleOpenURL:completionHandler:)` does not archive when the user cancels
-    /// the confirmation alert.
-    @MainActor
-    func test_archive_cancel() async throws {
-        var completionCalled = false
-        let cipher = CipherView.loginFixture(id: "123")
-
-        vaultRepository.doesActiveAccountHavePremiumResult = true
-        vaultRepository.archiveCipherResult = .success(())
-
-        await subject.archive(
-            cipher: cipher,
-            handleOpenURL: { _ in },
-            completionHandler: { completionCalled = true },
-        )
-
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToArchiveThisItem)
-
-        try await alert?.tapCancel()
-
-        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
         XCTAssertFalse(completionCalled)
     }
 
@@ -174,13 +139,7 @@ class VaultItemActionHelperTests: BitwardenTestCase {
             completionHandler: { completionCalled = true },
         )
 
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToUnarchiveThisItem)
-        XCTAssertNil(alert?.message)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
-        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.unarchiving)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.movingItemToVault)
 
         XCTAssertEqual(vaultRepository.unarchiveCipher.last?.id, "123")
         XCTAssertTrue(completionCalled)
@@ -200,36 +159,8 @@ class VaultItemActionHelperTests: BitwardenTestCase {
             completionHandler: { completionCalled = true },
         )
 
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToUnarchiveThisItem)
-
-        try await alert?.tapAction(title: Localizations.yes)
-
         XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertFalse(completionCalled)
-    }
-
-    /// `unarchive(cipher:completionHandler:)` does not unarchive when the user cancels
-    /// the confirmation alert.
-    @MainActor
-    func test_unarchive_cancel() async throws {
-        var completionCalled = false
-        let cipher = CipherView.loginFixture(archivedDate: .now, id: "123")
-
-        vaultRepository.unarchiveCipherResult = .success(())
-
-        await subject.unarchive(
-            cipher: cipher,
-            completionHandler: { completionCalled = true },
-        )
-
-        let alert = coordinator.alertShown.last
-        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToUnarchiveThisItem)
-
-        try await alert?.tapCancel()
-
-        XCTAssertTrue(vaultRepository.unarchiveCipher.isEmpty)
         XCTAssertFalse(completionCalled)
     }
 }
