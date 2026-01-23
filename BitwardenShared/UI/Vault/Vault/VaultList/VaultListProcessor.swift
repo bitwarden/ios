@@ -99,6 +99,9 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissArchiveOnboardingActionCard:
+            state.shouldShowArchiveOnboardingActionCard = false
+            await services.stateService.setArchiveOnboardingShown(true)
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
@@ -145,12 +148,20 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .addFolder)
         case let .addItemPressed(type):
             addItem(type: type)
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
             break
         case .disappeared:
             reviewPromptTask?.cancel()
+        case .goToArchive:
+            coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
         case let .itemPressed(item):
             handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
@@ -172,12 +183,6 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
-        case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -216,6 +221,7 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+        state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
     }
 
     /// Checks if the user needs to update their KDF settings.

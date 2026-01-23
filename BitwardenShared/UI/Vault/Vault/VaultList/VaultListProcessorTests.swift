@@ -537,6 +537,30 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.appeared` updates whether to show the archive onboarding card.
+    @MainActor
+    func test_perform_appeared_loadArchiveOnboarding() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.archiveOnboardingShown = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowArchiveOnboardingActionCard)
+    }
+
+    /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
+    /// and sets the archive onboarding shown property to true.
+    @MainActor
+    func test_perform_dismissArchiveOnboardingActionCard() async {
+        subject.state.shouldShowArchiveOnboardingActionCard = true
+        XCTAssertFalse(stateService.archiveOnboardingShown)
+
+        await subject.perform(.dismissArchiveOnboardingActionCard)
+
+        XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
+        XCTAssertTrue(stateService.archiveOnboardingShown)
+    }
+
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
     @MainActor
     func test_perform_dismissFlightRecorderToastBanner() async {
@@ -1813,6 +1837,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(subject.reviewPromptTask != nil)
         subject.receive(.disappeared)
         XCTAssertTrue(subject.reviewPromptTask!.isCancelled)
+    }
+
+    /// `receive(_:)` with `.goToArchive` navigates to archive group.
+    @MainActor
+    func test_receive_goToArchive() {
+        subject.receive(.goToArchive)
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.

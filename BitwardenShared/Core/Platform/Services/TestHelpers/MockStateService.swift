@@ -26,6 +26,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var appLanguage: LanguageOption = .default
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
+    var archiveOnboardingShown = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -218,6 +219,16 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         addSitePromptShown
     }
 
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return allowSyncOnRefresh[userId] ?? false
+    }
+
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return allowUniversalClipboard[userId] ?? false
+    }
+
     func getAppRehydrationState(userId: String?) async throws -> BitwardenShared.AppRehydrationState? {
         let userId = try unwrapUserId(userId)
         return appRehydrationState[userId]
@@ -227,14 +238,8 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         appTheme ?? .default
     }
 
-    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return allowSyncOnRefresh[userId] ?? false
-    }
-
-    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return allowUniversalClipboard[userId] ?? false
+    func getArchiveOnboardingShown() async -> Bool {
+        archiveOnboardingShown
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -538,6 +543,10 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 
     func setAppTheme(_ appTheme: AppTheme) async {
         self.appTheme = appTheme
+    }
+
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        archiveOnboardingShown = shown
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

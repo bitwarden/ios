@@ -622,12 +622,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
-    func test_getClearClipboardValue() async throws {
-        await subject.addAccount(.fixture())
-        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
-        let value = try await subject.getClearClipboardValue()
-        XCTAssertEqual(value, .twoMinutes)
+    /// `getArchiveOnboardingShown()` returns whether the archive onboarding has been shown.
+    func test_getArchiveOnboardingShown() async {
+        var hasShownOnboarding = await subject.getArchiveOnboardingShown()
+        XCTAssertFalse(hasShownOnboarding)
+
+        appSettingsStore.archiveOnboardingShown = true
+        hasShownOnboarding = await subject.getArchiveOnboardingShown()
+        XCTAssertTrue(hasShownOnboarding)
     }
 
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
@@ -645,6 +647,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getBiometricAuthenticationEnabled()
         }
+    }
+
+    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
+    func test_getClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .twoMinutes)
     }
 
     /// `getConnectToWatch()` returns the connect to watch value for the active account.
@@ -1836,6 +1846,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `setArchiveOnboardingShown(_:)` sets whether the archive onboarding has been shown.
+    func test_setArchiveOnboardingShown() async {
+        await subject.setArchiveOnboardingShown(true)
+        XCTAssertTrue(appSettingsStore.archiveOnboardingShown)
+
+        await subject.setArchiveOnboardingShown(false)
+        XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
+    }
+
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -2536,6 +2555,33 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setUsesKeyConnector(true)
         XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
+    }
+
+    /// `shouldDoArchiveOnboarding()` returns `true` when active account is premium
+    /// and the archive onboarding has not been shown yet.
+    func test_shouldDoArchiveOnboarding_true() async {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        appSettingsStore.archiveOnboardingShown = false
+        let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
+        XCTAssertTrue(shouldDoArchiveOnboarding)
+    }
+
+    /// `shouldDoArchiveOnboarding()` returns `false` when active account is premium
+    /// and the archive onboarding has already been shown.
+    func test_shouldDoArchiveOnboarding_onboardingAlreadyShown() async {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        appSettingsStore.archiveOnboardingShown = true
+        let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
+        XCTAssertFalse(shouldDoArchiveOnboarding)
+    }
+
+    /// `shouldDoArchiveOnboarding()` returns `false` when active account is not premium
+    /// and the archive onboarding has not been shown yet.
+    func test_shouldDoArchiveOnboarding_noPremium() async {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        appSettingsStore.archiveOnboardingShown = false
+        let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
+        XCTAssertFalse(shouldDoArchiveOnboarding)
     }
 
     /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.
