@@ -24,6 +24,9 @@ enum VaultListAction: Equatable {
     /// The vault list disappeared from the screen.
     case disappeared
 
+    /// The user tapped the button to go to archive.
+    case goToArchive
+
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
 

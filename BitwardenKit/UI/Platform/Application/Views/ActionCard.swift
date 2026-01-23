@@ -185,6 +185,15 @@ public struct ActionCard<LeadingContent: View>: View {
             message: "Message",
             actionButtonState: ActionCard.ButtonState(title: "Tap me!") {},
             dismissButtonState: ActionCard.ButtonState(title: "Dismiss") {},
+        ) {
+            SharedAsset.Icons.warning24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+        }
+
+        ActionCard(
+            title: "Title",
+            message: "Message",
+            actionButtonState: ActionCard.ButtonState(title: "Tap me!") {},
+            dismissButtonState: ActionCard.ButtonState(title: "Dismiss") {},
             secondaryButtonState: ActionCard.ButtonState(title: "Secondary button") {},
         )
 

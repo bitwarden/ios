@@ -146,6 +146,12 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
+    /// Gets whether the archive onboarding has been shown.
+    ///
+    /// - Returns: Whether the archive onboarding has been shown.
+    ///
+    func getArchiveOnboardingShown() async -> Bool
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -526,6 +532,12 @@ protocol StateService: AnyObject {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+
+    /// Sets whether the archive onboarding has been shown.
+    ///
+    /// - Parameter shown: Whether the archive onboarding has been shown.
+    ///
+    func setArchiveOnboardingShown(_ shown: Bool) async
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1382,6 +1394,14 @@ extension StateService {
     func setVaultTimeout(value: SessionTimeoutValue) async throws {
         try await setVaultTimeout(value: value, userId: nil)
     }
+
+    /// Whether the user should do the archive onboarding.
+    /// - Returns: `true` if they should, `false` otherwise.
+    func shouldDoArchiveOnboarding() async -> Bool {
+        let hasPremium = await doesActiveAccountHavePremium()
+        let archiveOnboardingShown = await getArchiveOnboardingShown()
+        return hasPremium && !archiveOnboardingShown
+    }
 }
 
 // MARK: - StateServiceError
@@ -1637,6 +1657,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getAppTheme() async -> AppTheme {
         AppTheme(appSettingsStore.appTheme)
+    }
+
+    func getArchiveOnboardingShown() async -> Bool {
+        appSettingsStore.archiveOnboardingShown
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -1990,6 +2014,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
+    }
+
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        appSettingsStore.archiveOnboardingShown = shown
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
