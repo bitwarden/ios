@@ -20,6 +20,7 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasChangeKdfService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -221,7 +222,10 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
-        state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+
+        if await services.configService.getFeatureFlag(.archiveVaultItems) {
+            state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+        }
     }
 
     /// Checks if the user needs to update their KDF settings.

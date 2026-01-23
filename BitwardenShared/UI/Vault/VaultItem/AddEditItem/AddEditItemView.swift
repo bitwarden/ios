@@ -91,7 +91,7 @@ struct AddEditItemView: View {
                 }
 
                 if store.state.shouldDisplayAsArchived {
-                    InfoContainer(text: Localizations.thisItemIsArchived, icon: SharedAsset.Icons.archive24)
+                    InfoContainer(text: store.state.archiveInfoText, icon: SharedAsset.Icons.archive24)
                         .accessibilityIdentifier("ArchivedLabel")
                 }
 

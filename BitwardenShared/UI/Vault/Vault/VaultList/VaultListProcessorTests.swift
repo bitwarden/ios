@@ -20,6 +20,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var changeKdfService: MockChangeKdfService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
@@ -49,6 +50,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
@@ -71,6 +73,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             authRepository: authRepository,
             authService: authService,
             changeKdfService: changeKdfService,
+            configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             notificationService: notificationService,
@@ -98,6 +101,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = nil
         authService = nil
         changeKdfService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         flightRecorder = nil
@@ -540,12 +544,26 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.appeared` updates whether to show the archive onboarding card.
     @MainActor
     func test_perform_appeared_loadArchiveOnboarding() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
         stateService.doesActiveAccountHavePremiumResult = true
         stateService.archiveOnboardingShown = false
 
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.shouldShowArchiveOnboardingActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't update whether to show the archive onboarding card
+    /// when archive FF is turned off.
+    @MainActor
+    func test_perform_appeared_loadArchiveOnboarding_FFOff() async {
+        configService.featureFlagsBool[.archiveVaultItems] = false
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.archiveOnboardingShown = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
     }
 
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
