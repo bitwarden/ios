@@ -251,7 +251,6 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             try await services.vaultRepository.fetchSync(
                 forceSync: true,
-                filter: state.vaultFilterType,
                 isPeriodic: false,
             )
         } catch {

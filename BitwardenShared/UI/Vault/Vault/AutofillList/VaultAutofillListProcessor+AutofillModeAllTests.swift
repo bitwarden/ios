@@ -179,10 +179,10 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers when filtering by group.
@@ -220,10 +220,10 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase {
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
         XCTAssertEqual(vaultRepository.ciphersAutofillPublisherCalledWithGroup, .card)
     }
 

@@ -315,12 +315,12 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
-            return !subject.state.vaultListSections.isEmpty
+            return subject.state.loadingState.data != nil
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
-        let firstSection = try XCTUnwrap(subject.state.vaultListSections.first)
+        XCTAssertEqual(subject.state.loadingState.data?.count, 1)
+        let firstSection = try XCTUnwrap(subject.state.loadingState.data?.first)
         XCTAssertEqual(firstSection.id, "excludedCredentialsId")
         XCTAssertEqual(firstSection.name, "excludedCredentialsId")
         XCTAssertEqual(firstSection.items.count, 1)
@@ -356,11 +356,11 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
-            return !subject.state.vaultListSections.isEmpty
+            return subject.state.loadingState.data != nil
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
+        XCTAssertEqual(subject.state.loadingState.data?.count, 1)
 
         vaultRepository.cipherDetailsSubject.send(
             CipherView.fixture(
@@ -394,7 +394,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
@@ -435,7 +435,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
@@ -972,10 +972,10 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
         XCTAssertEqual(vaultRepository.ciphersAutofillPublisherUriCalled, "https://\(rpId)")
     }
 
@@ -1003,7 +1003,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         waitFor(vaultRepository.ciphersAutofillPublisherUriCalled != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [])
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
         XCTAssertEqual(vaultRepository.ciphersAutofillPublisherUriCalled, "https://\(rpId)")
     }
 } // swiftlint:disable:this file_length
