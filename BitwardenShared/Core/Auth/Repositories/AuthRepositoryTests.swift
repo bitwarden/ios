@@ -161,8 +161,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `.canBeLocked(userId:)` should return true when user has face ID.
     func test_canBeLocked_hasFaceId() async {
         stateService.userHasMasterPassword["1"] = false
-        stateService.pinProtectedUserKeyValue["1"] = "123"
         biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .available(.faceID, enabled: true)
+        vaultTimeoutService.pinUnlockAvailabilityResult = .success([:])
         let result = await subject.canBeLocked(userId: "1")
         XCTAssertTrue(result)
     }
@@ -171,6 +171,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_canBeLocked_hasMasterPassword() async {
         stateService.userHasMasterPassword["1"] = true
         biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .notAvailable
+        vaultTimeoutService.pinUnlockAvailabilityResult = .success([:])
         let result = await subject.canBeLocked(userId: "1")
         XCTAssertTrue(result)
     }
@@ -178,8 +179,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `.canBeLocked(userId:)` should true when user has PIN.
     func test_canBeLocked_hasPin() async {
         stateService.userHasMasterPassword["1"] = false
-        stateService.pinProtectedUserKeyValue["1"] = "123"
-        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .notAvailable
+        vaultTimeoutService.pinUnlockAvailabilityResult = .success(["1": true])
         let result = await subject.canBeLocked(userId: "1")
         XCTAssertTrue(result)
     }
