@@ -845,15 +845,15 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 // MARK: Biometrics
 
 extension MockStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
         try getBiometricAuthenticationEnabledResult.get()
-        return biometricsEnabled[activeAccount.profile.userId] ?? false
+        return biometricsEnabled[userId] ?? false
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
         try setBiometricAuthenticationEnabledResult.get()
-        biometricsEnabled[activeAccount.profile.userId] = isEnabled
+        biometricsEnabled[userId] = isEnabled
     }
 } // swiftlint:disable:this file_length

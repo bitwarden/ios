@@ -638,15 +638,28 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.biometricAuthenticationEnabled = [
             "1": true,
         ]
-        let value = try await subject.getBiometricAuthenticationEnabled()
+        let value = try await subject.getBiometricAuthenticationEnabled(userId: nil)
         XCTAssertTrue(value)
     }
 
     /// `getBiometricAuthenticationEnabled(:)` throws errors if no user exists.
     func test_getBiometricAuthenticationEnabled_error() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getBiometricAuthenticationEnabled()
+            _ = try await subject.getBiometricAuthenticationEnabled(userId: nil)
         }
+    }
+
+    /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the specified user.
+    func test_getBiometricAuthenticationEnabled_withUserId() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.biometricAuthenticationEnabled = [
+            "1": false,
+            "2": true,
+        ]
+        let valueUser1 = try await subject.getBiometricAuthenticationEnabled(userId: "1")
+        XCTAssertFalse(valueUser1)
+        let valueUser2 = try await subject.getBiometricAuthenticationEnabled(userId: "2")
+        XCTAssertTrue(valueUser2)
     }
 
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
@@ -1462,7 +1475,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY",
         ))
-        try await subject.setBiometricAuthenticationEnabled(true)
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
@@ -1905,26 +1918,28 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
-        try await subject.setBiometricAuthenticationEnabled(true)
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
         XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
-        try await subject.setBiometricAuthenticationEnabled(false)
+        try await subject.setBiometricAuthenticationEnabled(false, userId: "1")
         XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
     /// `setBiometricAuthenticationEnabled(isEnabled:, userId:)` throws with no userID and no active user.
     func test_setBiometricAuthenticationEnabled_error() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setBiometricAuthenticationEnabled(true)
+            try await subject.setBiometricAuthenticationEnabled(true, userId: nil)
         }
     }
 
     /// `setBiometricAuthenticationEnabled(:)` sets biometric unlock preference for a user id.
     func test_setBiometricAuthenticationEnabled_userID() async throws {
         await subject.addAccount(.fixture())
-        try await subject.setBiometricAuthenticationEnabled(true)
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
         XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
-        try await subject.setBiometricAuthenticationEnabled(false)
+        try await subject.setBiometricAuthenticationEnabled(false, userId: "1")
         XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "2")
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "2"))
     }
 
     /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.

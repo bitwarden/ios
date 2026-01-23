@@ -558,7 +558,7 @@ extension DefaultAuthRepository: AuthRepository {
             try? isPinUnlockAvailable(userId: userId)
         ) ?? false
         let isUnlockWithBiometricOn: Bool = await (
-            try? biometricsRepository.getBiometricUnlockStatus().isEnabled
+            try? biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
         ) ?? false
         return hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn
     }
@@ -785,7 +785,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         // Clear all user data.
         try await stateService.setSyncToAuthenticator(false, userId: userId)
-        try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
+        try await biometricsRepository.setBiometricUnlockKey(authKey: nil, userId: userId)
         try await keychainService.deleteItems(for: userId)
         await vaultTimeoutService.remove(userId: userId)
 

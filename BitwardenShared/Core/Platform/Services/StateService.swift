@@ -2414,13 +2414,13 @@ struct AccountVolatileData {
 // MARK: Biometrics
 
 extension DefaultStateService: BiometricsStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        let userId = try getActiveAccountUserId()
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 }
