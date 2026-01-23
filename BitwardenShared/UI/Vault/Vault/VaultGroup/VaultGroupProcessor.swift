@@ -346,7 +346,7 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
     }
 
     func itemUnarchived() {
-        displayToastAndRefresh(toastTitle: Localizations.itemUnarchived)
+        displayToastAndRefresh(toastTitle: Localizations.itemMovedToVault)
     }
 
     // MARK: Private methods

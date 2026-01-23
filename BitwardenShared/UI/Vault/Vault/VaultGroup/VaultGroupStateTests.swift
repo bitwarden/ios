@@ -137,28 +137,28 @@ class VaultGroupStateTests: BitwardenTestCase {
         let subjectNoPremiumArchive = VaultGroupState(
             group: .archive,
             hasPremium: false,
-            vaultFilterType: .myVault
+            vaultFilterType: .myVault,
         )
         XCTAssertTrue(subjectNoPremiumArchive.showArchivePremiumSubscriptionEndedCard)
 
         let subjectHasPremiumArchive = VaultGroupState(
             group: .archive,
             hasPremium: true,
-            vaultFilterType: .myVault
+            vaultFilterType: .myVault,
         )
         XCTAssertFalse(subjectHasPremiumArchive.showArchivePremiumSubscriptionEndedCard)
 
         let subjectNoPremiumLogin = VaultGroupState(
             group: .login,
             hasPremium: false,
-            vaultFilterType: .myVault
+            vaultFilterType: .myVault,
         )
         XCTAssertFalse(subjectNoPremiumLogin.showArchivePremiumSubscriptionEndedCard)
 
         let subjectHasPremiumLogin = VaultGroupState(
             group: .login,
             hasPremium: true,
-            vaultFilterType: .myVault
+            vaultFilterType: .myVault,
         )
         XCTAssertFalse(subjectHasPremiumLogin.showArchivePremiumSubscriptionEndedCard)
     }
