@@ -8,6 +8,9 @@ import Foundation
 protocol AddEditItemState: Sendable {
     // MARK: Properties
 
+    /// The info text to display when item is archived.
+    var archiveInfoText: String { get }
+
     /// The card item state.
     var cardItemState: CardItemState { get set }
 

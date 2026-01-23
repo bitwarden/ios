@@ -145,6 +145,16 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         self
     }
 
+    /// The info text to display when item is archived.
+    var archiveInfoText: String {
+        guard shouldDisplayAsArchived else {
+            return ""
+        }
+        return accountHasPremium
+            ? Localizations.thisItemIsArchived
+            : Localizations.thisItemIsArchivedSavingChangesWillRestoreItToYourVault
+    }
+
     /// Whether or not this item can be archived by the user.
     var canBeArchived: Bool {
         isArchiveVaultItemsFFEnabled && cipher.archivedDate == nil && cipher.deletedDate == nil
