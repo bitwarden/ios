@@ -55,6 +55,19 @@ struct VaultGroupView: View {
 
     // MARK: Private
 
+    /// The action card for premium subscription ended for archive.
+    @ViewBuilder private var archivePremiumSubscriptionEndedCard: some View {
+        if store.state.showArchivePremiumSubscriptionEndedCard {
+            ActionCard(
+                title: Localizations.yourPremiumSubscriptionEnded,
+                message: Localizations.yourPremiumSubscriptionEndedArchiveDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.restartPremium) {
+                    store.send(.restartPremiumSubscription)
+                },
+            )
+        }
+    }
+
     @ViewBuilder private var content: some View {
         searchOrGroup
             .onChange(of: store.state.url) { newValue in
@@ -205,6 +218,8 @@ struct VaultGroupView: View {
     @ViewBuilder
     private func groupView(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 16) {
+            archivePremiumSubscriptionEndedCard
+
             ForEach(sections) { section in
                 VaultListSectionView(section: section) { item in
                     Button {

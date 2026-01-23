@@ -67,6 +67,9 @@ struct VaultGroupState: Equatable, Sendable {
     /// The `VaultListGroup` being displayed.
     var group: VaultListGroup = .login
 
+    /// Whether the user has a premium account.
+    var hasPremium: Bool = false
+
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
@@ -129,6 +132,11 @@ struct VaultGroupState: Equatable, Sendable {
 
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType = VaultFilterType.allVaults
+
+    /// Whether the archive premium subscription ended card should be shown.
+    var showArchivePremiumSubscriptionEndedCard: Bool {
+        !hasPremium && group == .archive
+    }
 
     /// Whether to show the special web icons.
     var showWebIcons = true

@@ -186,6 +186,19 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.appeared` updates the state depending on if the user has premium account.
+    @MainActor
+    func test_perform_appeared_hasPremiumAccount() {
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.hasPremium)
+    }
+
     /// `perform(_:)` with `.appeared` updates the state depending on if the
     /// personal ownership policy is enabled.
     @MainActor
