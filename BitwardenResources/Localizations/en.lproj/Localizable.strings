@@ -1302,4 +1302,4 @@
 "ThisItemIsArchived" = "This item is archived.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
-"Restart Premium" = "Restart Premium";
+"RestartPremium" = "Restart Premium";
