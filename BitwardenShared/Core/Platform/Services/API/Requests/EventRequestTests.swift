@@ -9,8 +9,8 @@ class EventRequestTests: BitwardenTestCase {
     func test_body() throws {
         let date = Date(year: 2024, month: 6, day: 28)
         let events = [
-            EventRequestModel(type: .cipherClientViewed, cipherId: "1", date: date),
-            EventRequestModel(type: .cipherClientViewed, cipherId: "2", date: date.addingTimeInterval(1)),
+            EventRequestModel(type: .cipherClientViewed, cipherId: "1", organizationId: nil, date: date),
+            EventRequestModel(type: .cipherClientViewed, cipherId: "2", organizationId: nil, date: date.addingTimeInterval(1)),
         ]
 
         let subject = EventRequest(requestBody: events)
