@@ -543,7 +543,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // No unlock methods available (no master password, PIN, or biometrics)
         stateService.userHasMasterPassword[anneAccount.profile.userId] = false
         stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        biometricsRepository.getBiometricUnlockStatusByUserId[anneAccount.profile.userId] =
+            .available(.faceID, enabled: false)
         vaultTimeoutService.sessionTimeoutAction[anneAccount.profile.userId] = .logout
         // Account is authenticated (logged in)
         stateService.isAuthenticated[anneAccount.profile.userId] = true
@@ -566,7 +567,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // No unlock methods available (no master password, PIN, or biometrics)
         stateService.userHasMasterPassword[anneAccount.profile.userId] = false
         stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        biometricsRepository.getBiometricUnlockStatusByUserId[anneAccount.profile.userId] =
+            .available(.faceID, enabled: false)
         // Account is already logged out
         stateService.isAuthenticated[anneAccount.profile.userId] = false
 
@@ -589,7 +591,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // No unlock methods available
         stateService.userHasMasterPassword[anneAccount.profile.userId] = false
         stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        biometricsRepository.getBiometricUnlockStatusByUserId[anneAccount.profile.userId] =
+            .available(.faceID, enabled: false)
 
         await subject.checkSessionTimeouts(handleActiveUser: nil)
 
@@ -608,7 +611,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
         // Has master password
         stateService.userHasMasterPassword[anneAccount.profile.userId] = true
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        biometricsRepository.getBiometricUnlockStatusByUserId[anneAccount.profile.userId] =
+            .available(.faceID, enabled: false)
 
         await subject.checkSessionTimeouts(handleActiveUser: nil)
 
@@ -628,7 +632,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Has PIN unlock
         stateService.userHasMasterPassword[anneAccount.profile.userId] = false
         stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = "encrypted-pin-key"
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        biometricsRepository.getBiometricUnlockStatusByUserId[anneAccount.profile.userId] =
+            .available(.faceID, enabled: false)
 
         await subject.checkSessionTimeouts(handleActiveUser: nil)
 
@@ -648,7 +653,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Has biometrics enabled
         stateService.userHasMasterPassword[anneAccount.profile.userId] = false
         stateService.pinProtectedUserKeyValue[anneAccount.profile.userId] = nil
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        biometricsRepository.getBiometricUnlockStatusByUserId[anneAccount.profile.userId] =
+            .available(.faceID, enabled: true)
 
         await subject.checkSessionTimeouts(handleActiveUser: nil)
 
@@ -668,7 +674,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // No unlock methods available
         stateService.userHasMasterPassword[beeAccount.profile.userId] = false
         stateService.pinProtectedUserKeyValue[beeAccount.profile.userId] = nil
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        biometricsRepository.getBiometricUnlockStatusByUserId[beeAccount.profile.userId] =
+            .available(.faceID, enabled: false)
         // Account is authenticated (logged in)
         stateService.isAuthenticated[beeAccount.profile.userId] = true
 
@@ -845,7 +852,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             claimedAccount.profile.userId: false,
         ]
 
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        biometricsRepository.getBiometricUnlockStatusByUserId[claimedAccount.profile.userId] =
+            .available(.faceID, enabled: true)
         let accounts2 = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: true,
