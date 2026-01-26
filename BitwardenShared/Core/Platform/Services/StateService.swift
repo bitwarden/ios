@@ -1599,11 +1599,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.introCarouselShown
     }
 
-//    func getLastActiveTime(userId: String?) async throws -> Date? {
-//        let userId = try userId ?? getActiveAccountUserId()
-//        return appSettingsStore.lastActiveTime(userId: userId)
-//    }
-
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastSyncTime(userId: userId)
