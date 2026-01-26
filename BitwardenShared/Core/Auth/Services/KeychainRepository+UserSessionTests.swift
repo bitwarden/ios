@@ -117,7 +117,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
             )!,
         )
         keychainService.setSearchResultData(string: "2")
-        try await subject.setVaultTimeout(minutes: 3, userId: "1")
+        try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
 
         let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
         try XCTAssertEqual(
