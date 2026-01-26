@@ -45,6 +45,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         keychainRepository = nil
         subject = nil
+        userSessionKeychainRepository = nil
     }
 
     // MARK: Tests
