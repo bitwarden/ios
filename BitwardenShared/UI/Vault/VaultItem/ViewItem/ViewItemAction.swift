@@ -9,6 +9,9 @@ enum ViewItemAction: Equatable, Sendable {
     /// A card item action
     case cardItemAction(ViewCardItemAction)
 
+    /// The url has been opened so clear the value in the state.
+    case clearURL
+
     /// A copy button was pressed for the given value.
     ///
     /// - Parameters:

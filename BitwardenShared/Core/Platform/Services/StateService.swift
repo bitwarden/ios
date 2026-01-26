@@ -146,6 +146,12 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
+    /// Gets whether the archive onboarding has been shown.
+    ///
+    /// - Returns: Whether the archive onboarding has been shown.
+    ///
+    func getArchiveOnboardingShown() async -> Bool
+
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -373,6 +379,13 @@ protocol StateService: AnyObject {
     ///
     func isAuthenticated(userId: String?) async throws -> Bool
 
+    /// Checks if an initial sync is required (user hasn't synced before).
+    ///
+    /// - Parameter userId: The user ID to check. Defaults to the active account if `nil`.
+    /// - Returns: `true` if initial sync is needed, `false` otherwise.
+    ///
+    func isInitialSyncRequired(userId: String?) async -> Bool
+
     /// Logs the user out of an account.
     ///
     /// - Parameters:
@@ -503,6 +516,12 @@ protocol StateService: AnyObject {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+
+    /// Sets whether the archive onboarding has been shown.
+    ///
+    /// - Parameter shown: Whether the archive onboarding has been shown.
+    ///
+    func setArchiveOnboardingShown(_ shown: Bool) async
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -1051,6 +1070,14 @@ extension StateService {
         try await isAuthenticated(userId: nil)
     }
 
+    /// Checks if an initial sync is required for the active account (user hasn't synced before).
+    ///
+    /// - Returns: `true` if initial sync is needed, `false` otherwise.
+    ///
+    func isInitialSyncRequired() async -> Bool {
+        await isInitialSyncRequired(userId: nil)
+    }
+
     /// Logs the user out of the active account.
     ///
     /// - Parameters userInitiated: Whether the logout was user initiated or a result of a logout
@@ -1283,6 +1310,14 @@ extension StateService {
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool) async throws {
         try await setUsesKeyConnector(usesKeyConnector, userId: nil)
+    }
+
+    /// Whether the user should do the archive onboarding.
+    /// - Returns: `true` if they should, `false` otherwise.
+    func shouldDoArchiveOnboarding() async -> Bool {
+        let hasPremium = await doesActiveAccountHavePremium()
+        let archiveOnboardingShown = await getArchiveOnboardingShown()
+        return hasPremium && !archiveOnboardingShown
     }
 }
 
@@ -1546,6 +1581,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         AppTheme(appSettingsStore.appTheme)
     }
 
+    func getArchiveOnboardingShown() async -> Bool {
+        appSettingsStore.archiveOnboardingShown
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -1730,6 +1769,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
     }
 
+    func isInitialSyncRequired(userId: String?) async -> Bool {
+        do {
+            let lastSyncTime = try await getLastSyncTime(userId: userId)
+            return lastSyncTime == nil
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
+    }
+
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
@@ -1870,6 +1919,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
+    }
+
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        appSettingsStore.archiveOnboardingShown = shown
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -2226,13 +2279,13 @@ struct AccountVolatileData {
 // MARK: Biometrics
 
 extension DefaultStateService: BiometricsStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        let userId = try getActiveAccountUserId()
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
     }
 }

@@ -626,12 +626,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
-    func test_getClearClipboardValue() async throws {
-        await subject.addAccount(.fixture())
-        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
-        let value = try await subject.getClearClipboardValue()
-        XCTAssertEqual(value, .twoMinutes)
+    /// `getArchiveOnboardingShown()` returns whether the archive onboarding has been shown.
+    func test_getArchiveOnboardingShown() async {
+        var hasShownOnboarding = await subject.getArchiveOnboardingShown()
+        XCTAssertFalse(hasShownOnboarding)
+
+        appSettingsStore.archiveOnboardingShown = true
+        hasShownOnboarding = await subject.getArchiveOnboardingShown()
+        XCTAssertTrue(hasShownOnboarding)
     }
 
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
@@ -640,15 +642,36 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.biometricAuthenticationEnabled = [
             "1": true,
         ]
-        let value = try await subject.getBiometricAuthenticationEnabled()
+        let value = try await subject.getBiometricAuthenticationEnabled(userId: nil)
         XCTAssertTrue(value)
     }
 
     /// `getBiometricAuthenticationEnabled(:)` throws errors if no user exists.
     func test_getBiometricAuthenticationEnabled_error() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getBiometricAuthenticationEnabled()
+            _ = try await subject.getBiometricAuthenticationEnabled(userId: nil)
         }
+    }
+
+    /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the specified user.
+    func test_getBiometricAuthenticationEnabled_withUserId() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.biometricAuthenticationEnabled = [
+            "1": false,
+            "2": true,
+        ]
+        let valueUser1 = try await subject.getBiometricAuthenticationEnabled(userId: "1")
+        XCTAssertFalse(valueUser1)
+        let valueUser2 = try await subject.getBiometricAuthenticationEnabled(userId: "2")
+        XCTAssertTrue(valueUser2)
+    }
+
+    /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
+    func test_getClearClipboardValue() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.clearClipboardValues["1"] = .twoMinutes
+        let value = try await subject.getClearClipboardValue()
+        XCTAssertEqual(value, .twoMinutes)
     }
 
     /// `getConnectToWatch()` returns the connect to watch value for the active account.
@@ -752,8 +775,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(noEvents, [])
 
         let events = [
-            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
-            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", organizationId: nil, date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, organizationId: nil, date: .now),
         ]
         appSettingsStore.eventsByUserId["1"] = events
         let actual = try await subject.getEvents(userId: "1")
@@ -1338,6 +1361,53 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(isAuthenticated)
     }
 
+    /// `isInitialSyncRequired(userId:)` returns `true` when user has never synced before.
+    func test_isInitialSyncRequired_noLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let isRequired = await subject.isInitialSyncRequired(userId: "1")
+        XCTAssertTrue(isRequired)
+    }
+
+    /// `isInitialSyncRequired(userId:)` returns `false` when user has synced before.
+    func test_isInitialSyncRequired_hasLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(timeIntervalSince1970: 1_704_067_200)
+        appSettingsStore.lastSyncTimeByUserId["1"] = date
+
+        let isRequired = await subject.isInitialSyncRequired(userId: "1")
+        XCTAssertFalse(isRequired)
+    }
+
+    /// `isInitialSyncRequired(userId:)` returns `false` when there's an error getting last sync time.
+    func test_isInitialSyncRequired_error() async {
+        // No account added, which will cause getLastSyncTime to throw StateServiceError.noActiveAccount
+
+        let isRequired = await subject.isInitialSyncRequired(userId: nil)
+        XCTAssertFalse(isRequired)
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `isInitialSyncRequired()` returns `true` for active account when it has never synced.
+    func test_isInitialSyncRequired_activeAccount_noLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let isRequired = await subject.isInitialSyncRequired()
+        XCTAssertTrue(isRequired)
+    }
+
+    /// `isInitialSyncRequired()` returns `false` for active account when it has synced before.
+    func test_isInitialSyncRequired_activeAccount_hasLastSyncTime() async {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let date = Date(timeIntervalSince1970: 1_704_067_200)
+        appSettingsStore.lastSyncTimeByUserId["1"] = date
+
+        let isRequired = await subject.isInitialSyncRequired()
+        XCTAssertFalse(isRequired)
+    }
+
     /// `logoutAccount()` clears any account data.
     func test_logoutAccount_clearAccountData() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
@@ -1347,7 +1417,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY",
         ))
-        try await subject.setBiometricAuthenticationEnabled(true)
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
         try await subject.setPasswordGenerationOptions(PasswordGenerationOptions(length: 30))
@@ -1778,29 +1848,40 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `setArchiveOnboardingShown(_:)` sets whether the archive onboarding has been shown.
+    func test_setArchiveOnboardingShown() async {
+        await subject.setArchiveOnboardingShown(true)
+        XCTAssertTrue(appSettingsStore.archiveOnboardingShown)
+
+        await subject.setArchiveOnboardingShown(false)
+        XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
+    }
+
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
-        try await subject.setBiometricAuthenticationEnabled(true)
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
         XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
-        try await subject.setBiometricAuthenticationEnabled(false)
+        try await subject.setBiometricAuthenticationEnabled(false, userId: "1")
         XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
     /// `setBiometricAuthenticationEnabled(isEnabled:, userId:)` throws with no userID and no active user.
     func test_setBiometricAuthenticationEnabled_error() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            try await subject.setBiometricAuthenticationEnabled(true)
+            try await subject.setBiometricAuthenticationEnabled(true, userId: nil)
         }
     }
 
     /// `setBiometricAuthenticationEnabled(:)` sets biometric unlock preference for a user id.
     func test_setBiometricAuthenticationEnabled_userID() async throws {
         await subject.addAccount(.fixture())
-        try await subject.setBiometricAuthenticationEnabled(true)
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "1")
         XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
-        try await subject.setBiometricAuthenticationEnabled(false)
+        try await subject.setBiometricAuthenticationEnabled(false, userId: "1")
         XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
+        try await subject.setBiometricAuthenticationEnabled(true, userId: "2")
+        XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "2"))
     }
 
     /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.
@@ -1824,8 +1905,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setEvents() async throws {
         await subject.addAccount(.fixture())
         let events = [
-            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
-            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", organizationId: nil, date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, organizationId: nil, date: .now),
         ]
 
         try await subject.setEvents(events, userId: "1")
@@ -2456,6 +2537,33 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setUsesKeyConnector(true)
         XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
+    }
+
+    /// `shouldDoArchiveOnboarding()` returns `true` when active account is premium
+    /// and the archive onboarding has not been shown yet.
+    func test_shouldDoArchiveOnboarding_true() async {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        appSettingsStore.archiveOnboardingShown = false
+        let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
+        XCTAssertTrue(shouldDoArchiveOnboarding)
+    }
+
+    /// `shouldDoArchiveOnboarding()` returns `false` when active account is premium
+    /// and the archive onboarding has already been shown.
+    func test_shouldDoArchiveOnboarding_onboardingAlreadyShown() async {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
+        appSettingsStore.archiveOnboardingShown = true
+        let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
+        XCTAssertFalse(shouldDoArchiveOnboarding)
+    }
+
+    /// `shouldDoArchiveOnboarding()` returns `false` when active account is not premium
+    /// and the archive onboarding has not been shown yet.
+    func test_shouldDoArchiveOnboarding_noPremium() async {
+        await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: false)))
+        appSettingsStore.archiveOnboardingShown = false
+        let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
+        XCTAssertFalse(shouldDoArchiveOnboarding)
     }
 
     /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.

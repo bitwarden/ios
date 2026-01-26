@@ -54,7 +54,7 @@ class DefaultWatchService: NSObject, WatchService {
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
-    ///   - configService: The service to get server-specified configuration.   
+    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.

@@ -68,6 +68,51 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(state.loginState.isTOTPAvailable)
     }
 
+    /// `archiveInfoText` returns nil when the item is not archived.
+    func test_archiveInfoText_notArchived() throws {
+        let state = try CipherItemState.initForArchive(archivedDate: nil)
+        XCTAssertEqual(state.archiveInfoText, "")
+    }
+
+    /// `archiveInfoText` returns nil when the feature flag is disabled.
+    func test_archiveInfoText_featureFlagDisabled() throws {
+        let state = try CipherItemState.initForArchive(
+            archivedDate: .now,
+            isArchiveVaultItemsFFEnabled: false,
+        )
+        XCTAssertEqual(state.archiveInfoText, "")
+    }
+
+    /// `archiveInfoText` returns nil when the item is deleted.
+    func test_archiveInfoText_deleted() throws {
+        let state = try CipherItemState.initForArchive(
+            archivedDate: .now,
+            deletedDate: .now,
+        )
+        XCTAssertEqual(state.archiveInfoText, "")
+    }
+
+    /// `archiveInfoText` returns the premium text when the item is archived and user has premium.
+    func test_archiveInfoText_archivedWithPremium() throws {
+        let state = try CipherItemState.initForArchive(
+            archivedDate: .now,
+            hasPremium: true,
+        )
+        XCTAssertEqual(state.archiveInfoText, Localizations.thisItemIsArchived)
+    }
+
+    /// `archiveInfoText` returns the non-premium text when the item is archived and user lacks premium.
+    func test_archiveInfoText_archivedWithoutPremium() throws {
+        let state = try CipherItemState.initForArchive(
+            archivedDate: .now,
+            hasPremium: false,
+        )
+        XCTAssertEqual(
+            state.archiveInfoText,
+            Localizations.thisItemIsArchivedSavingChangesWillRestoreItToYourVault
+        )
+    }
+
     /// `canAssignToCollection` returns false if the user doesn't have access to any organizations.
     func test_canAssignToCollection_noOrganizations() throws {
         let cipher = CipherView.fixture(organizationId: nil)
@@ -108,7 +153,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(
             try CipherItemState.initForArchive(archivedDate: nil, isArchiveVaultItemsFFEnabled: false).canBeArchived,
         )
-        XCTAssertFalse(
+        XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: nil, hasPremium: false).canBeArchived,
         )
         XCTAssertFalse(
@@ -268,6 +313,9 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeUnarchived() throws {
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: .now).canBeUnarchived,
+        )
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(archivedDate: .now, isArchiveVaultItemsFFEnabled: false).canBeUnarchived,
         )
         XCTAssertFalse(
             try CipherItemState.initForArchive(archivedDate: nil).canBeUnarchived,
@@ -583,6 +631,50 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         subject.selectDefaultCollectionIfNeeded()
         XCTAssertEqual(subject.collectionIds, [])
+    }
+
+    /// `shouldDisplayAsArchived` returns `true` when the feature flag is enabled and cipher can be unarchived.
+    func test_shouldDisplayAsArchived_true() throws {
+        XCTAssertTrue(
+            try CipherItemState.initForArchive(archivedDate: .now).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the feature flag is disabled.
+    func test_shouldDisplayAsArchived_false_featureFlagDisabled() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(
+                archivedDate: .now,
+                isArchiveVaultItemsFFEnabled: false,
+            ).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the cipher is not archived.
+    func test_shouldDisplayAsArchived_false_notArchived() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(archivedDate: nil).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the cipher is deleted.
+    func test_shouldDisplayAsArchived_false_deleted() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(
+                archivedDate: .now,
+                deletedDate: .now,
+            ).shouldDisplayAsArchived,
+        )
+    }
+
+    /// `shouldDisplayAsArchived` returns `false` when the cipher is both not archived and feature flag is disabled.
+    func test_shouldDisplayAsArchived_false_notArchivedAndFeatureFlagDisabled() throws {
+        XCTAssertFalse(
+            try CipherItemState.initForArchive(
+                archivedDate: nil,
+                isArchiveVaultItemsFFEnabled: false,
+            ).shouldDisplayAsArchived,
+        )
     }
 
     /// `shouldShowLearnNewLoginActionCard` should be `true`, if the cipher is a login type and configuration is `.add`.

@@ -427,9 +427,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_loadData_biometricsValue() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
-        biometricsRepository.biometricUnlockStatus = .success(
-            biometricUnlockStatus,
-        )
+        biometricsRepository.getBiometricUnlockStatusActiveUser = biometricUnlockStatus
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
 
@@ -440,7 +438,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_loadData_biometricsValue_error() async {
         struct TestError: Error {}
-        biometricsRepository.biometricUnlockStatus = .failure(TestError())
+        biometricsRepository.getBiometricUnlockStatusError = TestError()
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
 
@@ -477,11 +475,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
 
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.faceID, enabled: false)
         await subject.perform(.loadData)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
 
-        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.faceID, enabled: true)
         await subject.perform(.loadData)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
     }

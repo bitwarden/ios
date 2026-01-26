@@ -24,6 +24,9 @@ enum VaultGroupAction: Equatable, Sendable {
     ///
     case itemPressed(_ item: VaultListItem)
 
+    /// The user tapped in "Restart Premium" subscription for archive.
+    case restartPremiumSubscription
+
     /// The user has started or stopped searching.
     case searchStateChanged(isSearching: Bool)
 

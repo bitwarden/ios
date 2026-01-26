@@ -103,6 +103,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// The services required by this processor.
     private let services: Services
 
+    /// The helper to execute vault item actions.
+    private let vaultItemActionHelper: VaultItemActionHelper
+
     // MARK: Initialization
 
     /// Creates a new `AddEditItemProcessor`.
@@ -113,6 +116,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
+    ///   - vaultItemActionHelper: The helper to execute vault item actions.
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
@@ -120,11 +124,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState,
+        vaultItemActionHelper: VaultItemActionHelper,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
+        self.vaultItemActionHelper = vaultItemActionHelper
+
         super.init(state: state)
 
         if !state.configuration.isAdding {
@@ -144,6 +151,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
             await loadDefaultUriMatchType()
+        case .archivedPressed:
+            await archiveItem()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -169,6 +178,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await streamCipherDetails()
         case .streamFolders:
             await streamFolders()
+        case .unarchivePressed:
+            await unarchiveItem()
         }
     }
 
@@ -267,6 +278,24 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     }
 
     // MARK: Private Methods
+
+    /// Archives a cipher.
+    ///
+    private func archiveItem() async {
+        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] url in
+            self?.state.url = url
+        } completionHandler: { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemArchived()
+            }
+        }
+    }
+
+    /// Dismisses with an action.
+    /// - Parameter action: Action to execute when dismissing this view.
+    private func dismiss(action: @escaping () -> Void) {
+        coordinator.navigate(to: .dismiss(DismissAction(action: action)))
+    }
 
     /// Handles dismissing the processor.
     ///
@@ -509,6 +538,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.postalCode = postalCode
         case let .countryChanged(country):
             state.identityState.country = country
+        }
+    }
+
+    /// Unarchives cipher.
+    ///
+    private func unarchiveItem() async {
+        await vaultItemActionHelper.unarchive(cipher: state.cipher) { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemUnarchived()
+            }
         }
     }
 

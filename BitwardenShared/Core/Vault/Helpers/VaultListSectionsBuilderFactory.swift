@@ -23,6 +23,8 @@ struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
     let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
+    /// The service used by the application to manage account state.
+    let stateService: StateService
 
     func make(withData preparedData: VaultListPreparedData) -> VaultListSectionsBuilder {
         DefaultVaultListSectionsBuilder(
@@ -30,6 +32,7 @@ struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
             collectionHelper: collectionHelper,
             configService: configService,
             errorReporter: errorReporter,
+            stateService: stateService,
             withData: preparedData,
         )
     }

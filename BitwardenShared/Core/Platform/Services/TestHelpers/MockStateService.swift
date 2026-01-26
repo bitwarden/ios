@@ -26,6 +26,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var appLanguage: LanguageOption = .default
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
+    var archiveOnboardingShown = false
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -51,6 +52,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
+    var isInitialSyncRequiredByUserId = [String: Bool]()
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
@@ -213,6 +215,16 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         addSitePromptShown
     }
 
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return allowSyncOnRefresh[userId] ?? false
+    }
+
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return allowUniversalClipboard[userId] ?? false
+    }
+
     func getAppRehydrationState(userId: String?) async throws -> BitwardenShared.AppRehydrationState? {
         let userId = try unwrapUserId(userId)
         return appRehydrationState[userId]
@@ -222,14 +234,8 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         appTheme ?? .default
     }
 
-    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return allowSyncOnRefresh[userId] ?? false
-    }
-
-    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return allowUniversalClipboard[userId] ?? false
+    func getArchiveOnboardingShown() async -> Bool {
+        archiveOnboardingShown
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -410,6 +416,11 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         return isAuthenticated[userId] ?? false
     }
 
+    func isInitialSyncRequired(userId: String?) async -> Bool {
+        guard let userId = try? unwrapUserId(userId) else { return false }
+        return isInitialSyncRequiredByUserId[userId] ?? false
+    }
+
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
@@ -518,6 +529,10 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 
     func setAppTheme(_ appTheme: AppTheme) async {
         self.appTheme = appTheme
+    }
+
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        archiveOnboardingShown = shown
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
@@ -793,15 +808,15 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 // MARK: Biometrics
 
 extension MockStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
         try getBiometricAuthenticationEnabledResult.get()
-        return biometricsEnabled[activeAccount.profile.userId] ?? false
+        return biometricsEnabled[userId] ?? false
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
         try setBiometricAuthenticationEnabledResult.get()
-        biometricsEnabled[activeAccount.profile.userId] = isEnabled
+        biometricsEnabled[userId] = isEnabled
     }
 } // swiftlint:disable:this file_length

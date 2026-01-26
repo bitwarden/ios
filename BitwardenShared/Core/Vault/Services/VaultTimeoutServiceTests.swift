@@ -329,9 +329,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.timeoutAction["1"] = .lock
         stateService.userHasMasterPassword["1"] = false
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .available(.faceID, enabled: true)
 
         var timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
         XCTAssertEqual(timeoutAction, .lock)

@@ -15,10 +15,9 @@ public protocol VaultRepository: AnyObject {
     ///
     /// - Parameters:
     ///   - forceSync: Whether the sync is forced.
-    ///   - filter: The filter to apply to the vault.
     ///   - isPeriodic: Whether the sync is periodic to take into account the minimum interval.
     ///
-    func fetchSync(forceSync: Bool, filter: VaultFilterType, isPeriodic: Bool) async throws
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws
 
     // MARK: Data Methods
 
@@ -489,7 +488,7 @@ class DefaultVaultRepository {
 extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
-    func fetchSync(forceSync: Bool, filter: VaultFilterType, isPeriodic: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
         guard !forceSync || allowSyncOnRefresh else { return }
         try await syncService.fetchSync(forceSync: forceSync, isPeriodic: isPeriodic)

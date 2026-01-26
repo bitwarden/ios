@@ -564,7 +564,7 @@ extension DefaultAuthRepository: AuthRepository {
             try? isPinUnlockAvailable(userId: userId)
         ) ?? false
         let isUnlockWithBiometricOn: Bool = await (
-            try? biometricsRepository.getBiometricUnlockStatus().isEnabled
+            try? biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
         ) ?? false
         return hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn
     }
@@ -582,8 +582,15 @@ extension DefaultAuthRepository: AuthRepository {
 
             for account in accounts {
                 let userId = account.userId
+
+                // Check time-based timeout
                 let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
-                if shouldTimeout {
+                // Check if account can't be unlocked after restart (no master password, PIN, or biometrics)
+                let shouldLogoutDueToNoUnlockMethod = !account.isUnlocked // Account locked
+                    && !account.canBeLocked // Doesn't have an unlock method
+                    && !account.isLoggedOut // Isn't already logged out (soft-logout)
+
+                if shouldTimeout || shouldLogoutDueToNoUnlockMethod {
                     if userId == activeUserId {
                         await handleActiveUser?(activeUserId)
                     } else {
@@ -784,7 +791,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         // Clear all user data.
         try await stateService.setSyncToAuthenticator(false, userId: userId)
-        try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
+        try await biometricsRepository.setBiometricUnlockKey(authKey: nil, userId: userId)
         try await keychainService.deleteItems(for: userId)
         await vaultTimeoutService.remove(userId: userId)
 

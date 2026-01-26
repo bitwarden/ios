@@ -83,6 +83,10 @@ extension DefaultEnvironmentService {
         environmentURLs.setUpTwoFactorURL
     }
 
+    var upgradeToPremiumURL: URL {
+        environmentURLs.upgradeToPremiumURL
+    }
+
     var webVaultURL: URL {
         environmentURLs.webVaultURL
     }

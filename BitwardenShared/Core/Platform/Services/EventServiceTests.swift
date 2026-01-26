@@ -61,7 +61,7 @@ class EventServiceTests: XCTestCase {
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult = .success([.fixture(useEvents: true)])
         stateService.events["1"] = [
-            EventData(type: .cipherClientViewed, cipherId: nil, date: timeProvider.presentTime.advanced(by: -5)),
+            EventData(type: .cipherClientViewed, cipherId: nil, organizationId: nil, date: timeProvider.presentTime.advanced(by: -5)),
         ]
 
         await subject.collect(eventType: .userLoggedIn)
@@ -70,8 +70,8 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(
             actual,
             [
-                EventData(type: .cipherClientViewed, cipherId: nil, date: timeProvider.presentTime.advanced(by: -5)),
-                EventData(type: .userLoggedIn, cipherId: nil, date: timeProvider.presentTime),
+                EventData(type: .cipherClientViewed, cipherId: nil, organizationId: nil, date: timeProvider.presentTime.advanced(by: -5)),
+                EventData(type: .userLoggedIn, cipherId: nil, organizationId: nil, date: timeProvider.presentTime),
             ],
         )
     }
@@ -90,8 +90,68 @@ class EventServiceTests: XCTestCase {
         let actual = stateService.events["1"]
         XCTAssertEqual(
             actual,
-            [EventData(type: .userLoggedIn, cipherId: "1", date: timeProvider.presentTime)],
+            [EventData(type: .userLoggedIn, cipherId: "1", organizationId: nil, date: timeProvider.presentTime)],
         )
+    }
+
+    /// `collect(eventType:cipherId:organizationId:)` does not collect events
+    /// if the cipher's organizationId does not match the provided organizationId.
+    func test_collect_cipher_organizationIdMismatch() async throws {
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1", useEvents: true),
+            .fixture(id: "org-2", useEvents: true),
+        ])
+        cipherService.fetchCipherResult = .success(.fixture(organizationId: "org-1"))
+
+        await subject.collect(eventType: .userLoggedIn, cipherId: "1", organizationId: "org-2")
+
+        XCTAssertEqual(stateService.events, [:])
+    }
+
+    /// `collect(eventType:cipherId:organizationId:)` saves events with matching cipher and organizationId.
+    func test_collect_cipher_organizationIdMatch() async throws {
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-123", useEvents: true)])
+        cipherService.fetchCipherResult = .success(.fixture(organizationId: "org-123"))
+
+        await subject.collect(eventType: .userLoggedIn, cipherId: "1", organizationId: "org-123")
+
+        let actual = stateService.events["1"]
+        XCTAssertEqual(
+            actual,
+            [EventData(type: .userLoggedIn, cipherId: "1", organizationId: "org-123", date: timeProvider.presentTime)],
+        )
+    }
+
+    /// `collect(eventType:cipherId:organizationId:)` saves events with the provided organizationId
+    /// to the state service if the user is part of organizations that use events.
+    func test_collect_organizationId() async throws {
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-123", useEvents: true)])
+
+        await subject.collect(eventType: .userLoggedIn, organizationId: "org-123")
+
+        let actual = stateService.events["1"]
+        XCTAssertEqual(
+            actual,
+            [EventData(type: .userLoggedIn, cipherId: nil, organizationId: "org-123", date: timeProvider.presentTime)],
+        )
+    }
+
+    /// `collect(eventType:cipherId:organizationId:)` does not collect events
+    /// if the organizationId does not belong to an organization that uses events.
+    func test_collect_organizationId_noMatchingOrganization() async throws {
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-123", useEvents: true)])
+
+        await subject.collect(eventType: .userLoggedIn, organizationId: "org-456")
+
+        XCTAssertEqual(stateService.events, [:])
     }
 
     /// `collect(eventType:cipherId:)` does not collect events
@@ -166,8 +226,8 @@ class EventServiceTests: XCTestCase {
         try await stateService.setActiveAccount(userId: "1")
 
         stateService.events["1"] = [
-            EventData(type: .cipherClientViewed, cipherId: "1", date: date),
-            EventData(type: .cipherClientAutofilled, cipherId: "1", date: date.addingTimeInterval(1)),
+            EventData(type: .cipherClientViewed, cipherId: "1", organizationId: nil, date: date),
+            EventData(type: .cipherClientAutofilled, cipherId: "1", organizationId: nil, date: date.addingTimeInterval(1)),
         ]
 
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -179,8 +239,8 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(
             try? JSONDecoder.defaultDecoder.decode([EventRequestModel].self, from: body),
             [
-                EventRequestModel(type: .cipherClientViewed, cipherId: "1", date: date),
-                EventRequestModel(type: .cipherClientAutofilled, cipherId: "1", date: date.addingTimeInterval(1)),
+                EventRequestModel(type: .cipherClientViewed, cipherId: "1", organizationId: nil, date: date),
+                EventRequestModel(type: .cipherClientAutofilled, cipherId: "1", organizationId: nil, date: date.addingTimeInterval(1)),
             ],
         )
         XCTAssertEqual(stateService.events["1"], [])

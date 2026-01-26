@@ -1,5 +1,4 @@
 {
-  "catch_all_label": "t:misc",
   "title_patterns": {
     "t:feature-app": ["feat", "feature"],
     "t:feature-tool": ["tool"],
@@ -67,10 +66,10 @@
       "Brewfile",
       "Gemfile",
       "Gemfile.lock",
-      "Mintfile"
+      "Mintfile",
+      "Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
     ],
     "t:misc": [
-      "Bitwarden.xcworkspace/",
       "GlobalTestHelpers/",
       "GlobalTestHelpers-bwa/",
       "GlobalTestHelpers-bwth/",

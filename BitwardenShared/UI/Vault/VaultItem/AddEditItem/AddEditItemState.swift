@@ -8,6 +8,9 @@ import Foundation
 protocol AddEditItemState: Sendable {
     // MARK: Properties
 
+    /// The info text to display when item is archived.
+    var archiveInfoText: String { get }
+
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
@@ -109,6 +112,9 @@ protocol AddEditItemState: Sendable {
 
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
+
+    /// Whether the item should be displayed as archived.
+    var shouldDisplayAsArchived: Bool { get }
 
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
