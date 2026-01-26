@@ -20,13 +20,11 @@ class MockKeychainRepository: KeychainRepository {
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
     var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
-    var getLastActiveTimeResult: Result<String, Error> = .success("1234567890")
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
     var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
 
     var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
     var setAccessTokenResult: Result<Void, Error> = .success(())
-    var setLastActiveTimeResult: Result<Void, Error> = .success(())
     var setDeviceKeyResult: Result<Void, Error> = .success(())
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
     var setRefreshTokenResult: Result<Void, Error> = .success(())
@@ -107,10 +105,6 @@ class MockKeychainRepository: KeychainRepository {
         return value
     }
 
-    func getLastActiveTime(userId: String) async throws -> String? {
-        try getLastActiveTimeResult.get()
-    }
-
     func formattedKey(for item: KeychainItem) -> String {
         String(format: storageKeyFormat, appId, item.unformattedKey)
     }
@@ -144,10 +138,5 @@ class MockKeychainRepository: KeychainRepository {
         securityType = item.accessControlFlags
         try setResult.get()
         mockStorage[formattedKey] = value
-    }
-
-    func setLastActiveTime(_ value: String, userId: String) async throws {
-        try setLastActiveTimeResult.get()
-        mockStorage[formattedKey(for: .lastActiveTime(userId: userId))] = value
     }
 }
