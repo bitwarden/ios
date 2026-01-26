@@ -25,7 +25,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Master password must be at least %#@characters@ long.</string>
+      <string>Glavna lozinka mora imati najmanje %#@characters@.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -33,18 +33,18 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaka</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakova</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>This password has been exposed %#@times@ in data breaches. You should change it.</string>
+      <string>Lozinka je %#@times@ izložena u curenjima podataka. Trebalo bi ju promijeniti.</string>
       <key>times</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -52,11 +52,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d time</string>
+        <string>jedanput</string>
         <key>few</key>
-        <string>%d times</string>
+        <string>%d puta</string>
         <key>other</key>
-        <string>%d times</string>
+        <string>%d puta</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -71,11 +71,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaka</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakova</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -223,11 +223,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaka</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakova</string>
       </dict>
     </dict>
   </dict>
