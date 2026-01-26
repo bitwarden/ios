@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2026-01-09_13-51-42_UTC
-// COMMIT: 6e5697a037da7d0a848e269cf9a9429b91817f22
+// VERSION: 2026-01-23_19-21-39_UTC
+// COMMIT: 2bb8b06cc2e02a81121552f8edccb045f0e3040b
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -12622,7 +12622,8 @@ com.se
 cx.ua
 
 // Civilized Discourse Construction Kit, Inc. : https://www.discourse.org/
-// Submitted by Rishabh Nambiar & Michael Brown <team@discourse.org>
+// Submitted by Rishabh Nambiar, Michael Brown, Rafael dos Santos Silva <team@discourse.org>
+discourse.diy
 discourse.group
 discourse.team
 
@@ -12778,6 +12779,10 @@ edu.ru
 gov.ru
 int.ru
 mil.ru
+
+// CoreSpeed, Inc. : https://corespeed.io
+// Submitted by CoreSpeed Team <ops@corespeed.io>
+corespeed.app
 
 // COSIMO GmbH : http://www.cosimo.de
 // Submitted by Rene Marticke <rmarticke@cosimo.de>
@@ -14305,6 +14310,11 @@ ae.kg
 // Submitted by Martin Dannehl <postmaster@keymachine.de>
 keymachine.de
 
+// Kilo Code, Inc. : https://kilo.ai
+// Submitted by Remon Oldenbeuving <security@kilocode.ai>
+kiloapps.ai
+kiloapps.io
+
 // KingHost : https://king.host
 // Submitted by Felipe Keller Braz <felipebraz@kinghost.com.br>
 kinghost.net
@@ -14334,6 +14344,8 @@ co.de
 
 // Laravel Holdings, Inc. : https://laravel.com
 // Submitted by André Valentin & James Brooks <security@laravel.com>
+shiptoday.app
+shiptoday.build
 laravel.cloud
 on-forge.com
 on-vapor.com
@@ -14619,6 +14631,11 @@ same-preview.com
 // minion.systems : http://minion.systems
 // Submitted by Robert Böttinger <r@minion.systems>
 csx.cc
+
+// Miren, Inc. : https://miren.dev
+// Submitted by Miren Product Team <team-product@miren.dev>
+miren.app
+miren.systems
 
 // Mittwald CM Service GmbH & Co. KG : https://mittwald.de
 // Submitted by Marco Rieger <security@mittwald.de>
@@ -15623,6 +15640,10 @@ my.de
 *.nxa.eu
 nx.gw
 
+// Spawnbase : https://spawnbase.ai
+// Submitted by Alexander Zuev <security@spawnbase.ai>
+spawnbase.app
+
 // SpeedPartner GmbH : https://www.speedpartner.de/
 // Submitted by Stefan Neufeind <info@speedpartner.de>
 customer.speedpartner.de
@@ -16101,6 +16122,8 @@ daemon.panel.gg
 
 // Wix.com, Inc. : https://www.wix.com
 // Submitted by Shahar Talmi / Alon Kochba <publicsuffixlist@wix.com>
+base44.app
+base44-sandbox.com
 wixsite.com
 wixstudio.com
 editorx.io
