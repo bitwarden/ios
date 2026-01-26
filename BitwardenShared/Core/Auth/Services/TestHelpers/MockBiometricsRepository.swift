@@ -3,7 +3,6 @@
 class MockBiometricsRepository: BiometricsRepository {
     var getBiometricAuthenticationTypeResult: BitwardenShared.BiometricAuthenticationType?
 
-    var biometricUnlockStatus: Result<BiometricsUnlockStatus, Error>?
     var getBiometricUnlockStatusError: Error?
     var getBiometricUnlockStatusActiveUser = BiometricsUnlockStatus.notAvailable
     var getBiometricUnlockStatusByUserId = [String: BiometricsUnlockStatus]()
@@ -21,10 +20,6 @@ class MockBiometricsRepository: BiometricsRepository {
     func getBiometricUnlockStatus(userId: String?) async throws -> BitwardenShared.BiometricsUnlockStatus {
         if let getBiometricUnlockStatusError {
             throw getBiometricUnlockStatusError
-        }
-        if let biometricUnlockStatus {
-            // TODO: PM-31189 Legacy mock value, update all tests to use getBiometricUnlockStatusByUserId
-            return try biometricUnlockStatus.get()
         }
         guard let userId else {
             return getBiometricUnlockStatusActiveUser
