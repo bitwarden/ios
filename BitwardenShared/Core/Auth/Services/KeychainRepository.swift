@@ -403,10 +403,13 @@ extension DefaultKeychainRepository {
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
+            .lastActiveTime(userId: userId),
             .neverLock(userId: userId),
             // Exclude `pendingAdminLoginRequest` since if a TDE user is logged out before the request
             // is approved, the next login for the user will succeed with the pending request.
             .refreshToken(userId: userId),
+            .unsuccessfulUnlockAttempts(userId: userId),
+            .vaultTimeout(userId: userId),
         ]
         for keychainItem in keychainItems {
             try await keychainService.delete(query: keychainQueryValues(for: keychainItem))
