@@ -23,7 +23,6 @@ class MockKeychainRepository: KeychainRepository {
     var getLastActiveTimeResult: Result<String, Error> = .success("1234567890")
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
     var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
-    var getVaultTimeoutResult: Result<String, Error> = .success("15")
 
     var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
     var setAccessTokenResult: Result<Void, Error> = .success(())
@@ -31,7 +30,6 @@ class MockKeychainRepository: KeychainRepository {
     var setDeviceKeyResult: Result<Void, Error> = .success(())
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
     var setRefreshTokenResult: Result<Void, Error> = .success(())
-    var setVaultTimeoutResult: Result<Void, Error> = .success(())
 
     func deleteAllItems() async throws {
         deleteAllItemsCalled = true
@@ -109,10 +107,6 @@ class MockKeychainRepository: KeychainRepository {
         return value
     }
 
-    func getVaultTimeout(userId: String) async throws -> String? {
-        try getVaultTimeoutResult.get()
-    }
-
     func getLastActiveTime(userId: String) async throws -> String? {
         try getLastActiveTimeResult.get()
     }
@@ -150,11 +144,6 @@ class MockKeychainRepository: KeychainRepository {
         securityType = item.accessControlFlags
         try setResult.get()
         mockStorage[formattedKey] = value
-    }
-
-    func setVaultTimeout(_ value: String, userId: String) async throws {
-        try setVaultTimeoutResult.get()
-        mockStorage[formattedKey(for: .vaultTimeout(userId: userId))] = value
     }
 
     func setLastActiveTime(_ value: String, userId: String) async throws {
