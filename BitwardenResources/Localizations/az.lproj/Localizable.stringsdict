@@ -193,7 +193,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>PIN-inizdə ən azı [%1$s] olmalıdır. Tətbiqdə hesabınızdan tam çıxış etsəniz, PIN ayarlarınız sıfırlanacaq.</string>
+      <string>PIN-inizdə ən azı %#@characters@ olmalıdır. Tətbiqdə hesabınızdan tam çıxış etsəniz, PIN ayarlarınız sıfırlanacaq.</string>
       <key>characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
