@@ -618,6 +618,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.state.group = .card
         subject.receive(.addItemPressed(.card))
         XCTAssertEqual(coordinator.routes.last, .addItem(group: .card, type: .card))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with the correct group.
@@ -627,6 +628,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.state.group = group
         subject.receive(.addItemPressed(nil))
         XCTAssertEqual(coordinator.routes.last, .addItem(group: group, type: .login))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with an organization
@@ -637,6 +639,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.state.group = group
         subject.receive(.addItemPressed(.secureNote))
         XCTAssertEqual(coordinator.routes.last, .addItem(group: group, type: .secureNote))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
     }
 
     /// TOTP Code expiration updates the state's TOTP codes.
@@ -837,6 +840,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
@@ -880,6 +884,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultGroupProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 

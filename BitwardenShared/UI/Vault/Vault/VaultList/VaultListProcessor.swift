@@ -208,9 +208,15 @@ extension VaultListProcessor {
         setProfileSwitcher(visible: false)
         switch state.vaultFilterType {
         case let .organization(organization):
-            coordinator.navigate(to: .addItem(organizationId: organization.id, type: type))
+            coordinator.navigate(
+                to: .addItem(organizationId: organization.id, type: type),
+                context: self,
+            )
         default:
-            coordinator.navigate(to: .addItem(type: type))
+            coordinator.navigate(
+                to: .addItem(type: type),
+                context: self,
+            )
         }
         reviewPromptTask?.cancel()
     }
@@ -346,7 +352,10 @@ extension VaultListProcessor {
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
