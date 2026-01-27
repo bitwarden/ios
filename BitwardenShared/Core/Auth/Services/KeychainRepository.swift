@@ -17,6 +17,12 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
 
     /// The keychain item for device key.
     case deviceKey(userId: String)
+    
+    /// The keychain item for the device auth key.
+    case deviceAuthKey(userId: String)
+
+    /// The keychain item for the device auth key metadata.
+    case deviceAuthKeyMetadata(userId: String)
 
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
@@ -35,11 +41,13 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         case .accessToken,
              .authenticatorVaultKey,
              .deviceKey,
+             .deviceAuthKeyMetadata,
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken:
             nil
-        case .biometrics:
+        case .biometrics,
+             .deviceAuthKey:
             .biometryCurrentSet
         }
     }
@@ -49,6 +57,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         switch self {
         case .biometrics,
              .deviceKey,
+             .deviceAuthKey,
+             .deviceAuthKeyMetadata,
              .neverLock,
              .pendingAdminLoginRequest:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
@@ -71,6 +81,10 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
             "deviceKey_" + id
+        case let .deviceAuthKey(userId: id):
+            "deviceAuthKey_" + id
+        case let .deviceAuthKeyMetadata(userId: id):
+            "deviceAuthKeyMetadata_" + id
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .pendingAdminLoginRequest(userId):
@@ -111,7 +125,13 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the stored device key.
     ///
     func deleteDeviceKey(userId: String) async throws
-
+    
+    /// Attempts to delete the device auth key from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device auth key.
+    ///
+    func deleteDeviceAuthKey(userId: String) async throws
+    
     /// Attempts to delete the pending admin login request from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored device key.
@@ -138,7 +158,22 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: The device key.
     ///
     func getDeviceKey(userId: String) async throws -> String?
+    
+    /// Gets the stored device auth key for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device auth key.
+    /// - Returns: The device auth key.
+    ///
+    func getDeviceAuthKey(userId: String) async throws -> String?
 
+    /// Gets the metadata about the stored device auth key for a user from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the stored device auth key.
+    /// - Returns: The device auth key metadata.
+    ///
+    func getDeviceAuthKeyMetadata(userId: String) async throws -> String?
+
+    
     /// Gets the stored refresh token for a user from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored refresh token.
@@ -183,7 +218,16 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the device key later on.
     ///
     func setDeviceKey(_ value: String, userId: String) async throws
-
+    
+    /// Stores the device auth key for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - record: The device auth key, including the secrets, to store.
+    ///   - metadata: The metadata of device auth key to store.
+    ///   - userId: The user's ID, used to get back the device auth key later on.
+    ///
+    func setDeviceAuthKey(recordJson record: String, metadataJson metadata: String, userId: String) async throws
+    
     /// Stores the refresh token for a user in the keychain.
     ///
     /// - Parameters:
@@ -382,6 +426,7 @@ extension DefaultKeychainRepository {
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
+            // Also exclude `deviceAuthKey` and `deviceAuthKeyMetadata` since they are used to log back into an account.
             .neverLock(userId: userId),
             // Exclude `pendingAdminLoginRequest` since if a TDE user is logged out before the request
             // is approved, the next login for the user will succeed with the pending request.
@@ -404,6 +449,12 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteDeviceAuthKey(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .deviceAuthKey(userId: userId))
+        )
+    }
+
     func deletePendingAdminLoginRequest(userId: String) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId)),
@@ -420,6 +471,14 @@ extension DefaultKeychainRepository {
 
     func getDeviceKey(userId: String) async throws -> String? {
         try await getValue(for: .deviceKey(userId: userId))
+    }
+
+    func getDeviceAuthKey(userId: String) async throws -> String? {
+        try? await getValue(for: .deviceAuthKey(userId: userId))
+    }
+
+    func getDeviceAuthKeyMetadata(userId: String) async throws -> String? {
+        try? await getValue(for: .deviceAuthKeyMetadata(userId: userId))
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -446,6 +505,11 @@ extension DefaultKeychainRepository {
         try await setValue(value, for: .deviceKey(userId: userId))
     }
 
+    func setDeviceAuthKey(recordJson record: String, metadataJson metadata: String, userId: String) async throws {
+        try await setValue(record, for: .deviceAuthKey(userId: userId))
+        try await setValue(metadata, for: .deviceAuthKeyMetadata(userId: userId))
+    }
+    
     func setRefreshToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .refreshToken(userId: userId))
     }
