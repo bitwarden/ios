@@ -10,7 +10,7 @@ class MockClientFido2Service: ClientFido2Service {
         InvocationMockerWithThrowingResult<CipherView, [Fido2CredentialAutofillView]>()
             .withResult([.fixture()])
 
-    func authenticator(
+    func vaultAuthenticator(
         userInterface: any BitwardenSdk.Fido2UserInterface,
         credentialStore: any BitwardenSdk.Fido2CredentialStore,
     ) -> BitwardenSdk.ClientFido2AuthenticatorProtocol {
