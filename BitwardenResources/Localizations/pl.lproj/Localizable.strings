@@ -1264,9 +1264,9 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia.";
 "Updating" = "Aktualizowanie…";
 "EncryptionSettingsUpdated" = "Ustawienia szyfrowania zostały zaktualizowane";
-"IntroducingArchive" = "Introducing Archive";
-"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
-"GoToArchive" = "Go to archive";
+"IntroducingArchive" = "Przedstawiamy archiwum";
+"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Zachowaj elementy, których teraz nie potrzebujesz.";
+"GoToArchive" = "Przejdź do archiwum";
 "ItemTransfer" = "Item transfer";
 "TransferItemsToX" = "Przenieś elementy do %1$@";
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
