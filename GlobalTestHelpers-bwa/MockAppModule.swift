@@ -30,7 +30,7 @@ class MockAppModule:
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
     var itemListCoordinatorDelegate: ItemListCoordinatorDelegate?
     var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
-    // swiftlint:disable:next weak_navigator identifier_name
+    // swiftlint:disable:next weak_navigator
     var selectLanguageCoordinatorStackNavigator: StackNavigator?
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
     var tabCoordinator = MockCoordinator<TabRoute, Void>()

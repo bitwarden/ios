@@ -23,7 +23,7 @@ class MockPolicyService: PolicyService {
 
     var fetchTimeoutPolicyValuesResult: Result<SessionTimeoutPolicy?, Error> = .success(nil)
 
-    var getEarliestOrganizationApplyingPolicyResult: [PolicyType: String?] = [:]
+    var getEarliestOrganizationApplyingPolicyResult: [PolicyType: String?] = [:] // swiftlint:disable:this identifier_name line_length
 
     var organizationsApplyingPolicyToUserResult: [PolicyType: [String]] = [:]
 

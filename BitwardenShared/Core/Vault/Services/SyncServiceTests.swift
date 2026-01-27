@@ -1083,6 +1083,8 @@ class SyncServiceTests: BitwardenTestCase {
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {
+    var migrateVaultToMyItemsCalled = false
+    var migrateVaultToMyItemsOrganizationId: String?
     var onFetchSyncSucceededCalledWithuserId: String?
     var removeMasterPasswordCalled = false
     var removeMasterPasswordOrganizationName: String?
@@ -1092,6 +1094,11 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
     var setMasterPasswordOrgId: String?
     var removeMasterPasswordOrganizationId: String?
     var removeMasterPasswordKeyConnectorUrl: String?
+
+    func migrateVaultToMyItems(organizationId: String) {
+        migrateVaultToMyItemsCalled = true
+        migrateVaultToMyItemsOrganizationId = organizationId
+    }
 
     func onFetchSyncSucceeded(userId: String) async {
         onFetchSyncSucceededCalledWithuserId = userId
@@ -1112,13 +1119,5 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
     func setMasterPassword(orgIdentifier: String) async {
         setMasterPasswordCalled = true
         setMasterPasswordOrgId = orgIdentifier
-    }
-
-    var migrateVaultToMyItemsCalled = false
-    var migrateVaultToMyItemsOrganizationId: String?
-
-    func migrateVaultToMyItems(organizationId: String) {
-        migrateVaultToMyItemsCalled = true
-        migrateVaultToMyItemsOrganizationId = organizationId
     }
 } // swiftlint:disable:this file_length
