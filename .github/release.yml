@@ -30,3 +30,6 @@ changelog:
       labels:
         - dependencies
         - t:deps
+    - title: '🎨 Other'
+      labels:
+        - '*'
