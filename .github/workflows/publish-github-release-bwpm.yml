@@ -19,7 +19,7 @@ jobs:
       workflow_name: "publish-github-release-bwpm.yml"
       credentials_filename: "appstoreconnect-fastlane.json"
       project_type: ios
-      make_latest: false
+      make_latest: true
       check_release_command: >
         bundle exec fastlane ios get_latest_version api_key_path:$CREDENTIALS_PATH app_identifier:com.8bit.bitwarden
     secrets: inherit
