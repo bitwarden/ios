@@ -2,7 +2,7 @@
 
 /// An error thrown by a BiometricsRepository.
 ///
-enum BiometricsServiceError: Error, Equatable {
+public enum BiometricsServiceError: Error, Equatable {
     /// An error when the user, app, or system cancels a biometric unlock
     ///
     case biometryCancelled
