@@ -90,7 +90,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
                         defaultUriMatchType,
                         learnMoreLocalizedMatchType: Localizations.regEx,
                     )
-                })
+                },
+            )
         case .startsWith:
             coordinator.showAlert(
                 .confirmStartsWithMatchDetectionAlert {
@@ -98,7 +99,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
                         defaultUriMatchType,
                         learnMoreLocalizedMatchType: Localizations.startsWith,
                     )
-                })
+                },
+            )
         default:
             await updateDefaultUriMatchType(
                 defaultUriMatchType,

@@ -1,6 +1,8 @@
 import BitwardenKit
 @preconcurrency import BitwardenSdk
 
+// swiftlint:disable file_length
+
 // MARK: - PolicyService
 
 /// A protocol for a `PolicyService` which manages syncing and updates to the user's policies.
@@ -383,8 +385,8 @@ extension DefaultPolicyService {
     func getEarliestOrganizationApplyingPolicy(_ policyType: PolicyType) async -> String? {
         let policies = await policiesApplyingToUser(policyType, filter: nil)
         return policies
-            .min(by: { p1, p2 in
-                (p1.revisionDate ?? .distantFuture) < (p2.revisionDate ?? .distantFuture)
+            .min(by: { lhs, rhs in
+                (lhs.revisionDate ?? .distantFuture) < (rhs.revisionDate ?? .distantFuture)
             })?
             .organizationId
     }

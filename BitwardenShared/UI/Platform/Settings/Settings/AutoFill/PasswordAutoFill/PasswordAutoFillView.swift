@@ -71,7 +71,8 @@ struct PasswordAutoFillView: View {
             Text(
                 LocalizedStringKey(
                     Localizations.needHelpCheckOutAutofillHelp(
-                        ExternalLinksConstants.autofillHelp),
+                        ExternalLinksConstants.autofillHelp,
+                    ),
                 ),
             )
             .styleGuide(.subheadline)

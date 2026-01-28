@@ -61,7 +61,12 @@ class EventServiceTests: XCTestCase {
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult = .success([.fixture(useEvents: true)])
         stateService.events["1"] = [
-            EventData(type: .cipherClientViewed, cipherId: nil, organizationId: nil, date: timeProvider.presentTime.advanced(by: -5)),
+            EventData(
+                type: .cipherClientViewed,
+                cipherId: nil,
+                organizationId: nil,
+                date: timeProvider.presentTime.advanced(by: -5),
+            ),
         ]
 
         await subject.collect(eventType: .userLoggedIn)
@@ -70,8 +75,18 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(
             actual,
             [
-                EventData(type: .cipherClientViewed, cipherId: nil, organizationId: nil, date: timeProvider.presentTime.advanced(by: -5)),
-                EventData(type: .userLoggedIn, cipherId: nil, organizationId: nil, date: timeProvider.presentTime),
+                EventData(
+                    type: .cipherClientViewed,
+                    cipherId: nil,
+                    organizationId: nil,
+                    date: timeProvider.presentTime.advanced(by: -5),
+                ),
+                EventData(
+                    type: .userLoggedIn,
+                    cipherId: nil,
+                    organizationId: nil,
+                    date: timeProvider.presentTime,
+                ),
             ],
         )
     }
@@ -226,8 +241,18 @@ class EventServiceTests: XCTestCase {
         try await stateService.setActiveAccount(userId: "1")
 
         stateService.events["1"] = [
-            EventData(type: .cipherClientViewed, cipherId: "1", organizationId: nil, date: date),
-            EventData(type: .cipherClientAutofilled, cipherId: "1", organizationId: nil, date: date.addingTimeInterval(1)),
+            EventData(
+                type: .cipherClientViewed,
+                cipherId: "1",
+                organizationId: nil,
+                date: date,
+            ),
+            EventData(
+                type: .cipherClientAutofilled,
+                cipherId: "1",
+                organizationId: nil,
+                date: date.addingTimeInterval(1),
+            ),
         ]
 
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -239,8 +264,18 @@ class EventServiceTests: XCTestCase {
         XCTAssertEqual(
             try? JSONDecoder.defaultDecoder.decode([EventRequestModel].self, from: body),
             [
-                EventRequestModel(type: .cipherClientViewed, cipherId: "1", organizationId: nil, date: date),
-                EventRequestModel(type: .cipherClientAutofilled, cipherId: "1", organizationId: nil, date: date.addingTimeInterval(1)),
+                EventRequestModel(
+                    type: .cipherClientViewed,
+                    cipherId: "1",
+                    organizationId: nil,
+                    date: date,
+                ),
+                EventRequestModel(
+                    type: .cipherClientAutofilled,
+                    cipherId: "1",
+                    organizationId: nil,
+                    date: date.addingTimeInterval(1),
+                ),
             ],
         )
         XCTAssertEqual(stateService.events["1"], [])

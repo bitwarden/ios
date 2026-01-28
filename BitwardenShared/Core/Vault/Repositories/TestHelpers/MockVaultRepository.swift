@@ -7,7 +7,7 @@ import TestHelpers
 
 @testable import BitwardenShared
 
-class MockVaultRepository: VaultRepository {
+class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var addCipherCiphers = [CipherView]()

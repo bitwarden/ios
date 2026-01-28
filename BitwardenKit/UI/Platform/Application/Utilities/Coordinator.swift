@@ -120,9 +120,13 @@ public protocol HasRootNavigator: HasNavigator {
 ///
 @MainActor
 public protocol HasRouter<Event, Route> {
+    /// The type of event that the router handles.
     associatedtype Event
+
+    /// The type of route that the router generates.
     associatedtype Route
 
+    /// The router for handling events and generating routes.
     var router: AnyRouter<Event, Route> { get }
 }
 

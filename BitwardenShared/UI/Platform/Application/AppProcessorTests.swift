@@ -1485,7 +1485,8 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     // MARK: - MigrateVaultToMyItems Tests
 
-    /// `migrateVaultToMyItems(organizationId:)` hides the loading overlay and navigates to the migrate to my items route.
+    /// `migrateVaultToMyItems(organizationId:)` hides the loading overlay and navigates to the
+    /// migrate to my items route.
     @MainActor
     func test_migrateVaultToMyItems() {
         coordinator.isLoadingOverlayShowing = true

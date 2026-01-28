@@ -227,7 +227,8 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
         // Stores with the hashed value:
         XCTAssertTrue(userDefaults.bool(
-            forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName.hexSHA256Hash)"))
+            forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName.hexSHA256Hash)",
+        ))
 
         // A new account that we've not synced before defaults to `false`
         XCTAssertFalse(subject.hasSyncedAccount(name: "New Account"))

@@ -197,7 +197,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `bulkShareCiphers()` migrates attachments without an attachment key.
-    func test_bulkShareCiphers_attachmentMigration() async throws {
+    func test_bulkShareCiphers_attachmentMigration() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixtureAccountLogin()
         stateService.activeAccount = account
 
@@ -248,7 +248,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
         clientCiphers.prepareCiphersForBulkShareResult = .success(encryptionContexts)
 
-        try await subject.bulkShareCiphers([cipherViewOriginal], newOrganizationId: "org-123", newCollectionIds: ["col-1"])
+        try await subject.bulkShareCiphers(
+            [cipherViewOriginal],
+            newOrganizationId: "org-123",
+            newCollectionIds: ["col-1"],
+        )
 
         // Attachment migration: download attachment, save updated and delete old.
         XCTAssertEqual(cipherService.downloadAttachmentId, "1")
