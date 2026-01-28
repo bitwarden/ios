@@ -41,6 +41,20 @@ protocol AuthAPIService {
     ///
     func getPendingLoginRequests() async throws -> [LoginRequest]
 
+    /// Retrieves the parameters for creating a new WebAuthn credential.
+    ///
+    ///  - Parameter request: The data needed to send the request.
+    func getWebAuthnCredentialCreationOptions(
+        _ request: SecretVerificationRequestModel,
+    ) async throws -> WebAuthnLoginCredentialCreationOptionsResponse
+
+    /// Retrieves the parameters for authenticating with a WebAuthn credential.
+    ///  - Parameters:
+    ///    - request: The data needed to send the request.
+    func getWebAuthnCredentialAssertionOptions(
+        _ request: SecretVerificationRequestModel,
+    ) async throws -> WebAuthnLoginCredentialAssertionOptionsResponse
+
     /// Initiates the login with device process.
     ///
     /// - Parameter requestModel The access code used in the request
@@ -75,6 +89,11 @@ protocol AuthAPIService {
     ///
     func resendNewDeviceOtp(_ model: ResendNewDeviceOtpRequestModel) async throws
 
+    /// Registers a WebAuthn credential.
+    ///
+    /// - Parameter model: WebAuthn credential data to store.
+    func saveWebAuthnCredential(_ model: WebAuthnLoginSaveCredentialRequestModel) async throws
+
     /// Sends the trusted device keys to the server.
     ///
     /// - Parameters:
@@ -106,6 +125,18 @@ extension APIService: AuthAPIService {
         try await apiService.send(PendingLoginsRequest()).data.filter { !$0.isAnswered && !$0.isExpired }
     }
 
+    func getWebAuthnCredentialCreationOptions(
+        _ request: SecretVerificationRequestModel,
+    ) async throws -> WebAuthnLoginCredentialCreationOptionsResponse {
+        try await apiService.send(WebAuthnLoginGetCredentialCreationOptionsRequest(requestModel: request))
+    }
+
+    func getWebAuthnCredentialAssertionOptions(
+        _ request: SecretVerificationRequestModel,
+    ) async throws -> WebAuthnLoginCredentialAssertionOptionsResponse {
+        try await apiService.send(WebAuthnLoginGetCredentialAssertionOptionsRequest(requestModel: request))
+    }
+
     func initiateLoginWithDevice(_ requestModel: LoginWithDeviceRequestModel) async throws -> LoginRequest {
         let request = LoginWithDeviceRequest(body: requestModel)
         if request.requestType == AuthRequestType.adminApproval {
@@ -130,6 +161,10 @@ extension APIService: AuthAPIService {
 
     func resendNewDeviceOtp(_ model: ResendNewDeviceOtpRequestModel) async throws {
         _ = try await apiUnauthenticatedService.send(ResendNewDeviceOtpRequest(model: model))
+    }
+
+    func saveWebAuthnCredential(_ model: WebAuthnLoginSaveCredentialRequestModel) async throws {
+        _ = try await apiService.send(WebAuthnLoginSaveCredentialRequest(requestModel: model))
     }
 
     func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws {
