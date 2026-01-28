@@ -96,6 +96,10 @@ class DefaultKeychainService: KeychainService {
         return foundItem
     }
 
+    func update(query: CFDictionary, attributes: CFDictionary) throws {
+        try resolve(SecItemUpdate(query, attributes))
+    }
+
     // MARK: Private Methods
 
     /// Ensures that a given status is a success.
