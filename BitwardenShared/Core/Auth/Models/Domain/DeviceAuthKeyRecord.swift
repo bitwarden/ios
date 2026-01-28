@@ -50,7 +50,8 @@ struct DeviceAuthKeyRecord: Decodable, Encodable {
                         rpName: rpName,
                         userDisplayName: userDisplayName,
                         discoverable: discoverable,
-                        hmacSecret: hmacSecret,
+                        // TODO(PM-26177): SDK will add this field
+                        // hmacSecret: hmacSecret,
                         creationDate: creationDate
                     ),
                 ]
@@ -107,7 +108,8 @@ struct DeviceAuthKeyRecord: Decodable, Encodable {
                         rpName: rpName,
                         userDisplayName: userDisplayName,
                         discoverable: discoverable,
-                        hmacSecret: hmacSecret,
+                        // TODO(PM-26177): SDK will add this field
+                        // hmacSecret: hmacSecret,
                         creationDate: creationDate
                     ),
                 ]
