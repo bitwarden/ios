@@ -23,9 +23,13 @@ protocol VaultTimeoutService: AnyObject {
 
     /// Whether a session timeout should occur.
     ///
+    /// - Parameters:
+    ///   - userId: The user ID to check.
+    ///   - isAppRestart: Whether the app has been restarted and is checking timeouts on app startup.
+    ///     Defaults to false.
     /// - Returns: Whether a session timeout should occur.
     ///
-    func hasPassedSessionTimeout(userId: String) async throws -> Bool
+    func hasPassedSessionTimeout(userId: String, isAppRestart: Bool) async throws -> Bool
 
     /// Checks the locked status of a user vault by user id
     ///  - Parameter userId: The userId of the account
@@ -95,6 +99,19 @@ protocol VaultTimeoutService: AnyObject {
     func vaultLockStatusPublisher() async -> AnyPublisher<VaultLockStatus?, Never>
 }
 
+// MARK: - VaultTimeoutService Extensions
+
+extension VaultTimeoutService {
+    /// Whether a session timeout should occur.
+    ///
+    /// - Parameter userId: The user ID to check.
+    /// - Returns: Whether a session timeout should occur.
+    ///
+    func hasPassedSessionTimeout(userId: String) async throws -> Bool {
+        try await hasPassedSessionTimeout(userId: userId, isAppRestart: false)
+    }
+}
+
 // MARK: - DefaultVaultTimeoutService
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
@@ -157,14 +174,14 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     // MARK: Methods
 
-    func hasPassedSessionTimeout(userId: String) async throws -> Bool {
+    func hasPassedSessionTimeout(userId: String, isAppRestart: Bool = false) async throws -> Bool {
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         switch vaultTimeout {
-        case .never,
-             .onAppRestart:
-            // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
-            // In these cases, return false.
+        case .never:
             return false
+        case .onAppRestart:
+            // On app restart, trigger timeout if this is actually an app restart
+            return isAppRestart
         default:
             // Otherwise, calculate a timeout.
             guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
