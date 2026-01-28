@@ -734,7 +734,8 @@ class SyncServiceTests: BitwardenTestCase {
     func test_fetchSync_removeMasterPassword() async throws {
         client.result = .httpSuccess(testData: .syncWithProfile)
         keyConnectorService.getManagingOrganizationResult = .success(
-            .fixture(keyConnectorUrl: "htttp://example.com/", name: "Example Org"))
+            .fixture(keyConnectorUrl: "htttp://example.com/", name: "Example Org"),
+        )
         keyConnectorService.userNeedsMigrationResult = .success(true)
         stateService.activeAccount = .fixture()
 
