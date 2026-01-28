@@ -2,6 +2,28 @@ import CryptoKit
 import Foundation
 
 public extension Data {
+    // MARK: Initializers
+    
+    /// Parses bytes from a base64url-encoded string.
+    init?(base64UrlEncoded str: String) throws {
+        // .ignoreUnknownCharacters allows unpadded strings as a side-effect.
+        try self.init(base64Encoded: str.urlDecoded(), options: .ignoreUnknownCharacters)
+    }
+    
+    // MARK: Functions
+    
+    /// Encodes bytes in Data as a base64url string.
+    func base64UrlEncodedString(trimPadding shouldTrim: Bool) -> String {
+        let encoded = base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+        if shouldTrim {
+            return encoded.trimmingCharacters(in: CharacterSet(["="]))
+        } else {
+            return encoded
+        }
+    }
+    
     /// Generates a hash value for the provided data.
     ///
     /// - Parameter using: The type of cryptographically secure hashing being performed.
