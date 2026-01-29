@@ -700,7 +700,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [anneAccount]
         stateService.activeAccount = anneAccount
         stateService.timeoutAction = [anneAccount.profile.userId: .logout]
-        stateService.vaultTimeout = [anneAccount.profile.userId: .onAppRestart]
+        userSessionStateService.getVaultTimeoutReturnValue = .onAppRestart
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
         stateService.isAuthenticated[anneAccount.profile.userId] = true
 
@@ -719,7 +719,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [anneAccount]
         stateService.activeAccount = anneAccount
         stateService.timeoutAction = [anneAccount.profile.userId: .logout]
-        stateService.vaultTimeout = [anneAccount.profile.userId: .onAppRestart]
+        userSessionStateService.getVaultTimeoutReturnValue = .onAppRestart
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
         stateService.isAuthenticated[anneAccount.profile.userId] = true
 

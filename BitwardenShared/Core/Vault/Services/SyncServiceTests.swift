@@ -1137,9 +1137,4 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
         setMasterPasswordCalled = true
         setMasterPasswordOrgId = orgIdentifier
     }
-
-    func migrateVaultToMyItems(organizationId: String) {
-        migrateVaultToMyItemsCalled = true
-        migrateVaultToMyItemsOrganizationId = organizationId
-    }
 } // swiftlint:disable:this file_length

@@ -123,8 +123,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     func test_hasPassedSessionTimeout_appRestart_isRestarting() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        stateService.lastActiveTime[account.profile.userId] = .distantPast
-        stateService.vaultTimeout[account.profile.userId] = .onAppRestart
+        userSessionStateService.getLastActiveTimeReturnValue = .distantPast
+        userSessionStateService.getVaultTimeoutReturnValue = .onAppRestart
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(
             userId: account.profile.userId,
