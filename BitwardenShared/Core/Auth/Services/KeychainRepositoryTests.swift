@@ -122,7 +122,6 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             subject.keychainQueryValues(for: .neverLock(userId: "1")),
             subject.keychainQueryValues(for: .refreshToken(userId: "1")),
             subject.keychainQueryValues(for: .unsuccessfulUnlockAttempts(userId: "1")),
-            subject.keychainQueryValues(for: .vaultTimeout(userId: "1")),
         ]
 
         XCTAssertEqual(

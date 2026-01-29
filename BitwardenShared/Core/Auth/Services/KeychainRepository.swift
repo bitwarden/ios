@@ -409,7 +409,7 @@ extension DefaultKeychainRepository {
             // is approved, the next login for the user will succeed with the pending request.
             .refreshToken(userId: userId),
             .unsuccessfulUnlockAttempts(userId: userId),
-            .vaultTimeout(userId: userId),
+            // Exclude `vaultTimeout` since it should be maintained for users who log out and back in regularly.
         ]
         for keychainItem in keychainItems {
             try await keychainService.delete(query: keychainQueryValues(for: keychainItem))
