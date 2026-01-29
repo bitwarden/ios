@@ -41,6 +41,8 @@ extension Send {
             revisionDate: revisionDate,
             deletionDate: deletionDate,
             expirationDate: expirationDate,
+            emails: nil,
+            authType: AuthType.none,
         )
     }
 }

@@ -476,6 +476,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             viewPassword: true,
             localData: nil,
             attachments: nil,
+            attachmentDecryptionFailures: nil,
             fields: nil,
             passwordHistory: nil,
             creationDate: timeProvider.presentTime,
