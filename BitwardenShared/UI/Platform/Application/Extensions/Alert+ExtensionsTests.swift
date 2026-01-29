@@ -34,7 +34,8 @@ class AlertExtensionsTests: BitwardenTestCase {
 
         let uiTextField = try XCTUnwrap(controller.textFields?.first)
         let okAction = try XCTUnwrap(
-            controller.actions.first(where: { $0.title == Localizations.ok }))
+            controller.actions.first(where: { $0.title == Localizations.ok }),
+        )
 
         XCTAssertFalse(okAction.isEnabled)
 
