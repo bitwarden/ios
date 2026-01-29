@@ -1,7 +1,6 @@
 {
   "title_patterns": {
-    "t:feature-app": ["feat", "feature"],
-    "t:feature-tool": ["tool"],
+    "t:feature": ["feat", "feature", "tool"],
     "t:bug": ["fix", "bug", "bugfix"],
     "t:tech-debt": ["refactor", "chore", "cleanup", "revert", "debt", "test", "perf"],
     "t:docs": ["docs"],
@@ -42,7 +41,7 @@
       "project-bwa.yml",
       "swiftgen-bwa.yml"
     ],
-    "t:feature-tool": [
+    "t:feature": [
       "TestHarness/",
       "TestHarnessShared/",
       "project-bwth.yml",
