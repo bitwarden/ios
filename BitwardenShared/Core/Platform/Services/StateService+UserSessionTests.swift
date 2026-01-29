@@ -47,6 +47,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         errorReporter = nil
         keychainRepository = nil
         subject = nil
+        userSessionKeychainRepository = nil
     }
 
     // MARK: Last Active Time
