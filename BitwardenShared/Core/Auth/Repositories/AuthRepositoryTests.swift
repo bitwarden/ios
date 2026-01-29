@@ -970,14 +970,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             shortEmail.profile.userId: false,
             shortName.profile.userId: true,
         ]
-        userSessionStateService.getVaultTimeoutClosure = { userId in
+        userSessionStateService.getVaultTimeoutClosure = { [weak self] userId in
+            guard let self else { return .fourHours }
             switch userId {
-            case self.anneAccount.profile.userId: .never
-            case self.beeAccount.profile.userId: .never
-            case self.empty.profile.userId: .never
-            case self.shortEmail.profile.userId: .never
-            case self.shortName.profile.userId: .fifteenMinutes
-            default: .fourHours
+            case anneAccount.profile.userId: return .never
+            case beeAccount.profile.userId: return .never
+            case empty.profile.userId: return .never
+            case shortEmail.profile.userId: return .never
+            case shortName.profile.userId: return .fifteenMinutes
+            default: return .fourHours
             }
         }
         stateService.manuallyLockedAccounts = [
