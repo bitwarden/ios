@@ -22,16 +22,6 @@
       "groupName": "gh minor",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "groupName": "mint minor",
-      "matchManagers": ["mint"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
-    {
-      "groupName": "swift minor",
-      "matchManagers": ["swift"],
-      "matchUpdateTypes": ["minor", "patch"]
     }
   ]
 }
