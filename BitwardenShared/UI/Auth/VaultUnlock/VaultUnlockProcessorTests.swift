@@ -37,8 +37,8 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
-        userSessionStateService.setUnsuccessfulUnlockAttemptsClosure = { attempts, _ in
-            self.userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = attempts
+        userSessionStateService.setUnsuccessfulUnlockAttemptsClosure = { [weak self] attempts, _ in
+            self?.userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = attempts
         }
 
         subject = VaultUnlockProcessor(
@@ -495,7 +495,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockVault` displays an alert a maximum of 5 times if the master password was incorrect.
     ///  After the 5th attempt, it logs the user out.
     @MainActor
-    func test_perform_unlockVault_invalidPassword_logout() async throws { // swiftlint:disable:this function_body_length
+    func test_perform_unlockVault_invalidPassword_logout() async throws {
         subject.state.masterPassword = "password"
         stateService.activeAccount = .fixture()
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
