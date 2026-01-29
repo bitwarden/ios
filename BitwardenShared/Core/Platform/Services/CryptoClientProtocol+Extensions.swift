@@ -14,12 +14,24 @@ extension CryptoClientProtocol {
         encryptionKeys: AccountEncryptionKeys,
         method: InitUserCryptoMethod,
     ) async throws {
-        let accountCryptographicState = WrappedAccountCryptographicState.create(
-            privateKey: encryptionKeys.encryptedPrivateKey,
-            securityState: encryptionKeys.accountKeys?.securityState?.securityState,
-            signedPublicKey: encryptionKeys.accountKeys?.signatureKeyPair?.verifyingKey,
-            signingKey: encryptionKeys.accountKeys?.signatureKeyPair?.wrappedSigningKey,
-        )
+        let accountCryptographicState: WrappedAccountCryptographicState;
+        if encryptionKeys.accountKeys == nil {
+            // V1 Account Encryption
+            accountCryptographicState = WrappedAccountCryptographicState.create(
+                privateKey: encryptionKeys.encryptedPrivateKey,
+                securityState: nil,
+                signedPublicKey: nil,
+                signingKey: nil,
+            )
+        } else {
+            // V2 Account Encryption
+            accountCryptographicState = WrappedAccountCryptographicState.create(
+                privateKey: encryptionKeys.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+                securityState: encryptionKeys.accountKeys?.securityState?.securityState,
+                signedPublicKey: encryptionKeys.accountKeys?.publicKeyEncryptionKeyPair.signedPublicKey,
+                signingKey: encryptionKeys.accountKeys?.signatureKeyPair?.wrappedSigningKey,
+            )
+        }
 
         try await initializeUserCrypto(
             req: InitUserCryptoRequest(
