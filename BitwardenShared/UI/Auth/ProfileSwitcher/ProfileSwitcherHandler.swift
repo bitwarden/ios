@@ -156,7 +156,7 @@ private extension ProfileSwitcherHandler {
             .logoutConfirmation(profile) { [weak self] in
                 guard let self else { return }
                 if #available(iOS 26, *) {
-                    self.dismissProfileSwitcher()
+                    dismissProfileSwitcher()
                 }
                 await logout(profile)
             },
@@ -172,7 +172,7 @@ private extension ProfileSwitcherHandler {
             .removeAccountConfirmation(profile) { [weak self] in
                 guard let self else { return }
                 if #available(iOS 26, *) {
-                    self.dismissProfileSwitcher()
+                    dismissProfileSwitcher()
                 }
                 await removeAccount(profile)
             },

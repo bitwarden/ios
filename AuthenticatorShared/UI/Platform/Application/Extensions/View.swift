@@ -7,7 +7,7 @@ extension View {
     ///
     func dismissKeyboardImmediately() -> some View {
         if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.immediately)
+            return scrollDismissesKeyboard(.immediately)
         } else {
             return self
         }
@@ -17,7 +17,7 @@ extension View {
     ///
     func dismissKeyboardInteractively() -> some View {
         if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.interactively)
+            return scrollDismissesKeyboard(.interactively)
         } else {
             return self
         }

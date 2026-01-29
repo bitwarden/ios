@@ -1791,6 +1791,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.login))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .login))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route for a new secure note.
@@ -1799,6 +1800,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.secureNote))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .secureNote))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` hides the profile switcher view
@@ -1829,6 +1831,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.login))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1", type: .login))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.
@@ -1874,6 +1877,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
@@ -1918,6 +1922,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 

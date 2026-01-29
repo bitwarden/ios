@@ -37,9 +37,12 @@ protocol AuthRepository: AnyObject {
 
     /// Checks the session timeout for all accounts, and locks or logs out as needed.
     ///
-    /// - Parameter handleActiveUser: A closure to handle the active user.
+    /// - Parameters:
+    ///   - isAppRestart: Whether the app has been restarted and is checking timeouts on app
+    ///     startup. Defaults to false.
+    ///   - handleActiveUser: A closure to handle the active user.
     ///
-    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async
+    func checkSessionTimeouts(isAppRestart: Bool, handleActiveUser: ((String) async -> Void)?) async
 
     /// Clears the pins stored on device and in memory.
     ///
@@ -310,6 +313,14 @@ protocol AuthRepository: AnyObject {
 }
 
 extension AuthRepository {
+    /// Checks the session timeout for all accounts, and locks or logs out as needed.
+    ///
+    /// - Parameter handleActiveUser: A closure to handle the active user.
+    ///
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async {
+        await checkSessionTimeouts(isAppRestart: false, handleActiveUser: handleActiveUser)
+    }
+
     /// Whether active user account can be locked.
     ///
     /// - Returns: `true` if active user account can be locked, `false` otherwise.
@@ -573,7 +584,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.getUserHasMasterPassword(userId: userId)
     }
 
-    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)? = nil) async {
+    func checkSessionTimeouts(isAppRestart: Bool = false, handleActiveUser: ((String) async -> Void)? = nil) async {
         do {
             let accounts = try await getAccounts()
             guard !accounts.isEmpty else { return }
@@ -584,7 +595,10 @@ extension DefaultAuthRepository: AuthRepository {
                 let userId = account.userId
 
                 // Check time-based timeout
-                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
+                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(
+                    userId: userId,
+                    isAppRestart: isAppRestart,
+                )
                 // Check if account can't be unlocked after restart (no master password, PIN, or biometrics)
                 let shouldLogoutDueToNoUnlockMethod = !account.isUnlocked // Account locked
                     && !account.canBeLocked // Doesn't have an unlock method

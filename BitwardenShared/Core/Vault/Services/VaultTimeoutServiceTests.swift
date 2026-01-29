@@ -105,15 +105,32 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(shouldTimeout)
     }
 
-    /// `.hasPassedSessionTimeout()` returns false for a timeout value of app restart.
-    func test_hasPassedSessionTimeout_appRestart() async throws {
+    /// `.hasPassedSessionTimeout()` returns false for a timeout value of app restart when not restarting.
+    func test_hasPassedSessionTimeout_appRestart_notRestarting() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         userSessionStateService.getLastActiveTimeReturnValue = .distantPast
         userSessionStateService.getVaultTimeoutReturnValue = .onAppRestart
 
-        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(
+            userId: account.profile.userId,
+            isAppRestart: false,
+        )
         XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` returns true for a timeout value of app restart when app is restarting.
+    func test_hasPassedSessionTimeout_appRestart_isRestarting() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastActiveTime[account.profile.userId] = .distantPast
+        stateService.vaultTimeout[account.profile.userId] = .onAppRestart
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(
+            userId: account.profile.userId,
+            isAppRestart: true,
+        )
+        XCTAssertTrue(shouldTimeout)
     }
 
     /// `.hasPassedSessionTimeout()` returns true if the user should be timed out for a custom timeout value.

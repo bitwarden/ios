@@ -694,6 +694,44 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(handledUserId, beeAccount.profile.userId)
     }
 
+    /// `checkSessionTimeout()` passes the `isAppRestart` flag to `VaultTimeoutService` when the
+    /// app is restarting.
+    func test_checkSessionTimeout_onAppRestart() async {
+        stateService.accounts = [anneAccount]
+        stateService.activeAccount = anneAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        stateService.vaultTimeout = [anneAccount.profile.userId: .onAppRestart]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+
+        var handledUserId: String?
+        await subject.checkSessionTimeouts(isAppRestart: true) { userId in
+            handledUserId = userId
+        }
+
+        XCTAssertEqual(handledUserId, anneAccount.profile.userId)
+        XCTAssertEqual(vaultTimeoutService.hasPassedSessionTimeoutIsAppRestart, true)
+    }
+
+    /// `checkSessionTimeout()` passes the `isAppRestart` flag to `VaultTimeoutService` when the
+    /// app isn't restarting.
+    func test_checkSessionTimeout_onAppRestart_notRestarting() async {
+        stateService.accounts = [anneAccount]
+        stateService.activeAccount = anneAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        stateService.vaultTimeout = [anneAccount.profile.userId: .onAppRestart]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = false
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
+
+        var handledUserId: String?
+        await subject.checkSessionTimeouts(isAppRestart: false) { userId in
+            handledUserId = userId
+        }
+
+        XCTAssertNil(handledUserId)
+        XCTAssertEqual(vaultTimeoutService.hasPassedSessionTimeoutIsAppRestart, false)
+    }
+
     /// `getProfilesState()` throws an error when the accounts are nil.
     func test_getProfilesState_empty() async {
         let state = await subject.getProfilesState(
