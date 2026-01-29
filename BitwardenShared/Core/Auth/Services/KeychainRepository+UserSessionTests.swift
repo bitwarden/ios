@@ -92,17 +92,21 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
     // MARK: Tests - Unsuccessful Unlock Attempts
 
-    /// `getUnsuccessfulUnlockAttempts(userId:)` returns `0` if there isn't a previously stored value.
-    func test_unsuccessfulUnlockAttempts_nil() async throws {
-        let attempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
-        XCTAssertEqual(attempts, 0)
-    }
-
     /// `getUnsuccessfulUnlockAttempts(userId:)` returns the stored value of unsuccessful unlock attempts.
     func test_getUnsuccessfulUnlockAttempts() async throws {
         keychainService.setSearchResultData(string: "4")
         let attempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
         XCTAssertEqual(attempts, 4)
+    }
+
+    /// `getUnsuccessfulUnlockAttempts(userId:)` throws an error if one occurs.
+    ///
+    func test_getUnsuccessfulUnlockAttempts_error() async {
+        let error = KeychainServiceError.keyNotFound(KeychainItem.unsuccessfulUnlockAttempts(userId: "1"))
+        keychainService.searchResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+        }
     }
 
     /// `setUnsuccessfulUnlockAttempts(_:userId:)` stores the number of unsuccessful unlock attempts.

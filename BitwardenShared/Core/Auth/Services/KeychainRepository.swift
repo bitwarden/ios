@@ -522,13 +522,9 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
 
     // MARK: Unsuccessful Unlock Attempts
 
-    func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int {
-        do {
-            let stored = try await getValue(for: .unsuccessfulUnlockAttempts(userId: userId))
-            return Int(stored) ?? 0
-        } catch {
-            return 0
-        }
+    func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int? {
+        let stored = try await getValue(for: .unsuccessfulUnlockAttempts(userId: userId))
+        return Int(stored)
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) async throws {

@@ -9,7 +9,8 @@ protocol UserSessionKeychainRepository { // sourcery: AutoMockable
 
     /// Gets the stored last active time for a user from the keychain.
     ///
-    /// - Parameter userId: The user ID associated with the stored last active time.
+    /// - Parameters:
+    ///   - userId: The user ID associated with the stored last active time.
     /// - Returns: The last active time value.
     ///
     func getLastActiveTime(userId: String) async throws -> Date?
@@ -26,10 +27,11 @@ protocol UserSessionKeychainRepository { // sourcery: AutoMockable
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
-    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
+    /// - Parameters:
+    ///   - userId: The user ID associated with the unsuccessful unlock attempts.
     /// - Returns: The number of unsuccessful attempts to unlock the vault.
     ///
-    func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int
+    func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int?
 
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
@@ -43,7 +45,8 @@ protocol UserSessionKeychainRepository { // sourcery: AutoMockable
 
     /// Gets the stored vault timeout for a user from the keychain.
     ///
-    /// - Parameter userId: The user ID associated with the stored vault timeout.
+    /// - Parameters:
+    ///   - userId: The user ID associated with the stored vault timeout.
     /// - Returns: The vault timeout value.
     ///
     func getVaultTimeout(userId: String) async throws -> Int?

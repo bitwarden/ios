@@ -86,6 +86,18 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
     }
 
+    /// `getUnsuccessfulUnlockAttempts(userId:)` returns `0` if no value is stored.
+    func test_getUnsuccessfulUnlockAttempts_default() async throws {
+        let item = KeychainItem.unsuccessfulUnlockAttempts(userId: "1")
+        let error = KeychainServiceError.keyNotFound(item)
+        userSessionKeychainRepository.getUnsuccessfulUnlockAttemptsThrowableError = error
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let unsuccessfulUnlockAttempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+        XCTAssertEqual(unsuccessfulUnlockAttempts, 0)
+    }
+
     /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.
     func test_setUnsuccessfulUnlockAttempts() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))

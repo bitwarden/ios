@@ -2309,7 +2309,8 @@ extension DefaultStateService: UserSessionStateService {
 
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
         let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
+        let attempts = try? await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
+        return attempts ?? 0
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
