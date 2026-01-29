@@ -516,7 +516,7 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) async throws {
-        let value = date.map(\.timeIntervalSince1970).map(String.init(describing:)) ?? ""
+        let value = date.map { String($0.timeIntervalSince1970) } ?? ""
         try await setValue(value, for: .lastActiveTime(userId: userId))
     }
 
