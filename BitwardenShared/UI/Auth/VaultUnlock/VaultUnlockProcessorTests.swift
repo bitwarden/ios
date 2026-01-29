@@ -555,18 +555,16 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
-    /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempts.
+    /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempt.
     @MainActor
     func test_perform_unlockVault_invalidPassword() async throws {
         subject.state.masterPassword = "password"
         stateService.activeAccount = .fixtureAccountLogin()
         subject.state.unsuccessfulUnlockAttemptsCount = 4
-        userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 3
-        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
         struct VaultUnlockError: Error {}
         authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
 
-        // 5th unsuccessful attempts
+        // 5th unsuccessful attempt
         await subject.perform(.unlockVault)
 
         XCTAssertEqual(
