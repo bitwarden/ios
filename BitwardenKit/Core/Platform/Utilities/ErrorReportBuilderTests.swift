@@ -10,6 +10,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     var appInfoService: MockAppInfoService!
     var activeAccountStateProvider: MockActiveAccountStateProvider!
     var subject: ErrorReportBuilder!
+    var timeProvider: MockTimeProvider!
 
     let exampleCallStack: String = """
     0   BitwardenShared    0x00000000 AnyCoordinator.showErrorAlert(error:)
@@ -25,10 +26,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
 
         activeAccountStateProvider = MockActiveAccountStateProvider()
         appInfoService = MockAppInfoService()
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 11, day: 5, hour: 9, minute: 41, second: 0)))
 
         subject = DefaultErrorReportBuilder(
             activeAccountStateProvider: activeAccountStateProvider,
             appInfoService: appInfoService,
+            timeProvider: timeProvider,
         )
     }
 
@@ -38,6 +41,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         activeAccountStateProvider = nil
         appInfoService = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests
@@ -65,6 +69,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             #"""
             Bitwarden Error
+            Error Date: 2024-11-05T09:41:00Z
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
@@ -104,6 +109,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             """
             Bitwarden Error
+            Error Date: 2024-11-05T09:41:00Z
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
@@ -141,6 +147,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             """
             Bitwarden Error
+            Error Date: 2024-11-05T09:41:00Z
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2

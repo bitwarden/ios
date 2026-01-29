@@ -230,6 +230,7 @@ public class ServiceContainer: Services {
         let errorReportBuilder = DefaultErrorReportBuilder(
             activeAccountStateProvider: stateService,
             appInfoService: appInfoService,
+            timeProvider: timeProvider,
         )
 
         let totpExpirationManagerFactory = DefaultTOTPExpirationManagerFactory(timeProvider: timeProvider)
