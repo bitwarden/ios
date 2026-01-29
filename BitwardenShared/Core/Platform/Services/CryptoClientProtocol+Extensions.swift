@@ -17,11 +17,15 @@ extension CryptoClientProtocol {
         let accountCryptographicState: WrappedAccountCryptographicState;
         if encryptionKeys.accountKeys == nil {
             // V1 Account Encryption
+            //
+            // Try accountKeys first, fallback to encryptedPrivateKey
+            // encryptedPrivateKey will be removed in future versions
+            let v1PrivateKey = encryptionKeys.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey ?? encryptionKeys.encryptedPrivateKey
             accountCryptographicState = WrappedAccountCryptographicState.create(
-                privateKey: encryptionKeys.encryptedPrivateKey,
+                privateKey: v1PrivateKey,
                 securityState: nil,
                 signedPublicKey: nil,
-                signingKey: nil,
+                signingKey: nil
             )
         } else {
             // V2 Account Encryption
@@ -29,7 +33,7 @@ extension CryptoClientProtocol {
                 privateKey: encryptionKeys.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey,
                 securityState: encryptionKeys.accountKeys?.securityState?.securityState,
                 signedPublicKey: encryptionKeys.accountKeys?.publicKeyEncryptionKeyPair.signedPublicKey,
-                signingKey: encryptionKeys.accountKeys?.signatureKeyPair?.wrappedSigningKey,
+                signingKey: encryptionKeys.accountKeys?.signatureKeyPair?.wrappedSigningKey
             )
         }
 
