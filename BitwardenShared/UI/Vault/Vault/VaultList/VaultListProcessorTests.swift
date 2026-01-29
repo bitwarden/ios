@@ -20,6 +20,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var changeKdfService: MockChangeKdfService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
@@ -49,6 +50,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
@@ -71,6 +73,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             authRepository: authRepository,
             authService: authService,
             changeKdfService: changeKdfService,
+            configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             notificationService: notificationService,
@@ -98,6 +101,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = nil
         authService = nil
         changeKdfService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         flightRecorder = nil
@@ -189,7 +193,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast)
 
         subject.itemUnarchived()
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUnarchived))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemMovedToVault))
     }
 
     /// `init()` has default values set in the state.
@@ -535,6 +539,44 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
         XCTAssertTrue(application.registerForRemoteNotificationsCalled)
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
+    }
+
+    /// `perform(_:)` with `.appeared` updates whether to show the archive onboarding card.
+    @MainActor
+    func test_perform_appeared_loadArchiveOnboarding() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.archiveOnboardingShown = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowArchiveOnboardingActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't update whether to show the archive onboarding card
+    /// when archive FF is turned off.
+    @MainActor
+    func test_perform_appeared_loadArchiveOnboarding_FFOff() async {
+        configService.featureFlagsBool[.archiveVaultItems] = false
+        stateService.doesActiveAccountHavePremiumResult = true
+        stateService.archiveOnboardingShown = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
+    }
+
+    /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
+    /// and sets the archive onboarding shown property to true.
+    @MainActor
+    func test_perform_dismissArchiveOnboardingActionCard() async {
+        subject.state.shouldShowArchiveOnboardingActionCard = true
+        XCTAssertFalse(stateService.archiveOnboardingShown)
+
+        await subject.perform(.dismissArchiveOnboardingActionCard)
+
+        XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
+        XCTAssertTrue(stateService.archiveOnboardingShown)
     }
 
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
@@ -1749,6 +1791,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.login))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .login))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route for a new secure note.
@@ -1757,6 +1800,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.secureNote))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .secureNote))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` hides the profile switcher view
@@ -1787,6 +1831,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.login))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1", type: .login))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.
@@ -1815,6 +1860,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.reviewPromptTask!.isCancelled)
     }
 
+    /// `receive(_:)` with `.goToArchive` navigates to archive group.
+    @MainActor
+    func test_receive_goToArchive() {
+        subject.receive(.goToArchive)
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+    }
+
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.
     @MainActor
     func test_receive_itemPressed_cipher() async throws {
@@ -1825,6 +1877,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
@@ -1869,6 +1922,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 

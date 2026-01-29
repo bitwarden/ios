@@ -149,10 +149,10 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
         XCTAssertEqual(totpExpirationManagerForItems.configuredTOTPRefreshSchedulingItems?.count, 2)
     }
 
@@ -195,7 +195,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
     /// `refreshTOTPCodes(for:)` is called from the TOTP expiration manager expiration closure
     /// and refreshes the vault list sections.
     @MainActor
-    func test_refreshTOTPCodes_forItems() { // swiftlint:disable:this function_body_length
+    func test_refreshTOTPCodes_forItems() throws { // swiftlint:disable:this function_body_length
         let items = [
             VaultListItem(
                 id: "1",
@@ -206,13 +206,13 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                 itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
-        subject.state.vaultListSections = [
+        subject.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: items,
                 name: "",
             ),
-        ]
+        ])
         let refreshedItems = [
             VaultListItem(
                 id: "2",
@@ -235,10 +235,11 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         onExpiration(items.filter { $0.id == "2" })
 
         waitFor(totpExpirationManagerForItems.configuredTOTPRefreshSchedulingItems?.count == 2)
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
-        XCTAssertEqual(subject.state.vaultListSections[0].items.count, 2)
+        let vaultListSections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(vaultListSections.count, 1)
+        XCTAssertEqual(vaultListSections[0].items.count, 2)
 
-        let totpItem0 = subject.state.vaultListSections[0].items[0]
+        let totpItem0 = vaultListSections[0].items[0]
         guard case let .totp(name0, totpModel0) = totpItem0.itemType else {
             XCTFail("There is no TOTP item in the first section first item.")
             return
@@ -246,7 +247,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(name0, "test1")
         XCTAssertEqual(totpModel0.totpCode.code, "123456")
 
-        let totpItem1 = subject.state.vaultListSections[0].items[1]
+        let totpItem1 = vaultListSections[0].items[1]
         guard case let .totp(name1, totpModel1) = totpItem1.itemType else {
             XCTFail("There is no TOTP item in first section second item.")
             return
@@ -258,7 +259,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
     /// `refreshTOTPCodes(for:)` does nothing if vault list sections are empty..
     @MainActor
     func test_refreshTOTPCodes_forItemsEmpty() {
-        subject.state.vaultListSections = []
+        subject.state.loadingState = .data([])
 
         guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
             XCTFail("There is no onExpiration closure for the first item in the factory")
@@ -282,13 +283,13 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                 itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
-        subject.state.vaultListSections = [
+        subject.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: items,
                 name: "",
             ),
-        ]
+        ])
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
 
         guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {

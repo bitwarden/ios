@@ -15,6 +15,7 @@ final class VaultGroupProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -109,6 +110,7 @@ final class VaultGroupProcessor: StateProcessor<
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
+            await loadHasPremiumAccount()
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
             await streamVaultList()
@@ -139,7 +141,10 @@ final class VaultGroupProcessor: StateProcessor<
         switch action {
         case let .addItemPressed(type):
             let type = type ?? CipherType(group: state.group) ?? .login
-            coordinator.navigate(to: .addItem(group: state.group, type: type))
+            coordinator.navigate(
+                to: .addItem(group: state.group, type: type),
+                context: self,
+            )
         case .clearURL:
             state.url = nil
         case let .copyTOTPCode(code):
@@ -160,6 +165,8 @@ final class VaultGroupProcessor: StateProcessor<
             case let .totp(_, model):
                 navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
             }
+        case .restartPremiumSubscription:
+            state.url = services.environmentService.upgradeToPremiumURL
         case let .searchStateChanged(isSearching):
             if !isSearching {
                 state.searchText = ""
@@ -190,6 +197,12 @@ final class VaultGroupProcessor: StateProcessor<
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
+    /// Loads whether the current account has premium subscription.
+    ///
+    private func loadHasPremiumAccount() async {
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+    }
+
     /// Checks available item types user can create.
     ///
     private func loadItemTypesUserCanCreate() async {
@@ -206,7 +219,10 @@ final class VaultGroupProcessor: StateProcessor<
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
@@ -251,7 +267,6 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             try await services.vaultRepository.fetchSync(
                 forceSync: true,
-                filter: state.vaultFilterType,
                 isPeriodic: false,
             )
         } catch {
@@ -337,7 +352,7 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
     }
 
     func itemUnarchived() {
-        displayToastAndRefresh(toastTitle: Localizations.itemUnarchived)
+        displayToastAndRefresh(toastTitle: Localizations.itemMovedToVault)
     }
 
     // MARK: Private methods

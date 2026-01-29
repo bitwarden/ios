@@ -174,6 +174,59 @@ private struct VaultAutofillListSearchableView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
+    /// A view that displays the empty vault interface.
+    @ViewBuilder
+    private func emptyView() -> some View {
+        IllustratedMessageView(
+            image: Asset.Images.Illustrations.items.swiftUIImage,
+            message: store.state.emptyViewMessage,
+        ) {
+            if store.state.isAutofillingTotpList
+                || store.state.isAutofillingTextToInsertList {
+                EmptyView()
+            } else {
+                Button {
+                    store.send(.addTapped(fromFAB: false))
+                } label: {
+                    Label {
+                        Text(store.state.emptyViewButtonText)
+                    } icon: {
+                        SharedAsset.Icons.plus16.swiftUIImage
+                            .imageStyle(.accessoryIcon16(
+                                color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
+                                scaleWithFont: true,
+                            ))
+                    }
+                }
+                .buttonStyle(.primary(shouldFillWidth: false))
+            }
+        }
+        .scrollView(centerContentVertically: true)
+    }
+
+    /// A view that displays an error message and a retry button.
+    ///
+    /// - Parameter errorMessage: The error message to display.
+    ///
+    @ViewBuilder
+    private func errorViewWithRetry(errorMessage: String) -> some View {
+        VStack(spacing: 24) {
+            Text(errorMessage)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .styleGuide(.body)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 12)
+
+            AsyncButton {
+                await store.perform(.loadData)
+            } label: {
+                Text(Localizations.tryAgain)
+            }
+            .buttonStyle(.primary(shouldFillWidth: false))
+        }
+        .scrollView(centerContentVertically: true)
+    }
+
     /// Creates a row in the list for the provided item.
     ///
     /// - Parameters:
@@ -209,36 +262,14 @@ private struct VaultAutofillListSearchableView: View {
                 || !store.state.searchText.isEmpty
                 || !store.state.ciphersForSearch.isEmpty
 
-            Group {
-                if store.state.vaultListSections.isEmpty {
-                    IllustratedMessageView(
-                        image: Asset.Images.Illustrations.items.swiftUIImage,
-                        message: store.state.emptyViewMessage,
-                    ) {
-                        if store.state.isAutofillingTotpList
-                            || store.state.isAutofillingTextToInsertList {
-                            EmptyView()
-                        } else {
-                            Button {
-                                store.send(.addTapped(fromFAB: false))
-                            } label: {
-                                Label {
-                                    Text(store.state.emptyViewButtonText)
-                                } icon: {
-                                    SharedAsset.Icons.plus16.swiftUIImage
-                                        .imageStyle(.accessoryIcon16(
-                                            color: SharedAsset.Colors.buttonFilledForeground.swiftUIColor,
-                                            scaleWithFont: true,
-                                        ))
-                                }
-                            }
-                            .buttonStyle(.primary(shouldFillWidth: false))
-                        }
-                    }
-                    .scrollView(centerContentVertically: true)
+            LoadingView(state: store.state.loadingState) { sections in
+                if sections.isEmpty {
+                    emptyView()
                 } else {
-                    cipherListView(store.state.vaultListSections)
+                    cipherListView(sections)
                 }
+            } errorView: { errorMessage in
+                errorViewWithRetry(errorMessage: errorMessage)
             }
             .overlay(alignment: .bottomTrailing) {
                 addItemFloatingActionButton(hidden: !store.state.showAddItemButton) {
@@ -250,6 +281,7 @@ private struct VaultAutofillListSearchableView: View {
             searchContentView()
                 .hidden(!isSearching)
         }
+        .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     /// A view for displaying the cipher search results.
@@ -266,14 +298,36 @@ private struct VaultAutofillListSearchableView: View {
 // MARK: - Previews
 
 #if DEBUG
+#Preview("Loading") {
+    NavigationView {
+        VaultAutofillListView(
+            store: Store(processor: StateProcessor(state: VaultAutofillListState())),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
 #Preview("Empty") {
     NavigationView {
         VaultAutofillListView(
             store: Store(
                 processor: StateProcessor(
-                    state: VaultAutofillListState(),
+                    state: VaultAutofillListState(loadingState: .data([])),
                 ),
             ),
+            timeProvider: PreviewTimeProvider(),
+        )
+    }
+}
+
+#Preview("Error") {
+    NavigationView {
+        VaultAutofillListView(
+            store: Store(processor: StateProcessor(state: VaultAutofillListState(
+                loadingState: .error(
+                    errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+                ),
+            ))),
             timeProvider: PreviewTimeProvider(),
         )
     }
@@ -315,7 +369,7 @@ private struct VaultAutofillListSearchableView: View {
             store: Store(
                 processor: StateProcessor(
                     state: VaultAutofillListState(
-                        vaultListSections: [
+                        loadingState: .data([
                             VaultListSection(
                                 id: "Passwords",
                                 items: (1 ... 12).map { id in
@@ -329,7 +383,7 @@ private struct VaultAutofillListSearchableView: View {
                                 },
                                 name: "Passwords",
                             ),
-                        ],
+                        ]),
                     ),
                 ),
             ),
@@ -345,7 +399,7 @@ private struct VaultAutofillListSearchableView: View {
                 processor: StateProcessor(
                     state: VaultAutofillListState(
                         isAutofillingFido2List: true,
-                        vaultListSections: [
+                        loadingState: .data([
                             VaultListSection(
                                 id: "Passkeys for myApp.com",
                                 items: [
@@ -414,7 +468,7 @@ private struct VaultAutofillListSearchableView: View {
                                 ],
                                 name: "Passwords for myApp.com",
                             ),
-                        ],
+                        ]),
                     ),
                 ),
             ),

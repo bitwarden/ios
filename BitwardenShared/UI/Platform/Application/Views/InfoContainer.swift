@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
@@ -39,6 +40,25 @@ struct InfoContainer<Content: View>: View {
     init(_ text: String) where Content == Text {
         content = Text(text)
     }
+
+    /// Initialize a new info container that displays an icon and text content.
+    ///
+    /// - Parameters:
+    ///   - text: The text message to display in the container.
+    ///   - icon: The icon image asset to display alongside the text.
+    ///
+    init(text: String, icon: SharedImageAsset) where Content == AnyView {
+        content = AnyView(
+            HStack(alignment: .center) {
+                Image(decorative: icon)
+                    .resizable()
+                    .scaledToFit()
+                    .imageStyle(.accessoryIcon16(scaleWithFont: true))
+
+                Text(text)
+            },
+        )
+    }
 }
 
 // MARK: - Previews
@@ -56,4 +76,9 @@ struct InfoContainer<Content: View>: View {
         }
     }
     .padding()
+}
+
+#Preview {
+    InfoContainer(text: "Hello!", icon: SharedAsset.Icons.archive24)
+        .padding()
 }

@@ -22,6 +22,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// Whether the archive onboarding has been shown.
+    var archiveOnboardingShown: Bool { get set }
+
     /// The last published active user ID by `activeAccountIdPublisher` in the current process.
     /// If this is different than the active user ID in the `State`, the active user was likely
     /// switched in an extension and the main app should update accordingly.
@@ -767,6 +770,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case appLocale
         case appRehydrationState(userId: String)
         case appTheme
+        case archiveOnboardingShown
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
@@ -840,6 +844,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "appRehydrationState_\(userId)"
             case .appTheme:
                 "theme"
+            case .archiveOnboardingShown:
+                "archiveOnboardingShown"
             case let .biometricAuthEnabled(userId):
                 "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
@@ -953,6 +959,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var archiveOnboardingShown: Bool {
+        get { fetch(for: .archiveOnboardingShown) }
+        set { store(newValue, for: .archiveOnboardingShown) }
     }
 
     var cachedActiveUserId: String? {

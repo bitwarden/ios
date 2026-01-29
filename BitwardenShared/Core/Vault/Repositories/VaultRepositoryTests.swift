@@ -197,7 +197,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `bulkShareCiphers()` migrates attachments without an attachment key.
-    func test_bulkShareCiphers_attachmentMigration() async throws {
+    func test_bulkShareCiphers_attachmentMigration() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixtureAccountLogin()
         stateService.activeAccount = account
 
@@ -248,7 +248,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
         clientCiphers.prepareCiphersForBulkShareResult = .success(encryptionContexts)
 
-        try await subject.bulkShareCiphers([cipherViewOriginal], newOrganizationId: "org-123", newCollectionIds: ["col-1"])
+        try await subject.bulkShareCiphers(
+            [cipherViewOriginal],
+            newOrganizationId: "org-123",
+            newCollectionIds: ["col-1"],
+        )
 
         // Attachment migration: download attachment, save updated and delete old.
         XCTAssertEqual(cipherService.downloadAttachmentId, "1")
@@ -932,22 +936,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
 
         // If it's not a forced sync, it should sync.
-        try await subject.fetchSync(
-            forceSync: false,
-            filter: .allVaults,
-            isPeriodic: true,
-        )
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
 
         // Same as before but to check `isPeriodic` is passed correctly.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
-        try await subject.fetchSync(
-            forceSync: false,
-            filter: .allVaults,
-            isPeriodic: false,
-        )
+        try await subject.fetchSync(forceSync: false, isPeriodic: false)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertFalse(try XCTUnwrap(syncService.fetchSyncIsPeriodic))
 
@@ -955,11 +951,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // it should sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
-        try await subject.fetchSync(
-            forceSync: true,
-            filter: .myVault,
-            isPeriodic: true,
-        )
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(syncService.fetchSyncIsPeriodic == true)
 
@@ -967,11 +959,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // it should not sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = false
-        try await subject.fetchSync(
-            forceSync: true,
-            filter: .allVaults,
-            isPeriodic: true,
-        )
+        try await subject.fetchSync(forceSync: true, isPeriodic: true)
         XCTAssertFalse(syncService.didFetchSync)
     }
 

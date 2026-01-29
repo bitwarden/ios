@@ -686,12 +686,16 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totp: .fixture(
                     totpCode: TOTPCodeModel(code: "123456",
                                             codeGenerationDate: Date(year: 2023, month: 12, day: 31),
-                                            period: 30))),
+                                            period: 30),
+                ),
+            ),
             ItemListItem.fixtureShared(
                 totp: .fixture(
                     totpCode: TOTPCodeModel(code: "654321",
                                             codeGenerationDate: Date(year: 2023, month: 12, day: 31),
-                                            period: 30))),
+                                            period: 30),
+                ),
+            ),
         ]
 
         guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
@@ -730,12 +734,16 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 totp: .fixture(
                     totpCode: TOTPCodeModel(code: "123456",
                                             codeGenerationDate: Date(year: 2023, month: 12, day: 31),
-                                            period: 30))),
+                                            period: 30),
+                ),
+            ),
             ItemListItem.fixtureShared(
                 totp: .fixture(
                     totpCode: TOTPCodeModel(code: "654321",
                                             codeGenerationDate: Date(year: 2023, month: 12, day: 31),
-                                            period: 30))),
+                                            period: 30),
+                ),
+            ),
         ]
 
         authItemRepository.refreshTotpCodesResult = .failure(BitwardenTestError.example)

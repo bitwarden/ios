@@ -300,6 +300,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
+    /// `archiveOnboardingShown` returns `false` if there isn't a previously stored value.
+    func test_archiveOnboardingShown_isInitiallyFalse() {
+        XCTAssertFalse(subject.archiveOnboardingShown)
+    }
+
+    /// `archiveOnboardingShown` can be used to get and set the persisted value in user defaults.
+    func test_archiveOnboardingShown_withValue() {
+        subject.archiveOnboardingShown = true
+        XCTAssertTrue(subject.archiveOnboardingShown)
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:archiveOnboardingShown"))
+
+        subject.archiveOnboardingShown = false
+        XCTAssertFalse(subject.archiveOnboardingShown)
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:archiveOnboardingShown"))
+    }
+
     /// `cachedActiveUserId` returns `nil` if there isn't a cached active user.
     func test_cachedActiveUserId_isInitiallyNil() {
         XCTAssertNil(subject.cachedActiveUserId)
@@ -483,8 +499,8 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `events(userId:)` can be used to get the events for a user.
     func test_events() {
         let events = [
-            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
-            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", organizationId: nil, date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, organizationId: nil, date: .now),
         ]
         subject.setEvents(events, userId: "0")
         XCTAssertEqual(subject.events(userId: "0"), events)

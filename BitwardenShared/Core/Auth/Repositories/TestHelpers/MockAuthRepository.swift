@@ -12,6 +12,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
     var canVerifyMasterPasswordForUserResult: Result<[String: Bool], Error> = .success([:])
     var checkSessionTimeoutCalled = false
+    var checkSessionTimeoutsShouldTimeoutActiveUser = false // swiftlint:disable:this identifier_name
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
@@ -150,6 +151,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async {
         checkSessionTimeoutCalled = true
         handleActiveUserClosure = handleActiveUser
+        if checkSessionTimeoutsShouldTimeoutActiveUser, let activeAccount {
+            await handleActiveUser?(activeAccount.profile.userId)
+        }
     }
 
     func clearPins() async throws {

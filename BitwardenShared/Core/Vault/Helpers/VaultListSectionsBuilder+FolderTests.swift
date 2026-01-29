@@ -275,6 +275,7 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
             collectionHelper: collectionHelper,
             configService: MockConfigService(),
             errorReporter: errorReporter,
+            stateService: MockStateService(),
             withData: withData,
         )
     }

@@ -164,6 +164,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             }
         case .loadData:
             await refreshProfileState()
+            await fetchInitialSyncIfNecessary()
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
         case let .search(text):
@@ -237,6 +238,36 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
+    }
+
+    /// Fetches initial sync if necessary, checking if the user has synced before.
+    private func fetchInitialSyncIfNecessary() async {
+        do {
+            guard await services.stateService.isInitialSyncRequired() else { return }
+
+            if !state.loadingState.isLoading {
+                // Set the loading state if not loading. This transitions to the loading state on a
+                // retry after an error, but doesn't clear any cached items from the publisher prior
+                // to syncing.
+                state.loadingState = .loading(nil)
+            }
+
+            try await services.vaultRepository.fetchSync(forceSync: false, isPeriodic: false)
+
+            if case let .loading(sections) = state.loadingState, let sections {
+                // If the sections have already been loaded and stored in the loading state, display
+                // them immediately, otherwise wait for the vault publisher to populate the sections.
+                state.loadingState = .data(sections)
+            }
+        } catch URLError.cancelled {
+            // No-op: don't log or alert for cancellation errors.
+        } catch {
+            state.loadingState = .error(
+                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+            )
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
     }
 
     /// Handles receiving a `ProfileSwitcherAction`.
@@ -314,16 +345,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
-        guard !state.vaultListSections.isEmpty else {
+        guard let sections = state.loadingState.data, !sections.isEmpty else {
             return
         }
 
         do {
-            state.vaultListSections = try await refreshTOTPCodes(
+            let updatedSections = try await refreshTOTPCodes(
                 for: items,
-                in: state.vaultListSections,
+                in: sections,
                 using: vaultItemsTotpExpirationManager,
             )
+            state.loadingState = .data(updatedSections)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -408,7 +440,14 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
-                state.vaultListSections = sections
+
+                if await services.stateService.isInitialSyncRequired(), case .loading = state.loadingState {
+                    // Sync hasn't completed yet, store the sections in the loading state.
+                    state.loadingState = .loading(sections)
+                } else {
+                    // Sync has completed (or not required), display the sections.
+                    state.loadingState = .data(sections)
+                }
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -437,7 +476,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 let vaultListSection = try await services.vaultRepository.createAutofillListExcludedCredentialSection(
                     from: cipher,
                 )
-                state.vaultListSections = [vaultListSection]
+                state.loadingState = .data([vaultListSection])
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -668,7 +707,7 @@ extension VaultAutofillListProcessor {
 
         if autofillAppExtensionDelegate.isCreatingFido2Credential {
             guard state.excludedCredentialIdFound == nil else {
-                guard let cipherId = state.vaultListSections.first?.items.first?.id else {
+                guard let cipherId = state.loadingState.data?.first?.items.first?.id else {
                     coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                     return
                 }

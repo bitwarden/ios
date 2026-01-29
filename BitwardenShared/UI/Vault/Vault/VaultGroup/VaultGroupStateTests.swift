@@ -130,4 +130,36 @@ class VaultGroupStateTests: BitwardenTestCase {
         let subjectTotp = VaultGroupState(group: .totp, vaultFilterType: .myVault)
         XCTAssertNil(subjectTotp.noItemsTitle)
     }
+
+    /// `showArchivePremiumSubscriptionEndedCard` returns `true` when the user doesn't have premium
+    /// and is viewing the archive group.
+    func test_showArchivePremiumSubscriptionEndedCard() {
+        let subjectNoPremiumArchive = VaultGroupState(
+            group: .archive,
+            hasPremium: false,
+            vaultFilterType: .myVault,
+        )
+        XCTAssertTrue(subjectNoPremiumArchive.showArchivePremiumSubscriptionEndedCard)
+
+        let subjectHasPremiumArchive = VaultGroupState(
+            group: .archive,
+            hasPremium: true,
+            vaultFilterType: .myVault,
+        )
+        XCTAssertFalse(subjectHasPremiumArchive.showArchivePremiumSubscriptionEndedCard)
+
+        let subjectNoPremiumLogin = VaultGroupState(
+            group: .login,
+            hasPremium: false,
+            vaultFilterType: .myVault,
+        )
+        XCTAssertFalse(subjectNoPremiumLogin.showArchivePremiumSubscriptionEndedCard)
+
+        let subjectHasPremiumLogin = VaultGroupState(
+            group: .login,
+            hasPremium: true,
+            vaultFilterType: .myVault,
+        )
+        XCTAssertFalse(subjectHasPremiumLogin.showArchivePremiumSubscriptionEndedCard)
+    }
 }

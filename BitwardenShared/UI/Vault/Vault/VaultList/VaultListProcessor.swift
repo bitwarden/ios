@@ -20,6 +20,7 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasChangeKdfService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -99,6 +100,9 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissArchiveOnboardingActionCard:
+            state.shouldShowArchiveOnboardingActionCard = false
+            await services.stateService.setArchiveOnboardingShown(true)
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
@@ -145,12 +149,20 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .addFolder)
         case let .addItemPressed(type):
             addItem(type: type)
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
             break
         case .disappeared:
             reviewPromptTask?.cancel()
+        case .goToArchive:
+            coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
         case let .itemPressed(item):
             handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
@@ -172,12 +184,6 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
-        case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -202,9 +208,15 @@ extension VaultListProcessor {
         setProfileSwitcher(visible: false)
         switch state.vaultFilterType {
         case let .organization(organization):
-            coordinator.navigate(to: .addItem(organizationId: organization.id, type: type))
+            coordinator.navigate(
+                to: .addItem(organizationId: organization.id, type: type),
+                context: self,
+            )
         default:
-            coordinator.navigate(to: .addItem(type: type))
+            coordinator.navigate(
+                to: .addItem(type: type),
+                context: self,
+            )
         }
         reviewPromptTask?.cancel()
     }
@@ -216,6 +228,10 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+
+        if await services.configService.getFeatureFlag(.archiveVaultItems) {
+            state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+        }
     }
 
     /// Checks if the user needs to update their KDF settings.
@@ -336,7 +352,10 @@ extension VaultListProcessor {
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
@@ -360,7 +379,6 @@ extension VaultListProcessor {
 
             try await services.vaultRepository.fetchSync(
                 forceSync: false,
-                filter: state.vaultFilterType,
                 isPeriodic: syncWithPeriodicCheck,
             )
 
@@ -590,7 +608,7 @@ extension VaultListProcessor: CipherItemOperationDelegate {
     }
 
     func itemUnarchived() {
-        state.toast = Toast(title: Localizations.itemUnarchived)
+        state.toast = Toast(title: Localizations.itemMovedToVault)
     }
 }
 

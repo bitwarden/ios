@@ -8,6 +8,9 @@ enum VaultListEffect: Equatable {
     /// Check if the user is eligible for an app review prompt.
     case checkAppReviewEligibility
 
+    /// The user tapped the dismiss button on the Archive Onboarding action card.
+    case dismissArchiveOnboardingActionCard
+
     /// The flight recorder toast banner was dismissed.
     case dismissFlightRecorderToastBanner
 
