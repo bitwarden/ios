@@ -83,6 +83,10 @@ extension DefaultErrorReportBuilder: ErrorReportBuilder {
     public func buildShareErrorLog(for error: Error, callStack: String) async -> String {
         let userId = await (try? activeAccountStateProvider.getActiveAccountId()) ?? "n/a"
         return await """
+        Bitwarden Error
+        \(appInfoService.appInfoWithoutCopyrightString)
+        User ID: \(userId)
+
         \(error as NSError)
         \(error.localizedDescription)
 
@@ -91,9 +95,6 @@ extension DefaultErrorReportBuilder: ErrorReportBuilder {
 
         Binary images:
         \(binaryImageAddresses())
-
-        User ID: \(userId)
-        \(appInfoService.appInfoWithoutCopyrightString)
         """
     }
 }
