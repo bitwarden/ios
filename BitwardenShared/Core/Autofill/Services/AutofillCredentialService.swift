@@ -227,8 +227,14 @@ class DefaultAutofillCredentialService {
         }
 
         Task {
-            for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
-                syncIdentities(vaultLockStatus: vaultLockStatus)
+            // Trigger autofill sync when vault lock status or device auth key changes.
+            for await (vaultLockStatus, _) in await self.vaultTimeoutService
+                .vaultLockStatusPublisher()
+                .combineLatest(deviceAuthKeyService.deviceAuthKeyPublisher())
+                .values {
+                syncIdentities(
+                    vaultLockStatus: vaultLockStatus
+                )
             }
         }
     }

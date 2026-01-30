@@ -52,6 +52,9 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ///   - userId: The user ID for the account to get device auth key metadata for.
     ///
     func getDeviceAuthKeyMetadata(userId: String?) async throws -> DeviceAuthKeyMetadata?
+
+    /// A publisher for the device auth key
+    func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never>
 }
 
 // MARK: - Convenience Methods
@@ -121,6 +124,9 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
 
+    /// A subject containing a userId and flag for the presence of the unlock passkey for logged in accounts.
+    private let deviceAuthKeySubject = CurrentValueSubject<[String: Bool], Never>([:])
+
     // MARK: Initializers
 
     /// Creates a new instance of `DefaultDeviceAuthKeyService`.
@@ -153,6 +159,10 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         overwrite: Bool,
         userId: String?,
     ) async throws -> DeviceAuthKeyRecord {
+        var curVal = deviceAuthKeySubject.value
+        curVal[userId] = true
+        deviceAuthKeySubject.send(curVal)
+
         // TODO: PM-26177 to finish building out this stub
         throw DeviceAuthKeyError.notImplemented
     }
@@ -182,6 +192,12 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     private func getDeviceAuthKeyRecord(userId: String?) async throws -> DeviceAuthKeyRecord? {
         let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
         return try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: resolvedUserId)
+    }
+
+    // MARK: Publishers
+
+    func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never> {
+        deviceAuthKeySubject.eraseToAnyPublisher()
     }
 }
 
