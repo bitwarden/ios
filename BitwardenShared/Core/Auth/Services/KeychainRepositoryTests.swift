@@ -96,6 +96,20 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `deleteAuthenticatorVaultKey` deletes the stored Authenticator Vault Key with the correct query values.
+    ///
+    func test_deleteAuthenticatorVaultKey_success() async throws {
+        let item = KeychainItem.authenticatorVaultKey(userId: "1")
+        keychainService.deleteResult = .success(())
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.deleteAuthenticatorVaultKey(userId: "1")
+        XCTAssertEqual(
+            keychainService.deleteQueries,
+            [expectedQuery],
+        )
+    }
+
     /// `deleteItems(for:)` deletes items for a specific user.
     func test_deleteItems_forUserId() async throws {
         try await subject.deleteItems(for: "1")
@@ -104,8 +118,10 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             subject.keychainQueryValues(for: .accessToken(userId: "1")),
             subject.keychainQueryValues(for: .authenticatorVaultKey(userId: "1")),
             subject.keychainQueryValues(for: .biometrics(userId: "1")),
+            subject.keychainQueryValues(for: .lastActiveTime(userId: "1")),
             subject.keychainQueryValues(for: .neverLock(userId: "1")),
             subject.keychainQueryValues(for: .refreshToken(userId: "1")),
+            subject.keychainQueryValues(for: .unsuccessfulUnlockAttempts(userId: "1")),
         ]
 
         XCTAssertEqual(
@@ -122,20 +138,6 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
         try await subject.deleteDeviceKey(userId: "1")
-        XCTAssertEqual(
-            keychainService.deleteQueries,
-            [expectedQuery],
-        )
-    }
-
-    /// `deleteAuthenticatorVaultKey` deletes the stored Authenticator Vault Key with the correct query values.
-    ///
-    func test_deleteAuthenticatorVaultKey_success() async throws {
-        let item = KeychainItem.authenticatorVaultKey(userId: "1")
-        keychainService.deleteResult = .success(())
-        let expectedQuery = await subject.keychainQueryValues(for: item)
-
-        try await subject.deleteAuthenticatorVaultKey(userId: "1")
         XCTAssertEqual(
             keychainService.deleteQueries,
             [expectedQuery],

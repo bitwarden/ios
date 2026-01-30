@@ -96,8 +96,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
     func getDeviceKey() async throws -> String? {
         let activeUserId = try await stateService.getActiveAccountId()
         do {
-            return try await keychainRepository.getDeviceKey(
-                userId: activeUserId)
+            return try await keychainRepository.getDeviceKey(userId: activeUserId)
         } catch {
             return nil
         }

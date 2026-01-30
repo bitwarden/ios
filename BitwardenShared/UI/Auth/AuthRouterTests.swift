@@ -1092,6 +1092,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
         )
         XCTAssertTrue(authRepository.checkSessionTimeoutCalled)
+        XCTAssertEqual(authRepository.checkSessionTimeoutIsAppRestart, true)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.complete`

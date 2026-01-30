@@ -64,6 +64,7 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     private func showExtensionActivation(extensionType: ExtensionActivationType) {
         let processor = ExtensionActivationProcessor(
             appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
             services: services,
             state: ExtensionActivationState(extensionType: extensionType),
         )
