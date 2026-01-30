@@ -69,12 +69,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             #"""
             Bitwarden Error
-            Error Date: 2024-11-05T09:41:00Z
+            🕒 Error Date: 2024-11-05T09:41:00Z
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            User ID: 1
+            👤 User ID: 1
 
             Swift.DecodingError.keyNotFound(TestKeys(stringValue: "ciphers", intValue: nil), Swift.DecodingError.Context(codingPath: [], debugDescription: "No value associated with key CodingKeys(stringValue: \"ciphers\", intValue: nil).", underlyingError: nil))
             The data couldn’t be read because it is missing.
@@ -109,12 +109,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             """
             Bitwarden Error
-            Error Date: 2024-11-05T09:41:00Z
+            🕒 Error Date: 2024-11-05T09:41:00Z
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            User ID: n/a
+            👤 User ID: n/a
 
             TestHelpers.BitwardenTestError.example
             An example error used to test throwing capabilities.
@@ -147,12 +147,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             """
             Bitwarden Error
-            Error Date: 2024-11-05T09:41:00Z
+            🕒 Error Date: 2024-11-05T09:41:00Z
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            User ID: 1
+            👤 User ID: 1
 
             TestHelpers.BitwardenTestError.example
             An example error used to test throwing capabilities.

@@ -98,9 +98,9 @@ extension DefaultErrorReportBuilder: ErrorReportBuilder {
         let formattedErrorDate = dateFormatter.string(from: timeProvider.presentTime)
         return await """
         Bitwarden Error
-        Error Date: \(formattedErrorDate)
+        🕒 Error Date: \(formattedErrorDate)
         \(appInfoService.appInfoWithoutCopyrightString)
-        User ID: \(userId)
+        👤 User ID: \(userId)
 
         \(error as NSError)
         \(error.localizedDescription)
