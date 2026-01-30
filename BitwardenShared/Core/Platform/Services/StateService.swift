@@ -351,7 +351,15 @@ protocol StateService: AnyObject {
     /// - Returns: The two-factor token.
     ///
     func getTwoFactorToken(email: String) async -> String?
-
+    
+    /// Gets the unlock other devices with this device value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the unlock other devices value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func getUnlockOtherDevices(userId: String?) async throws -> Bool
+    
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
@@ -765,7 +773,15 @@ protocol StateService: AnyObject {
     ///   - email: The user's email address.
     ///
     func setTwoFactorToken(_ token: String?, email: String) async
-
+    
+    /// Sets the unlock other devices with this device value for an account.
+    ///
+    /// - Parameters:
+    ///   - unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String?) async throws
+    
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
@@ -1092,6 +1108,14 @@ extension StateService {
     func getTimeoutAction() async throws -> SessionTimeoutAction {
         try await getTimeoutAction(userId: nil)
     }
+    
+    /// Gets the unlock other devices with this device value for the active account.
+    ///
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func getUnlockOtherDevices() async throws -> Bool {
+        try await getUnlockOtherDevices(userId: nil)
+    }
 
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
     ///
@@ -1376,6 +1400,14 @@ extension StateService {
     ///
     func setTimeoutAction(action: SessionTimeoutAction) async throws {
         try await setTimeoutAction(action: action, userId: nil)
+    }
+    
+    /// Sets the unlock other devices with this device value for the active account.
+    ///
+    /// - Parameter unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool) async throws {
+        try await setUnlockOtherDevices(unlockOtherDevices, userId: nil)
     }
 
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
@@ -1829,6 +1861,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return timeoutAction
     }
 
+    func getUnlockOtherDevices(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unlockOtherDevices(userId: userId)
+    }
+
     func getTwoFactorToken(email: String) async -> String? {
         appSettingsStore.twoFactorToken(email: email)
     }
@@ -2234,7 +2271,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setTwoFactorToken(_ token: String?, email: String) async {
         appSettingsStore.setTwoFactorToken(token, email: email)
     }
-
+    
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnlockOtherDevices(unlockOtherDevices, userId: userId)
+    }
+    
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
