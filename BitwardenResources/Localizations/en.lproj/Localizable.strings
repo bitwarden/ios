@@ -1315,3 +1315,5 @@
 "SpecificPeople" = "Specific people";
 "WhoCanView" = "Who can view";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"RemoteUnlockOptions" = "Remote Unlock Options";
+"UnlockOtherDevicesWithThisDevice" = "Unlock other devices with this device";
