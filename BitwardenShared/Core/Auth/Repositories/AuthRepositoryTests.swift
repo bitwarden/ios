@@ -1494,7 +1494,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: .fixture(),
+            accountKeys: .v1(
+                privateKey: "PRIVATE_KEY",
+            ),
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY",
         )
@@ -2933,7 +2935,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
-                accountKeys: .fixtureFilled(),
+                accountKeys: .v1(
+                    privateKey: "PRIVATE_KEY",
+                ),
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedUserKey: "USER_KEY",
             ),
@@ -2978,7 +2982,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = account
         stateService.accountEncryptionKeys = [
             "1": AccountEncryptionKeys(
-                accountKeys: .fixtureFilled(),
+                accountKeys: .v1(
+                    privateKey: "PRIVATE_KEY",
+                ),
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedUserKey: "USER_KEY",
             ),
