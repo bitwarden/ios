@@ -41,6 +41,8 @@ extension SendView {
             revisionDate: revisionDate,
             deletionDate: deletionDate,
             expirationDate: expirationDate,
+            emails: [],
+            authType: AuthType.none,
         )
     }
 }

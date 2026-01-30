@@ -195,6 +195,8 @@ extension AddEditSendItemState {
             // If the send has an expiration date, reset it to the deletion date to prevent a server
             // error which disallows editing a send after it has expired.
             expirationDate: expirationDate != nil ? deletionDate : nil,
+            emails: [],
+            authType: AuthType.none,
         )
     }
 
