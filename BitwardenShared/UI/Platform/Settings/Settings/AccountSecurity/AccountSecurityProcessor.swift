@@ -15,8 +15,10 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasAuthService
         & HasBiometricsRepository
         & HasConfigService
+        & HasDeviceAuthKeyService
         & HasErrorReporter
         & HasPolicyService
         & HasSettingsRepository
@@ -79,6 +81,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             await streamSettingsBadge()
         case let .toggleSyncWithAuthenticator(isOn):
             await setSyncToAuthenticator(isOn)
+        case let .toggleUnlockOtherDevices(isOn):
+            await toggleUnlockOtherDevices(isOn)
         case let .toggleUnlockWithBiometrics(isOn):
             await setBioMetricAuth(isOn)
         case let .toggleUnlockWithPINCode(isOn):
@@ -179,6 +183,16 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             }
 
             state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
+            
+            do {
+                let userId = try await services.stateService.getActiveAccountId()
+                let enabled = try await services.stateService.getUnlockOtherDevices()
+                let saved = try await services.deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) != nil
+                state.isUnlockOtherDevicesOn = enabled && saved
+            }
+            catch {
+                state.isUnlockOtherDevicesOn = false
+            }
 
             if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
                 await completeAccountSetupVaultUnlockIfNeeded()
@@ -366,7 +380,35 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             services.errorReporter.log(error: error)
         }
     }
-
+    
+    /// Toggles the unlock other devices setting.
+    ///
+    /// - Parameter isOn: Whether or not the toggle value is true or false.
+    ///
+    private func toggleUnlockOtherDevices(_ isOn: Bool) async {
+        if isOn {
+            // When enabling, prompt for master password and create device auth key
+            coordinator.showAlert(.masterPasswordPrompt(
+                onCancelled: {
+                    // Reset the toggle state on cancellation
+                    self.state.isUnlockOtherDevicesOn = false
+                },
+                completion: { password in
+                    await self.validatePasswordAndCreateDeviceAuthKey(password)
+                }
+            ))
+        } else {
+            // When disabling, just update the state
+            do {
+                try await services.stateService.setUnlockOtherDevices(false)
+                state.isUnlockOtherDevicesOn = false
+            } catch {
+                services.errorReporter.log(error: error)
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            }
+        }
+    }
+    
     /// Shows an alert prompting the user to enter their PIN. If set successfully, the toggle will be turned on.
     ///
     /// - Parameter isOn: Whether or not the toggle value is true or false.
@@ -382,6 +424,49 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
 
         if isOn {
             await completeAccountSetupVaultUnlockIfNeeded()
+        }
+    }
+    
+    /// Validates the master password and creates a device auth key.
+    ///
+    /// - Parameter password: The user's master password.
+    ///
+    private func validatePasswordAndCreateDeviceAuthKey(_ password: String) async {
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer {
+            coordinator.hideLoadingOverlay()
+        }
+        
+        do {
+            // First, validate the password
+            let isValid = try await services.authRepository.validatePassword(password)
+            guard isValid else {
+                state.isUnlockOtherDevicesOn = false
+                coordinator.showAlert(.invalidMasterPassword())
+                return
+            }
+            
+            // Calculate the password hash for server authorization
+            let masterPasswordHash = try await services.authService.hashPassword(
+                password: password,
+                purpose: .serverAuthorization,
+            )
+            
+            // Create the device passkey
+            let userId = try await services.stateService.getActiveAccountId()
+            _ = try await services.deviceAuthKeyService.createDeviceAuthKey(
+                masterPasswordHash: masterPasswordHash,
+                overwrite: true,
+                userId: userId,
+            )
+            
+            // Save the state
+            try await services.stateService.setUnlockOtherDevices(true)
+            state.isUnlockOtherDevicesOn = true
+        } catch {
+            state.isUnlockOtherDevicesOn = false
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
     }
 }
