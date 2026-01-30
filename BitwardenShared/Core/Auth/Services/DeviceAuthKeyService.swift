@@ -1,4 +1,5 @@
 import CryptoKit
+import Combine
 import Foundation
 import os.log
 
@@ -41,6 +42,9 @@ protocol DeviceAuthKeyService {
     ///  - Parameters:
     ///      - userId: Currently active user ID for the account.
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata?
+
+    /// A publisher for the device auth key
+    func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never>
 }
 
 /// Implementation fo DeviceAuthKeyService
@@ -48,6 +52,8 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     // MARK: Properties
 
     private let keychainRepository: KeychainRepository
+    /// A subject containing a userId and flag for the presence of the unlock passkey for logged in accounts.
+    private let deviceAuthKeySubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     // MARK: Initializers
 
@@ -64,9 +70,13 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         overwrite: Bool,
         userId: String,
     ) async throws -> DeviceAuthKeyRecord {
+        var curVal = deviceAuthKeySubject.value
+        curVal[userId] = true
+        deviceAuthKeySubject.send(curVal)
+
         throw DeviceAuthKeyError.notImplemented
     }
-    
+
     func assertDeviceAuthKey(
         for request: GetAssertionRequest,
         recordIdentifier: String,
@@ -114,6 +124,12 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         )
         Logger.application.debug("Record: \(json) })")
         return record
+    }
+
+    // MARK: Publishers
+
+    func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never> {
+        deviceAuthKeySubject.eraseToAnyPublisher()
     }
 }
 
