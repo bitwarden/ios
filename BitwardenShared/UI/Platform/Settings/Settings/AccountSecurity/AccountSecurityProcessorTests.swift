@@ -22,6 +22,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var twoStepLoginService: MockTwoStepLoginService!
     var vaultTimeoutService: MockVaultTimeoutService!
     var subject: AccountSecurityProcessor!
+    var userSessionStateService: MockUserSessionStateService!
     var vaultUnlockSetupHelper: MockVaultUnlockSetupHelper!
 
     // MARK: Setup & Teardown
@@ -39,8 +40,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         twoStepLoginService = MockTwoStepLoginService()
+        userSessionStateService = MockUserSessionStateService()
         vaultTimeoutService = MockVaultTimeoutService()
         vaultUnlockSetupHelper = MockVaultUnlockSetupHelper()
+
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
 
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -53,6 +57,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 settingsRepository: settingsRepository,
                 stateService: stateService,
                 twoStepLoginService: twoStepLoginService,
+                userSessionStateService: userSessionStateService,
                 vaultTimeoutService: vaultTimeoutService,
             ),
             state: AccountSecurityState(),
@@ -72,6 +77,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         policyService = nil
         settingsRepository = nil
         subject = nil
+        twoStepLoginService = nil
+        userSessionStateService = nil
         vaultUnlockSetupHelper = nil
     }
 
@@ -108,6 +115,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
@@ -186,6 +194,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
