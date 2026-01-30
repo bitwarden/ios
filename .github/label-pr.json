@@ -1,14 +1,14 @@
 {
   "title_patterns": {
-    "t:feature-app": ["feat", "feature"],
-    "t:feature-tool": ["tool"],
+    "t:feature": ["feat", "feature", "tool"],
     "t:bug": ["fix", "bug", "bugfix"],
     "t:tech-debt": ["refactor", "chore", "cleanup", "revert", "debt", "test", "perf"],
     "t:docs": ["docs"],
     "t:ci": ["ci", "build", "chore(ci)"],
     "t:deps": ["deps"],
     "t:breaking-change": ["breaking", "breaking-change"],
-    "t:misc": ["misc"]
+    "t:misc": ["misc"],
+    "t:llm": ["llm"]
   },
   "path_patterns": {
     "app:shared": [
@@ -42,7 +42,7 @@
       "project-bwa.yml",
       "swiftgen-bwa.yml"
     ],
-    "t:feature-tool": [
+    "t:feature": [
       "TestHarness/",
       "TestHarnessShared/",
       "project-bwth.yml",
@@ -50,7 +50,6 @@
     ],
     "t:ci": [
       ".checkmarx/",
-      ".claude/",
       ".github/",
       "Configs/",
       "Configs-bwa/",
@@ -77,6 +76,9 @@
       "TestHelpers/",
       "TestPlans/",
       "ViewInspectorTestHelpers/"
+    ],
+    "t:llm": [
+      ".claude/"
     ]
   }
 }
