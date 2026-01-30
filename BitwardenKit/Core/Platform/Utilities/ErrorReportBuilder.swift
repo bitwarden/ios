@@ -31,6 +31,16 @@ public struct DefaultErrorReportBuilder {
     /// The service used by the application to get info about the app and device it's running on.
     private let appInfoService: AppInfoService
 
+    /// The date formatter used to format the timestamp included in the error report.
+    private let dateFormatter: ISO8601DateFormatter = {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.timeZone = .autoupdatingCurrent
+        return dateFormatter
+    }()
+
+    /// The service used to get the present time.
+    private let timeProvider: TimeProvider
+
     // MARK: Initialization
 
     /// Initialize an `ErrorReportBuilder`.
@@ -39,13 +49,16 @@ public struct DefaultErrorReportBuilder {
     ///   - activeAccountStateProvider: Object that provides the active account state.
     ///   - appInfoService: The service used by the application to get info about the app
     ///     and device it's running on.
+    ///   - timeProvider: The service used to get the present time.
     ///
     public init(
         activeAccountStateProvider: ActiveAccountStateProvider,
         appInfoService: AppInfoService,
+        timeProvider: TimeProvider = CurrentTime(),
     ) {
         self.activeAccountStateProvider = activeAccountStateProvider
         self.appInfoService = appInfoService
+        self.timeProvider = timeProvider
     }
 
     // MARK: Private
@@ -82,7 +95,13 @@ public struct DefaultErrorReportBuilder {
 extension DefaultErrorReportBuilder: ErrorReportBuilder {
     public func buildShareErrorLog(for error: Error, callStack: String) async -> String {
         let userId = await (try? activeAccountStateProvider.getActiveAccountId()) ?? "n/a"
+        let formattedErrorDate = dateFormatter.string(from: timeProvider.presentTime)
         return await """
+        Bitwarden Error
+        🕒 Error Date: \(formattedErrorDate)
+        \(appInfoService.appInfoWithoutCopyrightString)
+        👤 User ID: \(userId)
+
         \(error as NSError)
         \(error.localizedDescription)
 
@@ -91,9 +110,6 @@ extension DefaultErrorReportBuilder: ErrorReportBuilder {
 
         Binary images:
         \(binaryImageAddresses())
-
-        User ID: \(userId)
-        \(appInfoService.appInfoWithoutCopyrightString)
         """
     }
 }

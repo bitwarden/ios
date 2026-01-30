@@ -481,6 +481,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let errorReportBuilder = DefaultErrorReportBuilder(
             activeAccountStateProvider: stateService,
             appInfoService: appInfoService,
+            timeProvider: timeProvider,
         )
 
         let configService = DefaultConfigService(

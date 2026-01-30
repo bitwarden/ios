@@ -10,6 +10,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     var appInfoService: MockAppInfoService!
     var activeAccountStateProvider: MockActiveAccountStateProvider!
     var subject: ErrorReportBuilder!
+    var timeProvider: MockTimeProvider!
 
     let exampleCallStack: String = """
     0   BitwardenShared    0x00000000 AnyCoordinator.showErrorAlert(error:)
@@ -25,10 +26,12 @@ class ErrorReportBuilderTests: BitwardenTestCase {
 
         activeAccountStateProvider = MockActiveAccountStateProvider()
         appInfoService = MockAppInfoService()
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 11, day: 5, hour: 9, minute: 41, second: 0)))
 
         subject = DefaultErrorReportBuilder(
             activeAccountStateProvider: activeAccountStateProvider,
             appInfoService: appInfoService,
+            timeProvider: timeProvider,
         )
     }
 
@@ -38,6 +41,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         activeAccountStateProvider = nil
         appInfoService = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests
@@ -64,6 +68,14 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         // swiftlint:disable line_length
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             #"""
+            Bitwarden Error
+            🕒 Error Date: 2024-11-05T09:41:00Z
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            👤 User ID: 1
+
             Swift.DecodingError.keyNotFound(TestKeys(stringValue: "ciphers", intValue: nil), Swift.DecodingError.Context(codingPath: [], debugDescription: "No value associated with key CodingKeys(stringValue: \"ciphers\", intValue: nil).", underlyingError: nil))
             The data couldn’t be read because it is missing.
 
@@ -81,12 +93,6 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
-
-            User ID: 1
-            📝 Bitwarden 1.0 (1)
-            📦 Bundle: com.8bit.bitwarden
-            📱 Device: iPhone14,2
-            🍏 System: iOS 16.4
             """#
         }
         // swiftlint:enable line_length
@@ -102,6 +108,14 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         )
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             """
+            Bitwarden Error
+            🕒 Error Date: 2024-11-05T09:41:00Z
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            👤 User ID: n/a
+
             TestHelpers.BitwardenTestError.example
             An example error used to test throwing capabilities.
 
@@ -119,12 +133,6 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
-
-            User ID: n/a
-            📝 Bitwarden 1.0 (1)
-            📦 Bundle: com.8bit.bitwarden
-            📱 Device: iPhone14,2
-            🍏 System: iOS 16.4
             """
         }
     }
@@ -138,6 +146,14 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         )
         assertInlineSnapshot(of: errorReport.zeroingUnwantedHexStrings(), as: .lines) {
             """
+            Bitwarden Error
+            🕒 Error Date: 2024-11-05T09:41:00Z
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            👤 User ID: 1
+
             TestHelpers.BitwardenTestError.example
             An example error used to test throwing capabilities.
 
@@ -155,12 +171,6 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
-
-            User ID: 1
-            📝 Bitwarden 1.0 (1)
-            📦 Bundle: com.8bit.bitwarden
-            📱 Device: iPhone14,2
-            🍏 System: iOS 16.4
             """
         }
     }

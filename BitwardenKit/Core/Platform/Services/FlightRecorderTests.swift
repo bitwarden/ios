@@ -273,13 +273,13 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try assertInlineSnapshot(of: String(data: XCTUnwrap(fileManager.writeDataData), encoding: .utf8), as: .lines) {
             """
             Bitwarden iOS Flight Recorder
-            Log Start: 2025-01-01T00:00:00Z
-            Log Duration: 24h
+            🕒 Log Start: 2025-01-01T00:00:00Z
+            ⏳ Log Duration: 24h
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            User ID: n/a
+            👤 User ID: n/a
 
 
             """
