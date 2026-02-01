@@ -14,7 +14,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden kon %d kruisitems niet ontsleutelen.</string>
         <key>other</key>
         <string>Bitwarden could not decrypt %d vault items.</string>
       </dict>
@@ -31,7 +31,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Hoofdwachtwoord moet minstens %d tekens lang zijn.</string>
         <key>other</key>
         <string>Master password must be at least %d characters long.</string>
       </dict>
@@ -48,7 +48,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Dit wachtwoord is %d keer blootgesteld in datalekken.</string>
         <key>other</key>
         <string>This password has been exposed %d times in data breaches.</string>
       </dict>
@@ -67,7 +67,7 @@
         <key>one</key>
         <string>%d character</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d tekens</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -84,7 +84,7 @@
         <key>one</key>
         <string>%d day</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dagen</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -101,7 +101,7 @@
         <key>one</key>
         <string>%d hour</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d uren</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -135,7 +135,7 @@
         <key>one</key>
         <string>%d item successfully imported</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d items succesvol geïmporteerd</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -152,7 +152,7 @@
         <key>one</key>
         <string>%d minute</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minuten</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -169,7 +169,7 @@
         <key>one</key>
         <string>%d second</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d seconden</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -186,7 +186,7 @@
         <key>one</key>
         <string>%d week</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d weken</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
@@ -203,7 +203,7 @@
         <key>one</key>
         <string>Your PIN must be at least %d character.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Je pincode moet minstens %d tekens bevatten.</string>
       </dict>
     </dict>
   </dict>
