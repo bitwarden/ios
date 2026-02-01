@@ -1303,3 +1303,4 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre.";
 "RestartPremium" = "Retomar Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Este item está arquivado. Salvar alterações irá restaurá-lo para o seu cofre.";
+"SettingUpAutofill" = "Setting up Autofill…";

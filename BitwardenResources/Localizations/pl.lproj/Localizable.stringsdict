@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,13 +14,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementu sejfu.</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu.</string>
         <key>many</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -35,20 +35,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Hasło główne musi zawierać co najmniej %d znak.</string>
         <key>few</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Hasło główne musi zawierać co najmniej %d znaki.</string>
         <key>many</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Hasło główne musi zawierać co najmniej %d znaków.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Hasło główne musi zawierać co najmniej %d znaków.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Hasło zostało ujawnione %#@times@ w wyciekach danych. Zmień je.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Zmień je.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Hasło zostało ujawnione %d raz w wyciekach danych.</string>
         <key>few</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Hasło zostało ujawnione %d razy w wyciekach danych.</string>
         <key>many</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Hasło zostało ujawnione %d razy w wyciekach danych.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Hasło zostało ujawnione %d razy w wyciekach danych.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaki</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znaków</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -98,13 +98,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d dzień</string>
         <key>few</key>
-        <string>%d days</string>
+        <string>%d dni</string>
         <key>many</key>
-        <string>%d days</string>
+        <string>%d dni</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dnia</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -119,13 +119,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d godzina</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d godziny</string>
         <key>many</key>
-        <string>%d hours</string>
+        <string>%d godzin</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d godziny</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -140,13 +140,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d element</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d elementy</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d elementów</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d elementów</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -161,13 +161,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>Zaimportowano %d element</string>
         <key>few</key>
-        <string>%d items successfully imported</string>
+        <string>Zaimportowano %d elementy</string>
         <key>many</key>
-        <string>%d items successfully imported</string>
+        <string>Zaimportowano %d elementów</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>Zaimportowano %d elementów</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -182,13 +182,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d minuta</string>
         <key>few</key>
-        <string>%d minutes</string>
+        <string>%d minuty</string>
         <key>many</key>
-        <string>%d minutes</string>
+        <string>%d minut</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minuty</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -203,13 +203,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d sekunda</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d sekundy</string>
         <key>many</key>
-        <string>%d seconds</string>
+        <string>%d sekund</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekundy</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -224,20 +224,20 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d tydzień</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d tygodnie</string>
         <key>many</key>
-        <string>%d weeks</string>
+        <string>%d tygodni</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d tygodnia</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Kod PIN musi zawierać co najmniej %#@characters@. Ustawienia kodu PIN zostaną zresetowane po wylogowaniu się z aplikacji.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Ustawienia kodu PIN zostaną zresetowane po wylogowaniu się z aplikacji.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -245,13 +245,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>Kod PIN musi zawierać co najmniej %d znak.</string>
         <key>few</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Kod PIN musi zawierać co najmniej %d znaki.</string>
         <key>many</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Kod PIN musi zawierać co najmniej %d znaków.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Kod PIN musi zawierać co najmniej %d znaków.</string>
       </dict>
     </dict>
   </dict>

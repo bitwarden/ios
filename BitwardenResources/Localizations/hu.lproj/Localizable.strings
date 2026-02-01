@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Az archívumhoz hozzáférés visszaszerzéséhez indítsuk újra a Prémium előfizetést. Ha az újraindítás előtt szerkesztjük egy archivált elem adatait, akkor az visszakerül a széfbe.";
 "RestartPremium" = "Prémium előfizetés újraindítása";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Ez az elem archiválva van. A változtatások mentése visszahelyezi a széfbe.";
+"SettingUpAutofill" = "Automatikus kitöltés beállítása…";

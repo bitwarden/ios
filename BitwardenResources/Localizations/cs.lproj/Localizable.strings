@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Chcete-li získat přístup k Vašemu archivu, restartujte předplatné Premium. Pokud upravíte detaily archivované položky před restartováním, bude přesunuta zpět do Vašeho trezoru.";
 "RestartPremium" = "Restartovat Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Tato položka je archivována. Uložení změn ji obnoví do Vašeho trezoru.";
+"SettingUpAutofill" = "Nastavování automatického vyplňování...";

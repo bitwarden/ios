@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Kopiera och dela felrapporten med kundtjänst för att undvika ytterligare dataförlust.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Kopiera och dela felrapporten med kundtjänst för att undvika ytterligare dataförlust.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,9 +14,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden kunde inte avkryptera %d valvobjekt.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden kunde inte avkryptera %d valvobjekt.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -31,16 +31,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Huvudlösenordet måste vara minst %d tecken långt.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Huvudlösenordet måste vara minst %d tecken långt.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Detta lösenord har exponerats %#@times@ i dataintrång. Du bör ändra det.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Du bör ändra det.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -48,9 +48,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Detta lösenord har exponerats %d gång i dataintrång.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Detta lösenord har exponerats %d gånger i dataintrång.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -65,9 +65,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d tecken</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d tecken</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -82,9 +82,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d dag</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dagar</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -99,9 +99,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d timme</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d timmar</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -116,9 +116,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d objekt</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d objekt</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -133,9 +133,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d objekt har importerats framgångsrikt</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d objekt har importerats framgångsrikt</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -150,9 +150,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d minut</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minuter</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -167,9 +167,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d sekund</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekunder</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -184,16 +184,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d vecka</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d veckor</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Din PIN-kod måste vara minst %#@characters@. Dina PIN-inställningar kommer att återställas om du någonsin loggar ut från applikationen.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Dina PIN-inställningar kommer att återställas om du någonsin loggar ut från applikationen.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,9 +201,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>Din PIN-kod måste vara minst %d tecken.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Din PIN-kod måste vara minst %d tecken.</string>
       </dict>
     </dict>
   </dict>

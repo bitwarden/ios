@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@。复制此错误报告并将其分享给客户成功团队，以避免额外的数据丢失。</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ 复制此错误报告并将其分享给客户成功团队，以避免进一步的数据丢失。</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -14,7 +14,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden 无法解密 %d 个密码库项目。</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -29,14 +29,14 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>主密码长度必须至少为 %d 个字符。</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>此密码在数据泄露中已被暴露 %#@times@ 次。请立即修改。</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ 请立即修改。</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -44,7 +44,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>此密码在数据泄露中已被暴露 %d 次。</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -59,7 +59,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d 个字符</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -74,7 +74,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d 天</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -89,7 +89,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d 小时</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -104,7 +104,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d 个项目</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -119,7 +119,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d 个项目成功导入</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -134,7 +134,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d 分钟</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -149,7 +149,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d 秒</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -164,14 +164,14 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d 周</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>您的 PIN 码必须至少包含 %#@characters@ 个字符。您的 PIN 设置将在您完全注销应用程序时被重置。</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ 您的 PIN 设置将在您完全注销应用程序后被重置。</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -179,7 +179,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>您的 PIN 码必须至少包含 %d 个字符。</string>
       </dict>
     </dict>
   </dict>
