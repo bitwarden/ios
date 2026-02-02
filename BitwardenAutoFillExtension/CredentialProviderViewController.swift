@@ -477,10 +477,9 @@ extension CredentialProviderViewController: RootNavigator {
         // HACK: [PM-28227] When opening this extension on mode `text to insert`
         // We can't use `removeFromSuperview` or the extension closes afterwards after a few seconds.
         // Therefore we have this hack to pop to root on navigation controller.
-        // iOS 26.2 changed something on the navigation from `prepareInterfaceForUserChoosingTextToInsert`
+        // iOS sometimes changes something on the navigation from `prepareInterfaceForUserChoosingTextToInsert`
         // which needs this workaround.
-        if #available(iOS 26.2, *),
-           let context,
+        if let context,
            case .autofillText = context.extensionMode,
            let navController = fromViewController as? UINavigationController {
             navController.popToRoot(animated: true)
