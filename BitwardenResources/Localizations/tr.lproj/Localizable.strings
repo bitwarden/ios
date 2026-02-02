@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Arşivinize yeniden erişebilmek için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz kayıt tekrar kasanıza taşınır.";
 "RestartPremium" = "Premium’u yeniden başlat";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "This item is archived. Saving changes will restore it to your vault.";
+"SettingUpAutofill" = "Otomatik doldurma ayarlanıyor…";

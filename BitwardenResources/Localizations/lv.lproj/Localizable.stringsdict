@@ -10,15 +10,15 @@
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>zero</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nevarēja atšifrēt %d glabātavas vienumus.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden nevarēja atšifrēt %d glabātavas vienumu.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nevarēja atšifrēt %d glabātavas vienumus.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -29,15 +29,15 @@
       <key>MasterPasswordMustBeAtLeastCharactersLong</key>
       <dict>
         <key>zero</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Galvenajai parolei ir jābūt vismaz %d rakstzīmes garai.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Galvenajai parolei ir jābūt vismaz %d rakstzīmi garai.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Galvenajai parolei ir jābūt vismaz %d rakstzīmes garai.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
