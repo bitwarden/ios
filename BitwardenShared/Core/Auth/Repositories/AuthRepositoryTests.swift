@@ -1518,7 +1518,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
-                accountKeys: .fixture(),
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedUserKey: "NEW_KEY",
             ),
@@ -1531,7 +1531,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 userId: "1",
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
-                accountCryptographicState: .v1(privateKey: "PRIVATE_KEY"),
+                accountCryptographicState: .v2(
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
+                    signingKey: "WRAPPED_SIGNING_KEY",
+                    securityState: "SECURITY_STATE",
+                ),
                 method: .masterPasswordUnlock(
                     password: "NEW_PASSWORD",
                     masterPasswordUnlock: MasterPasswordUnlockData(
