@@ -15,14 +15,14 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
-    /// The keychain item for device key.
-    case deviceKey(userId: String)
-    
     /// The keychain item for the device auth key.
     case deviceAuthKey(userId: String)
 
     /// The keychain item for the device auth key metadata.
     case deviceAuthKeyMetadata(userId: String)
+
+    /// The keychain item for device key.
+    case deviceKey(userId: String)
 
     /// The keychain item for a user's last active time.
     case lastActiveTime(userId: String)
@@ -140,13 +140,7 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the stored device key.
     ///
     func deleteDeviceKey(userId: String) async throws
-    
-    /// Attempts to delete the device auth key from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the stored device auth key.
-    ///
-    func deleteDeviceAuthKey(userId: String) async throws
-    
+
     /// Attempts to delete the pending admin login request from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored device key.
@@ -179,22 +173,7 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: The device key.
     ///
     func getDeviceKey(userId: String) async throws -> String?
-    
-    /// Gets the stored device auth key for a user from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the stored device auth key.
-    /// - Returns: The device auth key.
-    ///
-    func getDeviceAuthKey(userId: String) async throws -> String?
 
-    /// Gets the metadata about the stored device auth key for a user from the keychain.
-    ///
-    /// - Parameter userId: The user ID associated with the stored device auth key.
-    /// - Returns: The device auth key metadata.
-    ///
-    func getDeviceAuthKeyMetadata(userId: String) async throws -> String?
-
-    
     /// Gets the stored refresh token for a user from the keychain.
     ///
     /// - Parameter userId: The user ID associated with the stored refresh token.
@@ -239,16 +218,7 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the device key later on.
     ///
     func setDeviceKey(_ value: String, userId: String) async throws
-    
-    /// Stores the device auth key for a user in the keychain.
-    ///
-    /// - Parameters:
-    ///   - record: The device auth key, including the secrets, to store.
-    ///   - metadata: The metadata of device auth key to store.
-    ///   - userId: The user's ID, used to get back the device auth key later on.
-    ///
-    func setDeviceAuthKey(recordJson record: String, metadataJson metadata: String, userId: String) async throws
-    
+
     /// Stores the refresh token for a user in the keychain.
     ///
     /// - Parameters:
@@ -473,12 +443,6 @@ extension DefaultKeychainRepository {
         )
     }
 
-    func deleteDeviceAuthKey(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .deviceAuthKey(userId: userId))
-        )
-    }
-
     func deletePendingAdminLoginRequest(userId: String) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId)),
@@ -495,14 +459,6 @@ extension DefaultKeychainRepository {
 
     func getDeviceKey(userId: String) async throws -> String? {
         try await getValue(for: .deviceKey(userId: userId))
-    }
-
-    func getDeviceAuthKey(userId: String) async throws -> String? {
-        try? await getValue(for: .deviceAuthKey(userId: userId))
-    }
-
-    func getDeviceAuthKeyMetadata(userId: String) async throws -> String? {
-        try? await getValue(for: .deviceAuthKeyMetadata(userId: userId))
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -529,11 +485,6 @@ extension DefaultKeychainRepository {
         try await setValue(value, for: .deviceKey(userId: userId))
     }
 
-    func setDeviceAuthKey(recordJson record: String, metadataJson metadata: String, userId: String) async throws {
-        try await setValue(record, for: .deviceAuthKey(userId: userId))
-        try await setValue(metadata, for: .deviceAuthKeyMetadata(userId: userId))
-    }
-    
     func setRefreshToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .refreshToken(userId: userId))
     }
@@ -563,6 +514,74 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func setUserBiometricAuthKey(userId: String, value: String) async throws {
         let key = KeychainItem.biometrics(userId: userId)
         try await setUserAuthKey(for: key, value: value)
+    }
+}
+
+// MARK: DeviceAuthKeychainRepository
+
+extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
+    func deleteDeviceAuthKey(userId: String) async throws {
+        // We want to delete metadata first because that's what's used to determine if we're in a
+        // consistent state.
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .deviceAuthKeyMetadata(userId: userId)),
+        )
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .deviceAuthKey(userId: userId)),
+        )
+    }
+
+    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord? {
+        guard let json = try? await getValue(for: .deviceAuthKey(userId: userId)) else {
+            return nil
+        }
+
+        guard let jsonData = json.data(using: .utf8) else {
+            return nil
+        }
+
+        let record: DeviceAuthKeyRecord = try JSONDecoder.defaultDecoder.decode(
+            DeviceAuthKeyRecord.self,
+            from: jsonData,
+        )
+
+        return record
+    }
+
+    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
+        guard let json = try? await getValue(for: .deviceAuthKeyMetadata(userId: userId)) else {
+            return nil
+        }
+
+        guard let jsonData = json.data(using: .utf8) else {
+            return nil
+        }
+
+        let metadata: DeviceAuthKeyMetadata = try JSONDecoder.defaultDecoder.decode(
+            DeviceAuthKeyMetadata.self,
+            from: jsonData,
+        )
+
+        return metadata
+    }
+
+    func setDeviceAuthKey(
+        record: DeviceAuthKeyRecord,
+        metadata: DeviceAuthKeyMetadata,
+        userId: String,
+    ) async throws {
+        let recordData = try JSONEncoder.defaultEncoder.encode(record)
+        let metadataData = try JSONEncoder.defaultEncoder.encode(metadata)
+        guard let recordString = String(data: recordData, encoding: .utf8),
+              let metadataString = String(data: metadataData, encoding: .utf8)
+        else {
+            throw BitwardenError.dataError("Device Auth Key data is not valid.")
+        }
+
+        // We want to set metadata last because that's what's used to determine if we're in a
+        // consistent state.
+        try await setValue(recordString, for: .deviceAuthKey(userId: userId))
+        try await setValue(metadataString, for: .deviceAuthKeyMetadata(userId: userId))
     }
 }
 
