@@ -27,7 +27,7 @@ class EnvironmentURLDataTests: XCTestCase {
     }
 
     /// `defaultUS` returns the properly configured `EnvironmentURLData`
-    /// with the deafult Urls for united states region.
+    /// with the default Urls for united states region.
     func test_defaultUS() {
         XCTAssertEqual(
             EnvironmentURLData.defaultUS,
@@ -44,7 +44,7 @@ class EnvironmentURLDataTests: XCTestCase {
     }
 
     /// `defaultEU` returns the properly configured `EnvironmentURLData`
-    /// with the deafult Urls for europe region.
+    /// with the default Urls for europe region.
     func test_defaultEU() {
         XCTAssertEqual(
             EnvironmentURLData.defaultEU,
@@ -217,7 +217,7 @@ class EnvironmentURLDataTests: XCTestCase {
         )
     }
 
-    /// `upgradeToPremiumURL` returns the upgrate to premium URL.
+    /// `upgradeToPremiumURL` returns the upgrade to premium URL.
     func test_upgradeToPremiumURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),

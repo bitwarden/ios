@@ -368,7 +368,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
     @MainActor
     func test_refreshTOTPCodes_searchItemsEmpty() throws {
         // WORKAROUND: initialize `configuredTOTPRefreshSchedulingItems` with something so `waitFor`
-        // doens't have race condition issues.
+        // doesn't have race condition issues.
         totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems = [
             VaultListItem(id: "1", itemType: .cipher(.fixture())),
         ]

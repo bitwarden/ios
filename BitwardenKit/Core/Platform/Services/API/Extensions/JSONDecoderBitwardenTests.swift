@@ -32,7 +32,7 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
         )
     }
 
-    /// `JSONDecoder.cxfDecoder` can decode URLs succesfully when they don't present schemes
+    /// `JSONDecoder.cxfDecoder` can decode URLs successfully when they don't present schemes
     /// prefixing http or https depending on if it's an IP Address on properties named "urls" and
     /// if they can be converted directly to URL or not..
     func test_cxfDecoder_decodesNoSchemeURLsSuccessfully() throws {

@@ -110,7 +110,7 @@ private struct VaultAutofillListSearchableView: View {
                 await store.perform(.search(store.state.searchText))
             }
             .task(id: store.state.excludedCredentialIdFound) {
-                await store.perform(.excludedCredentialFoundChaged)
+                await store.perform(.excludedCredentialFoundChanged)
             }
             .toast(
                 store.binding(
