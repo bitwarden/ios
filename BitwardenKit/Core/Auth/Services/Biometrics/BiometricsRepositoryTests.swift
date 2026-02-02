@@ -4,9 +4,6 @@ import LocalAuthentication
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
-@testable import BitwardenSharedMocks
-
 // MARK: - BiometricsRepositoryTests
 
 final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length

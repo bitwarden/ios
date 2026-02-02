@@ -18,7 +18,7 @@ class MockBiometricsRepository: BiometricsRepository {
         getBiometricAuthenticationTypeResult
     }
 
-    func getBiometricUnlockStatus(userId: String?) async throws -> BitwardenShared.BiometricsUnlockStatus {
+    func getBiometricUnlockStatus(userId: String?) async throws -> BiometricsUnlockStatus {
         if let getBiometricUnlockStatusError {
             throw getBiometricUnlockStatusError
         }
