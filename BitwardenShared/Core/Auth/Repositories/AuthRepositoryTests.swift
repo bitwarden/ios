@@ -1542,7 +1542,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             UpdatePasswordResponse(passwordHash: "NEW_PASSWORD_HASH", newKey: "NEW_KEY"),
         )
         stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
-            accountKeys: .fixture(),
+            accountKeys: .fixtureFilled(),
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "KEY",
         )
@@ -1566,7 +1566,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             stateService.accountEncryptionKeys["1"],
             AccountEncryptionKeys(
-                accountKeys: .fixture(),
+                accountKeys: .fixtureFilled(),
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedUserKey: "NEW_KEY",
             ),
@@ -1579,7 +1579,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 userId: "1",
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
-                accountCryptographicState: .v1(privateKey: "PRIVATE_KEY"),
+                accountCryptographicState: .v2(
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
+                    signingKey: "WRAPPED_SIGNING_KEY",
+                    securityState: "SECURITY_STATE",
+                ),
                 method: .masterPasswordUnlock(
                     password: "NEW_PASSWORD",
                     masterPasswordUnlock: MasterPasswordUnlockData(
@@ -2066,8 +2071,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2244,8 +2249,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: KdfConfig().sdkKdf,
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2442,8 +2447,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(100_000)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2502,8 +2507,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(100_000)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2557,8 +2562,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(600_000)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2716,8 +2721,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2755,8 +2760,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2803,8 +2808,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2871,8 +2876,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2939,8 +2944,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -2997,8 +3002,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
@@ -3041,8 +3046,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v2(
-                    privateKey: "PRIVATE_KEY",
-                    signedPublicKey: "VERIFYING_KEY",
+                    privateKey: "WRAPPED_PRIVATE_KEY",
+                    signedPublicKey: "SIGNED_PUBLIC_KEY",
                     signingKey: "WRAPPED_SIGNING_KEY",
                     securityState: "SECURITY_STATE",
                 ),
