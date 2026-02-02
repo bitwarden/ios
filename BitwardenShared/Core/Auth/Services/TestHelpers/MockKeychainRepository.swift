@@ -7,33 +7,27 @@ class MockKeychainRepository: KeychainRepository {
     var appId: String = "mockAppId"
     var mockStorage = [String: String]()
     var securityType: SecAccessControlCreateFlags?
-    var deleteAllItemsCalled = false
-    var deleteAllItemsResult: Result<Void, Error> = .success(())
-    var deleteItemsForUserIds = [String]()
-    var deleteItemsForUserResult: Result<Void, Error> = .success(())
+
     var deleteResult: Result<Void, Error> = .success(())
     var getResult: Result<String, Error>?
     var setResult: Result<Void, Error> = .success(())
 
+    var deleteAllItemsCalled = false
+    var deleteAllItemsResult: Result<Void, Error> = .success(())
+    var deleteItemsForUserIds = [String]()
+    var deleteItemsForUserResult: Result<Void, Error> = .success(())
+
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
-
     var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
-
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
-
+    var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
     var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
 
-    var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
-
     var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
-
     var setAccessTokenResult: Result<Void, Error> = .success(())
-
     var setDeviceKeyResult: Result<Void, Error> = .success(())
-
-    var setRefreshTokenResult: Result<Void, Error> = .success(())
-
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
+    var setRefreshTokenResult: Result<Void, Error> = .success(())
 
     func deleteAllItems() async throws {
         deleteAllItemsCalled = true
