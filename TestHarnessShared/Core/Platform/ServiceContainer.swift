@@ -25,12 +25,14 @@ public class ServiceContainer: Services {
     }
 
     public convenience init() {
-        let appInfoService = DefaultAppInfoService()
+        let appInfoService = DefaultAppInfoService(configServiceProvider: { nil })
         let stateService = DefaultStateService()
+        let timeProvider = CurrentTime()
 
         let errorReportBuilder = DefaultErrorReportBuilder(
             activeAccountStateProvider: stateService,
             appInfoService: appInfoService,
+            timeProvider: timeProvider,
         )
 
         self.init(

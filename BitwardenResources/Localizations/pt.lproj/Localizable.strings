@@ -145,7 +145,7 @@
 "MinNumbers" = "Mínimo de números";
 "MinSpecial" = "Mínimo de caracteres especiais";
 "MoreSettings" = "Mais definições";
-"MustLogInMainApp" = "Tem de iniciar sessão na app Bitwarden principal antes de poder utilizar a extensão.";
+"MustLogInMainApp" = "Tem de iniciar sessão na app principal do Bitwarden antes de poder utilizar a extensão.";
 "Never" = "Nunca";
 "NewItemCreated" = "Item adicionado";
 "NoFavorites" = "Não existem favoritos no seu cofre.";
@@ -368,7 +368,7 @@
 "YubiKeyInstructionIos" = "Para continuar, segure a sua YubiKey NEO contra a parte de trás do dispositivo.";
 "BitwardenAutofillAccessibilityServiceDescription2" = "Pode ser útil utilizar o serviço de acessibilidade quando as aplicações não suportam o serviço de preenchimento automático padrão.";
 "AutofillActivated" = "Preenchimento automático ativado!";
-"MustLogInMainAppAutofill" = "Tem de iniciar sessão na aplicação Bitwarden principal antes de poder utilizar o preenchimento automático.";
+"MustLogInMainAppAutofill" = "Tem de iniciar sessão na app principal do Bitwarden antes de poder utilizar o Preenchimento automático.";
 "AutofillSetup" = "As suas credenciais estão agora facilmente acessíveis a partir do seu teclado ao iniciar sessão em aplicações e sites.";
 "AutofillSetup2" = "Recomendamos a desativação de quaisquer outras aplicações de preenchimento automático nas Definições, se não tencionar utilizá-las.";
 "BitwardenAutofillDescription" = "Aceda ao seu cofre diretamente a partir do seu teclado para preencher rapidamente as palavras-passe automaticamente.";
@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre.";
 "RestartPremium" = "Reiniciar o Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Este item está arquivado. Guardar as alterações restaurá-lo-á no seu cofre.";
+"SettingUpAutofill" = "A configurar o preenchimento automático…";

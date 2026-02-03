@@ -37,9 +37,12 @@ protocol AuthRepository: AnyObject {
 
     /// Checks the session timeout for all accounts, and locks or logs out as needed.
     ///
-    /// - Parameter handleActiveUser: A closure to handle the active user.
+    /// - Parameters:
+    ///   - isAppRestart: Whether the app has been restarted and is checking timeouts on app
+    ///     startup. Defaults to false.
+    ///   - handleActiveUser: A closure to handle the active user.
     ///
-    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async
+    func checkSessionTimeouts(isAppRestart: Bool, handleActiveUser: ((String) async -> Void)?) async
 
     /// Clears the pins stored on device and in memory.
     ///
@@ -310,6 +313,14 @@ protocol AuthRepository: AnyObject {
 }
 
 extension AuthRepository {
+    /// Checks the session timeout for all accounts, and locks or logs out as needed.
+    ///
+    /// - Parameter handleActiveUser: A closure to handle the active user.
+    ///
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async {
+        await checkSessionTimeouts(isAppRestart: false, handleActiveUser: handleActiveUser)
+    }
+
     /// Whether active user account can be locked.
     ///
     /// - Returns: `true` if active user account can be locked, `false` otherwise.
@@ -469,6 +480,9 @@ class DefaultAuthRepository {
     /// The service used by the application to manage trust device information.
     private let trustDeviceService: TrustDeviceService
 
+    /// The service used by the application to manage user session state.
+    private let userSessionStateService: UserSessionStateService
+
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -496,6 +510,7 @@ class DefaultAuthRepository {
     ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The service used by the application to manage account state.
     ///   - trustDeviceService: The service used by the application to manage trust device information.
+    ///   - userSessionStateService: The service used by the application to manage user session state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -517,6 +532,7 @@ class DefaultAuthRepository {
         policyService: PolicyService,
         stateService: StateService,
         trustDeviceService: TrustDeviceService,
+        userSessionStateService: UserSessionStateService,
         vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
@@ -537,6 +553,7 @@ class DefaultAuthRepository {
         self.policyService = policyService
         self.stateService = stateService
         self.trustDeviceService = trustDeviceService
+        self.userSessionStateService = userSessionStateService
         self.vaultTimeoutService = vaultTimeoutService
     }
 }
@@ -567,7 +584,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.getUserHasMasterPassword(userId: userId)
     }
 
-    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)? = nil) async {
+    func checkSessionTimeouts(isAppRestart: Bool = false, handleActiveUser: ((String) async -> Void)? = nil) async {
         do {
             let accounts = try await getAccounts()
             guard !accounts.isEmpty else { return }
@@ -578,7 +595,10 @@ extension DefaultAuthRepository: AuthRepository {
                 let userId = account.userId
 
                 // Check time-based timeout
-                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
+                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(
+                    userId: userId,
+                    isAppRestart: isAppRestart,
+                )
                 // Check if account can't be unlocked after restart (no master password, PIN, or biometrics)
                 let shouldLogoutDueToNoUnlockMethod = !account.isUnlocked // Account locked
                     && !account.canBeLocked // Doesn't have an unlock method
@@ -1110,7 +1130,7 @@ extension DefaultAuthRepository: AuthRepository {
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
         let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) == true
-        let hasNeverLock = await (try? stateService.getVaultTimeout(userId: account.profile.userId)) == .never
+        let hasNeverLock = await (try? userSessionStateService.getVaultTimeout(userId: account.profile.userId)) == .never
         let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(
             userId: account.profile.userId,
         )) == true

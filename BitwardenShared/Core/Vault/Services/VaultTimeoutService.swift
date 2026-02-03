@@ -23,9 +23,13 @@ protocol VaultTimeoutService: AnyObject {
 
     /// Whether a session timeout should occur.
     ///
+    /// - Parameters:
+    ///   - userId: The user ID to check.
+    ///   - isAppRestart: Whether the app has been restarted and is checking timeouts on app startup.
+    ///     Defaults to false.
     /// - Returns: Whether a session timeout should occur.
     ///
-    func hasPassedSessionTimeout(userId: String) async throws -> Bool
+    func hasPassedSessionTimeout(userId: String, isAppRestart: Bool) async throws -> Bool
 
     /// Checks the locked status of a user vault by user id
     ///  - Parameter userId: The userId of the account
@@ -95,6 +99,19 @@ protocol VaultTimeoutService: AnyObject {
     func vaultLockStatusPublisher() async -> AnyPublisher<VaultLockStatus?, Never>
 }
 
+// MARK: - VaultTimeoutService Extensions
+
+extension VaultTimeoutService {
+    /// Whether a session timeout should occur.
+    ///
+    /// - Parameter userId: The user ID to check.
+    /// - Returns: Whether a session timeout should occur.
+    ///
+    func hasPassedSessionTimeout(userId: String) async throws -> Bool {
+        try await hasPassedSessionTimeout(userId: userId, isAppRestart: false)
+    }
+}
+
 // MARK: - DefaultVaultTimeoutService
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
@@ -121,6 +138,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Provides the current time.
     private let timeProvider: TimeProvider
 
+    /// A service that provides state management functionality around user session values.
+    private let userSessionStateService: UserSessionStateService
+
     /// A subject containing the user's vault locked status mapped to their user ID.
     private let vaultLockStatusSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
@@ -136,6 +156,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
+    ///   - userSessionStateService: A service that provides state management functionality around user session values.
     ///
     init(
         biometricsRepository: BiometricsRepository,
@@ -145,6 +166,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         timeProvider: TimeProvider,
+        userSessionStateService: UserSessionStateService,
     ) {
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
@@ -153,21 +175,22 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
         self.timeProvider = timeProvider
+        self.userSessionStateService = userSessionStateService
     }
 
     // MARK: Methods
 
-    func hasPassedSessionTimeout(userId: String) async throws -> Bool {
+    func hasPassedSessionTimeout(userId: String, isAppRestart: Bool = false) async throws -> Bool {
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         switch vaultTimeout {
-        case .never,
-             .onAppRestart:
-            // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
-            // In these cases, return false.
+        case .never:
             return false
+        case .onAppRestart:
+            // On app restart, trigger timeout if this is actually an app restart
+            return isAppRestart
         default:
             // Otherwise, calculate a timeout.
-            guard let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+            guard let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
             else { return true }
 
             return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
@@ -228,7 +251,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func setLastActiveTime(userId: String) async throws {
         let now = timeProvider.presentTime
-        try await stateService.setLastActiveTime(now, userId: userId)
+        try await userSessionStateService.setLastActiveTime(now, userId: userId)
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         try await updateSharedTimeout(
             lastActiveTime: now,
@@ -238,9 +261,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
-        try await stateService.setVaultTimeout(value: value, userId: userId)
+        try await userSessionStateService.setVaultTimeout(value, userId: userId)
         guard let userId else { return }
-        let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+        let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
         try await updateSharedTimeout(
             lastActiveTime: lastActiveTime,
             timeoutValue: value,
@@ -255,7 +278,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
-        try await stateService.getVaultTimeout(userId: userId)
+        try await userSessionStateService.getVaultTimeout(userId: userId)
     }
 
     func vaultLockStatusPublisher() async -> AnyPublisher<VaultLockStatus?, Never> {

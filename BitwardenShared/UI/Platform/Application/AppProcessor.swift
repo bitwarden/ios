@@ -230,7 +230,8 @@ public class AppProcessor {
                 emailVerificationToken: verificationToken,
                 userEmail: email,
                 fromEmail: Bool(fromEmail) ?? true,
-            )))
+            ),
+        ))
     }
 
     /// Handles importing credentials using Credential Exchange Protocol.

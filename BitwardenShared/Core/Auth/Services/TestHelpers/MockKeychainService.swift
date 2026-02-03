@@ -15,6 +15,9 @@ class MockKeychainService {
     var deleteResult: Result<Void, KeychainServiceError> = .success(())
     var searchQuery: CFDictionary?
     var searchResult: Result<AnyObject?, KeychainServiceError> = .success(nil)
+    var updateAttributes: CFDictionary?
+    var updateQuery: CFDictionary?
+    var updateResult: Result<Void, Error> = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
 }
 
 // MARK: KeychainService
@@ -39,6 +42,12 @@ extension MockKeychainService: KeychainService {
     func search(query: CFDictionary) throws -> AnyObject? {
         searchQuery = query
         return try searchResult.get()
+    }
+
+    func update(query: CFDictionary, attributes: CFDictionary) throws {
+        updateQuery = query
+        updateAttributes = attributes
+        try updateResult.get()
     }
 }
 
