@@ -1,4 +1,5 @@
 import AuthenticatorBridgeKit
+import BitwardenKit
 import Foundation
 
 public class MockSharedKeychainService: SharedKeychainService {
@@ -10,6 +11,9 @@ public class MockSharedKeychainService: SharedKeychainService {
     public var deleteResult: Result<Void, SharedKeychainServiceError> = .success(())
     public var searchQuery: CFDictionary?
     public var searchResult: Result<AnyObject?, SharedKeychainServiceError> = .success(nil)
+    public var updateAttributes: CFDictionary?
+    public var updateQuery: CFDictionary?
+    public var updateResult: Result<Void, Error> = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
 
     public init() {}
 
@@ -26,6 +30,12 @@ public class MockSharedKeychainService: SharedKeychainService {
     public func search(query: CFDictionary) throws -> AnyObject? {
         searchQuery = query
         return try searchResult.get()
+    }
+
+    public func update(query: CFDictionary, attributes: CFDictionary) throws {
+        updateQuery = query
+        updateAttributes = attributes
+        try updateResult.get()
     }
 
     public func setSearchResultData(_ data: Data) {

@@ -88,6 +88,8 @@ extension BitwardenSdk.Send {
             revisionDate: model.revisionDate,
             deletionDate: model.deletionDate,
             expirationDate: model.expirationDate,
+            emails: nil,
+            authType: AuthType.none,
         )
     }
 }

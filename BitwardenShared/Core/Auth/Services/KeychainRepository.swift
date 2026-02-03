@@ -372,22 +372,26 @@ class DefaultKeychainRepository: KeychainRepository {
             protection: item.protection,
             for: item.accessControlFlags ?? [],
         )
-        let query = await keychainQueryValues(
-            for: item,
-            adding: [
-                kSecAttrAccessControl: accessControl as Any,
-                kSecValueData: Data(value.utf8),
-            ],
-        )
+        let baseQuery = await keychainQueryValues(for: item)
+        let updateAttributes: CFDictionary = [
+            kSecAttrAccessControl: accessControl as Any,
+            kSecValueData: Data(value.utf8),
+        ] as CFDictionary
 
-        // Delete the previous secret, if it exists,
-        //  otherwise we get `errSecDuplicateItem`.
-        try? keychainService.delete(query: query)
-
-        // Add the new key.
-        try keychainService.add(
-            attributes: query,
-        )
+        do {
+            // Try to update first - if item exists, this avoids delete-then-add race condition
+            try keychainService.update(query: baseQuery, attributes: updateAttributes)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            // Item doesn't exist, so add it
+            let addAttributes = await keychainQueryValues(
+                for: item,
+                adding: [
+                    kSecAttrAccessControl: accessControl as Any,
+                    kSecValueData: Data(value.utf8),
+                ],
+            )
+            try keychainService.add(attributes: addAttributes)
+        }
     }
 }
 

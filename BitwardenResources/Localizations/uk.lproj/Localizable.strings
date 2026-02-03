@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Щоб відновити доступ до архіву, поновіть передплату Premium. Якщо ви редагуєте архівований запис перед поновленням, його буде повернуто назад у ваше сховище.";
 "RestartPremium" = "Поновити Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Цей запис архівовано. Збереження змін відновить його до вашого сховища.";
+"SettingUpAutofill" = "Налаштування автозаповнення…";
