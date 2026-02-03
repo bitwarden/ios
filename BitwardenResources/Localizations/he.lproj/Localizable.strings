@@ -1304,3 +1304,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
 "RestartPremium" = "Restart Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "פריט זה בארכיב. שמירת שינויים תשיב אותו לכספת שלך.";
+"SettingUpAutofill" = "Setting up Autofill…";

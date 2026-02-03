@@ -1303,3 +1303,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "För att återfå åtkomst till ditt arkiv, starta om Premium-abonnemanget. Om du redigerar detaljer för ett arkiverat objekt innan du startar om kommer det att flyttas tillbaka till ditt valv.";
 "RestartPremium" = "Starta om Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Detta objekt är arkiverat. Spara ändringar kommer att återställa det till ditt valv.";
+"SettingUpAutofill" = "Ställer in Autofyll…";
