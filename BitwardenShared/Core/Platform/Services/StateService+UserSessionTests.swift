@@ -62,6 +62,17 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         XCTAssertEqual(lastActiveTime, date)
     }
 
+    /// `getLastActiveTime(userId:)` returns nil when the time has never been set.
+    func test_getLastActiveTime_itemNotFound() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        userSessionKeychainRepository.getLastActiveTimeThrowableError = KeychainServiceError.osStatusError(
+            errSecItemNotFound,
+        )
+        let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
+        XCTAssertNil(lastActiveTime)
+    }
+
     /// `setLastActiveTime(userId:)` sets the user's last active time.
     func test_setLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))

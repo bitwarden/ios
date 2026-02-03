@@ -2297,7 +2297,11 @@ extension DefaultStateService: UserSessionStateService {
 
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
-        return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
+        do {
+            return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return nil
+        }
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
