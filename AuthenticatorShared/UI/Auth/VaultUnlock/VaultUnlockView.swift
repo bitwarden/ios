@@ -46,7 +46,7 @@ struct VaultUnlockView: View {
 
     /// A button to trigger a biometric auth unlock.
     @ViewBuilder private var biometricAuthButton: some View {
-        if case let .available(biometryType, true, true) = store.state.biometricUnlockStatus {
+        if case let .available(biometryType, true) = store.state.biometricUnlockStatus {
             AsyncButton {
                 Task { await store.perform(.unlockWithBiometrics) }
             } label: {
@@ -90,7 +90,6 @@ struct VaultUnlockView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .faceID,
                                 enabled: false,
-                                hasValidIntegrity: false,
                             ),
                         ),
                     ),
@@ -106,7 +105,6 @@ struct VaultUnlockView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .faceID,
                                 enabled: true,
-                                hasValidIntegrity: true,
                             ),
                         ),
                     ),
@@ -122,7 +120,6 @@ struct VaultUnlockView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .touchID,
                                 enabled: true,
-                                hasValidIntegrity: true,
                             ),
                         ),
                     ),

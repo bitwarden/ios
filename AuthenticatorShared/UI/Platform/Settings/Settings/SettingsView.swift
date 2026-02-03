@@ -173,7 +173,7 @@ struct SettingsView: View {
     /// The security section containing biometric unlock and session timeout settings.
     @ViewBuilder private var securitySection: some View {
         switch store.state.biometricUnlockStatus {
-        case let .available(type, enabled: enabled, _):
+        case let .available(type, enabled: enabled):
             SectionView(Localizations.security) {
                 ContentBlock {
                     biometricUnlockToggle(enabled: enabled, type: type)
@@ -299,7 +299,6 @@ struct SettingsView_Previews: PreviewProvider {
                             biometricUnlockStatus: .available(
                                 .faceID,
                                 enabled: false,
-                                hasValidIntegrity: true,
                             ),
                         ),
                     ),
