@@ -15,7 +15,7 @@ class DataTests: BitwardenTestCase {
     }
 
     /// `Data(base64urlEncoded:)` decodes a padded base64url-encoded String into Data.
-    func test_fromBase64UrlStringPadded() {
+    func test_fromBase64urlString_padded() {
         let subject = "9031WCEDOh6ZUGV_-wvUSw=="
         XCTAssertEqual(
             try XCTUnwrap(Data(base64urlEncoded: subject)),
@@ -25,7 +25,7 @@ class DataTests: BitwardenTestCase {
     }
 
     /// `Data(base64urlEncoded:)` decodes an unpadded base64url-encoded String into Data.
-    func test_fromBase64UrlStringUnpadded() {
+    func test_fromBase64urlString_unpadded() {
         let subject = "9031WCEDOh6ZUGV_-wvUSw"
         XCTAssertEqual(
             try XCTUnwrap(Data(base64urlEncoded: subject)),
@@ -35,7 +35,7 @@ class DataTests: BitwardenTestCase {
     }
 
     /// `Data(base64urlEncoded:)` throws an error for strings with invalid length.
-    func test_fromBase64UrlStringInvalidLength() {
+    func test_fromBase64urlString_invalidLength() {
         let subject = "ABCDE" // length 5, which is invalid (5 % 4 == 1)
         XCTAssertThrowsError(try Data(base64urlEncoded: subject)) { error in
             XCTAssertEqual(error as? URLDecodingError, .invalidLength)
