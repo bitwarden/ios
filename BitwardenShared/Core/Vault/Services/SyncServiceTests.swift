@@ -540,6 +540,108 @@ class SyncServiceTests: BitwardenTestCase {
         )
     }
 
+    // MARK: Monotonic Time Tests
+
+    /// `fetchSync()` doesn't sync if monotonic time shows interval hasn't passed.
+    func test_fetchSync_monotonicTime_blocksEarlySyncAttempt() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.monotonicTime = 1800.0 // Only 800 seconds elapsed (< 30 min)
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty)
+    }
+
+    /// `fetchSync()` syncs if monotonic time shows interval has passed.
+    func test_fetchSync_monotonicTime_allowsSyncAfterInterval() async throws {
+        client.results = [
+            .httpSuccess(testData: .accountRevisionDate(timeProvider.presentTime)),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.monotonicTime = 2801.0 // 1801 seconds elapsed (> 30 min)
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+    }
+
+    /// `fetchSync()` forces sync when device reboot is detected.
+    func test_fetchSync_monotonicTime_forceSyncAfterReboot() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 10000.0
+        timeProvider.monotonicTime = 100.0 // Negative elapsed (reboot)
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertEqual(client.requests.count, 1)
+    }
+
+    /// `fetchSync()` falls back to wall-clock when monotonic time unavailable (migration).
+    func test_fetchSync_monotonicTime_fallbackToWallClockOnMigration() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1700)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = nil // Migration case
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty) // Wall-clock fallback blocks
+    }
+
+    /// `fetchSync()` protects against clock manipulation using monotonic time.
+    func test_fetchSync_monotonicTime_protectsAgainstClockAttack() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        // User sets clock back 1 hour
+        let manipulatedTime = timeProvider.presentTime.addingTimeInterval(-3600)
+        stateService.lastSyncTimeByUserId["1"] = manipulatedTime
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.monotonicTime = 1600.0 // Only 10 min monotonic elapsed
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty) // Attack blocked
+    }
+
+    /// `fetchSync()` updates monotonic time after successful sync.
+    func test_fetchSync_updatesMonotonicTimeAfterSync() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        timeProvider.monotonicTime = 5000.0
+
+        try await subject.fetchSync(forceSync: false)
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncMonotonicTimeByUserId["1"]),
+            5000.0,
+        )
+    }
+
     /// `fetchSync()` syncs if there's no existing last sync time.
     func test_fetchSync_needsSync_noLastSyncTime() async throws {
         client.result = .httpSuccess(testData: .syncWithCipher)

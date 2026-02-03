@@ -280,8 +280,9 @@ class DefaultSyncService: SyncService {
             return true
         }
 
-        if isPeriodic, lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
-            return false
+        if isPeriodic,
+           let shouldSync = try await shouldSyncBasedOnPeriodicSyncTime(lastSyncTime: lastSyncTime, userId: userId) {
+            return shouldSync
         }
 
         guard !onlyCheckLocalData else {
@@ -301,11 +302,48 @@ class DefaultSyncService: SyncService {
                     timeProvider.presentTime,
                     userId: userId,
                 )
+                try await stateService.setLastSyncMonotonicTime(
+                    timeProvider.monotonicTime,
+                    userId: userId,
+                )
                 return false
             }
         } catch {
             return false
         }
+    }
+
+    /// Whether sync should be done based on periodic sync time conditions.
+    /// This checks minimum sync interval using monotonic time for tamper-resistance, if possible.
+    /// - Parameters:
+    ///   - lastSyncTime: The last sync wall-clock time.
+    ///   - userId: The user ID to check whether sync is needed.
+    /// - Returns: `true` if it should sync, `false` it not and `nil` if this cannot be used to determine
+    /// whether sync should be done or not.
+    private func shouldSyncBasedOnPeriodicSyncTime(lastSyncTime: Date, userId: String) async throws -> Bool? {
+        let lastSyncMonotonic = try await stateService.getLastSyncMonotonicTime(userId: userId)
+
+        // Migration fallback: use wall-clock if monotonic time not available
+        guard let lastSyncMonotonic else {
+            if lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
+                return false
+            }
+            return nil
+        }
+
+        let elapsedMonotonic = timeProvider.monotonicTime - lastSyncMonotonic
+
+        // Reboot detection: negative elapsed time means device rebooted
+        if elapsedMonotonic < 0 {
+            return true // Force sync after reboot (safer approach)
+        }
+
+        // Check if minimum interval has passed
+        if elapsedMonotonic < Constants.minimumSyncInterval {
+            return false
+        }
+
+        return nil
     }
 }
 
@@ -351,6 +389,7 @@ extension DefaultSyncService {
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
         try await policyService.replacePolicies(response.policies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
+        try await stateService.setLastSyncMonotonicTime(timeProvider.monotonicTime, userId: userId)
         try await checkVaultTimeoutPolicy()
         try await checkUserNeedsVaultMigration()
 

@@ -992,6 +992,66 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getLastActiveMonotonicTime(userId:)` returns the last active monotonic time for a user.
+    func test_getLastActiveMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let expectedMonotonicTime: TimeInterval = 12345.67
+        userSessionKeychainRepository.getLastActiveMonotonicTimeReturnValue = expectedMonotonicTime
+
+        let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: account.profile.userId)
+        XCTAssertEqual(monotonicTime, expectedMonotonicTime)
+        XCTAssertEqual(userSessionKeychainRepository.getLastActiveMonotonicTimeReceivedUserId, account.profile.userId)
+    }
+
+    /// `getLastActiveMonotonicTime(userId:)` returns nil when no monotonic time is stored.
+    func test_getLastActiveMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        userSessionKeychainRepository.getLastActiveMonotonicTimeReturnValue = nil
+
+        let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: nil)
+        XCTAssertNil(monotonicTime)
+        XCTAssertEqual(userSessionKeychainRepository.getLastActiveMonotonicTimeReceivedUserId, account.profile.userId)
+    }
+
+    /// `getLastActiveMonotonicTime(userId:)` throws an error if there's no active account.
+    func test_getLastActiveMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getLastActiveMonotonicTime(userId: nil)
+        }
+    }
+
+    /// `getLastSyncMonotonicTime(userId:)` returns the last sync monotonic time for a user.
+    func test_getLastSyncMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let expectedMonotonicTime: TimeInterval = 98765.43
+        appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] = expectedMonotonicTime
+
+        let monotonicTime = try await subject.getLastSyncMonotonicTime(userId: account.profile.userId)
+        XCTAssertEqual(monotonicTime, expectedMonotonicTime)
+    }
+
+    /// `getLastSyncMonotonicTime(userId:)` returns nil when no monotonic time is stored.
+    func test_getLastSyncMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime = try await subject.getLastSyncMonotonicTime(userId: nil)
+        XCTAssertNil(monotonicTime)
+    }
+
+    /// `getLastSyncMonotonicTime(userId:)` throws an error if there's no active account.
+    func test_getLastSyncMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getLastSyncMonotonicTime(userId: nil)
+        }
+    }
+
     /// `getPreAuthServerConfig` returns the saved pre-auth server config.
     func test_getPreAuthServerConfig() async {
         let config = ServerConfig(
@@ -1211,8 +1271,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         usesKeyConnector = try await subject.getUsesKeyConnector()
         XCTAssertTrue(usesKeyConnector)
     }
-
-
 
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
@@ -2167,6 +2225,79 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.hasPerformedSyncAfterLogin["1"] = true
         try await subject.setHasPerformedSyncAfterLogin(false, userId: "1")
         XCTAssertFalse(appSettingsStore.hasPerformedSyncAfterLogin["1"]!)
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` sets the last active monotonic time for a user.
+    func test_setLastActiveMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime: TimeInterval = 54321.98
+
+        try await subject.setLastActiveMonotonicTime(monotonicTime, userId: account.profile.userId)
+
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime,
+            monotonicTime,
+        )
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.userId,
+            account.profile.userId,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` sets nil to clear the monotonic time.
+    func test_setLastActiveMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.setLastActiveMonotonicTime(nil, userId: nil)
+
+        XCTAssertNil(userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime)
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.userId,
+            account.profile.userId,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` throws an error if there's no active account.
+    func test_setLastActiveMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setLastActiveMonotonicTime(1000.0, userId: nil)
+        }
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` sets the last sync monotonic time for a user.
+    func test_setLastSyncMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime: TimeInterval = 11111.22
+
+        try await subject.setLastSyncMonotonicTime(monotonicTime, userId: account.profile.userId)
+
+        XCTAssertEqual(appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId], monotonicTime)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` sets nil to clear the monotonic time.
+    func test_setLastSyncMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        // First set a value
+        appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] = 12345.0
+
+        // Then clear it
+        try await subject.setLastSyncMonotonicTime(nil, userId: nil)
+
+        XCTAssertNil(appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] ?? nil)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` throws an error if there's no active account.
+    func test_setLastSyncMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setLastSyncMonotonicTime(2000.0, userId: nil)
+        }
     }
 
     /// `setLearnGeneratorActionCardStatus(_:)` sets the learn generator action card status.

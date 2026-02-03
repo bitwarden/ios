@@ -12,6 +12,14 @@ public protocol TimeProvider: AnyObject {
     ///
     var presentTime: Date { get }
 
+    /// The monotonic time expressed as a `TimeInterval` since system boot.
+    ///
+    /// This time is based on `ProcessInfo.systemUptime` and cannot be affected by user
+    /// clock changes, making it suitable for measuring elapsed time intervals securely.
+    /// The value resets to 0 when the device reboots.
+    ///
+    var monotonicTime: TimeInterval { get }
+
     /// A helper to calculate the elapsed time since a given `Date`.
     ///
     /// - Parameter date: The time to compare with the provider's `presentTime`
@@ -27,6 +35,10 @@ public protocol TimeProvider: AnyObject {
 public class CurrentTime: TimeProvider {
     public var presentTime: Date {
         .now
+    }
+
+    public var monotonicTime: TimeInterval {
+        ProcessInfo.processInfo.systemUptime
     }
 
     public init() {}

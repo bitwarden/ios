@@ -7,6 +7,9 @@ public class PreviewTimeProvider: TimeProvider {
     /// A fixed date to use for previews.
     public var fixedDate: Date
 
+    /// THe current monotonic time.
+    public var monotonicTime: TimeInterval
+
     public var presentTime: Date {
         fixedDate
     }
@@ -15,8 +18,10 @@ public class PreviewTimeProvider: TimeProvider {
         fixedDate: Date = .init(
             timeIntervalSinceReferenceDate: 1_695_000_011,
         ),
+        monotonicTime: TimeInterval = 0,
     ) {
         self.fixedDate = fixedDate
+        self.monotonicTime = monotonicTime
     }
 
     public func timeSince(_ date: Date) -> TimeInterval {

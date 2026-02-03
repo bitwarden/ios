@@ -231,6 +231,13 @@ protocol StateService: AnyObject {
     ///
     func getLastSyncTime(userId: String?) async throws -> Date?
 
+    /// Gets the monotonic time of the last sync for a user.
+    ///
+    /// - Parameter userId: The user ID associated with the last sync monotonic time.
+    /// - Returns: The user's last sync monotonic time as a `TimeInterval` since system boot.
+    ///
+    func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval?
+
     /// The last value of the connect to watch setting, ignoring the user id. Used for
     /// sending the status to the watch if the user is logged out.
     ///
@@ -608,6 +615,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
+    /// Sets the monotonic time of the last successful sync for an account.
+    ///
+    /// - Parameters:
+    ///   - monotonicTime: The monotonic time of the last successful sync.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws
 
     /// Set pending login request data from a push notification.
     ///
@@ -1643,6 +1658,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.lastSyncTime(userId: userId)
     }
 
+    func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.lastSyncMonotonicTime(userId: userId)
+    }
+
     func getLastUserShouldConnectToWatch() async -> Bool {
         appSettingsStore.lastUserShouldConnectToWatch
     }
@@ -1987,6 +2007,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         lastSyncTimeByUserIdSubject.value[userId] = date
     }
 
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setLastSyncMonotonicTime(monotonicTime, userId: userId)
+    }
+
     func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async {
         appSettingsStore.learnGeneratorActionCardStatus = status
     }
@@ -2303,6 +2328,16 @@ extension DefaultStateService: UserSessionStateService {
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+    }
+
+    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveMonotonicTime(userId: userId)
+    }
+
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveMonotonicTime(monotonicTime, userId: userId)
     }
 
     // MARK: Unsuccessful Unlock Attempts

@@ -72,35 +72,41 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     // MARK: Tests
 
-    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out.
+    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out using monotonic time.
     func test_hasPassedSessionTimeout() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
 
         let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 1000.0
         timeProvider.timeConfig = .mockTime(currentTime)
+        timeProvider.monotonicTime = currentMonotonicTime
 
-        // Last active 4 minutes ago, no timeout.
+        // Last active 4 minutes ago (240 seconds), no timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -4, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 240
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
 
-        // Last active 5 minutes ago, timeout.
+        // Last active 5 minutes ago (300 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -5, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 300
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
-        // Last active 6 minutes ago, timeout.
+        // Last active 6 minutes ago (360 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -6, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 360
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active in the distant past, timeout.
         userSessionStateService.getLastActiveTimeReturnValue = .distantPast
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = 0
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
     }
@@ -133,35 +139,41 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(shouldTimeout)
     }
 
-    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out for a custom timeout value.
+    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out for a custom timeout value using monotonic time.
     func test_hasPassedSessionTimeout_custom() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         userSessionStateService.getVaultTimeoutReturnValue = .custom(120)
 
         let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 10000.0
         timeProvider.timeConfig = .mockTime(currentTime)
+        timeProvider.monotonicTime = currentMonotonicTime
 
-        // Last active 119 minutes ago, no timeout.
+        // Last active 119 minutes ago (7140 seconds), no timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -119, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7140
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
 
-        // Last active 120 minutes ago, timeout.
+        // Last active 120 minutes ago (7200 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -120, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7200
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
-        // Last active 121 minutes ago, timeout.
+        // Last active 121 minutes ago (7260 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -121, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7260
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active in the distant past, timeout.
         userSessionStateService.getLastActiveTimeReturnValue = .distantPast
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = 0
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
     }
@@ -185,6 +197,59 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` detects device reboot and forces timeout when monotonic time is negative.
+    func test_hasPassedSessionTimeout_rebootDetection() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 100.0 // System rebooted, uptime is low
+        timeProvider.timeConfig = .mockTime(currentTime)
+        timeProvider.monotonicTime = currentMonotonicTime
+
+        // Last active with a higher monotonic time than current (device was rebooted)
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -2, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = 5000.0 // Much higher than current
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        // Should force timeout after reboot (safe approach)
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` falls back to wall-clock time when monotonic time is not available (migration scenario).
+    func test_hasPassedSessionTimeout_migrationFallback() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        timeProvider.timeConfig = .mockTime(currentTime)
+        timeProvider.monotonicTime = 1000.0
+
+        // Last active 4 minutes ago using wall-clock time, no monotonic time stored (migration scenario)
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -4, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
+        var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
+
+        // Last active 5 minutes ago using wall-clock time, timeout
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -5, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+
+        // Last active 6 minutes ago using wall-clock time, timeout
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -6, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
     }
 
     /// `isPinUnlockAvailable` throws errors.
@@ -380,14 +445,22 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         }
     }
 
-    /// `.setLastActiveTime(userId:)` sets the user's last active time.
+    /// `.setLastActiveTime(userId:)` sets the user's last active time and monotonic time.
     func test_setLastActiveTime() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
+        let currentMonotonicTime: TimeInterval = 2500.0
+        timeProvider.monotonicTime = currentMonotonicTime
+
         try await subject.setLastActiveTime(userId: account.profile.userId)
+
         XCTAssertEqual(
             userSessionStateService.setLastActiveTimeReceivedArguments?.date,
             timeProvider.presentTime,
+        )
+        XCTAssertEqual(
+            userSessionStateService.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime,
+            currentMonotonicTime,
         )
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }

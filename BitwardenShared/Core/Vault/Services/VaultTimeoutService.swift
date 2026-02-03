@@ -189,12 +189,28 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             // On app restart, trigger timeout if this is actually an app restart
             return isAppRestart
         default:
-            // Otherwise, calculate a timeout.
-            guard let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
-            else { return true }
+            let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
+            guard let lastActiveTime else {
+                return true
+            }
 
-            return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
-                >= TimeInterval(vaultTimeout.seconds)
+            let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
+
+            // Use monotonic time for tamper-resistant timeout checking
+            if let lastActiveMonotonic {
+                let elapsedMonotonic = timeProvider.monotonicTime - lastActiveMonotonic
+
+                // Reboot detection: negative elapsed time means device rebooted
+                if elapsedMonotonic < 0 {
+                    return true // Force timeout after reboot (safe approach)
+                }
+
+                return elapsedMonotonic >= TimeInterval(vaultTimeout.seconds)
+            } else {
+                // Migration fallback: use wall-clock if monotonic time not available
+                return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
+                    >= TimeInterval(vaultTimeout.seconds)
+            }
         }
     }
 
@@ -252,6 +268,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     func setLastActiveTime(userId: String) async throws {
         let now = timeProvider.presentTime
         try await userSessionStateService.setLastActiveTime(now, userId: userId)
+        try await userSessionStateService.setLastActiveMonotonicTime(timeProvider.monotonicTime, userId: userId)
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         try await updateSharedTimeout(
             lastActiveTime: now,

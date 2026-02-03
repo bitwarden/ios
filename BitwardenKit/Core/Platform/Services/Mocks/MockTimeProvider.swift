@@ -17,13 +17,15 @@ public class MockTimeProvider: TimeProvider {
     }
 
     public var timeConfig: TimeConfig
+    public var monotonicTime: TimeInterval
 
     public var presentTime: Date {
         timeConfig.date
     }
 
-    public init(_ timeConfig: TimeConfig) {
+    public init(_ timeConfig: TimeConfig, monotonicTime: TimeInterval = 0) {
         self.timeConfig = timeConfig
+        self.monotonicTime = monotonicTime
     }
 
     public func timeSince(_ date: Date) -> TimeInterval {
