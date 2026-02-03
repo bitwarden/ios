@@ -537,7 +537,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         }
 
         guard let jsonData = json.data(using: .utf8) else {
-            return nil
+            throw BitwardenError.dataError("Device Auth Key data contains invalid UTF-8 encoding.")
         }
 
         let record: DeviceAuthKeyRecord = try JSONDecoder.defaultDecoder.decode(
@@ -554,7 +554,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         }
 
         guard let jsonData = json.data(using: .utf8) else {
-            return nil
+            throw BitwardenError.dataError("Device Auth Key Metadata data contains invalid UTF-8 encoding.")
         }
 
         let metadata: DeviceAuthKeyMetadata = try JSONDecoder.defaultDecoder.decode(
