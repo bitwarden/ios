@@ -1,6 +1,6 @@
 import Foundation
-
 import BitwardenSdk
+
 @testable import BitwardenShared
 
 extension SendListState {
