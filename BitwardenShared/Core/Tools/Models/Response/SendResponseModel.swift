@@ -18,6 +18,12 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     /// Whether the send is disabled.
     let disabled: Bool
 
+    /// Email address hashes.
+    let emailHashes: String?
+
+    /// Email addresses for OTP authentication.
+    let emails: String?
+
     /// The expiration date of the send.
     let expirationDate: Date?
 
