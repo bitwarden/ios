@@ -1,3 +1,4 @@
+import BitwardenSdk
 import BitwardenShared
 import Foundation
 
@@ -24,22 +25,22 @@ public extension DeviceAuthKeyRecord {
     ///   - userDisplayName: The user's human-readable display name. Defaults to `"encrypted-Test User"`.
     /// - Returns: A `DeviceAuthKeyRecord` configured with the specified or default values.
     static func fixture(
-        cipherId: String = "encrypted-cipher-123",
-        cipherName: String = "encrypted-Test Device Key",
-        counter: String = "encrypted-0",
+        cipherId: EncString = "encrypted-cipher-123",
+        cipherName: EncString = "encrypted-Test Device Key",
+        counter: EncString = "encrypted-0",
         creationDate: Date = Date(timeIntervalSince1970: 1_234_567_890),
-        credentialId: String = "encrypted-credential-456",
-        discoverable: String = "encrypted-true",
-        hmacSecret: String? = "encrypted-hmac-secret",
-        keyType: String = "encrypted-public-key",
-        keyAlgorithm: String = "encrypted-ES256",
-        keyCurve: String = "encrypted-P-256",
-        keyValue: String = "encrypted-key-value-789",
-        rpId: String = "encrypted-bitwarden.com",
-        rpName: String? = "encrypted-Bitwarden",
-        userId: String? = "encrypted-user-id",
-        userName: String? = "encrypted-user@example.com",
-        userDisplayName: String? = "encrypted-Test User",
+        credentialId: EncString = "encrypted-credential-456",
+        discoverable: EncString = "encrypted-true",
+        hmacSecret: EncString? = "encrypted-hmac-secret",
+        keyType: EncString = "encrypted-public-key",
+        keyAlgorithm: EncString = "encrypted-ES256",
+        keyCurve: EncString = "encrypted-P-256",
+        keyValue: EncString = "encrypted-key-value-789",
+        rpId: EncString = "encrypted-bitwarden.com",
+        rpName: EncString? = "encrypted-Bitwarden",
+        userId: EncString? = "encrypted-user-id",
+        userName: EncString? = "encrypted-user@example.com",
+        userDisplayName: EncString? = "encrypted-Test User",
     ) -> DeviceAuthKeyRecord {
         DeviceAuthKeyRecord(
             cipherId: cipherId,
