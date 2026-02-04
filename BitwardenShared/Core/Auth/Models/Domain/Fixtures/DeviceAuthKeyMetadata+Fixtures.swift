@@ -5,7 +5,8 @@ public extension DeviceAuthKeyMetadata {
     /// Creates a test fixture for device auth key metadata with default encrypted values.
     ///
     /// - Parameters:
-    ///   - credentialId: The unique identifier for this credential. Defaults to `Data("encrypted-credential-456".utf8)`.
+    ///   - credentialId: The unique identifier for this credential.
+    ///                     Defaults to `Data("encrypted-credential-456".utf8)`.
     ///   - cipherId: The unique identifier of the cipher. Defaults to `"encrypted-cipher-123"`.
     ///   - rpId: The relying party identifier. Defaults to `"encrypted-bitwarden.com"`.
     ///   - userName: The user's username or login name. Defaults to `"encrypted-user@example.com"`.

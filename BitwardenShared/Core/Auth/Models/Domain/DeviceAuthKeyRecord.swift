@@ -1,55 +1,56 @@
+import BitwardenSdk
 import Foundation
 
 /// Stored key material needed to assert the device auth key passkey.
 public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
     /// The unique identifier of the cipher associated with this device auth key.
-    public let cipherId: String
+    public let cipherId: EncString
 
     /// The human-readable name of the cipher.
-    public let cipherName: String
+    public let cipherName: EncString
 
     /// The signature counter value, used to detect cloned authenticators.
-    public let counter: String
+    public let counter: EncString
 
     /// The date when this credential was created.
     public let creationDate: Date
 
     /// The unique identifier for this credential, assigned by the authenticator.
-    public let credentialId: String
+    public let credentialId: EncString
 
     /// Whether this credential is discoverable (formerly called "resident key").
     /// A discoverable credential can be used without providing a credential ID.
-    public let discoverable: String
+    public let discoverable: EncString
 
     /// The HMAC secret, if the credential supports the hmac-secret extension.
-    public let hmacSecret: String?
+    public let hmacSecret: EncString?
 
     /// The type of public key credential (typically "public-key").
-    public let keyType: String
+    public let keyType: EncString
 
     /// The algorithm used for the key (e.g., "ES256" for ECDSA with SHA-256).
-    public let keyAlgorithm: String
+    public let keyAlgorithm: EncString
 
     /// The elliptic curve used for the key (e.g., "P-256").
-    public let keyCurve: String
+    public let keyCurve: EncString
 
     /// The actual key material value.
-    public let keyValue: String
+    public let keyValue: EncString
 
     /// The relying party identifier, typically a domain name.
-    public let rpId: String
+    public let rpId: EncString
 
     /// The human-readable name of the relying party.
-    public let rpName: String?
+    public let rpName: EncString?
 
     /// The user identifier for the relying party.
-    public let userId: String?
+    public let userId: EncString?
 
     /// The user's username or login name.
-    public let userName: String?
+    public let userName: EncString?
 
     /// The user's human-readable display name.
-    public let userDisplayName: String?
+    public let userDisplayName: EncString?
 
     /// Creates a new device auth key record.
     ///
@@ -71,22 +72,22 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
     ///   - userName: The user's username or login name.
     ///   - userDisplayName: The user's human-readable display name.
     public init(
-        cipherId: String,
-        cipherName: String,
-        counter: String,
+        cipherId: EncString,
+        cipherName: EncString,
+        counter: EncString,
         creationDate: Date,
-        credentialId: String,
-        discoverable: String,
-        hmacSecret: String?,
-        keyType: String,
-        keyAlgorithm: String,
-        keyCurve: String,
-        keyValue: String,
-        rpId: String,
-        rpName: String?,
-        userId: String?,
-        userName: String?,
-        userDisplayName: String?,
+        credentialId: EncString,
+        discoverable: EncString,
+        hmacSecret: EncString?,
+        keyType: EncString,
+        keyAlgorithm: EncString,
+        keyCurve: EncString,
+        keyValue: EncString,
+        rpId: EncString,
+        rpName: EncString?,
+        userId: EncString?,
+        userName: EncString?,
+        userDisplayName: EncString?,
     ) {
         self.cipherId = cipherId
         self.cipherName = cipherName

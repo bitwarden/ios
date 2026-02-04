@@ -8,7 +8,8 @@ public extension DeviceAuthKeyRecord {
     ///   - cipherId: The unique identifier of the cipher. Defaults to `"encrypted-cipher-123"`.
     ///   - cipherName: The human-readable name of the cipher. Defaults to `"encrypted-Test Device Key"`.
     ///   - counter: The signature counter value. Defaults to `"encrypted-0"`.
-    ///   - creationDate: The date when this credential was created. Defaults to `Date(timeIntervalSince1970: 1_234_567_890)`.
+    ///   - creationDate: The date when this credential was created.
+    ///                   Defaults to `Date(timeIntervalSince1970: 1_234_567_890)`.
     ///   - credentialId: The unique identifier for this credential. Defaults to `"encrypted-credential-456"`.
     ///   - discoverable: Whether this credential is discoverable. Defaults to `"encrypted-true"`.
     ///   - hmacSecret: The HMAC secret. Defaults to `"encrypted-hmac-secret"`.
@@ -38,7 +39,7 @@ public extension DeviceAuthKeyRecord {
         rpName: String? = "encrypted-Bitwarden",
         userId: String? = "encrypted-user-id",
         userName: String? = "encrypted-user@example.com",
-        userDisplayName: String? = "encrypted-Test User"
+        userDisplayName: String? = "encrypted-Test User",
     ) -> DeviceAuthKeyRecord {
         DeviceAuthKeyRecord(
             cipherId: cipherId,
@@ -56,7 +57,7 @@ public extension DeviceAuthKeyRecord {
             rpName: rpName,
             userId: userId,
             userName: userName,
-            userDisplayName: userDisplayName
+            userDisplayName: userDisplayName,
         )
     }
 }
