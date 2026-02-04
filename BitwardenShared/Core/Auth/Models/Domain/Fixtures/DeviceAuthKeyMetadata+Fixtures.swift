@@ -1,4 +1,3 @@
-import BitwardenSdk
 import BitwardenShared
 import Foundation
 
@@ -15,9 +14,9 @@ public extension DeviceAuthKeyMetadata {
     /// - Returns: A `DeviceAuthKeyMetadata` configured with the specified or default values.
     static func fixture(
         credentialId: Data = Data("encrypted-credential-456".utf8),
-        cipherId: EncString = "encrypted-cipher-123",
-        rpId: EncString = "encrypted-bitwarden.com",
-        userName: EncString = "encrypted-user@example.com",
+        cipherId: String = "encrypted-cipher-123",
+        rpId: String = "encrypted-bitwarden.com",
+        userName: String = "encrypted-user@example.com",
         userHandle: Data = Data("encrypted-user-id".utf8),
     ) -> DeviceAuthKeyMetadata {
         DeviceAuthKeyMetadata(
