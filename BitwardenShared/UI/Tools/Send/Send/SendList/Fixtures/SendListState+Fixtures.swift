@@ -1,5 +1,5 @@
-import Foundation
 import BitwardenSdk
+import Foundation
 
 @testable import BitwardenShared
 
