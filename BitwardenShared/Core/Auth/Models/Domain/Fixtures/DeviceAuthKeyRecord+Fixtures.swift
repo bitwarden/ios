@@ -4,8 +4,6 @@ import Foundation
 public extension DeviceAuthKeyRecord {
     /// Creates a test fixture for a device auth key record with default encrypted values.
     ///
-    /// This fixture is useful for testing and can be customized by overriding any of the default parameters.
-    ///
     /// - Parameters:
     ///   - cipherId: The unique identifier of the cipher. Defaults to `"encrypted-cipher-123"`.
     ///   - cipherName: The human-readable name of the cipher. Defaults to `"encrypted-Test Device Key"`.

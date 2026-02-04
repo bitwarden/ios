@@ -4,8 +4,6 @@ import Foundation
 public extension DeviceAuthKeyMetadata {
     /// Creates a test fixture for device auth key metadata with default encrypted values.
     ///
-    /// This fixture is useful for testing and can be customized by overriding any of the default parameters.
-    ///
     /// - Parameters:
     ///   - credentialId: The unique identifier for this credential. Defaults to `Data("encrypted-credential-456".utf8)`.
     ///   - cipherId: The unique identifier of the cipher. Defaults to `"encrypted-cipher-123"`.
