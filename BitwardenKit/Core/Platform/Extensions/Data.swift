@@ -11,8 +11,7 @@ public extension Data {
     ///   - base64urlEncoded: A base64url-encoded string.
     ///
     init?(base64urlEncoded str: String) throws {
-        // .ignoreUnknownCharacters allows unpadded strings as a side effect.
-        try self.init(base64Encoded: str.urlDecoded(), options: .ignoreUnknownCharacters)
+        try self.init(base64Encoded: str.urlDecoded())
     }
 
     // MARK: Functions

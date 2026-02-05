@@ -26,11 +26,11 @@ class DataTests: BitwardenTestCase {
 
     /// `Data(base64urlEncoded:)` decodes an unpadded base64url-encoded String into Data.
     func test_fromBase64urlString_unpadded() {
-        let subject = "9031WCEDOh6ZUGV_-wvUSw"
+        let subject = "-_4"
         XCTAssertEqual(
             try XCTUnwrap(Data(base64urlEncoded: subject)),
             // swiftformat:disable:next numberFormatting
-            Data([0xf7, 0x4d, 0xf5, 0x58, 0x21, 0x03, 0x3a, 0x1e, 0x99, 0x50, 0x65, 0x7f, 0xfb, 0x0b, 0xd4, 0x4b]),
+            Data([0xfb, 0xfe]),
         )
     }
 
