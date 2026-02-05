@@ -334,6 +334,23 @@ class DefaultKeychainRepository: KeychainRepository {
         throw KeychainServiceError.keyNotFound(item)
     }
 
+    /// Gets the value associated with the keychain item from the keychain.
+    ///
+    /// - Parameter item: The keychain item used to fetch the associated value.
+    /// - Returns: The fetched value associated with the keychain item.
+    ///
+    func getValue<T: Codable>(for item: KeychainItem) async throws -> T {
+        let string = try await getValue(for: item)
+
+        guard let jsonData = string.data(using: .utf8) else {
+            throw BitwardenError.dataError("JSON string contains invalid UTF-8 encoding.")
+        }
+
+        let value = try JSONDecoder.defaultDecoder.decode(T.self, from: jsonData)
+
+        return value
+    }
+
     /// The core key/value pairs for Keychain operations.
     ///
     /// - Parameter item: The `KeychainItem` to be queried.
@@ -392,6 +409,20 @@ class DefaultKeychainRepository: KeychainRepository {
             )
             try keychainService.add(attributes: addAttributes)
         }
+    }
+
+    /// Sets a value associated with a keychain item in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The value associated with the keychain item to set.
+    ///   - item: The keychain item used to set the associated value.
+    ///
+    func setValue<T: Codable>(_ value: T, for item: KeychainItem) async throws {
+        let jsonData = try JSONEncoder.defaultEncoder.encode(value)
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+            throw BitwardenError.dataError("JSON data is not valid.")
+        }
+        try await setValue(jsonString, for: item)
     }
 }
 
@@ -536,37 +567,19 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     }
 
     func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord? {
-        guard let json = try? await getValue(for: .deviceAuthKey(userId: userId)) else {
+        do {
+            return try await getValue(for: .deviceAuthKey(userId: userId))
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
-
-        guard let jsonData = json.data(using: .utf8) else {
-            throw BitwardenError.dataError("Device Auth Key data contains invalid UTF-8 encoding.")
-        }
-
-        let record: DeviceAuthKeyRecord = try JSONDecoder.defaultDecoder.decode(
-            DeviceAuthKeyRecord.self,
-            from: jsonData,
-        )
-
-        return record
     }
 
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
-        guard let json = try? await getValue(for: .deviceAuthKeyMetadata(userId: userId)) else {
+        do {
+            return try await getValue(for: .deviceAuthKeyMetadata(userId: userId))
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
-
-        guard let jsonData = json.data(using: .utf8) else {
-            throw BitwardenError.dataError("Device Auth Key Metadata data contains invalid UTF-8 encoding.")
-        }
-
-        let metadata: DeviceAuthKeyMetadata = try JSONDecoder.defaultDecoder.decode(
-            DeviceAuthKeyMetadata.self,
-            from: jsonData,
-        )
-
-        return metadata
     }
 
     func setDeviceAuthKey(
@@ -574,18 +587,10 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         metadata: DeviceAuthKeyMetadata,
         userId: String,
     ) async throws {
-        let recordData = try JSONEncoder.defaultEncoder.encode(record)
-        let metadataData = try JSONEncoder.defaultEncoder.encode(metadata)
-        guard let recordString = String(data: recordData, encoding: .utf8),
-              let metadataString = String(data: metadataData, encoding: .utf8)
-        else {
-            throw BitwardenError.dataError("Device Auth Key data is not valid.")
-        }
-
         // We want to set metadata last because that's what's used to determine if we're in a
         // consistent state.
-        try await setValue(recordString, for: .deviceAuthKey(userId: userId))
-        try await setValue(metadataString, for: .deviceAuthKeyMetadata(userId: userId))
+        try await setValue(record, for: .deviceAuthKey(userId: userId))
+        try await setValue(metadata, for: .deviceAuthKeyMetadata(userId: userId))
     }
 }
 

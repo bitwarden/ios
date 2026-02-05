@@ -92,6 +92,17 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
         XCTAssertNil(result)
     }
 
+    /// `getDeviceAuthKey(userId:)` returns nil if the key is not found.
+    ///
+    func test_getDeviceAuthKey_notFound_osStatus() async throws {
+        let error = KeychainServiceError.osStatusError(errSecItemNotFound)
+        keychainService.searchResult = .failure(error)
+
+        let result = try await subject.getDeviceAuthKey(userId: "1")
+
+        XCTAssertNil(result)
+    }
+
     /// `getDeviceAuthKey(userId:)` throws an error if the data is invalid.
     ///
     func test_getDeviceAuthKey_invalidData() async throws {
@@ -119,6 +130,17 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     ///
     func test_getDeviceAuthKeyMetadata_notFound() async throws {
         let error = KeychainServiceError.keyNotFound(KeychainItem.deviceAuthKeyMetadata(userId: "1"))
+        keychainService.searchResult = .failure(error)
+
+        let result = try await subject.getDeviceAuthKeyMetadata(userId: "1")
+
+        XCTAssertNil(result)
+    }
+
+    /// `getDeviceAuthKeyMetadata(userId:)` returns nil if the metadata is not found.
+    ///
+    func test_getDeviceAuthKeyMetadata_notFound_osStatus() async throws {
+        let error = KeychainServiceError.osStatusError(errSecItemNotFound)
         keychainService.searchResult = .failure(error)
 
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "1")
