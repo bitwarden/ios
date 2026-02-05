@@ -127,6 +127,18 @@ protocol SyncServiceDelegate: AnyObject {
 /// A default implementation of a `SyncService` which manages syncing vault data with the API.
 ///
 class DefaultSyncService: SyncService {
+    // MARK: - PeriodicSyncTimeResult
+
+    /// The result to use when checking whether sync should be done on periodic syncing.
+    enum PeriodicSyncTimeResult {
+        /// The flow should perform a sync.
+        case shouldSync
+        /// The flow should not perform a sync.
+        case shouldNotSync
+        /// The flow should perform further checks to see if sync should be done or not.
+        case undefined
+    }
+
     // MARK: Properties
 
     /// The services used by the application to make account related API requests.
@@ -280,9 +292,19 @@ class DefaultSyncService: SyncService {
             return true
         }
 
-        if isPeriodic,
-           let shouldSync = try await shouldSyncBasedOnPeriodicSyncTime(lastSyncTime: lastSyncTime, userId: userId) {
-            return shouldSync
+        if isPeriodic {
+            let shouldSyncResult = try await shouldSyncBasedOnPeriodicSyncTime(
+                lastSyncTime: lastSyncTime,
+                userId: userId,
+            )
+            switch shouldSyncResult {
+            case .shouldSync:
+                return true
+            case .shouldNotSync:
+                return false
+            default:
+                break
+            }
         }
 
         guard !onlyCheckLocalData else {
@@ -318,32 +340,35 @@ class DefaultSyncService: SyncService {
     /// - Parameters:
     ///   - lastSyncTime: The last sync wall-clock time.
     ///   - userId: The user ID to check whether sync is needed.
-    /// - Returns: `true` if it should sync, `false` it not and `nil` if this cannot be used to determine
-    /// whether sync should be done or not.
-    private func shouldSyncBasedOnPeriodicSyncTime(lastSyncTime: Date, userId: String) async throws -> Bool? {
+    /// - Returns: A `PeriodicSyncTimeResult` to determine whether sync should be done, or not, or further checks
+    /// are necessary to determine that.
+    private func shouldSyncBasedOnPeriodicSyncTime(
+        lastSyncTime: Date,
+        userId: String,
+    ) async throws -> PeriodicSyncTimeResult {
         let lastSyncMonotonic = try await stateService.getLastSyncMonotonicTime(userId: userId)
 
         // Migration fallback: use wall-clock if monotonic time not available
         guard let lastSyncMonotonic else {
             if lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
-                return false
+                return .shouldNotSync
             }
-            return nil
+            return .undefined
         }
 
         let elapsedMonotonic = timeProvider.monotonicTime - lastSyncMonotonic
 
         // Reboot detection: negative elapsed time means device rebooted
         if elapsedMonotonic < 0 {
-            return true // Force sync after reboot (safer approach)
+            return .shouldSync // Force sync after reboot (safer approach)
         }
 
         // Check if minimum interval has passed
         if elapsedMonotonic < Constants.minimumSyncInterval {
-            return false
+            return .shouldNotSync
         }
 
-        return nil
+        return .undefined
     }
 }
 
