@@ -131,21 +131,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 ),
             )
 
-            BitwardenTextField(
-                title: Localizations.newPassword,
-                text: store.binding(
-                    get: \.password,
-                    send: AddEditSendItemAction.passwordChanged,
-                ),
-                footer: Localizations.passwordInfo,
-                accessibilityIdentifier: "SendNewPasswordEntry",
-                isPasswordVisible: store.binding(
-                    get: \.isPasswordVisible,
-                    send: AddEditSendItemAction.passwordVisibleChanged,
-                ),
-            )
-            .textFieldConfiguration(.password)
-
             ContentBlock(dividerLeadingPadding: 16) {
                 BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
                     get: \.isHideMyEmailOn,
@@ -309,6 +294,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
 
             deletionDate
+
+            whoCanView
+        }
+    }
 
     /// The "Who can view" section for access type selection.
     @ViewBuilder private var whoCanView: some View {
@@ -543,6 +532,44 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         isOptionsExpanded: true,
                         mode: .shareExtension(.singleAccount),
                         name: "Sendy",
+                        text: "Example text",
+                        type: .text,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Specific People") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        accessType: .specificPeople,
+                        hasPremium: true,
+                        isSendEmailVerificationEnabled: true,
+                        name: "Sendy",
+                        recipientEmails: ["test@example.com", ""],
+                        text: "Example text",
+                        type: .text,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Anyone with Password") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        accessType: .anyoneWithPassword,
+                        name: "Sendy",
+                        password: "secret123",
                         text: "Example text",
                         type: .text,
                     ),
