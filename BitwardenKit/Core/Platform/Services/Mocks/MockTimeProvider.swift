@@ -4,28 +4,39 @@ import Foundation
 public class MockTimeProvider: TimeProvider {
     public enum TimeConfig {
         case currentTime
-        case mockTime(Date)
+        case mockTime(Date, TimeInterval = 0)
 
         var date: Date {
             switch self {
             case .currentTime:
                 .now
-            case let .mockTime(fixedDate):
+            case let .mockTime(fixedDate, _):
                 fixedDate
+            }
+        }
+
+        var monotonicTime: TimeInterval {
+            switch self {
+            case .currentTime:
+                0
+            case let .mockTime(_, fixedMonotonicTime):
+                fixedMonotonicTime
             }
         }
     }
 
+    public var monotonicTime: TimeInterval {
+        timeConfig.monotonicTime
+    }
+
     public var timeConfig: TimeConfig
-    public var monotonicTime: TimeInterval
 
     public var presentTime: Date {
         timeConfig.date
     }
 
-    public init(_ timeConfig: TimeConfig, monotonicTime: TimeInterval = 0) {
+    public init(_ timeConfig: TimeConfig) {
         self.timeConfig = timeConfig
-        self.monotonicTime = monotonicTime
     }
 
     public func timeSince(_ date: Date) -> TimeInterval {

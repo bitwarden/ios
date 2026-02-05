@@ -8,10 +8,6 @@ import Foundation
 ///    When testing, this protocol allows the current time to be mocked with any `Date`.
 ///
 public protocol TimeProvider: AnyObject {
-    /// The present time expressed as a `Date`, according to the provider.
-    ///
-    var presentTime: Date { get }
-
     /// The monotonic time expressed as a `TimeInterval` since system boot.
     ///
     /// This time is based on `ProcessInfo.systemUptime` and cannot be affected by user
@@ -19,6 +15,10 @@ public protocol TimeProvider: AnyObject {
     /// The value resets to 0 when the device reboots.
     ///
     var monotonicTime: TimeInterval { get }
+
+    /// The present time expressed as a `Date`, according to the provider.
+    ///
+    var presentTime: Date { get }
 
     /// A helper to calculate the elapsed time since a given `Date`.
     ///

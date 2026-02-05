@@ -549,7 +549,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
         stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
-        timeProvider.monotonicTime = 1800.0 // Only 800 seconds elapsed (< 30 min)
+        timeProvider.timeConfig = .mockTime(.now, 1800.0) // Only 800 seconds elapsed (< 30 min)
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
@@ -568,7 +568,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
         stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
-        timeProvider.monotonicTime = 2801.0 // 1801 seconds elapsed (> 30 min)
+        timeProvider.timeConfig = .mockTime(.now, 2801.0) // 1801 seconds elapsed (> 30 min)
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
@@ -585,7 +585,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
         stateService.lastSyncMonotonicTimeByUserId["1"] = 10000.0
-        timeProvider.monotonicTime = 100.0 // Negative elapsed (reboot)
+        timeProvider.timeConfig = .mockTime(.now, 100.0) // Negative elapsed (reboot)
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
@@ -618,7 +618,7 @@ class SyncServiceTests: BitwardenTestCase {
         let manipulatedTime = timeProvider.presentTime.addingTimeInterval(-3600)
         stateService.lastSyncTimeByUserId["1"] = manipulatedTime
         stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
-        timeProvider.monotonicTime = 1600.0 // Only 10 min monotonic elapsed
+        timeProvider.timeConfig = .mockTime(.now, 1600.0) // Only 10 min monotonic elapsed
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
@@ -632,7 +632,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpSuccess(testData: .syncWithCipher)
         stateService.activeAccount = .fixture()
 
-        timeProvider.monotonicTime = 5000.0
+        timeProvider.timeConfig = .mockTime(.now, 5000.0)
 
         try await subject.fetchSync(forceSync: false)
 
