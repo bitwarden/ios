@@ -88,6 +88,14 @@ class AddEditSendItemProcessor:
 
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
+        case let .accessTypeChanged(newValue):
+            state.accessType = newValue
+            // Ensure there's at least one email row when selecting "Specific People"
+            if newValue == .specificPeople, state.recipientEmails.isEmpty {
+                state.recipientEmails.append("")
+            }
+        case .addRecipientEmail:
+            state.recipientEmails.append("")
         case .chooseFilePressed:
             presentFileSelectionAlert()
         case let .deletionDateChanged(newValue):
@@ -106,6 +114,12 @@ class AddEditSendItemProcessor:
             state.isPasswordVisible = newValue
         case let .profileSwitcher(profileAction):
             handle(profileAction)
+        case let .recipientEmailChanged(index, value):
+            guard index >= 0, index < state.recipientEmails.count else { return }
+            state.recipientEmails[index] = value
+        case let .removeRecipientEmail(index):
+            guard index >= 0, index < state.recipientEmails.count else { return }
+            state.recipientEmails.remove(at: index)
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
@@ -160,6 +174,8 @@ class AddEditSendItemProcessor:
     private func loadData() async {
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
+        state.isSendEmailVerificationEnabled = await services.configService.getFeatureFlag(.sendEmailVerification)
         await refreshProfileState()
 
         if state.maximumAccessCount != 0 {
@@ -292,6 +308,28 @@ class AddEditSendItemProcessor:
             let alert = Alert.validationFieldRequired(fieldName: Localizations.name)
             coordinator.showAlert(alert)
             return false
+        }
+
+        // Validate recipient emails for "Specific people" access type.
+        if state.accessType == .specificPeople {
+            let nonEmptyEmails = state.recipientEmails.filter { !$0.isEmpty }
+            let trimmedEmails = nonEmptyEmails.map {
+                $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            }
+
+            // Check if at least one email is provided
+            guard !trimmedEmails.isEmpty else {
+                coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
+                return false
+            }
+
+            // Validate each email address
+            for email in trimmedEmails {
+                guard email.isValidEmail else {
+                    coordinator.showAlert(.invalidEmail)
+                    return false
+                }
+            }
         }
 
         // Only perform further checks for file sends.
