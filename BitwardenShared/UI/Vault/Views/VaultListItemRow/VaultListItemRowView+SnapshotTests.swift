@@ -172,4 +172,16 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())
     }
+
+    /// Test that the archive with premium subscription expired renders correctly.
+    @MainActor
+    func disabletest_snapshot_archivePremiumRequired() {
+        processor.state.iconBaseURL = .example
+        processor.state.item = VaultListItem(
+            id: "ID",
+            hasPremium: false,
+            itemType: .group(.archive, 0)
+        )
+        assertSnapshot(of: subject, as: .fixedSize())
+    }
 }

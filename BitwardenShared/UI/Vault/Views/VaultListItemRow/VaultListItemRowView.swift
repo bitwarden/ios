@@ -91,15 +91,35 @@ struct VaultListItemRowView: View {
                         }
 
                     case let .group(group, count):
-                        Text(group.name)
-                            .styleGuide(.body)
-                            .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-                            .accessibilityIdentifier("GroupNameLabel")
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(group.name)
+                                .styleGuide(.body)
+                                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
+                                .accessibilityIdentifier("GroupNameLabel")
+
+                            if let subTitle = store.state.item.subtitle, !subTitle.isEmpty {
+                                Text(subTitle)
+                                    .styleGuide(.subheadline)
+                                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                                    .lineLimit(1)
+                                    .accessibilityIdentifier("GroupSubTitleLabel")
+                            }
+                        }
+                        .accessibilityElement(children: .combine)
+
                         Spacer()
-                        Text("\(count)")
-                            .styleGuide(.body)
-                            .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
-                            .accessibilityIdentifier("GroupCountLabel")
+
+                        if let accessoryIcon = store.state.item.accessoryIcon {
+                            Image(decorative: accessoryIcon)
+                                .imageStyle(.rowIcon)
+                                .padding(.vertical, 19)
+                                .accessibilityHidden(true)
+                        } else {
+                            Text("\(count)")
+                                .styleGuide(.body)
+                                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                                .accessibilityIdentifier("GroupCountLabel")
+                        }
 
                     case let .totp(name, model):
                         totpCodeRow(name, model)
