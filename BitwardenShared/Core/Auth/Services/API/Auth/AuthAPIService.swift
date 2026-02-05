@@ -43,7 +43,10 @@ protocol AuthAPIService {
 
     /// Retrieves the parameters for creating a new WebAuthn credential.
     ///
-    ///  - Parameter request: The data needed to send the request.
+    ///  - Parameters:
+    ///    - request: The data needed to send the request.
+    ///  - Returns: The creation options and token needed to authenticate.
+    ///
     func getWebAuthnCredentialCreationOptions(
         _ request: SecretVerificationRequestModel,
     ) async throws -> WebAuthnLoginCredentialCreationOptionsResponse
@@ -51,6 +54,8 @@ protocol AuthAPIService {
     /// Retrieves the parameters for authenticating with a WebAuthn credential.
     ///  - Parameters:
     ///    - request: The data needed to send the request.
+    ///  - Returns: The assertion options and token needed to authenticate.
+    ///
     func getWebAuthnCredentialAssertionOptions(
         _ request: SecretVerificationRequestModel,
     ) async throws -> WebAuthnLoginCredentialAssertionOptionsResponse

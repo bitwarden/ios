@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 import Networking
 
@@ -9,14 +10,14 @@ struct WebAuthnLoginSaveCredentialRequestModel: JSONRequestBody, Equatable {
     /// This contains all information needed for future authentication flows.
     let deviceResponse: WebAuthnPublicKeyCredentialWithAttestationResponse
 
-    /// Encapsulated user key in rotateable key set.
-    let encryptedUserKey: String?
-
-    /// Encrypted public key in rotateable key set.
-    let encryptedPublicKey: String?
-
     /// Encrypted private key in rotatable key set.
-    let encryptedPrivateKey: String?
+    let encryptedPrivateKey: EncString?
+
+    /// Encrypted public key in rotatable key set.
+    let encryptedPublicKey: EncString?
+
+    /// Encapsulated user key in rotatable key set.
+    let encryptedUserKey: EncString?
 
     /// Nickname chosen by the user to identify this credential
     let name: String

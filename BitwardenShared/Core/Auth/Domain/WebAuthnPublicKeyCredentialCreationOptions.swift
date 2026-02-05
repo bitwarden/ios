@@ -1,7 +1,7 @@
 // swiftlint:disable line_length
 
 /// WebAuthn [PublicKeyCredentialCreationOptions](https://www.w3.org/TR/webauthn-3/#dictdef-publickeycredentialcreationoptions).
-struct WebAuthnPublicKeyCredentialCreationOptions: Codable, Equatable, Hashable {
+struct WebAuthnPublicKeyCredentialCreationOptions: Codable, Equatable, Hashable, Sendable {
     /// A base64-encoded challenge that the authenticator signs, along with other data, when producing an attestation
     /// object for the newly created credential.
     ///
