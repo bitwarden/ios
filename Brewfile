@@ -6,4 +6,6 @@ if ENV["CI"]
     brew "yq"
     brew "xcresultparser"
     brew "coreutils" # using gtimeout in test workflows to stop hanging simulators
+else
+    brew "typos-cli" # spell check script and pre-commit hook
 end
