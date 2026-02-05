@@ -47,8 +47,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         case .accessToken,
              .authenticatorVaultKey,
              .deviceKey,
-             .lastActiveTime,
              .lastActiveMonotonicTime,
+             .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken,
@@ -65,8 +65,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         switch self {
         case .biometrics,
              .deviceKey,
-             .lastActiveTime,
              .lastActiveMonotonicTime,
+             .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
              .unsuccessfulUnlockAttempts,
@@ -91,10 +91,10 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
             "deviceKey_" + id
-        case let .lastActiveTime(userId):
-            "lastActiveTime_\(userId)"
         case let .lastActiveMonotonicTime(userId):
             "lastActiveMonotonicTime_\(userId)"
+        case let .lastActiveTime(userId):
+            "lastActiveTime_\(userId)"
         case let .neverLock(userId: id):
             "userKeyAutoUnlock_" + id
         case let .pendingAdminLoginRequest(userId):

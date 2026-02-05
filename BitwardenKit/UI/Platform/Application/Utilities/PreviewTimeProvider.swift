@@ -7,7 +7,7 @@ public class PreviewTimeProvider: TimeProvider {
     /// A fixed date to use for previews.
     public var fixedDate: Date
 
-    /// THe current monotonic time.
+    /// The current monotonic time.
     public var monotonicTime: TimeInterval
 
     public var presentTime: Date {

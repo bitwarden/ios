@@ -61,9 +61,9 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
-    var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
     var lastUserShouldConnectToWatch = false
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
@@ -609,14 +609,14 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
         learnNewLoginActionCardStatus = status
     }
 
-    func setLastSyncTime(_ date: Date?, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        lastSyncTimeByUserId[userId] = date
-    }
-
     func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         lastSyncMonotonicTimeByUserId[userId] = monotonicTime
+    }
+
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        lastSyncTimeByUserId[userId] = date
     }
 
     func getLastUserShouldConnectToWatch() async -> Bool {
