@@ -25,14 +25,14 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
     /// The HMAC secret, if the credential supports the hmac-secret extension.
     public let hmacSecret: EncString?
 
-    /// The type of public key credential (typically "public-key").
-    public let keyType: EncString
-
     /// The algorithm used for the key (e.g., "ES256" for ECDSA with SHA-256).
     public let keyAlgorithm: EncString
 
     /// The elliptic curve used for the key (e.g., "P-256").
     public let keyCurve: EncString
+
+    /// The type of public key credential (typically "public-key").
+    public let keyType: EncString
 
     /// The actual key material value.
     public let keyValue: EncString
@@ -43,14 +43,14 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
     /// The human-readable name of the relying party.
     public let rpName: EncString?
 
+    /// The user's human-readable display name.
+    public let userDisplayName: EncString?
+
     /// The user identifier for the relying party.
     public let userId: EncString?
 
     /// The user's username or login name.
     public let userName: EncString?
-
-    /// The user's human-readable display name.
-    public let userDisplayName: EncString?
 
     /// Creates a new device auth key record.
     ///
@@ -79,15 +79,15 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
         credentialId: EncString,
         discoverable: EncString,
         hmacSecret: EncString?,
-        keyType: EncString,
         keyAlgorithm: EncString,
         keyCurve: EncString,
+        keyType: EncString,
         keyValue: EncString,
         rpId: EncString,
         rpName: EncString?,
+        userDisplayName: EncString?,
         userId: EncString?,
         userName: EncString?,
-        userDisplayName: EncString?,
     ) {
         self.cipherId = cipherId
         self.cipherName = cipherName
@@ -96,14 +96,14 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
         self.credentialId = credentialId
         self.discoverable = discoverable
         self.hmacSecret = hmacSecret
-        self.keyType = keyType
         self.keyAlgorithm = keyAlgorithm
         self.keyCurve = keyCurve
+        self.keyType = keyType
         self.keyValue = keyValue
         self.rpId = rpId
         self.rpName = rpName
+        self.userDisplayName = userDisplayName
         self.userId = userId
         self.userName = userName
-        self.userDisplayName = userDisplayName
     }
 }
