@@ -6,6 +6,28 @@ import XCTest
 class AddEditSendItemStateTests: BitwardenTestCase {
     // MARK: Tests
 
+    // MARK: availableAccessTypes
+
+    /// `availableAccessTypes` returns only basic options when user doesn't have premium.
+    func test_availableAccessTypes_noPremium() {
+        let subject = AddEditSendItemState(hasPremium: false, isSendEmailVerificationEnabled: true)
+        XCTAssertEqual(subject.availableAccessTypes, [.anyoneWithLink, .anyoneWithPassword])
+    }
+
+    /// `availableAccessTypes` returns only basic options when feature flag is disabled.
+    func test_availableAccessTypes_featureFlagDisabled() {
+        let subject = AddEditSendItemState(hasPremium: true, isSendEmailVerificationEnabled: false)
+        XCTAssertEqual(subject.availableAccessTypes, [.anyoneWithLink, .anyoneWithPassword])
+    }
+
+    /// `availableAccessTypes` returns all options when user has premium and feature flag is enabled.
+    func test_availableAccessTypes_premiumAndFeatureFlag() {
+        let subject = AddEditSendItemState(hasPremium: true, isSendEmailVerificationEnabled: true)
+        XCTAssertEqual(subject.availableAccessTypes, SendAccessType.allCases)
+    }
+
+    // MARK: availableDeletionDateTypes
+
     /// `availableDeletionDateTypes` returns the available options to display in the deletion date
     /// menu when adding a new send.
     func test_availableDeletionDateTypes_add() {
@@ -40,6 +62,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
     func test_newSendView_text() {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
+            accessType: .anyoneWithPassword,
             customDeletionDate: date,
             deletionDate: .custom(date),
             isDeactivateThisSendOn: true,
@@ -73,6 +96,83 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(sendView.revisionDate.timeIntervalSince1970, Date().timeIntervalSince1970, accuracy: 1.0)
         XCTAssertEqual(sendView.deletionDate, date)
         XCTAssertEqual(sendView.expirationDate, nil)
+        XCTAssertEqual(sendView.authType, .password)
+    }
+
+    /// `newSendView()` correctly sets access type and emails for specific people.
+    func test_newSendView_specificPeople() {
+        let date = Date(year: 2023, month: 11, day: 5)
+        let subject = AddEditSendItemState(
+            accessType: .specificPeople,
+            customDeletionDate: date,
+            deletionDate: .custom(date),
+            name: "Name",
+            recipientEmails: ["test@example.com", "another@example.com", ""],
+            text: "Text",
+            type: .text,
+        )
+        let sendView = subject.newSendView()
+        XCTAssertEqual(sendView.authType, .email)
+        XCTAssertEqual(sendView.emails, ["test@example.com", "another@example.com"])
+        XCTAssertFalse(sendView.hasPassword)
+        XCTAssertNil(sendView.newPassword)
+    }
+
+    /// `newSendView()` correctly sets access type for anyone with link.
+    func test_newSendView_anyoneWithLink() {
+        let date = Date(year: 2023, month: 11, day: 5)
+        let subject = AddEditSendItemState(
+            accessType: .anyoneWithLink,
+            customDeletionDate: date,
+            deletionDate: .custom(date),
+            name: "Name",
+            text: "Text",
+            type: .text,
+        )
+        let sendView = subject.newSendView()
+        XCTAssertEqual(sendView.authType, .none)
+        XCTAssertTrue(sendView.emails.isEmpty)
+        XCTAssertFalse(sendView.hasPassword)
+    }
+
+    /// `newSendView()` preserves existing password when editing and no new password is entered.
+    func test_newSendView_preservesExistingPassword() {
+        let date = Date(year: 2023, month: 11, day: 5)
+        let originalSendView = SendView.fixture(hasPassword: true)
+        let subject = AddEditSendItemState(
+            accessType: .anyoneWithPassword,
+            customDeletionDate: date,
+            deletionDate: .custom(date),
+            mode: .edit,
+            name: "Name",
+            originalSendView: originalSendView,
+            password: "",
+            text: "Text",
+            type: .text,
+        )
+        let sendView = subject.newSendView()
+        XCTAssertTrue(sendView.hasPassword)
+        XCTAssertNil(sendView.newPassword)
+    }
+
+    /// `newSendView()` clears password when access type changes from password to link.
+    func test_newSendView_clearsPasswordWhenAccessTypeChanges() {
+        let date = Date(year: 2023, month: 11, day: 5)
+        let originalSendView = SendView.fixture(hasPassword: true)
+        let subject = AddEditSendItemState(
+            accessType: .anyoneWithLink,
+            customDeletionDate: date,
+            deletionDate: .custom(date),
+            mode: .edit,
+            name: "Name",
+            originalSendView: originalSendView,
+            password: "",
+            text: "Text",
+            type: .text,
+        )
+        let sendView = subject.newSendView()
+        XCTAssertFalse(sendView.hasPassword)
+        XCTAssertNil(sendView.newPassword)
     }
 
     /// `newSendView()` sets the expiration date to the deletion date if the expiration date isn't
@@ -178,5 +278,40 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             subject.expirationDate,
             Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22),
         )
+    }
+
+    // MARK: init(sendView:) - Access Type Tests
+
+    /// `init(sendView:)` sets access type to "Anyone with password" when hasPassword is true.
+    func test_init_sendView_withPassword_setsAnyoneWithPassword() {
+        let sendView = SendView.fixture(hasPassword: true, authType: .none)
+        let subject = AddEditSendItemState(sendView: sendView)
+        XCTAssertEqual(subject.accessType, .anyoneWithPassword)
+    }
+
+    /// `init(sendView:)` sets access type to "Anyone with link" when hasPassword is false and authType is none.
+    func test_init_sendView_noPassword_setsAnyoneWithLink() {
+        let sendView = SendView.fixture(hasPassword: false, authType: .none)
+        let subject = AddEditSendItemState(sendView: sendView)
+        XCTAssertEqual(subject.accessType, .anyoneWithLink)
+    }
+
+    /// `init(sendView:)` sets access type to "Specific people" when authType is email.
+    func test_init_sendView_emailAuthType_setsSpecificPeople() {
+        let sendView = SendView.fixture(
+            hasPassword: false,
+            emails: ["test@example.com"],
+            authType: .email,
+        )
+        let subject = AddEditSendItemState(sendView: sendView)
+        XCTAssertEqual(subject.accessType, .specificPeople)
+        XCTAssertEqual(subject.recipientEmails, ["test@example.com"])
+    }
+
+    /// `init(sendView:)` sets access type to "Anyone with password" when authType is password.
+    func test_init_sendView_passwordAuthType_setsAnyoneWithPassword() {
+        let sendView = SendView.fixture(hasPassword: true, authType: .password)
+        let subject = AddEditSendItemState(sendView: sendView)
+        XCTAssertEqual(subject.accessType, .anyoneWithPassword)
     }
 }
