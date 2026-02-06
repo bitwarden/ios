@@ -10,6 +10,6 @@ struct WebAuthnLoginCredentialAssertionOptionsResponse: JSONResponse, Equatable,
     let options: WebAuthnPublicKeyCredentialRequestOptions
 
     /// Contains an encrypted version of the `options`.
-    /// Used by the server to validate the attestation response of newly created credentials.
+    /// Used by the server to validate the assertion response.
     let token: EncString
 }
