@@ -27,11 +27,11 @@ public class MockTimeProvider: TimeProvider {
 
     public var calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
         // swiftlint:disable:previous identifier_name
-        tamperingDetected: false,
+        divergence: 0,
         effectiveElapsed: 10,
         elapsedMonotonic: 10,
         elapsedWallClock: 10,
-        divergence: 0,
+        tamperingDetected: false,
     )
 
     public var monotonicTime: TimeInterval {
@@ -49,7 +49,7 @@ public class MockTimeProvider: TimeProvider {
     }
 
     public func calculateTamperResistantElapsedTime(
-        since lastMonotonicTime: TimeInterval,
+        lastMonotonicTime: TimeInterval,
         lastWallClockTime: Date,
         divergenceThreshold: TimeInterval,
     ) -> TamperResistantTimeResult {

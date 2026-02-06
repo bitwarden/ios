@@ -25,7 +25,7 @@ class TimeProviderTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// normal operation where both clocks show the same elapsed time.
     func test_calculateTamperResistantElapsedTime_normalOperation() {
         let elapsedTime: TimeInterval = 150
@@ -33,7 +33,7 @@ class TimeProviderTests: BitwardenTestCase {
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-elapsedTime)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -45,14 +45,14 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.effectiveElapsed, elapsedTime, accuracy: 0.1)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// detection when monotonic and wall-clock times diverge significantly.
     func test_calculateTamperResistantElapsedTime_largeDivergence() {
         let lastMonotonicTime = subject.monotonicTime + 10000
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-300)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -61,14 +61,14 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssert(result.divergence > 15.0)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// that small divergence within threshold is not flagged as tampering.
     func test_calculateTamperResistantElapsedTime_smallDivergenceWithinThreshold() {
         let lastMonotonicTime = subject.monotonicTime - 150
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-155)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -78,14 +78,14 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.effectiveElapsed, 155, accuracy: 0.1)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// divergence exactly at threshold boundary.
     func test_calculateTamperResistantElapsedTime_divergenceAtThreshold() {
         let lastMonotonicTime = subject.monotonicTime - 150
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-165)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -94,14 +94,14 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.divergence, 15, accuracy: 0.1)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// that divergence just over threshold triggers detection.
     func test_calculateTamperResistantElapsedTime_divergenceOverThreshold() {
         let lastMonotonicTime = subject.monotonicTime - 150
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-166)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -110,14 +110,14 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.divergence, 16, accuracy: 0.1)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// that max() selects the larger elapsed time for safety.
     func test_calculateTamperResistantElapsedTime_maxProtection() {
         let lastMonotonicTime = subject.monotonicTime - 140
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-150)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -128,14 +128,14 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.effectiveElapsed, 150, accuracy: 0.1)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// zero elapsed time scenario.
     func test_calculateTamperResistantElapsedTime_zeroElapsed() {
         let lastMonotonicTime = subject.monotonicTime
         let lastWallClockTime = subject.presentTime
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -147,14 +147,14 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.effectiveElapsed, 0, accuracy: 0.1)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// negative monotonic elapsed time (reboot scenario).
     func test_calculateTamperResistantElapsedTime_negativeMonotonicElapsed() {
         let lastMonotonicTime = subject.monotonicTime + 5000
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-300)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -165,21 +165,21 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.effectiveElapsed, 300, accuracy: 0.1)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:)` tests default threshold
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:)` tests default threshold
     /// parameter.
     func test_calculateTamperResistantElapsedTime_defaultThreshold() {
         let lastMonotonicTime = subject.monotonicTime - 150
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-165)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
         )
 
         XCTAssertFalse(result.tamperingDetected)
     }
 
-    /// `calculateTamperResistantElapsedTime(since:lastWallClockTime:divergenceThreshold:)` tests
+    /// `calculateTamperResistantElapsedTime(lastMonotonicTime:lastWallClockTime:divergenceThreshold:)` tests
     /// large elapsed time values.
     func test_calculateTamperResistantElapsedTime_largeElapsedTime() {
         let elapsedTime: TimeInterval = 24000
@@ -187,7 +187,7 @@ class TimeProviderTests: BitwardenTestCase {
         let lastWallClockTime = subject.presentTime.addingTimeInterval(-elapsedTime)
 
         let result = subject.calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -198,7 +198,7 @@ class TimeProviderTests: BitwardenTestCase {
         XCTAssertEqual(result.effectiveElapsed, elapsedTime, accuracy: 0.1)
     }
 
-    // MARK: - timeSince Tests
+    // MARK: timeSince Tests
 
     /// `timeSince(_:)` returns elapsed time for a past date.
     func test_timeSince_pastDate() {

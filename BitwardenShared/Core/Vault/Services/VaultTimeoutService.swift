@@ -206,7 +206,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             if let lastActiveMonotonic {
                 await flightRecorder.log("Checking timeout with monotonic time for userId: \(userId)")
                 let result = timeProvider.calculateTamperResistantElapsedTime(
-                    since: lastActiveMonotonic,
+                    lastMonotonicTime: lastActiveMonotonic,
                     lastWallClockTime: lastActiveTime,
                     divergenceThreshold: 15.0,
                 )

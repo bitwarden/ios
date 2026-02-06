@@ -25,16 +25,16 @@ public class PreviewTimeProvider: TimeProvider {
     }
 
     public func calculateTamperResistantElapsedTime(
-        since lastMonotonicTime: TimeInterval,
+        lastMonotonicTime: TimeInterval,
         lastWallClockTime: Date,
         divergenceThreshold: TimeInterval,
     ) -> TamperResistantTimeResult {
         TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 10,
             elapsedMonotonic: 10,
             elapsedWallClock: 10,
-            divergence: 0,
+            tamperingDetected: false,
         )
     }
 

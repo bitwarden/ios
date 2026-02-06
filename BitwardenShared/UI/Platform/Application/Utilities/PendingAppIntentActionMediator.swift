@@ -58,7 +58,7 @@ class DefaultPendingAppIntentActionMediator: PendingAppIntentActionMediator {
         self.stateService = stateService
     }
 
-    // MARK: - Methods
+    // MARK: Methods
 
     func executePendingAppIntentActions() async {
         guard var actions = await stateService.getPendingAppIntentActions(),

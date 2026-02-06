@@ -37,7 +37,7 @@ public protocol TimeProvider: AnyObject {
     /// - Returns: A `TamperResistantTimeResult` containing tampering detection status and elapsed times.
     ///
     func calculateTamperResistantElapsedTime(
-        since lastMonotonicTime: TimeInterval,
+        lastMonotonicTime: TimeInterval,
         lastWallClockTime: Date,
         divergenceThreshold: TimeInterval,
     ) -> TamperResistantTimeResult
@@ -69,10 +69,10 @@ public class CurrentTime: TimeProvider {
 
     public init() {}
 
-    // MARK: - Methods
+    // MARK: Methods
 
     public func calculateTamperResistantElapsedTime(
-        since lastMonotonicTime: TimeInterval,
+        lastMonotonicTime: TimeInterval,
         lastWallClockTime: Date,
         divergenceThreshold: TimeInterval = 15.0,
     ) -> TamperResistantTimeResult {
@@ -87,11 +87,11 @@ public class CurrentTime: TimeProvider {
         let effectiveElapsed = max(elapsedMonotonic, elapsedWallClock)
 
         return TamperResistantTimeResult(
-            tamperingDetected: tamperingDetected,
+            divergence: divergence,
             effectiveElapsed: effectiveElapsed,
             elapsedMonotonic: elapsedMonotonic,
             elapsedWallClock: elapsedWallClock,
-            divergence: divergence,
+            tamperingDetected: tamperingDetected,
         )
     }
 
@@ -116,11 +116,11 @@ public extension TimeProvider {
     /// - Returns: A `TamperResistantTimeResult` containing tampering detection status and elapsed times.
     ///
     func calculateTamperResistantElapsedTime(
-        since lastMonotonicTime: TimeInterval,
+        lastMonotonicTime: TimeInterval,
         lastWallClockTime: Date,
     ) -> TamperResistantTimeResult {
         calculateTamperResistantElapsedTime(
-            since: lastMonotonicTime,
+            lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
             divergenceThreshold: 15.0,
         )
@@ -133,8 +133,8 @@ public extension TimeProvider {
 public struct TamperResistantTimeResult {
     // MARK: Properties
 
-    /// Whether clock manipulation or device reboot was detected.
-    public let tamperingDetected: Bool
+    /// The divergence between the two clocks.
+    public let divergence: TimeInterval
 
     /// The effective elapsed time to use (max of both clocks if no tampering detected).
     public let effectiveElapsed: TimeInterval
@@ -145,29 +145,29 @@ public struct TamperResistantTimeResult {
     /// The elapsed time according to wall-clock.
     public let elapsedWallClock: TimeInterval
 
-    /// The divergence between the two clocks.
-    public let divergence: TimeInterval
+    /// Whether clock manipulation or device reboot was detected.
+    public let tamperingDetected: Bool
 
     // MARK: Init
 
     /// Initializes a `TamperResistantTimeResult`.
     /// - Parameters:
-    ///   - tamperingDetected: Whether clock manipulation or device reboot was detected.
+    ///   - divergence: The divergence between the two clocks.
     ///   - effectiveElapsed: The effective elapsed time to use (max of both clocks if no tampering detected).
     ///   - elapsedMonotonic: The elapsed time according to monotonic clock.
     ///   - elapsedWallClock: The elapsed time according to wall-clock.
-    ///   - divergence: The divergence between the two clocks.
+    ///   - tamperingDetected: Whether clock manipulation or device reboot was detected.
     public init(
-        tamperingDetected: Bool,
+        divergence: TimeInterval,
         effectiveElapsed: TimeInterval,
         elapsedMonotonic: TimeInterval,
         elapsedWallClock: TimeInterval,
-        divergence: TimeInterval,
+        tamperingDetected: Bool,
     ) {
-        self.tamperingDetected = tamperingDetected
+        self.divergence = divergence
         self.effectiveElapsed = effectiveElapsed
         self.elapsedMonotonic = elapsedMonotonic
         self.elapsedWallClock = elapsedWallClock
-        self.divergence = divergence
+        self.tamperingDetected = tamperingDetected
     }
 }

@@ -558,11 +558,11 @@ class SyncServiceTests: BitwardenTestCase {
 
         // calculateTamperResistantElapsedTime shows 800 seconds elapsed, below 30 min threshold
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 800,
             elapsedMonotonic: 800,
             elapsedWallClock: 800,
-            divergence: 0,
+            tamperingDetected: false,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -587,11 +587,11 @@ class SyncServiceTests: BitwardenTestCase {
 
         // calculateTamperResistantElapsedTime shows 1801 seconds elapsed, above 30 min threshold
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 1801,
             elapsedMonotonic: 1801,
             elapsedWallClock: 1801,
-            divergence: 0,
+            tamperingDetected: false,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -613,11 +613,11 @@ class SyncServiceTests: BitwardenTestCase {
 
         // calculateTamperResistantElapsedTime detects tampering (reboot detected)
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: true,
+            divergence: 11700,
             effectiveElapsed: 1800,
             elapsedMonotonic: -9900,
             elapsedWallClock: 1800,
-            divergence: 11700,
+            tamperingDetected: true,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -658,11 +658,11 @@ class SyncServiceTests: BitwardenTestCase {
         // calculateTamperResistantElapsedTime shows only 600 seconds (10 min) elapsed
         // Wall-clock shows 3600s but monotonic time shows only 600s
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 3000,
             effectiveElapsed: 600,
             elapsedMonotonic: 600,
             elapsedWallClock: 3600,
-            divergence: 3000,
+            tamperingDetected: false,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -684,11 +684,11 @@ class SyncServiceTests: BitwardenTestCase {
 
         // calculateTamperResistantElapsedTime detects tampering (large clock divergence)
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: true,
+            divergence: 300,
             effectiveElapsed: 300,
             elapsedMonotonic: 300,
             elapsedWallClock: 600,
-            divergence: 300,
+            tamperingDetected: true,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)

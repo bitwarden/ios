@@ -92,11 +92,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .date(byAdding: .minute, value: -4, to: currentTime)
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 240
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 240,
             elapsedMonotonic: 240,
             elapsedWallClock: 240,
-            divergence: 0,
+            tamperingDetected: false,
         )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
@@ -107,11 +107,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .date(byAdding: .minute, value: -5, to: currentTime)
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 300
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 300,
             elapsedMonotonic: 300,
             elapsedWallClock: 300,
-            divergence: 0,
+            tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
@@ -121,11 +121,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .date(byAdding: .minute, value: -6, to: currentTime)
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 360
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 360,
             elapsedMonotonic: 360,
             elapsedWallClock: 360,
-            divergence: 0,
+            tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
@@ -134,11 +134,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         userSessionStateService.getLastActiveTimeReturnValue = .distantPast
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = 0
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 999_999,
             elapsedMonotonic: 999_999,
             elapsedWallClock: 999_999,
-            divergence: 0,
+            tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
@@ -188,11 +188,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .date(byAdding: .minute, value: -119, to: currentTime)
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7140
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 7140,
             elapsedMonotonic: 7140,
             elapsedWallClock: 7140,
-            divergence: 0,
+            tamperingDetected: false,
         )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
@@ -202,11 +202,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .date(byAdding: .minute, value: -120, to: currentTime)
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7200
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 7200,
             elapsedMonotonic: 7200,
             elapsedWallClock: 7200,
-            divergence: 0,
+            tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
@@ -216,11 +216,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             .date(byAdding: .minute, value: -121, to: currentTime)
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7260
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 7260,
             elapsedMonotonic: 7260,
             elapsedWallClock: 7260,
-            divergence: 0,
+            tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
@@ -229,11 +229,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         userSessionStateService.getLastActiveTimeReturnValue = .distantPast
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = 0
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 999_999,
             elapsedMonotonic: 999_999,
             elapsedWallClock: 999_999,
-            divergence: 0,
+            tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
@@ -277,11 +277,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         // calculateTamperResistantElapsedTime detects tampering (reboot)
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: true,
+            divergence: 5020,
             effectiveElapsed: 120,
             elapsedMonotonic: -4900,
             elapsedWallClock: 120,
-            divergence: 5020,
+            tamperingDetected: true,
         )
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -306,11 +306,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         // calculateTamperResistantElapsedTime detects tampering (clock manipulation)
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: true,
+            divergence: 480,
             effectiveElapsed: 600,
             elapsedMonotonic: 600,
             elapsedWallClock: 120,
-            divergence: 480,
+            tamperingDetected: true,
         )
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -335,11 +335,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         // No tampering detected, clocks agree
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 0,
             effectiveElapsed: 120,
             elapsedMonotonic: 120,
             elapsedWallClock: 120,
-            divergence: 0,
+            tamperingDetected: false,
         )
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -364,11 +364,11 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         // No tampering detected (divergence within 15s threshold)
         // But effective elapsed uses max(310, 300) = 310 which exceeds 300s timeout
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
-            tamperingDetected: false,
+            divergence: 10,
             effectiveElapsed: 310,
             elapsedMonotonic: 310,
             elapsedWallClock: 300,
-            divergence: 10,
+            tamperingDetected: false,
         )
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
