@@ -10,7 +10,7 @@ enum ExportFileType: Equatable {
     /// A `.csv` file type.
     case csv
 
-    /// An encypted `.json` file type.
+    /// An encrypted `.json` file type.
     case encryptedJson(password: String)
 
     /// A `.json` file type.
@@ -103,7 +103,7 @@ extension ExportVaultService {
     }
 }
 
-class DefultExportVaultService: ExportVaultService {
+class DefaultExportVaultService: ExportVaultService {
     // MARK: Parameters
 
     /// The cipher service used by this service.

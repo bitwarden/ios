@@ -108,7 +108,7 @@ class SSHKeyTextAutofillOptionsHelperTests: BitwardenTestCase {
 
     /// `getTextAutofillOptions(cipherView:)` returns options when
     /// we have all of the values available except fingerprint empty.
-    func test_getTextAutofillOptions_fingeprintEmpty() async {
+    func test_getTextAutofillOptions_fingerprintEmpty() async {
         let cipher = CipherView.fixture(
             sshKey: .fixture(
                 privateKey: "privateKey",

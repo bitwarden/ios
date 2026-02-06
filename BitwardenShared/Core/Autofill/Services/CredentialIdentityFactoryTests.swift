@@ -116,7 +116,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `createCredentialIdentities(from:)` creates only OTC credential identity
-    /// from the given cipher view when the cipher doens't have username nor password..
+    /// from the given cipher view when the cipher doesn't have username nor password..
     func test_createCredentialIdentities_otcIdentityWhenNoUsernameNorPassword() async throws {
         guard #available(iOS 18.0, *) else {
             throw XCTSkip("iOS 18.0 is required to run this test.")

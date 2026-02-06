@@ -8,7 +8,7 @@ protocol TextAutofillHelperFactory {
     func create(delegate: TextAutofillHelperDelegate) -> TextAutofillHelper
 }
 
-/// Default implemenation of `TextAutofillHelperFactory`.
+/// Default implementation of `TextAutofillHelperFactory`.
 struct DefaultTextAutofillHelperFactory: TextAutofillHelperFactory {
     // MARK: Properties
 

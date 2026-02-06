@@ -149,7 +149,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addAutofillCombinedSingleSection()` adds a vault section combinining passwords and Fido2 items.
+    /// `addAutofillCombinedSingleSection()` adds a vault section combining passwords and Fido2 items.
     func test_addAutofillCombinedSingleSection() {
         setUpSubject(withData: VaultListPreparedData(
             fido2Items: [
@@ -192,7 +192,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addAutofillPasswordsSection()` adds a vault section combinining exact and fuzzy match items.
+    /// `addAutofillPasswordsSection()` adds a vault section combining exact and fuzzy match items.
     func test_addAutofillPasswordsSection() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [

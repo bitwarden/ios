@@ -128,7 +128,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
-        case .excludedCredentialFoundChaged:
+        case .excludedCredentialFoundChanged:
             if let cipherIdFound = state.excludedCredentialIdFound {
                 await updateExcludedCredentialSection(from: cipherIdFound)
             }
@@ -322,7 +322,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
-    /// Initilaizes the TOTP expiration managers so the TOTP codes are refreshed automatically.
+    /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     func initTotpExpirationManagers() {
         vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
             onExpiration: { [weak self] expiredItems in

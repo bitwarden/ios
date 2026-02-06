@@ -359,7 +359,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         }
     }
 
-    /// `getter:totalHeaderAdditionalItems` returns 0 when cipher doesn't belong to an organzation.
+    /// `getter:totalHeaderAdditionalItems` returns 0 when cipher doesn't belong to an organization.
     func test_totalHeaderAdditionalItems_noOrganization() throws {
         let state = try XCTUnwrap(
             CipherItemState(
@@ -370,7 +370,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(state.totalHeaderAdditionalItems, 0)
     }
 
-    /// `getter:totalHeaderAdditionalItems` returns 1 when cipher belongs to an organzation
+    /// `getter:totalHeaderAdditionalItems` returns 1 when cipher belongs to an organization
     /// but not to collections nor folder.
     func test_totalHeaderAdditionalItems_organizationButNoCollectionNoFolder() throws {
         let state = try XCTUnwrap(
@@ -382,7 +382,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(state.totalHeaderAdditionalItems, 1)
     }
 
-    /// `getter:totalHeaderAdditionalItems` returns 4 when cipher belongs to an organzation
+    /// `getter:totalHeaderAdditionalItems` returns 4 when cipher belongs to an organization
     /// and to 3 collections but not to a folder.
     func test_totalHeaderAdditionalItems_organizationCollectionsNoFolder() throws {
         let state = try XCTUnwrap(
@@ -394,7 +394,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(state.totalHeaderAdditionalItems, 4)
     }
 
-    /// `getter:totalHeaderAdditionalItems` returns 5 when cipher belongs to an organzation,
+    /// `getter:totalHeaderAdditionalItems` returns 5 when cipher belongs to an organization,
     /// to 3 collections and a folder.
     func test_totalHeaderAdditionalItems_organizationCollectionsFolder() throws {
         let state = try XCTUnwrap(
@@ -410,7 +410,7 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(state.totalHeaderAdditionalItems, 5)
     }
 
-    /// `getter:totalHeaderAdditionalItems` returns 2 when cipher belongs to an organzation,
+    /// `getter:totalHeaderAdditionalItems` returns 2 when cipher belongs to an organization,
     /// no collections and a folder.
     func test_totalHeaderAdditionalItems_organizationFolderAndNoCollections() throws {
         let state = try XCTUnwrap(

@@ -244,7 +244,7 @@ public class AppProcessor {
         await checkIfLockedAndPerformNavigation(route: route)
     }
 
-    /// Perpares the current environment configuration by loading the URLs for the active account
+    /// Prepares the current environment configuration by loading the URLs for the active account
     /// and getting the current server config.
     public func prepareEnvironmentConfig() async {
         await services.environmentService.loadURLsForActiveAccount()

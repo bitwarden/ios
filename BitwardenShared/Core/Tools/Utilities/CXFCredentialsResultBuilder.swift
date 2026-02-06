@@ -4,7 +4,7 @@ import BitwardenSdk
 protocol CXFCredentialsResultBuilder {
     /// Builds the credentials result for the Credential Exchange flow UI.
     /// - Parameter ciphers: Ciphers to build the results.
-    /// - Returns: Returns an array to be used in the Credential Exhange UI.
+    /// - Returns: Returns an array to be used in the Credential Exchange UI.
     func build(from ciphers: [Cipher]) -> [CXFCredentialsResult]
 }
 
