@@ -30,6 +30,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         super.setUp()
 
         biometricsRepository = MockBiometricsRepository()
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         cancellables = []
         clientService = MockClientService()
         configService = MockConfigService()
@@ -346,7 +347,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.timeoutAction["1"] = .lock
         stateService.userHasMasterPassword["1"] = false
-        biometricsRepository.getBiometricUnlockStatusByUserId["1"] = .available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
 
         var timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
         XCTAssertEqual(timeoutAction, .lock)
