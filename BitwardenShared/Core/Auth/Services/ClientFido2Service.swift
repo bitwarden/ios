@@ -19,7 +19,7 @@ protocol ClientFido2Service: AnyObject {
     /// - Parameter cipherView: `CipherView` containing the Fido2 credentials to decrypt.
     /// - Returns: An array of decrypted Fido2 credentials of type `Fido2CredentialAutofillView`.
     func decryptFido2AutofillCredentials(cipherView: CipherView) throws -> [Fido2CredentialAutofillView]
-    
+
     /// Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks.
     /// - Parameters:
     ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
@@ -44,7 +44,7 @@ extension ClientFido2: ClientFido2Service {
     func decryptFido2AutofillCredentials(cipher cipherView: CipherView) throws -> [Fido2CredentialAutofillView] {
         try decryptFido2AutofillCredentials(cipherView: cipherView)
     }
-    
+
     func vaultAuthenticator(
         userInterface: Fido2UserInterface,
         credentialStore: Fido2CredentialStore,
