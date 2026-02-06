@@ -1212,8 +1212,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(usesKeyConnector)
     }
 
-
-
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))

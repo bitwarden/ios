@@ -600,11 +600,15 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
     // MARK: Last Active Time
 
     func getLastActiveTime(userId: String) async throws -> Date? {
-        let stored = try await getValue(for: .lastActiveTime(userId: userId))
-        guard let timeInterval = TimeInterval(stored) else {
+        do {
+            let stored = try await getValue(for: .lastActiveTime(userId: userId))
+            guard let timeInterval = TimeInterval(stored) else {
+                return nil
+            }
+            return Date(timeIntervalSince1970: timeInterval)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             return nil
         }
-        return Date(timeIntervalSince1970: timeInterval)
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) async throws {
