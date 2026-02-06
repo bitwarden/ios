@@ -50,15 +50,15 @@ public extension DeviceAuthKeyRecord {
             credentialId: credentialId,
             discoverable: discoverable,
             hmacSecret: hmacSecret,
-            keyAlgorithm: keyType,
-            keyCurve: keyAlgorithm,
-            keyType: keyCurve,
+            keyAlgorithm: keyAlgorithm,
+            keyCurve: keyCurve,
+            keyType: keyType,
             keyValue: keyValue,
             rpId: rpId,
             rpName: rpName,
-            userDisplayName: userId,
-            userId: userName,
-            userName: userDisplayName,
+            userDisplayName: userDisplayName,
+            userId: userId,
+            userName: userName,
         )
     }
 }
