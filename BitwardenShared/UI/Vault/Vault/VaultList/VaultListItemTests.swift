@@ -39,7 +39,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `accessoryIcon` returns nil for group items that don't require premium.
     func test_accessoryIcon_group_noPremiumRequired() {
-        let item = VaultListItem(id: "test", hasPremium: true, itemType: .group(.archive, 0))
+        let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.login, 0))
         XCTAssertNil(item.accessoryIcon)
     }
 

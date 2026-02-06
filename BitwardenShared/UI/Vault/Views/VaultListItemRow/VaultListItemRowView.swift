@@ -112,7 +112,6 @@ struct VaultListItemRowView: View {
                         if let accessoryIcon = store.state.item.accessoryIcon {
                             Image(decorative: accessoryIcon)
                                 .imageStyle(.rowIcon)
-                                .padding(.vertical, 19)
                                 .accessibilityHidden(true)
                         } else {
                             Text("\(count)")
