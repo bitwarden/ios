@@ -159,6 +159,9 @@ class DefaultSyncService: SyncService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// The service for managing the folders for the user.
     private let folderService: FolderService
 
@@ -206,6 +209,7 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - configService: The service to get server-specified configuration.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - folderService: The service for managing the folders for the user.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationService: The service for managing the organizations for the user.
@@ -225,6 +229,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         configService: ConfigService,
+        flightRecorder: FlightRecorder,
         folderService: FolderService,
         keyConnectorService: KeyConnectorService,
         organizationService: OrganizationService,
@@ -243,6 +248,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.configService = configService
+        self.flightRecorder = flightRecorder
         self.folderService = folderService
         self.keyConnectorService = keyConnectorService
         self.organizationService = organizationService
@@ -350,16 +356,19 @@ class DefaultSyncService: SyncService {
 
         // Migration fallback: use wall-clock if monotonic time not available
         guard let lastSyncMonotonic else {
+            await flightRecorder.log("Checking needs sync with wall-clock time for userId: \(userId)")
             if lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
                 return .shouldNotSync
             }
             return .undefined
         }
 
+        await flightRecorder.log("Checking needs sync with monotonic time for userId: \(userId)")
+
         let result = timeProvider.calculateTamperResistantElapsedTime(
             since: lastSyncMonotonic,
             lastWallClockTime: lastSyncTime,
-            divergenceThreshold: 15.0
+            divergenceThreshold: 15.0,
         )
 
         // Force sync if tampering detected (reboot or clock manipulation)

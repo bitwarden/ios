@@ -19,6 +19,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var sharedTimeoutService: MockSharedTimeoutService!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
@@ -35,6 +36,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = MockClientService()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         sharedTimeoutService = MockSharedTimeoutService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(
@@ -51,6 +53,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -65,6 +68,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         cancellables = nil
         clientService = nil
         configService = nil
+        flightRecorder = nil
         errorReporter = nil
         subject = nil
         stateService = nil
@@ -96,6 +100,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking timeout with monotonic time for userId: 1"))
 
         // Last active 5 minutes ago (300 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
@@ -386,6 +391,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking timeout with wall-clock time for userId: 1"))
 
         // Last active 5 minutes ago using wall-clock time, timeout
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current

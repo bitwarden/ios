@@ -18,6 +18,7 @@ class SyncServiceTests: BitwardenTestCase {
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
+    var flightRecorder: MockFlightRecorder!
     var folderService: MockFolderService!
     var keyConnectorService: MockKeyConnectorService!
     var organizationService: MockOrganizationService!
@@ -42,6 +43,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = MockClientService()
         collectionService = MockCollectionService()
         configService = MockConfigService()
+        flightRecorder = MockFlightRecorder()
         folderService = MockFolderService()
         keyConnectorService = MockKeyConnectorService()
         organizationService = MockOrganizationService()
@@ -71,6 +73,7 @@ class SyncServiceTests: BitwardenTestCase {
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            flightRecorder: flightRecorder,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
@@ -95,6 +98,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = nil
         collectionService = nil
         configService = nil
+        flightRecorder = nil
         folderService = nil
         keyConnectorService = nil
         organizationService = nil
@@ -543,6 +547,7 @@ class SyncServiceTests: BitwardenTestCase {
     // MARK: Monotonic Time Tests
 
     /// `fetchSync()` doesn't sync if monotonic time shows interval hasn't passed.
+    @MainActor
     func test_fetchSync_monotonicTime_blocksEarlySyncAttempt() async throws {
         client.result = .httpSuccess(testData: .syncWithCipher)
         stateService.activeAccount = .fixture()
@@ -557,7 +562,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 800,
             elapsedMonotonic: 800,
             elapsedWallClock: 800,
-            divergence: 0
+            divergence: 0,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -565,6 +570,7 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertTrue(client.requests.isEmpty)
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking needs sync with monotonic time for userId: 1"))
     }
 
     /// `fetchSync()` syncs if monotonic time shows interval has passed.
@@ -585,7 +591,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 1801,
             elapsedMonotonic: 1801,
             elapsedWallClock: 1801,
-            divergence: 0
+            divergence: 0,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -611,7 +617,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 1800,
             elapsedMonotonic: -9900,
             elapsedWallClock: 1800,
-            divergence: 11700
+            divergence: 11700,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -622,6 +628,7 @@ class SyncServiceTests: BitwardenTestCase {
     }
 
     /// `fetchSync()` falls back to wall-clock when monotonic time unavailable (migration).
+    @MainActor
     func test_fetchSync_monotonicTime_fallbackToWallClockOnMigration() async throws {
         client.result = .httpSuccess(testData: .syncWithCipher)
         stateService.activeAccount = .fixture()
@@ -634,6 +641,7 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertTrue(client.requests.isEmpty) // Wall-clock fallback blocks
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking needs sync with wall-clock time for userId: 1"))
     }
 
     /// `fetchSync()` protects against clock manipulation using monotonic time.
@@ -654,7 +662,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 600,
             elapsedMonotonic: 600,
             elapsedWallClock: 3600,
-            divergence: 3000
+            divergence: 3000,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
@@ -680,7 +688,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 300,
             elapsedMonotonic: 300,
             elapsedWallClock: 600,
-            divergence: 300
+            divergence: 300,
         )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)

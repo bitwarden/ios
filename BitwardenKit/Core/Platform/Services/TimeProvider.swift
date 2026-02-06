@@ -150,6 +150,13 @@ public struct TamperResistantTimeResult {
 
     // MARK: Init
 
+    /// Initializes a `TamperResistantTimeResult`.
+    /// - Parameters:
+    ///   - tamperingDetected: Whether clock manipulation or device reboot was detected.
+    ///   - effectiveElapsed: The effective elapsed time to use (max of both clocks if no tampering detected).
+    ///   - elapsedMonotonic: The elapsed time according to monotonic clock.
+    ///   - elapsedWallClock: The elapsed time according to wall-clock.
+    ///   - divergence: The divergence between the two clocks.
     public init(
         tamperingDetected: Bool,
         effectiveElapsed: TimeInterval,

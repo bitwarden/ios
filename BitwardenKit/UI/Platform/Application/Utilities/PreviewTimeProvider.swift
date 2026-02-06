@@ -34,7 +34,7 @@ public class PreviewTimeProvider: TimeProvider {
             effectiveElapsed: 10,
             elapsedMonotonic: 10,
             elapsedWallClock: 10,
-            divergence: 0
+            divergence: 0,
         )
     }
 
