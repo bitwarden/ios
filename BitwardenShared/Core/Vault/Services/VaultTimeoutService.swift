@@ -129,6 +129,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// A service that manages account timeout between apps.
     private let sharedTimeoutService: SharedTimeoutService
 
@@ -153,6 +156,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
@@ -163,6 +167,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -172,6 +177,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -189,12 +195,36 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             // On app restart, trigger timeout if this is actually an app restart
             return isAppRestart
         default:
-            // Otherwise, calculate a timeout.
-            guard let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
-            else { return true }
+            let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
+            guard let lastActiveTime else {
+                return true
+            }
 
-            return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
-                >= TimeInterval(vaultTimeout.seconds)
+            let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
+
+            // Use monotonic time for tamper-resistant timeout checking
+            if let lastActiveMonotonic {
+                await flightRecorder.log("Checking timeout with monotonic time for userId: \(userId)")
+                let result = timeProvider.calculateTamperResistantElapsedTime(
+                    lastMonotonicTime: lastActiveMonotonic,
+                    lastWallClockTime: lastActiveTime,
+                    divergenceThreshold: 15.0,
+                )
+
+                // Force timeout if tampering detected (reboot or clock manipulation)
+                if result.tamperingDetected {
+                    return true
+                }
+
+                // Both clocks agree - use the effective elapsed time (max of both for extra safety)
+                let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
+                return result.effectiveElapsed >= timeoutSeconds
+            } else {
+                await flightRecorder.log("Checking timeout with wall-clock time for userId: \(userId)")
+                // Migration fallback: use wall-clock if monotonic time not available
+                return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
+                    >= TimeInterval(vaultTimeout.seconds)
+            }
         }
     }
 
@@ -252,6 +282,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     func setLastActiveTime(userId: String) async throws {
         let now = timeProvider.presentTime
         try await userSessionStateService.setLastActiveTime(now, userId: userId)
+        try await userSessionStateService.setLastActiveMonotonicTime(timeProvider.monotonicTime, userId: userId)
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         try await updateSharedTimeout(
             lastActiveTime: now,

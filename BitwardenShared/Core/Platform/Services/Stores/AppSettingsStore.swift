@@ -212,6 +212,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func lastSyncTime(userId: String) -> Date?
 
+    /// Gets the monotonic time of the last sync for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the last sync monotonic time.
+    /// - Returns: The monotonic time of the last sync for the user as a `TimeInterval` since system boot.
+    ///
+    func lastSyncMonotonicTime(userId: String) -> TimeInterval?
+
     /// Gets whether the account belonging to the user Id has been manually locked.
     /// - Parameter userId: The user ID associated with the account.
     /// - Returns: `true` if manually locked, `false` otherwise.
@@ -421,6 +428,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String)
+
+    /// Sets the monotonic time of the last sync for the user ID.
+    ///
+    /// - Parameters:
+    ///   - monotonicTime: The monotonic time of the last sync as a `TimeInterval` since system boot.
+    ///   - userId: The user ID associated with the last sync monotonic time.
+    ///
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String)
 
     /// Sets whether the account belonging to the user Id has been manually locked.
     /// - Parameters
@@ -742,6 +757,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case introCarouselShown
         case learnNewLoginActionCardStatus
         case lastSync(userId: String)
+        case lastSyncMonotonic(userId: String)
         case lastUserShouldConnectToWatch
         case learnGeneratorActionCardStatus
         case loginRequest
@@ -830,6 +846,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "learnNewLoginActionCardStatus"
             case let .lastSync(userId):
                 "lastSync_\(userId)"
+            case let .lastSyncMonotonic(userId):
+                "lastSyncMonotonic_\(userId)"
             case .learnGeneratorActionCardStatus:
                 "learnGeneratorActionCardStatus"
             case .lastUserShouldConnectToWatch:
@@ -1078,6 +1096,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func lastSyncMonotonicTime(userId: String) -> TimeInterval? {
+        fetch(for: .lastSyncMonotonic(userId: userId))
+    }
+
     func manuallyLockedAccount(userId: String) -> Bool {
         fetch(for: .manuallyLockedAccount(userId: userId))
     }
@@ -1190,6 +1212,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
+    }
+
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) {
+        store(monotonicTime, for: .lastSyncMonotonic(userId: userId))
     }
 
     func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
