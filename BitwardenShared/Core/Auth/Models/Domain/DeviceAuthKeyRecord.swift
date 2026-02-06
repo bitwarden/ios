@@ -62,15 +62,15 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
     ///   - credentialId: The unique identifier for this credential, assigned by the authenticator.
     ///   - discoverable: Whether this credential is discoverable (formerly called "resident key").
     ///   - hmacSecret: The HMAC secret, if the credential supports the hmac-secret extension.
-    ///   - keyType: The type of public key credential (typically "public-key").
     ///   - keyAlgorithm: The algorithm used for the key (e.g., "ES256" for ECDSA with SHA-256).
     ///   - keyCurve: The elliptic curve used for the key (e.g., "P-256").
+    ///   - keyType: The type of public key credential (typically "public-key").
     ///   - keyValue: The actual key material value.
     ///   - rpId: The relying party identifier, typically a domain name.
     ///   - rpName: The human-readable name of the relying party.
+    ///   - userDisplayName: The user's human-readable display name.
     ///   - userId: The user identifier for the relying party.
     ///   - userName: The user's username or login name.
-    ///   - userDisplayName: The user's human-readable display name.
     public init(
         cipherId: EncString,
         cipherName: EncString,
