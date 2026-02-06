@@ -25,6 +25,14 @@ public class MockTimeProvider: TimeProvider {
         }
     }
 
+    public var calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+        tamperingDetected: false,
+        effectiveElapsed: 10,
+        elapsedMonotonic: 10,
+        elapsedWallClock: 10,
+        divergence: 0
+    )
+
     public var monotonicTime: TimeInterval {
         timeConfig.monotonicTime
     }
@@ -37,6 +45,14 @@ public class MockTimeProvider: TimeProvider {
 
     public init(_ timeConfig: TimeConfig) {
         self.timeConfig = timeConfig
+    }
+
+    public func calculateTamperResistantElapsedTime(
+        since lastMonotonicTime: TimeInterval,
+        lastWallClockTime: Date,
+        divergenceThreshold: TimeInterval,
+    ) -> TamperResistantTimeResult {
+        calculateTamperResistantElapsedTimeResult
     }
 
     public func timeSince(_ date: Date) -> TimeInterval {

@@ -24,6 +24,20 @@ public class PreviewTimeProvider: TimeProvider {
         self.monotonicTime = monotonicTime
     }
 
+    public func calculateTamperResistantElapsedTime(
+        since lastMonotonicTime: TimeInterval,
+        lastWallClockTime: Date,
+        divergenceThreshold: TimeInterval,
+    ) -> TamperResistantTimeResult {
+        TamperResistantTimeResult(
+            tamperingDetected: false,
+            effectiveElapsed: 10,
+            elapsedMonotonic: 10,
+            elapsedWallClock: 10,
+            divergence: 0
+        )
+    }
+
     public func timeSince(_ date: Date) -> TimeInterval {
         presentTime.timeIntervalSince(date)
     }

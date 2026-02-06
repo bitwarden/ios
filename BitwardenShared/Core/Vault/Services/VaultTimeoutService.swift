@@ -198,14 +198,20 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
             // Use monotonic time for tamper-resistant timeout checking
             if let lastActiveMonotonic {
-                let elapsedMonotonic = timeProvider.monotonicTime - lastActiveMonotonic
+                let result = timeProvider.calculateTamperResistantElapsedTime(
+                    since: lastActiveMonotonic,
+                    lastWallClockTime: lastActiveTime,
+                    divergenceThreshold: 15.0
+                )
 
-                // Reboot detection: negative elapsed time means device rebooted
-                if elapsedMonotonic < 0 {
-                    return true // Force timeout after reboot (safe approach)
+                // Force timeout if tampering detected (reboot or clock manipulation)
+                if result.tamperingDetected {
+                    return true
                 }
 
-                return elapsedMonotonic >= TimeInterval(vaultTimeout.seconds)
+                // Both clocks agree - use the effective elapsed time (max of both for extra safety)
+                let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
+                return result.effectiveElapsed >= timeoutSeconds
             } else {
                 // Migration fallback: use wall-clock if monotonic time not available
                 return timeProvider.presentTime.timeIntervalSince(lastActiveTime)

@@ -551,6 +551,15 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
         timeProvider.timeConfig = .mockTime(.now, 1800.0) // Only 800 seconds elapsed (< 30 min)
 
+        // calculateTamperResistantElapsedTime shows 800 seconds elapsed, below 30 min threshold
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            tamperingDetected: false,
+            effectiveElapsed: 800,
+            elapsedMonotonic: 800,
+            elapsedWallClock: 800,
+            divergence: 0
+        )
+
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false, isPeriodic: true)
@@ -570,6 +579,15 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
         timeProvider.timeConfig = .mockTime(.now, 2801.0) // 1801 seconds elapsed (> 30 min)
 
+        // calculateTamperResistantElapsedTime shows 1801 seconds elapsed, above 30 min threshold
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            tamperingDetected: false,
+            effectiveElapsed: 1801,
+            elapsedMonotonic: 1801,
+            elapsedWallClock: 1801,
+            divergence: 0
+        )
+
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false, isPeriodic: true)
@@ -586,6 +604,15 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
         stateService.lastSyncMonotonicTimeByUserId["1"] = 10000.0
         timeProvider.timeConfig = .mockTime(.now, 100.0) // Negative elapsed (reboot)
+
+        // calculateTamperResistantElapsedTime detects tampering (reboot detected)
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            tamperingDetected: true,
+            effectiveElapsed: 1800,
+            elapsedMonotonic: -9900,
+            elapsedWallClock: 1800,
+            divergence: 11700
+        )
 
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
@@ -620,11 +647,47 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
         timeProvider.timeConfig = .mockTime(.now, 1600.0) // Only 10 min monotonic elapsed
 
+        // calculateTamperResistantElapsedTime shows only 600 seconds (10 min) elapsed
+        // Wall-clock shows 3600s but monotonic time shows only 600s
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            tamperingDetected: false,
+            effectiveElapsed: 600,
+            elapsedMonotonic: 600,
+            elapsedWallClock: 3600,
+            divergence: 3000
+        )
+
         keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertTrue(client.requests.isEmpty) // Attack blocked
+    }
+
+    /// `fetchSync()` forces sync when clock manipulation with large divergence is detected.
+    func test_fetchSync_monotonicTime_forcesSyncOnClockManipulationDetection() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        // Clock divergence detected
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-600)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.timeConfig = .mockTime(.now, 1300.0)
+
+        // calculateTamperResistantElapsedTime detects tampering (large clock divergence)
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            tamperingDetected: true,
+            effectiveElapsed: 300,
+            elapsedMonotonic: 300,
+            elapsedWallClock: 600,
+            divergence: 300
+        )
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertEqual(client.requests.count, 1) // Sync forced due to tampering detection
     }
 
     /// `fetchSync()` updates monotonic time after successful sync.

@@ -356,15 +356,19 @@ class DefaultSyncService: SyncService {
             return .undefined
         }
 
-        let elapsedMonotonic = timeProvider.monotonicTime - lastSyncMonotonic
+        let result = timeProvider.calculateTamperResistantElapsedTime(
+            since: lastSyncMonotonic,
+            lastWallClockTime: lastSyncTime,
+            divergenceThreshold: 15.0
+        )
 
-        // Reboot detection: negative elapsed time means device rebooted
-        if elapsedMonotonic < 0 {
-            return .shouldSync // Force sync after reboot (safer approach)
+        // Force sync if tampering detected (reboot or clock manipulation)
+        if result.tamperingDetected {
+            return .shouldSync
         }
 
-        // Check if minimum interval has passed
-        if elapsedMonotonic < Constants.minimumSyncInterval {
+        // Check if minimum interval has passed (use effective elapsed time)
+        if result.effectiveElapsed < Constants.minimumSyncInterval {
             return .shouldNotSync
         }
 
