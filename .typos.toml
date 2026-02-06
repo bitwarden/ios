@@ -1,0 +1,24 @@
+# Typos configuration for spell checking Swift and Markdown files
+# See: https://github.com/crate-ci/typos/blob/master/docs/reference.md
+
+[files]
+extend-exclude = [
+    "**/*.lproj/*",
+    "*.json",
+    "*.xctestplan",
+    "LicensePlist.plist",
+    "public_suffix_list.dat",
+
+    # Overrides / re-includes
+    "!**/en.lproj/*",
+]
+
+[default.extend-words]
+# Technical terms that are correctly spelled
+
+[default.extend-identifiers]
+# Brand names and technical identifiers
+Bitwarden = "Bitwarden"
+Rotateable = "Rotateable"
+RotateableKeySet = "RotateableKeySet"
+Sourcery = "Sourcery"

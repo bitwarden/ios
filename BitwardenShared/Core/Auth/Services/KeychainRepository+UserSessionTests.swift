@@ -137,6 +137,14 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         }
     }
 
+    /// `getLastActiveTime(userId:)` returns nil when the time has never been set.
+    func test_getLastActiveTime_itemNotFound() async throws {
+        let error = KeychainServiceError.osStatusError(errSecItemNotFound)
+        keychainService.searchResult = .failure(error)
+        let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
+        XCTAssertNil(lastActiveTime)
+    }
+
     /// `setLastActiveTime(_:userId:)` stores the last active time with correct attributes.
     ///
     func test_setLastActiveTime() async throws {
