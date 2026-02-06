@@ -6,6 +6,12 @@ import Foundation
 /// Actions that can be processed by a `AddEditSendItemProcessor`.
 ///
 enum AddEditSendItemAction: Equatable {
+    /// The access type was changed.
+    case accessTypeChanged(SendAccessType)
+
+    /// Add a new recipient email field.
+    case addRecipientEmail
+
     /// The choose file button was pressed.
     case chooseFilePressed
 
@@ -41,6 +47,12 @@ enum AddEditSendItemAction: Equatable {
 
     /// A forwarded profile switcher action.
     case profileSwitcher(ProfileSwitcherAction)
+
+    /// A recipient email was changed at the specified index.
+    case recipientEmailChanged(index: Int, value: String)
+
+    /// Remove the recipient email at the specified index.
+    case removeRecipientEmail(index: Int)
 
     /// The text value text field was changed.
     case textChanged(String)
