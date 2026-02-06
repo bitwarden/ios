@@ -141,7 +141,10 @@ final class VaultGroupProcessor: StateProcessor<
         switch action {
         case let .addItemPressed(type):
             let type = type ?? CipherType(group: state.group) ?? .login
-            coordinator.navigate(to: .addItem(group: state.group, type: type))
+            coordinator.navigate(
+                to: .addItem(group: state.group, type: type),
+                context: self,
+            )
         case .clearURL:
             state.url = nil
         case let .copyTOTPCode(code):
@@ -216,7 +219,10 @@ final class VaultGroupProcessor: StateProcessor<
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }

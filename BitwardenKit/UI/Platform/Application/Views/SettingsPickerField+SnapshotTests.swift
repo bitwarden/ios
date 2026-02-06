@@ -12,10 +12,6 @@ class SettingsPickerFieldTests: BitwardenTestCase {
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
-    }
-
     override func tearDown() {
         super.tearDown()
         subject = nil

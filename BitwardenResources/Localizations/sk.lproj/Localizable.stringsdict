@@ -14,13 +14,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden nedokázal dešifrovať %d položku trezoru.</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nedokázal dešifrovať %d položky trezoru.</string>
         <key>many</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nedokázal dešifrovať %d položiek trezoru.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nedokázal dešifrovať %d položiek trezoru.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -35,13 +35,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znak.</string>
         <key>few</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znaky.</string>
         <key>many</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znakov.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znakov.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
         <key>few</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
         <key>many</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -77,13 +77,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaky</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakov</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -98,13 +98,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d deň</string>
         <key>few</key>
-        <string>%d days</string>
+        <string>%d dni</string>
         <key>many</key>
-        <string>%d days</string>
+        <string>%d dní</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dní</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -119,13 +119,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d hodina</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d hodiny</string>
         <key>many</key>
-        <string>%d hours</string>
+        <string>%d hodín</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d hodín</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -140,13 +140,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>%d položka</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d položky</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>%d položiek</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d položiek</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -161,13 +161,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d položka úspešne importovaná</string>
         <key>few</key>
-        <string>%d items successfully imported</string>
+        <string>%d položky úspešne importované</string>
         <key>many</key>
-        <string>%d items successfully imported</string>
+        <string>%d položiek úspešne importovaných</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d položiek úspešne importovaných</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -182,13 +182,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d minúta</string>
         <key>few</key>
-        <string>%d minutes</string>
+        <string>%d minúty</string>
         <key>many</key>
-        <string>%d minutes</string>
+        <string>%d minút</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minút</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -203,13 +203,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d sekunda</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d sekundy</string>
         <key>many</key>
-        <string>%d seconds</string>
+        <string>%d sekúnd</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekúnd</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -224,13 +224,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d týždeň</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d týždne</string>
         <key>many</key>
-        <string>%d weeks</string>
+        <string>%d týždňov</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d týždňov</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
@@ -245,13 +245,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>Váš PIN kód musí mať aspoň %d znak.</string>
         <key>few</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Váš PIN kód musí mať aspoň %d znaky.</string>
         <key>many</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Váš PIN kód musí mať aspoň %d znakov.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>Váš PIN kód musí mať aspoň %d znakov.</string>
       </dict>
     </dict>
   </dict>

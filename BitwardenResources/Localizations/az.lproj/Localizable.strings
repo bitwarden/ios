@@ -1264,9 +1264,9 @@
 "TheNewRecommendedEncryptionSettingsDescriptionLong" = "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin.";
 "Updating" = "Güncəllənir…";
 "EncryptionSettingsUpdated" = "Şifrələmə ayarları güncəlləndi";
-"IntroducingArchive" = "Introducing Archive";
-"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
-"GoToArchive" = "Go to archive";
+"IntroducingArchive" = "Tanış olun, Arxivləmə";
+"KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "İndi ehtiyacınız olmayanları etibarlı və gözdən uzaq yerdə saxlayın.";
+"GoToArchive" = "Arxivə get";
 "ItemTransfer" = "Element transferi";
 "TransferItemsToX" = "Elementləri transfer et: %1$@";
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@, təhlükəsizlik və riayətlilik üçün bütün elementlərin təşkilata aid olmasını tələb edir. Elementlərinizin sahibliyini transfer etmək üçün qəbul edin.";
@@ -1287,9 +1287,9 @@
 "Archived" = "Arxivləndi";
 "Unarchive" = "Arxivdən çıxart";
 "ItemMovedToArchive" = "Item moved to archive";
-"ItemMovedToVault" = "Item moved to vault";
+"ItemMovedToVault" = "Element seyfə daşındı";
 "SendingToArchive" = "Arxivə göndərilir…";
-"MovingItemToVault" = "Moving item to vault";
+"MovingItemToVault" = "Elementlərin seyfə daşınması";
 "OrganizationNotFound" = "Təşkilat tapılmadı.";
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "Arxiv boşdur";
@@ -1298,7 +1298,8 @@
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Elementləri arxivləmə, Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";
 "UpgradeToPremium" = "\"Premium\"a yüksəlt";
 "ThisItemIsArchived" = "Bu element arxivləndi.";
-"YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
-"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
-"RestartPremium" = "Restart Premium";
+"YourPremiumSubscriptionEnded" = "Premium abunəliyiniz bitdi";
+"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Arxivinizə təkrar erişmək üçün Premium abunəliyinizi yenidən başladın. Təkrar başlatmazdan əvvəl arxivlənmiş elementin detallarına düzəliş etsəniz, həmin element seyfinizə daşınacaq.";
+"RestartPremium" = "\"Premium\"u yenidən başlat";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Bu element arxivləndi. Dəyişiklikləri saxlamaq, onu seyfinizə bərpa edəcək.";
+"SettingUpAutofill" = "Setting up Autofill…";

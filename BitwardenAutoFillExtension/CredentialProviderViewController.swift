@@ -459,16 +459,37 @@ extension CredentialProviderViewController: RootNavigator {
     var rootViewController: UIViewController? { self }
 
     func show(child: Navigator) {
-        if let fromViewController = children.first {
-            fromViewController.willMove(toParent: nil)
-            fromViewController.view.removeFromSuperview()
-            fromViewController.removeFromParent()
-        }
+        removeChildViewController()
 
         if let toViewController = child.rootViewController {
             addChild(toViewController)
             view.addConstrained(subview: toViewController.view)
             toViewController.didMove(toParent: self)
+        }
+    }
+
+    // MARK: Private methods
+
+    /// Removes the first child view controller taking into account some edge cases.
+    func removeChildViewController() {
+        let fromViewController = children.first
+
+        // HACK: [PM-28227] When opening this extension on mode `text to insert`
+        // We can't use `removeFromSuperview` or the extension closes afterwards after a few seconds.
+        // Therefore we have this hack to pop to root on navigation controller.
+        // iOS sometimes changes something on the navigation from `prepareInterfaceForUserChoosingTextToInsert`
+        // which needs this workaround.
+        if let context,
+           case .autofillText = context.extensionMode,
+           let navController = fromViewController as? UINavigationController {
+            navController.popToRoot(animated: true)
+            return
+        }
+
+        if let fromViewController {
+            fromViewController.willMove(toParent: nil)
+            fromViewController.view.removeFromSuperview()
+            fromViewController.removeFromParent()
         }
     }
 } // swiftlint:disable:this file_length

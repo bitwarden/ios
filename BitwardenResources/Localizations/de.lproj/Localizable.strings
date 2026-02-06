@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Starte dein Premium-Abonnement neu, um den Zugriff auf dein Archiv wiederherzustellen. Wenn du die Details für einen archivierten Eintrag vor dem Neustart bearbeitest, wird er wieder zurück in deinen Tresor verschoben.";
 "RestartPremium" = "Premium neu starten";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Dieser Eintrag ist archiviert. Wenn du Änderungen speicherst, wird er in deinem Tresor wiederhergestellt.";
+"SettingUpAutofill" = "Auto-Ausfüllen wird eingerichtet...";

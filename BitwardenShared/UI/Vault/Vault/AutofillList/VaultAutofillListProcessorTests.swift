@@ -102,7 +102,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_vaultItemTapped() async {
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")))
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
         let vaultListItem = VaultListItem(
             cipherListView: .fixture(),
         )!
@@ -141,7 +142,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_vaultItemTapped_showToast() async throws {
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(
-            login: .fixture(password: "PASSWORD", username: nil)))
+            login: .fixture(password: "PASSWORD", username: nil),
+        ))
         let vaultListItem = VaultListItem(
             cipherListView: .fixture(),
         )!

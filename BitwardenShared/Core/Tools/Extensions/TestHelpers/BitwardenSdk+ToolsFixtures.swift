@@ -11,6 +11,8 @@ extension Send {
         accessId: String = "ACCESS_ID",
         deletionDate: Date = Date(year: 2024, month: 01, day: 01),
         disabled: Bool = false,
+        emailHashes: String? = nil,
+        emails: String? = nil,
         expirationDate: Date? = nil,
         file: SendFileModel? = nil,
         hideEmail: Bool = false,
@@ -41,6 +43,9 @@ extension Send {
             revisionDate: revisionDate,
             deletionDate: deletionDate,
             expirationDate: expirationDate,
+            emails: emails,
+            emailHashes: emailHashes,
+            authType: AuthType.none,
         )
     }
 }

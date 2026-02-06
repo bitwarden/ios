@@ -78,7 +78,7 @@ class MockAuthClient: AuthClientProtocol {
     var validatePinResult: Result<Bool, Error> = .success(false)
 
     var validatePinProtectedUserKeyEnvelopePin: String?
-    var validatePinProtectedUserKeyEnvelopePinProtectedUserKeyEnvelope: PasswordProtectedKeyEnvelope? // swiftlint:disable:this identifier_name
+    var validatePinProtectedUserKeyEnvelopePinProtectedUserKeyEnvelope: PasswordProtectedKeyEnvelope? // swiftlint:disable:this identifier_name line_length
     var validatePinProtectedUserKeyEnvelopeResult: Bool = true // swiftlint:disable:this identifier_name
 
     var trustDeviceResult: Result<TrustDeviceResponse, Error> = .success(
@@ -169,7 +169,10 @@ class MockAuthClient: AuthClientProtocol {
         try validatePinResult.get()
     }
 
-    func validatePinProtectedUserKeyEnvelope(pin: String, pinProtectedUserKeyEnvelope: PasswordProtectedKeyEnvelope) -> Bool {
+    func validatePinProtectedUserKeyEnvelope(
+        pin: String,
+        pinProtectedUserKeyEnvelope: PasswordProtectedKeyEnvelope,
+    ) -> Bool {
         validatePinProtectedUserKeyEnvelopePin = pin
         validatePinProtectedUserKeyEnvelopePinProtectedUserKeyEnvelope = pinProtectedUserKeyEnvelope
         return validatePinProtectedUserKeyEnvelopeResult

@@ -911,7 +911,7 @@
 "NewItem" = "Nieuw item";
 "ExploreTheGenerator" = "Ontdek de generator";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Lees meer over het genereren van veilige logingegevens met een begeleide tour.";
-"ExportVaultFilePwProtectInfo" = "Deze bestandsexport wordt met een wachtwoord beveiligd en vereist het bestandswachtwoord om te decoderen.";
+"ExportVaultFilePwProtectInfo" = "Deze bestandsexport wordt met een wachtwoord beveiligd en vereist het bestandswachtwoord om te ontsleutelen.";
 "IntroCarouselPage1Title" = "Security, geprioriteerd";
 "IntroCarouselPage1Message" = "Logins, kaarten en identiteiten in je beveiligde kluis opslaan. Bitwarden gebruikt zero-knowledge, end-to-end versleuteling om te beschermen wat belangrijk voor jou is.";
 "IntroCarouselPage2Title" = "Snel en eenvoudig inloggen";
@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Herstart je Premium-abonnement om toegang tot je archief te krijgen. Als je de details wijzigt voor een gearchiveerd item voor het opnieuw opstarten, zal het terug naar je kluis worden verplaatst.";
 "RestartPremium" = "Premium herstarten";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Dit item is gearchiveerd. Als je de wijzigingen opslaat, wordt het in je kluis hersteld.";
+"SettingUpAutofill" = "Automatisch invullen instellen…";

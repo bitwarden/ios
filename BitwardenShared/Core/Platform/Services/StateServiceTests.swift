@@ -14,6 +14,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var dataStore: DataStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var userSessionKeychainRepository: MockUserSessionKeychainRepository!
     var subject: DefaultStateService!
 
     // MARK: Setup & Teardown
@@ -25,12 +26,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        userSessionKeychainRepository = MockUserSessionKeychainRepository()
 
         subject = DefaultStateService(
             appSettingsStore: appSettingsStore,
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            userSessionKeychainRepository: userSessionKeychainRepository,
         )
     }
 
@@ -42,6 +45,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         keychainRepository = nil
         subject = nil
+        userSessionKeychainRepository = nil
     }
 
     // MARK: Tests
@@ -846,19 +850,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
     }
 
-    /// `getLastActiveTime(userId:)` gets the user's last active time.
-    func test_getLastActiveTime() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setLastActiveTime(Date())
-        let lastActiveTime = try await subject.getLastActiveTime()
-        XCTAssertEqual(
-            lastActiveTime!.timeIntervalSince1970,
-            Date().timeIntervalSince1970,
-            accuracy: 1.0,
-        )
-    }
-
     /// `getLastSyncTime(userId:)` gets the user's last sync time.
     func test_getLastSyncTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1089,16 +1080,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, "yay_you_win!")
     }
 
-    /// `getUnsuccessfulUnlockAttempts(userId:)` gets the unsuccessful unlock attempts for the account.
-    func test_getUnsuccessfulUnlockAttempts() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        appSettingsStore.unsuccessfulUnlockAttempts["1"] = 4
-
-        let unsuccessfulUnlockAttempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
-        XCTAssertEqual(unsuccessfulUnlockAttempts, 4)
-    }
-
     /// `getUserHasMasterPassword(userId:)` gets whether a user has a master password for a user
     /// with a master password.
     func test_getUserHasMasterPassword() async throws {
@@ -1229,47 +1210,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.usesKeyConnector["1"] = true
         usesKeyConnector = try await subject.getUsesKeyConnector()
         XCTAssertTrue(usesKeyConnector)
-    }
-
-    /// `.getVaultTimeout(userId:)` gets the user's vault timeout.
-    func test_getVaultTimeout() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setVaultTimeout(value: .custom(20), userId: "1")
-        let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
-        XCTAssertEqual(vaultTimeout, .custom(20))
-    }
-
-    /// `.getVaultTimeout(userId:)` gets the default vault timeout for the user if a value isn't set.
-    func test_getVaultTimeout_default() async throws {
-        appSettingsStore.vaultTimeout["1"] = nil
-
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        let vaultTimeout = try await subject.getVaultTimeout()
-        XCTAssertEqual(vaultTimeout, .fifteenMinutes)
-    }
-
-    /// `.getVaultTimeout(userId:)` gets the user's vault timeout when it's set to never lock.
-    func test_getVaultTimeout_neverLock() async throws {
-        appSettingsStore.vaultTimeout["1"] = nil
-        keychainRepository.mockStorage[keychainRepository.formattedKey(for: .neverLock(userId: "1"))] = "NEVER_LOCK_KEY"
-
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        let vaultTimeout = try await subject.getVaultTimeout()
-        XCTAssertEqual(vaultTimeout, .never)
-    }
-
-    /// `getVaultTimeout(userId:)` returns the default timeout if the user has a never lock value
-    /// stored but the never lock key doesn't exist.
-    func test_getVaultTimeout_neverLock_missingKey() async throws {
-        appSettingsStore.vaultTimeout["1"] = -2
-
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        let vaultTimeout = try await subject.getVaultTimeout()
-        XCTAssertEqual(vaultTimeout, .fifteenMinutes)
     }
 
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
@@ -2227,19 +2167,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.hasPerformedSyncAfterLogin["1"]!)
     }
 
-    /// `setLastActiveTime(userId:)` sets the user's last active time.
-    func test_setLastActiveTime() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setLastActiveTime(Date())
-
-        XCTAssertEqual(
-            appSettingsStore.lastActiveTime["1"]!.timeIntervalSince1970,
-            Date().timeIntervalSince1970,
-            accuracy: 1.0,
-        )
-    }
-
     /// `setLearnGeneratorActionCardStatus(_:)` sets the learn generator action card status.
     func test_setLearnGeneratorActionCardStatus() async {
         await subject.setLearnGeneratorActionCardStatus(.incomplete)
@@ -2557,15 +2484,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.twoFactorToken(email: "winner@email.com"), "yay_you_win!")
     }
 
-    /// `setUnsuccessfulUnlockAttempts(userId:)` sets the unsuccessful unlock attempts for the account.
-    func test_setUnsuccessfulUnlockAttempts() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
-
-        XCTAssertEqual(appSettingsStore.unsuccessfulUnlockAttempts["1"], 3)
-    }
-
     /// `setUsernameGenerationOptions` sets the username generation options for an account.
     func test_setUsernameGenerationOptions() async throws {
         let options1 = UsernameGenerationOptions(plusAddressedEmail: "user@bitwarden.com")
@@ -2714,15 +2632,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setTimeoutAction(action: .logout, userId: nil)
         XCTAssertEqual(appSettingsStore.timeoutAction["1"], 1)
-    }
-
-    /// `.setVaultTimeout(value:userId:)` sets the vault timeout value for the user.
-    func test_setVaultTimeout() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-
-        try await subject.setVaultTimeout(value: .custom(20))
-
-        XCTAssertEqual(appSettingsStore.vaultTimeout["1"], 20)
     }
 
     /// `showWebIconsPublisher()` returns a publisher for the show web icons value.
