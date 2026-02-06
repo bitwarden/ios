@@ -340,9 +340,9 @@ public actor DefaultFlightRecorder {
             data.activeLog = nil
         }
 
-        for (index, log) in data.inactiveLogs.enumerated() {
-            guard log.expirationDate <= timeProvider.presentTime else { continue }
+        let expiredLogs = data.inactiveLogs.filter { $0.expirationDate <= timeProvider.presentTime }
 
+        for log in expiredLogs {
             Logger.flightRecorder.debug(
                 "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)",
             )
@@ -352,8 +352,10 @@ public actor DefaultFlightRecorder {
             } catch {
                 errorReporter.log(error: FlightRecorderError.removeExpiredLogError(error))
             }
+        }
 
-            data.inactiveLogs.remove(at: index)
+        data.inactiveLogs.removeAll { log in
+            expiredLogs.contains { $0.id == log.id }
         }
 
         await setFlightRecorderData(data)
