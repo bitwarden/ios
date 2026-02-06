@@ -69,6 +69,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
+    /// The service used by the application to manage client certificates for mTLS authentication.
+    let clientCertificateService: ClientCertificateService
+
     /// The service to get server-specified configuration
     public let configService: ConfigService
 
@@ -225,6 +228,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
+    ///   - clientCertificateService: The service used by the application to manage client certificates
+    ///     for mTLS authentication.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
@@ -290,6 +295,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         cameraService: CameraService,
         changeKdfService: ChangeKdfService,
         clientService: ClientService,
+        clientCertificateService: ClientCertificateService,
         configService: ConfigService,
         environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
@@ -350,6 +356,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.cameraService = cameraService
         self.changeKdfService = changeKdfService
         self.clientService = clientService
+        self.clientCertificateService = clientCertificateService
         self.configService = configService
         self.environmentService = environmentService
         self.errorReportBuilder = errorReportBuilder
@@ -472,7 +479,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
+
+        let clientCertificateService = DefaultClientCertificateService(
+            stateService: stateService,
+        )
+
+        // Create certificate-aware HTTP client
+        let certificateHttpClient = CertificateHTTPClient(certificateService: clientCertificateService)
         let apiService = APIService(
+            client: certificateHttpClient,
             environmentService: environmentService,
             flightRecorder: flightRecorder,
             stateService: stateService,
@@ -976,6 +991,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cameraService: DefaultCameraService(),
             changeKdfService: changeKdfService,
             clientService: clientService,
+            clientCertificateService: clientCertificateService,
             configService: configService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
