@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2026-01-29_19-28-59_UTC
-// COMMIT: b3b679163072581b2c8afcc8b94c79772fa5c679
+// VERSION: 2026-02-07_17-36-55_UTC
+// COMMIT: 3abb845342efb8caed59b631f847b7194be11695
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -6817,7 +6817,7 @@ org.zw
 
 // newGTLDs
 
-// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2026-01-29T15:35:06Z
+// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2026-02-07T15:24:45Z
 // This list is auto-generated, don't edit it manually.
 // aaa : American Automobile Association, Inc.
 // https://www.iana.org/domains/root/db/aaa.html
@@ -8394,10 +8394,6 @@ goldpoint
 // golf : Binky Moon, LLC
 // https://www.iana.org/domains/root/db/golf.html
 golf
-
-// goo : NTT DOCOMO, INC.
-// https://www.iana.org/domains/root/db/goo.html
-goo
 
 // goodyear : The Goodyear Tire & Rubber Company
 // https://www.iana.org/domains/root/db/goodyear.html
@@ -11273,12 +11269,6 @@ poznan.pl
 wroc.pl
 zakopane.pl
 
-// 12CHARS : https://12chars.com
-// Submitted by Kenny Niehage <psl@12chars.com>
-12chars.dev
-12chars.it
-12chars.pro
-
 // 1GB LLC : https://www.1gb.ua/
 // Submitted by 1GB LLC <noc@1gb.com.ua>
 cc.ua
@@ -13280,21 +13270,33 @@ dyndns.ws
 mypets.ws
 
 // Dynu.com : https://www.dynu.com/
-// Submitted by Sue Ye <sue@dynu.com>
+// Submitted by Sue Ye <psl-contact@dynu.com>
+1cooldns.com
+bumbleshrimp.com
 ddnsfree.com
 ddnsgeek.com
+ddnsguru.com
+dynuddns.com
+dynuhosting.com
 giize.com
 gleeze.com
 kozow.com
 loseyourip.com
 ooguy.com
+pivohosting.com
 theworkpc.com
+wiredbladehosting.com
 casacam.net
 dynu.net
+dynuddns.net
+mysynology.net
+opik.net
+spryt.net
 accesscam.org
 camdvr.org
 freeddns.org
 mywire.org
+roxa.org
 webredirect.org
 myddns.rocks
 
@@ -14286,7 +14288,6 @@ jouwweb.site
 
 // Joyent : https://www.joyent.com/
 // Submitted by Brian Bennett <brian.bennett@joyent.com>
-*.cns.joyent.com
 *.triton.zone
 
 // JS.ORG : http://dns.js.org
@@ -14621,9 +14622,15 @@ westus2.azurestaticapps.net
 azurewebsites.net
 cloudapp.net
 trafficmanager.net
+blob.core.usgovcloudapi.net
+file.core.usgovcloudapi.net
+web.core.usgovcloudapi.net
 servicebus.usgovcloudapi.net
 usgovcloudapp.net
+usgovtrafficmanager.net
 blob.core.windows.net
+file.core.windows.net
+web.core.windows.net
 servicebus.windows.net
 azure-api.us
 azurewebsites.us
