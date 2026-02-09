@@ -13,6 +13,7 @@ class AddEditSendItemProcessor:
 
     typealias Services = HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
@@ -89,6 +90,11 @@ class AddEditSendItemProcessor:
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
         case let .accessTypeChanged(newValue):
+            // Check if non-premium user is trying to select "Specific People"
+            if newValue == .specificPeople, !state.hasPremium {
+                showSpecificPeoplePremiumRequiredAlert()
+                return
+            }
             state.accessType = newValue
             // Ensure there's at least one email row when selecting "Specific People"
             if newValue == .specificPeople, state.recipientEmails.isEmpty {
@@ -98,6 +104,8 @@ class AddEditSendItemProcessor:
             state.recipientEmails.append("")
         case .chooseFilePressed:
             presentFileSelectionAlert()
+        case .clearURL:
+            state.url = nil
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
         case .dismissPressed:
@@ -375,6 +383,16 @@ class AddEditSendItemProcessor:
         }
 
         return true
+    }
+
+    /// Shows an alert indicating that the "Specific People" feature requires a premium subscription.
+    ///
+    private func showSpecificPeoplePremiumRequiredAlert() {
+        let alert = Alert.specificPeopleUnavailable { [weak self] in
+            guard let self else { return }
+            state.url = services.environmentService.upgradeToPremiumURL
+        }
+        coordinator.showAlert(alert)
     }
 }
 
