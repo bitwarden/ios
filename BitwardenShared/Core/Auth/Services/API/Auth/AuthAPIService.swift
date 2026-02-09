@@ -52,6 +52,7 @@ protocol AuthAPIService {
     ) async throws -> WebAuthnLoginCredentialCreationOptionsResponse
 
     /// Retrieves the parameters for authenticating with a WebAuthn credential.
+    ///
     ///  - Parameters:
     ///    - request: The data needed to send the request.
     ///  - Returns: The assertion options and token needed to authenticate.
