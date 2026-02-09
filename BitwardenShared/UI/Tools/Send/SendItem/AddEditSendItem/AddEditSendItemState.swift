@@ -119,14 +119,17 @@ struct AddEditSendItemState: Equatable, Sendable {
     // MARK: Computed Properties
 
     /// The access type options available in the menu.
-    /// The "Specific People" option is only available to Premium users when the feature flag is enabled.
+    /// The "Specific People" option is shown when the feature flag is enabled (for all users).
     var availableAccessTypes: [SendAccessType] {
-        if hasPremium, isSendEmailVerificationEnabled {
+        if isSendEmailVerificationEnabled {
             SendAccessType.allCases
         } else {
             [.anyoneWithLink, .anyoneWithPassword]
         }
     }
+
+    /// The URL to open in Safari (e.g., upgrade to premium page).
+    var url: URL?
 
     /// The deletion date options available in the menu.
     var availableDeletionDateTypes: [SendDeletionDateType] {
