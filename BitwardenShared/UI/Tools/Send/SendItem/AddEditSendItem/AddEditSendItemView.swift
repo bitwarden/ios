@@ -16,6 +16,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
+    /// The environment's openURL action for opening URLs.
+    @Environment(\.openURL) var openURL
+
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 16) {
@@ -110,6 +113,11 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         .animation(.default, value: store.state.isOptionsExpanded)
         .task {
             await store.perform(.loadData)
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
     }
 
