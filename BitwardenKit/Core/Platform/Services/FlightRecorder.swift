@@ -316,10 +316,10 @@ public actor DefaultFlightRecorder {
         let userId = await (try? stateService.getActiveAccountId()) ?? "n/a"
         let contents = await """
         Bitwarden iOS Flight Recorder
-        Log Start: \(dateFormatter.string(from: log.startDate))
-        Log Duration: \(log.duration.shortDescription)
+        🕒 Log Start: \(dateFormatter.string(from: log.startDate))
+        ⏳ Log Duration: \(log.duration.shortDescription)
         \(appInfoService.appInfoWithoutCopyrightString)
-        User ID: \(userId)\n\n
+        👤 User ID: \(userId)\n\n
         """
 
         let url = try fileURL(for: log)

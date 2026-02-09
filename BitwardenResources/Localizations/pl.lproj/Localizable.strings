@@ -1276,7 +1276,7 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Skontaktuj się z administratorem, aby odzyskać dostęp.";
 "LeaveX" = "Opuść organizację %1$@";
-"HowToManageMyVault" = "How to manage My vault";
+"HowToManageMyVault" = "Jak zarządzać sejfem";
 "YouLeftTheOrganization" = "You left the organization";
 "ThisSettingIsManagedByYourOrganization" = "Ustawienie jest zarządzane przez Twoją organizację.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
@@ -1287,10 +1287,10 @@
 "Archived" = "Archived";
 "Unarchive" = "Usuń z archiwum";
 "ItemMovedToArchive" = "Element został przeniesiony do archiwum";
-"ItemMovedToVault" = "Item moved to vault";
+"ItemMovedToVault" = "Element został przeniesiony do archiwum";
 "SendingToArchive" = "Przenoszenie do archiwum…";
-"MovingItemToVault" = "Moving item to vault";
-"OrganizationNotFound" = "Organization not found.";
+"MovingItemToVault" = "Przenoszenie elementu do sejfu";
+"OrganizationNotFound" = "Nie znaleziono organizacji.";
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "Archiwum jest puste";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
 "RestartPremium" = "Restart Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Element jest zarchiwizowany. Zapisanie zmian spowoduje przywrócenie go do sejfu.";
+"SettingUpAutofill" = "Setting up Autofill…";

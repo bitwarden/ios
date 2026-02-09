@@ -388,7 +388,7 @@
 "AllItems" = "所有项目";
 "CheckingPassword" = "正在检查密码…";
 "CheckPassword" = "检查密码是否已经被公开。";
-"PasswordSafe" = "没有在已知的数据泄露中发现此密码，它暂时比较安全。";
+"PasswordSafe" = "在任何已知的数据泄露中均未发现此密码。它暂时比较安全。";
 "IdentityName" = "身份名称";
 "Value" = "值";
 "PasswordHistory" = "密码历史记录";
@@ -407,8 +407,8 @@
 "MovedItemToOrg" = "%1$@ 已移动到 %2$@。";
 "ItemShared" = "项目已共享。";
 "SelectOneCollection" = "您必须至少选择一个集合。";
-"Share" = "分享";
-"ShareAll" = "分享所有";
+"Share" = "共享";
+"ShareAll" = "共享所有";
 "ShareItem" = "共享项目";
 "MoveToOrganization" = "移动到组织";
 "NoOrgsToList" = "没有可列出的组织。";
@@ -540,7 +540,7 @@
 "PersonalOwnershipSubmitError" = "由于某个企业策略，您不能将项目保存到您的个人密码库。将所有权选项更改为组织，并从可用的集合中选择。";
 "PersonalOwnershipPolicyInEffect" = "某个组织策略正影响您的所有权选项。";
 "Send" = "Send";
-"AllSends" = "所有的 Send";
+"AllSends" = "所有 Send";
 "Sends" = "Send";
 "Text" = "文本";
 "TypeText" = "文本";
@@ -839,7 +839,7 @@
 "ContactSupportDescriptionLong" = "找不到您想要的吗？请在 bitwarden.com 上联系 Bitwarden 支持。";
 "PrivacyPolicyDescriptionLong" = "在 bitwarden.com 上查看我们的隐私政策。";
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "在网页 App 上探索您的 Bitwarden 账户的更多功能。";
-"LearnAboutOrganizationsDescriptionLong" = "Bitwarden 允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站进一步了解。";
+"LearnAboutOrganizationsDescriptionLong" = "Bitwarden 允许您使用组织与他人共享您的密码库项目。访问 bitwarden.com 网站了解更多信息。";
 "RateAppDescriptionLong" = "帮助他人了解 Bitwarden 是否适合他们。立即访问 App Store 并留下评分。";
 "DefaultDarkThemeDescriptionLong" = "当设备的深色模式启用时，选择要使用的深色主题";
 "CreatedX" = "创建于 %1$@";
@@ -1161,7 +1161,7 @@
 "ViewTextSend" = "查看文本 Send";
 "DeleteSend" = "删除 Send";
 "FlightRecorderOn" = "飞行记录器已开启";
-"FlightRecorderWillBeActiveUntilDescriptionLong" = "飞行记录器将持续激活至 %1$@ %2$@。返回设置以立即停用。";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "飞行记录器将持续激活至 %1$@ %2$@。现在返回设置以将其停用。";
 "GoToSettings" = "转到设置";
 "SiriAndShortcutsAccess" = "Siri & 快捷指令访问权限";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "启用以允许此 App 使用 App Intent 响应 Siri 和快捷指令。";
@@ -1172,7 +1172,7 @@
 "EditTextSend" = "编辑文本 Send";
 "LogDeleted" = "日志已删除";
 "AllLogsDeleted" = "所有日志已删除";
-"LoggingEndsOnDateAtTime" = "日志记录结束于 %1$@ %2$@";
+"LoggingEndsOnDateAtTime" = "日志记录将于 %1$@ %2$@ 结束";
 "YouMustAttachAFileToSaveThisSend" = "必须附加一个文件才能保存此 Send";
 "SendUpdated" = "Send 已更新";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "我们无法识别这个设备。请输入发送到您电子邮箱中的代码以验证您的身份。";
@@ -1212,7 +1212,7 @@
 "Key" = "密钥";
 "KeyReadError" = "无法读取密钥。";
 "LaunchTutorial" = "打开教程";
-"LearnMoreLink" = "[了解更多](%1$@)";
+"LearnMoreLink" = "[进一步了解](%1$@)";
 "LocalCodes" = "本地代码";
 "NeedHelpVisitOurHelpCenterForGuidance" = "需要帮助吗？请访问我们的帮助中心获取指导。";
 "NoAskMe" = "不，询问我";
@@ -1302,3 +1302,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "要重新获取归档内容的访问权限，请重启您的高级版订阅。如果您在重启前编辑了某个已归档项目的详细信息，它将被移回您的密码库中。";
 "RestartPremium" = "重启高级版";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "此项目已归档。保存更改会将其恢复到您的密码库。";
+"SettingUpAutofill" = "正在设置自动填充…";

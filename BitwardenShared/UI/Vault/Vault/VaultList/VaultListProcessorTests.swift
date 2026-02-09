@@ -22,6 +22,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var changeKdfService: MockChangeKdfService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
     var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
@@ -52,6 +53,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         changeKdfService = MockChangeKdfService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
         masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
@@ -103,6 +105,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         changeKdfService = nil
         configService = nil
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
         flightRecorder = nil
         masterPasswordRepromptHelper = nil
@@ -564,6 +567,26 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` loads hasPremium state when user has premium.
+    @MainActor
+    func test_perform_appeared_hasPremium_true() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.hasPremium)
+    }
+
+    /// `perform(_:)` with `.appeared` loads hasPremium state when user doesn't have premium.
+    @MainActor
+    func test_perform_appeared_hasPremium_false() async {
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.hasPremium)
     }
 
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
@@ -1791,6 +1814,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.login))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .login))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route for a new secure note.
@@ -1799,6 +1823,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.secureNote))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(type: .secureNote))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.addItemPressed` hides the profile switcher view
@@ -1829,6 +1854,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.addItemPressed(.login))
 
         XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1", type: .login))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.
@@ -1874,6 +1900,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
@@ -1908,6 +1935,65 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .group(.card, filter: .allVaults))
     }
 
+    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert when user doesn't have premium
+    /// and archive has no items.
+    @MainActor
+    func test_receive_itemPressed_archiveGroup_noPremium_noItems() {
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
+
+        subject.receive(.itemPressed(item: archiveItem))
+
+        XCTAssertEqual(coordinator.alertShown.last, .archiveUnavailable(action: {}))
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert and sets URL when action is tapped.
+    @MainActor
+    func test_receive_itemPressed_archiveGroup_noPremium_noItems_actionTapped() async {
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
+
+        subject.receive(.itemPressed(item: archiveItem))
+
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert?.title, Localizations.archiveUnavailable)
+        XCTAssertEqual(alert?.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
+
+        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
+
+        try? await alert?.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertEqual(
+            subject.state.url,
+            URL(string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium"),
+        )
+    }
+
+    /// `receive(_:)` with `.itemPressed` navigates to archive when user has premium.
+    @MainActor
+    func test_receive_itemPressed_archiveGroup_hasPremium() {
+        subject.state.hasPremium = true
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: true, itemType: .group(.archive, 5))
+
+        subject.receive(.itemPressed(item: archiveItem))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `receive(_:)` with `.itemPressed` navigates to archive when user doesn't have premium
+    /// but has archived items.
+    @MainActor
+    func test_receive_itemPressed_archiveGroup_noPremium_hasItems() {
+        subject.state.hasPremium = false
+        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 3))
+
+        subject.receive(.itemPressed(item: archiveItem))
+
+        XCTAssertEqual(coordinator.routes.last, .group(.archive, filter: .allVaults))
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
     /// `receive(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.
     @MainActor
     func test_receive_itemPressed_totp() async throws {
@@ -1918,6 +2004,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123", masterPasswordRepromptCheckCompleted: true))
+        XCTAssertTrue(coordinator.contexts.last is VaultListProcessor)
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
