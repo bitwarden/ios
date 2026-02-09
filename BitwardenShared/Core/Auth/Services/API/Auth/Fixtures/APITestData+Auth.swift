@@ -31,6 +31,15 @@ public extension APITestData {
     static let identityTokenEncryptionKeyMigrationError = loadFromJsonBundle(
         resource: "IdentityTokenEncryptionKeyMigrationError",
     )
+
+    // MARK: WebAuthn Login
+
+    static let webAuthnLoginCredentialAssertionOptions = loadFromJsonBundle(
+        resource: "WebAuthnLoginCredentialAssertionOptions",
+    )
+    static let webAuthnLoginCredentialCreationOptions = loadFromJsonBundle(
+        resource: "WebAuthnLoginCredentialCreationOptions",
+    )
 }
 
 // swiftlint:enable missing_docs
