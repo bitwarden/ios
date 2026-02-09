@@ -592,7 +592,7 @@
 "CaptchaFailed" = "Captcha selhala. Zkuste to znovu.";
 "UpdatedMasterPassword" = "Hlavní heslo bylo aktualizováno";
 "UpdateMasterPassword" = "Aktualizovat hlavní heslo";
-"UpdateMasterPasswordWarning" = "Administrátor v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.";
+"UpdateMasterPasswordWarning" = "Správce v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.";
 "UpdatingPassword" = "Aktualizování hesla";
 "UpdatePasswordError" = "Aktuálně nelze aktualizovat heslo";
 "RemoveMasterPassword" = "Odebrat hlavní heslo";
