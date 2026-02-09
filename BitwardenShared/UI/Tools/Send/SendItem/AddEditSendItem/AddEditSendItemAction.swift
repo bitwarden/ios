@@ -15,6 +15,9 @@ enum AddEditSendItemAction: Equatable {
     /// The choose file button was pressed.
     case chooseFilePressed
 
+    /// Clear the URL that was opened.
+    case clearURL
+
     /// The deletion date was changed.
     case deletionDateChanged(SendDeletionDateType)
 
