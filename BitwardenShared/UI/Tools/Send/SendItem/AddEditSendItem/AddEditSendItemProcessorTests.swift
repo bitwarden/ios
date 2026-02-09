@@ -649,9 +649,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.accessType, .anyoneWithPassword)
     }
 
-    /// `receive(_:)` with `.accessTypeChanged` to specific people adds an empty email row.
+    /// `receive(_:)` with `.accessTypeChanged` to specific people adds an empty email row for premium users.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_addsEmptyEmail() {
+        subject.state.hasPremium = true
         subject.state.accessType = .anyoneWithLink
         subject.state.recipientEmails = []
         subject.receive(.accessTypeChanged(.specificPeople))
@@ -662,11 +663,50 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `receive(_:)` with `.accessTypeChanged` to specific people doesn't add email if already exists.
     @MainActor
     func test_receive_accessTypeChanged_specificPeople_existingEmails() {
+        subject.state.hasPremium = true
         subject.state.accessType = .anyoneWithLink
         subject.state.recipientEmails = ["test@example.com"]
         subject.receive(.accessTypeChanged(.specificPeople))
         XCTAssertEqual(subject.state.accessType, .specificPeople)
         XCTAssertEqual(subject.state.recipientEmails, ["test@example.com"])
+    }
+
+    /// `receive(_:)` with `.accessTypeChanged` to specific people shows premium alert for non-premium users.
+    @MainActor
+    func test_receive_accessTypeChanged_specificPeople_nonPremium_showsAlert() async throws {
+        subject.state.hasPremium = false
+        subject.state.accessType = .anyoneWithLink
+        subject.receive(.accessTypeChanged(.specificPeople))
+
+        // Access type should remain unchanged
+        XCTAssertEqual(subject.state.accessType, .anyoneWithLink)
+
+        // Alert should be shown
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(alert.message, Localizations.premiumRequired)
+    }
+
+    /// `receive(_:)` with `.accessTypeChanged` to specific people opens upgrade URL when user taps
+    /// "Upgrade to Premium" in the alert.
+    @MainActor
+    func test_receive_accessTypeChanged_specificPeople_nonPremium_upgradeAction() async throws {
+        subject.state.hasPremium = false
+        subject.state.accessType = .anyoneWithLink
+        subject.receive(.accessTypeChanged(.specificPeople))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+
+        XCTAssertNotNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = URL(string: "https://example.com")!
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 
     /// `receive(_:)` with `.addRecipientEmail` adds an empty email to the list.
