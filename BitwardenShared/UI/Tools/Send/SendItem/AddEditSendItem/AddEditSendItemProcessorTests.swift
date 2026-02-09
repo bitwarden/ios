@@ -80,6 +80,19 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `perform(_:)` with `.copyPasswordPressed` copies the password to the clipboard.
+    @MainActor
+    func test_perform_copyPasswordPressed() async {
+        subject.state.password = "testPassword123"
+        await subject.perform(.copyPasswordPressed)
+
+        XCTAssertEqual(pasteboardService.copiedString, "testPassword123")
+        XCTAssertEqual(
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.password)),
+        )
+    }
+
     /// `perform(_:)` with `sendListItemRow(deletePressed())` uses the send repository to delete the
     /// send.
     @MainActor
@@ -545,6 +558,59 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.dismissPressed)
 
         XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `receive(_:)` with `.generatePasswordPressed` navigates to the generator when password is empty.
+    @MainActor
+    func test_receive_generatePasswordPressed_emptyPassword() {
+        subject.state.password = ""
+        subject.receive(.generatePasswordPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .generator)
+    }
+
+    /// `receive(_:)` with `.generatePasswordPressed` shows a confirmation alert when password exists.
+    @MainActor
+    func test_receive_generatePasswordPressed_existingPassword() async throws {
+        subject.state.password = "existingPassword"
+        subject.receive(.generatePasswordPressed)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.passwordOverrideAlert)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.no)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.yes)
+
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(coordinator.routes.last, .generator)
+    }
+
+    /// `didCancelGenerator()` dismisses the generator.
+    @MainActor
+    func test_didCancelGenerator() {
+        subject.didCancelGenerator()
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss(nil))
+    }
+
+    /// `didCompleteGenerator(for:with:)` updates the password and dismisses the generator.
+    @MainActor
+    func test_didCompleteGenerator() {
+        subject.state.password = ""
+        subject.didCompleteGenerator(for: .password, with: "generatedPassword123")
+
+        XCTAssertEqual(subject.state.password, "generatedPassword123")
+        XCTAssertEqual(coordinator.routes.last, .dismiss(nil))
+    }
+
+    /// `didCompleteGenerator(for:with:)` does not update password for non-password types.
+    @MainActor
+    func test_didCompleteGenerator_username() {
+        subject.state.password = "originalPassword"
+        subject.didCompleteGenerator(for: .username, with: "generatedUsername")
+
+        XCTAssertEqual(subject.state.password, "originalPassword")
+        XCTAssertEqual(coordinator.routes.last, .dismiss(nil))
     }
 
     /// `receive(_:)` with `.hideMyEmailChanged` updates the hide my email toggle.
