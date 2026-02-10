@@ -226,7 +226,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             throw DeviceAuthKeyError.originMismatch
         }
         let token = response.token
-        let (createdCredential, clientDataJson) = try await createPasskey(
+        let (createdCredential, clientDataJson, prfResult) = try await createPasskey(
             options: options,
             userId: userId,
             deviceKey: deviceKey
@@ -235,8 +235,12 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         // Create unlock keyset from PRF value
         // TODO(PM-26177): Extensions will be returned in an SDK update
         // let prfResult = createdCredential.extensions.prf!.results!.first
-        let prfResult = Data()
-        let prfKeyResponse = try await clientService.crypto().makePrfUserKeySet(prf: prfResult.base64EncodedString())
+        let prfKeyResponse = try await {
+            let key = prfResult.withUnsafeBytes { bytes in
+                Data(Array(bytes))
+            }
+            return try await clientService.crypto().makePrfUserKeySet(prf: key.base64EncodedString())
+        }()
 
         // Register the credential keyset with the server.
         // TODO: This only returns generic names like `iPhone` on real devices.
@@ -298,7 +302,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         options: WebAuthnPublicKeyCredentialCreationOptions,
         userId: String,
         deviceKey: SymmetricKey
-    ) async throws -> (MakeCredentialResult, String) {
+    ) async throws -> (MakeCredentialResult, String, SymmetricKey) {
         let excludeCredentials: [PublicKeyCredentialDescriptor]? = if options.excludeCredentials != nil {
             // TODO: return early if exclude credentials matches
             try options.excludeCredentials!.map { params in
@@ -318,18 +322,20 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         // Manually serialize to JSON to make sure it's ordered and formatted according to the spec.
         let clientDataJson = #"{"type":"webauthn.create","challenge":"\#(options.challenge)","origin":"\#(origin)"}"#
         let clientDataHash = Data(SHA256.hash(data: clientDataJson.data(using: .utf8)!))
-
+        /*
         let credentialStore = DeviceAuthKeyCredentialStore(
-            clientService: clientService,
-            deviceAuthKeychainRepository: deviceAuthKeychainRepository,
-            deviceKey: deviceKey,
-            userId: userId
-        )
-        let userInterface = DeviceAuthKeyUserInterface()
+             clientService: clientService,
+             deviceAuthKeychainRepository: deviceAuthKeychainRepository,
+             deviceKey: deviceKey,
+             userId: userId
+         )
+         let userInterface = DeviceAuthKeyUserInterface()
         let authenticator = try await clientService
-            .platform()
-            .fido2()
-            .deviceAuthenticator(userInterface: userInterface, credentialStore: credentialStore, deviceKey: deviceKey)
+             .platform()
+             .fido2()
+             .deviceAuthenticator(userInterface: userInterface, credentialStore: credentialStore, deviceKey: deviceKey)
+        */
+
         let credRequest = try MakeCredentialRequest(
             clientDataHash: clientDataHash,
             rp: PublicKeyCredentialRpEntity(id: options.rp.id, name: options.rp.name),
@@ -346,8 +352,9 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
             ),
             extensions: #"{"prf":{"eval":{"first":"\#(DefaultDeviceAuthKeyService.defaultLoginWithPrfSalt)"}}}"#,
         )
-        let createdCredential = try await authenticator.makeCredential(request: credRequest)
-        return (createdCredential, clientDataJson)
+        let authenticator = DeviceAuthKeyAuthenticator(deviceAuthKeychainRepository: deviceAuthKeychainRepository, userId: userId)
+        let (createdCredential, prfResult) = try await authenticator.makeCredential(request: credRequest)
+        return (createdCredential, clientDataJson, SymmetricKey(data: prfResult))
     }
 
     private func deriveWebOrigin() -> String {
@@ -384,6 +391,9 @@ enum DeviceAuthKeyError: Error {
 
     /// The device auth key is missing or invalid.
     case missingOrInvalidKey
+
+    /// PRF extension input was not present in the request
+    case missingPrfInput
 
     /// The requested functionality has not yet been implemented.
     case notImplemented
@@ -520,18 +530,18 @@ final internal class DeviceAuthKeyCredentialStore: Fido2CredentialStore {
             keyType: fido2cred.keyType,
             keyValue: fido2cred.keyValue,
             rpId: fido2cred.rpId,
-            rpName: fido2cred.rpName,
+            rpName: fido2cred.rpName ?? fido2cred.rpId,
             userDisplayName: userDisplayName,
             userId: userHandle,
             userName: userName,
-        )
+         )
 
-        // The record contains encrypted data, we need to decrypt it before storing metadata
-        let fido2CredentialAutofillViews = try await clientService.platform()
-            .fido2()
-        // TODO(PM-26177): This requires a SDK update. This device auth key will fail to decrypt for now.
-        // .decryptFido2AutofillCredentials(cipherView: record.toCipherView(), encryptionKey: deviceKey)
-            .decryptFido2AutofillCredentials(cipherView: record.toCipherView())
+         // The record contains encrypted data, we need to decrypt it before storing metadata
+         let fido2CredentialAutofillViews = try await clientService.platform()
+             .fido2()
+             // TODO(PM-26177): This requires a SDK update. This device auth key will fail to decrypt for now.
+             // .decryptFido2AutofillCredentials(cipherView: record.toCipherView(), encryptionKey: deviceKey)
+             .decryptFido2AutofillCredentials(cipherView: record.toCipherView())
 
         let fido2CredentialAutofillView = fido2CredentialAutofillViews[safeIndex: 0]!
         let metadata = DeviceAuthKeyMetadata(
@@ -596,3 +606,4 @@ final class DeviceAuthKeyUserInterface: Fido2UserInterface {
         true
     }
 }
+
