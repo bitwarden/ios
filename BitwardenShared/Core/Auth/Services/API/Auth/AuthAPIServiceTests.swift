@@ -146,7 +146,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(response.options.challenge, "dGVzdC1jaGFsbGVuZ2U")
         XCTAssertEqual(response.options.rp.id, "example.com")
         XCTAssertEqual(response.options.rp.name, "Example RP")
-        XCTAssertEqual(response.options.user.id, "dXNlci0xMjM=")
+        XCTAssertEqual(response.options.user.id, "dXNlci0xMjM")
         XCTAssertEqual(response.options.user.name, "user@example.com")
         XCTAssertEqual(response.options.timeout, 60000)
         XCTAssertEqual(response.options.pubKeyCredParams.count, 2)

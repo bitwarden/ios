@@ -23,7 +23,7 @@ class WebAuthnLoginCredentialCreationOptionsResponseTests: BitwardenTestCase {
         XCTAssertEqual(subject.options.challenge, "dGVzdC1jaGFsbGVuZ2U")
         XCTAssertEqual(subject.options.rp.id, "example.com")
         XCTAssertEqual(subject.options.rp.name, "Example RP")
-        XCTAssertEqual(subject.options.user.id, "dXNlci0xMjM=")
+        XCTAssertEqual(subject.options.user.id, "dXNlci0xMjM")
         XCTAssertEqual(subject.options.user.name, "user@example.com")
         XCTAssertEqual(subject.options.timeout, 60000)
         XCTAssertEqual(subject.options.pubKeyCredParams.count, 2)
@@ -50,7 +50,7 @@ class WebAuthnLoginCredentialCreationOptionsResponseTests: BitwardenTestCase {
             "challenge": "dGVzdC1jaGFsbGVuZ2U",
             "pubKeyCredParams": [{"alg": -7, "type": "public-key"}],
             "rp": {"id": "example.com", "name": "Example RP"},
-            "user": {"id": "dXNlci0xMjM=", "name": "user@example.com"}
+            "user": {"id": "dXNlci0xMjM", "name": "user@example.com"}
           },
           "token": "2.test|iv|data"
         }
