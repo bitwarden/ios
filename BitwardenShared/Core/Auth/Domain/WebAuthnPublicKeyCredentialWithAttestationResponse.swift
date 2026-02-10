@@ -45,7 +45,7 @@ public struct WebAuthnPublicKeyCredentialWithAttestationResponse: Codable, Equat
         id: String,
         rawId: String,
         response: WebAuthnAuthenticatorAttestationResponse,
-        type: String
+        type: String,
     ) {
         self.id = id
         self.rawId = rawId

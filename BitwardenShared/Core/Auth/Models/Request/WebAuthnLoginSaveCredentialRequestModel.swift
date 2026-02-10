@@ -48,7 +48,7 @@ public struct WebAuthnLoginSaveCredentialRequestModel: JSONRequestBody, Equatabl
         encryptedUserKey: EncString?,
         name: String,
         supportsPrf: Bool,
-        token: String
+        token: String,
     ) {
         self.deviceResponse = deviceResponse
         self.encryptedPrivateKey = encryptedPrivateKey

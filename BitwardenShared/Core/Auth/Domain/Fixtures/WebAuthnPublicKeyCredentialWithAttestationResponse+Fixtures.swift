@@ -14,13 +14,13 @@ public extension WebAuthnPublicKeyCredentialWithAttestationResponse {
         id: String = "iMzSHg8JmWGozhU5c3u1eYZGGlkosZlAzNBcuQ9BU0k",
         rawId: String = "iMzSHg8JmWGozhU5c3u1eYZGGlkosZlAzNBcuQ9BU0k",
         response: WebAuthnAuthenticatorAttestationResponse = .fixture(),
-        type: String = "public-key"
+        type: String = "public-key",
     ) -> WebAuthnPublicKeyCredentialWithAttestationResponse {
         .init(
             id: id,
             rawId: rawId,
             response: response,
-            type: type
+            type: type,
         )
     }
 }
