@@ -180,6 +180,39 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordChanged("password123"))
     }
 
+    /// Tapping the generate password button sends the `.generatePasswordPressed` action.
+    @MainActor
+    func test_generatePasswordButton_tap() throws {
+        processor.state.accessType = .anyoneWithPassword
+        let button = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.generatePassword,
+        )
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .generatePasswordPressed)
+    }
+
+    /// Tapping the copy password button performs the `.copyPasswordPressed` effect.
+    @MainActor
+    func test_copyPasswordButton_tap() async throws {
+        processor.state.accessType = .anyoneWithPassword
+        processor.state.password = "testPassword123"
+        let button = try subject.inspect().find(
+            asyncButtonWithAccessibilityLabel: Localizations.copyPassword,
+        )
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .copyPasswordPressed)
+    }
+
+    /// The copy password button is not visible when the password is empty.
+    @MainActor
+    func test_copyPasswordButton_notVisibleWhenEmpty() throws {
+        processor.state.accessType = .anyoneWithPassword
+        processor.state.password = ""
+        XCTAssertThrowsError(
+            try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyPassword)
+        )
+    }
+
     /// Tapping the add email button sends the `.addRecipientEmail` action.
     @MainActor
     func test_addEmailButton_tap() throws {
