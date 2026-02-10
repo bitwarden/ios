@@ -118,7 +118,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
             SecretVerificationRequestModel(type: .masterPasswordHash("PASSWORD_HASH")),
         )
 
-        XCTAssertEqual(response.options.challenge, "YXNzZXJ0aW9uLWNoYWxsZW5nZQ==")
+        XCTAssertEqual(response.options.challenge, "YXNzZXJ0aW9uLWNoYWxsZW5nZQ")
         XCTAssertEqual(response.options.rpId, "example.com")
         XCTAssertEqual(response.options.timeout, 60000)
         XCTAssertEqual(response.options.allowCredentials?.first?.id, "Y3JlZGVudGlhbC0x")
@@ -127,7 +127,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
         XCTAssertNil(response.options.extensions?.prf?.eval?.second)
         XCTAssertEqual(
             response.options.extensions?.prf?.evalByCredential?["Y3JlZGVudGlhbC0x"]?.first,
-            "Y3JlZC1wcmYtZmlyc3Q=",
+            "Y3JlZC1wcmYtZmlyc3Q",
         )
         XCTAssertEqual(
             response.options.extensions?.prf?.evalByCredential?["Y3JlZGVudGlhbC0x"]?.second,
@@ -143,7 +143,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
             SecretVerificationRequestModel(type: .masterPasswordHash("PASSWORD_HASH")),
         )
 
-        XCTAssertEqual(response.options.challenge, "dGVzdC1jaGFsbGVuZ2U=")
+        XCTAssertEqual(response.options.challenge, "dGVzdC1jaGFsbGVuZ2U")
         XCTAssertEqual(response.options.rp.id, "example.com")
         XCTAssertEqual(response.options.rp.name, "Example RP")
         XCTAssertEqual(response.options.user.id, "dXNlci0xMjM=")
@@ -155,7 +155,7 @@ class AuthAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(response.options.pubKeyCredParams[1].alg, -257)
         XCTAssertEqual(response.options.excludeCredentials?.first?.id, "Y3JlZGVudGlhbC0x")
         XCTAssertEqual(response.options.extensions?.prf?.eval?.first, "cHJmLWZpcnN0")
-        XCTAssertEqual(response.options.extensions?.prf?.eval?.second, "cHJmLXNlY29uZA==")
+        XCTAssertEqual(response.options.extensions?.prf?.eval?.second, "cHJmLXNlY29uZA")
     }
 
     /// `initiateLoginWithDevice()` successfully decodes the initiate login with device response.

@@ -18,7 +18,7 @@ class WebAuthnLoginCredentialCreationOptionsResponseTests: BitwardenTestCase {
             from: json,
         )
 
-        XCTAssertEqual(subject.options.challenge, "dGVzdC1jaGFsbGVuZ2U=")
+        XCTAssertEqual(subject.options.challenge, "dGVzdC1jaGFsbGVuZ2U")
         XCTAssertEqual(subject.options.rp.id, "example.com")
         XCTAssertEqual(subject.options.rp.name, "Example RP")
         XCTAssertEqual(subject.options.user.id, "dXNlci0xMjM=")
@@ -34,7 +34,7 @@ class WebAuthnLoginCredentialCreationOptionsResponseTests: BitwardenTestCase {
         XCTAssertEqual(subject.options.excludeCredentials?[0].type, "public-key")
 
         XCTAssertEqual(subject.options.extensions?.prf?.eval?.first, "cHJmLWZpcnN0")
-        XCTAssertEqual(subject.options.extensions?.prf?.eval?.second, "cHJmLXNlY29uZA==")
+        XCTAssertEqual(subject.options.extensions?.prf?.eval?.second, "cHJmLXNlY29uZA")
         XCTAssertNil(subject.options.extensions?.prf?.evalByCredential)
 
         XCTAssertNotNil(subject.token)

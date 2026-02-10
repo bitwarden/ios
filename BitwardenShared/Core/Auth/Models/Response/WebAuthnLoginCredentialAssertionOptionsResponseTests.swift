@@ -18,7 +18,7 @@ class WebAuthnLoginCredentialAssertionOptionsResponseTests: BitwardenTestCase {
             from: json,
         )
 
-        XCTAssertEqual(subject.options.challenge, "YXNzZXJ0aW9uLWNoYWxsZW5nZQ==")
+        XCTAssertEqual(subject.options.challenge, "YXNzZXJ0aW9uLWNoYWxsZW5nZQ")
         XCTAssertEqual(subject.options.rpId, "example.com")
         XCTAssertEqual(subject.options.timeout, 60000)
 
@@ -31,7 +31,7 @@ class WebAuthnLoginCredentialAssertionOptionsResponseTests: BitwardenTestCase {
 
         let evalByCredential = subject.options.extensions?.prf?.evalByCredential
         XCTAssertEqual(evalByCredential?.count, 1)
-        XCTAssertEqual(evalByCredential?["Y3JlZGVudGlhbC0x"]?.first, "Y3JlZC1wcmYtZmlyc3Q=")
+        XCTAssertEqual(evalByCredential?["Y3JlZGVudGlhbC0x"]?.first, "Y3JlZC1wcmYtZmlyc3Q")
         XCTAssertEqual(evalByCredential?["Y3JlZGVudGlhbC0x"]?.second, "Y3JlZC1wcmYtc2Vjb25k")
 
         XCTAssertNotNil(subject.token)
