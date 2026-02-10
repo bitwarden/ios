@@ -211,6 +211,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     ///
     private func showGenerator(delegate: GeneratorCoordinatorDelegate) {
         let navigationController = module.makeNavigationController()
+        navigationController.removeHairlineDivider()
         let coordinator = module.makeGeneratorCoordinator(
             delegate: delegate,
             stackNavigator: navigationController,
