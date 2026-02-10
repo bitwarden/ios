@@ -7,6 +7,8 @@ import XCTest
 // MARK: - WebAuthnLoginCredentialAssertionOptionsResponseTests
 
 class WebAuthnLoginCredentialAssertionOptionsResponseTests: BitwardenTestCase {
+    // swiftlint:disable:previous type_name
+
     // MARK: Decoding
 
     /// Validates decoding the `WebAuthnLoginCredentialAssertionOptions.json` fixture.
@@ -42,7 +44,7 @@ class WebAuthnLoginCredentialAssertionOptionsResponseTests: BitwardenTestCase {
         let json = """
         {
           "options": {
-            "challenge": "YXNzZXJ0aW9uLWNoYWxsZW5nZQ==",
+            "challenge": "YXNzZXJ0aW9uLWNoYWxsZW5nZQ",
             "rpId": "example.com"
           },
           "token": "2.test|iv|data"
@@ -55,7 +57,7 @@ class WebAuthnLoginCredentialAssertionOptionsResponseTests: BitwardenTestCase {
             from: json,
         )
 
-        XCTAssertEqual(subject.options.challenge, "YXNzZXJ0aW9uLWNoYWxsZW5nZQ==")
+        XCTAssertEqual(subject.options.challenge, "YXNzZXJ0aW9uLWNoYWxsZW5nZQ")
         XCTAssertEqual(subject.options.rpId, "example.com")
         XCTAssertNil(subject.options.allowCredentials)
         XCTAssertNil(subject.options.extensions)

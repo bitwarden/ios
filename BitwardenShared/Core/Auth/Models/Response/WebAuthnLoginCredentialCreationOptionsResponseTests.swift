@@ -7,6 +7,8 @@ import XCTest
 // MARK: - WebAuthnLoginCredentialCreationOptionsResponseTests
 
 class WebAuthnLoginCredentialCreationOptionsResponseTests: BitwardenTestCase {
+    // swiftlint:disable:previous type_name
+
     // MARK: Decoding
 
     /// Validates decoding the `WebAuthnLoginCredentialCreationOptions.json` fixture.
@@ -45,7 +47,7 @@ class WebAuthnLoginCredentialCreationOptionsResponseTests: BitwardenTestCase {
         let json = """
         {
           "options": {
-            "challenge": "dGVzdC1jaGFsbGVuZ2U=",
+            "challenge": "dGVzdC1jaGFsbGVuZ2U",
             "pubKeyCredParams": [{"alg": -7, "type": "public-key"}],
             "rp": {"id": "example.com", "name": "Example RP"},
             "user": {"id": "dXNlci0xMjM=", "name": "user@example.com"}
@@ -60,7 +62,7 @@ class WebAuthnLoginCredentialCreationOptionsResponseTests: BitwardenTestCase {
             from: json,
         )
 
-        XCTAssertEqual(subject.options.challenge, "dGVzdC1jaGFsbGVuZ2U=")
+        XCTAssertEqual(subject.options.challenge, "dGVzdC1jaGFsbGVuZ2U")
         XCTAssertNil(subject.options.excludeCredentials)
         XCTAssertNil(subject.options.extensions)
         XCTAssertNil(subject.options.timeout)
