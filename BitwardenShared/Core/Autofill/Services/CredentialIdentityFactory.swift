@@ -5,7 +5,7 @@ import BitwardenSdk
 protocol CredentialIdentityFactory {
     /// Creates the `ASCredentialIdentity` array from a `CipherView` (it may return empty).
     /// - Parameter cipher: The cipher to get the identities from.
-    /// - Returns: An array of `ASCredentialIdenitty` (password or one time code)
+    /// - Returns: An array of `ASCredentialIdentity` (password or one time code)
     @available(iOS 17.0, *)
     func createCredentialIdentities(from cipher: CipherView) async -> [ASCredentialIdentity]
 
@@ -15,7 +15,7 @@ protocol CredentialIdentityFactory {
     func tryCreatePasswordCredentialIdentity(from cipher: CipherView) -> ASPasswordCredentialIdentity?
 }
 
-/// Default implemenation of `CredentialIdentityFactory` to create credential identities.
+/// Default implementation of `CredentialIdentityFactory` to create credential identities.
 struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
     @available(iOS 17.0, *)
     func createCredentialIdentities(from cipher: CipherView) async -> [ASCredentialIdentity] {

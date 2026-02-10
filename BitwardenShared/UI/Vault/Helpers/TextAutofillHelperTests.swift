@@ -283,7 +283,7 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `handleCipherForAutofill(cipherView:)` shows options with custom fields
     /// and user selects one custom field to autofill it when `viewPassword` is `false` so hidden fields are
-    /// not avaialble.
+    /// not available.
     @MainActor
     func test_handleCipherForAutofill_optionsWithCustomFieldsNotViewPassword() async throws {
         let optionsHelper = MockTextAutofillOptionsHelper()

@@ -220,7 +220,7 @@ protocol HasGeneratorRepository {
 /// Protocol for an object that provides a `ImportCiphersRepository`.
 ///
 protocol HasImportCiphersRepository {
-    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    /// The repository used by the application to manage importing credential in Credential Exchange flow.
     var importCiphersRepository: ImportCiphersRepository { get }
 }
 

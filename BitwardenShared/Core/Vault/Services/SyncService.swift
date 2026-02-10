@@ -400,7 +400,7 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
 
-        // If the local data is more recent than the nofication, skip the sync.
+        // If the local data is more recent than the notification, skip the sync.
         let localCipher = try await cipherService.fetchCipher(withId: data.id)
         if let localCipher, let revisionDate = data.revisionDate, localCipher.revisionDate >= revisionDate {
             return
