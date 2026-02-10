@@ -15,6 +15,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
     var keychainService: MockKeychainService!
     var standardUserDefaults: UserDefaults!
     var subject: DefaultMigrationService!
+    var userSessionStateService: MockUserSessionStateService!
 
     /// A keychain service name to use during tests to avoid corrupting the app's keychain items.
     private let testKeychainServiceName = "com.bitwarden.test"
@@ -30,6 +31,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         keychainRepository = MockKeychainRepository()
         keychainService = MockKeychainService()
         standardUserDefaults = UserDefaults(suiteName: "test")
+        userSessionStateService = MockUserSessionStateService()
 
         for key in appGroupUserDefaults.dictionaryRepresentation().map(\.key) {
             appGroupUserDefaults.removeObject(forKey: key)
@@ -50,6 +52,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             keychainService: keychainService,
             keychainServiceName: testKeychainServiceName,
             standardUserDefaults: standardUserDefaults,
+            userSessionStateService: userSessionStateService,
         )
     }
 
@@ -63,6 +66,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         keychainService = nil
         standardUserDefaults = nil
         subject = nil
+        userSessionStateService = nil
     }
 
     // MARK: Tests
@@ -98,6 +102,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(errorReporter.errors as? [KeychainServiceError], [KeychainServiceError.osStatusError(-1)])
     }
 
+    // MARK: Migration 1 (Tokens to Keychain)
+
     /// `performMigrations()` performs migration 1 and moves the user's tokens to the keychain.
     func test_performMigrations_1_withAccounts() async throws {
         appSettingsStore.migrationVersion = 0
@@ -119,7 +125,6 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             activeUserId: "1",
         )
         for userId in ["1", "2"] {
-            appSettingsStore.lastActiveTime[userId] = Date()
             appSettingsStore.lastSyncTimeByUserId[userId] = Date()
             appSettingsStore.notificationsLastRegistrationDates[userId] = Date()
         }
@@ -139,10 +144,11 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "2")), "REFRESH_TOKEN_2")
 
         for userId in ["1", "2"] {
-            XCTAssertNil(appSettingsStore.lastActiveTime(userId: userId))
             XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))
             XCTAssertNil(appSettingsStore.notificationsLastRegistrationDate(userId: userId))
         }
+
+        XCTAssertEqual(userSessionStateService.setLastActiveTimeCallsCount, 2)
 
         XCTAssertFalse(keychainRepository.deleteAllItemsCalled)
 
@@ -179,6 +185,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(keychainRepository.deleteAllItemsCalled)
         XCTAssertTrue(errorReporter.isEnabled)
     }
+
+    // MARK: Migration 2 (Update Keychain Security)
 
     /// `performMigrations()` for migration 2 migrates keychain data in kSecAttrGeneric to kSecValueData.
     func test_performMigrations_2() async throws {
@@ -230,6 +238,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(appSettingsStore.migrationVersion, 2)
     }
 
+    // MARK: Migration 3 (Remove MAUI Biometrics Integrity State)
+
     /// `performMigrations()` for migration 3 removes the integrity state values from MAUI.
     func test_performMigrations_3() async throws {
         appGroupUserDefaults.set(
@@ -265,6 +275,8 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             appGroupUserDefaults.string(forKey: "bwPreferencesStorage:iOSShareExtensionBiometricIntegritySource"),
         )
     }
+
+    // MARK: Migration 4 (Remove Native Biometrics Integrity State)
 
     /// `performMigrations()` for migration 4 removes the native integrity state values.
     func test_performMigrations_4() async throws {
@@ -321,4 +333,198 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             ))
         }
     }
-}
+
+    // MARK: Migration 5 (Migrate Session Data to Keychain)
+
+    /// `performMigrations()` for migration 5 migrates lastActiveTime, unsuccessfulUnlockAttempts,
+    /// and vaultTimeout from UserDefaults to the Keychain.
+    func test_performMigrations_5() async throws { // swiftlint:disable:this function_body_length
+        let lastActiveDate1 = Date(timeIntervalSince1970: 1_700_000_000)
+        let lastActiveDate2 = Date(timeIntervalSince1970: 1_700_100_000)
+
+        appGroupUserDefaults.set(
+            String(lastActiveDate1.timeIntervalSince1970),
+            forKey: "bwPreferencesStorage:lastActiveTime_1",
+        )
+        appGroupUserDefaults.set(
+            String(lastActiveDate2.timeIntervalSince1970),
+            forKey: "bwPreferencesStorage:lastActiveTime_2",
+        )
+
+        appGroupUserDefaults.set(
+            "3",
+            forKey: "bwPreferencesStorage:invalidUnlockAttempts_1",
+        )
+        appGroupUserDefaults.set(
+            "5",
+            forKey: "bwPreferencesStorage:invalidUnlockAttempts_2",
+        )
+
+        appGroupUserDefaults.set(
+            "15",
+            forKey: "bwPreferencesStorage:vaultTimeout_1",
+        )
+        appGroupUserDefaults.set(
+            "-1",
+            forKey: "bwPreferencesStorage:vaultTimeout_2",
+        )
+
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "1",
+        )
+
+        var setLastActiveTimeValue: [String: Date] = [:]
+        var setUnsuccessfulUnlockAttemptsValue: [String: Int] = [:]
+        var setVaultTimeoutValue: [String: SessionTimeoutValue] = [:]
+
+        userSessionStateService.setLastActiveTimeClosure = { date, userId in
+            guard let userId else { return }
+            setLastActiveTimeValue[userId] = date
+        }
+
+        userSessionStateService.setUnsuccessfulUnlockAttemptsClosure = { attempts, userId in
+            guard let userId else { return }
+            setUnsuccessfulUnlockAttemptsValue[userId] = attempts
+        }
+
+        userSessionStateService.setVaultTimeoutClosure = { timeout, userId in
+            guard let userId else { return }
+            setVaultTimeoutValue[userId] = timeout
+        }
+
+        try await subject.performMigration(version: 5)
+
+        // Verify values were migrated to the UserSessionStateService
+        XCTAssertEqual(setLastActiveTimeValue["1"], lastActiveDate1)
+        XCTAssertEqual(setLastActiveTimeValue["2"], lastActiveDate2)
+
+        XCTAssertEqual(setUnsuccessfulUnlockAttemptsValue["1"], 3)
+        XCTAssertEqual(setUnsuccessfulUnlockAttemptsValue["2"], 5)
+
+        XCTAssertEqual(setVaultTimeoutValue["1"], .fifteenMinutes)
+        XCTAssertEqual(setVaultTimeoutValue["2"], .onAppRestart)
+
+        // Verify old values were removed from UserDefaults
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:lastActiveTime_1"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:lastActiveTime_2"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:invalidUnlockAttempts_1"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:invalidUnlockAttempts_2"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:vaultTimeout_1"))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:vaultTimeout_2"))
+    }
+
+    /// `performMigrations()` for migration 5 handles missing values gracefully.
+    func test_performMigrations_5_withMissingValues() async throws {
+        let lastActiveDate1 = Date(timeIntervalSince1970: 1_700_000_000)
+        appGroupUserDefaults.set(
+            String(lastActiveDate1.timeIntervalSince1970),
+            forKey: "bwPreferencesStorage:lastActiveTime_1",
+        )
+
+        appGroupUserDefaults.set(
+            "5",
+            forKey: "bwPreferencesStorage:invalidUnlockAttempts_2",
+        )
+
+        appGroupUserDefaults.set(
+            "30",
+            forKey: "bwPreferencesStorage:vaultTimeout_1",
+        )
+
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "1",
+        )
+
+        try await subject.performMigration(version: 5)
+
+        // Verify only user 1's lastActiveTime was set
+        XCTAssertEqual(userSessionStateService.setLastActiveTimeCallsCount, 1)
+        XCTAssertEqual(userSessionStateService.setLastActiveTimeReceivedArguments?.userId, "1")
+
+        // Verify only user 2's unsuccessfulUnlockAttempts was set
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsCallsCount, 1)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.userId, "2")
+
+        // Verify only user 1's vaultTimeout was set
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutCallsCount, 1)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutReceivedArguments?.userId, "1")
+    }
+
+    /// `performMigrations()` for migration 5 handles invalid data gracefully.
+    func test_performMigrations_5_withInvalidData() async throws {
+        appGroupUserDefaults.set(
+            "not-a-valid-time-interval",
+            forKey: "bwPreferencesStorage:lastActiveTime_1",
+        )
+        appGroupUserDefaults.set(
+            "not-a-valid-number",
+            forKey: "bwPreferencesStorage:invalidUnlockAttempts_1",
+        )
+        appGroupUserDefaults.set(
+            "not-a-valid-timeout",
+            forKey: "bwPreferencesStorage:vaultTimeout_1",
+        )
+
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(),
+            ],
+            activeUserId: "1",
+        )
+
+        try await subject.performMigration(version: 5)
+
+        // Verify invalid values were not migrated
+        XCTAssertEqual(userSessionStateService.setLastActiveTimeCallsCount, 0)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsCallsCount, 0)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutCallsCount, 0)
+
+        // Verify UserDefaults values remain (since they weren't successfully migrated)
+        XCTAssertNotNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:lastActiveTime_1"))
+        XCTAssertNotNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:invalidUnlockAttempts_1"))
+        XCTAssertNotNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:vaultTimeout_1"))
+    }
+
+    /// `performMigrations()` for migration 5 handles custom vault timeout values.
+    func test_performMigrations_5_withCustomVaultTimeout() async throws {
+        appGroupUserDefaults.set(
+            "120",
+            forKey: "bwPreferencesStorage:vaultTimeout_1",
+        )
+
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(),
+            ],
+            activeUserId: "1",
+        )
+
+        try await subject.performMigration(version: 5)
+
+        // Verify custom timeout value was migrated correctly
+        let actual = userSessionStateService.setVaultTimeoutReceivedArguments
+        XCTAssertEqual(actual?.userId, "1")
+        XCTAssertEqual(actual?.value, .custom(120))
+        XCTAssertNil(appGroupUserDefaults.string(forKey: "bwPreferencesStorage:vaultTimeout_1"))
+    }
+
+    /// `performMigrations()` for migration 5 handles no existing accounts.
+    func test_performMigrations_5_withNoAccounts() async throws {
+        appSettingsStore.state = nil
+
+        try await subject.performMigration(version: 5)
+
+        XCTAssertEqual(appSettingsStore.migrationVersion, 5)
+        XCTAssertEqual(userSessionStateService.setLastActiveTimeCallsCount, 0)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsCallsCount, 0)
+        XCTAssertEqual(userSessionStateService.setVaultTimeoutCallsCount, 0)
+    }
+} // swiftlint:disable:this file_length

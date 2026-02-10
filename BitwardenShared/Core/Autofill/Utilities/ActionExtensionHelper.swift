@@ -51,7 +51,7 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
         context.providerType == Constants.UTType.appExtensionSetup
     }
 
-    /// Wether the app extension save login provider was included in the input items.
+    /// Whether the app extension save login provider was included in the input items.
     public var isProviderSaveLogin: Bool {
         context.providerType == Constants.UTType.appExtensionSaveLogin
     }

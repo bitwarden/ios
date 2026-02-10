@@ -211,7 +211,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.events, [.didTimeout(userId: "1")])
     }
 
-    /// `init()` subscribes to will enter foreground events ands completes the user's autofill setup
+    /// `init()` subscribes to will enter foreground events and completes the user's autofill setup
     /// process if autofill is enabled and they previously choose to set it up later.
     @MainActor
     func test_init_appForeground_completeAutofillAccountSetup() async throws {

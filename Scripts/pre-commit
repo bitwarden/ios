@@ -1,4 +1,20 @@
 #!/bin/bash
+#
+# Pre-commit hook that runs spell check on staged files
+# This hook is set up automatically by Scripts/bootstrap.sh
 
 PATH=/usr/local/bin:$PATH
-mint run swiftformat .
+
+# Get the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+
+# If running from .git/hooks, find repo root
+if [[ "$SCRIPT_DIR" == *".git/hooks"* ]]; then
+    REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+else
+    # Running from Scripts directory
+    REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+
+# Run spell check on staged files
+"$REPO_ROOT/Scripts/spellcheck-changes.sh" || exit 1

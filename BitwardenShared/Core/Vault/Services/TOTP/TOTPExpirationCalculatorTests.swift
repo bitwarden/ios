@@ -111,7 +111,7 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
         )
     }
 
-    func test_remainingSecons_roundsUp() {
+    func test_remainingSeconds_roundsUp() {
         XCTAssertEqual(
             TOTPExpirationCalculator.remainingSeconds(
                 for: Date(year: 2024, month: 1, day: 1, second: 29, nanosecond: 90_000_000),

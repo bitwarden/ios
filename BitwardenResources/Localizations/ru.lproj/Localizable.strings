@@ -1288,7 +1288,7 @@
 "Archive" = "Архив";
 "Archived" = "Архивирован";
 "Unarchive" = "Разархивировать";
-"ItemMovedToArchive" = "Item moved to archive";
+"ItemMovedToArchive" = "Элемент перемещён в архив";
 "ItemMovedToVault" = "Элемент перемещен в хранилище";
 "SendingToArchive" = "Отправка в архив…";
 "MovingItemToVault" = "Перемещение элемента в хранилище";
@@ -1304,3 +1304,4 @@
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Чтобы восстановить доступ к своему архиву, подключите подписку Премиум повторно. Если вы измените сведения об архивированном элементе перед переподключением, он будет перемещен обратно в ваше хранилище.";
 "RestartPremium" = "Переподключить Премиум";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Этот элемент архивирован. Сохранение изменений восстановит его в ваше хранилище.";
+"SettingUpAutofill" = "Настройка автозаполнения…";

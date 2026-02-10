@@ -32,7 +32,7 @@ class MasterPasswordGeneratorProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
-    ///   - delegate: The delegate for the processor to notifiy saving a generated password.
+    ///   - delegate: The delegate for the processor to notify saving a generated password.
     ///   - services: The services required by this processor.
     ///
     init(

@@ -146,21 +146,21 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `doesActiveAccountHaveVerifiedEmail()` with verified email returns true.
-    func test_doesActiveAccountHaveVerifedEmail_true() async throws {
+    func test_doesActiveAccountHaveVerifiedEmail_true() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(emailVerified: true))
         let isVerified = try await subject.doesActiveAccountHaveVerifiedEmail()
         XCTAssertTrue(isVerified)
     }
 
     /// `doesActiveAccountHavePremium()` with unverified email returns false.
-    func test_doesActiveAccountHaveVerifedEmail_false() async throws {
+    func test_doesActiveAccountHaveVerifiedEmail_false() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(emailVerified: false))
         let isVerified = try await subject.doesActiveAccountHaveVerifiedEmail()
         XCTAssertFalse(isVerified)
     }
 
     /// `doesActiveAccountHavePremium()` with nil verified email returns false.
-    func test_doesActiveAccountHaveVerifedEmail_nil() async throws {
+    func test_doesActiveAccountHaveVerifiedEmail_nil() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(emailVerified: nil))
         let isVerified = try await subject.doesActiveAccountHaveVerifiedEmail()
         XCTAssertFalse(isVerified)

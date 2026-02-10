@@ -11,5 +11,5 @@ typealias SignedPublicKey = String
 /// A signature key encrypted with a symmetric key.
 typealias WrappedSigningKey = EncString
 
-/// A signature public key (verifying key) in base64 encoded CoseKey format.
+/// A signature public key (verifying key) in base64 encoded CaseKey format.
 typealias VerifyingKey = String
