@@ -10,13 +10,13 @@ struct DeviceAuthKeyRecord: Decodable, Encodable {
     let keyCurve: String
     let keyValue: String
     let rpId: String
-    let rpName: String?
-    let userId: String?
-    let userName: String?
-    let userDisplayName: String?
+    let rpName: String
+    let userId: String
+    let userName: String
+    let userDisplayName: String
     let counter: String
     let discoverable: String
-    let hmacSecret: String?
+    let hmacSecret: String
     let creationDate: DateTime
     
     func toCipherView() -> CipherView {
