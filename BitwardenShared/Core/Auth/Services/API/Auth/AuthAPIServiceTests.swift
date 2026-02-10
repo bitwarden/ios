@@ -110,6 +110,54 @@ class AuthAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(response, [.fixture()])
     }
 
+    /// `getWebAuthnCredentialAssertionOptions(_:)` successfully decodes the assertion options response.
+    func test_getWebAuthnCredentialAssertionOptions() async throws {
+        client.result = .httpSuccess(testData: .webAuthnLoginCredentialAssertionOptions)
+
+        let response = try await subject.getWebAuthnCredentialAssertionOptions(
+            SecretVerificationRequestModel(type: .masterPasswordHash("PASSWORD_HASH")),
+        )
+
+        XCTAssertEqual(response.options.challenge, "YXNzZXJ0aW9uLWNoYWxsZW5nZQ==")
+        XCTAssertEqual(response.options.rpId, "example.com")
+        XCTAssertEqual(response.options.timeout, 60000)
+        XCTAssertEqual(response.options.allowCredentials?.first?.id, "Y3JlZGVudGlhbC0x")
+        XCTAssertEqual(response.options.allowCredentials?.first?.type, "public-key")
+        XCTAssertEqual(response.options.extensions?.prf?.eval?.first, "cHJmLWZpcnN0")
+        XCTAssertNil(response.options.extensions?.prf?.eval?.second)
+        XCTAssertEqual(
+            response.options.extensions?.prf?.evalByCredential?["Y3JlZGVudGlhbC0x"]?.first,
+            "Y3JlZC1wcmYtZmlyc3Q=",
+        )
+        XCTAssertEqual(
+            response.options.extensions?.prf?.evalByCredential?["Y3JlZGVudGlhbC0x"]?.second,
+            "Y3JlZC1wcmYtc2Vjb25k",
+        )
+    }
+
+    /// `getWebAuthnCredentialCreationOptions(_:)` successfully decodes the creation options response.
+    func test_getWebAuthnCredentialCreationOptions() async throws {
+        client.result = .httpSuccess(testData: .webAuthnLoginCredentialCreationOptions)
+
+        let response = try await subject.getWebAuthnCredentialCreationOptions(
+            SecretVerificationRequestModel(type: .masterPasswordHash("PASSWORD_HASH")),
+        )
+
+        XCTAssertEqual(response.options.challenge, "dGVzdC1jaGFsbGVuZ2U=")
+        XCTAssertEqual(response.options.rp.id, "example.com")
+        XCTAssertEqual(response.options.rp.name, "Example RP")
+        XCTAssertEqual(response.options.user.id, "dXNlci0xMjM=")
+        XCTAssertEqual(response.options.user.name, "user@example.com")
+        XCTAssertEqual(response.options.timeout, 60000)
+        XCTAssertEqual(response.options.pubKeyCredParams.count, 2)
+        XCTAssertEqual(response.options.pubKeyCredParams[0].alg, -7)
+        XCTAssertEqual(response.options.pubKeyCredParams[0].type, "public-key")
+        XCTAssertEqual(response.options.pubKeyCredParams[1].alg, -257)
+        XCTAssertEqual(response.options.excludeCredentials?.first?.id, "Y3JlZGVudGlhbC0x")
+        XCTAssertEqual(response.options.extensions?.prf?.eval?.first, "cHJmLWZpcnN0")
+        XCTAssertEqual(response.options.extensions?.prf?.eval?.second, "cHJmLXNlY29uZA==")
+    }
+
     /// `initiateLoginWithDevice()` successfully decodes the initiate login with device response.
     func test_initiateLoginWithDevice() async throws {
         client.result = .httpSuccess(testData: .authRequestSuccess)
@@ -154,5 +202,28 @@ class AuthAPIServiceTests: BitwardenTestCase {
                 refreshToken: "REFRESH_TOKEN",
             ),
         )
+    }
+
+    /// `saveWebAuthnCredential(_:)` sends the save request without error.
+    func test_saveWebAuthnCredential() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await assertAsyncDoesNotThrow {
+            try await subject.saveWebAuthnCredential(
+                WebAuthnLoginSaveCredentialRequestModel(
+                    deviceResponse: .fixture(),
+                    encryptedPrivateKey: nil,
+                    encryptedPublicKey: nil,
+                    encryptedUserKey: nil,
+                    name: "My Passkey",
+                    supportsPrf: false,
+                    token: "TOKEN",
+                ),
+            )
+        }
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/api/webauthn")
     }
 }
