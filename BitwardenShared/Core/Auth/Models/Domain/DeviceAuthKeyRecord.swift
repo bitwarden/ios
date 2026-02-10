@@ -10,13 +10,13 @@ struct DeviceAuthKeyRecord: Decodable, Encodable {
     let keyCurve: String
     let keyValue: String
     let rpId: String
-    let rpName: String?
-    let userId: String?
-    let userName: String?
-    let userDisplayName: String?
+    let rpName: String
+    let userId: String
+    let userName: String
+    let userDisplayName: String
     let counter: String
     let discoverable: String
-    let hmacSecret: String?
+    let hmacSecret: String
     let creationDate: DateTime
     
     func toCipherView() -> CipherView {
@@ -50,7 +50,8 @@ struct DeviceAuthKeyRecord: Decodable, Encodable {
                         rpName: rpName,
                         userDisplayName: userDisplayName,
                         discoverable: discoverable,
-                        hmacSecret: hmacSecret,
+                        // TODO(PM-26177): SDK will add this field
+                        // hmacSecret: hmacSecret,
                         creationDate: creationDate
                     ),
                 ]
@@ -107,7 +108,8 @@ struct DeviceAuthKeyRecord: Decodable, Encodable {
                         rpName: rpName,
                         userDisplayName: userDisplayName,
                         discoverable: discoverable,
-                        hmacSecret: hmacSecret,
+                        // TODO(PM-26177): SDK will add this field
+                        // hmacSecret: hmacSecret,
                         creationDate: creationDate
                     ),
                 ]
