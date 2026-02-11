@@ -1,7 +1,5 @@
 import BitwardenSdk
-import CryptoKit
 import Foundation
-import os.log
 
 // MARK: - DeviceAuthKeyService
 
