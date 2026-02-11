@@ -24,7 +24,6 @@ extension SendResponseModel {
             accessId: accessId,
             deletionDate: send.deletionDate,
             disabled: send.disabled,
-            emailHashes: nil,
             emails: send.emails,
             expirationDate: send.expirationDate,
             file: send.file.map(SendFileModel.init),
