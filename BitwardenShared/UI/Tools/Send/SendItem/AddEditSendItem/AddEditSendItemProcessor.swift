@@ -13,6 +13,7 @@ class AddEditSendItemProcessor:
 
     typealias Services = HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
@@ -88,8 +89,23 @@ class AddEditSendItemProcessor:
 
     override func receive(_ action: AddEditSendItemAction) {
         switch action {
+        case let .accessTypeChanged(newValue):
+            // Check if non-premium user is trying to select "Specific People"
+            if newValue == .specificPeople, !state.hasPremium {
+                showSpecificPeoplePremiumRequiredAlert()
+                return
+            }
+            state.accessType = newValue
+            // Ensure there's at least one email row when selecting "Specific People"
+            if newValue == .specificPeople, state.recipientEmails.isEmpty {
+                state.recipientEmails.append("")
+            }
+        case .addRecipientEmail:
+            state.recipientEmails.append("")
         case .chooseFilePressed:
             presentFileSelectionAlert()
+        case .clearURL:
+            state.url = nil
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
         case .dismissPressed:
@@ -106,6 +122,12 @@ class AddEditSendItemProcessor:
             state.isPasswordVisible = newValue
         case let .profileSwitcher(profileAction):
             handle(profileAction)
+        case let .recipientEmailChanged(index, value):
+            guard index >= 0, index < state.recipientEmails.count else { return }
+            state.recipientEmails[index] = value
+        case let .removeRecipientEmail(index):
+            guard index >= 0, index < state.recipientEmails.count else { return }
+            state.recipientEmails.remove(at: index)
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
@@ -160,6 +182,8 @@ class AddEditSendItemProcessor:
     private func loadData() async {
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
+        state.isSendEmailVerificationEnabled = await services.configService.getFeatureFlag(.sendEmailVerification)
         await refreshProfileState()
 
         if state.maximumAccessCount != 0 {
@@ -294,6 +318,23 @@ class AddEditSendItemProcessor:
             return false
         }
 
+        // Validate recipient emails for "Specific people" access type.
+        if state.accessType == .specificPeople {
+            // Check if at least one email is provided
+            guard !state.normalizedRecipientEmails.isEmpty else {
+                coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
+                return false
+            }
+
+            // Validate each email address
+            for email in state.normalizedRecipientEmails {
+                guard email.isValidEmail else {
+                    coordinator.showAlert(.invalidEmail)
+                    return false
+                }
+            }
+        }
+
         // Only perform further checks for file sends.
         guard state.type == .file else { return true }
 
@@ -337,6 +378,16 @@ class AddEditSendItemProcessor:
         }
 
         return true
+    }
+
+    /// Shows an alert indicating that the "Specific People" feature requires a premium subscription.
+    ///
+    private func showSpecificPeoplePremiumRequiredAlert() {
+        let alert = Alert.specificPeopleUnavailable { [weak self] in
+            guard let self else { return }
+            state.url = services.environmentService.upgradeToPremiumURL
+        }
+        coordinator.showAlert(alert)
     }
 }
 

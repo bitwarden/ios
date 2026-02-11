@@ -19,6 +19,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
 
     typealias Services = HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService

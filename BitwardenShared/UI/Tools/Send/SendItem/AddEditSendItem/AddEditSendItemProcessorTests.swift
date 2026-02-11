@@ -12,6 +12,7 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -27,6 +28,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func setUp() {
         super.setUp()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -36,6 +38,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject = AddEditSendItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -48,6 +51,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func tearDown() {
         super.tearDown()
+        configService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -633,6 +637,243 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.toast = Toast(title: "toasty")
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    // MARK: Access Type Tests
+
+    /// `receive(_:)` with `.accessTypeChanged` updates the access type.
+    @MainActor
+    func test_receive_accessTypeChanged() {
+        subject.state.accessType = .anyoneWithLink
+        subject.receive(.accessTypeChanged(.anyoneWithPassword))
+        XCTAssertEqual(subject.state.accessType, .anyoneWithPassword)
+    }
+
+    /// `receive(_:)` with `.accessTypeChanged` to specific people adds an empty email row for premium users.
+    @MainActor
+    func test_receive_accessTypeChanged_specificPeople_addsEmptyEmail() {
+        subject.state.hasPremium = true
+        subject.state.accessType = .anyoneWithLink
+        subject.state.recipientEmails = []
+        subject.receive(.accessTypeChanged(.specificPeople))
+        XCTAssertEqual(subject.state.accessType, .specificPeople)
+        XCTAssertEqual(subject.state.recipientEmails, [""])
+    }
+
+    /// `receive(_:)` with `.accessTypeChanged` to specific people doesn't add email if already exists.
+    @MainActor
+    func test_receive_accessTypeChanged_specificPeople_existingEmails() {
+        subject.state.hasPremium = true
+        subject.state.accessType = .anyoneWithLink
+        subject.state.recipientEmails = ["test@example.com"]
+        subject.receive(.accessTypeChanged(.specificPeople))
+        XCTAssertEqual(subject.state.accessType, .specificPeople)
+        XCTAssertEqual(subject.state.recipientEmails, ["test@example.com"])
+    }
+
+    /// `receive(_:)` with `.accessTypeChanged` to specific people shows premium alert for non-premium users.
+    @MainActor
+    func test_receive_accessTypeChanged_specificPeople_nonPremium_showsAlert() async throws {
+        subject.state.hasPremium = false
+        subject.state.accessType = .anyoneWithLink
+        subject.receive(.accessTypeChanged(.specificPeople))
+
+        // Access type should remain unchanged
+        XCTAssertEqual(subject.state.accessType, .anyoneWithLink)
+
+        // Alert should be shown
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(alert.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
+    }
+
+    /// `receive(_:)` with `.accessTypeChanged` to specific people opens upgrade URL when user taps
+    /// "Upgrade to Premium" in the alert.
+    @MainActor
+    func test_receive_accessTypeChanged_specificPeople_nonPremium_upgradeAction() async throws {
+        subject.state.hasPremium = false
+        subject.state.accessType = .anyoneWithLink
+        subject.receive(.accessTypeChanged(.specificPeople))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.upgradeToPremium)
+
+        XCTAssertNotNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with `.addRecipientEmail` adds an empty email to the list.
+    @MainActor
+    func test_receive_addRecipientEmail() {
+        subject.state.recipientEmails = ["test@example.com"]
+        subject.receive(.addRecipientEmail)
+        XCTAssertEqual(subject.state.recipientEmails, ["test@example.com", ""])
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = URL(string: "https://example.com")!
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with `.recipientEmailChanged` updates the email at the specified index.
+    @MainActor
+    func test_receive_recipientEmailChanged() {
+        subject.state.recipientEmails = ["", ""]
+        subject.receive(.recipientEmailChanged(index: 0, value: "test@example.com"))
+        XCTAssertEqual(subject.state.recipientEmails, ["test@example.com", ""])
+    }
+
+    /// `receive(_:)` with `.recipientEmailChanged` does nothing for invalid index.
+    @MainActor
+    func test_receive_recipientEmailChanged_invalidIndex() {
+        subject.state.recipientEmails = ["test@example.com"]
+        subject.receive(.recipientEmailChanged(index: 5, value: "new@example.com"))
+        XCTAssertEqual(subject.state.recipientEmails, ["test@example.com"])
+    }
+
+    /// `receive(_:)` with `.removeRecipientEmail` removes the email at the specified index.
+    @MainActor
+    func test_receive_removeRecipientEmail() {
+        subject.state.recipientEmails = ["first@example.com", "second@example.com"]
+        subject.receive(.removeRecipientEmail(index: 0))
+        XCTAssertEqual(subject.state.recipientEmails, ["second@example.com"])
+    }
+
+    /// `receive(_:)` with `.removeRecipientEmail` does nothing for invalid index.
+    @MainActor
+    func test_receive_removeRecipientEmail_invalidIndex() {
+        subject.state.recipientEmails = ["test@example.com"]
+        subject.receive(.removeRecipientEmail(index: 5))
+        XCTAssertEqual(subject.state.recipientEmails, ["test@example.com"])
+    }
+
+    // MARK: Validation Tests
+
+    /// `perform(_:)` with `.savePressed` and specific people with invalid email shows validation alert.
+    @MainActor
+    func test_perform_savePressed_specificPeople_invalidEmail() async {
+        subject.state.name = "Name"
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = ["invalidemail"]
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown, [
+            .invalidEmail,
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and specific people with no emails shows validation alert.
+    @MainActor
+    func test_perform_savePressed_specificPeople_noEmails() async {
+        subject.state.name = "Name"
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = []
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.email),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and specific people with emails containing whitespace
+    /// and mixed case normalizes them before validation and saving.
+    @MainActor
+    func test_perform_savePressed_specificPeople_normalizesEmails() async {
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = ["  TEST@Example.COM  ", "  Another@TEST.com\n", ""]
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
+        sendRepository.addTextSendResult = .success(sendView)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.emails, ["test@example.com", "another@test.com"])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.authType, .email)
+    }
+
+    /// `perform(_:)` with `.savePressed` and specific people with only empty emails shows validation alert.
+    @MainActor
+    func test_perform_savePressed_specificPeople_onlyEmptyEmails() async {
+        subject.state.name = "Name"
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = ["", ""]
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.email),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and specific people with only whitespace emails shows validation alert.
+    @MainActor
+    func test_perform_savePressed_specificPeople_onlyWhitespaceEmails() async {
+        subject.state.name = "Name"
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = ["   ", "\t\n", "  "]
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown, [
+            .validationFieldRequired(fieldName: Localizations.email),
+        ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and specific people with valid emails saves successfully.
+    @MainActor
+    func test_perform_savePressed_specificPeople_validEmails() async {
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = ["test@example.com", "another@example.com"]
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
+        sendRepository.addTextSendResult = .success(sendView)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.emails, ["test@example.com", "another@example.com"])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.authType, .email)
+    }
+
+    // MARK: LoadData Tests
+
+    /// `perform(_:)` with `loadData` loads the premium status and feature flag.
+    @MainActor
+    func test_perform_loadData_premiumAndFeatureFlag() async {
+        sendRepository.doesActivateAccountHavePremiumResult = true
+        configService.featureFlagsBool[.sendEmailVerification] = true
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.hasPremium)
+        XCTAssertTrue(subject.state.isSendEmailVerificationEnabled)
+    }
+
+    /// `perform(_:)` with `loadData` loads false for premium and feature flag when not available.
+    @MainActor
+    func test_perform_loadData_noPremiumNoFeatureFlag() async {
+        sendRepository.doesActivateAccountHavePremiumResult = false
+        configService.featureFlagsBool[.sendEmailVerification] = false
+
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.hasPremium)
+        XCTAssertFalse(subject.state.isSendEmailVerificationEnabled)
     }
 
     // MARK: ProfileSwitcherHandler
