@@ -344,7 +344,7 @@ protocol ExampleService {
 }
 ```
 
-**2. Implement** (`Core/<Domain>/Services/<ServiceName>.swift` or separate file)
+**2. Implement** (`Core/<Domain>/Services/<ServiceName>.swift` or separate file on multiple implementations for the same protocol)
 ```swift
 final class DefaultExampleService: ExampleService {
     private let apiService: APIService
@@ -514,7 +514,7 @@ Xcode version requirement: `.xcode-version` (currently `26.1.1`)
 
 ### Authentication & Authorization
 
-- **Login flows**: Email+password, SSO, passwordless (device approval), biometric unlock
+- **Login flows**: Email+password, SSO, SSO+TDE, passwordless (device approval), biometric unlock, PIN unlock
 - **Key derivation**: PBKDF2 or Argon2id (configurable per account)
 - **Token lifecycle**: Access tokens refreshed preemptively 5 minutes before expiry (`tokenRefreshThreshold`)
 - **Biometric auth**: Touch ID / Face ID unlock via Keychain access control flags
@@ -643,7 +643,7 @@ xcodebuild test -workspace Bitwarden.xcworkspace -scheme Bitwarden \
 
 ### Test Environment
 
-- **Simulator**: Snapshot tests require iPhone 17 Pro / iOS 26.0.1 (see `.test-simulator-device-name`, `.test-simulator-ios-version`)
+- **Simulator**: Snapshot tests require a specific simulator name and iOS version (see `.test-simulator-device-name`, `.test-simulator-ios-version`)
 - **Mock generation**: `// sourcery: AutoMockable` annotation on protocols → mocks generated in `*/Sourcery/Generated/AutoMockable.generated.swift`
 - **ServiceContainer.withMocks()**: Convenience method in `ServiceContainer+Mocks.swift` providing all mock dependencies with sensible defaults
 - **Test base class**: `BitwardenTestCase` (extends XCTest)
