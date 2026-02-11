@@ -757,7 +757,7 @@ mint run swiftgen config run --config swiftgen-pm.yml              # Generate as
 ### CI/CD
 
 - **Fastlane**: `fastlane/Fastfile` for build automation
-- CI runs all test plans on pull requests to `main`, commits to `main`, and release branches
+- CI runs all `-Default` test plans on pull requests to `main`, commits to `main`, and release branches
 - Test execution order is randomized (`randomExecutionOrder: true`)
 
 ### Key Tooling
