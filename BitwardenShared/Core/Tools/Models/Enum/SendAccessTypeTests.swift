@@ -9,13 +9,6 @@ import XCTest
 class SendAccessTypeTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `localizedName` returns the correct localized string for each access type.
-    func test_localizedName() {
-        XCTAssertEqual(SendAccessType.anyoneWithLink.localizedName, Localizations.anyoneWithTheLink)
-        XCTAssertEqual(SendAccessType.specificPeople.localizedName, Localizations.specificPeople)
-        XCTAssertEqual(SendAccessType.anyoneWithPassword.localizedName, Localizations.anyoneWithPasswordSetByYou)
-    }
-
     /// `authType` returns the correct SDK `AuthType` for each access type.
     func test_authType() {
         XCTAssertEqual(SendAccessType.anyoneWithLink.authType, .none)
@@ -28,5 +21,12 @@ class SendAccessTypeTests: BitwardenTestCase {
         XCTAssertEqual(SendAccessType(authType: .none), .anyoneWithLink)
         XCTAssertEqual(SendAccessType(authType: .email), .specificPeople)
         XCTAssertEqual(SendAccessType(authType: .password), .anyoneWithPassword)
+    }
+
+    /// `localizedName` returns the correct localized string for each access type.
+    func test_localizedName() {
+        XCTAssertEqual(SendAccessType.anyoneWithLink.localizedName, Localizations.anyoneWithTheLink)
+        XCTAssertEqual(SendAccessType.specificPeople.localizedName, Localizations.specificPeople)
+        XCTAssertEqual(SendAccessType.anyoneWithPassword.localizedName, Localizations.anyoneWithPasswordSetByYou)
     }
 }

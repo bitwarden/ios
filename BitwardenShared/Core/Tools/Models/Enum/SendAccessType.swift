@@ -18,17 +18,6 @@ enum SendAccessType: CaseIterable, Equatable, Hashable, Menuable, Sendable {
 
     // MARK: Properties
 
-    var localizedName: String {
-        switch self {
-        case .anyoneWithLink:
-            Localizations.anyoneWithTheLink
-        case .specificPeople:
-            Localizations.specificPeople
-        case .anyoneWithPassword:
-            Localizations.anyoneWithPasswordSetByYou
-        }
-    }
-
     /// The SDK `AuthType` corresponding to this access type.
     var authType: AuthType {
         switch self {
@@ -38,6 +27,17 @@ enum SendAccessType: CaseIterable, Equatable, Hashable, Menuable, Sendable {
             .email
         case .anyoneWithPassword:
             .password
+        }
+    }
+
+    var localizedName: String {
+        switch self {
+        case .anyoneWithLink:
+            Localizations.anyoneWithTheLink
+        case .specificPeople:
+            Localizations.specificPeople
+        case .anyoneWithPassword:
+            Localizations.anyoneWithPasswordSetByYou
         }
     }
 
