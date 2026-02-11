@@ -7,7 +7,6 @@ Bitwarden's iOS repository containing two apps (Password Manager and Authenticat
 ### What This Project Does
 - Cross-platform password manager and TOTP authenticator for iOS, with app extensions for AutoFill, Action, Share, and watchOS companion
 - Key interfaces: `Bitwarden` (main PM app), `Authenticator` (TOTP app), `BitwardenAutoFillExtension`, `BitwardenActionExtension`, `BitwardenShareExtension`, `BitwardenWatchApp`
-- Target users: Bitwarden end-users managing passwords, passkeys, TOTP codes, and secure notes
 
 ### Key Concepts
 - **Zero-knowledge architecture**: Server never receives unencrypted vault data; all encryption/decryption occurs client-side via the Bitwarden SDK
