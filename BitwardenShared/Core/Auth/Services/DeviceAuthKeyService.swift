@@ -5,7 +5,7 @@ import os.log
 
 // MARK: - DeviceAuthKeyService
 
-/// Service to manage the device passkey.
+/// Service to manage the device auth key.
 protocol DeviceAuthKeyService { // sourcery: AutoMockable
     /// Signs a passkey assertion request with the device auth key, if it exists and matches the given
     /// ``recordIdentifier``.
@@ -22,7 +22,7 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
         userId: String,
     ) async throws -> GetAssertionResult?
 
-    /// Create device passkey with PRF encryption key.
+    /// Create device auth key with PRF encryption key.
     ///
     /// Before calling, the vault must be unlocked to wrap user encryption key.
     ///
@@ -36,7 +36,16 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
         userId: String,
     ) async throws -> DeviceAuthKeyRecord
 
-    /// Retrieve the metadata for the device passkey, if it exists.
+    /// Deletes the device auth key.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID to delete the device auth key of.
+    ///
+    func deleteDeviceAuthKey(
+        userId: String,
+    ) async throws
+
+    /// Retrieve the metadata for the device auth key, if it exists.
     ///
     /// - Parameters:
     ///   - userId: Currently active user ID for the account.
@@ -75,6 +84,12 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         userId: String,
     ) async throws -> DeviceAuthKeyRecord {
         throw DeviceAuthKeyError.notImplemented
+    }
+
+    func deleteDeviceAuthKey(
+        userId: String,
+    ) async throws {
+        try await deviceAuthKeychainRepository.deleteDeviceAuthKey(userId: userId)
     }
 
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {

@@ -21,7 +21,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
 
         deviceAuthKeychainRepository = MockDeviceAuthKeychainRepository()
         subject = DefaultDeviceAuthKeyService(
-            deviceAuthKeychainRepository: deviceAuthKeychainRepository
+            deviceAuthKeychainRepository: deviceAuthKeychainRepository,
         )
     }
 
@@ -65,6 +65,31 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
                 userId: "userId123",
             )
         }
+    }
+
+    // MARK: Tests - deleteDeviceAuthKey
+
+    /// `deleteDeviceAuthKey(userId:)` successfully deletes the device auth key from the keychain repository.
+    ///
+    func test_deleteDeviceAuthKey_success() async throws {
+        try await subject.deleteDeviceAuthKey(userId: "userId123")
+
+        XCTAssertEqual(deviceAuthKeychainRepository.deleteDeviceAuthKeyCallsCount, 1)
+        XCTAssertEqual(deviceAuthKeychainRepository.deleteDeviceAuthKeyReceivedUserId, "userId123")
+    }
+
+    /// `deleteDeviceAuthKey(userId:)` throws an error from the keychain repository.
+    ///
+    func test_deleteDeviceAuthKey_throwsError() async throws {
+        let expectedError = BitwardenTestError.example
+        deviceAuthKeychainRepository.deleteDeviceAuthKeyThrowableError = expectedError
+
+        await assertAsyncThrows(error: expectedError) {
+            try await subject.deleteDeviceAuthKey(userId: "userId123")
+        }
+
+        XCTAssertEqual(deviceAuthKeychainRepository.deleteDeviceAuthKeyCallsCount, 1)
+        XCTAssertEqual(deviceAuthKeychainRepository.deleteDeviceAuthKeyReceivedUserId, "userId123")
     }
 
     // MARK: Tests - getDeviceAuthKeyMetadata
