@@ -219,8 +219,6 @@ extension AddEditSendItemState {
     ///
     func newSendView() -> SendView {
         let deletionDate = deletionDate.calculateDate() ?? Date()
-        // Filter out empty emails before sending
-        let filteredEmails = recipientEmails.filter { !$0.isEmpty }
 
         // Determine if the send should have a password:
         // - If access type is not "Anyone with password", no password
@@ -254,7 +252,7 @@ extension AddEditSendItemState {
             // If the send has an expiration date, reset it to the deletion date to prevent a server
             // error which disallows editing a send after it has expired.
             expirationDate: expirationDate != nil ? deletionDate : nil,
-            emails: accessType == .specificPeople ? filteredEmails : [],
+            emails: accessType == .specificPeople ? normalizedRecipientEmails : [],
             authType: accessType.authType,
         )
     }

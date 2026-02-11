@@ -684,7 +684,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         // Alert should be shown
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.premiumSubscriptionRequired)
-        XCTAssertEqual(alert.message, Localizations.premiumRequired)
+        XCTAssertEqual(alert.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
     }
 
     /// `receive(_:)` with `.accessTypeChanged` to specific people opens upgrade URL when user taps
