@@ -199,6 +199,7 @@ protocol AppModule {
 struct ExampleState: Equatable {
     var data: String?
     var isLoading = false
+    var isToggleOn = false
 }
 ```
 
@@ -227,17 +228,39 @@ enum ExampleRoute: Equatable {
 
 **4. Implement the Processor** (`UI/<Domain>/<Feature>/<Feature>Processor.swift`)
 ```swift
+// MARK: - ExampleProcessor
+
+/// The processor used to manage state and handle actions for the example screen.
+///
 final class ExampleProcessor: StateProcessor<ExampleState, ExampleAction, ExampleEffect> {
+    // MARK: Types
+
     typealias Services = HasExampleRepository & HasErrorReporter
 
+    // MARK: Private Properties
+
+    /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<ExampleRoute, Void>
+
+    /// The services for this processor.
     private var services: Services
 
+    // MARK: Initialization
+
+    /// Creates a new `ExampleProcessor`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - services: The services for this processor.
+    ///   - state: The initial state of the processor.
+    ///
     init(coordinator: AnyCoordinator<ExampleRoute, Void>, services: Services, state: ExampleState) {
         self.coordinator = coordinator
         self.services = services
         super.init(state: state)
     }
+
+    // MARK: Methods
 
     override func receive(_ action: ExampleAction) {
         switch action {
@@ -257,7 +280,7 @@ final class ExampleProcessor: StateProcessor<ExampleState, ExampleAction, Exampl
                 coordinator.showErrorAlert(error: error)
             }
         case .appeared:
-            await loadData()
+            await perform(.loadData)
         }
     }
 }
@@ -270,8 +293,8 @@ struct ExampleView: View {
 
     var body: some View {
         // Build UI from store.state, send actions via store.send(), effects via store.perform()
+        .task { await store.perform(.appeared) }
     }
-    .task { await store.perform(.appeared) }
 }
 ```
 
