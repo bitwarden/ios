@@ -701,20 +701,20 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertNotNil(subject.state.url)
     }
 
-    /// `receive(_:)` with `.clearURL` clears the URL in the state.
-    @MainActor
-    func test_receive_clearURL() {
-        subject.state.url = URL(string: "https://example.com")!
-        subject.receive(.clearURL)
-        XCTAssertNil(subject.state.url)
-    }
-
     /// `receive(_:)` with `.addRecipientEmail` adds an empty email to the list.
     @MainActor
     func test_receive_addRecipientEmail() {
         subject.state.recipientEmails = ["test@example.com"]
         subject.receive(.addRecipientEmail)
         XCTAssertEqual(subject.state.recipientEmails, ["test@example.com", ""])
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = URL(string: "https://example.com")!
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 
     /// `receive(_:)` with `.recipientEmailChanged` updates the email at the specified index.
@@ -751,6 +751,20 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Validation Tests
 
+    /// `perform(_:)` with `.savePressed` and specific people with invalid email shows validation alert.
+    @MainActor
+    func test_perform_savePressed_specificPeople_invalidEmail() async {
+        subject.state.name = "Name"
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = ["invalidemail"]
+        await subject.perform(.savePressed)
+
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown, [
+            .invalidEmail,
+        ])
+    }
+
     /// `perform(_:)` with `.savePressed` and specific people with no emails shows validation alert.
     @MainActor
     func test_perform_savePressed_specificPeople_noEmails() async {
@@ -763,6 +777,28 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [
             .validationFieldRequired(fieldName: Localizations.email),
         ])
+    }
+
+    /// `perform(_:)` with `.savePressed` and specific people with emails containing whitespace
+    /// and mixed case normalizes them before validation and saving.
+    @MainActor
+    func test_perform_savePressed_specificPeople_normalizesEmails() async {
+        subject.state.name = "Name"
+        subject.state.type = .text
+        subject.state.accessType = .specificPeople
+        subject.state.recipientEmails = ["  TEST@Example.COM  ", "  Another@TEST.com\n", ""]
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
+        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
+        sendRepository.addTextSendResult = .success(sendView)
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [
+            LoadingOverlayState(title: Localizations.saving),
+        ])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.emails, ["test@example.com", "another@test.com"])
+        XCTAssertEqual(sendRepository.addTextSendSendView?.authType, .email)
     }
 
     /// `perform(_:)` with `.savePressed` and specific people with only empty emails shows validation alert.
@@ -779,17 +815,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
     }
 
-    /// `perform(_:)` with `.savePressed` and specific people with invalid email shows validation alert.
+    /// `perform(_:)` with `.savePressed` and specific people with only whitespace emails shows validation alert.
     @MainActor
-    func test_perform_savePressed_specificPeople_invalidEmail() async {
+    func test_perform_savePressed_specificPeople_onlyWhitespaceEmails() async {
         subject.state.name = "Name"
         subject.state.accessType = .specificPeople
-        subject.state.recipientEmails = ["invalidemail"]
+        subject.state.recipientEmails = ["   ", "\t\n", "  "]
         await subject.perform(.savePressed)
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertEqual(coordinator.alertShown, [
-            .invalidEmail,
+            .validationFieldRequired(fieldName: Localizations.email),
         ])
     }
 

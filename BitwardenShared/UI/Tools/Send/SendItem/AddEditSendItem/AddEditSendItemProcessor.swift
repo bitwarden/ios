@@ -320,19 +320,14 @@ class AddEditSendItemProcessor:
 
         // Validate recipient emails for "Specific people" access type.
         if state.accessType == .specificPeople {
-            let nonEmptyEmails = state.recipientEmails.filter { !$0.isEmpty }
-            let trimmedEmails = nonEmptyEmails.map {
-                $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            }
-
             // Check if at least one email is provided
-            guard !trimmedEmails.isEmpty else {
+            guard !state.normalizedRecipientEmails.isEmpty else {
                 coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
                 return false
             }
 
             // Validate each email address
-            for email in trimmedEmails {
+            for email in state.normalizedRecipientEmails {
                 guard email.isValidEmail else {
                     coordinator.showAlert(.invalidEmail)
                     return false
