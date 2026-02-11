@@ -37,7 +37,7 @@ extension Alert {
     ) -> Alert {
         Alert(
             title: Localizations.premiumSubscriptionRequired,
-            message: Localizations.premiumRequired,
+            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
             alertActions: [
                 AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
