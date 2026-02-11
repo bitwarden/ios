@@ -47,12 +47,12 @@ protocol DeviceAuthKeyService {
 struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     // MARK: Properties
 
-    private let keychainRepository: KeychainRepository
+    private let keychainRepository: DeviceAuthKeychainRepository
 
     // MARK: Initializers
 
     init(
-        keychainRepository: KeychainRepository,
+        keychainRepository: DeviceAuthKeychainRepository,
     ) {
         self.keychainRepository = keychainRepository
     }
@@ -76,44 +76,19 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     }
 
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
-        guard let json = try? await keychainRepository.getDeviceAuthKeyMetadata(userId: userId) else {
-            return nil
-        }
-
-        guard let jsonData = json.data(using: .utf8) else {
-            return nil
-        }
-
-        let metadata: DeviceAuthKeyMetadata = try JSONDecoder.defaultDecoder.decode(
-            DeviceAuthKeyMetadata.self,
-            from: jsonData,
-        )
-        Logger.application.debug("Metadata: \(json) })")
-        return metadata
+        try await keychainRepository.getDeviceAuthKeyMetadata(userId: userId)
     }
 
     // MARK: Private
 
-    /// Retrieve the device auth key secrets, if the record exists.
+    /// Retrieve the device auth key secrets, if the record exists. This is private because no other class should need
+    /// to have access to the private key; all of the auth is done here.
     ///
     /// Before calling, vault must be unlocked to wrap user encryption key.
     ///  - Parameters:
     ///      - userId: User ID for the account to fetch.
     private func getDeviceAuthKeyRecord(userId: String) async throws -> DeviceAuthKeyRecord? {
-        guard let json = try? await keychainRepository.getDeviceAuthKey(userId: userId) else {
-            return nil
-        }
-
-        guard let jsonData = json.data(using: .utf8) else {
-            return nil
-        }
-
-        let record: DeviceAuthKeyRecord = try JSONDecoder.defaultDecoder.decode(
-            DeviceAuthKeyRecord.self,
-            from: jsonData,
-        )
-        Logger.application.debug("Record: \(json) })")
-        return record
+        try await keychainRepository.getDeviceAuthKey(userId: userId)
     }
 }
 
