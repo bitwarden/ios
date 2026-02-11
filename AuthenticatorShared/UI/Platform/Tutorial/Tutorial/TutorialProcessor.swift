@@ -2,7 +2,7 @@ import BitwardenKit
 
 // MARK: - TutorialProcessor
 
-/// The processer used to manage state and handle actions for the tutorial screen.
+/// The processor used to manage state and handle actions for the tutorial screen.
 ///
 final class TutorialProcessor: StateProcessor<TutorialState, TutorialAction, TutorialEffect> {
     // MARK: Types

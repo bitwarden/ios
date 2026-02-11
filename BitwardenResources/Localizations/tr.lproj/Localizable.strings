@@ -655,7 +655,7 @@
 "CannotAddAuthenticatorKey" = "Kimlik doğrulayıcı anahtarını ekleyemediniz mi?";
 "ScanQRCode" = "QR kodunu tara";
 "CannotScanQRCode" = "QR kodunu tarayamadınız mı?";
-"EnterKeyManually" = "Anahtarı elle girin";
+"EnterKeyManually" = "Anahtarı elle gir";
 "AddTotp" = "TOTP ekle";
 "OnceTheKeyIsSuccessfullyEntered" = "Anahtarı girdikten sonra güvenli bir şekilde depolamak için \"Kaydet\"i seçin.";
 "NeverLockWarning" = "Kilit seçeneklerinizi \"Asla\" olarak ayarlarsanız cihazınıza erişebilen herkes kasanıza da erişebilir. Bu seçeneği kullanırsanız cihazınızı uygun şekilde koruduğunuzdan emin olmalısınız.";

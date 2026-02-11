@@ -176,7 +176,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 ),
             ),
         )
-        subject = DefultExportVaultService(
+        subject = DefaultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
             configService: configService,

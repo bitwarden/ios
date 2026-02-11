@@ -4,7 +4,7 @@ import XCTest
 @testable import BitwardenShared
 
 final class LoginViewUpdateTests: BitwardenTestCase {
-    // MARK: Propteries
+    // MARK: Properties
 
     var loginState: LoginItemState!
     var subject: BitwardenSdk.LoginView!

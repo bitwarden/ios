@@ -10,7 +10,7 @@ protocol PlatformClientService: AnyObject {
 
     /// Gets the fingerprint (public key) based on `req`.
     /// - Parameter request: Request with parameters for the fingerprint.
-    /// - Returns: Fingerprint pubilc key.
+    /// - Returns: Fingerprint public key.
     func fingerprint(request req: FingerprintRequest) throws -> String
 
     /// Load feature flags into the client.

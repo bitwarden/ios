@@ -22,7 +22,7 @@ extension CipherWithArchive {
     /// and remove this function.
     ///
     /// - Parameter archiveVaultItemsFeatureFlagEnabled: The `FeatureFlag.archiveVaultItems` flag value.
-    /// - Returns: `true` if hidden, `false` othewise.
+    /// - Returns: `true` if hidden, `false` otherwise.
     func isHiddenWithArchiveFF(flag archiveVaultItemsFeatureFlagEnabled: Bool) -> Bool {
         if deletedDate != nil {
             return true

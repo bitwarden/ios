@@ -292,7 +292,7 @@ public extension View {
 
     /// A `ToolbarContent` that adjusts the navigation bar to display a large title on the leading
     /// edge of the navigation bar and hides the centered title. This has the appearance of a large
-    /// title navigation bar without the extra padding above the title and overall hight similar to
+    /// title navigation bar without the extra padding above the title and overall height similar to
     /// an inline navigation bar title.
     ///
     /// - Parameters:

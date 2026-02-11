@@ -94,7 +94,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     /// Perform with `.deleteAccount` presents the OTP code verification alert.
     /// If the error is that user verification failed
     /// And the user does not have a master password
-    /// Then display an invalid verification code mesage
+    /// Then display an invalid verification code message
     @MainActor
     func test_perform_deleteAccount_serverError_otpIncorrect() async throws {
         authRepository.hasMasterPasswordResult = .success(false)
@@ -122,7 +122,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     /// Perform with `.deleteAccount` presents the master password prompt alert.
     /// If the error is that user verification failed
     /// And the user has a master password
-    /// Then display an invalid master password mesage
+    /// Then display an invalid master password message
     @MainActor
     func test_perform_deleteAccount_serverError_passwordIncorrect() async throws {
         authRepository.deleteAccountResult = .failure(

@@ -120,7 +120,7 @@ enum Base32 {
     /// 16-bit     = 0111010011110100         = 0b0111010011110100 -> 29940
     /// desired    = ---10100--------         = 0b10100            -> 20
     ///
-    /// we can acheive this by bitshifting left by the offset (3)
+    /// we can achieve this by bitshifting left by the offset (3)
     /// then bitshifting right by (16 - numberOfBits(5)) = (11)
     /// and then the trailing 5-bits will be our desired bits
     ///
@@ -135,7 +135,7 @@ enum Base32 {
     }
 
     /// Converts a data array to an array of 5-bit values held in a `UInt8` array.
-    /// - Note: max value of any number in the resultant aray will be
+    /// - Note: max value of any number in the resultant array will be
     ///         `0b00011111` = `31` as we will be only using the 5-bits
     ///         of the `UInt8`.  If there are not enough bits in the `UInt8`
     ///         array to fill up the last 5-bit value, it should be padded

@@ -103,7 +103,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
-    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    /// The repository used by the application to manage importing credential in Credential Exchange flow.
     let importCiphersRepository: ImportCiphersRepository
 
     /// The service used to access & store data on the device keychain.
@@ -142,7 +142,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The helper used for app rehydration.
     let rehydrationHelper: RehydrationHelper
 
-    /// The service used by the appllication to manage app review prompts related data.
+    /// The service used by the application to manage app review prompts related data.
     let reviewPromptService: ReviewPromptService
 
     /// The factory to make `SearchProcessorMediator`s.
@@ -239,7 +239,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - importCiphersRepository: The repository used by the application to manage importing credential
-    ///   in Credential Exhange flow.
+    ///   in Credential Exchange flow.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
     ///   - languageStateService: The service for handling language state.
@@ -555,7 +555,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider,
         )
 
-        let exportVaultService = DefultExportVaultService(
+        let exportVaultService = DefaultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
             configService: configService,

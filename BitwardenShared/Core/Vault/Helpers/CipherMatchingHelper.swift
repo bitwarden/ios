@@ -23,7 +23,7 @@ protocol CipherMatchingHelper { // sourcery: AutoMockable
 
 // MARK: DefaultCipherMatchingHelper
 
-/// Default implemenetation of `CipherMatchingHelper`.
+/// Default implementation of `CipherMatchingHelper`.
 ///
 class DefaultCipherMatchingHelper: CipherMatchingHelper {
     // MARK: Properties
