@@ -128,6 +128,14 @@ struct AddEditSendItemState: Equatable, Sendable {
         }
     }
 
+    /// The recipient emails filtered to remove empty entries and normalized
+    /// (trimmed whitespace and lowercased) for validation and API submission.
+    var normalizedRecipientEmails: [String] {
+        recipientEmails
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .filter { !$0.isEmpty }
+    }
+
     /// The URL to open in Safari (e.g., upgrade to premium page).
     var url: URL?
 

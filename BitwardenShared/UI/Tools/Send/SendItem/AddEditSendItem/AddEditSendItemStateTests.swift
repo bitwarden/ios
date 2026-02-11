@@ -27,6 +27,40 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.availableAccessTypes, SendAccessType.allCases)
     }
 
+    // MARK: normalizedRecipientEmails
+
+    /// `normalizedRecipientEmails` applies all transformations: trim, lowercase, and filter.
+    func test_normalizedRecipientEmails_allTransformations() {
+        let subject = AddEditSendItemState(
+            recipientEmails: ["  TEST@Example.COM  ", "", "  Another@TEST.com\n", "   "],
+        )
+        XCTAssertEqual(subject.normalizedRecipientEmails, ["test@example.com", "another@test.com"])
+    }
+
+    /// `normalizedRecipientEmails` returns an empty array when there are no emails.
+    func test_normalizedRecipientEmails_empty() {
+        let subject = AddEditSendItemState(recipientEmails: [])
+        XCTAssertEqual(subject.normalizedRecipientEmails, [])
+    }
+
+    /// `normalizedRecipientEmails` filters out empty strings and whitespace-only strings.
+    func test_normalizedRecipientEmails_filtersEmptyStrings() {
+        let subject = AddEditSendItemState(recipientEmails: ["test@example.com", "", "   ", "\n\t"])
+        XCTAssertEqual(subject.normalizedRecipientEmails, ["test@example.com"])
+    }
+
+    /// `normalizedRecipientEmails` lowercases all emails.
+    func test_normalizedRecipientEmails_lowercases() {
+        let subject = AddEditSendItemState(recipientEmails: ["TEST@EXAMPLE.COM", "Another@Example.Com"])
+        XCTAssertEqual(subject.normalizedRecipientEmails, ["test@example.com", "another@example.com"])
+    }
+
+    /// `normalizedRecipientEmails` trims whitespace and newlines from emails.
+    func test_normalizedRecipientEmails_trimsWhitespace() {
+        let subject = AddEditSendItemState(recipientEmails: ["  test@example.com  ", "\tanother@example.com\n"])
+        XCTAssertEqual(subject.normalizedRecipientEmails, ["test@example.com", "another@example.com"])
+    }
+
     // MARK: availableDeletionDateTypes
 
     /// `availableDeletionDateTypes` returns the available options to display in the deletion date
@@ -100,7 +134,8 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(sendView.authType, .password)
     }
 
-    /// `newSendView()` correctly sets access type and emails for specific people.
+    /// `newSendView()` correctly sets access type and emails for specific people,
+    /// filtering empty emails and normalizing (trimming and lowercasing) them.
     func test_newSendView_specificPeople() {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
@@ -108,7 +143,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             customDeletionDate: date,
             deletionDate: .custom(date),
             name: "Name",
-            recipientEmails: ["test@example.com", "another@example.com", ""],
+            recipientEmails: ["  TEST@example.com  ", "ANOTHER@Example.COM", "", "   "],
             text: "Text",
             type: .text,
         )
