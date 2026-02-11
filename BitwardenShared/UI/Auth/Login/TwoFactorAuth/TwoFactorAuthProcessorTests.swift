@@ -162,7 +162,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         )
     }
 
-    /// `perform(_:)` with `.beginDuoAuth` initates the duo auth flow.
+    /// `perform(_:)` with `.beginDuoAuth` initiates the duo auth flow.
     @MainActor
     func test_perform_beginDuoAuth_success() async {
         let expectedURL = URL(string: "bitwarden://expectedURL")!
@@ -312,7 +312,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(actualConnectorData, connectorData)
     }
 
-    /// `perform(_:)` with `.beginWebAuthn` initates the WebAuthn auth flow.
+    /// `perform(_:)` with `.beginWebAuthn` initiates the WebAuthn auth flow.
     @MainActor
     func test_perform_beginWebAuthn_success() async throws {
         environmentService.region = .unitedStates

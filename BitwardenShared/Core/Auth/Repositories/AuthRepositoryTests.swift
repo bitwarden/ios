@@ -115,6 +115,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService = MockVaultTimeoutService()
 
         biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
+<<<<<<< HEAD
+=======
+        biometricsRepository.getUserAuthKeyReturnValue = "UserAuthKey"
+>>>>>>> main
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
 
@@ -833,90 +837,90 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getProfilesState()` can return `canBeLocked` accounts correctly.
-//    func test_getProfilesState_canBeLocked() async { // swiftlint:disable:this function_body_length
-//        stateService.accounts = [
-//            anneAccount, // This account does not have a MasterPassword, Face ID, or PIN configured.
-//            beeAccount, // This account does not have a MasterPassword, Face ID configured, but has a PIN.
-//        ]
-//
-//        stateService.isAuthenticated = [
-//            anneAccount.profile.userId: true,
-//            beeAccount.profile.userId: true,
-//        ]
-//
-//        vaultTimeoutService.isClientLocked = [
-//            anneAccount.profile.userId: true,
-//            beeAccount.profile.userId: true,
-//        ]
-//
-//        stateService.userHasMasterPassword = [
-//            anneAccount.profile.userId: false,
-//            beeAccount.profile.userId: false,
-//        ]
-//
-//        vaultTimeoutService.pinUnlockAvailabilityResult = .success([beeAccount.profile.userId: true])
-//
-//        let accounts = await subject.getProfilesState(
-//            allowLockAndLogout: true,
-//            isVisible: true,
-//            shouldAlwaysHideAddAccount: false,
-//            showPlaceholderToolbarIcon: false,
-//        ).accounts
-//
-//        XCTAssertEqual(
-//            accounts.first,
-//            ProfileSwitcherItem.fixture(
-//                canBeLocked: false,
-//                color: Color(hex: anneAccount.profile.avatarColor ?? ""),
-//                email: anneAccount.profile.email,
-//                userId: anneAccount.profile.userId,
-//                userInitials: "AA",
-//            ),
-//        )
-//        XCTAssertEqual(
-//            accounts[1],
-//            ProfileSwitcherItem.fixture(
-//                color: Color(hex: beeAccount.profile.avatarColor ?? ""),
-//                email: beeAccount.profile.email,
-//                userId: beeAccount.profile.userId,
-//                userInitials: "BA",
-//            ),
-//        )
-//
-//        // Test case for an account with no MasterPassword and PIN, but with Face ID enabled.
-//        stateService.accounts = [
-//            claimedAccount,
-//        ]
-//
-//        stateService.isAuthenticated = [
-//            claimedAccount.profile.userId: true,
-//        ]
-//        vaultTimeoutService.isClientLocked = [
-//            claimedAccount.profile.userId: true,
-//        ]
-//        stateService.userHasMasterPassword = [
-//            claimedAccount.profile.userId: false,
-//        ]
-//
-//        biometricsRepository.getBiometricUnlockStatusByUserId[claimedAccount.profile.userId] =
-//            .available(.faceID, enabled: true)
-//        let accounts2 = await subject.getProfilesState(
-//            allowLockAndLogout: true,
-//            isVisible: true,
-//            shouldAlwaysHideAddAccount: false,
-//            showPlaceholderToolbarIcon: false,
-//        ).accounts
-//        XCTAssertEqual(
-//            accounts2.first,
-//            ProfileSwitcherItem.fixture(
-//                canBeLocked: true,
-//                color: Color(hex: claimedAccount.profile.avatarColor ?? ""),
-//                email: claimedAccount.profile.email,
-//                userId: claimedAccount.profile.userId,
-//                userInitials: "CL",
-//            ),
-//        )
-//    }
+    func test_getProfilesState_canBeLocked() async { // swiftlint:disable:this function_body_length
+        stateService.accounts = [
+            anneAccount, // This account does not have a MasterPassword, Face ID, or PIN configured.
+            beeAccount, // This account does not have a MasterPassword, Face ID configured, but has a PIN.
+        ]
+
+        stateService.isAuthenticated = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+        ]
+
+        vaultTimeoutService.isClientLocked = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+        ]
+
+        stateService.userHasMasterPassword = [
+            anneAccount.profile.userId: false,
+            beeAccount.profile.userId: false,
+        ]
+
+        vaultTimeoutService.pinUnlockAvailabilityResult = .success([beeAccount.profile.userId: true])
+
+        let accounts = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false,
+        ).accounts
+
+        XCTAssertEqual(
+            accounts.first,
+            ProfileSwitcherItem.fixture(
+                canBeLocked: false,
+                color: Color(hex: anneAccount.profile.avatarColor ?? ""),
+                email: anneAccount.profile.email,
+                userId: anneAccount.profile.userId,
+                userInitials: "AA",
+            ),
+        )
+        XCTAssertEqual(
+            accounts[1],
+            ProfileSwitcherItem.fixture(
+                color: Color(hex: beeAccount.profile.avatarColor ?? ""),
+                email: beeAccount.profile.email,
+                userId: beeAccount.profile.userId,
+                userInitials: "BA",
+            ),
+        )
+
+        // Test case for an account with no MasterPassword and PIN, but with Face ID enabled.
+        stateService.accounts = [
+            claimedAccount,
+        ]
+
+        stateService.isAuthenticated = [
+            claimedAccount.profile.userId: true,
+        ]
+        vaultTimeoutService.isClientLocked = [
+            claimedAccount.profile.userId: true,
+        ]
+        stateService.userHasMasterPassword = [
+            claimedAccount.profile.userId: false,
+        ]
+
+        biometricsRepository.getBiometricUnlockStatusReturnValue =
+            .available(.faceID, enabled: true)
+        let accounts2 = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false,
+        ).accounts
+        XCTAssertEqual(
+            accounts2.first,
+            ProfileSwitcherItem.fixture(
+                canBeLocked: true,
+                color: Color(hex: claimedAccount.profile.avatarColor ?? ""),
+                email: claimedAccount.profile.email,
+                userId: claimedAccount.profile.userId,
+                userInitials: "CL",
+            ),
+        )
+    }
 
     /// `getProfilesState()` can return locked accounts correctly.
     func test_getProfilesState_locked() async {
@@ -2620,51 +2624,53 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `logout` successfully logs out a user.
-//    func test_logout_success() async throws {
-//        let account = Account.fixture()
-//        stateService.accounts = [account]
-//        stateService.activeAccount = account
-//        vaultTimeoutService.isClientLocked[account.profile.userId] = false
-//        biometricsRepository.setBiometricUnlockKeyByUserId["1"] = "Value"
-//        biometricsRepository.setBiometricUnlockKeyThrowableError = nil
-//        stateService.pinProtectedUserKeyValue["1"] = "1"
-//        stateService.encryptedPinByUserId["1"] = "1"
-//        stateService.syncToAuthenticatorByUserId["1"] = true
-//
-//        try await subject.logout(userInitiated: true)
-//
-//        XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-//        XCTAssertNil(biometricsRepository.setBiometricUnlockKeyByUserId["1"])
-//        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
-//        XCTAssertTrue(stateService.logoutAccountUserInitiated)
-//        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
-//        XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
-//        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
-//        XCTAssertEqual(stateService.syncToAuthenticatorByUserId["1"], false)
-//    }
+    func test_logout_success() async throws {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        biometricsRepository.setBiometricUnlockKeyThrowableError = nil
+        stateService.pinProtectedUserKeyValue["1"] = "1"
+        stateService.encryptedPinByUserId["1"] = "1"
+        stateService.syncToAuthenticatorByUserId["1"] = true
+
+        try await subject.logout(userInitiated: true)
+
+        XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
+        let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
+        XCTAssertEqual(setArguments?.userId, "1")
+        XCTAssertNil(setArguments?.authKey)
+        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertTrue(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
+        XCTAssertEqual(stateService.syncToAuthenticatorByUserId["1"], false)
+    }
 
     /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.
-//    func test_logout_successWhenClearingPins() async throws {
-//        let account = Account.fixture()
-//        stateService.accounts = [account]
-//        stateService.activeAccount = account
-//        vaultTimeoutService.isClientLocked[account.profile.userId] = false
-//        biometricsRepository.setBiometricUnlockKeyByUserId["1"] = "Value"
-//        biometricsRepository.setBiometricUnlockKeyThrowableError = nil
-//        stateService.pinProtectedUserKeyValue["1"] = "1"
-//        stateService.encryptedPinByUserId["1"] = "1"
-//        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
-//
-//        try await subject.logout(userInitiated: true)
-//
-//        XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-//        XCTAssertNil(biometricsRepository.setBiometricUnlockKeyByUserId["1"])
-//        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
-//        XCTAssertTrue(stateService.logoutAccountUserInitiated)
-//        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
-//        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
-//        XCTAssertNil(stateService.encryptedPinByUserId["1"])
-//    }
+    func test_logout_successWhenClearingPins() async throws {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        biometricsRepository.setBiometricUnlockKeyThrowableError = nil
+        stateService.pinProtectedUserKeyValue["1"] = "1"
+        stateService.encryptedPinByUserId["1"] = "1"
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+
+        try await subject.logout(userInitiated: true)
+
+        XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
+        let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
+        XCTAssertEqual(setArguments?.userId, "1")
+        XCTAssertNil(setArguments?.authKey)
+        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertTrue(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
+        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNil(stateService.encryptedPinByUserId["1"])
+    }
 
     /// `logout` throws when clearing pins and policy Remove unlock with pin being enabled.
     func test_logout_throwsWhenClearingPins() async throws {
@@ -2672,7 +2678,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.accounts = [account]
         stateService.activeAccount = nil
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
-//        biometricsRepository.setBiometricUnlockKeyByUserId["1"] = "Value"
         biometricsRepository.setBiometricUnlockKeyThrowableError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
@@ -2684,7 +2689,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([], stateService.accountsLoggedOut)
         XCTAssertFalse(biometricsRepository.setBiometricUnlockKeyCalled)
-//        XCTAssertNotNil(biometricsRepository.setBiometricUnlockKeyByUserId["1"])
         XCTAssertEqual(keychainService.deleteItemsForUserIds, [])
         XCTAssertFalse(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [])

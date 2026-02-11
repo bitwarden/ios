@@ -300,7 +300,7 @@ protocol AuthRepository: AnyObject {
     ///
     func validatePassword(_ password: String) async throws -> Bool
 
-    /// Validates thes user's entered PIN.
+    /// Validates the user's entered PIN.
     /// - Parameter pin: Pin to validate.
     /// - Returns: `true` if valid, `false` otherwise.
     func validatePin(pin: String) async throws -> Bool

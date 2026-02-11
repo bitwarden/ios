@@ -93,7 +93,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `addPendingAppIntentAction(_:)` adds the pending app intent actions to a non-existing collection of actions
-    /// so it first creates the collecton and it gets added to it.
+    /// so it first creates the collection and it gets added to it.
     func test_addPendingAppIntentAction_currentNil() async {
         appSettingsStore.pendingAppIntentActions = nil
         await subject.addPendingAppIntentAction(.lockAll)
@@ -1211,8 +1211,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         usesKeyConnector = try await subject.getUsesKeyConnector()
         XCTAssertTrue(usesKeyConnector)
     }
-
-
 
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {

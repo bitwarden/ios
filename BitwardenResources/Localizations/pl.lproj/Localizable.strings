@@ -1287,7 +1287,7 @@
 "Archived" = "Archived";
 "Unarchive" = "Usuń z archiwum";
 "ItemMovedToArchive" = "Element został przeniesiony do archiwum";
-"ItemMovedToVault" = "Item moved to vault";
+"ItemMovedToVault" = "Element został przeniesiony do archiwum";
 "SendingToArchive" = "Przenoszenie do archiwum…";
 "MovingItemToVault" = "Przenoszenie elementu do sejfu";
 "OrganizationNotFound" = "Nie znaleziono organizacji.";
