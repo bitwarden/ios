@@ -7,20 +7,6 @@ import os.log
 
 /// Service to manage the device passkey.
 protocol DeviceAuthKeyService { // sourcery: AutoMockable
-    /// Create device passkey with PRF encryption key.
-    ///
-    /// Before calling, the vault must be unlocked to wrap user encryption key.
-    ///
-    /// - Parameters:
-    ///   - masterPasswordHash: Master password hash suitable for server authentication.
-    ///   - overwrite: Whether to overwrite an existing value if a previous one is already found.
-    ///   - userId: Currently active user ID for the account.
-    func createDeviceAuthKey(
-        masterPasswordHash: String,
-        overwrite: Bool,
-        userId: String,
-    ) async throws -> DeviceAuthKeyRecord
-
     /// Signs a passkey assertion request with the device auth key, if it exists and matches the given
     /// ``recordIdentifier``.
     ///
@@ -36,6 +22,20 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
         userId: String,
     ) async throws -> GetAssertionResult?
 
+    /// Create device passkey with PRF encryption key.
+    ///
+    /// Before calling, the vault must be unlocked to wrap user encryption key.
+    ///
+    /// - Parameters:
+    ///   - masterPasswordHash: Master password hash suitable for server authentication.
+    ///   - overwrite: Whether to overwrite an existing value if a previous one is already found.
+    ///   - userId: Currently active user ID for the account.
+    func createDeviceAuthKey(
+        masterPasswordHash: String,
+        overwrite: Bool,
+        userId: String,
+    ) async throws -> DeviceAuthKeyRecord
+
     /// Retrieve the metadata for the device passkey, if it exists.
     ///
     /// - Parameters:
@@ -49,25 +49,17 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
 struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     // MARK: Properties
 
-    private let keychainRepository: DeviceAuthKeychainRepository
+    private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
 
     // MARK: Initializers
 
     init(
-        keychainRepository: DeviceAuthKeychainRepository,
+        deviceAuthKeychainRepository: DeviceAuthKeychainRepository,
     ) {
-        self.keychainRepository = keychainRepository
+        self.deviceAuthKeychainRepository = deviceAuthKeychainRepository
     }
 
     // MARK: Functions
-
-    func createDeviceAuthKey(
-        masterPasswordHash: String,
-        overwrite: Bool,
-        userId: String,
-    ) async throws -> DeviceAuthKeyRecord {
-        throw DeviceAuthKeyError.notImplemented
-    }
 
     func assertDeviceAuthKey(
         for request: GetAssertionRequest,
@@ -77,8 +69,16 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         throw DeviceAuthKeyError.notImplemented
     }
 
+    func createDeviceAuthKey(
+        masterPasswordHash: String,
+        overwrite: Bool,
+        userId: String,
+    ) async throws -> DeviceAuthKeyRecord {
+        throw DeviceAuthKeyError.notImplemented
+    }
+
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
-        try await keychainRepository.getDeviceAuthKeyMetadata(userId: userId)
+        try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: userId)
     }
 
     // MARK: Private
@@ -91,7 +91,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     /// - Parameters:
     ///   - userId: User ID for the account to fetch.
     private func getDeviceAuthKeyRecord(userId: String) async throws -> DeviceAuthKeyRecord? {
-        try await keychainRepository.getDeviceAuthKey(userId: userId)
+        try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: userId)
     }
 }
 
