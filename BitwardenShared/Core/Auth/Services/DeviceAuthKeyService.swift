@@ -6,7 +6,7 @@ import os.log
 // MARK: - DeviceAuthKeyService
 
 /// Service to manage the device passkey.
-protocol DeviceAuthKeyService {
+protocol DeviceAuthKeyService { // sourcery: AutoMockable
     /// Create device passkey with PRF encryption key.
     ///
     /// Before calling, the vault must be unlocked to wrap user encryption key.
