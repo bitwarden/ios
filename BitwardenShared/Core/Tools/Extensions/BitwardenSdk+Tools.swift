@@ -24,7 +24,7 @@ extension SendResponseModel {
             accessId: accessId,
             deletionDate: send.deletionDate,
             disabled: send.disabled,
-            emailHashes: send.emailHashes,
+            emailHashes: nil,
             emails: send.emails,
             expirationDate: send.expirationDate,
             file: send.file.map(SendFileModel.init),
@@ -91,7 +91,6 @@ extension BitwardenSdk.Send {
             deletionDate: model.deletionDate,
             expirationDate: model.expirationDate,
             emails: model.emails,
-            emailHashes: model.emailHashes,
             authType: AuthType.none,
         )
     }
