@@ -319,7 +319,7 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     }
 
     /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
-    /// the appropirate options for `.sshKey` type
+    /// the appropriate options for `.sshKey` type
     @MainActor
     func test_moreOptions_sshKey() async throws { // swiftlint:disable:this function_body_length
         var capturedAction: MoreOptionsAction?

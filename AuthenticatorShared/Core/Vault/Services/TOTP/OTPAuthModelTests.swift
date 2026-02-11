@@ -29,7 +29,7 @@ class OTPAuthModelTests: BitwardenTestCase {
         XCTAssertEqual(subject.secret, "JBSWY3DPEHPK3PXP")
     }
 
-    /// `init` choses the issuer parameter if it differs from the label
+    /// `init` chooses the issuer parameter if it differs from the label
     func test_init_issuerParameter() {
         let key = "otpauth://totp/8bit:person@bitwarden.com?secret=JBSWY3DPEHPK3PXP&issuer=Bitwarden"
         guard let subject = OTPAuthModel(otpAuthUri: key)

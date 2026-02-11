@@ -21,7 +21,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
 
-    // MARK: Intialization
+    // MARK: Initialization
 
     /// Creates a new `ManualEntryProcessor`.
     ///

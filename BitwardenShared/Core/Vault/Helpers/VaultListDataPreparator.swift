@@ -72,7 +72,7 @@ protocol VaultListDataPreparator { // sourcery: AutoMockable
     ) async -> VaultListPreparedData?
 
     /// Prepares search data for the autofill's data on passwords + Fido2 combined in multiple sections
-    /// vault list bulider.
+    /// vault list builder.
     /// - Parameters:
     ///   - ciphers: An array of `Cipher` objects to be processed.
     ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.

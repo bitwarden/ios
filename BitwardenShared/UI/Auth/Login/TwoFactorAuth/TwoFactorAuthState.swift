@@ -40,7 +40,7 @@ struct TwoFactorAuthState: Equatable, Sendable {
     /// Whether the remember me toggle is on.
     var isRememberMeOn = false
 
-    /// User organization idenfier if came from SSO flow
+    /// User organization identifier if came from SSO flow
     var orgIdentifier: String?
 
     /// The text to display in the detailed instructions.

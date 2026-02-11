@@ -742,7 +742,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(delegate.erroredError as? BitwardenTestError, BitwardenTestError.example)
     }
 
-    /// `navigate(to:)` with `.webAuthnSelfHosted` handles when the server sends unparseable credentials
+    /// `navigate(to:)` with `.webAuthnSelfHosted` handles when the server sends unparsable credentials
     @MainActor
     func test_navigate_webAuthnSelfHosted_unableToDecode() throws {
         let delegate = MockWebAuthnFlowDelegate()

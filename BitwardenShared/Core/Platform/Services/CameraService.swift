@@ -87,7 +87,7 @@ class DefaultCameraService: NSObject {
     }
 }
 
-// MARK: - DefaultCamerAuthorizationService
+// MARK: - DefaultCameraAuthorizationService
 
 extension DefaultCameraService: CameraService {
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {

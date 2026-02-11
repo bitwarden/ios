@@ -35,6 +35,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         stateService = MockStateService()
         userSessionStateService = MockUserSessionStateService()
 
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
         userSessionStateService.setUnsuccessfulUnlockAttemptsClosure = { [weak self] attempts, _ in
@@ -76,7 +77,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_appeared_biometricUnlockStatus_error() async {
         stateService.activeAccount = .fixture()
-        biometricsRepository.getBiometricUnlockStatusError = BitwardenTestError.example
+        biometricsRepository.getBiometricUnlockStatusThrowableError = BitwardenTestError.example
         await subject.perform(.appeared)
 
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
@@ -89,7 +90,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_biometricUnlockStatus_success() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true)
-        biometricsRepository.getBiometricUnlockStatusActiveUser = expectedStatus
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         await subject.perform(.appeared)
 
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
@@ -114,7 +115,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_loadData_unlockWithBiometrics_background() async throws {
         application.applicationState = .background
         stateService.activeAccount = .fixture()
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         subject.shouldAttemptAutomaticBiometricUnlock = true
 
         await subject.perform(.appeared)
@@ -129,7 +130,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_false() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true)
-        biometricsRepository.getBiometricUnlockStatusActiveUser = expectedStatus
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(false)
         authRepository.hasMasterPasswordResult = .success(false)
         await subject.perform(.appeared)
@@ -144,7 +145,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_true_pin() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.notAvailable
-        biometricsRepository.getBiometricUnlockStatusActiveUser = expectedStatus
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(true)
         authRepository.hasMasterPasswordResult = .success(false)
         await subject.perform(.appeared)
@@ -159,7 +160,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_true_masterPassword() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.notAvailable
-        biometricsRepository.getBiometricUnlockStatusActiveUser = expectedStatus
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(false)
         authRepository.hasMasterPasswordResult = .success(true)
         await subject.perform(.appeared)
@@ -174,7 +175,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_true_masterPasswordError() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.notAvailable
-        biometricsRepository.getBiometricUnlockStatusActiveUser = expectedStatus
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(false)
         authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
 
@@ -603,7 +604,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_unlockWithBiometrics_biometryLocked() async throws {
         stateService.activeAccount = .fixture()
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.biometryLocked)
 
         await subject.perform(.unlockVaultWithBiometrics)
@@ -617,7 +618,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_unlockWithBiometrics_extensionKdfWarning() async throws {
         appExtensionDelegate.isInAppExtension = true
         authRepository.unlockVaultWithBiometricsResult = .success(())
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 65, kdfType: .argon2id))
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -634,7 +635,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
     @MainActor
     func test_perform_unlockWithBiometrics_noAccount() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(StateServiceError.noActiveAccount)
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -647,7 +648,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
     @MainActor
     func test_perform_unlockWithBiometrics_notAvailable() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .notAvailable
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         authRepository.unlockVaultWithBiometricsResult = .success(())
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -658,7 +659,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
     @MainActor
     func test_perform_unlockWithBiometrics_notEnabled() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: false)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: false)
         authRepository.unlockVaultWithBiometricsResult = .success(())
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -670,7 +671,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError() async throws {
         stateService.activeAccount = .fixture()
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         struct BiometricsError: Error {}
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
 
@@ -691,7 +692,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_unlockWithBiometrics_authRepoError_maxAttempts() async throws {
         stateService.activeAccount = .fixture()
         subject.state.unsuccessfulUnlockAttemptsCount = 4
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         struct BiometricsError: Error {}
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
 
@@ -714,7 +715,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
 
@@ -727,7 +728,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and they have a master password but no PIN.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_masterPasswordWithoutPin() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .success(true)
@@ -742,7 +743,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and they have a PIN but no master password.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_pinWithoutMasterPassword() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .success(false)
@@ -757,7 +758,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and they don't have a master password or PIN.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_noMPOrPin() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .success(false)
@@ -772,7 +773,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and fetching whether they have a master password fails.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_hasMasterPasswordError() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
@@ -786,7 +787,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` handles user cancellation.
     @MainActor
     func test_perform_unlockWithBiometrics_userCancelled() async throws {
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.touchID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.biometryCancelled)
         authRepository.allowBiometricUnlockResult = .success(())
 
@@ -799,7 +800,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_unlockWithBiometrics_success() async throws {
         subject.state.unsuccessfulUnlockAttemptsCount = 3
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .success(())
 
         await subject.perform(.unlockVaultWithBiometrics)
