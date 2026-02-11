@@ -1,10 +1,9 @@
+import BitwardenSdk
 import CryptoKit
 import Foundation
 import os.log
 
-import BitwardenSdk
-
-// MARK: DeviceAuthKeyService
+// MARK: - DeviceAuthKeyService
 
 /// Service to manage the device passkey.
 protocol DeviceAuthKeyService {
@@ -42,6 +41,8 @@ protocol DeviceAuthKeyService {
     ///      - userId: Currently active user ID for the account.
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata?
 }
+
+// MARK: - DefaultDeviceAuthKeyService
 
 /// Implementation of DeviceAuthKeyService
 struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
@@ -91,6 +92,8 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         try await keychainRepository.getDeviceAuthKey(userId: userId)
     }
 }
+
+// MARK: - DeviceAuthKeyError
 
 enum DeviceAuthKeyError: Error {
     case notImplemented
