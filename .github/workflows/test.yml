@@ -164,7 +164,7 @@ jobs:
       - name: Print Logs Summary
         if: always()
         run: |
-          xcresultparser -o cli "$_TESTS_RESULT_BUNDLE_PATH"
+          xcresultparser -f -o cli "$_TESTS_RESULT_BUNDLE_PATH"
           echo "# Test Summary" >> "$GITHUB_STEP_SUMMARY"
           xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" | grep "Number of" >> "$GITHUB_STEP_SUMMARY"
 
