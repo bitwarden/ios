@@ -26,7 +26,7 @@ enum BiometricsUnlockStatus: Equatable {
 
 /// A protocol for returning the available authentication policies and access controls for the user's device.
 ///
-protocol BiometricsRepository: AnyObject {
+protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
     /// Returns the device BiometricAuthenticationType.
     ///
     /// - Returns: The `BiometricAuthenticationType`.
