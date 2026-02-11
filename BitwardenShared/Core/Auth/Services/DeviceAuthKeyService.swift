@@ -18,24 +18,24 @@ protocol DeviceAuthKeyService {
     func createDeviceAuthKey(
         masterPasswordHash: String,
         overwrite: Bool,
-        userId: String
+        userId: String,
     ) async throws -> DeviceAuthKeyRecord
-    
+
     /// Signs a passkey assertion request with the device auth key, if it exists and matches the given
     /// ``recordIdentifier``.
     ///
     ///  - Parameters:
     ///      - request: The passkey assertion request.
-    ///      - recordIdentifier: The recordIdentifer for the ``ASPasskeyCredentialIdentity``  related to the passkey
+    ///      - recordIdentifier: The record identifier for the ``ASPasskeyCredentialIdentity``  related to the passkey
     ///                    assertion request,  which should be equal to the cipher ID of the device auth key record.
     ///      - userId: Currently active user ID for the account.
     /// - Returns: A ``GetAssertionResult``, or ``nil`` if the device auth key does not exist.
     func assertDeviceAuthKey(
         for request: GetAssertionRequest,
         recordIdentifier: String,
-        userId: String
+        userId: String,
     ) async throws -> GetAssertionResult?
-    
+
     /// Retrieve the metadata for the device passkey, if it exists.
     ///
     ///  - Parameters:
@@ -43,7 +43,7 @@ protocol DeviceAuthKeyService {
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata?
 }
 
-/// Implementation fo DeviceAuthKeyService
+/// Implementation of DeviceAuthKeyService
 struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     // MARK: Properties
 
@@ -66,34 +66,34 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     ) async throws -> DeviceAuthKeyRecord {
         throw DeviceAuthKeyError.notImplemented
     }
-    
+
     func assertDeviceAuthKey(
         for request: GetAssertionRequest,
         recordIdentifier: String,
-        userId: String
+        userId: String,
     ) async throws -> GetAssertionResult? {
         throw DeviceAuthKeyError.notImplemented
     }
-    
+
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
         guard let json = try? await keychainRepository.getDeviceAuthKeyMetadata(userId: userId) else {
             return nil
         }
-        
+
         guard let jsonData = json.data(using: .utf8) else {
             return nil
         }
-        
+
         let metadata: DeviceAuthKeyMetadata = try JSONDecoder.defaultDecoder.decode(
             DeviceAuthKeyMetadata.self,
-            from: jsonData
+            from: jsonData,
         )
         Logger.application.debug("Metadata: \(json) })")
         return metadata
     }
 
     // MARK: Private
-    
+
     /// Retrieve the device auth key secrets, if the record exists.
     ///
     /// Before calling, vault must be unlocked to wrap user encryption key.
@@ -103,14 +103,14 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         guard let json = try? await keychainRepository.getDeviceAuthKey(userId: userId) else {
             return nil
         }
-        
+
         guard let jsonData = json.data(using: .utf8) else {
             return nil
         }
-        
+
         let record: DeviceAuthKeyRecord = try JSONDecoder.defaultDecoder.decode(
             DeviceAuthKeyRecord.self,
-            from: jsonData
+            from: jsonData,
         )
         Logger.application.debug("Record: \(json) })")
         return record
