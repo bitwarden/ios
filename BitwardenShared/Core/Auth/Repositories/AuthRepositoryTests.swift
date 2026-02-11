@@ -115,10 +115,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService = MockVaultTimeoutService()
 
         biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
-<<<<<<< HEAD
-=======
         biometricsRepository.getUserAuthKeyReturnValue = "UserAuthKey"
->>>>>>> main
         userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
         userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
 
