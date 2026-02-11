@@ -2122,29 +2122,29 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
-//    func test_unlockVaultWithBiometrics_error_cryptoFail() async {
-//        stateService.accountEncryptionKeys = [
-//            "1": AccountEncryptionKeys(
-//                accountKeys: nil,
-//                encryptedPrivateKey: "private",
-//                encryptedUserKey: "user",
-//            ),
-//        ]
-//        stateService.activeAccount = .fixture()
-//        struct CryptoError: Error, Equatable {}
-//        clientService.mockCrypto.initializeUserCryptoResult = .failure(CryptoError())
-//        await assertAsyncThrows(error: CryptoError()) {
-//            _ = try await subject.unlockVaultWithBiometrics()
-//        }
-//    }
+    func test_unlockVaultWithBiometrics_error_cryptoFail() async {
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: nil,
+                encryptedPrivateKey: "private",
+                encryptedUserKey: "user",
+            ),
+        ]
+        stateService.activeAccount = .fixture()
+        struct CryptoError: Error, Equatable {}
+        clientService.mockCrypto.initializeUserCryptoResult = .failure(CryptoError())
+        await assertAsyncThrows(error: CryptoError()) {
+            _ = try await subject.unlockVaultWithBiometrics()
+        }
+    }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
-//    func test_unlockVaultWithBiometrics_error_noAccount() async {
-//        stateService.activeAccount = nil
-//        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-//            _ = try await subject.unlockVaultWithBiometrics()
-//        }
-//    }
+    func test_unlockVaultWithBiometrics_error_noAccount() async {
+        stateService.activeAccount = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.unlockVaultWithBiometrics()
+        }
+    }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
     func test_unlockVaultWithBiometrics_error_biometricsRepository_noKeys() async {
