@@ -794,7 +794,6 @@ mint run swiftgen config run --config swiftgen-pm.yml              # Generate as
 | SwiftGen | `swiftgen-*.yml` | Asset/localization code generation |
 | Fastlane | `fastlane/Fastfile` | CI/CD automation |
 
----
 
 ## Troubleshooting
 
