@@ -507,4 +507,4 @@ extension AddEditSendItemProcessor: GeneratorCoordinatorDelegate {
         }
         coordinator.navigate(to: .dismiss(nil))
     }
-}
+} // swiftlint:disable:this file_length
