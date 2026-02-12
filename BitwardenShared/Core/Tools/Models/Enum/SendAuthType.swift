@@ -1,4 +1,5 @@
 import BitwardenSdk
+import OSLog
 
 // MARK: - SendAuthType
 
@@ -15,12 +16,15 @@ enum SendAuthType: Int, Codable, Equatable, Sendable {
     /// No authentication required (anyone with the link).
     case none = 2
 
+    /// An unknown auth type.
+    case unknown = -1
+
     // MARK: Properties
 
     /// Converts to the SDK's `AuthType`.
     var sdkAuthType: AuthType {
         switch self {
-        case .none:
+        case .none, .unknown:
             .none
         case .email:
             .email
@@ -30,6 +34,21 @@ enum SendAuthType: Int, Codable, Equatable, Sendable {
     }
 
     // MARK: Initialization
+
+    /// Creates a `SendAuthType` from a decoder, defaulting to `.unknown` for unrecognized values.
+    ///
+    /// - Parameter decoder: The decoder to read data from.
+    ///
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(RawValue.self)
+        if let authType = Self(rawValue: rawValue) {
+            self = authType
+        } else {
+            Logger.application.warning("SendAuthType: Unknown auth type received: \(rawValue)")
+            self = .unknown
+        }
+    }
 
     /// Creates a `SendAuthType` from the SDK's `AuthType`.
     ///
