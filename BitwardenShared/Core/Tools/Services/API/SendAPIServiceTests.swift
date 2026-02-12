@@ -45,6 +45,7 @@ class SendAPIServiceTests: BitwardenTestCase {
             SendResponseModel(
                 accessCount: 0,
                 accessId: "access id",
+                authType: nil,
                 deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                 disabled: false,
                 emailHashes: nil,
@@ -87,6 +88,7 @@ class SendAPIServiceTests: BitwardenTestCase {
                 sendResponse: SendResponseModel(
                     accessCount: 0,
                     accessId: "access id",
+                    authType: nil,
                     deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                     disabled: false,
                     emailHashes: nil,
@@ -129,6 +131,7 @@ class SendAPIServiceTests: BitwardenTestCase {
             SendResponseModel(
                 accessCount: 0,
                 accessId: "access id",
+                authType: nil,
                 deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                 disabled: false,
                 emailHashes: nil,
