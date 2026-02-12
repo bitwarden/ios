@@ -510,7 +510,6 @@ extension Send {
             deletionDate: sendView.deletionDate,
             expirationDate: sendView.expirationDate,
             emails: nil,
-            emailHashes: nil,
             authType: sendView.authType,
         )
     }
