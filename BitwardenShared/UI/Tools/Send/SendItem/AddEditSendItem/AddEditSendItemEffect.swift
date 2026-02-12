@@ -6,6 +6,9 @@ enum AddEditSendItemEffect: Equatable {
     /// The copy link button was pressed.
     case copyLinkPressed
 
+    /// The copy password button was pressed.
+    case copyPasswordPressed
+
     /// The delete button was pressed.
     case deletePressed
 

@@ -24,6 +24,9 @@ enum AddEditSendItemAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
+    /// The generate password button was pressed.
+    case generatePasswordPressed
+
     /// The hide my email toggle was changed.
     case hideMyEmailChanged(Bool)
 

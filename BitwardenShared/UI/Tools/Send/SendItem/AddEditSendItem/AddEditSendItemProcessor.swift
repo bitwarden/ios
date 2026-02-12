@@ -60,6 +60,8 @@ class AddEditSendItemProcessor:
         case .copyLinkPressed:
             guard let sendView = state.originalSendView else { return }
             await copyLink(to: sendView)
+        case .copyPasswordPressed:
+            copyPassword()
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
@@ -110,6 +112,12 @@ class AddEditSendItemProcessor:
             state.deletionDate = newValue
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
+        case .generatePasswordPressed:
+            if state.password.isEmpty {
+                coordinator.navigate(to: .generator, context: self)
+            } else {
+                presentReplacePasswordAlert()
+            }
         case let .hideMyEmailChanged(newValue):
             state.isHideMyEmailOn = newValue
         case let .hideTextByDefaultChanged(newValue):
@@ -157,6 +165,31 @@ class AddEditSendItemProcessor:
 
         services.pasteboardService.copy(url.absoluteString)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
+    }
+
+    /// Copies the password to the clipboard.
+    private func copyPassword() {
+        services.pasteboardService.copy(state.password)
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.password))
+    }
+
+    /// Presents an alert confirming that the user wants to replace the existing password.
+    private func presentReplacePasswordAlert() {
+        let alert = Alert(
+            title: Localizations.passwordOverrideAlert,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .default),
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { [weak self] _ in
+                        self?.coordinator.navigate(to: .generator, context: self)
+                    },
+                ),
+            ],
+        )
+        coordinator.showAlert(alert)
     }
 
     /// Deletes the provided send.
@@ -458,5 +491,20 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
 
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
+    }
+}
+
+// MARK: - GeneratorCoordinatorDelegate
+
+extension AddEditSendItemProcessor: GeneratorCoordinatorDelegate {
+    func didCancelGenerator() {
+        coordinator.navigate(to: .dismiss(nil))
+    }
+
+    func didCompleteGenerator(for type: GeneratorType, with value: String) {
+        if case .password = type {
+            state.password = value
+        }
+        coordinator.navigate(to: .dismiss(nil))
     }
 } // swiftlint:disable:this file_length

@@ -356,7 +356,25 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     get: \.isPasswordVisible,
                     send: AddEditSendItemAction.passwordVisibleChanged,
                 ),
-            )
+            ) {
+                AccessoryButton(
+                    asset: SharedAsset.Icons.generate24,
+                    accessibilityLabel: Localizations.generatePassword,
+                ) {
+                    store.send(.generatePasswordPressed)
+                }
+                .accessibilityIdentifier("GenerateSendPasswordButton")
+
+                if !store.state.password.isEmpty {
+                    AccessoryButton(
+                        asset: SharedAsset.Icons.copy24,
+                        accessibilityLabel: Localizations.copyPassword,
+                    ) {
+                        await store.perform(.copyPasswordPressed)
+                    }
+                    .accessibilityIdentifier("CopySendPasswordButton")
+                }
+            }
             .textFieldConfiguration(.password)
         }
     }
