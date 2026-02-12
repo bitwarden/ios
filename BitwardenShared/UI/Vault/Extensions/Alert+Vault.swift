@@ -26,6 +26,25 @@ extension Alert {
         )
     }
 
+    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
+    /// lack of premium subscription.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert when "Specific People" is unavailable.
+    static func specificPeopleUnavailable(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+    }
+
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
     /// decrypted.
     ///

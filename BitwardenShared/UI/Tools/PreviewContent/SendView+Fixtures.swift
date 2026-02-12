@@ -22,6 +22,8 @@ extension SendView {
         revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         expirationDate: DateTime? = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        emails: [String] = [],
+        authType: AuthType = .none,
     ) -> SendView {
         SendView(
             id: id,
@@ -41,8 +43,8 @@ extension SendView {
             revisionDate: revisionDate,
             deletionDate: deletionDate,
             expirationDate: expirationDate,
-            emails: [],
-            authType: AuthType.none,
+            emails: emails,
+            authType: authType,
         )
     }
 }

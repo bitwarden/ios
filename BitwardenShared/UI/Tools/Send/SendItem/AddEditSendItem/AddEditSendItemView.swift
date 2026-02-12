@@ -16,6 +16,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
+    /// The environment's openURL action for opening URLs.
+    @Environment(\.openURL) var openURL
+
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 16) {
@@ -111,6 +114,11 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         .task {
             await store.perform(.loadData)
         }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
     /// Additional options.
@@ -130,21 +138,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     send: AddEditSendItemAction.maximumAccessCountStepperChanged,
                 ),
             )
-
-            BitwardenTextField(
-                title: Localizations.newPassword,
-                text: store.binding(
-                    get: \.password,
-                    send: AddEditSendItemAction.passwordChanged,
-                ),
-                footer: Localizations.passwordInfo,
-                accessibilityIdentifier: "SendNewPasswordEntry",
-                isPasswordVisible: store.binding(
-                    get: \.isPasswordVisible,
-                    send: AddEditSendItemAction.passwordVisibleChanged,
-                ),
-            )
-            .textFieldConfiguration(.password)
 
             ContentBlock(dividerLeadingPadding: 16) {
                 BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
@@ -309,6 +302,125 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             }
 
             deletionDate
+
+            whoCanView
+        }
+    }
+
+    /// The "Who can view" section for access type selection.
+    @ViewBuilder private var whoCanView: some View {
+        ContentBlock(dividerLeadingPadding: 16) {
+            BitwardenMenuField(
+                title: Localizations.whoCanView,
+                accessibilityIdentifier: "SendAccessTypePicker",
+                options: store.state.availableAccessTypes,
+                selection: store.binding(
+                    get: \.accessType,
+                    send: AddEditSendItemAction.accessTypeChanged,
+                ),
+            )
+
+            whoCanViewContent
+        }
+        .animation(.default, value: store.state.accessType)
+    }
+
+    /// The content displayed based on the selected access type.
+    @ViewBuilder private var whoCanViewContent: some View {
+        switch store.state.accessType {
+        case .anyoneWithLink:
+            Text(Localizations.anyoneWithThisLinkCanViewThisSend)
+                .styleGuide(.footnote)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+        case .specificPeople:
+            VStack(alignment: .leading, spacing: 0) {
+                Text(Localizations.afterSharingThisSendLinkDescriptionLong)
+                    .styleGuide(.footnote)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+
+                recipientEmailsList
+            }
+        case .anyoneWithPassword:
+            BitwardenTextField(
+                title: Localizations.password,
+                text: store.binding(
+                    get: \.password,
+                    send: AddEditSendItemAction.passwordChanged,
+                ),
+                accessibilityIdentifier: "SendPasswordEntry",
+                isPasswordVisible: store.binding(
+                    get: \.isPasswordVisible,
+                    send: AddEditSendItemAction.passwordVisibleChanged,
+                ),
+            ) {
+                AccessoryButton(
+                    asset: SharedAsset.Icons.generate24,
+                    accessibilityLabel: Localizations.generatePassword,
+                ) {
+                    store.send(.generatePasswordPressed)
+                }
+                .accessibilityIdentifier("GenerateSendPasswordButton")
+
+                if !store.state.password.isEmpty {
+                    AccessoryButton(
+                        asset: SharedAsset.Icons.copy24,
+                        accessibilityLabel: Localizations.copyPassword,
+                    ) {
+                        await store.perform(.copyPasswordPressed)
+                    }
+                    .accessibilityIdentifier("CopySendPasswordButton")
+                }
+            }
+            .textFieldConfiguration(.password)
+        }
+    }
+
+    /// The list of recipient emails for "Specific people" access type.
+    @ViewBuilder private var recipientEmailsList: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Divider()
+                .padding(.leading, 16)
+
+            ForEach(store.state.recipientEmails.indices, id: \.self) { index in
+                BitwardenTextField(
+                    title: Localizations.email,
+                    text: store.binding(
+                        get: { state in
+                            guard index < state.recipientEmails.count else { return "" }
+                            return state.recipientEmails[index]
+                        },
+                        send: { .recipientEmailChanged(index: index, value: $0) },
+                    ),
+                    accessibilityIdentifier: "SendRecipientEmailEntry\(index)",
+                ) {
+                    Button {
+                        store.send(.removeRecipientEmail(index: index))
+                    } label: {
+                        SharedAsset.Icons.trash24.swiftUIImage
+                            .imageStyle(.rowIcon(color: SharedAsset.Colors.error.swiftUIColor))
+                    }
+                    .accessibilityLabel(Localizations.delete)
+                    .accessibilityIdentifier("RemoveRecipientEmailButton\(index)")
+                }
+                .textFieldConfiguration(.email)
+
+                Divider()
+                    .padding(.leading, 16)
+            }
+
+            Button {
+                store.send(.addRecipientEmail)
+            } label: {
+                Label(Localizations.addEmail, image: SharedAsset.Icons.plus16.swiftUIImage)
+            }
+            .buttonStyle(.bitwardenBorderless)
+            .accessibilityIdentifier("AddRecipientEmailButton")
+            .padding(.vertical, 14)
+            .padding(.horizontal, 16)
         }
     }
 
@@ -446,6 +558,44 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         isOptionsExpanded: true,
                         mode: .shareExtension(.singleAccount),
                         name: "Sendy",
+                        text: "Example text",
+                        type: .text,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Specific People") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        accessType: .specificPeople,
+                        hasPremium: true,
+                        isSendEmailVerificationEnabled: true,
+                        name: "Sendy",
+                        recipientEmails: ["test@example.com", ""],
+                        text: "Example text",
+                        type: .text,
+                    ),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Anyone with Password") {
+    NavigationView {
+        AddEditSendItemView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AddEditSendItemState(
+                        accessType: .anyoneWithPassword,
+                        name: "Sendy",
+                        password: "secret123",
                         text: "Example text",
                         type: .text,
                     ),

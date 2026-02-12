@@ -333,7 +333,7 @@ class DefaultAutofillCredentialService {
                 }
 
                 let fido2Identities = try await clientService.platform().fido2()
-                    .authenticator(
+                    .vaultAuthenticator(
                         userInterface: fido2UserInterfaceHelper,
                         credentialStore: fido2CredentialStore,
                     )
@@ -548,7 +548,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         identities.append(contentsOf: newIdentities)
 
         let fido2Identities = try await clientService.platform().fido2()
-            .authenticator(
+            .vaultAuthenticator(
                 userInterface: fido2UserInterfaceHelper,
                 credentialStore: fido2CredentialStore,
             )
@@ -587,7 +587,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
         do {
             let assertionResult = try await clientService.platform().fido2()
-                .authenticator(
+                .vaultAuthenticator(
                     userInterface: fido2UserInterfaceHelper,
                     credentialStore: fido2CredentialStore,
                 )

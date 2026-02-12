@@ -18,11 +18,6 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     /// Whether the send is disabled.
     let disabled: Bool
 
-    /// Comma-separated list of email hashes that may access the send using OTP
-    /// authentication. Mutually exclusive with password.
-    // 
-    let emailHashes: String?
-
     /// Comma-separated list of emails that may access the send using OTP
     /// authentication. Mutually exclusive with password.
     let emails: String?

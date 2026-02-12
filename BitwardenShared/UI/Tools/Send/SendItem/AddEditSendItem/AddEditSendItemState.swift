@@ -26,6 +26,9 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// The access id for this send.
     var accessId: String?
 
+    /// The access type for this send (who can view it).
+    var accessType: SendAccessType = .anyoneWithLink
+
     /// The number of times this send has been accessed.
     var currentAccessCount: Int?
 
@@ -65,6 +68,12 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A flag indicating if the password is visible.
     var isPasswordVisible = false
 
+    /// Whether the user has a premium account.
+    var hasPremium = false
+
+    /// Whether the send email verification feature flag is enabled.
+    var isSendEmailVerificationEnabled = false
+
     /// Whether sends are disabled via a policy.
     var isSendDisabled = false
 
@@ -95,6 +104,9 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A password that can be used to limit access to this item.
     var password: String = ""
 
+    /// The list of recipient emails for the "specific people" access type.
+    var recipientEmails: [String] = []
+
     /// The contents of this item.
     var text: String = ""
 
@@ -105,6 +117,27 @@ struct AddEditSendItemState: Equatable, Sendable {
     var type: SendType = .text
 
     // MARK: Computed Properties
+
+    /// The access type options available in the menu.
+    /// The "Specific People" option is shown when the feature flag is enabled (for all users).
+    var availableAccessTypes: [SendAccessType] {
+        if isSendEmailVerificationEnabled {
+            SendAccessType.allCases
+        } else {
+            [.anyoneWithLink, .anyoneWithPassword]
+        }
+    }
+
+    /// The recipient emails filtered to remove empty entries and normalized
+    /// (trimmed whitespace and lowercased) for validation and API submission.
+    var normalizedRecipientEmails: [String] {
+        recipientEmails
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            .filter { !$0.isEmpty }
+    }
+
+    /// The URL to open in Safari (e.g., upgrade to premium page).
+    var url: URL?
 
     /// The deletion date options available in the menu.
     var availableDeletionDateTypes: [SendDeletionDateType] {
@@ -144,8 +177,18 @@ extension AddEditSendItemState {
     /// - Parameter sendView: The `SendView` to use to instantiate this state.
     ///
     init(sendView: SendView) {
+        // Determine access type: if the send has a password, use "Anyone with password",
+        // otherwise map from the authType. This ensures backwards compatibility with
+        // sends created before the access type feature was introduced.
+        let accessType: SendAccessType = if sendView.hasPassword {
+            .anyoneWithPassword
+        } else {
+            SendAccessType(authType: sendView.authType)
+        }
+
         self.init(
             accessId: sendView.accessId,
+            accessType: accessType,
             currentAccessCount: Int(sendView.accessCount),
             customDeletionDate: sendView.deletionDate,
             deletionDate: .custom(sendView.deletionDate),
@@ -166,6 +209,7 @@ extension AddEditSendItemState {
             notes: sendView.notes ?? "",
             originalSendView: sendView,
             password: "",
+            recipientEmails: sendView.emails,
             text: sendView.text?.text ?? "",
             type: SendType(sendType: sendView.type),
         )
@@ -175,14 +219,27 @@ extension AddEditSendItemState {
     ///
     func newSendView() -> SendView {
         let deletionDate = deletionDate.calculateDate() ?? Date()
+
+        // Determine if the send should have a password:
+        // - If access type is not "Anyone with password", no password
+        // - If a new password is entered, the send has a password
+        // - If editing and no new password entered, preserve the original password state
+        let hasPassword: Bool = if accessType != .anyoneWithPassword {
+            false
+        } else if !password.isEmpty {
+            true
+        } else {
+            originalSendView?.hasPassword ?? false
+        }
+
         return SendView(
             id: id,
             accessId: accessId,
             name: name,
             notes: notes.nilIfEmpty,
             key: key,
-            newPassword: password.nilIfEmpty,
-            hasPassword: !password.isEmpty,
+            newPassword: accessType == .anyoneWithPassword ? password.nilIfEmpty : nil,
+            hasPassword: hasPassword,
             type: .init(type: type),
             file: type == .file ? newFileView() : nil,
             text: type == .text ? newTextView() : nil,
@@ -195,8 +252,8 @@ extension AddEditSendItemState {
             // If the send has an expiration date, reset it to the deletion date to prevent a server
             // error which disallows editing a send after it has expired.
             expirationDate: expirationDate != nil ? deletionDate : nil,
-            emails: [],
-            authType: AuthType.none,
+            emails: accessType == .specificPeople ? normalizedRecipientEmails : [],
+            authType: accessType.authType,
         )
     }
 
