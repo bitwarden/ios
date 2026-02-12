@@ -22,6 +22,7 @@ extension SendResponseModel {
         self.init(
             accessCount: send.accessCount,
             accessId: accessId,
+            authType: SendAuthType(authType: send.authType),
             deletionDate: send.deletionDate,
             disabled: send.disabled,
             emailHashes: send.emailHashes,
@@ -92,7 +93,7 @@ extension BitwardenSdk.Send {
             expirationDate: model.expirationDate,
             emails: model.emails,
             emailHashes: model.emailHashes,
-            authType: AuthType.none,
+            authType: model.authType?.sdkAuthType ?? .none,
         )
     }
 }
