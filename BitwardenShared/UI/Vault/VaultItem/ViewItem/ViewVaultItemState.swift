@@ -61,6 +61,9 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// The name of the organization the item belongs to, if any.
     var organizationName: String? { get set }
 
+    /// Whether the item should be displayed as archived.
+    var shouldDisplayAsArchived: Bool { get }
+
     /// Whether to display "No Folder" to indicate the item doesn't
     /// belong to any folder, collection nor organization.
     var shouldDisplayNoFolder: Bool { get }

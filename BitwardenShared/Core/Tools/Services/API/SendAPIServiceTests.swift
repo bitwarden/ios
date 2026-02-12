@@ -2,6 +2,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SendAPIServiceTests
 
@@ -46,6 +47,7 @@ class SendAPIServiceTests: BitwardenTestCase {
                 accessId: "access id",
                 deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                 disabled: false,
+                emails: nil,
                 expirationDate: nil,
                 file: nil,
                 hideEmail: false,
@@ -86,6 +88,7 @@ class SendAPIServiceTests: BitwardenTestCase {
                     accessId: "access id",
                     deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                     disabled: false,
+                    emails: nil,
                     expirationDate: nil,
                     file: nil,
                     hideEmail: false,
@@ -126,6 +129,7 @@ class SendAPIServiceTests: BitwardenTestCase {
                 accessId: "access id",
                 deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                 disabled: false,
+                emails: nil,
                 expirationDate: nil,
                 file: nil,
                 hideEmail: false,

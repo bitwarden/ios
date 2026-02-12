@@ -6,6 +6,7 @@ import SnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultGroupViewTests
 
@@ -168,6 +169,50 @@ class VaultGroupViewTests: BitwardenTestCase {
                         .fixture(cipherListView: .fixture(
                             login: .fixture(username: "email@example.com"),
                             name: "Example",
+                        )),
+                    ],
+                    name: Localizations.items,
+                ),
+            ],
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_oneArchivedItem_premium() {
+        processor.state.hasPremium = true
+        processor.state.group = .archive
+        processor.state.loadingState = .data(
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [
+                        .fixture(cipherListView: .fixture(
+                            login: .fixture(username: "email@example.com"),
+                            name: "Example",
+                            archivedDate: .now,
+                        )),
+                    ],
+                    name: Localizations.items,
+                ),
+            ],
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func disabletest_snapshot_oneArchivedItem_noPremium() {
+        processor.state.hasPremium = false
+        processor.state.group = .archive
+        processor.state.loadingState = .data(
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [
+                        .fixture(cipherListView: .fixture(
+                            login: .fixture(username: "email@example.com"),
+                            name: "Example",
+                            archivedDate: .now,
                         )),
                     ],
                     name: Localizations.items,

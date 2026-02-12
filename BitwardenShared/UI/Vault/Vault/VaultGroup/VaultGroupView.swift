@@ -55,6 +55,19 @@ struct VaultGroupView: View {
 
     // MARK: Private
 
+    /// The action card for premium subscription ended for archive.
+    @ViewBuilder private var archivePremiumSubscriptionEndedCard: some View {
+        if store.state.showArchivePremiumSubscriptionEndedCard {
+            ActionCard(
+                title: Localizations.yourPremiumSubscriptionEnded,
+                message: Localizations.yourPremiumSubscriptionEndedArchiveDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.restartPremium) {
+                    store.send(.restartPremiumSubscription)
+                },
+            )
+        }
+    }
+
     @ViewBuilder private var content: some View {
         searchOrGroup
             .onChange(of: store.state.url) { newValue in
@@ -73,12 +86,11 @@ struct VaultGroupView: View {
 
     /// A view that displays an empty state for this vault group.
     @ViewBuilder private var emptyView: some View {
-        VStack(spacing: 24) {
-            Text(store.state.noItemsString)
-                .multilineTextAlignment(.center)
-                .styleGuide(.callout)
-                .foregroundColor(SharedAsset.Colors.textPrimary.swiftUIColor)
-
+        IllustratedMessageView(
+            image: Asset.Images.Illustrations.noItems.swiftUIImage,
+            title: store.state.noItemsTitle,
+            message: store.state.noItemsString,
+        ) {
             if let newItemButtonType = store.state.newItemButtonType {
                 let newItemLabel = Label(
                     store.state.addItemButtonTitle,
@@ -206,6 +218,8 @@ struct VaultGroupView: View {
     @ViewBuilder
     private func groupView(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 16) {
+            archivePremiumSubscriptionEndedCard
+
             ForEach(sections) { section in
                 VaultListSectionView(section: section) { item in
                     Button {

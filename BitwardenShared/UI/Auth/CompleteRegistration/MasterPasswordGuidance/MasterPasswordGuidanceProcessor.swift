@@ -23,7 +23,7 @@ class MasterPasswordGuidanceProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
-    ///   - delegate: The delegate for the processor to notifiy saving a generated password.
+    ///   - delegate: The delegate for the processor to notify saving a generated password.
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,

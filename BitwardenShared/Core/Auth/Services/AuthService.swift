@@ -24,6 +24,9 @@ enum AuthError: Error {
     /// The key used for login with device was missing.
     case missingLoginWithDeviceKey
 
+    /// The data for the master password unlock method was missing.
+    case missingMasterPasswordUnlockData
+
     /// The request that should have been cached for the two-factor authentication method was missing.
     case missingTwoFactorRequest
 

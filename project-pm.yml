@@ -23,6 +23,9 @@ schemes:
       targets:
         Bitwarden: all
         BitwardenTests: [test]
+    run:
+      commandLineArguments:
+        "-com.apple.CoreData.ConcurrencyDebug 1": true
     test:
       commandLineArguments:
         "-testing": true
@@ -151,19 +154,11 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: Bitwarden/Application/Support/Info.plist
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: Bitwarden
     sources:
-      - path: Bitwarden
-        excludes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-          - "**/swiftgen-pm.yml"
-          - "**/GoogleService-Info.*.plist"
-          - "**/__Snapshots__/*"
-      - path: Bitwarden
-        includes:
-          - "**/__Snapshots__/*"
-          - "**/GoogleService-Info.*.plist"
-        buildPhase: none
       - path: Bitwarden/Application/Support/GoogleService-Info.plist
         buildPhase: resources
       - path: README.md
@@ -181,6 +176,7 @@ targets:
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
       - target: BitwardenKit/Networking
+      - package: BitwardenSdk
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
@@ -215,11 +211,11 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: Bitwarden/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: Bitwarden
     sources:
-      - path: Bitwarden
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
       - target: Bitwarden
@@ -238,12 +234,12 @@ targets:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
         INFOPLIST_FILE: BitwardenActionExtension/Application/Support/Info.plist
-    sources:
-      - path: BitwardenActionExtension
-        excludes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: BitwardenActionExtension
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenActionExtensionTests:
     type: bundle.unit-test
@@ -251,11 +247,11 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenActionExtension/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenActionExtension
     sources:
-      - path: BitwardenActionExtension
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
       - target: BitwardenActionExtension
@@ -273,12 +269,12 @@ targets:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenAutoFillExtension/Application/Support/BitwardenAutoFill.entitlements
         INFOPLIST_FILE: BitwardenAutoFillExtension/Application/Support/Info.plist
-    sources:
-      - path: BitwardenAutoFillExtension
-        excludes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: BitwardenAutoFillExtension
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenAutoFillExtensionTests:
     type: bundle.unit-test
@@ -286,11 +282,11 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenAutoFillExtension/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenAutoFillExtension
     sources:
-      - path: BitwardenAutoFillExtension
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
       - target: BitwardenAutoFillExtension
@@ -308,12 +304,12 @@ targets:
       base:
         INFOPLIST_FILE: BitwardenShareExtension/Application/Support/Info.plist
         CODE_SIGN_ENTITLEMENTS: BitwardenShareExtension/Application/Support/BitwardenShareExtension.entitlements
-    sources:
-      - path: BitwardenShareExtension
-        excludes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: BitwardenShareExtension
     dependencies:
+      - package: BitwardenSdk
       - target: BitwardenShared
   BitwardenShareExtensionTests:
     type: bundle.unit-test
@@ -321,11 +317,11 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: BitwardenShareExtension/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenShareExtension
     sources:
-      - path: BitwardenShareExtension
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
       - target: BitwardenShareExtension
@@ -348,24 +344,15 @@ targets:
           - BitwardenShared/UI/Tools/PreviewContent
           - BitwardenShared/UI/Vault/PreviewContent
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/Support/Info.plist
+    templates:
+      - CommonTarget
+      - SourceryTarget
+    templateAttributes:
+      sourcesPath: BitwardenShared
     sources:
-      - path: BitwardenShared
-        excludes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-          - "**/Fixtures/*"
-          - "**/__Snapshots__/*"
-          - "**/Sourcery/Generated/*"
-          - "**/sourcery.yml"
-      - path: BitwardenShared
-        includes:
-          - "**/__Snapshots__/*"
-        buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
       - path: BitwardenWatchShared
-      - path: BitwardenShared/Sourcery/sourcery.yml
-        buildPhase: none
     dependencies:
       - package: BitwardenSdk
       - target: BitwardenKit/AuthenticatorBridgeKit
@@ -382,15 +369,24 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
-      - name: Sourcery
-        script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
-        basedOnDependencyAnalysis: false
-        outputFiles:
-          - $(SRCROOT)/BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+  BitwardenSharedMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        GENERATE_INFOPLIST_FILE: YES
+    templates:
+      - MocksTarget
+    templateAttributes:
+      sourcesPath: BitwardenShared
+    sources:
+      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
@@ -402,26 +398,20 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenShared
     sources:
-      - path: BitwardenShared
-        includes:
-          - "**/*Tests.*"
-          - "**/TestHelpers/*"
-          - "**/Fixtures/*"
-        excludes:
-          - "**/*SnapshotTests.*"
-          - "**/*ViewInspectorTests.*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
         product: InlineSnapshotTesting
     randomExecutionOrder: true
@@ -436,22 +426,20 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    templates:
+      - SnapshotTestTarget
+    templateAttributes:
+      sourcesPath: BitwardenShared
     sources:
-      - path: BitwardenShared
-        includes:
-          - "**/*SnapshotTests.*"
-          - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
@@ -467,23 +455,21 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Bitwarden.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Bitwarden"
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    templates:
+      - ViewInspectorTestTarget
+    templateAttributes:
+      sourcesPath: BitwardenShared
     sources:
-      - path: BitwardenShared
-        includes:
-          - "**/*ViewInspectorTests.*"
-          - "**/TestHelpers/*"
-          - "**/Fixtures/*"
       - path: GlobalTestHelpers
-      - path: BitwardenShared/Sourcery/Generated
-        optional: true
-      - path: BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift
-        optional: true
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenSharedMocks
+      - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - target: BitwardenKit/ViewInspectorTestHelpers
+      - package: BitwardenSdk
       - package: ViewInspector
     randomExecutionOrder: true
 

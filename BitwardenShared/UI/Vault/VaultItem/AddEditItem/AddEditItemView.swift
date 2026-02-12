@@ -90,6 +90,11 @@ struct AddEditItemView: View {
                     )
                 }
 
+                if store.state.shouldDisplayAsArchived {
+                    InfoContainer(text: store.state.archiveInfoText, icon: SharedAsset.Icons.archive24)
+                        .accessibilityIdentifier("ArchivedLabel")
+                }
+
                 itemDetailsSection
                 itemTypeSection
                     .disabled(store.state.isReadOnly)
@@ -119,15 +124,26 @@ struct AddEditItemView: View {
                 versionDependentOrderingToolbarItemGroup(
                     alfa: {
                         VaultItemManagementMenuView(
+                            isArchiveEnabled: store.state.canBeArchived,
                             isCloneEnabled: false,
                             isCollectionsEnabled: store.state.canAssignToCollection,
                             isDeleteEnabled: store.state.canBeDeleted,
                             isMoveToOrganizationEnabled: store.state.canMoveToOrganization,
                             isRestoreEnabled: false,
+                            isUnarchiveEnabled: store.state.canBeUnarchived,
                             store: store.child(
                                 state: { _ in },
                                 mapAction: { .morePressed($0) },
-                                mapEffect: { _ in .deletePressed },
+                                mapEffect: { effect in
+                                    switch effect {
+                                    case .archiveItem:
+                                        .archivedPressed
+                                    case .deleteItem:
+                                        .deletePressed
+                                    case .unarchiveItem:
+                                        .unarchivePressed
+                                    }
+                                },
                             ),
                         )
                     },

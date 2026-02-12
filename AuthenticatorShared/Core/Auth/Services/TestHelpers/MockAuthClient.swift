@@ -77,6 +77,8 @@ class MockAuthClient: AuthClientProtocol {
 
     var validatePinResult: Result<Bool, Error> = .success(false)
 
+    var validatePinProtectedUserKeyEnvelopeResult: Bool = true // swiftlint:disable:this identifier_name
+
     var trustDeviceResult: Result<TrustDeviceResponse, Error> = .success(
         TrustDeviceResponse(
             deviceKey: "DEVICE_KEY",
@@ -163,5 +165,12 @@ class MockAuthClient: AuthClientProtocol {
 
     func validatePin(pin: String, pinProtectedUserKey: BitwardenSdk.EncString) throws -> Bool {
         try validatePinResult.get()
+    }
+
+    func validatePinProtectedUserKeyEnvelope(
+        pin: String,
+        pinProtectedUserKeyEnvelope: PasswordProtectedKeyEnvelope,
+    ) -> Bool {
+        validatePinProtectedUserKeyEnvelopeResult
     }
 }

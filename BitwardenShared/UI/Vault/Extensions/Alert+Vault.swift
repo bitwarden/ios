@@ -8,6 +8,43 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Returns an alert for when archive is unavailable.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert when archive is unavailable.
+    static func archiveUnavailable(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.archiveUnavailable,
+            message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+    }
+
+    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
+    /// lack of premium subscription.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert when "Specific People" is unavailable.
+    static func specificPeopleUnavailable(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+    }
+
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
     /// decrypted.
     ///
@@ -220,40 +257,33 @@ extension Alert {
     /// An alert presenting the user with more options for a vault list item.
     ///
     /// - Parameters:
-    ///   - canCopyTotp: Whether the user can copy the TOTP code (because they have premium or the
-    ///     organization uses TOTP).
-    ///   - cipherView: The cipher view to show.
-    ///   - id: The id of the item.
-    ///   - showEdit: Whether to show the edit option (should be `false` for items in the trash).
+    ///   - context: The context for the alert used for passing the cipher and decide whether to show options.
     ///   - action: The action to perform after selecting an option.
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length
-        canCopyTotp: Bool,
-        cipherView: CipherView,
-        id: String,
-        showEdit: Bool,
+    static func moreOptions( // swiftlint:disable:this function_body_length cyclomatic_complexity
+        context: MoreOptionsAlertContext,
         action: @escaping (_ action: MoreOptionsAction) async -> Void,
     ) -> Alert {
         // All the cipher types have the option to view the cipher.
         var alertActions = [
             AlertAction(title: Localizations.view, style: .default) { _, _ in
-                await action(.view(id: id))
+                await action(.view(id: context.id))
             },
         ]
 
         // Add the option to edit the cipher if desired.
-        if showEdit {
+        if context.showEdit {
             alertActions.append(AlertAction(title: Localizations.edit, style: .default) { _, _ in
-                await action(.edit(cipherView: cipherView))
+                await action(.edit(cipherView: context.cipherView))
             })
         }
 
         // Add any additional actions for the type of cipher selected.
-        switch cipherView.type {
+        switch context.cipherView.type {
         case .card:
-            if let number = cipherView.card?.number {
+            if let number = context.cipherView.card?.number {
                 alertActions.append(AlertAction(title: Localizations.copyNumber, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.number,
@@ -264,19 +294,19 @@ extension Alert {
                     ))
                 })
             }
-            if let code = cipherView.card?.code {
+            if let code = context.cipherView.card?.code {
                 alertActions.append(AlertAction(title: Localizations.copySecurityCode, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.securityCode,
                         value: code,
                         requiresMasterPasswordReprompt: true,
                         logEvent: .cipherClientCopiedCardCode,
-                        cipherId: cipherView.id,
+                        cipherId: context.cipherView.id,
                     ))
                 })
             }
         case .login:
-            if let username = cipherView.login?.username {
+            if let username = context.cipherView.login?.username {
                 alertActions.append(AlertAction(title: Localizations.copyUsername, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.username,
@@ -287,24 +317,24 @@ extension Alert {
                     ))
                 })
             }
-            if let password = cipherView.login?.password,
-               cipherView.viewPassword {
+            if let password = context.cipherView.login?.password,
+               context.cipherView.viewPassword {
                 alertActions.append(AlertAction(title: Localizations.copyPassword, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.password,
                         value: password,
                         requiresMasterPasswordReprompt: true,
                         logEvent: .cipherClientCopiedPassword,
-                        cipherId: cipherView.id,
+                        cipherId: context.cipherView.id,
                     ))
                 })
             }
-            if canCopyTotp, let totp = cipherView.login?.totp {
+            if context.canCopyTotp, let totp = context.cipherView.login?.totp {
                 alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
                     await action(.copyTotp(totpKey: TOTPKeyModel(authenticatorKey: totp)))
                 })
             }
-            if let uri = cipherView.login?.uris?.first?.uri,
+            if let uri = context.cipherView.login?.uris?.first?.uri,
                let url = URL(string: uri) {
                 alertActions
                     .append(AlertAction(title: Localizations.launch, style: .default) { _, _ in
@@ -315,7 +345,7 @@ extension Alert {
             // No-op: no extra options beyond view and edit.
             break
         case .secureNote:
-            if let notes = cipherView.notes {
+            if let notes = context.cipherView.notes {
                 alertActions.append(AlertAction(title: Localizations.copyNotes, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.notes,
@@ -327,24 +357,24 @@ extension Alert {
                 })
             }
         case .sshKey:
-            if let sshKey = cipherView.sshKey {
+            if let sshKey = context.cipherView.sshKey {
                 alertActions.append(AlertAction(title: Localizations.copyPublicKey, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.publicKey,
                         value: sshKey.publicKey,
                         requiresMasterPasswordReprompt: true,
                         logEvent: nil,
-                        cipherId: cipherView.id,
+                        cipherId: context.cipherView.id,
                     ))
                 })
-                if cipherView.viewPassword {
+                if context.cipherView.viewPassword {
                     alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
                         await action(.copy(
                             toast: Localizations.privateKey,
                             value: sshKey.privateKey,
                             requiresMasterPasswordReprompt: true,
                             logEvent: nil,
-                            cipherId: cipherView.id,
+                            cipherId: context.cipherView.id,
                         ))
                     })
                 }
@@ -354,15 +384,31 @@ extension Alert {
                         value: sshKey.fingerprint,
                         requiresMasterPasswordReprompt: true,
                         logEvent: nil,
-                        cipherId: cipherView.id,
+                        cipherId: context.cipherView.id,
                     ))
                 })
             }
         }
 
+        if context.canArchive {
+            alertActions.append(
+                AlertAction(title: Localizations.archive, style: .default) { _, _ in
+                    await action(.archive(cipherView: context.cipherView))
+                },
+            )
+        }
+
+        if context.canUnarchive {
+            alertActions.append(
+                AlertAction(title: Localizations.unarchive, style: .default) { _, _ in
+                    await action(.unarchive(cipherView: context.cipherView))
+                },
+            )
+        }
+
         // Return the alert.
         return Alert(
-            title: cipherView.name,
+            title: context.cipherView.name,
             message: nil,
             preferredStyle: .actionSheet,
             alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)],
@@ -428,4 +474,28 @@ extension Alert {
             ],
         )
     }
+}
+
+// MARK: - MoreOptionsAlertContext
+
+/// Context for displaying a more options alert for a vault item.
+///
+struct MoreOptionsAlertContext {
+    /// Whether the cipher can be archived.
+    let canArchive: Bool
+
+    /// Whether the user can copy the TOTP code (because they have premium or the organization uses TOTP).
+    let canCopyTotp: Bool
+
+    /// Whether the cipher can be unarchived.
+    let canUnarchive: Bool
+
+    /// The cipher view to show.
+    let cipherView: CipherView
+
+    /// The id of the item.
+    let id: String
+
+    /// Whether to show the edit option (should be `false` for items in the trash).
+    let showEdit: Bool
 }

@@ -10,7 +10,7 @@ enum ExportFileType: Equatable {
     /// A `.csv` file type.
     case csv
 
-    /// An encypted `.json` file type.
+    /// An encrypted `.json` file type.
     case encryptedJson(password: String)
 
     /// A `.json` file type.
@@ -103,7 +103,7 @@ extension ExportVaultService {
     }
 }
 
-class DefultExportVaultService: ExportVaultService {
+class DefaultExportVaultService: ExportVaultService {
     // MARK: Parameters
 
     /// The cipher service used by this service.
@@ -212,8 +212,10 @@ class DefultExportVaultService: ExportVaultService {
     func fetchAllCiphersToExport() async throws -> [Cipher] {
         let restrictedTypes = await policyService.getRestrictedItemCipherTypes()
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         return try await cipherService.fetchAllCiphers().filter { cipher in
-            cipher.deletedDate == nil
+            !cipher.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled)
                 && cipher.organizationId == nil
                 && !restrictedTypes.contains(BitwardenShared.CipherType(type: cipher.type))
         }

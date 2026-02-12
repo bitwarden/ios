@@ -150,6 +150,7 @@ jobs:
           kill "$PYEETD_PID"
 
       - name: Test
+        id: test
         env:
           _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
@@ -167,9 +168,9 @@ jobs:
           kill "$PYEETD_PID"
 
       - name: Print Logs Summary
-        if: always()
+        if: failure() && steps.test.outcome == 'failure'
         run: |
-          xcresultparser -o cli "$_TESTS_RESULT_BUNDLE_PATH"
+          xcresultparser -f -o cli "$_TESTS_RESULT_BUNDLE_PATH"
           echo "# Test Summary" >> "$GITHUB_STEP_SUMMARY"
           xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" | grep "Number of" >> "$GITHUB_STEP_SUMMARY"
 

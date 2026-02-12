@@ -7,6 +7,9 @@ enum AddEditItemEffect {
     /// The view appeared.
     case appeared
 
+    /// The archived button was pressed.
+    case archivedPressed
+
     /// The check password button was pressed.
     case checkPasswordPressed
 
@@ -36,4 +39,7 @@ enum AddEditItemEffect {
 
     /// Stream the list of folders in the vault.
     case streamFolders
+
+    /// The unarchive button was pressed.
+    case unarchivePressed
 }

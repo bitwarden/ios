@@ -1,3 +1,4 @@
+import BitwardenKit
 import XCTest
 
 @testable import BitwardenShared
@@ -95,6 +96,20 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `deleteAuthenticatorVaultKey` deletes the stored Authenticator Vault Key with the correct query values.
+    ///
+    func test_deleteAuthenticatorVaultKey_success() async throws {
+        let item = KeychainItem.authenticatorVaultKey(userId: "1")
+        keychainService.deleteResult = .success(())
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.deleteAuthenticatorVaultKey(userId: "1")
+        XCTAssertEqual(
+            keychainService.deleteQueries,
+            [expectedQuery],
+        )
+    }
+
     /// `deleteItems(for:)` deletes items for a specific user.
     func test_deleteItems_forUserId() async throws {
         try await subject.deleteItems(for: "1")
@@ -103,8 +118,10 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             subject.keychainQueryValues(for: .accessToken(userId: "1")),
             subject.keychainQueryValues(for: .authenticatorVaultKey(userId: "1")),
             subject.keychainQueryValues(for: .biometrics(userId: "1")),
+            subject.keychainQueryValues(for: .lastActiveTime(userId: "1")),
             subject.keychainQueryValues(for: .neverLock(userId: "1")),
             subject.keychainQueryValues(for: .refreshToken(userId: "1")),
+            subject.keychainQueryValues(for: .unsuccessfulUnlockAttempts(userId: "1")),
         ]
 
         XCTAssertEqual(
@@ -121,20 +138,6 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
         try await subject.deleteDeviceKey(userId: "1")
-        XCTAssertEqual(
-            keychainService.deleteQueries,
-            [expectedQuery],
-        )
-    }
-
-    /// `deleteAuthenticatorVaultKey` deletes the stored Authenticator Vault Key with the correct query values.
-    ///
-    func test_deleteAuthenticatorVaultKey_success() async throws {
-        let item = KeychainItem.authenticatorVaultKey(userId: "1")
-        keychainService.deleteResult = .success(())
-        let expectedQuery = await subject.keychainQueryValues(for: item)
-
-        try await subject.deleteAuthenticatorVaultKey(userId: "1")
         XCTAssertEqual(
             keychainService.deleteQueries,
             [expectedQuery],
@@ -178,7 +181,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getAccessToken(userId:)` throws an error if one occurs.
     func test_getAccessToken_error() async {
-        let error = KeychainServiceError.keyNotFound(.accessToken(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(KeychainItem.accessToken(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAccessToken(userId: "1")
@@ -194,7 +197,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getAuthenticatorVaultKey(userId:)` throws an error if one occurs.
     func test_getAuthenticatorVaultKey_error() async {
-        let error = KeychainServiceError.keyNotFound(.authenticatorVaultKey(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(KeychainItem.authenticatorVaultKey(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAuthenticatorVaultKey(userId: "1")
@@ -210,7 +213,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getRefreshToken(userId:)` throws an error if one occurs.
     func test_getRefreshToken_error() async {
-        let error = KeychainServiceError.keyNotFound(.refreshToken(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(KeychainItem.refreshToken(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getRefreshToken(userId: "1")
@@ -484,5 +487,89 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(keychainService.accessControlFlags, [])
         let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
         XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+    }
+
+    /// `setValue(_:for:)` attempts to update before adding when item doesn't exist.
+    ///
+    func test_setValue_addsNewItem_afterUpdateFails() async throws {
+        let newKey = "test-value"
+        let item = KeychainItem.biometrics(userId: "123")
+        let accessControl = SecAccessControlCreateWithFlags(
+            nil,
+            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            item.accessControlFlags ?? [],
+            nil,
+        )!
+
+        keychainService.accessControlResult = .success(accessControl)
+        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
+        keychainService.addResult = .success(())
+
+        try await subject.setValue(newKey, for: item)
+
+        // Verify update was attempted first
+        let updateQuery = try XCTUnwrap(keychainService.updateQuery as? [CFString: Any])
+        let expectedFormattedKey = await subject.formattedKey(for: item)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccount] as? String), expectedFormattedKey)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessGroup] as? String), subject.appSecAttrAccessGroup)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrService] as? String), subject.appSecAttrService)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecClass] as? String), String(kSecClassGenericPassword))
+        XCTAssertNil(updateQuery[kSecValueData])
+        XCTAssertNil(updateQuery[kSecAttrAccessControl])
+
+        let updateAttributes = try XCTUnwrap(keychainService.updateAttributes as? [CFString: Any])
+        XCTAssertNotNil(updateAttributes[kSecValueData])
+        XCTAssertNotNil(updateAttributes[kSecAttrAccessControl])
+        let updateValueData = try XCTUnwrap(updateAttributes[kSecValueData] as? Data)
+        XCTAssertEqual(String(data: updateValueData, encoding: .utf8), newKey)
+        XCTAssertEqual(updateAttributes.count, 2)
+
+        // Verify add was called after update failed
+        let addAttributes = try XCTUnwrap(keychainService.addAttributes as? [CFString: Any])
+        let addValueData = try XCTUnwrap(addAttributes[kSecValueData] as? Data)
+        XCTAssertEqual(String(data: addValueData, encoding: .utf8), newKey)
+        XCTAssertNotNil(addAttributes[kSecAttrAccessControl])
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrAccount] as? String), expectedFormattedKey)
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrAccessGroup] as? String), subject.appSecAttrAccessGroup)
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrService] as? String), subject.appSecAttrService)
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecClass] as? String), String(kSecClassGenericPassword))
+    }
+
+    /// `setValue(_:for:)` updates an existing item without calling add.
+    ///
+    func test_setValue_updatesExistingItem() async throws {
+        let newKey = "test-value"
+        let item = KeychainItem.biometrics(userId: "123")
+        let accessControl = SecAccessControlCreateWithFlags(
+            nil,
+            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            item.accessControlFlags ?? [],
+            nil,
+        )!
+
+        keychainService.accessControlResult = .success(accessControl)
+        keychainService.updateResult = .success(())
+
+        try await subject.setValue(newKey, for: item)
+
+        // Verify update was called with correct query and attributes
+        let updateQuery = try XCTUnwrap(keychainService.updateQuery as? [CFString: Any])
+        let expectedFormattedKey = await subject.formattedKey(for: item)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccount] as? String), expectedFormattedKey)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessGroup] as? String), subject.appSecAttrAccessGroup)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrService] as? String), subject.appSecAttrService)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecClass] as? String), String(kSecClassGenericPassword))
+        XCTAssertNil(updateQuery[kSecValueData])
+        XCTAssertNil(updateQuery[kSecAttrAccessControl])
+
+        let updateAttributes = try XCTUnwrap(keychainService.updateAttributes as? [CFString: Any])
+        XCTAssertNotNil(updateAttributes[kSecValueData])
+        XCTAssertNotNil(updateAttributes[kSecAttrAccessControl])
+        let valueData = try XCTUnwrap(updateAttributes[kSecValueData] as? Data)
+        XCTAssertEqual(String(data: valueData, encoding: .utf8), newKey)
+        XCTAssertEqual(updateAttributes.count, 2)
+
+        // Verify add was NOT called
+        XCTAssertNil(keychainService.addAttributes)
     }
 }

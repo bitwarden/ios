@@ -314,12 +314,12 @@ public actor DefaultFlightRecorder {
     ///
     private func createLogFile(for log: FlightRecorderData.LogMetadata) async throws {
         let userId = await (try? stateService.getActiveAccountId()) ?? "n/a"
-        let contents = """
+        let contents = await """
         Bitwarden iOS Flight Recorder
-        Log Start: \(dateFormatter.string(from: log.startDate))
-        Log Duration: \(log.duration.shortDescription)
+        🕒 Log Start: \(dateFormatter.string(from: log.startDate))
+        ⏳ Log Duration: \(log.duration.shortDescription)
         \(appInfoService.appInfoWithoutCopyrightString)
-        User ID: \(userId)\n\n
+        👤 User ID: \(userId)\n\n
         """
 
         let url = try fileURL(for: log)
@@ -340,9 +340,9 @@ public actor DefaultFlightRecorder {
             data.activeLog = nil
         }
 
-        for (index, log) in data.inactiveLogs.enumerated() {
-            guard log.expirationDate <= timeProvider.presentTime else { continue }
+        let expiredLogs = data.inactiveLogs.filter { $0.expirationDate <= timeProvider.presentTime }
 
+        for log in expiredLogs {
             Logger.flightRecorder.debug(
                 "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)",
             )
@@ -352,8 +352,10 @@ public actor DefaultFlightRecorder {
             } catch {
                 errorReporter.log(error: FlightRecorderError.removeExpiredLogError(error))
             }
+        }
 
-            data.inactiveLogs.remove(at: index)
+        data.inactiveLogs.removeAll { log in
+            expiredLogs.contains { $0.id == log.id }
         }
 
         await setFlightRecorderData(data)

@@ -5,6 +5,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - ExportVaultServiceTests
 
@@ -175,7 +176,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
                 ),
             ),
         )
-        subject = DefultExportVaultService(
+        subject = DefaultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
             configService: configService,

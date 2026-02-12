@@ -2,10 +2,12 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import InlineSnapshotTesting
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -18,6 +20,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var pasteboardService: MockPasteboardService!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var vaultRepository: MockVaultRepository!
@@ -35,6 +39,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         pasteboardService = MockPasteboardService()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
 
@@ -48,6 +57,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 pasteboardService: pasteboardService,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
                 vaultRepository: vaultRepository,
             ),
@@ -66,12 +76,20 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
         pasteboardService = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
     }
 
     // MARK: Tests
+
+    /// `init(appExtensionDelegate:coordinator:services:state:)` initializes
+    /// the search process mediator.
+    func test_init() {
+        XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
+    }
 
     /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
     @MainActor
@@ -84,7 +102,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_vaultItemTapped() async {
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(
-            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com")))
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"),
+        ))
         let vaultListItem = VaultListItem(
             cipherListView: .fixture(),
         )!
@@ -123,7 +142,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_vaultItemTapped_showToast() async throws {
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(
-            login: .fixture(password: "PASSWORD", username: nil)))
+            login: .fixture(password: "PASSWORD", username: nil),
+        ))
         let vaultListItem = VaultListItem(
             cipherListView: .fixture(),
         )!
@@ -166,12 +186,119 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(subject.state.profileSwitcherState, .empty(shouldAlwaysHideAddAccount: true))
     }
 
+    /// `perform(_:)` with `.loadData` performs initial sync when user has never synced before.
+    @MainActor
+    func test_perform_loadData_firstSync() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = true
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
+        XCTAssertEqual(vaultRepository.fetchSyncIsPeriodic, false)
+        // Loading state should remain as loading until data is published
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
+    }
+
+    /// `perform(_:)` with `.loadData` does not log or alert when sync is cancelled during first sync.
+    @MainActor
+    func test_perform_loadData_firstSync_cancelled() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = true
+        vaultRepository.fetchSyncResult = .failure(URLError(.cancelled))
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(coordinator.errorAlertsShown.isEmpty)
+        // Loading state should remain as loading since it was cancelled
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
+    }
+
+    /// `perform(_:)` with `.loadData` logs error when sync fails during first sync.
+    @MainActor
+    func test_perform_loadData_firstSync_error() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = true
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .error(errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs),
+        )
+    }
+
+    /// `perform(_:)` with `.loadData` doesn't reset loading state when already loading with cached sections.
+    @MainActor
+    func test_perform_loadData_firstSync_preservesCachedSectionsWhileSyncing() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = true
+        vaultRepository.fetchSyncResult = .success(())
+
+        let cachedSection = VaultListSection(
+            id: "cached",
+            items: [VaultListItem(cipherListView: .fixture(name: "Cached Item"))].compactMap(\.self),
+            name: "Cached",
+        )
+        subject.state.loadingState = .loading([cachedSection])
+
+        await subject.perform(.loadData)
+
+        // Sync was called and completed, transitioning cached sections from loading to data
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(subject.state.loadingState, .data([cachedSection]))
+    }
+
+    /// `perform(_:)` with `.loadData` transitions from error state to loading on retry.
+    @MainActor
+    func test_perform_loadData_firstSync_retryFromErrorState() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = true
+
+        subject.state.loadingState = .error(errorMessage: "Previous error")
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        // Should transition from error to loading(nil) when retrying
+        if case .loading(nil) = subject.state.loadingState {
+            // Success - correctly transitioned
+        } else if case let .loading(sections) = subject.state.loadingState {
+            XCTAssertNil(sections, "Should set to .loading(nil) when retrying from error state")
+        } else {
+            XCTFail("Expected loading state after retry")
+        }
+    }
+
+    /// `perform(_:)` with `.loadData` skips sync when user has synced before.
+    @MainActor
+    func test_perform_loadData_firstSync_skipsSyncWhenAlreadySynced() async {
+        authRepository.profileSwitcherState = .empty()
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = false
+
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
     /// visibility and navigates to switch account.
     @MainActor
     func test_perform_profileSwitcher_accountPressed() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -190,6 +317,55 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
     }
 
+    /// `perform(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 dismisses the profile switcher.
+    @MainActor
+    func test_perform_profileSwitcher_accountPressed_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                ProfileSwitcherItem.fixture(userId: "42"),
+                ProfileSwitcherItem.fixture(userId: "1"),
+            ],
+            activeAccountId: "42",
+            allowLockAndLogout: true,
+            isVisible: false,
+            shouldAlwaysHideAddAccount: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
+    }
+
+    /// `perform(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 when selecting already-active account
+    /// dismisses the profile switcher but does not fire switch event.
+    @MainActor
+    func test_perform_profileSwitcher_accountPressed_sameAccount_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [
+                ProfileSwitcherItem.fixture(userId: "1"),
+                ProfileSwitcherItem.fixture(userId: "42"),
+            ],
+            activeAccountId: "1",
+            allowLockAndLogout: true,
+            isVisible: false,
+            shouldAlwaysHideAddAccount: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
+
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertNil(coordinator.events.last)
+    }
+
     /// `perform(_:)` with `.profileSwitcher(.lock)` does nothing.
     @MainActor
     func test_perform_profileSwitcher_lock() async {
@@ -203,7 +379,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_perform_profileSwitcher_toggleProfilesViewVisibility() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -213,34 +388,32 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
+    /// `perform(_:)` with `.profileSwitcher(.requestedProfileSwitcher(visible:))`
+    /// for iOS 26 navigates to present the profile switcher sheet.
     @MainActor
-    func test_perform_search() {
-        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-            name: "",
-        )
-        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
+    func test_perform_profileSwitcher_toggleProfilesViewVisibility_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
         }
 
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
 
-        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
-        XCTAssertFalse(subject.state.showNoResults)
+        XCTAssertEqual(coordinator.routes.last, .viewProfileSwitcher)
+    }
+
+    /// `perform(.search)` with a keyword should indicate the search processor mediator that the filter changed.
+    @MainActor
+    func test_perform_search() async throws {
+        await subject.perform(.search("example"))
+
         XCTAssertEqual(
-            vaultRepository.vaultListFilter,
+            searchProcessorMediator.updateFilterReceivedFilter,
             VaultListFilter(
                 filterType: .allVaults,
                 group: .login,
                 mode: .passwords,
                 rpID: nil,
-                searchText: "bit",
+                searchText: "example",
             ),
         )
     }
@@ -252,35 +425,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
         XCTAssertFalse(subject.state.showNoResults)
-    }
-
-    /// `perform(_:)` with `.search()` performs a cipher search and logs an error if one occurs.
-    @MainActor
-    func test_perform_search_error() {
-        let task = Task {
-            await subject.perform(.search("example"))
-        }
-
-        vaultRepository.vaultListSubject.send(completion: .failure(BitwardenTestError.example))
-        waitFor(!coordinator.alertShown.isEmpty)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
-    /// `perform(_:)` with `.search()` sets the `showNoResults` flag if the search resulted in no results.
-    @MainActor
-    func test_perform_search_noResults() {
-        let task = Task {
-            await subject.perform(.search("example"))
-        }
-        waitFor(subject.state.showNoResults)
-        task.cancel()
-
-        XCTAssertTrue(subject.state.ciphersForSearch.isEmpty)
-        XCTAssertTrue(subject.state.showNoResults)
+        XCTAssertFalse(searchProcessorMediator.updateFilterCalled)
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
@@ -298,10 +443,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.
@@ -320,6 +465,66 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.streamAutofillItems` caches sections during initial sync.
+    @MainActor
+    func test_perform_streamAutofillItems_cachesSectionsDuringSync() {
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = true
+        subject.state.loadingState = .loading(nil)
+
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2")]
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
+            name: "",
+        )
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+        defer { task.cancel() }
+
+        waitFor {
+            if case let .loading(sections) = self.subject.state.loadingState {
+                return sections != nil
+            }
+            return false
+        }
+
+        // Should cache sections in loading state during sync
+        if case let .loading(sections) = subject.state.loadingState {
+            XCTAssertEqual(sections, [expectedSection])
+        } else {
+            XCTFail("Expected loading state with cached sections")
+        }
+    }
+
+    /// `perform(_:)` with `.streamAutofillItems` displays sections when sync not required.
+    @MainActor
+    func test_perform_streamAutofillItems_displaysSectionsWhenSyncNotRequired() {
+        stateService.activeAccount = .fixture()
+        stateService.isInitialSyncRequiredByUserId["1"] = false
+
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2")]
+        let expectedSection = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
+            name: "",
+        )
+        vaultRepository.ciphersAutofillSubject.value = VaultListData(sections: [expectedSection])
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.loadingState.data != nil)
+
+        // Should display sections immediately since sync is not required
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
+    }
+
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
     /// web icons parameter from the state service.
     @MainActor
@@ -332,6 +537,55 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         waitFor(subject.state.showWebIcons == false)
 
         task.cancel()
+    }
+
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search results with the new items.
+    @MainActor
+    func test_onNewSearchResults() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
+                sections: [
+                    VaultListSection(
+                        id: "SearchResults",
+                        items: [
+                            VaultListItem(cipherListView: .fixture(name: "Result 1")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 2")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 3")),
+                        ].compactMap(\.self),
+                        name: "Search Results",
+                    ),
+                ],
+            ),
+        )
+
+        assertInlineSnapshot(of: subject.state.ciphersForSearch.dump(), as: .lines) {
+            """
+            Section[SearchResults]: Search Results
+              - Cipher: Result 1
+              - Cipher: Result 2
+              - Cipher: Result 3
+            """
+        }
+    }
+
+    /// `onNewSearchResults(data:)` closure from search mediator updates the state's search to empty
+    /// when there are no sections in the data.
+    @MainActor
+    func test_onNewSearchResults_noSections() async {
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
+                sections: [],
+            ),
+        )
+
+        assertInlineSnapshot(of: subject.state.ciphersForSearch.dump(), as: .lines) {
+            """
+            """
+        }
     }
 
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
@@ -388,7 +642,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_receive_profileSwitcher_backgroundPressed() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -396,6 +649,18 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         subject.receive(.profileSwitcher(.backgroundTapped))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `receive(_:)` with `.profileSwitcher(.backgroundTapped)` for iOS 26 dismisses the profile switcher.
+    @MainActor
+    func test_receive_profileSwitcher_backgroundPressed_iOS26() throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        subject.receive(.profileSwitcher(.backgroundTapped))
+
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.logout)` does nothing.

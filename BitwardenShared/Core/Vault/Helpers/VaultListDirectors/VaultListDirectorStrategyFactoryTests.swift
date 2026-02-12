@@ -2,6 +2,7 @@ import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListDirectorStrategyFactoryTests
 
@@ -66,41 +67,26 @@ class VaultListDirectorStrategyFactoryTests: BitwardenTestCase {
         XCTAssertTrue(strategy is PasswordsAutofillVaultListDirectorStrategy)
     }
 
-    /// `make(filter:)` returns `SearchCombinedMultipleAutofillListDirectorStrategy` when
-    /// filtering by search text and by mode `.combinedMultipleSections`.
-    func test_make_returnsSearchCombinedMultipleAutofillListDirectorStrategy() {
-        let strategy = subject.make(filter: VaultListFilter(
-            mode: .combinedMultipleSections,
-            searchText: "search test",
-        ))
+    /// `makeSearchStrategy(mode:)` returns `SearchCombinedMultipleAutofillListDirectorStrategy` when
+    /// mode is `.combinedMultipleSections`.
+    func test_makeSearchStrategy_returnsSearchCombinedMultipleAutofillListDirectorStrategy() {
+        let strategy = subject.makeSearchStrategy(mode: .combinedMultipleSections)
         XCTAssertTrue(strategy is SearchCombinedMultipleAutofillListDirectorStrategy)
     }
 
-    /// `make(filter:)` returns `SearchVaultListDirectorStrategy` when
-    /// filtering by search text and mode is not `.combinedMultipleSections`.
-    func test_make_returnsSearchVaultListDirectorStrategy() {
-        let strategy1 = subject.make(filter: VaultListFilter(
-            mode: .all,
-            searchText: "search test",
-        ))
+    /// `makeSearchStrategy(mode:)` returns `SearchVaultListDirectorStrategy` when
+    /// mode is not `.combinedMultipleSections`.
+    func test_makeSearchStrategy_returnsSearchVaultListDirectorStrategy() {
+        let strategy1 = subject.makeSearchStrategy(mode: .all)
         XCTAssertTrue(strategy1 is SearchVaultListDirectorStrategy)
 
-        let strategy2 = subject.make(filter: VaultListFilter(
-            mode: .combinedSingleSection,
-            searchText: "search test",
-        ))
+        let strategy2 = subject.makeSearchStrategy(mode: .combinedSingleSection)
         XCTAssertTrue(strategy2 is SearchVaultListDirectorStrategy)
 
-        let strategy3 = subject.make(filter: VaultListFilter(
-            mode: .passwords,
-            searchText: "search test",
-        ))
+        let strategy3 = subject.makeSearchStrategy(mode: .passwords)
         XCTAssertTrue(strategy3 is SearchVaultListDirectorStrategy)
 
-        let strategy4 = subject.make(filter: VaultListFilter(
-            mode: .totp,
-            searchText: "search test",
-        ))
+        let strategy4 = subject.makeSearchStrategy(mode: .totp)
         XCTAssertTrue(strategy4 is SearchVaultListDirectorStrategy)
     }
 }

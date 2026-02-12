@@ -326,7 +326,7 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
     }
 
     /// `getTextAutofillOptions(cipherView:)` returns all options when
-    /// we have all of the values available exept from phone.
+    /// we have all of the values available except from phone.
     func test_getTextAutofillOptions_phoneNil() async {
         let cipher = CipherView.fixture(
             identity: .fixture(
@@ -352,7 +352,7 @@ class IdentityTextAutofillOptionsHelperTests: BitwardenTestCase { // swiftlint:d
     }
 
     /// `getTextAutofillOptions(cipherView:)` returns all options when
-    /// we have all of the values available exept from phone being empty.
+    /// we have all of the values available except from phone being empty.
     func test_getTextAutofillOptions_phoneEmpty() async {
         let cipher = CipherView.fixture(
             identity: .fixture(

@@ -23,6 +23,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         & HasStateService
         & HasTimeProvider
         & HasTwoStepLoginService
+        & HasUserSessionStateService
 
     // MARK: Private Properties
 
@@ -118,15 +119,22 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     private func appeared() async {
         do {
             if let policy = try await services.policyService.fetchTimeoutPolicyValues() {
-                state.policyTimeoutAction = policy.action
-
-                state.policyTimeoutValue = policy.value
-                state.isTimeoutPolicyEnabled = true
+                state.policyTimeoutAction = policy.timeoutAction
+                state.policyTimeoutType = policy.timeoutType ?? SessionTimeoutType.custom
+                state.policyTimeoutValue = policy.timeoutValue?.rawValue ?? 0
+                state.isPolicyTimeoutEnabled = true
             }
 
             state.hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
-            state.sessionTimeoutValue = try await services.stateService.getVaultTimeout()
             state.sessionTimeoutAction = try await services.authRepository.sessionTimeoutAction()
+
+            guard state.policyTimeoutType != .immediately else {
+                state.sessionTimeoutValue = .immediately
+                return
+            }
+
+            state.sessionTimeoutValue = try await services.userSessionStateService.getVaultTimeout()
+            state.sessionTimeoutType = SessionTimeoutType(value: state.sessionTimeoutValue)
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -263,7 +271,8 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         }
         Task {
             do {
-                if state.isTimeoutPolicyEnabled {
+                state.sessionTimeoutType = SessionTimeoutType(value: value)
+                if state.isPolicyTimeoutEnabled {
                     // If the user's selection exceeds the policy's limit,
                     // show an alert, and set their timeout value equal to the policy max.
                     guard value.rawValue <= state.policyTimeoutValue else {
@@ -271,6 +280,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
                             value: SessionTimeoutValue(rawValue: state.policyTimeoutValue),
                         )
                         coordinator.showAlert(.timeoutExceedsPolicyLengthAlert())
+                        state.sessionTimeoutValue = SessionTimeoutValue(rawValue: state.policyTimeoutValue)
                         return
                     }
                 }

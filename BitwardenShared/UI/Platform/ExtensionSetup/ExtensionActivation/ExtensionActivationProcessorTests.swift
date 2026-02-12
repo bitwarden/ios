@@ -1,4 +1,6 @@
+import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
@@ -11,6 +13,7 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
     var appExtensionDelegate: MockAppExtensionDelegate!
     var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
+    var coordinator: MockCoordinator<ExtensionSetupRoute, Void>!
     var subject: ExtensionActivationProcessor!
 
     // MARK: Setup & Teardown
@@ -21,8 +24,10 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
         appExtensionDelegate = MockAppExtensionDelegate()
         autofillCredentialService = MockAutofillCredentialService()
         configService = MockConfigService()
+        coordinator = MockCoordinator<ExtensionSetupRoute, Void>()
         subject = ExtensionActivationProcessor(
             appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 autofillCredentialService: autofillCredentialService,
                 configService: configService,
@@ -37,6 +42,7 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
         appExtensionDelegate = nil
         autofillCredentialService = nil
         configService = nil
+        coordinator = nil
         subject = nil
     }
 
@@ -48,6 +54,8 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
 
         XCTAssertTrue(autofillCredentialService.updateCredentialsInStoreCalled)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.settingUpAutofill)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
 
     /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension.

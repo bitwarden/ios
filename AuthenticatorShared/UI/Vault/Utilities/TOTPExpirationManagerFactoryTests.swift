@@ -1,7 +1,8 @@
-@testable import AuthenticatorShared
 import BitwardenKitMocks
 import Combine
 import XCTest
+
+@testable import AuthenticatorShared
 
 class TOTPExpirationManagerFactoryTests: BitwardenTestCase {
     // MARK: Properties

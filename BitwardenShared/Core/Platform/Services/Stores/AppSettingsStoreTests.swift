@@ -2,6 +2,7 @@ import BitwardenKit
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - AppSettingsStoreTests
 
@@ -299,6 +300,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
+    /// `archiveOnboardingShown` returns `false` if there isn't a previously stored value.
+    func test_archiveOnboardingShown_isInitiallyFalse() {
+        XCTAssertFalse(subject.archiveOnboardingShown)
+    }
+
+    /// `archiveOnboardingShown` can be used to get and set the persisted value in user defaults.
+    func test_archiveOnboardingShown_withValue() {
+        subject.archiveOnboardingShown = true
+        XCTAssertTrue(subject.archiveOnboardingShown)
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:archiveOnboardingShown"))
+
+        subject.archiveOnboardingShown = false
+        XCTAssertFalse(subject.archiveOnboardingShown)
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:archiveOnboardingShown"))
+    }
+
     /// `cachedActiveUserId` returns `nil` if there isn't a cached active user.
     func test_cachedActiveUserId_isInitiallyNil() {
         XCTAssertNil(subject.cachedActiveUserId)
@@ -482,8 +499,8 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `events(userId:)` can be used to get the events for a user.
     func test_events() {
         let events = [
-            EventData(type: .cipherAttachmentCreated, cipherId: "1", date: .now),
-            EventData(type: .userUpdated2fa, cipherId: nil, date: .now),
+            EventData(type: .cipherAttachmentCreated, cipherId: "1", organizationId: nil, date: .now),
+            EventData(type: .userUpdated2fa, cipherId: nil, organizationId: nil, date: .now),
         ]
         subject.setEvents(events, userId: "0")
         XCTAssertEqual(subject.events(userId: "0"), events)
@@ -619,23 +636,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         subject.lastUserShouldConnectToWatch = false
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
-    }
-
-    /// `lastActiveTime(userId:)` returns `nil` if there isn't a previously stored value.
-    func test_lastActiveTime_isInitiallyNil() {
-        XCTAssertNil(subject.lastActiveTime(userId: "-1"))
-    }
-
-    /// `lastActiveTime(userId:)` can be used to get the last active time for a user.
-    func test_lastActiveTime_withValue() {
-        let date1 = Date(year: 2023, month: 12, day: 1)
-        let date2 = Date(year: 2023, month: 10, day: 2)
-
-        subject.setLastActiveTime(date1, userId: "1")
-        subject.setLastActiveTime(date2, userId: "2")
-
-        XCTAssertEqual(subject.lastActiveTime(userId: "1"), date1)
-        XCTAssertEqual(subject.lastActiveTime(userId: "2"), date2)
     }
 
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
@@ -1110,23 +1110,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `unsuccessfulUnlockAttempts` returns `0` if there isn't a previously stored value.
-    func test_unsuccessfulUnlockAttempts_isInitially0() {
-        XCTAssertEqual(0, subject.unsuccessfulUnlockAttempts(userId: "1"))
-    }
-
-    /// `unsuccessfulUnlockAttempts(userId:)`can be used to get the unsuccessful unlock attempts  for a user.
-    func test_unsuccessfulUnlockAttempts_withValue() {
-        subject.setUnsuccessfulUnlockAttempts(4, userId: "1")
-        subject.setUnsuccessfulUnlockAttempts(1, userId: "3")
-
-        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "1"), 4)
-        XCTAssertEqual(subject.unsuccessfulUnlockAttempts(userId: "3"), 1)
-
-        XCTAssertEqual(4, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_1"))
-        XCTAssertEqual(1, userDefaults.integer(forKey: "bwPreferencesStorage:invalidUnlockAttempts_3"))
-    }
-
     /// `usernameGenerationOptions(userId:)` returns `nil` if there isn't a previously stored value.
     func test_usernameGenerationOptions_isInitiallyNil() {
         XCTAssertNil(subject.usernameGenerationOptions(userId: "-1"))
@@ -1298,13 +1281,5 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             .logout,
         )
-    }
-
-    /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
-    func test_vaultTimeout() throws {
-        subject.setVaultTimeout(minutes: 60, userId: "1")
-
-        XCTAssertEqual(subject.vaultTimeout(userId: "1"), 60)
-        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:vaultTimeout_1"), 60)
     }
 }

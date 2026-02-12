@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @MainActor
 class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -15,12 +16,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var autofillCredentialServiceDelegate: MockAutofillCredentialServiceDelegate!
     var cipherService: MockCipherService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var flightRecorder: MockFlightRecorder!
     var identityStore: MockCredentialIdentityStore!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
@@ -38,12 +41,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         autofillCredentialServiceDelegate = MockAutofillCredentialServiceDelegate()
         cipherService = MockCipherService()
         clientService = MockClientService()
+        configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        flightRecorder = MockFlightRecorder()
         identityStore = MockCredentialIdentityStore()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
@@ -55,11 +60,13 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             identityStore: identityStore,
             pasteboardService: pasteboardService,
             stateService: stateService,
@@ -82,12 +89,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         autofillCredentialServiceDelegate = nil
         cipherService = nil
         clientService = nil
+        configService = nil
         credentialIdentityFactory = nil
         errorReporter = nil
         eventService = nil
         fido2UserInterfaceHelperDelegate = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        flightRecorder = nil
         identityStore = nil
         pasteboardService = nil
         stateService = nil

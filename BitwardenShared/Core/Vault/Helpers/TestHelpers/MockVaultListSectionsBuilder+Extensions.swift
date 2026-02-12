@@ -1,4 +1,5 @@
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 extension MockVaultListSectionsBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper {
@@ -32,6 +33,10 @@ extension MockVaultListSectionsBuilder {
             helper.recordCall("addGroupSection")
             return self
         }
+        addHiddenItemsSectionClosure = { () -> VaultListSectionsBuilder in
+            helper.recordCall("addHiddenItemsSection")
+            return self
+        }
         addTypesSectionClosure = { () -> VaultListSectionsBuilder in
             helper.recordCall("addTypesSection")
             return self
@@ -46,10 +51,6 @@ extension MockVaultListSectionsBuilder {
         }
         addSearchResultsSectionClosure = { _ -> VaultListSectionsBuilder in
             helper.recordCall("addSearchResultsSection")
-            return self
-        }
-        addTrashSectionClosure = { () -> VaultListSectionsBuilder in
-            helper.recordCall("addTrashSection")
             return self
         }
 

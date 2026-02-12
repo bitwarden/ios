@@ -6,29 +6,92 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Скопіюйте цей звіт про помилку та поділіться ним зі службою підтримки, щоб уникнути втрати даних.</string>
-      <key>vaultitems</key>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Скопіюйте цей звіт про помилку та поділіться ним зі службою підтримки, щоб уникнути втрати даних.</string>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden не вдалося розшифрувати %d запис сховища</string>
+        <string>Bitwarden не вдалося розшифрувати %d запис сховища.</string>
         <key>few</key>
-        <string>Bitwarden не вдалося розшифрувати %d записи сховища</string>
+        <string>Bitwarden не вдалося розшифрувати %d записи сховища.</string>
         <key>many</key>
-        <string>Bitwarden не вдалося розшифрувати %d записів сховища</string>
+        <string>Bitwarden не вдалося розшифрувати %d записів сховища.</string>
         <key>other</key>
-        <string>Bitwarden не вдалося розшифрувати %d записів сховища</string>
+        <string>Bitwarden не вдалося розшифрувати %d запис сховища.</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Головний пароль має містити принаймні %#@characters@.</string>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Головний пароль має містити щонайменше %d символ.</string>
+        <key>few</key>
+        <string>Головний пароль має містити щонайменше %d символи.</string>
+        <key>many</key>
+        <string>Головний пароль має містити щонайменше %d символів.</string>
+        <key>other</key>
+        <string>Головний пароль має містити щонайменше %d символів.</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Вам слід його змінити.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Цей пароль було розкрито %d раз у витоках даних.</string>
+        <key>few</key>
+        <string>Цей пароль було розкрито %d рази у витоках даних.</string>
+        <key>many</key>
+        <string>Цей пароль було розкрито %d разів у витоках даних.</string>
+        <key>other</key>
+        <string>Цей пароль було розкрито %d разів у витоках даних.</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Characters@</string>
+      <key>Characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d символ</string>
+        <key>few</key>
+        <string>%d символи</string>
+        <key>many</key>
+        <string>%d символів</string>
+        <key>other</key>
+        <string>%d символів</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@days@</string>
-      <key>days</key>
+      <string>%#@Days@</string>
+      <key>Days</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -44,12 +107,33 @@
         <string>%d днів</string>
       </dict>
     </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Hours@</string>
+      <key>Hours</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d година</string>
+        <key>few</key>
+        <string>%d години</string>
+        <key>many</key>
+        <string>%d годин</string>
+        <key>other</key>
+        <string>%d годин</string>
+      </dict>
+    </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
     <key>XItems</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@</string>
-      <key>items</key>
+      <string>%#@Items@</string>
+      <key>Items</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -70,49 +154,28 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@items@ записів успішно імпортовано</string>
-      <key>items</key>
+      <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d запис</string>
+        <string>%d запис успішно імпортовано</string>
         <key>few</key>
-        <string>%d записи</string>
+        <string>%d записи успішно імпортовано</string>
         <key>many</key>
-        <string>%d записів</string>
+        <string>%d записів успішно імпортовано</string>
         <key>other</key>
-        <string>%d записів</string>
-      </dict>
-    </dict>
-    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
-    <key>XHours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d година</string>
-        <key>few</key>
-        <string>%d години</string>
-        <key>many</key>
-        <string>%d годин</string>
-        <key>other</key>
-        <string>%d годин</string>
+        <string>%d записів успішно імпортовано</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
     <key>XMinutes</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
-      <key>minutes</key>
+      <string>%#@Minutes@</string>
+      <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -132,8 +195,8 @@
     <key>XSeconds</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@seconds@</string>
-      <key>seconds</key>
+      <string>%#@Seconds@</string>
+      <key>Seconds</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -153,8 +216,8 @@
     <key>XWeeks</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@weeks@</string>
-      <key>weeks</key>
+      <string>%#@Weeks@</string>
+      <key>Weeks</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -168,6 +231,27 @@
         <string>%d тижнів</string>
         <key>other</key>
         <string>%d тижнів</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Налаштування PIN-коду буде скинуто, якщо ви коли-небудь вийдете зі сховища.</string>
+      <key>YourPINMustBeAtLeastCharacters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Ваш PIN-код має містити щонайменше %d символ.</string>
+        <key>few</key>
+        <string>Ваш PIN-код має містити щонайменше %d символи.</string>
+        <key>many</key>
+        <string>Ваш PIN-код має містити щонайменше %d символів.</string>
+        <key>other</key>
+        <string>Ваш PIN-код має містити щонайменше %d символів.</string>
       </dict>
     </dict>
   </dict>

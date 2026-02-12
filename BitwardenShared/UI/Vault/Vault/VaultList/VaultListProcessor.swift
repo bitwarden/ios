@@ -20,6 +20,8 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasChangeKdfService
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -27,6 +29,7 @@ final class VaultListProcessor: StateProcessor<
         & HasPasteboardService
         & HasPolicyService
         & HasReviewPromptService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -45,6 +48,9 @@ final class VaultListProcessor: StateProcessor<
 
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// The services used by this processor.
     private let services: Services
@@ -72,8 +78,10 @@ final class VaultListProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
+
         super.init(state: state)
     }
 
@@ -93,6 +101,9 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissArchiveOnboardingActionCard:
+            state.shouldShowArchiveOnboardingActionCard = false
+            await services.stateService.setArchiveOnboardingShown(true)
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
@@ -139,12 +150,20 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .addFolder)
         case let .addItemPressed(type):
             addItem(type: type)
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
             break
         case .disappeared:
             reviewPromptTask?.cancel()
+        case .goToArchive:
+            coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
         case let .itemPressed(item):
             handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
@@ -155,19 +174,17 @@ final class VaultListProcessor: StateProcessor<
             guard isSearching else {
                 state.searchText = ""
                 state.searchResults = []
+                searchProcessorMediator.stopSearching()
                 return
+            }
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
             }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
-        case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -192,9 +209,15 @@ extension VaultListProcessor {
         setProfileSwitcher(visible: false)
         switch state.vaultFilterType {
         case let .organization(organization):
-            coordinator.navigate(to: .addItem(organizationId: organization.id, type: type))
+            coordinator.navigate(
+                to: .addItem(organizationId: organization.id, type: type),
+                context: self,
+            )
         default:
-            coordinator.navigate(to: .addItem(type: type))
+            coordinator.navigate(
+                to: .addItem(type: type),
+                context: self,
+            )
         }
         reviewPromptTask?.cancel()
     }
@@ -206,6 +229,12 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+
+        if await services.configService.getFeatureFlag(.archiveVaultItems) {
+            state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+        }
     }
 
     /// Checks if the user needs to update their KDF settings.
@@ -297,7 +326,16 @@ extension VaultListProcessor {
             } else {
                 navigateToViewItem(cipherListView: cipherListView, id: item.id)
             }
-        case let .group(group, _):
+        case let .group(group, count):
+            if !state.hasPremium, group == .archive, count == 0 {
+                coordinator.showAlert(
+                    Alert.archiveUnavailable(action: { [weak self] in
+                        guard let self else { return }
+                        state.url = services.environmentService.upgradeToPremiumURL
+                    }),
+                )
+                return
+            }
             coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
         case let .totp(_, model):
             navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
@@ -326,7 +364,10 @@ extension VaultListProcessor {
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
@@ -350,7 +391,6 @@ extension VaultListProcessor {
 
             try await services.vaultRepository.fetchSync(
                 forceSync: false,
-                filter: state.vaultFilterType,
                 isPeriodic: syncWithPeriodicCheck,
             )
 
@@ -418,6 +458,15 @@ extension VaultListProcessor {
         )
     }
 
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+    }
+
     /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
@@ -427,20 +476,13 @@ extension VaultListProcessor {
             state.searchResults = []
             return
         }
-        do {
-            let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
-                    filterType: state.searchVaultFilterType,
-                    searchText: searchText,
-                ),
-            )
-            for try await vaultListData in publisher {
-                let items = vaultListData.sections.first?.items ?? []
-                state.searchResults = items
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+
+        searchProcessorMediator.updateFilter(
+            VaultListFilter(
+                filterType: state.searchVaultFilterType,
+                searchText: searchText,
+            ),
+        )
     }
 
     /// Sets the user's import logins progress.
@@ -520,7 +562,7 @@ extension VaultListProcessor {
                 .vaultListPublisher(
                     filter: VaultListFilter(
                         filterType: state.vaultFilterType,
-                        options: [.addTOTPGroup, .addTrashGroup],
+                        options: [.addTOTPGroup, .addHiddenItemsGroup],
                     ),
                 ) {
                 // Check if the vault needs a sync.
@@ -561,6 +603,10 @@ extension VaultListProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemArchived() {
+        state.toast = Toast(title: Localizations.itemMovedToArchive)
+    }
+
     func itemDeleted() {
         state.toast = Toast(title: Localizations.itemDeleted)
     }
@@ -572,12 +618,19 @@ extension VaultListProcessor: CipherItemOperationDelegate {
     func itemRestored() {
         state.toast = Toast(title: Localizations.itemRestored)
     }
+
+    func itemUnarchived() {
+        state.toast = Toast(title: Localizations.itemMovedToVault)
+    }
 }
 
 // MARK: - MoreOptionsAction
 
 /// The actions available from the More Options alert.
 enum MoreOptionsAction: Equatable {
+    /// Archives a  cipher.
+    case archive(cipherView: CipherView)
+
     /// Copy the `value` and show a toast with the `toast` string.
     case copy(
         toast: String,
@@ -595,6 +648,9 @@ enum MoreOptionsAction: Equatable {
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)
+
+    /// Unarchives a  cipher.
+    case unarchive(cipherView: CipherView)
 
     /// Navigate to view the item with the given `id`.
     case view(id: String)

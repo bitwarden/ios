@@ -6,6 +6,7 @@ import XCTest
 // swiftlint:disable file_length
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @MainActor
 final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -376,7 +377,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `handleAndRoute(_ :)` delivers the locked active user to `.vaultUnlock`
-    ///     thorugh  `.didLockAccount()`.
+    ///     through  `.didLockAccount()`.
     func test_handleAndRoute_didLockAccount_active() async {
         let alt = Account.fixtureAccountLogin()
         let active = Account.fixture()
@@ -1063,11 +1064,35 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository.activeAccount = account
         authRepository.logoutResult = .success(())
         authRepository.sessionTimeoutAction[account.profile.userId] = .logout
+        authRepository.checkSessionTimeoutsShouldTimeoutActiveUser = true
 
         let route = await subject.handleAndRoute(.didStart)
 
         XCTAssertEqual(route, .landingSoftLoggedOut(email: "user@bitwarden.com"))
         XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertTrue(authRepository.checkSessionTimeoutCalled)
+    }
+
+    /// `handleAndRoute(_ :)` calls `checkSessionTimeouts()` when handling `.didStart`.
+    func test_handleAndRoute_didStart_checksSessionTimeouts() async {
+        let account = Account.fixture()
+        authRepository.activeAccount = account
+        authRepository.checkSessionTimeoutsShouldTimeoutActiveUser = false
+        stateService.isAuthenticated[account.profile.userId] = true
+
+        let route = await subject.handleAndRoute(.didStart)
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                account,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false,
+            ),
+        )
+        XCTAssertTrue(authRepository.checkSessionTimeoutCalled)
+        XCTAssertEqual(authRepository.checkSessionTimeoutIsAppRestart, true)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.complete`

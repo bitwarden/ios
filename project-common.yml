@@ -14,8 +14,8 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 1b1750a6678c1600daecf24bfb1cea052fc3d1e9 # 1.0.0-3270-7f09fd2
-    branch: unstable
+    revision: 61f47451e5bd40a55a41d24399c3c58acc129bbc # 2.0.0-4377-8700dc7
+    branch: km/fix-cherry-pick
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 11.14.0
@@ -25,3 +25,70 @@ packages:
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.3
+targetTemplates:
+  # Adds common include/excludes for app and framework targets.
+  CommonTarget:
+    sources:
+      - path: ${sourcesPath}
+        excludes:
+          - "**/*Tests.*"
+          - "**/.gitignore"
+          - "**/Fixtures/*"
+          - "**/GoogleService-Info.*.plist"
+          - "**/Mocks/*"
+          - "**/Sourcery/Generated/*"
+          - "**/TestHelpers/*"
+          - "**/Tests/*"
+          - "**/__Snapshots__/*"
+          - "**/sourcery.yml"
+      - path: ${sourcesPath}
+        includes:
+          - "**/__Snapshots__/*"
+          - "**/GoogleService-Info.*.plist"
+        buildPhase: none
+  # Adds common include/excludes for mocks targets.
+  MocksTarget:
+    sources:
+      - path: ${sourcesPath}
+        includes:
+          - "**/Fixtures/*"
+          - "**/Mocks/*"
+  # Adds common include/excludes for snapshot test targets.
+  SnapshotTestTarget:
+    sources:
+      - path: ${sourcesPath}
+        includes:
+          - "**/*SnapshotTests.*"
+          - "**/TestHelpers/*"
+  # Adds the Sourcery pre-build script.
+  SourceryTarget:
+    sources:
+      - path: ${sourcesPath}/Sourcery/sourcery.yml
+        buildPhase: none
+    preBuildScripts:
+      - name: Sourcery
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run sourcery --config ${sourcesPath}/Sourcery/sourcery.yml
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/${sourcesPath}/Sourcery/Generated/AutoMockable.generated.swift
+  # Adds common include/excludes for test targets.
+  TestTarget:
+    sources:
+      - path: ${sourcesPath}
+        excludes:
+          - "**/*SnapshotTests.*"
+          - "**/*ViewInspectorTests.*"
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+  # Adds common include/excludes for ViewInspector test targets.
+  ViewInspectorTestTarget:
+    sources:
+      - path: ${sourcesPath}
+        includes:
+          - "**/*ViewInspectorTests.*"
+          - "**/TestHelpers/*"

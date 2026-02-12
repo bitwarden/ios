@@ -17,6 +17,9 @@ protocol CipherItemOperationDelegate: AnyObject {
     ///
     func itemAdded() -> Bool
 
+    /// Called when the cipher item has been successfully archived.
+    func itemArchived()
+
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
@@ -25,6 +28,9 @@ protocol CipherItemOperationDelegate: AnyObject {
 
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
+
+    /// Called when the cipher item has been successfully unarchived.
+    func itemUnarchived()
 
     /// Called when a cipher item has been successfully updated.
     ///
@@ -37,11 +43,15 @@ protocol CipherItemOperationDelegate: AnyObject {
 extension CipherItemOperationDelegate {
     func itemAdded() -> Bool { true }
 
+    func itemArchived() {}
+
     func itemDeleted() {}
 
     func itemRestored() {}
 
     func itemSoftDeleted() {}
+
+    func itemUnarchived() {}
 
     func itemUpdated() -> Bool { true }
 }
@@ -93,6 +103,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// The services required by this processor.
     private let services: Services
 
+    /// The helper to execute vault item actions.
+    private let vaultItemActionHelper: VaultItemActionHelper
+
     // MARK: Initialization
 
     /// Creates a new `AddEditItemProcessor`.
@@ -103,6 +116,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - delegate: The delegate that is notified when add/edit/delete cipher item have occurred.
     ///   - services: The services required by this processor.
     ///   - state: The initial state for the processor.
+    ///   - vaultItemActionHelper: The helper to execute vault item actions.
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
@@ -110,11 +124,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         delegate: CipherItemOperationDelegate?,
         services: Services,
         state: AddEditItemState,
+        vaultItemActionHelper: VaultItemActionHelper,
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
+        self.vaultItemActionHelper = vaultItemActionHelper
+
         super.init(state: state)
 
         if !state.configuration.isAdding {
@@ -129,10 +146,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .appeared:
+            await loadFeatureFlags()
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
             await loadDefaultUriMatchType()
+        case .archivedPressed:
+            await archiveItem()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -158,6 +178,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await streamCipherDetails()
         case .streamFolders:
             await streamFolders()
+        case .unarchivePressed:
+            await unarchiveItem()
         }
     }
 
@@ -256,6 +278,24 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     }
 
     // MARK: Private Methods
+
+    /// Archives a cipher.
+    ///
+    private func archiveItem() async {
+        await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] url in
+            self?.state.url = url
+        } completionHandler: { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemArchived()
+            }
+        }
+    }
+
+    /// Dismisses with an action.
+    /// - Parameter action: Action to execute when dismissing this view.
+    private func dismiss(action: @escaping () -> Void) {
+        coordinator.navigate(to: .dismiss(DismissAction(action: action)))
+    }
 
     /// Handles dismissing the processor.
     ///
@@ -404,6 +444,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Loads the feature flags required for this processor.
+    private func loadFeatureFlags() async {
+        state.isArchiveVaultItemsFFEnabled = await services.configService.getFeatureFlag(.archiveVaultItems)
+    }
+
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
     /// the `AddEditCardState`.
     ///
@@ -493,6 +538,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.postalCode = postalCode
         case let .countryChanged(country):
             state.identityState.country = country
+        }
+    }
+
+    /// Unarchives cipher.
+    ///
+    private func unarchiveItem() async {
+        await vaultItemActionHelper.unarchive(cipher: state.cipher) { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemUnarchived()
+            }
         }
     }
 

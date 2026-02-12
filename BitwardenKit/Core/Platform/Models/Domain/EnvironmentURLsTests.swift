@@ -24,6 +24,9 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor")!,
+                upgradeToPremiumURL: URL(
+                    string: "https://vault.bitwarden.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+                )!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!,
             ),
         )
@@ -48,6 +51,9 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://vault.bitwarden.eu/#/send")!,
                 settingsURL: URL(string: "https://vault.bitwarden.eu/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor")!,
+                upgradeToPremiumURL: URL(
+                    string: "https://vault.bitwarden.eu/#/settings/subscription/premium?callToAction=upgradeToPremium",
+                )!,
                 webVaultURL: URL(string: "https://vault.bitwarden.eu")!,
             ),
         )
@@ -73,6 +79,9 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
+                upgradeToPremiumURL: URL(
+                    string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+                )!,
                 webVaultURL: URL(string: "https://example.com")!,
             ),
         )
@@ -97,6 +106,9 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://vault.bitwarden.eu/#/send")!,
                 settingsURL: URL(string: "https://vault.bitwarden.eu/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor")!,
+                upgradeToPremiumURL: URL(
+                    string: "https://vault.bitwarden.eu/#/settings/subscription/premium?callToAction=upgradeToPremium",
+                )!,
                 webVaultURL: URL(string: "https://vault.bitwarden.eu")!,
             ),
         )
@@ -121,6 +133,9 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor")!,
+                upgradeToPremiumURL: URL(
+                    string: "https://vault.bitwarden.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+                )!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!,
             ),
         )
@@ -145,6 +160,9 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
+                upgradeToPremiumURL: URL(
+                    string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+                )!,
                 webVaultURL: URL(string: "https://example.com/")!,
             ),
         )
@@ -175,6 +193,9 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
                 setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
+                upgradeToPremiumURL: URL(
+                    string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium",
+                )!,
                 webVaultURL: URL(string: "https://example.com")!,
             ),
         )
@@ -197,6 +218,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com")!,
                 setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com")!,
+                upgradeToPremiumURL: URL(string: "https://vault.bitwarden.com")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!,
             ),
         )

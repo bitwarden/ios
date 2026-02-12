@@ -7,24 +7,75 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@vaultitems@. Əlavə veri itkisini önləmək üçün bu xəta hesabatını kopyalayıb müştəri dəstəyi ilə paylaşın.</string>
-      <key>vaultitems</key>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden, %d seyf elementinin şifrəsini aça bilmədi</string>
+        <string>Bitwarden, %d seyf elementinin şifrəsini aça bilmədi.</string>
         <key>other</key>
-        <string>Bitwarden, %d seyf elementinin şifrəsini aça bilmədi</string>
+        <string>Bitwarden, %d seyf elementinin şifrəsini aça bilmədi.</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Ana parol ən azı %#@characters@ uzunluğunda olmalıdır.</string>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Ana parol ən azı %d xarakter uzunluğunda olmalıdır.</string>
+        <key>other</key>
+        <string>Ana parol ən azı %d xarakter uzunluğunda olmalıdır.</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Bu parol, veri pozuntularında %#@times@ üzə çıxıb. Onu dəyişdirməlisiniz.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Bu parol, %d dəfə veri pozuntularında üzə çıxıb.</string>
+        <key>other</key>
+        <string>Bu parol, %d dəfə veri pozuntularında üzə çıxıb.</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Characters@</string>
+      <key>Characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d xarakter</string>
+        <key>other</key>
+        <string>%d xarakter</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@days@</string>
-      <key>days</key>
+      <string>%#@Days@</string>
+      <key>Days</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -36,12 +87,29 @@
         <string>%d gün</string>
       </dict>
     </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Hours@</string>
+      <key>Hours</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d saat</string>
+        <key>other</key>
+        <string>%d saat</string>
+      </dict>
+    </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
     <key>XItems</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@</string>
-      <key>items</key>
+      <string>%#@Items@</string>
+      <key>Items</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -58,41 +126,24 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@items@ uğurla daxilə köçürüldü</string>
-      <key>items</key>
+      <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d element</string>
+        <string>%d uğurla daxilə köçürüldü</string>
         <key>other</key>
-        <string>%d element</string>
-      </dict>
-    </dict>
-    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
-    <key>XHours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d saat</string>
-        <key>other</key>
-        <string>%d saat</string>
+        <string>%d uğurla daxilə köçürüldü</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
     <key>XMinutes</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
-      <key>minutes</key>
+      <string>%#@Minutes@</string>
+      <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -108,8 +159,8 @@
     <key>XSeconds</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@seconds@</string>
-      <key>seconds</key>
+      <string>%#@Seconds@</string>
+      <key>Seconds</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -125,8 +176,8 @@
     <key>XWeeks</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@weeks@</string>
-      <key>weeks</key>
+      <string>%#@Weeks@</string>
+      <key>Weeks</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -136,6 +187,23 @@
         <string>%d həftə</string>
         <key>other</key>
         <string>%d həftə</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>PIN-inizdə ən azı %#@characters@ olmalıdır. Tətbiqdə hesabınızdan tam çıxış etsəniz, PIN ayarlarınız sıfırlanacaq.</string>
+      <key>YourPINMustBeAtLeastCharacters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>PIN-inizdə ən azı %d xarakter olmalıdır.</string>
+        <key>other</key>
+        <string>PIN-inizdə ən azı %d xarakter olmalıdır.</string>
       </dict>
     </dict>
   </dict>

@@ -117,6 +117,11 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "settings/security/two-factor")
     }
 
+    /// The URL for upgrading to premium.
+    var upgradeToPremiumURL: URL? {
+        subpageURL(additionalPath: "settings/subscription/premium?callToAction=upgradeToPremium")
+    }
+
     /// The host of URL to the user's web vault.
     var webVaultHost: String? {
         let url = webVault ?? base

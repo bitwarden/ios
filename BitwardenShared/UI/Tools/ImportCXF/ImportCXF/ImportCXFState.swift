@@ -16,7 +16,7 @@ struct ImportCXFState: Equatable, Sendable {
         /// The import flow is in progress.
         case importing
 
-        /// The import flow succeded.
+        /// The import flow succeeded.
         case success(totalImportedCredentials: Int, importedResults: [CXFCredentialsResult])
 
         /// The import flow failed.

@@ -146,13 +146,11 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
-    /// Get the active user's Biometric Authentication Preference.
+    /// Gets whether the archive onboarding has been shown.
     ///
-    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    /// - Returns: Whether the archive onboarding has been shown.
     ///
-    func getBiometricAuthenticationEnabled() async throws -> Bool
+    func getArchiveOnboardingShown() async -> Bool
 
     /// Gets the clear clipboard value for an account.
     ///
@@ -257,14 +255,6 @@ protocol StateService: AnyObject {
     /// - Returns: Whether the intro carousel screen has been shown.
     ///
     func getIntroCarouselShown() async -> Bool
-
-    /// Gets the user's last active time within the app.
-    /// This value is set when the app is backgrounded.
-    ///
-    /// - Parameter userId: The user ID associated with the last active time within the app.
-    /// - Returns: The date of the last active time.
-    ///
-    func getLastActiveTime(userId: String?) async throws -> Date?
 
     /// Gets the time of the last sync for a user.
     ///
@@ -386,14 +376,6 @@ protocol StateService: AnyObject {
     ///
     func getTwoFactorToken(email: String) async -> String?
 
-    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameter userId: The optional user ID associated with the unsuccessful unlock attempts,
-    /// if `nil` defaults to currently active user.
-    /// - Returns: The number of unsuccessful attempts to unlock the vault.
-    ///
-    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int
-
     /// Gets whether a user has a master password.
     ///
     /// - Parameter userId: The user ID of the user to determine whether they have a master password.
@@ -422,19 +404,19 @@ protocol StateService: AnyObject {
     ///
     func getUsesKeyConnector(userId: String?) async throws -> Bool
 
-    /// Gets the session timeout value.
-    ///
-    /// - Parameter userId: The user ID for the account.
-    /// - Returns: The session timeout value.
-    ///
-    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue
-
     /// Whether the user is authenticated.
     ///
     /// - Parameter userId: The user ID to check if they are authenticated.
     /// - Returns: Whether the user is authenticated.
     ///
     func isAuthenticated(userId: String?) async throws -> Bool
+
+    /// Checks if an initial sync is required (user hasn't synced before).
+    ///
+    /// - Parameter userId: The user ID to check. Defaults to the active account if `nil`.
+    /// - Returns: `true` if initial sync is needed, `false` otherwise.
+    ///
+    func isInitialSyncRequired(userId: String?) async -> Bool
 
     /// Logs the user out of an account.
     ///
@@ -567,13 +549,11 @@ protocol StateService: AnyObject {
     ///
     func setAppTheme(_ appTheme: AppTheme) async
 
-    /// Sets the user's Biometric Authentication Preference.
+    /// Sets whether the archive onboarding has been shown.
     ///
-    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
+    /// - Parameter shown: Whether the archive onboarding has been shown.
     ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
+    func setArchiveOnboardingShown(_ shown: Bool) async
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -652,14 +632,6 @@ protocol StateService: AnyObject {
     /// - Parameter status: The status of Learn New Login Action Card.
     ///
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async
-
-    /// Sets the last active time within the app.
-    ///
-    /// - Parameters:
-    ///   - date: The current time.
-    ///   - userId: The user ID associated with the last active time within the app.
-    ///
-    func setLastActiveTime(_ date: Date?, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -795,13 +767,6 @@ protocol StateService: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String) async
 
-    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
-    /// if `nil` defaults to currently active user.
-    ///
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws
-
     /// Sets whether the user has a master password.
     ///
     /// - Parameter hasMasterPassword: Whether the user has a master password.
@@ -823,14 +788,6 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID to set whether they use key connector.
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws
-
-    /// Sets the session timeout value.
-    ///
-    /// - Parameters:
-    ///   - value: The value that dictates how many seconds in the future a timeout should occur.
-    ///   - userId: The user ID associated with the timeout value.
-    ///
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
 
     /// Updates the profile information for a user.
     ///
@@ -1058,15 +1015,6 @@ extension StateService {
         try await getHasPerformedSyncAfterLogin(userId: nil)
     }
 
-    /// Gets the user's last active time within the app.
-    /// This value is set when the app is backgrounded.
-    ///
-    /// - Returns: The date of the last active time.
-    ///
-    func getLastActiveTime() async throws -> Date? {
-        try await getLastActiveTime(userId: nil)
-    }
-
     /// Gets the time of the last sync for a user.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -1122,17 +1070,6 @@ extension StateService {
         try await getTimeoutAction(userId: nil)
     }
 
-    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
-    ///
-    /// - Returns: The number of unsuccessful unlock attempts for the active account.
-    ///
-    func getUnsuccessfulUnlockAttempts() async -> Int {
-        if let attempts = try? await getUnsuccessfulUnlockAttempts(userId: nil) {
-            return attempts
-        }
-        return 0
-    }
-
     /// Gets whether a user has a master password.
     ///
     /// - Returns: Whether the user has a master password.
@@ -1157,20 +1094,20 @@ extension StateService {
         try await getUsesKeyConnector(userId: nil)
     }
 
-    /// Gets the session timeout value.
-    ///
-    /// - Returns: The session timeout value.
-    ///
-    func getVaultTimeout() async throws -> SessionTimeoutValue {
-        try await getVaultTimeout(userId: nil)
-    }
-
     /// Whether the active user account is authenticated.
     ///
     /// - Returns: Whether the user is authenticated.
     ///
     func isAuthenticated() async throws -> Bool {
         try await isAuthenticated(userId: nil)
+    }
+
+    /// Checks if an initial sync is required for the active account (user hasn't synced before).
+    ///
+    /// - Returns: `true` if initial sync is needed, `false` otherwise.
+    ///
+    func isInitialSyncRequired() async -> Bool {
+        await isInitialSyncRequired(userId: nil)
     }
 
     /// Logs the user out of the active account.
@@ -1327,14 +1264,6 @@ extension StateService {
         try await setHasPerformedSyncAfterLogin(hasBeenPerformed, userId: nil)
     }
 
-    /// Sets the last active time within the app.
-    ///
-    /// - Parameter date: The current time.
-    ///
-    func setLastActiveTime(_ date: Date?) async throws {
-        try await setLastActiveTime(date, userId: nil)
-    }
-
     /// Sets the time of the last sync for a user ID.
     ///
     /// - Parameter date: The time of the last sync (as the number of seconds since the Unix epoch).]
@@ -1399,14 +1328,6 @@ extension StateService {
         try await setTimeoutAction(action: action, userId: nil)
     }
 
-    /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
-    ///
-    /// - Parameter attempts: The number of unsuccessful unlock attempts.
-    ///
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int) async {
-        try? await setUnsuccessfulUnlockAttempts(attempts, userId: nil)
-    }
-
     /// Sets the username generation options for the active account.
     ///
     /// - Parameter options: The user's username generation options.
@@ -1423,12 +1344,12 @@ extension StateService {
         try await setUsesKeyConnector(usesKeyConnector, userId: nil)
     }
 
-    /// Sets the session timeout value.
-    ///
-    /// - Parameter value: The value that dictates how many seconds in the future a timeout should occur.
-    ///
-    func setVaultTimeout(value: SessionTimeoutValue) async throws {
-        try await setVaultTimeout(value: value, userId: nil)
+    /// Whether the user should do the archive onboarding.
+    /// - Returns: `true` if they should, `false` otherwise.
+    func shouldDoArchiveOnboarding() async -> Bool {
+        let hasPremium = await doesActiveAccountHavePremium()
+        let archiveOnboardingShown = await getArchiveOnboardingShown()
+        return hasPremium && !archiveOnboardingShown
     }
 }
 
@@ -1510,6 +1431,9 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
 
+    /// A service used to access user session data in the keychain.
+    private let userSessionKeychainRepository: UserSessionKeychainRepository
+
     /// A subject containing the pending App Intent actions.
     private var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
 
@@ -1537,11 +1461,13 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         dataStore: DataStore,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
+        userSessionKeychainRepository: UserSessionKeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
+        self.userSessionKeychainRepository = userSessionKeychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
@@ -1687,6 +1613,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         AppTheme(appSettingsStore.appTheme)
     }
 
+    func getArchiveOnboardingShown() async -> Bool {
+        appSettingsStore.archiveOnboardingShown
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -1759,11 +1689,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getIntroCarouselShown() async -> Bool {
         appSettingsStore.introCarouselShown
-    }
-
-    func getLastActiveTime(userId: String?) async throws -> Date? {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.lastActiveTime(userId: userId)
     }
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
@@ -1863,11 +1788,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.twoFactorToken(email: email)
     }
 
-    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.unsuccessfulUnlockAttempts(userId: userId)
-    }
-
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         try getAccount(userId: userId).profile.userDecryptionOptions?.hasMasterPassword ?? true
     }
@@ -1888,23 +1808,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return appSettingsStore.usesKeyConnector(userId: userId)
     }
 
-    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
-        let userId = try getAccount(userId: userId).profile.userId
-        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-        guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
-            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
-            // So if the never lock key exists, set the timeout to never, otherwise to default.
-            return userAuthKey != nil ? .never : .fifteenMinutes
-        }
-
-        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
-        if timeoutValue == .never, userAuthKey == nil {
-            // If never lock but no key (possibly due to logging out), return the default timeout.
-            return .fifteenMinutes
-        }
-        return timeoutValue
-    }
-
     func isAuthenticated(userId: String?) async throws -> Bool {
         do {
             let userId = try getAccount(userId: userId).profile.userId
@@ -1915,6 +1818,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         } catch StateServiceError.noAccounts {
             return false
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return false
+        }
+    }
+
+    func isInitialSyncRequired(userId: String?) async -> Bool {
+        do {
+            let lastSyncTime = try await getLastSyncTime(userId: userId)
+            return lastSyncTime == nil
+        } catch {
+            errorReporter.log(error: error)
             return false
         }
     }
@@ -2061,6 +1974,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appThemeSubject.send(appTheme)
     }
 
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        appSettingsStore.archiveOnboardingShown = shown
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
@@ -2115,11 +2032,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         appSettingsStore.learnNewLoginActionCardStatus = status
-    }
-
-    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setLastActiveTime(date, userId: userId)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
@@ -2251,11 +2163,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setTwoFactorToken(token, email: email)
     }
 
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
-    }
-
     func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try getActiveAccountUserId()
         var state = appSettingsStore.state ?? State()
@@ -2275,11 +2182,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
-    }
-
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setVaultTimeout(minutes: value.rawValue, userId: userId)
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {
@@ -2429,14 +2331,71 @@ struct AccountVolatileData {
 
 // MARK: Biometrics
 
-extension DefaultStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+extension DefaultStateService: BiometricsStateService {
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        let userId = try getActiveAccountUserId()
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
+    }
+}
+
+// MARK: User Session
+
+extension DefaultStateService: UserSessionStateService {
+    // MARK: Last Active Time
+
+    func getLastActiveTime(userId: String?) async throws -> Date? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveTime(userId: userId)
+    }
+
+    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+    }
+
+    // MARK: Unsuccessful Unlock Attempts
+
+    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
+        let userId = try userId ?? getActiveAccountUserId()
+        let attempts = try? await userSessionKeychainRepository.getUnsuccessfulUnlockAttempts(userId: userId)
+        return attempts ?? 0
+    }
+
+    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setUnsuccessfulUnlockAttempts(attempts, userId: userId)
+    }
+
+    // MARK: Vault Timeout
+
+    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
+        let userId = try getAccount(userId: userId).profile.userId
+        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
+        guard let rawValue = try? await userSessionKeychainRepository.getVaultTimeout(userId: userId)
+        else {
+            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
+        }
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
+        if timeoutValue == .never, userAuthKey == nil {
+            // If never lock but no key (possibly due to logging out), return the default timeout.
+            return .fifteenMinutes
+        }
+        return timeoutValue
+    }
+
+    func setVaultTimeout(_ value: SessionTimeoutValue, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setVaultTimeout(
+            minutes: value.rawValue,
+            userId: userId,
+        )
     }
 }

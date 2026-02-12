@@ -7,7 +7,7 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@vaultitems@. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerével, hogy elkerüljük a további adatvesztést.</string>
-      <key>vaultitems</key>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -17,14 +17,65 @@
         <string>A Bitwarden nem tudott visszafejteni %d széf elemet.</string>
         <key>other</key>
         <string>A Bitwarden nem tudott visszafejteni %d széf elemet.</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>A mesterjelszónak leagább %#@characters@ hosszúnak kell lennie.</string>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>A mesterjelszónak legalább [%d] karakter hosszúságúnak kell lennie.</string>
+        <key>other</key>
+        <string>A mesterjelszónak legalább [%d] karakter hosszúságúnak kell lennie.</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Ezt a jelszót %#@times@ alkalommal tették közzé adatsértések miatt. Meg kellene változtatni.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Ez a jelszó %d alkalommal volt kitett adatszivárgásnak.</string>
+        <key>other</key>
+        <string>Ez a jelszó %d alkalommal volt kitett adatszivárgásnak.</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Characters@</string>
+      <key>Characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d karakter</string>
+        <key>other</key>
+        <string>%d karakter</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
     <key>XDays</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@days@</string>
-      <key>days</key>
+      <string>%#@Days@</string>
+      <key>Days</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -36,12 +87,29 @@
         <string>%d nap</string>
       </dict>
     </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Hours@</string>
+      <key>Hours</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d óra</string>
+        <key>other</key>
+        <string>%d óra</string>
+      </dict>
+    </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
     <key>XItems</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@</string>
-      <key>items</key>
+      <string>%#@Items@</string>
+      <key>Items</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -58,41 +126,24 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@items@ sikeresen importálásra került.</string>
-      <key>items</key>
+      <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d elem</string>
+        <string>%d elem sikeresen importálásra került.</string>
         <key>other</key>
-        <string>%d elem</string>
-      </dict>
-    </dict>
-    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
-    <key>XHours</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d óra</string>
-        <key>other</key>
-        <string>%d óra</string>
+        <string>%d elem sikeresen importálásra került.</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
     <key>XMinutes</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
-      <key>minutes</key>
+      <string>%#@Minutes@</string>
+      <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -108,8 +159,8 @@
     <key>XSeconds</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@seconds@</string>
-      <key>seconds</key>
+      <string>%#@Seconds@</string>
+      <key>Seconds</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -125,8 +176,8 @@
     <key>XWeeks</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@weeks@</string>
-      <key>weeks</key>
+      <string>%#@Weeks@</string>
+      <key>Weeks</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -136,6 +187,23 @@
         <string>%d hét</string>
         <key>other</key>
         <string>%d hét</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>A PIN kódnak legalább %#@characters@ karakterből kell állnia. A PIN kód beállításai alaphelyzetbe kerülnek, ha valaha is teljesen kijelentkezünk az alkalmazásból.</string>
+      <key>YourPINMustBeAtLeastCharacters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>A PIN kódnak legalább %d karakter hosszúnak kell lennie.</string>
+        <key>other</key>
+        <string>A PIN kódnak legalább %d karakter hosszúnak kell lennie.</string>
       </dict>
     </dict>
   </dict>

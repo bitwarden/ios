@@ -25,6 +25,9 @@ class DefaultWatchService: NSObject, WatchService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The service used by the application to manage the environment settings.
     private let environmentService: EnvironmentService
 
@@ -51,6 +54,7 @@ class DefaultWatchService: NSObject, WatchService {
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
@@ -59,6 +63,7 @@ class DefaultWatchService: NSObject, WatchService {
     init(
         cipherService: CipherService,
         clientService: ClientService,
+        configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         organizationService: OrganizationService,
@@ -66,6 +71,7 @@ class DefaultWatchService: NSObject, WatchService {
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.organizationService = organizationService
@@ -100,8 +106,10 @@ class DefaultWatchService: NSObject, WatchService {
             try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
         }
 
+        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+
         return decryptedCiphers.filter { cipher in
-            cipher.deletedDate == nil
+            !cipher.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled)
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }

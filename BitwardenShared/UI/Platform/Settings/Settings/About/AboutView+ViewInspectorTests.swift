@@ -9,7 +9,7 @@ import XCTest
 class AboutViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    let copyrightText = "© Bitwarden Inc. 2015-2023"
+    let copyrightText = "© Bitwarden Inc. 2015-2023" // No need to be dynamic
     let version = "Version: 1.0.0 (1)"
 
     var processor: MockProcessor<AboutState, AboutAction, AboutEffect>!
@@ -87,12 +87,13 @@ class AboutViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .learnAboutOrganizationsTapped)
     }
 
-    /// Tapping the version button dispatches the `.versionTapped` action.
+    /// Tapping the version button performs the `.copyVersionInfo` effect.
     @MainActor
-    func test_versionButton_tap() throws {
+    func test_versionButton_tap() async throws {
         let button = try subject.inspect().find(button: version)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .versionTapped)
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects.last, .copyVersionInfo)
     }
 
     /// Tapping the web vault button dispatches the `.webVaultTapped` action.

@@ -81,15 +81,6 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .nameChanged("Name"))
     }
 
-    /// Updating the new password textfield sends the `.passwordChanged` action.
-    @MainActor
-    func test_newPasswordTextField_updated() throws {
-        processor.state.isOptionsExpanded = true
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.newPassword)
-        try textField.inputBinding().wrappedValue = "password"
-        XCTAssertEqual(processor.dispatchedActions.last, .passwordChanged("password"))
-    }
-
     /// Updating the notes textfield sends the `.notesChanged` action.
     @MainActor
     func test_notesTextField_updated() throws {
@@ -168,5 +159,91 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         )
         try textField.inputBinding().wrappedValue = "Text"
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))
+    }
+
+    // MARK: Who Can View Tests
+
+    /// Updating the access type menu sends the `.accessTypeChanged` action.
+    @MainActor
+    func test_accessTypeMenu_updated() throws {
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whoCanView)
+        try menuField.select(newValue: SendAccessType.anyoneWithPassword)
+        XCTAssertEqual(processor.dispatchedActions.last, .accessTypeChanged(.anyoneWithPassword))
+    }
+
+    /// Updating the password textfield when "Anyone with password" is selected sends the `.passwordChanged` action.
+    @MainActor
+    func test_passwordTextField_updated() throws {
+        processor.state.accessType = .anyoneWithPassword
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.password)
+        try textField.inputBinding().wrappedValue = "password123"
+        XCTAssertEqual(processor.dispatchedActions.last, .passwordChanged("password123"))
+    }
+
+    /// Tapping the generate password button sends the `.generatePasswordPressed` action.
+    @MainActor
+    func test_generatePasswordButton_tap() throws {
+        processor.state.accessType = .anyoneWithPassword
+        let button = try subject.inspect().find(
+            buttonWithAccessibilityLabel: Localizations.generatePassword,
+        )
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .generatePasswordPressed)
+    }
+
+    /// Tapping the copy password button performs the `.copyPasswordPressed` effect.
+    @MainActor
+    func test_copyPasswordButton_tap() async throws {
+        processor.state.accessType = .anyoneWithPassword
+        processor.state.password = "testPassword123"
+        let button = try subject.inspect().find(
+            asyncButtonWithAccessibilityLabel: Localizations.copyPassword,
+        )
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .copyPasswordPressed)
+    }
+
+    /// The copy password button is not visible when the password is empty.
+    @MainActor
+    func test_copyPasswordButton_notVisibleWhenEmpty() throws {
+        processor.state.accessType = .anyoneWithPassword
+        processor.state.password = ""
+        XCTAssertThrowsError(
+            try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyPassword)
+        )
+    }
+
+    /// Tapping the add email button sends the `.addRecipientEmail` action.
+    @MainActor
+    func test_addEmailButton_tap() throws {
+        processor.state.accessType = .specificPeople
+        processor.state.recipientEmails = ["test@example.com"]
+        let button = try subject.inspect().find(button: Localizations.addEmail)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addRecipientEmail)
+    }
+
+    /// Updating a recipient email textfield sends the `.recipientEmailChanged` action.
+    @MainActor
+    func test_recipientEmailTextField_updated() throws {
+        processor.state.accessType = .specificPeople
+        processor.state.recipientEmails = [""]
+        let textField = try subject.inspect()
+            .find(viewWithAccessibilityIdentifier: "SendRecipientEmailEntry0")
+            .find(ViewType.TextField.self)
+        try textField.setInput("test@example.com")
+        XCTAssertEqual(processor.dispatchedActions.last, .recipientEmailChanged(index: 0, value: "test@example.com"))
+    }
+
+    /// Tapping the remove email button sends the `.removeRecipientEmail` action.
+    @MainActor
+    func test_removeEmailButton_tap() throws {
+        processor.state.accessType = .specificPeople
+        processor.state.recipientEmails = ["test@example.com", "another@example.com"]
+        let button = try subject.inspect()
+            .find(viewWithAccessibilityIdentifier: "RemoveRecipientEmailButton0")
+            .button()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .removeRecipientEmail(index: 0))
     }
 }

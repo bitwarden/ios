@@ -76,9 +76,31 @@ class AboutProcessorTests: BitwardenTestCase {
             state: AboutState(),
         )
 
-        XCTAssertEqual(subject.state.copyrightText, "© Bitwarden Inc. 2015–2025")
+        XCTAssertEqual(
+            subject.state.copyrightText,
+            "© Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))",
+        )
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
         XCTAssertEqual(subject.state.version, "1.0 (1)")
+    }
+
+    /// `perform(_:)` with `.copyVersionInfo` copies the copyright, the version string
+    /// and device info to the pasteboard.
+    @MainActor
+    func test_perform_copyVersionInfo() async {
+        await subject.perform(.copyVersionInfo)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            """,
+        )
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
     }
 
     /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(true))` navigates to the enable
@@ -215,25 +237,6 @@ class AboutProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
         XCTAssertTrue(errorReporter.isEnabled)
-    }
-
-    /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string
-    /// and device info to the pasteboard.
-    @MainActor
-    func test_receive_versionTapped() {
-        subject.receive(.versionTapped)
-        XCTAssertEqual(
-            pasteboardService.copiedString,
-            """
-            © Bitwarden Inc. 2015–2025
-
-            📝 Bitwarden 1.0 (1)
-            📦 Bundle: com.8bit.bitwarden
-            📱 Device: iPhone14,2
-            🍏 System: iOS 16.4
-            """,
-        )
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
     }
 
     /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the web vault

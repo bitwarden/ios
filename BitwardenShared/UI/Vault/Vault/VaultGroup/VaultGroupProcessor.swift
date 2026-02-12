@@ -15,10 +15,12 @@ final class VaultGroupProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
         & HasPolicyService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -38,6 +40,9 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// An object to manage TOTP code expirations and batch refresh calls for the group.
     private var groupTotpExpirationManager: TOTPExpirationManager?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
@@ -69,10 +74,12 @@ final class VaultGroupProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
+
         groupTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
@@ -103,6 +110,7 @@ final class VaultGroupProcessor: StateProcessor<
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
+            await loadHasPremiumAccount()
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
             await streamVaultList()
@@ -133,7 +141,10 @@ final class VaultGroupProcessor: StateProcessor<
         switch action {
         case let .addItemPressed(type):
             let type = type ?? CipherType(group: state.group) ?? .login
-            coordinator.navigate(to: .addItem(group: state.group, type: type))
+            coordinator.navigate(
+                to: .addItem(group: state.group, type: type),
+                context: self,
+            )
         case .clearURL:
             state.url = nil
         case let .copyTOTPCode(code):
@@ -154,11 +165,17 @@ final class VaultGroupProcessor: StateProcessor<
             case let .totp(_, model):
                 navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
             }
+        case .restartPremiumSubscription:
+            state.url = services.environmentService.upgradeToPremiumURL
         case let .searchStateChanged(isSearching):
             if !isSearching {
                 state.searchText = ""
                 state.searchResults = []
+                searchProcessorMediator.stopSearching()
                 searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: [])
+            }
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
             }
             state.isSearching = isSearching
         case let .searchTextChanged(newValue):
@@ -180,6 +197,12 @@ final class VaultGroupProcessor: StateProcessor<
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
+    /// Loads whether the current account has premium subscription.
+    ///
+    private func loadHasPremiumAccount() async {
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+    }
+
     /// Checks available item types user can create.
     ///
     private func loadItemTypesUserCanCreate() async {
@@ -196,7 +219,10 @@ final class VaultGroupProcessor: StateProcessor<
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
@@ -241,7 +267,6 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             try await services.vaultRepository.fetchSync(
                 forceSync: true,
-                filter: state.vaultFilterType,
                 isPeriodic: false,
             )
         } catch {
@@ -259,22 +284,24 @@ final class VaultGroupProcessor: StateProcessor<
             state.searchResults = []
             return
         }
-        do {
-            let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
-                    filterType: state.searchVaultFilterType,
-                    group: state.group,
-                    searchText: searchText,
-                ),
-            )
-            for try await vaultListData in publisher {
-                let items = vaultListData.sections.first?.items ?? []
-                state.searchResults = items
-                searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+
+        searchProcessorMediator.updateFilter(
+            VaultListFilter(
+                filterType: state.searchVaultFilterType,
+                group: state.group,
+                searchText: searchText,
+            ),
+        )
+    }
+
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+        searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
     }
 
     /// Streams the user's organizations.
@@ -306,22 +333,35 @@ final class VaultGroupProcessor: StateProcessor<
 // MARK: - CipherItemOperationDelegate
 
 extension VaultGroupProcessor: CipherItemOperationDelegate {
+    // MARK: Methods
+
+    func itemArchived() {
+        displayToastAndRefresh(toastTitle: Localizations.itemMovedToArchive)
+    }
+
     func itemDeleted() {
-        state.toast = Toast(title: Localizations.itemDeleted)
-        Task {
-            await perform(.refresh)
-        }
+        displayToastAndRefresh(toastTitle: Localizations.itemDeleted)
     }
 
     func itemSoftDeleted() {
-        state.toast = Toast(title: Localizations.itemSoftDeleted)
-        Task {
-            await perform(.refresh)
-        }
+        displayToastAndRefresh(toastTitle: Localizations.itemSoftDeleted)
     }
 
     func itemRestored() {
-        state.toast = Toast(title: Localizations.itemRestored)
+        displayToastAndRefresh(toastTitle: Localizations.itemRestored)
+    }
+
+    func itemUnarchived() {
+        displayToastAndRefresh(toastTitle: Localizations.itemMovedToVault)
+    }
+
+    // MARK: Private methods
+
+    /// Displays a toast and performs a refresh.
+    ///
+    /// - Parameter toastTitle: The title of the toast.
+    func displayToastAndRefresh(toastTitle: String) {
+        state.toast = Toast(title: toastTitle)
         Task {
             await perform(.refresh)
         }

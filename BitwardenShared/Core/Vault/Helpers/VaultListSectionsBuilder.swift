@@ -54,9 +54,9 @@ protocol VaultListSectionsBuilder { // sourcery: AutoMockable
     /// - Returns: The builder for fluent code.
     func addTOTPSection() -> VaultListSectionsBuilder
 
-    /// Adds a section with trash (deleted) items.
+    /// Adds a section with hidden items: archived and trash (deleted) items.
     /// - Returns: The builder for fluent code.
-    func addTrashSection() -> VaultListSectionsBuilder
+    func addHiddenItemsSection() async -> VaultListSectionsBuilder
 
     /// Adds a section with items types.
     /// - Returns: The builder for fluent code.
@@ -98,10 +98,14 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     let clientService: ClientService
     /// The helper functions for collections.
     let collectionHelper: CollectionHelper
+    /// The service to get server-specified configuration.
+    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// Vault list data prepared to  be used by the builder.
-    let preparedData: VaultListPreparedData
+    var preparedData: VaultListPreparedData
+    /// The service used by the application to manage account state.
+    let stateService: StateService
     /// The vault list data to build.
     private var vaultListData = VaultListData()
 
@@ -114,16 +118,21 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - preparedData: `VaultListPreparedData` to be used as input to build the sections where the caller
     ///   decides which to include depending on the builder methods called.
+    ///   - stateService: The service used by the application to manage account state.
     init(
         clientService: ClientService,
         collectionHelper: CollectionHelper,
+        configService: ConfigService,
         errorReporter: ErrorReporter,
+        stateService: StateService,
         withData preparedData: VaultListPreparedData,
     ) {
         self.clientService = clientService
         self.collectionHelper = collectionHelper
+        self.configService = configService
         self.errorReporter = errorReporter
         self.preparedData = preparedData
+        self.stateService = stateService
     }
 
     // MARK: Methods
@@ -321,6 +330,32 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
         return self
     }
 
+    func addHiddenItemsSection() async -> VaultListSectionsBuilder {
+        var items: [VaultListItem] = []
+
+        if await configService.getFeatureFlag(.archiveVaultItems) {
+            let hasPremium = await stateService.doesActiveAccountHavePremium()
+            items.append(
+                VaultListItem(
+                    id: "Archive",
+                    hasPremium: hasPremium,
+                    itemType: .group(.archive, preparedData.ciphersArchivedCount),
+                ),
+            )
+        }
+
+        items.append(VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount)))
+
+        vaultListData.sections.append(
+            VaultListSection(
+                id: "HiddenItems",
+                items: items,
+                name: Localizations.hiddenItems,
+            ),
+        )
+        return self
+    }
+
     func addSearchResultsSection(options: VaultListOptions) -> VaultListSectionsBuilder {
         guard !preparedData.exactMatchItems.isEmpty || !preparedData.fuzzyMatchItems.isEmpty else {
             return self
@@ -359,14 +394,6 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
                 name: Localizations.totp,
             ))
         }
-        return self
-    }
-
-    func addTrashSection() -> VaultListSectionsBuilder {
-        let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount))
-        vaultListData.sections.append(
-            VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash),
-        )
         return self
     }
 
@@ -410,7 +437,8 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     }
 
     func build() -> VaultListData {
-        vaultListData
+        defer { preparedData = VaultListPreparedData() }
+        return vaultListData
     }
 }
 
@@ -419,10 +447,22 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
 /// Metadata helper object to hold temporary prepared (grouped, filtered, counted) data
 /// the builder can then use to build the list sections.
 struct VaultListPreparedData {
+    /// The count of archived ciphers in the vault.
+    var ciphersArchivedCount: Int = 0
+
+    /// The list of cipher IDs that failed to decrypt.
     var cipherDecryptionFailureIds: [Uuid] = []
+
+    /// The count of deleted (trashed) ciphers in the vault.
     var ciphersDeletedCount: Int = 0
+
+    /// The list of collections available to the user.
     var collections: [Collection] = []
+
+    /// A dictionary mapping collection IDs to the count of ciphers in each collection.
     var collectionsCount: [Uuid: Int] = [:]
+
+    /// A dictionary mapping cipher types to their counts in the vault.
     var countPerCipherType: [CipherType: Int] = [
         .card: 0,
         .identity: 0,
@@ -430,15 +470,34 @@ struct VaultListPreparedData {
         .secureNote: 0,
         .sshKey: 0,
     ]
+
+    /// Vault list items that exactly match the search criteria.
     var exactMatchItems: [VaultListItem] = []
+
+    /// Vault list items marked as favorites by the user.
     var favorites: [VaultListItem] = []
+
+    /// Vault list items containing FIDO2 credentials.
     var fido2Items: [VaultListItem] = []
+
+    /// The list of folders available to the user.
     var folders: [Folder] = []
+
+    /// A dictionary mapping folder IDs to the count of ciphers in each folder.
     var foldersCount: [Uuid: Int] = [:]
+
+    /// Vault list items that partially match the search criteria.
     var fuzzyMatchItems: [VaultListItem] = []
+
+    /// Vault list items belonging to the currently filtered group.
     var groupItems: [VaultListItem] = []
+
+    /// Vault list items that are not assigned to any folder.
     var noFolderItems: [VaultListItem] = []
-    /// Organization Ids with `.restrictItemTypes` policy enabled.
+
+    /// Organization IDs with the `.restrictItemTypes` policy enabled.
     var restrictedOrganizationIds: [String] = []
+
+    /// The count of items with TOTP codes in the vault.
     var totpItemsCount: Int = 0
 } // swiftlint:disable:this file_length

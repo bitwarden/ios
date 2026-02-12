@@ -8,7 +8,7 @@ protocol RehydrationHelper {
     func clearAppRehydrationState() async throws
     /// Gets the last target state for rehydartion.
     func getLastTargetState() async -> RehydrationState?
-    /// Attemps to get the saved rehydratable target if there's one and if the expiration time hasn't been reached.
+    /// Attempts to get the saved rehydratable target if there's one and if the expiration time hasn't been reached.
     func getSavedRehydratableTarget() async throws -> RehydratableTarget?
     /// Saves the rehydration state if the last view seen by the user is one that we need to save
     /// so after the user unlocks it navigates back to such screen.

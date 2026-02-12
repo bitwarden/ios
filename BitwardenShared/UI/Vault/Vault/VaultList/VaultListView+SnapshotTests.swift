@@ -8,10 +8,61 @@ import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListViewTests
 
 class VaultListViewTests: BitwardenTestCase {
+    // MARK: Static properties
+
+    /// An array of vault list sections with default data to fill the vault.
+    static var defaultVaultData: [VaultListSection] {
+        [
+            VaultListSection(
+                id: "",
+                items: [
+                    .fixture(cipherListView: .fixture(
+                        login: .fixture(username: "email@example.com"),
+                        name: "Example",
+                        subtitle: "email@example.com",
+                    )),
+                    .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
+                    .fixture(cipherListView: .fixture(
+                        id: "13",
+                        organizationId: "1",
+                        login: .fixture(username: "user@bitwarden.com"),
+                        name: "Bitwarden",
+                        subtitle: "user@bitwarden.com",
+                        attachments: 1,
+                    )),
+                ],
+                name: "Favorites",
+            ),
+            VaultListSection(
+                id: "2",
+                items: [
+                    VaultListItem(
+                        id: "21",
+                        itemType: .group(.login, 123),
+                    ),
+                    VaultListItem(
+                        id: "22",
+                        itemType: .group(.card, 25),
+                    ),
+                    VaultListItem(
+                        id: "23",
+                        itemType: .group(.identity, 1),
+                    ),
+                    VaultListItem(
+                        id: "24",
+                        itemType: .group(.secureNote, 0),
+                    ),
+                ],
+                name: "Types",
+            ),
+        ]
+    }
+
     // MARK: Properties
 
     var processor: MockProcessor<VaultListState, VaultListAction, VaultListEffect>!
@@ -95,50 +146,17 @@ class VaultListViewTests: BitwardenTestCase {
 
     @MainActor
     func disabletest_snapshot_myVault() {
-        processor.state.loadingState = .data([
-            VaultListSection(
-                id: "",
-                items: [
-                    .fixture(cipherListView: .fixture(
-                        login: .fixture(username: "email@example.com"),
-                        name: "Example",
-                        subtitle: "email@example.com",
-                    )),
-                    .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
-                    .fixture(cipherListView: .fixture(
-                        id: "13",
-                        organizationId: "1",
-                        login: .fixture(username: "user@bitwarden.com"),
-                        name: "Bitwarden",
-                        subtitle: "user@bitwarden.com",
-                        attachments: 1,
-                    )),
-                ],
-                name: "Favorites",
-            ),
-            VaultListSection(
-                id: "2",
-                items: [
-                    VaultListItem(
-                        id: "21",
-                        itemType: .group(.login, 123),
-                    ),
-                    VaultListItem(
-                        id: "22",
-                        itemType: .group(.card, 25),
-                    ),
-                    VaultListItem(
-                        id: "23",
-                        itemType: .group(.identity, 1),
-                    ),
-                    VaultListItem(
-                        id: "24",
-                        itemType: .group(.secureNote, 0),
-                    ),
-                ],
-                name: "Types",
-            ),
-        ])
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    @MainActor
+    func disabletest_snapshot_myVaultArchiveOnboarding() {
+        processor.state.shouldShowArchiveOnboardingActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

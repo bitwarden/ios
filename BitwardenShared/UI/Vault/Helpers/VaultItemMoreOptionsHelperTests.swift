@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // swiftlint:disable file_length
 
@@ -13,7 +14,9 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var pasteboardService: MockPasteboardService!
@@ -27,7 +30,10 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         super.setUp()
 
         authRepository = MockAuthRepository()
+        configService = MockConfigService()
+        configService.featureFlagsBool[.archiveVaultItems] = true
         coordinator = MockCoordinator()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         pasteboardService = MockPasteboardService()
@@ -39,6 +45,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 stateService: stateService,
@@ -51,7 +59,9 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         super.tearDown()
 
         authRepository = nil
+        configService = nil
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
         masterPasswordRepromptHelper = nil
         pasteboardService = nil
@@ -61,6 +71,76 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     // MARK: Tests
+
+    /// `showMoreOptionsAlert()` shows archive option and calls `handleMoreOptionsAction` with
+    /// `.archive` when the archive action is tapped.
+    @MainActor
+    func test_showMoreOptionsAlert_archive() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        let cipherView = CipherView.loginFixture(archivedDate: nil, deletedDate: nil)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var toastToDisplay: Toast?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { toastToDisplay = $0 },
+            handleOpenURL: { _ in },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertTrue(optionsAlert.alertActions.contains(where: { $0.title == Localizations.archive }))
+
+        coordinator.loadingOverlaysShown = []
+        vaultRepository.archiveCipherResult = .success(())
+        try await optionsAlert.tapAction(title: Localizations.archive)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.sendingToArchive)
+        XCTAssertEqual(vaultRepository.archiveCipher, [cipherView])
+        XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToArchive))
+    }
+
+    /// `showMoreOptionsAlert()` shows archive option and calls `handleMoreOptionsAction` with
+    /// `.archive` when the archive action is tapped but it's unavailable so it displays an alert stating it so.
+    @MainActor
+    func test_showMoreOptionsAlert_archiveUnavailable() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+
+        let cipherView = CipherView.loginFixture(archivedDate: nil, deletedDate: nil)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var toastToDisplay: Toast?
+        var url: URL?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { toastToDisplay = $0 },
+            handleOpenURL: { url = $0 },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertTrue(optionsAlert.alertActions.contains(where: { $0.title == Localizations.archive }))
+
+        coordinator.loadingOverlaysShown = []
+        vaultRepository.archiveCipherResult = .success(())
+        try await optionsAlert.tapAction(title: Localizations.archive)
+
+        let archiveUnavailableAlert = try XCTUnwrap(coordinator.alertShown.last)
+
+        try await archiveUnavailableAlert.tapAction(title: Localizations.upgradeToPremium)
+
+        XCTAssertNil(coordinator.loadingOverlaysShown.last?.title)
+        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
+        XCTAssertNil(toastToDisplay)
+        XCTAssertNotNil(url)
+    }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a card cipher.
     @MainActor
@@ -81,10 +161,11 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions.count, 4)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
 
         // A card with data should show the copy actions.
         let cardWithData = CipherView.cardFixture(card: .fixture(
@@ -102,12 +183,13 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 5)
+        XCTAssertEqual(alert.alertActions.count, 6)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
         XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNumber)
         XCTAssertEqual(alert.alertActions[3].title, Localizations.copySecurityCode)
-        XCTAssertEqual(alert.alertActions[4].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[5].title, Localizations.cancel)
 
         // Test the functionality of the buttons.
 
@@ -159,7 +241,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 6)
+        XCTAssertEqual(alert.alertActions.count, 7)
         XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
 
         // Test the functionality of the copy user name and password buttons.
@@ -366,10 +448,11 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions.count, 4)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
 
         // Test the functionality of the buttons.
 
@@ -427,15 +510,17 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions.count, 4)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
     }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a login cipher.
     @MainActor
     func test_showMoreOptionsAlert_morePressed_login_full() async throws {
+        // swiftlint:disable:previous function_body_length
         let account = Account.fixture()
         stateService.activeAccount = account
 
@@ -464,14 +549,15 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 7)
+        XCTAssertEqual(alert.alertActions.count, 8)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
         XCTAssertEqual(alert.alertActions[2].title, Localizations.copyUsername)
         XCTAssertEqual(alert.alertActions[3].title, Localizations.copyPassword)
         XCTAssertEqual(alert.alertActions[4].title, Localizations.copyTotp)
         XCTAssertEqual(alert.alertActions[5].title, Localizations.launch)
-        XCTAssertEqual(alert.alertActions[6].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[6].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[7].title, Localizations.cancel)
 
         // Test the functionality of the buttons.
 
@@ -526,10 +612,11 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions.count, 4)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
 
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
@@ -557,10 +644,11 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 3)
+        XCTAssertEqual(alert.alertActions.count, 4)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
-        XCTAssertEqual(alert.alertActions[2].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
 
         // A note with data should show the copy action.
         let noteWithData = CipherView.fixture(notes: "Test Note", type: .secureNote)
@@ -575,11 +663,12 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, "Bitwarden")
-        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions.count, 5)
         XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
         XCTAssertEqual(alert.alertActions[1].title, Localizations.edit)
         XCTAssertEqual(alert.alertActions[2].title, Localizations.copyNotes)
-        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.archive)
+        XCTAssertEqual(alert.alertActions[4].title, Localizations.cancel)
 
         // Test the functionality of the buttons.
 
@@ -629,6 +718,37 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
+    }
+
+    /// `showMoreOptionsAlert()` shows unarchive option and calls `handleMoreOptionsAction` with
+    /// `.unarchive` when the unarchive action is tapped.
+    @MainActor
+    func test_showMoreOptionsAlert_unarchive() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        let cipherView = CipherView.loginFixture(archivedDate: .now, deletedDate: nil)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var toastToDisplay: Toast?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { toastToDisplay = $0 },
+            handleOpenURL: { _ in },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+
+        XCTAssertTrue(optionsAlert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
+
+        coordinator.loadingOverlaysShown = []
+        vaultRepository.unarchiveCipherResult = .success(())
+        try await optionsAlert.tapAction(title: Localizations.unarchive)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.movingItemToVault)
+        XCTAssertEqual(vaultRepository.unarchiveCipher, [cipherView])
+        XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToVault))
     }
 }
 

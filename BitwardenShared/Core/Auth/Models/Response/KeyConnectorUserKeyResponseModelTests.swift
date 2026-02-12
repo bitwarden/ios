@@ -2,6 +2,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class KeyConnectorUserKeyResponseModelTests: BitwardenTestCase {
     // MARK: - Tests

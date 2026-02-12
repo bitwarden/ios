@@ -2,6 +2,7 @@ import AuthenticationServices
 import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
+import Combine
 
 // MARK: - VaultAutofillListProcessor
 
@@ -23,6 +24,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTOTPExpirationManagerFactory
         & HasTextAutofillHelperFactory
@@ -43,6 +45,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// An object to manage TOTP code expirations and batch refresh calls for the vault list items.
     private var vaultItemsTotpExpirationManager: TOTPExpirationManager?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
@@ -94,6 +99,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         )
         self.coordinator = coordinator
         self.services = services
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
+
         super.init(state: state)
 
         switch autofillListMode {
@@ -121,7 +128,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
-        case .excludedCredentialFoundChaged:
+        case .excludedCredentialFoundChanged:
             if let cipherIdFound = state.excludedCredentialIdFound {
                 await updateExcludedCredentialSection(from: cipherIdFound)
             }
@@ -157,6 +164,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             }
         case .loadData:
             await refreshProfileState()
+            await fetchInitialSyncIfNecessary()
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
         case let .search(text):
@@ -197,7 +205,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):
-            guard isSearching else { return }
+            guard isSearching else {
+                searchProcessorMediator.stopSearching()
+                return
+            }
+            searchProcessorMediator.startSearching(mode: autofillListMode) { [weak self] data in
+                self?.searchResultsReceived(data: data)
+            }
             state.searchText = ""
             state.ciphersForSearch = []
             state.showNoResults = false
@@ -224,6 +238,36 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
+    }
+
+    /// Fetches initial sync if necessary, checking if the user has synced before.
+    private func fetchInitialSyncIfNecessary() async {
+        do {
+            guard await services.stateService.isInitialSyncRequired() else { return }
+
+            if !state.loadingState.isLoading {
+                // Set the loading state if not loading. This transitions to the loading state on a
+                // retry after an error, but doesn't clear any cached items from the publisher prior
+                // to syncing.
+                state.loadingState = .loading(nil)
+            }
+
+            try await services.vaultRepository.fetchSync(forceSync: false, isPeriodic: false)
+
+            if case let .loading(sections) = state.loadingState, let sections {
+                // If the sections have already been loaded and stored in the loading state, display
+                // them immediately, otherwise wait for the vault publisher to populate the sections.
+                state.loadingState = .data(sections)
+            }
+        } catch URLError.cancelled {
+            // No-op: don't log or alert for cancellation errors.
+        } catch {
+            state.loadingState = .error(
+                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+            )
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
     }
 
     /// Handles receiving a `ProfileSwitcherAction`.
@@ -278,7 +322,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
-    /// Initilaizes the TOTP expiration managers so the TOTP codes are refreshed automatically.
+    /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     func initTotpExpirationManagers() {
         vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
             onExpiration: { [weak self] expiredItems in
@@ -301,16 +345,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
-        guard !state.vaultListSections.isEmpty else {
+        guard let sections = state.loadingState.data, !sections.isEmpty else {
             return
         }
 
         do {
-            state.vaultListSections = try await refreshTOTPCodes(
+            let updatedSections = try await refreshTOTPCodes(
                 for: items,
-                in: state.vaultListSections,
+                in: sections,
                 using: vaultItemsTotpExpirationManager,
             )
+            state.loadingState = .data(updatedSections)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -333,6 +378,19 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let sections = data.sections
+        state.ciphersForSearch = sections
+        state.showNoResults = sections.isEmpty
+        if state.isAutofillingTotpList, let section = sections.first, !section.items.isEmpty {
+            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: section.items)
+        }
+    }
+
     /// Searches the list of ciphers for those matching the search term.
     ///
     private func searchVault(for searchText: String) async {
@@ -341,30 +399,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             state.showNoResults = false
             return
         }
-        do {
-            let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
-            let publisher = try await services.vaultRepository.vaultListPublisher(
-                filter: VaultListFilter(
-                    filterType: .allVaults,
-                    group: groupFilter,
-                    mode: autofillListMode,
-                    rpID: autofillAppExtensionDelegate?.rpID,
-                    searchText: searchText,
-                ),
-            )
-            for try await vaultListData in publisher {
-                let sections = vaultListData.sections
-                state.ciphersForSearch = sections
-                state.showNoResults = sections.isEmpty
-                if let section = sections.first, !section.items.isEmpty {
-                    searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: section.items)
-                }
-            }
-        } catch {
-            state.ciphersForSearch = []
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
+
+        let groupFilter = state.group ?? (autofillListMode == .all ? nil : .login)
+        searchProcessorMediator.updateFilter(
+            VaultListFilter(
+                filterType: .allVaults,
+                group: groupFilter,
+                mode: autofillListMode,
+                rpID: autofillAppExtensionDelegate?.rpID,
+                searchText: searchText,
+            ),
+        )
     }
 
     /// Streams the list of autofill items.
@@ -395,7 +440,14 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
-                state.vaultListSections = sections
+
+                if await services.stateService.isInitialSyncRequired(), case .loading = state.loadingState {
+                    // Sync hasn't completed yet, store the sections in the loading state.
+                    state.loadingState = .loading(sections)
+                } else {
+                    // Sync has completed (or not required), display the sections.
+                    state.loadingState = .data(sections)
+                }
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -424,7 +476,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 let vaultListSection = try await services.vaultRepository.createAutofillListExcludedCredentialSection(
                     from: cipher,
                 )
-                state.vaultListSections = [vaultListSection]
+                state.loadingState = .data([vaultListSection])
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -622,7 +674,7 @@ extension VaultAutofillListProcessor {
                 userVerificationPreference: userVerificationPreference,
             )
             let createdCredential = try await services.clientService.platform().fido2()
-                .authenticator(
+                .vaultAuthenticator(
                     userInterface: services.fido2UserInterfaceHelper,
                     credentialStore: services.fido2CredentialStore,
                 )
@@ -655,7 +707,7 @@ extension VaultAutofillListProcessor {
 
         if autofillAppExtensionDelegate.isCreatingFido2Credential {
             guard state.excludedCredentialIdFound == nil else {
-                guard let cipherId = state.vaultListSections.first?.items.first?.id else {
+                guard let cipherId = state.loadingState.data?.first?.items.first?.id else {
                     coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                     return
                 }

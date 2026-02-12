@@ -5,6 +5,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - AuthServiceTests
 
@@ -900,7 +901,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` set forcePasswordResetReason as
-    /// weakMasterPasswordOnLogin as master password doesn't fullfil org policies.
+    /// weakMasterPasswordOnLogin as master password doesn't fulfill org policies.
     func test_loginWithTwoFactorCode_forcePasswordResetReason() async throws {
         // Set up the mock data.
         client.results = [

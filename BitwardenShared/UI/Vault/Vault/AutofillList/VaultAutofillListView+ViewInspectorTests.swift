@@ -49,7 +49,7 @@ class VaultAutofillListViewTests: BitwardenTestCase {
     @MainActor
     func test_addItemButton_tap_fido2CreationFlowEmptyView() throws {
         processor.state.isCreatingFido2Credential = true
-        processor.state.vaultListSections = []
+        processor.state.loadingState = .data([])
         processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
         let button = try subject.inspect().find(button: Localizations.savePasskeyAsNewLogin)
         try button.tap()
@@ -62,5 +62,16 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
+    }
+
+    /// Tapping the retry button in error state performs the `.loadData` effect.
+    @MainActor
+    func test_retryButton_tap_errorState() async throws {
+        processor.state.loadingState = .error(
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs,
+        )
+        let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .loadData)
     }
 }

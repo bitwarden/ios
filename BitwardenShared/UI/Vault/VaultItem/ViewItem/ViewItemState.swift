@@ -48,6 +48,9 @@ struct ViewItemState: Equatable, Sendable {
 
     /// A toast message to show in the view.
     var toast: Toast?
+
+    /// The URL to open in the device's web browser.
+    var url: URL?
 }
 
 extension ViewItemState {

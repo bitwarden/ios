@@ -5,7 +5,7 @@ BASE_BUNDLE_ID = $(ORGANIZATION_IDENTIFIER).authenticator
 SHARED_APP_GROUP_IDENTIFIER = group.${ORGANIZATION_IDENTIFIER}.bitwarden-authenticator
 APPICON_NAME = AppIcon
 
-// The above code signing settings can be overriden by adding a Local-bwa.xcconfig
+// The above code signing settings can be overridden by adding a Local-bwa.xcconfig
 // file in the Configs directory.
 //
 // As an example, add the file Local-bwa.xcconfig with the following contents:

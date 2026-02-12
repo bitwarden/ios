@@ -230,7 +230,8 @@ public class AppProcessor {
                 emailVerificationToken: verificationToken,
                 userEmail: email,
                 fromEmail: Bool(fromEmail) ?? true,
-            )))
+            ),
+        ))
     }
 
     /// Handles importing credentials using Credential Exchange Protocol.
@@ -243,7 +244,7 @@ public class AppProcessor {
         await checkIfLockedAndPerformNavigation(route: route)
     }
 
-    /// Perpares the current environment configuration by loading the URLs for the active account
+    /// Prepares the current environment configuration by loading the URLs for the active account
     /// and getting the current server config.
     public func prepareEnvironmentConfig() async {
         await services.environmentService.loadURLsForActiveAccount()
@@ -514,11 +515,11 @@ extension AppProcessor {
     private func logOutAutomatically(userId: String? = nil) async {
         coordinator?.hideLoadingOverlay()
         do {
-            try await services.authRepository.logout(userId: userId, userInitiated: false)
+            try await services.authRepository.logout(userId: userId, userInitiated: true)
         } catch {
             services.errorReporter.log(error: error)
         }
-        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
+        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: true))
     }
 
     /// Starts timer to send organization events regularly
@@ -654,6 +655,11 @@ extension AppProcessor: SyncServiceDelegate {
         DispatchQueue.main.async { [self] in
             coordinator?.navigate(to: .auth(.setMasterPassword(organizationIdentifier: orgIdentifier)))
         }
+    }
+
+    func migrateVaultToMyItems(organizationId: String) {
+        coordinator?.hideLoadingOverlay()
+        coordinator?.navigate(to: .migrateToMyItems(organizationId: organizationId))
     }
 }
 

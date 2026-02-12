@@ -18,6 +18,10 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     /// Whether the send is disabled.
     let disabled: Bool
 
+    /// Comma-separated list of emails that may access the send using OTP
+    /// authentication. Mutually exclusive with password.
+    let emails: String?
+
     /// The expiration date of the send.
     let expirationDate: Date?
 

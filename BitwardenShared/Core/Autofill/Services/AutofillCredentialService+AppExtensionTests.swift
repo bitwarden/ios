@@ -8,9 +8,12 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
+
+// swiftlint:disable file_length
 
 /// The tests for `DefaultAutofillCredentialService` when the app context is `.appExtension`.
-/// This new file is needed given that the app context is necesary on `DefaultAutofillCredentialService`
+/// This new file is needed given that the app context is necessary on `DefaultAutofillCredentialService`
 /// initialization to see if the subscription to the `VaultTimeoutService` is necessary. So it's easier to test
 /// having a new class test specifically for it.
 @MainActor
@@ -21,12 +24,14 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
     var autofillCredentialServiceDelegate: MockAutofillCredentialServiceDelegate!
     var cipherService: MockCipherService!
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var flightRecorder: MockFlightRecorder!
     var identityStore: MockCredentialIdentityStore!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
@@ -46,12 +51,14 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         autofillCredentialServiceDelegate = MockAutofillCredentialServiceDelegate()
         cipherService = MockCipherService()
         clientService = MockClientService()
+        configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        flightRecorder = MockFlightRecorder()
         identityStore = MockCredentialIdentityStore()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
@@ -63,11 +70,13 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
+            configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             identityStore: identityStore,
             pasteboardService: pasteboardService,
             stateService: stateService,
@@ -84,12 +93,14 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         autofillCredentialServiceDelegate = nil
         cipherService = nil
         clientService = nil
+        configService = nil
         credentialIdentityFactory = nil
         errorReporter = nil
         eventService = nil
         fido2UserInterfaceHelperDelegate = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        flightRecorder = nil
         identityStore = nil
         pasteboardService = nil
         stateService = nil
@@ -111,9 +122,9 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return subject.hasCipherChangesSubscription
         }
 
-        // Send an inserted cipher
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .inserted(.fixture(
+            .upserted(.fixture(
                 id: "1",
                 login: .fixture(
                     password: "password123",
@@ -142,10 +153,6 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         prepareDataForIdentitiesReplacement()
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
         credentialIdentityFactory.createCredentialIdentitiesMocker
             .withResult { cipher in
                 if cipher.id == "3" {
@@ -163,9 +170,14 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
                 }
             }
 
-        // Send an updated cipher
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.hasCipherChangesSubscription
+        }
+
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .updated(.fixture(
+            .upserted(.fixture(
                 id: "3",
                 login: .fixture(
                     password: "newpassword",
@@ -225,6 +237,28 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         )
     }
 
+    /// `subscribeToCipherChanges()` does not do a full replace when ciphers are replaced to avoid
+    /// memory issues in extensions.
+    func test_subscribeToCipherChanges_replace_doesNotReplaceAll() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.hasCipherChangesSubscription
+        }
+
+        // Send a replaced event
+        cipherService.cipherChangesSubject.send(.replacedAll)
+
+        // Wait a bit to ensure no full replacement is triggered
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        // Verify that a full replace was NOT performed
+        XCTAssertFalse(identityStore.replaceCredentialIdentitiesCalled)
+        XCTAssertFalse(cipherService.fetchAllCiphersCalled)
+    }
+
     /// `subscribeToCipherChanges()` does not update the store when identity store is disabled.
     func test_subscribeToCipherChanges_storeDisabled() async throws {
         prepareDataForIdentitiesReplacement()
@@ -236,9 +270,9 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return subject.hasCipherChangesSubscription
         }
 
-        // Send an inserted cipher
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .inserted(.fixture(
+            .upserted(.fixture(
                 id: "1",
                 login: .fixture(
                     password: "password123",
@@ -265,9 +299,9 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return subject.hasCipherChangesSubscription
         }
 
-        // Send an inserted cipher
+        // Send an upserted cipher
         cipherService.cipherChangesSubject.send(
-            .inserted(.fixture(
+            .upserted(.fixture(
                 id: "1",
                 login: .fixture(
                     password: "password123",

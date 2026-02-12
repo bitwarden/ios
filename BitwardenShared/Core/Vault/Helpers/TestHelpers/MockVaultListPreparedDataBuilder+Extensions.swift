@@ -3,6 +3,7 @@ import Combine
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 extension MockVaultListPreparedDataBuilder {
     func setUpCallOrderHelper() -> MockCallOrderHelper { // swiftlint:disable:this function_body_length
@@ -38,6 +39,10 @@ extension MockVaultListPreparedDataBuilder {
         }
         addSearchResultItemClosure = { _, _, _ -> VaultListPreparedDataBuilder in
             helper.recordCall("addSearchResultItem")
+            return self
+        }
+        incrementCipherArchivedCountClosure = { () -> VaultListPreparedDataBuilder in
+            helper.recordCall("incrementCipherArchivedCount")
             return self
         }
         incrementCipherTypeCountClosure = { _ -> VaultListPreparedDataBuilder in

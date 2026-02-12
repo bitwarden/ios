@@ -18,6 +18,9 @@ struct VaultListState: Equatable {
     /// The state for the flight recorder toast banner displayed in the item list.
     var flightRecorderToastBanner = FlightRecorderToastBannerState()
 
+    /// Whether the user has premium subscription.
+    var hasPremium: Bool = false
+
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
@@ -80,6 +83,9 @@ struct VaultListState: Equatable {
             searchVaultFilterType: searchVaultFilterType,
         )
     }
+
+    /// Whether the Archive Onboarding action card should be shown.
+    var shouldShowArchiveOnboardingActionCard: Bool = false
 
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {

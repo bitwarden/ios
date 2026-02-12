@@ -6,6 +6,7 @@ import SnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -40,6 +41,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
     @MainActor
     func disabletest_snapshot_vaultAutofillList_empty() {
         let account = ProfileSwitcherItem.anneAccount
+        processor.state.loadingState = .data([])
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
         assertSnapshots(
@@ -57,6 +59,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.isCreatingFido2Credential = true
         processor.state.emptyViewMessage = Localizations.noItemsForUri("myApp.com")
         processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
+        processor.state.loadingState = .data([])
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -69,7 +72,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
-        processor.state.vaultListSections = [
+        processor.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: [
@@ -106,7 +109,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 ],
                 name: "",
             ),
-        ]
+        ])
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -120,7 +123,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.isCreatingFido2Credential = true
-        processor.state.vaultListSections = [
+        processor.state.loadingState = .data([
             VaultListSection(
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
@@ -182,7 +185,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 ],
                 name: Localizations.chooseALoginToSaveThisPasskeyTo,
             ),
-        ]
+        ])
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -197,7 +200,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.isAutofillingFido2List = true
-        processor.state.vaultListSections = [
+        processor.state.loadingState = .data([
             VaultListSection(
                 id: "Passkeys for myApp.com",
                 items: [
@@ -261,7 +264,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 ],
                 name: "Passwords for myApp.com",
             ),
-        ]
+        ])
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -277,7 +280,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.isAutofillingTextToInsertList = true
-        processor.state.vaultListSections = [
+        processor.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: [
@@ -324,7 +327,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 ],
                 name: "Types",
             ),
-        ]
+        ])
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -340,7 +343,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.isAutofillingTextToInsertList = true
         processor.state.group = .login
-        processor.state.vaultListSections = [
+        processor.state.loadingState = .data([
             VaultListSection(
                 id: "Items",
                 items: [
@@ -381,7 +384,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 ],
                 name: Localizations.items,
             ),
-        ]
+        ])
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
@@ -396,7 +399,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.isCreatingFido2Credential = true
         processor.state.excludedCredentialIdFound = "1"
-        processor.state.vaultListSections = [
+        processor.state.loadingState = .data([
             VaultListSection(
                 id: Localizations.aPasskeyAlreadyExistsForThisApplication,
                 items: [
@@ -413,7 +416,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 ],
                 name: Localizations.aPasskeyAlreadyExistsForThisApplication,
             ),
-        ]
+        ])
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

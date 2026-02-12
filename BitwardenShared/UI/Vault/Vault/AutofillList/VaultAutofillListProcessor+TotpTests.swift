@@ -2,10 +2,12 @@
 
 import BitwardenKitMocks
 import BitwardenSdk
+import InlineSnapshotTesting
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @available(iOS 17.0, *)
 class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -18,6 +20,8 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
     var totpExpirationManagerForItems: MockTOTPExpirationManager!
@@ -40,6 +44,11 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         stateService = MockStateService()
 
         totpExpirationManagerForItems = MockTOTPExpirationManager()
@@ -61,6 +70,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
                 totpExpirationManagerFactory: totpExpirationManagerFactory,
                 vaultRepository: vaultRepository,
@@ -79,6 +89,8 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
         totpExpirationManagerFactory = nil
@@ -95,37 +107,21 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(totpExpirationManagerFactory.createTimesCalled, 2)
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
-    /// Also it configures TOTP refresh scheduling.
+    /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor
+    /// mediator that the filter changed
     @MainActor
-    func test_perform_searchWithTOTPRefreshScheduling() {
-        let items = [
-            VaultListItem(
-                id: "1",
-                itemType: .totp(name: "test1", totpModel: VaultListTOTP.fixture(id: "1")),
+    func test_perform_searchWithTOTP() async {
+        await subject.perform(.search("example"))
+        XCTAssertEqual(
+            searchProcessorMediator.updateFilterReceivedFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                mode: .totp,
+                rpID: nil,
+                searchText: "example",
             ),
-            VaultListItem(
-                id: "2",
-                itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
-            ),
-        ]
-        let expectedSection = VaultListSection(
-            id: "",
-            items: items,
-            name: "",
         )
-        vaultRepository.vaultListSubject.value = VaultListData(sections: [expectedSection])
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
-        XCTAssertEqual(subject.state.ciphersForSearch, [expectedSection])
-        XCTAssertFalse(subject.state.showNoResults)
-        XCTAssertEqual(totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems?.count, 2)
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers and configures
@@ -153,17 +149,53 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
         XCTAssertEqual(totpExpirationManagerForItems.configuredTOTPRefreshSchedulingItems?.count, 2)
+    }
+
+    /// `onNewSearchResults(data:)` closure of search mediator should configure search TOTP expiration manager
+    /// when is autofilling from TOTP list.
+    @MainActor
+    func test_onNewSearchResults_TOTPAutofill() async {
+        subject.state.isAutofillingTotpList = true
+
+        subject.receive(.searchStateChanged(isSearching: true))
+
+        await searchProcessorMediator.startSearchingReceivedArguments?.onNewSearchResults(
+            VaultListData(
+                sections: [
+                    VaultListSection(
+                        id: "SearchResults",
+                        items: [
+                            VaultListItem(cipherListView: .fixture(name: "Result 1")),
+                            VaultListItem(cipherListView: .fixture(name: "Result 2")),
+                        ].compactMap(\.self),
+                        name: "Search Results",
+                    ),
+                ],
+            ),
+        )
+
+        guard let configuredItems = totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems else {
+            XCTFail("No items configured in the TOTP search expiration manager")
+            return
+        }
+
+        assertInlineSnapshot(of: configuredItems.dump(), as: .lines) {
+            """
+            - Cipher: Result 1
+            - Cipher: Result 2
+            """
+        }
     }
 
     /// `refreshTOTPCodes(for:)` is called from the TOTP expiration manager expiration closure
     /// and refreshes the vault list sections.
     @MainActor
-    func test_refreshTOTPCodes_forItems() { // swiftlint:disable:this function_body_length
+    func test_refreshTOTPCodes_forItems() throws { // swiftlint:disable:this function_body_length
         let items = [
             VaultListItem(
                 id: "1",
@@ -174,13 +206,13 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                 itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
-        subject.state.vaultListSections = [
+        subject.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: items,
                 name: "",
             ),
-        ]
+        ])
         let refreshedItems = [
             VaultListItem(
                 id: "2",
@@ -203,10 +235,11 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         onExpiration(items.filter { $0.id == "2" })
 
         waitFor(totpExpirationManagerForItems.configuredTOTPRefreshSchedulingItems?.count == 2)
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
-        XCTAssertEqual(subject.state.vaultListSections[0].items.count, 2)
+        let vaultListSections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(vaultListSections.count, 1)
+        XCTAssertEqual(vaultListSections[0].items.count, 2)
 
-        let totpItem0 = subject.state.vaultListSections[0].items[0]
+        let totpItem0 = vaultListSections[0].items[0]
         guard case let .totp(name0, totpModel0) = totpItem0.itemType else {
             XCTFail("There is no TOTP item in the first section first item.")
             return
@@ -214,7 +247,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(name0, "test1")
         XCTAssertEqual(totpModel0.totpCode.code, "123456")
 
-        let totpItem1 = subject.state.vaultListSections[0].items[1]
+        let totpItem1 = vaultListSections[0].items[1]
         guard case let .totp(name1, totpModel1) = totpItem1.itemType else {
             XCTFail("There is no TOTP item in first section second item.")
             return
@@ -226,7 +259,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
     /// `refreshTOTPCodes(for:)` does nothing if vault list sections are empty..
     @MainActor
     func test_refreshTOTPCodes_forItemsEmpty() {
-        subject.state.vaultListSections = []
+        subject.state.loadingState = .data([])
 
         guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
             XCTFail("There is no onExpiration closure for the first item in the factory")
@@ -250,13 +283,13 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
                 itemType: .totp(name: "test2", totpModel: VaultListTOTP.fixture(id: "2")),
             ),
         ]
-        subject.state.vaultListSections = [
+        subject.state.loadingState = .data([
             VaultListSection(
                 id: "",
                 items: items,
                 name: "",
             ),
-        ]
+        ])
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
 
         guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
@@ -335,7 +368,7 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
     @MainActor
     func test_refreshTOTPCodes_searchItemsEmpty() throws {
         // WORKAROUND: initialize `configuredTOTPRefreshSchedulingItems` with something so `waitFor`
-        // doens't have race condition issues.
+        // doesn't have race condition issues.
         totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems = [
             VaultListItem(id: "1", itemType: .cipher(.fixture())),
         ]

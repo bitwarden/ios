@@ -5,6 +5,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListDataPreparatorSearchTests
 
@@ -77,6 +78,75 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     }
 
     // MARK: Tests
+
+    /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
+    /// prepared data filtering out archived cipher when feature flag is enabled.
+    @MainActor
+    func test_prepareSearchAutofillCombinedMultipleData_archivedCipherFeatureFlagEnabled() async throws {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(
+                hasFido2: false,
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
+            name: "Example Site",
+            archivedDate: .now,
+            copyableFields: [.loginPassword],
+        )
+
+        let result = await subject.prepareSearchAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(searchText: "example"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
+    /// prepared data including archived cipher when feature flag is disabled.
+    @MainActor
+    func test_prepareSearchAutofillCombinedMultipleData_archivedCipherFeatureFlagDisabled() async throws {
+        configService.featureFlagsBool[.archiveVaultItems] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            login: .fixture(
+                hasFido2: false,
+                uris: [.fixture(uri: "https://example.com", match: .exact)],
+            ),
+            name: "Example Site",
+            archivedDate: .now,
+            copyableFields: [.loginPassword],
+        )
+
+        let result = await subject.prepareSearchAutofillCombinedMultipleData(
+            from: [
+                .fixture(
+                    login: .fixture(
+                        uris: [.fixture(uri: "https://example.com", match: .exact)],
+                    ),
+                ),
+            ],
+            filter: VaultListFilter(searchText: "example"),
+            withFido2Credentials: nil,
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "addItemForGroup",
+        ])
+        XCTAssertNotNil(result)
+    }
 
     /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns `nil`
     /// when no ciphers passed.
@@ -277,15 +347,12 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     /// prepared data filtering out cipher as it's deleted.
     @MainActor
     func test_prepareSearchAutofillCombinedMultipleData_deletedCipher() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            name: "Example Site",
-            deletedDate: .now,
-        )
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = nil
 
         let result = await subject.prepareSearchAutofillCombinedMultipleData(
             from: [
                 .fixture(
+                    deletedDate: .now,
                     login: .fixture(
                         uris: [.fixture(uri: "https://example.com", match: .exact)],
                     ),
@@ -298,11 +365,20 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            0,
+            "Deleted cipher should be filtered out by preFilter",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 0)
         XCTAssertNotNil(result)
     }
 
     /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
     /// prepared data filtering out cipher as it's not a login type.
+    /// Note: Without a group filter, the preFilter doesn't filter by type, so the cipher gets decrypted
+    /// but is then filtered out in the onCipher logic.
     @MainActor
     func test_prepareSearchAutofillCombinedMultipleData_nonLoginCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
@@ -322,6 +398,17 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Non-login cipher should pass preFilter when no group filter is set",
+        )
+        XCTAssertEqual(
+            ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount,
+            1,
+            "onCipher should be called even for non-login ciphers",
+        )
         XCTAssertNotNil(result)
     }
 
@@ -385,6 +472,74 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` returns the prepared data filtering out archived cipher
+    /// when feature flag is enabled and not in archive group.
+    @MainActor
+    func test_prepareSearchData_archivedCipherFeatureFlagEnabled() async throws {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            name: "Example Site",
+            archivedDate: .now,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture()],
+            filter: VaultListFilter(searchText: "example"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` returns the prepared data including archived cipher
+    /// when feature flag is enabled and in archive group.
+    @MainActor
+    func test_prepareSearchData_archivedCipherArchiveGroup() async throws {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            name: "Example Site",
+            archivedDate: .now,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture(archivedDate: .now)],
+            filter: VaultListFilter(group: .archive, searchText: "example"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "addSearchResultItem",
+        ])
+        XCTAssertNotNil(result)
+    }
+
+    /// `prepareSearchData(from:filter:)` returns the prepared data including archived cipher
+    /// when feature flag is disabled.
+    @MainActor
+    func test_prepareSearchData_archivedCipherFeatureFlagDisabled() async throws {
+        configService.featureFlagsBool[.archiveVaultItems] = false
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
+            id: "1",
+            name: "Example Site",
+            archivedDate: .now,
+        )
+
+        let result = await subject.prepareSearchData(
+            from: [.fixture()],
+            filter: VaultListFilter(searchText: "example"),
+        )
+
+        XCTAssertEqual(mockCallOrderHelper.callOrder, [
+            "prepareRestrictItemsPolicyOrganizations",
+            "addSearchResultItem",
         ])
         XCTAssertNotNil(result)
     }
@@ -462,20 +617,23 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     /// as it's deleted and filter group is not trash.
     @MainActor
     func test_prepareSearchData_deletedCipherNotTrashGroup() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            name: "Example Site",
-            deletedDate: .now,
-        )
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = nil
 
         let result = await subject.prepareSearchData(
-            from: [.fixture()],
+            from: [.fixture(deletedDate: .now)],
             filter: VaultListFilter(group: .login, searchText: "example"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            0,
+            "Deleted cipher should be filtered out by preFilter when group is not trash",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 0)
         XCTAssertNotNil(result)
     }
 
@@ -498,6 +656,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             "prepareRestrictItemsPolicyOrganizations",
             "addSearchResultItem",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Deleted cipher should pass preFilter when group is trash",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 1)
         XCTAssertNotNil(result)
     }
 
@@ -505,11 +670,7 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     /// as it doesn't belong to the filter group.
     @MainActor
     func test_prepareSearchData_cipherDoesNotBelongToGroup() async throws {
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            name: "Example Card",
-            type: .card(.fixture()),
-        )
+        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = nil
 
         let result = await subject.prepareSearchData(
             from: [.fixture(type: .card)],
@@ -519,6 +680,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            0,
+            "Card cipher should be filtered out by preFilter when group is login",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 0)
         XCTAssertNotNil(result)
     }
 
@@ -541,6 +709,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             "prepareRestrictItemsPolicyOrganizations",
             "addSearchResultItem",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Login cipher should pass preFilter when group is login",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 1)
         XCTAssertNotNil(result)
     }
 
@@ -563,6 +738,13 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             "prepareRestrictItemsPolicyOrganizations",
             "addSearchResultItem",
         ])
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterCallCount, 1)
+        XCTAssertEqual(
+            try ciphersClientWrapperService.decryptAndProcessCiphersInBatchPreFilterResult.get().count,
+            1,
+            "Card cipher should pass preFilter when no group filter is specified",
+        )
+        XCTAssertEqual(ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherCallCount, 1)
         XCTAssertNotNil(result)
     }
 

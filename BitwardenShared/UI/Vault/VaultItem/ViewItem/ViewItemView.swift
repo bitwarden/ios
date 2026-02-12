@@ -14,6 +14,11 @@ struct ViewItemView: View {
 
     // MARK: Properties
 
+    /// Whether to show the archive option in the toolbar menu.
+    var isArchiveEnabled: Bool {
+        store.state.loadingState.data?.canBeArchived ?? false
+    }
+
     /// Whether to show the collections option in the toolbar menu.
     var isCollectionsEnabled: Bool {
         guard let data = store.state.loadingState.data else { return false }
@@ -25,15 +30,20 @@ struct ViewItemView: View {
         store.state.loadingState.data?.canBeDeleted ?? false
     }
 
+    /// Whether to show the move to organization option in the toolbar menu.
+    var isMoveToOrganizationEnabled: Bool {
+        store.state.loadingState.data?.canMoveToOrganization ?? false
+    }
+
     /// Whether the restore option is available.
     /// New permission model from PM-18091
     var isRestoredEnabled: Bool {
         store.state.loadingState.data?.canBeRestored ?? false
     }
 
-    /// Whether to show the move to organization option in the toolbar menu.
-    var isMoveToOrganizationEnabled: Bool {
-        store.state.loadingState.data?.canMoveToOrganization ?? false
+    /// Whether to show the unarchive option in the toolbar menu.
+    var isUnarchiveEnabled: Bool {
+        store.state.loadingState.data?.canBeUnarchived ?? false
     }
 
     /// The `Store` for this view.
@@ -69,15 +79,26 @@ struct ViewItemView: View {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
                 VaultItemManagementMenuView(
+                    isArchiveEnabled: isArchiveEnabled,
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
                     isDeleteEnabled: isDeleteEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     isRestoreEnabled: isRestoredEnabled,
+                    isUnarchiveEnabled: isUnarchiveEnabled,
                     store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },
-                        mapEffect: { _ in .deletePressed },
+                        mapEffect: { effect in
+                            switch effect {
+                            case .archiveItem:
+                                .archivedPressed
+                            case .deleteItem:
+                                .deletePressed
+                            case .unarchiveItem:
+                                .unarchivePressed
+                            }
+                        },
                     ),
                 )
             }
@@ -97,6 +118,11 @@ struct ViewItemView: View {
         }
         .onDisappear {
             store.send(.disappeared)
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
     }
 

@@ -14,14 +14,20 @@ extension CryptoClientProtocol {
         encryptionKeys: AccountEncryptionKeys,
         method: InitUserCryptoMethod,
     ) async throws {
+        let privateKey = encryptionKeys.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey ?? encryptionKeys.encryptedPrivateKey
+        let accountCryptographicState = WrappedAccountCryptographicState.create(
+            privateKey: privateKey,
+            securityState: encryptionKeys.accountKeys?.securityState?.securityState,
+            signedPublicKey: encryptionKeys.accountKeys?.publicKeyEncryptionKeyPair.signedPublicKey,
+            signingKey: encryptionKeys.accountKeys?.signatureKeyPair?.wrappedSigningKey
+        )
+
         try await initializeUserCrypto(
             req: InitUserCryptoRequest(
                 userId: account.profile.userId,
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
-                privateKey: encryptionKeys.encryptedPrivateKey,
-                signingKey: encryptionKeys.accountKeys?.signatureKeyPair?.wrappedSigningKey,
-                securityState: encryptionKeys.accountKeys?.securityState?.securityState,
+                accountCryptographicState: accountCryptographicState,
                 method: method,
             ),
         )

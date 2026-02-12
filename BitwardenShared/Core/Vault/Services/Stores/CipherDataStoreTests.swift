@@ -46,21 +46,15 @@ class CipherDataStoreTests: BitwardenTestCase {
 
     /// `cipherPublisher(userId:)` returns a publisher for a user's cipher objects.
     func test_cipherPublisher() async throws {
-        var publishedValues = [[Cipher]]()
-        let publisher = subject.cipherPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
-                },
-            )
-        defer { publisher.cancel() }
+        var iterator = subject.cipherPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         try await subject.replaceCiphers(ciphers, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], ciphers)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, ciphers)
     }
 
     /// `cipherChangesPublisher(userId:)` emits inserted ciphers for the user.
@@ -79,8 +73,8 @@ class CipherDataStoreTests: BitwardenTestCase {
         try await subject.upsertCipher(cipher, userId: "1")
 
         waitFor { publishedChanges.count == 1 }
-        guard case let .inserted(insertedCipher) = publishedChanges[0] else {
-            XCTFail("Expected inserted change")
+        guard case let .upserted(insertedCipher) = publishedChanges[0] else {
+            XCTFail("Expected upserted change")
             return
         }
         XCTAssertEqual(insertedCipher.id, cipher.id)
@@ -106,8 +100,8 @@ class CipherDataStoreTests: BitwardenTestCase {
         try await subject.upsertCipher(updatedCipher, userId: "1")
 
         waitFor { publishedChanges.count == 1 }
-        guard case let .updated(updated) = publishedChanges[0] else {
-            XCTFail("Expected updated change")
+        guard case let .upserted(updated) = publishedChanges[0] else {
+            XCTFail("Expected upserted change")
             return
         }
         XCTAssertEqual(updated.id, updatedCipher.id)
@@ -139,6 +133,27 @@ class CipherDataStoreTests: BitwardenTestCase {
         XCTAssertEqual(deletedCipher.id, "2")
     }
 
+    /// `cipherChangesPublisher(userId:)` emits replaced changes for replace operations.
+    func test_cipherChangesPublisher_replace() async throws {
+        var publishedChanges = [CipherChange]()
+        let publisher = subject.cipherChangesPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
+        defer { publisher.cancel() }
+
+        try await subject.replaceCiphers(ciphers, userId: "1")
+
+        waitFor { publishedChanges.count == 1 }
+        guard case .replacedAll = publishedChanges[0] else {
+            XCTFail("Expected replaced change")
+            return
+        }
+    }
+
     /// `cipherChangesPublisher(userId:)` does not emit changes for other users.
     func test_cipherChangesPublisher_doesNotEmitForOtherUsers() async throws {
         var publishedChanges = [CipherChange]()
@@ -154,27 +169,6 @@ class CipherDataStoreTests: BitwardenTestCase {
         // Insert cipher for a different user
         let cipher = Cipher.fixture(id: "1", name: "CIPHER1")
         try await subject.upsertCipher(cipher, userId: "2")
-
-        // Wait a bit to ensure no changes are emitted
-        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-
-        XCTAssertTrue(publishedChanges.isEmpty)
-    }
-
-    /// `cipherChangesPublisher(userId:)` does not emit changes for batch operations.
-    func test_cipherChangesPublisher_doesNotEmitForBatchOperations() async throws {
-        var publishedChanges = [CipherChange]()
-        let publisher = subject.cipherChangesPublisher(userId: "1")
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { change in
-                    publishedChanges.append(change)
-                },
-            )
-        defer { publisher.cancel() }
-
-        // Replace ciphers (batch operation)
-        try await subject.replaceCiphers(ciphers, userId: "1")
 
         // Wait a bit to ensure no changes are emitted
         try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds

@@ -62,6 +62,28 @@ class SettingsProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.copyVersionInfo` copies the copyright, the version string and device
+    /// info to the pasteboard.
+    @MainActor
+    func test_perform_copyVersionInfo() async {
+        await subject.perform(.copyVersionInfo)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            """,
+        )
+        XCTAssertEqual(
+            subject.state.toast?.title,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)).title,
+        )
+    }
+
     /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(true))` navigates to the enable
     /// flight recorder screen when toggled on.
     @MainActor
@@ -292,26 +314,5 @@ class SettingsProcessorTests: BitwardenTestCase {
         subject.receive(.syncWithBitwardenAppTapped)
 
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerLink)
-    }
-
-    /// Receiving `.versionTapped` copies the copyright, the version string and device info to the pasteboard.
-    @MainActor
-    func test_receive_versionTapped() {
-        subject.receive(.versionTapped)
-        XCTAssertEqual(
-            pasteboardService.copiedString,
-            """
-            © Bitwarden Inc. 2015–2025
-
-            📝 Bitwarden 1.0 (1)
-            📦 Bundle: com.8bit.bitwarden
-            📱 Device: iPhone14,2
-            🍏 System: iOS 16.4
-            """,
-        )
-        XCTAssertEqual(
-            subject.state.toast?.title,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)).title,
-        )
     }
 }

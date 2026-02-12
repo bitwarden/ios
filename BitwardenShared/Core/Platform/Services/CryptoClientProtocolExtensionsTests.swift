@@ -1,6 +1,8 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
     // MARK: Properties
@@ -33,17 +35,42 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
                 encryptedPrivateKey: "PRIVATE_KEY",
                 encryptedUserKey: "encryptedUserKey",
             ),
-            method: .password(password: "password123", userKey: "userKey"),
+            method: .masterPasswordUnlock(
+                password: "password123",
+                masterPasswordUnlock: MasterPasswordUnlockData(
+                    kdf: .pbkdf2(iterations: 600_000),
+                    masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                    salt: "SALT",
+                ),
+            ),
         )
 
         let request = try XCTUnwrap(subject.initializeUserCryptoRequest)
         XCTAssertEqual(request.userId, "1")
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
-        XCTAssertEqual(request.method, .password(password: "password123", userKey: "userKey"))
-        XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(request.securityState, "SECURITY_STATE")
-        XCTAssertEqual(request.signingKey, "WRAPPED_SIGNING_KEY")
+
+        guard case let .v2(privateKey, signedPublicKey, signingKey, securityState) = request.accountCryptographicState
+        else {
+            XCTFail("Expected V2 accountCryptographicState")
+            return
+        }
+
+        XCTAssertEqual(
+            request.method,
+            .masterPasswordUnlock(
+                password: "password123",
+                masterPasswordUnlock: MasterPasswordUnlockData(
+                    kdf: .pbkdf2(iterations: 600_000),
+                    masterKeyWrappedUserKey: "MASTER_KEY_WRAPPED_USER_KEY",
+                    salt: "SALT",
+                ),
+            ),
+        )
+        XCTAssertEqual(privateKey, "WRAPPED_PRIVATE_KEY")
+        XCTAssertEqual(signedPublicKey, "SIGNED_PUBLIC_KEY")
+        XCTAssertEqual(signingKey, "WRAPPED_SIGNING_KEY")
+        XCTAssertEqual(securityState, "SECURITY_STATE")
     }
 
     // `initializeUserCrypto(account:encryptionKeys:method:)` initializes the user crypto using a
@@ -64,8 +91,15 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
         XCTAssertEqual(request.kdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(request.email, "user@bitwarden.com")
         XCTAssertEqual(request.method, .pin(pin: "1234", pinProtectedUserKey: "pinProtectedUserKey"))
-        XCTAssertEqual(request.privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(request.securityState, "SECURITY_STATE")
-        XCTAssertEqual(request.signingKey, "WRAPPED_SIGNING_KEY")
+
+        guard case let .v2(privateKey, signedPublicKey, signingKey, securityState) = request.accountCryptographicState
+        else {
+            XCTFail("Expected V2 accountCryptographicState")
+            return
+        }
+        XCTAssertEqual(privateKey, "WRAPPED_PRIVATE_KEY")
+        XCTAssertEqual(signedPublicKey, "SIGNED_PUBLIC_KEY")
+        XCTAssertEqual(signingKey, "WRAPPED_SIGNING_KEY")
+        XCTAssertEqual(securityState, "SECURITY_STATE")
     }
 }

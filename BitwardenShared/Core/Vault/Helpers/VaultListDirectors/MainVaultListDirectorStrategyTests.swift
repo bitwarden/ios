@@ -2,6 +2,7 @@ import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - MainVaultListDirectorStrategyTests
 
@@ -100,7 +101,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                options: [.addTOTPGroup, .addTrashGroup],
+                options: [.addTOTPGroup, .addHiddenItemsGroup],
             ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
@@ -114,7 +115,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addFoldersSection",
             "addCollectionsSection",
             "addCipherDecryptionFailureIds",
-            "addTrashSection",
+            "addHiddenItemsSection",
         ])
     }
 
@@ -172,7 +173,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                options: [.addTrashGroup],
+                options: [.addHiddenItemsGroup],
             ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
@@ -185,7 +186,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addFoldersSection",
             "addCollectionsSection",
             "addCipherDecryptionFailureIds",
-            "addTrashSection",
+            "addHiddenItemsSection",
         ])
     }
 

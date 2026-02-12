@@ -45,6 +45,7 @@ typealias Services = HasAPIService
     & HasPolicyService
     & HasRehydrationHelper
     & HasReviewPromptService
+    & HasSearchProcessorMediatorFactory
     & HasSendRepository
     & HasSettingsRepository
     & HasSharedTimeoutService
@@ -57,6 +58,7 @@ typealias Services = HasAPIService
     & HasTimeProvider
     & HasTrustDeviceService
     & HasTwoStepLoginService
+    & HasUserSessionStateService
     & HasUserVerificationHelperFactory
     & HasVaultRepository
     & HasVaultTimeoutService
@@ -227,7 +229,7 @@ protocol HasGeneratorRepository {
 /// Protocol for an object that provides a `ImportCiphersRepository`.
 ///
 protocol HasImportCiphersRepository {
-    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    /// The repository used by the application to manage importing credential in Credential Exchange flow.
     var importCiphersRepository: ImportCiphersRepository { get }
 }
 
@@ -299,6 +301,12 @@ protocol HasReviewPromptService {
     var reviewPromptService: ReviewPromptService { get }
 }
 
+/// Protocol for an object that provides a `SearchProcessorMediatorFactory`.
+protocol HasSearchProcessorMediatorFactory {
+    /// The factory to make `SearchProcessorMediator`s.
+    var searchProcessorMediatorFactory: SearchProcessorMediatorFactory { get }
+}
+
 /// Protocol for an object that provides a `SendRepository`.
 ///
 public protocol HasSendRepository {
@@ -318,6 +326,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that provides a `UserSessionStateService`.
+///
+protocol HasUserSessionStateService {
+    /// The service used by the application to manage user session state.
+    var userSessionStateService: UserSessionStateService { get }
 }
 
 /// Protocol for an object that has a `SyncService`.

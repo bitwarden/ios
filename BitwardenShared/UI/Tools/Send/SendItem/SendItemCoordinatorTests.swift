@@ -4,6 +4,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SendItemCoordinatorTests
 
@@ -185,6 +186,26 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     @MainActor
     func test_navigateTo_fileSelection_withoutDelegate() throws {
         subject.navigate(to: .fileSelection(.camera), context: nil)
+        XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.generator` and a delegate presents the generator screen.
+    @MainActor
+    func test_navigateTo_generator_withDelegate() throws {
+        let delegate = MockGeneratorCoordinatorDelegate()
+        subject.navigate(to: .generator, context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertEqual(module.generatorCoordinator.routes.last, .generator(staticType: .password))
+        XCTAssertTrue(module.generatorCoordinator.isStarted)
+    }
+
+    /// `navigate(to:)` with `.generator` and without a delegate does not present the generator screen.
+    @MainActor
+    func test_navigateTo_generator_withoutDelegate() throws {
+        subject.navigate(to: .generator, context: nil)
         XCTAssertNil(stackNavigator.actions.last)
     }
 

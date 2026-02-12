@@ -242,10 +242,14 @@ extension AuthRouter {
         // If there's existing accounts, mark the carousel as shown.
         await setCarouselShownIfEnabled()
 
-        // Check for a `logout` timeout action.
-        let userId = activeAccount.profile.userId
-        if await (try? services.authRepository.sessionTimeoutAction(userId: userId)) == .logout,
-           await (try? services.vaultTimeoutService.sessionTimeoutValue(userId: userId)) != .never {
+        // Check all accounts for timeouts on startup (both time-based and "no unlock method after restart")
+        var activeUserShouldTimeout = false
+        await services.authRepository.checkSessionTimeouts(isAppRestart: true) { _ in
+            activeUserShouldTimeout = true
+        }
+
+        // Handle active user timeout
+        if activeUserShouldTimeout {
             return await handleAndRoute(.didTimeout(userId: activeAccount.profile.userId))
         }
 

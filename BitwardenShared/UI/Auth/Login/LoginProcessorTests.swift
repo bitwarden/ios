@@ -7,6 +7,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // swiftlint:disable file_length
 
@@ -138,7 +139,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         let validationResponse = ResponseValidationErrorModel(
             error: "Invalid credentials",
-            errorDescription: "an error occured",
+            errorDescription: "an error occurred",
             errorModel: .init(
                 message: "message",
                 object: "object",

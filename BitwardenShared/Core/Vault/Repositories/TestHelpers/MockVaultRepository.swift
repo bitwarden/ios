@@ -7,11 +7,19 @@ import TestHelpers
 
 @testable import BitwardenShared
 
-class MockVaultRepository: VaultRepository {
+class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var addCipherCiphers = [CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
+
+    var archiveCipher = [CipherView]()
+    var archiveCipherResult: Result<Void, Error> = .success(())
+
+    var bulkShareCiphersCiphers = [[CipherView]]()
+    var bulkShareCiphersOrganizationId: String?
+    var bulkShareCiphersCollectionIds: [String]?
+    var bulkShareCiphersResult: Result<Void, Error> = .success(())
 
     var canShowVaultFilter = true
 
@@ -72,6 +80,9 @@ class MockVaultRepository: VaultRepository {
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
+    var migratePersonalVaultOrganizationId: String?
+    var migratePersonalVaultResult: Result<Void, Error> = .success(())
+
     var needsSyncCalled = false
     var needsSyncResult: Result<Bool, Error> = .success(false)
 
@@ -106,6 +117,9 @@ class MockVaultRepository: VaultRepository {
 
     var timeProvider: TimeProvider = MockTimeProvider(.currentTime)
 
+    var unarchiveCipher = [CipherView]()
+    var unarchiveCipherResult: Result<Void, Error> = .success(())
+
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
 
@@ -114,6 +128,9 @@ class MockVaultRepository: VaultRepository {
 
     var vaultListSubject = CurrentValueSubject<VaultListData, Error>(VaultListData())
     var vaultListFilter: VaultListFilter?
+
+    var vaultSearchListPublisherMode: AutofillListMode?
+    var vaultSearchListSubject = CurrentValueSubject<VaultListData, Error>(VaultListData())
 
     // MARK: Computed Properties
 
@@ -128,8 +145,24 @@ class MockVaultRepository: VaultRepository {
         try addCipherResult.get()
     }
 
+    func bulkShareCiphers(
+        _ ciphers: [CipherView],
+        newOrganizationId: String,
+        newCollectionIds: [String],
+    ) async throws {
+        bulkShareCiphersCiphers.append(ciphers)
+        bulkShareCiphersOrganizationId = newOrganizationId
+        bulkShareCiphersCollectionIds = newCollectionIds
+        try bulkShareCiphersResult.get()
+    }
+
     func canShowVaultFilter() async -> Bool {
         canShowVaultFilter
+    }
+
+    func archiveCipher(_ cipher: CipherView) async throws {
+        archiveCipher.append(cipher)
+        try archiveCipherResult.get()
     }
 
     func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>> {
@@ -210,7 +243,6 @@ class MockVaultRepository: VaultRepository {
 
     func fetchSync(
         forceSync: Bool,
-        filter _: VaultFilterType,
         isPeriodic: Bool,
     ) async throws {
         fetchSyncCalled = true
@@ -231,14 +263,19 @@ class MockVaultRepository: VaultRepository {
         try getTOTPKeyIfAllowedToCopyResult.get()
     }
 
-    func needsSync() async throws -> Bool {
-        needsSyncCalled = true
-        return try needsSyncResult.get()
-    }
-
     func isVaultEmpty() async throws -> Bool {
         isVaultEmptyCalled = true
         return try isVaultEmptyResult.get()
+    }
+
+    func migratePersonalVault(to organizationId: String) async throws {
+        migratePersonalVaultOrganizationId = organizationId
+        try migratePersonalVaultResult.get()
+    }
+
+    func needsSync() async throws -> Bool {
+        needsSyncCalled = true
+        return try needsSyncResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
@@ -289,6 +326,11 @@ class MockVaultRepository: VaultRepository {
         try softDeleteCipherResult.get()
     }
 
+    func unarchiveCipher(_ cipher: CipherView) async throws {
+        unarchiveCipher.append(cipher)
+        try unarchiveCipherResult.get()
+    }
+
     func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         updateCipherCiphers.append(cipher)
         try updateCipherResult.get()
@@ -304,5 +346,13 @@ class MockVaultRepository: VaultRepository {
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
         vaultListFilter = filter
         return vaultListSubject.eraseToAnyPublisher().values
+    }
+
+    func vaultSearchListPublisher(
+        mode: AutofillListMode?,
+        filterPublisher: AnyPublisher<VaultListFilter, any Error>,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, any Error>> {
+        vaultSearchListPublisherMode = mode
+        return vaultSearchListSubject.eraseToAnyPublisher().values
     }
 }

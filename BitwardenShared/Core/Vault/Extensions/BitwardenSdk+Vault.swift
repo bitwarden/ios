@@ -359,6 +359,51 @@ extension BitwardenSdk.Cipher {
             data: nil,
         )
     }
+
+    /// Creates a `Cipher` from a `CipherMiniResponseModel`, preserving fields from the original cipher
+    /// that are not included in the mini response model.
+    ///
+    /// - Parameters:
+    ///   - model: The mini response model from the API.
+    ///   - collectionIds: The collection IDs to associate with the cipher.
+    ///   - originalCipher: The original cipher to preserve fields from (folderId, favorite, edit,
+    ///     permissions, viewPassword, localData).
+    init(
+        cipherMiniResponseModel model: CipherMiniResponseModel,
+        collectionIds: [String],
+        originalCipher: Cipher?,
+    ) {
+        self.init(
+            id: model.id,
+            organizationId: model.organizationId,
+            folderId: originalCipher?.folderId,
+            collectionIds: collectionIds,
+            key: model.key,
+            name: model.name,
+            notes: model.notes,
+            type: BitwardenSdk.CipherType(model.type),
+            login: model.login.map(Login.init),
+            identity: model.identity.map(Identity.init),
+            card: model.card.map(Card.init),
+            secureNote: model.secureNote.map(SecureNote.init),
+            sshKey: model.sshKey.map(SshKey.init),
+            favorite: originalCipher?.favorite ?? false,
+            reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
+            organizationUseTotp: model.organizationUseTotp,
+            edit: originalCipher?.edit ?? true,
+            permissions: originalCipher?.permissions,
+            viewPassword: originalCipher?.viewPassword ?? true,
+            localData: originalCipher?.localData,
+            attachments: model.attachments?.map(Attachment.init),
+            fields: model.fields?.map(Field.init),
+            passwordHistory: model.passwordHistory?.map(PasswordHistory.init),
+            creationDate: model.creationDate,
+            deletedDate: model.deletedDate,
+            revisionDate: model.revisionDate,
+            archivedDate: model.archivedDate,
+            data: nil,
+        )
+    }
 }
 
 extension BitwardenSdk.CipherListView: @retroactive Identifiable, Fido2UserVerifiableCipherView {}
@@ -431,6 +476,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
             viewPassword: true,
             localData: nil,
             attachments: nil,
+            attachmentDecryptionFailures: nil,
             fields: nil,
             passwordHistory: nil,
             creationDate: timeProvider.presentTime,

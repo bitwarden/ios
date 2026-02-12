@@ -6,6 +6,60 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+    /// `archiveUnavailable(baseURL:handleOpenURL:)` returns an `Alert` notifying the user that
+    /// archiving is unavailable and requires premium.
+    func test_archiveUnavailable() async throws {
+        var called = false
+        let subject = Alert.archiveUnavailable { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.archiveUnavailable)
+        XCTAssertEqual(subject.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `archiveUnavailable(baseURL:handleOpenURL:)` doesn't open URL when cancel is tapped.
+    func test_archiveUnavailable_cancel() async throws {
+        var called = false
+        let subject = Alert.archiveUnavailable { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
+    /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
+    /// "Specific People" Send feature requires premium.
+    func test_specificPeopleUnavailable() async throws {
+        var called = false
+        let subject = Alert.specificPeopleUnavailable { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(subject.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `specificPeopleUnavailable(action:)` doesn't call action when cancel is tapped.
+    func test_specificPeopleUnavailable_cancel() async throws {
+        var called = false
+        let subject = Alert.specificPeopleUnavailable { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
     /// `cipherDecryptionFailure()` returns an `Alert` to notify the user that an item in their
     /// vault was unable to be decrypted for when a cipher which failed to decrypt is tapped.
     func test_cipherDecryptionFailure() async throws {
@@ -222,8 +276,77 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertTrue(actionCalled)
     }
 
+    /// `moreOptions(context:action:)` includes
+    /// archive option when `canArchive` is `true`.
+    @MainActor
+    func test_moreOptions_archive() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: true,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertTrue(alert.alertActions.contains(where: { $0.title == Localizations.archive }))
+
+        try await alert.tapAction(title: Localizations.archive)
+        XCTAssertEqual(capturedAction, .archive(cipherView: cipher))
+    }
+
+    /// `moreOptions(context:action:)` does not
+    /// include archive option when `canArchive` is `false`.
+    @MainActor
+    func test_moreOptions_noArchive() async throws {
+        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: { _ in },
+        )
+
+        XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.archive }))
+    }
+
+    /// `moreOptions(context:action:)` does not
+    /// include unarchive option when `canUnarchive` is `false`.
+    @MainActor
+    func test_moreOptions_noUnarchive() async throws {
+        let cipher = CipherView.loginFixture(id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: { _ in },
+        )
+
+        XCTAssertFalse(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
+    }
+
     /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
-    /// the appropirate options for `.sshKey` type
+    /// the appropriate options for `.sshKey` type
     @MainActor
     func test_moreOptions_sshKey() async throws { // swiftlint:disable:this function_body_length
         var capturedAction: MoreOptionsAction?
@@ -239,10 +362,14 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
             viewPassword: true,
         )
         let alert = Alert.moreOptions(
-            canCopyTotp: false,
-            cipherView: cipher,
-            id: cipher.id!,
-            showEdit: true,
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: false,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
             action: action,
         )
         XCTAssertEqual(alert.title, cipher.name)
@@ -303,6 +430,35 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertNil(capturedAction)
     }
 
+    /// `moreOptions(context:action:)` includes
+    /// unarchive option when `canUnarchive` is `true`.
+    @MainActor
+    func test_moreOptions_unarchive() async throws {
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.loginFixture(archivedDate: .now, id: "123", name: "Test Login")
+        let alert = Alert.moreOptions(
+            context: MoreOptionsAlertContext(
+                canArchive: false,
+                canCopyTotp: false,
+                canUnarchive: true,
+                cipherView: cipher,
+                id: cipher.id!,
+                showEdit: true,
+            ),
+            action: action,
+        )
+
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertTrue(alert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
+
+        try await alert.tapAction(title: Localizations.unarchive)
+        XCTAssertEqual(capturedAction, .unarchive(cipherView: cipher))
+    }
+
     /// `passwordAutofillInformation()` constructs an `Alert` that informs the user about password
     /// autofill.
     func test_passwordAutofillInformation() {
@@ -347,4 +503,4 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         try await subject.tapAction(title: Localizations.submit)
         XCTAssertEqual(enteredPassword, "password123!")
     }
-}
+} // swiftlint:disable:this file_length

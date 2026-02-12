@@ -1,7 +1,9 @@
 import BitwardenSdk
+import Combine
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SearchCombinedMultipleAutofillListDirectorStrategyTests
 
@@ -60,7 +62,9 @@ class SearchCombinedMultipleAutofillListDirectorStrategyTests: BitwardenTestCase
         cipherService.ciphersSubject.value = []
         fido2UserInterfaceHelper.credentialsForAuthenticationSubject.value = nil
 
-        var iteratorPublisher = try await subject.build(filter: VaultListFilter()).makeAsyncIterator()
+        var iteratorPublisher = try await subject.build(
+            filterPublisher: VaultListFilter().asPublisher(),
+        ).makeAsyncIterator()
         let vaultListData = try await iteratorPublisher.next()
 
         XCTAssertEqual(vaultListData, VaultListData())
@@ -75,7 +79,9 @@ class SearchCombinedMultipleAutofillListDirectorStrategyTests: BitwardenTestCase
         vaultListDataPreparator.prepareSearchAutofillCombinedMultipleDataReturnValue = nil
 
         var iteratorPublisher = try await subject.build(
-            filter: VaultListFilter(searchText: "test"),
+            filterPublisher: VaultListFilter(
+                searchText: "test",
+            ).asPublisher(),
         ).makeAsyncIterator()
         let vaultListData = try await iteratorPublisher.next()
 
@@ -91,7 +97,10 @@ class SearchCombinedMultipleAutofillListDirectorStrategyTests: BitwardenTestCase
         vaultListDataPreparator.prepareSearchAutofillCombinedMultipleDataReturnValue = nil
 
         var iteratorPublisher = try await subject.build(
-            filter: VaultListFilter(rpID: "example.com", searchText: "test"),
+            filterPublisher: VaultListFilter(
+                rpID: "example.com",
+                searchText: "test",
+            ).asPublisher(),
         ).makeAsyncIterator()
         let vaultListData = try await iteratorPublisher.next()
 
@@ -111,7 +120,10 @@ class SearchCombinedMultipleAutofillListDirectorStrategyTests: BitwardenTestCase
         let rpID = "example.com"
         let searchText = "test query"
         var iteratorPublisher = try await subject.build(
-            filter: VaultListFilter(rpID: rpID, searchText: searchText),
+            filterPublisher: VaultListFilter(
+                rpID: rpID,
+                searchText: searchText,
+            ).asPublisher(),
         ).makeAsyncIterator()
         _ = try await iteratorPublisher.next()
 

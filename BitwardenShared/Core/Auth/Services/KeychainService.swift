@@ -38,40 +38,14 @@ protocol KeychainService: AnyObject {
     /// - Returns: The search results.
     ///
     func search(query: CFDictionary) throws -> AnyObject?
-}
 
-// MARK: - KeychainServiceError
-
-enum KeychainServiceError: Error, Equatable, CustomNSError {
-    /// When creating an accessControl fails.
+    /// Updates an existing keychain item.
     ///
-    /// - Parameter CFError: The potential system error.
+    /// - Parameters:
+    ///   - query: Query to identify the item to update.
+    ///   - attributes: New attributes to set.
     ///
-    case accessControlFailed(CFError?)
-
-    /// When a `KeychainService` is unable to locate an auth key for a given storage key.
-    ///
-    /// - Parameter KeychainItem: The potential storage key for the auth key.
-    ///
-    case keyNotFound(KeychainItem)
-
-    /// A passthrough for OSService Error cases.
-    ///
-    /// - Parameter OSStatus: The `OSStatus` returned from a keychain operation.
-    ///
-    case osStatusError(OSStatus)
-
-    /// The user-info dictionary.
-    var errorUserInfo: [String: Any] {
-        switch self {
-        case .accessControlFailed:
-            [:]
-        case let .keyNotFound(keychainItem):
-            ["Keychain Item": keychainItem.unformattedKey]
-        case let .osStatusError(osStatus):
-            ["OS Status": osStatus]
-        }
-    }
+    func update(query: CFDictionary, attributes: CFDictionary) throws
 }
 
 // MARK: - DefaultKeychainService
@@ -114,6 +88,10 @@ class DefaultKeychainService: KeychainService {
         var foundItem: AnyObject?
         try resolve(SecItemCopyMatching(query, &foundItem))
         return foundItem
+    }
+
+    func update(query: CFDictionary, attributes: CFDictionary) throws {
+        try resolve(SecItemUpdate(query, attributes))
     }
 
     // MARK: Private Methods

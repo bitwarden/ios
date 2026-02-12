@@ -8,10 +8,8 @@ import CoreData
 ///
 /// Adapted from https://gist.github.com/darrarski/28d2f5a28ef2c5669d199069c30d3d52
 ///
-public class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NSFetchRequestResult {
+public class FetchedResultsPublisher<ResultType, Output>: Publisher where ResultType: NSFetchRequestResult {
     // MARK: Types
-
-    public typealias Output = [ResultType]
 
     public typealias Failure = Error
 
@@ -23,17 +21,47 @@ public class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NS
     /// The fetch request used to get the objects.
     let request: NSFetchRequest<ResultType>
 
+    /// A transformation closure that converts the fetched Core Data objects to the desired output type.
+    /// This transformation is executed on the managed object context's queue, ensuring thread-safe
+    /// access to Core Data objects.
+    let transform: ([ResultType]) throws -> Output
+
     // MARK: Initialization
 
-    /// Initialize a `FetchedResultsPublisher`.
+    /// Initialize a `FetchedResultsPublisher` with a transformation closure.
+    ///
+    /// - Parameters:
+    ///   - context: The managed object context that the fetch request is executed against.
+    ///   - request: The fetch request used to get the objects.
+    ///   - transform: A transformation closure that converts fetched Core Data objects
+    ///     to the desired output type. This closure is executed on the context's queue to ensure
+    ///     thread safety.
+    ///
+    public init(
+        context: NSManagedObjectContext,
+        request: NSFetchRequest<ResultType>,
+        transform: @escaping ([ResultType]) throws -> Output,
+    ) {
+        self.context = context
+        self.request = request
+        self.transform = transform
+    }
+
+    /// Initialize a `FetchedResultsPublisher` that publishes fetched objects directly without transformation.
     ///
     /// - Parameters:
     ///   - context: The managed object context that the fetch request is executed against.
     ///   - request: The fetch request used to get the objects.
     ///
-    public init(context: NSManagedObjectContext, request: NSFetchRequest<ResultType>) {
-        self.context = context
-        self.request = request
+    public convenience init(
+        context: NSManagedObjectContext,
+        request: NSFetchRequest<ResultType>,
+    ) where Output == [ResultType] {
+        self.init(
+            context: context,
+            request: request,
+            transform: { $0 },
+        )
     }
 
     // MARK: Publisher
@@ -42,6 +70,7 @@ public class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NS
         subscriber.receive(subscription: FetchedResultsSubscription(
             context: context,
             request: request,
+            transform: transform,
             subscriber: subscriber,
         ))
     }
@@ -52,10 +81,10 @@ public class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NS
 /// A `Subscription` to a `FetchedResultsPublisher` which fetches results from Core Data via a
 /// `NSFetchedResultsController` and notifies the subscriber of any changes to the data.
 ///
-private final class FetchedResultsSubscription<SubscriberType, ResultType>: NSObject, Subscription,
+private final class FetchedResultsSubscription<SubscriberType, ResultType, Output>: NSObject, Subscription,
     NSFetchedResultsControllerDelegate
     where SubscriberType: Subscriber,
-    SubscriberType.Input == [ResultType],
+    SubscriberType.Input == Output,
     SubscriberType.Failure == Error,
     ResultType: NSFetchRequestResult {
     // MARK: Properties
@@ -69,8 +98,14 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType>: NSOb
     /// Whether the subscription has changes to send to the subscriber.
     private var hasChangesToSend = false
 
+    /// A serial queue to synchronize access to subscription state.
+    private let queue = DispatchQueue(label: "com.bitwarden.FetchedResultsSubscription")
+
     /// The subscriber to the subscription that is notified of the fetched results.
     private var subscriber: SubscriberType?
+
+    /// A transformation closure that converts the fetched Core Data objects to the desired output type.
+    private let transform: ([ResultType]) throws -> Output
 
     // MARK: Initialization
 
@@ -79,11 +114,14 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType>: NSOb
     /// - Parameters:
     ///   - context: The managed object context that the fetch request is executed against.
     ///   - request: The fetch request used to get the objects.
+    ///   - transform: A transformation closure that converts fetched Core Data objects
+    ///     to the desired output type.
     ///   - subscriber: The subscriber to the subscription that is notified of the fetched results.
     ///
     init(
         context: NSManagedObjectContext,
         request: NSFetchRequest<ResultType>,
+        transform: @escaping ([ResultType]) throws -> Output,
         subscriber: SubscriberType,
     ) {
         controller = NSFetchedResultsController(
@@ -92,54 +130,93 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType>: NSOb
             sectionNameKeyPath: nil,
             cacheName: nil,
         )
+        self.transform = transform
         self.subscriber = subscriber
 
         super.init()
 
         controller?.delegate = self
 
-        do {
-            try controller?.performFetch()
-            if controller?.fetchedObjects != nil {
-                hasChangesToSend = true
-                fulfillDemand()
+        // Capture a strong reference to controller to prevent a race condition where cancel()
+        // could set self.controller to nil on self.queue while this perform block executes
+        // on the context's queue, causing EXC_BAD_ACCESS when accessing the deallocated controller.
+        context.perform { [weak self, controller] in
+            do {
+                try controller?.performFetch()
+                if controller?.fetchedObjects != nil {
+                    self?.queue.async {
+                        self?.hasChangesToSend = true
+                        self?.fulfillDemand()
+                    }
+                }
+            } catch {
+                self?.queue.async {
+                    self?.subscriber?.receive(completion: .failure(error))
+                }
             }
-        } catch {
-            subscriber.receive(completion: .failure(error))
         }
     }
 
     // MARK: Subscription
 
     func request(_ demand: Subscribers.Demand) {
-        self.demand += demand
-        fulfillDemand()
+        queue.async {
+            self.demand += demand
+            self.fulfillDemand()
+        }
     }
 
     // MARK: Cancellable
 
     func cancel() {
-        controller = nil
-        subscriber = nil
+        queue.async {
+            self.controller = nil
+            self.subscriber = nil
+        }
     }
 
     // MARK: NSFetchedResultsControllerDelegate
 
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        hasChangesToSend = true
-        fulfillDemand()
+        queue.async {
+            self.hasChangesToSend = true
+            self.fulfillDemand()
+        }
     }
 
     // MARK: Private
 
     private func fulfillDemand() {
-        guard demand > 0, hasChangesToSend,
-              let subscriber,
-              let fetchedObjects = controller?.fetchedObjects
+        #if DEBUG
+        dispatchPrecondition(condition: .onQueue(queue))
+        #endif
+
+        guard demand > 0,
+              hasChangesToSend,
+              let subscriber
         else { return }
 
         hasChangesToSend = false
         demand -= 1
-        demand += subscriber.receive(fetchedObjects)
+
+        // Capture a strong reference to controller to prevent a race condition where cancel()
+        // could set self.controller to nil on self.queue while this perform block executes
+        // on the context's queue, causing EXC_BAD_ACCESS when accessing the deallocated controller.
+        controller?.managedObjectContext.perform { [weak self, controller] in
+            guard let self,
+                  let fetchedObjects = controller?.fetchedObjects
+            else { return }
+
+            do {
+                let output = try transform(fetchedObjects)
+                queue.async {
+                    self.demand += subscriber.receive(output)
+                }
+            } catch {
+                queue.async {
+                    subscriber.receive(completion: .failure(error))
+                }
+            }
+        }
     }
 }

@@ -8,14 +8,23 @@ import Foundation
 protocol AddEditItemState: Sendable {
     // MARK: Properties
 
+    /// The info text to display when item is archived.
+    var archiveInfoText: String { get }
+
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool { get }
 
+    /// Whether the user is able to archive the item.
+    var canBeArchived: Bool { get }
+
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
+
+    /// Whether the user is able to unarchive the item.
+    var canBeUnarchived: Bool { get }
 
     /// Whether or not this item can be moved to an organization.
     var canMoveToOrganization: Bool { get }
@@ -59,6 +68,9 @@ protocol AddEditItemState: Sendable {
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded: Bool { get set }
 
+    /// Whether archive vault items feature flag is enabled.
+    var isArchiveVaultItemsFFEnabled: Bool { get set }
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }
 
@@ -100,6 +112,9 @@ protocol AddEditItemState: Sendable {
 
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
+
+    /// Whether the item should be displayed as archived.
+    var shouldDisplayAsArchived: Bool { get }
 
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }

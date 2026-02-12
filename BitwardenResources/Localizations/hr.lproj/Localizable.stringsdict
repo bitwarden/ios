@@ -7,18 +7,75 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@vaultitems@. Kopiraj i podijeli ovu greškus korsničkim uspjehom za izbjkegavanje dodatnog gubitka podataka.</string>
-      <key>vaultitems</key>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden nije mogao dešifrirati %d stavku trezora</string>
+        <string>Bitwarden could not decrypt %d vault item.</string>
         <key>few</key>
-        <string>Bitwarden nije mogao dešifrirati %d stavke trezora</string>
+        <string>Bitwarden could not decrypt %d vault items.</string>
         <key>other</key>
-        <string>Bitwarden nije mogao dešifrirati %d stavki trezora</string>
+        <string>Bitwarden could not decrypt %d vault items.</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Glavna lozinka mora imati najmanje %#@characters@.</string>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Master password must be at least %d character long.</string>
+        <key>few</key>
+        <string>Master password must be at least %d characters long.</string>
+        <key>other</key>
+        <string>Master password must be at least %d characters long.</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Lozinka je %#@times@ izložena u curenjima podataka. Trebalo bi ju promijeniti.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>This password has been exposed %d time in data breaches.</string>
+        <key>few</key>
+        <string>This password has been exposed %d times in data breaches.</string>
+        <key>other</key>
+        <string>This password has been exposed %d times in data breaches.</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@characters@</string>
+      <key>Characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d character</string>
+        <key>few</key>
+        <string>%d characters</string>
+        <key>other</key>
+        <string>%d characters</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -26,56 +83,18 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@days@</string>
-      <key>days</key>
+      <key>Days</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d dan</string>
+        <string>%d day</string>
         <key>few</key>
-        <string>%d dana</string>
+        <string>%d days</string>
         <key>other</key>
-        <string>%d dana</string>
-      </dict>
-    </dict>
-    <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
-    <key>XItems</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@</string>
-      <key>items</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d stavka</string>
-        <key>few</key>
-        <string>%d stavaka</string>
-        <key>other</key>
-        <string>%d stavki</string>
-      </dict>
-    </dict>
-    <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
-    <key>XItemsSuccessfullyImported</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>Uspješno uvezeno: %#@items@</string>
-      <key>items</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>d</string>
-        <key>one</key>
-        <string>%d stavka</string>
-        <key>few</key>
-        <string>%d stavaka</string>
-        <key>other</key>
-        <string>%d stavki</string>
+        <string>%d days</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -83,18 +102,56 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@hours@</string>
-      <key>hours</key>
+      <key>Hours</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d sat</string>
+        <string>%d hour</string>
         <key>few</key>
-        <string>%d sata</string>
+        <string>%d hours</string>
         <key>other</key>
-        <string>%d sati</string>
+        <string>%d hours</string>
+      </dict>
+    </dict>
+    <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
+    <key>XItems</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@items@</string>
+      <key>Items</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d item</string>
+        <key>few</key>
+        <string>%d items</string>
+        <key>other</key>
+        <string>%d items</string>
+      </dict>
+    </dict>
+    <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
+    <key>XItemsSuccessfullyImported</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>Uspješno uvezeno: %#@items@</string>
+      <key>ItemsSuccessfullyImported</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d item successfully imported</string>
+        <key>few</key>
+        <string>%d items successfully imported</string>
+        <key>other</key>
+        <string>%d items successfully imported</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -102,18 +159,18 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@minutes@</string>
-      <key>minutes</key>
+      <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Jedna minuta</string>
-        <key>few</key>
         <string>%d minute</string>
+        <key>few</key>
+        <string>%d minutes</string>
         <key>other</key>
-        <string>%d minuta</string>
+        <string>%d minutes</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -121,18 +178,18 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@seconds@</string>
-      <key>seconds</key>
+      <key>Seconds</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d sekunda</string>
+        <string>%d second</string>
         <key>few</key>
-        <string>%d sekunde</string>
+        <string>%d seconds</string>
         <key>other</key>
-        <string>%d sekundi</string>
+        <string>%d seconds</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -140,18 +197,37 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@weeks@</string>
-      <key>weeks</key>
+      <key>Weeks</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d tjedan</string>
+        <string>%d week</string>
         <key>few</key>
-        <string>%d tjedna</string>
+        <string>%d weeks</string>
         <key>other</key>
-        <string>%d tjedana</string>
+        <string>%d weeks</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <key>YourPINMustBeAtLeastCharacters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Your PIN must be at least %d character.</string>
+        <key>few</key>
+        <string>Your PIN must be at least %d characters.</string>
+        <key>other</key>
+        <string>Your PIN must be at least %d characters.</string>
       </dict>
     </dict>
   </dict>

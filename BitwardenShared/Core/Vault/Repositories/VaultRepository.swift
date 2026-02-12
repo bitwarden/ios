@@ -15,10 +15,9 @@ public protocol VaultRepository: AnyObject {
     ///
     /// - Parameters:
     ///   - forceSync: Whether the sync is forced.
-    ///   - filter: The filter to apply to the vault.
     ///   - isPeriodic: Whether the sync is periodic to take into account the minimum interval.
     ///
-    func fetchSync(forceSync: Bool, filter: VaultFilterType, isPeriodic: Bool) async throws
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws
 
     // MARK: Data Methods
 
@@ -27,6 +26,25 @@ public protocol VaultRepository: AnyObject {
     /// - Parameter cipher: The cipher that the user is added.
     ///
     func addCipher(_ cipher: CipherView) async throws
+
+    /// Archives a cipher.
+    ///
+    /// - Parameter cipher: The cipher that the user is archiving.
+    ///
+    func archiveCipher(_ cipher: CipherView) async throws
+
+    /// Shares multiple ciphers with an organization.
+    ///
+    /// - Parameters:
+    ///   - ciphers: The ciphers to share.
+    ///   - newOrganizationId: The ID of the organization that the ciphers are moving to.
+    ///   - newCollectionIds: The IDs of the collections to include the ciphers in.
+    ///
+    func bulkShareCiphers(
+        _ ciphers: [CipherView],
+        newOrganizationId: String,
+        newCollectionIds: [String],
+    ) async throws
 
     /// Whether the vault filter can be shown to the user. It might not be shown to the user if the
     /// policies are set up to disable personal vault ownership and only allow the user to be in a
@@ -135,6 +153,12 @@ public protocol VaultRepository: AnyObject {
     ///
     func isVaultEmpty() async throws -> Bool
 
+    /// Migrates the user's personal vault items to an organization's default collection.
+    ///
+    /// - Parameter organizationId: The ID of the organization to migrate items to.
+    ///
+    func migratePersonalVault(to organizationId: String) async throws
+
     /// Regenerates the TOTP code for a given key.
     ///
     /// - Parameter key: The key for a TOTP code.
@@ -187,6 +211,12 @@ public protocol VaultRepository: AnyObject {
     /// - Parameter cipher: The cipher that the user is soft deleting.
     ///
     func softDeleteCipher(_ cipher: CipherView) async throws
+
+    /// Unarchives a cipher from the vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is unarchiving.
+    ///
+    func unarchiveCipher(_ cipher: CipherView) async throws
 
     /// Updates a cipher in the user's vault.
     ///
@@ -257,6 +287,20 @@ public protocol VaultRepository: AnyObject {
     ///
     func vaultListPublisher(
         filter: VaultListFilter,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
+
+    /// A publisher for the vault search list which returns a list of sections and items that are
+    /// displayed in the vault.
+    ///
+    /// - Parameters:
+    ///   - mode: The `AutofillListMode` to choose the correct strategy, if any.
+    ///   - filterPublisher: Filter publisher to be subscribed to changes to build the sections.
+    /// - Returns: A publisher for the sections of the vault list which will be notified as the
+    ///     data changes.
+    ///
+    func vaultSearchListPublisher(
+        mode: AutofillListMode?,
+        filterPublisher: AnyPublisher<VaultListFilter, Error>,
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>>
 }
 
@@ -444,7 +488,7 @@ class DefaultVaultRepository {
 extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
-    func fetchSync(forceSync: Bool, filter: VaultFilterType, isPeriodic: Bool) async throws {
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
         guard !forceSync || allowSyncOnRefresh else { return }
         try await syncService.fetchSync(forceSync: forceSync, isPeriodic: isPeriodic)
@@ -457,6 +501,60 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.addCipherWithServer(
             cipherEncryptionContext.cipher,
             encryptedFor: cipherEncryptionContext.encryptedFor,
+        )
+    }
+
+    func archiveCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else {
+            throw CipherAPIServiceError.updateMissingId
+        }
+        let archivedCipher = cipher.update(archivedDate: timeProvider.presentTime)
+        let encryptCipher = try await encryptAndUpdateCipher(archivedCipher)
+        try await cipherService.archiveCipherWithServer(id: id, encryptCipher)
+    }
+
+    func bulkShareCiphers(
+        _ ciphers: [CipherView],
+        newOrganizationId: String,
+        newCollectionIds: [String],
+    ) async throws {
+        var preparedCiphers = [CipherView]()
+
+        for cipher in ciphers {
+            // Ensure the cipher has a cipher key.
+            let encryptedCipher = try await encryptAndUpdateCipher(cipher)
+            var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+
+            // Migrate any attachments without an encryption key.
+            if let attachments = cipherView.attachments {
+                for attachment in attachments where attachment.key == nil {
+                    cipherView = try await fixCipherAttachment(
+                        attachment,
+                        cipher: cipherView,
+                    )
+                }
+            }
+
+            preparedCiphers.append(cipherView)
+        }
+
+        // Use the SDK to prepare and encrypt all ciphers for bulk share.
+        // The SDK handles moveToOrganization internally.
+        let encryptionContexts = try await clientService.vault().ciphers()
+            .prepareCiphersForBulkShare(
+                ciphers: preparedCiphers,
+                organizationId: newOrganizationId,
+                collectionIds: newCollectionIds,
+            )
+
+        guard let encryptedFor = encryptionContexts.first?.encryptedFor else {
+            return
+        }
+
+        try await cipherService.bulkShareCiphersWithServer(
+            encryptionContexts.map(\.cipher),
+            collectionIds: newCollectionIds,
+            encryptedFor: encryptedFor,
         )
     }
 
@@ -629,6 +727,34 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.cipherCount() == 0
     }
 
+    func migratePersonalVault(to organizationId: String) async throws {
+        // Fetch collections and find the default collection for the organization.
+        let collections = try await fetchCollections(includeReadOnly: false)
+        guard let defaultCollection = collections.first(where: { collection in
+            collection.organizationId == organizationId && collection.type == .defaultUserCollection
+        }), let collectionId = defaultCollection.id else {
+            throw BitwardenError.dataError("No default collection found for organization \(organizationId)")
+        }
+
+        // Fetch all ciphers and filter to get personal vault items.
+        let allCiphers = try await cipherService.fetchAllCiphers()
+        let personalCiphers = allCiphers.filter { cipher in
+            cipher.organizationId == nil
+        }
+
+        guard !personalCiphers.isEmpty else {
+            return
+        }
+
+        // Decrypt personal ciphers to CipherViews.
+        let cipherViews = try await personalCiphers.asyncMap { cipher in
+            try await clientService.vault().ciphers().decrypt(cipher: cipher)
+        }
+
+        // Share all personal vault ciphers with the organization's default collection.
+        try await bulkShareCiphers(cipherViews, newOrganizationId: organizationId, newCollectionIds: [collectionId])
+    }
+
     func needsSync() async throws -> Bool {
         let userId = try await stateService.getActiveAccountId()
         return try await syncService.needsSync(for: userId, onlyCheckLocalData: true)
@@ -744,6 +870,15 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.softDeleteCipherWithServer(id: id, encryptedCipher)
     }
 
+    func unarchiveCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else {
+            throw CipherAPIServiceError.updateMissingId
+        }
+        let archivedCipher = cipher.update(archivedDate: nil)
+        let encryptCipher = try await encryptAndUpdateCipher(archivedCipher)
+        try await cipherService.unarchiveCipherWithServer(id: id, encryptCipher)
+    }
+
     func updateCipher(_ cipherView: CipherView) async throws {
         let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
         try await cipherService.updateCipherWithServer(
@@ -823,6 +958,15 @@ extension DefaultVaultRepository: VaultRepository {
         try await vaultListDirectorStrategyFactory
             .make(filter: filter)
             .build(filter: filter)
+    }
+
+    func vaultSearchListPublisher(
+        mode: AutofillListMode?,
+        filterPublisher: AnyPublisher<VaultListFilter, Error>,
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<VaultListData, Error>> {
+        try await vaultListDirectorStrategyFactory
+            .makeSearchStrategy(mode: mode)
+            .build(filterPublisher: filterPublisher)
     }
 
     // MARK: Private
