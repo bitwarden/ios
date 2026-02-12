@@ -35,8 +35,10 @@ struct AddFileSendRequest: Request {
     ///
     init(send: Send, fileLength: Int) {
         requestModel = SendRequestModel(
+            authType: SendAuthType(authType: send.authType),
             deletionDate: send.deletionDate,
             disabled: send.disabled,
+            emails: send.emails,
             expirationDate: send.expirationDate,
             file: send.file.map(SendFileModel.init),
             fileLength: fileLength,
