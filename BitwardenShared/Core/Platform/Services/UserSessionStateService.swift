@@ -24,6 +24,21 @@ protocol UserSessionStateService { // sourcery: AutoMockable
     ///
     func setLastActiveTime(_ date: Date?, userId: String?) async throws
 
+    /// Gets the user's last active monotonic time within the app.
+    ///
+    /// - Parameter userId: The user ID associated with the last active monotonic time within the app.
+    /// - Returns: The monotonic time of the last active time as a `TimeInterval` since system boot.
+    ///
+    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval?
+
+    /// Sets the last active monotonic time within the app.
+    ///
+    /// - Parameters:
+    ///   - monotonicTime: The current monotonic time as a `TimeInterval` since system boot.
+    ///   - userId: The user ID associated with the last active monotonic time within the app.
+    ///
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws
+
     // MARK: Unsuccessful Unlock Attempts
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.

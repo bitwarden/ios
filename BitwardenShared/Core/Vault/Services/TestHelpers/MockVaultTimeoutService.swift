@@ -10,6 +10,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
     var account: Account = .fixture()
     var hasPassedSessionTimeoutIsAppRestart: Bool?
     var lastActiveTime = [String: Date]()
+    var lastActiveMonotonicTime = [String: TimeInterval]()
     var pinUnlockAvailabilityResult: Result<[String: Bool], Error> = .success([:])
     var setLastActiveTimeError: Error?
     var shouldSessionTimeout = [String: Bool]()
@@ -44,6 +45,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
             throw setLastActiveTimeError
         }
         lastActiveTime[userId] = timeProvider.presentTime
+        lastActiveMonotonicTime[userId] = timeProvider.monotonicTime
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {

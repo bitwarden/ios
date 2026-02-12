@@ -1,5 +1,6 @@
 import AuthenticatorBridgeKit
 import AuthenticatorBridgeKitMocks
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import Combine
@@ -18,6 +19,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var sharedTimeoutService: MockSharedTimeoutService!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
@@ -34,6 +36,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = MockClientService()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         sharedTimeoutService = MockSharedTimeoutService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(
@@ -52,6 +55,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -66,6 +70,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         cancellables = nil
         clientService = nil
         configService = nil
+        flightRecorder = nil
         errorReporter = nil
         subject = nil
         stateService = nil
@@ -74,35 +79,69 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     // MARK: Tests
 
-    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out.
-    func test_hasPassedSessionTimeout() async throws {
+    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out using monotonic time.
+    func test_hasPassedSessionTimeout() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture()
         stateService.activeAccount = account
         userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
 
         let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
-        timeProvider.timeConfig = .mockTime(currentTime)
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
 
-        // Last active 4 minutes ago, no timeout.
+        // Last active 4 minutes ago (240 seconds), no timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -4, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 240
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 240,
+            elapsedMonotonic: 240,
+            elapsedWallClock: 240,
+            tamperingDetected: false,
+        )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking timeout with monotonic time for userId: 1"))
 
-        // Last active 5 minutes ago, timeout.
+        // Last active 5 minutes ago (300 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -5, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 300
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 300,
+            elapsedMonotonic: 300,
+            elapsedWallClock: 300,
+            tamperingDetected: false,
+        )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
-        // Last active 6 minutes ago, timeout.
+        // Last active 6 minutes ago (360 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -6, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 360
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 360,
+            elapsedMonotonic: 360,
+            elapsedWallClock: 360,
+            tamperingDetected: false,
+        )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active in the distant past, timeout.
         userSessionStateService.getLastActiveTimeReturnValue = .distantPast
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = 0
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 999_999,
+            elapsedMonotonic: 999_999,
+            elapsedWallClock: 999_999,
+            tamperingDetected: false,
+        )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
     }
@@ -135,35 +174,69 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(shouldTimeout)
     }
 
-    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out for a custom timeout value.
-    func test_hasPassedSessionTimeout_custom() async throws {
+    /// `.hasPassedSessionTimeout()` returns true if the user should be timed out
+    /// for a custom timeout value using monotonic time.
+    func test_hasPassedSessionTimeout_custom() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixture()
         stateService.activeAccount = account
         userSessionStateService.getVaultTimeoutReturnValue = .custom(120)
 
         let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
-        timeProvider.timeConfig = .mockTime(currentTime)
+        let currentMonotonicTime: TimeInterval = 10000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
 
-        // Last active 119 minutes ago, no timeout.
+        // Last active 119 minutes ago (7140 seconds), no timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -119, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7140
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 7140,
+            elapsedMonotonic: 7140,
+            elapsedWallClock: 7140,
+            tamperingDetected: false,
+        )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
 
-        // Last active 120 minutes ago, timeout.
+        // Last active 120 minutes ago (7200 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -120, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7200
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 7200,
+            elapsedMonotonic: 7200,
+            elapsedWallClock: 7200,
+            tamperingDetected: false,
+        )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
-        // Last active 121 minutes ago, timeout.
+        // Last active 121 minutes ago (7260 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -121, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 7260
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 7260,
+            elapsedMonotonic: 7260,
+            elapsedWallClock: 7260,
+            tamperingDetected: false,
+        )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
 
         // Last active in the distant past, timeout.
         userSessionStateService.getLastActiveTimeReturnValue = .distantPast
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = 0
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 999_999,
+            elapsedMonotonic: 999_999,
+            elapsedWallClock: 999_999,
+            tamperingDetected: false,
+        )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
     }
@@ -187,6 +260,154 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` detects device reboot and forces timeout when tampering is detected.
+    func test_hasPassedSessionTimeout_rebootDetection() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 100.0 // System rebooted, uptime is low
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        // Last active with a higher monotonic time than current (device was rebooted)
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -2, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = 5000.0 // Much higher than current
+
+        // calculateTamperResistantElapsedTime detects tampering (reboot)
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 5020,
+            effectiveElapsed: 120,
+            elapsedMonotonic: -4900,
+            elapsedWallClock: 120,
+            tamperingDetected: true,
+        )
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        // Should force timeout when tampering is detected
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` detects clock manipulation and forces timeout.
+    func test_hasPassedSessionTimeout_clockManipulation() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        // Last active 2 minutes ago by wall-clock but 10 minutes by monotonic (clock set back)
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -2, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 600
+
+        // calculateTamperResistantElapsedTime detects tampering (clock manipulation)
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 480,
+            effectiveElapsed: 600,
+            elapsedMonotonic: 600,
+            elapsedWallClock: 120,
+            tamperingDetected: true,
+        )
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        // Should force timeout when tampering is detected, even though wall-clock says only 2 minutes
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` does not timeout when tampering is not detected and time is within threshold.
+    func test_hasPassedSessionTimeout_noTamperingWithinThreshold() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        // Last active 2 minutes ago, within timeout threshold
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -2, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 120
+
+        // No tampering detected, clocks agree
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 120,
+            elapsedMonotonic: 120,
+            elapsedWallClock: 120,
+            tamperingDetected: false,
+        )
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` uses effective elapsed time which is max of both clocks.
+    func test_hasPassedSessionTimeout_effectiveElapsedUsesMax() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        // Small divergence (within threshold), but effective elapsed (max) exceeds timeout
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -5, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 310
+
+        // No tampering detected (divergence within 15s threshold)
+        // But effective elapsed uses max(310, 300) = 310 which exceeds 300s timeout
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 10,
+            effectiveElapsed: 310,
+            elapsedMonotonic: 310,
+            elapsedWallClock: 300,
+            tamperingDetected: false,
+        )
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` falls back to wall-clock time when monotonic time
+    /// is not available (migration scenario).
+    func test_hasPassedSessionTimeout_migrationFallback() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        timeProvider.timeConfig = .mockTime(currentTime, 1000.0)
+
+        // Last active 4 minutes ago using wall-clock time, no monotonic time stored (migration scenario)
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -4, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
+        var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking timeout with wall-clock time for userId: 1"))
+
+        // Last active 5 minutes ago using wall-clock time, timeout
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -5, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
+
+        // Last active 6 minutes ago using wall-clock time, timeout
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -6, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
+        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertTrue(shouldTimeout)
     }
 
     /// `isPinUnlockAvailable` throws errors.
@@ -382,14 +603,22 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         }
     }
 
-    /// `.setLastActiveTime(userId:)` sets the user's last active time.
+    /// `.setLastActiveTime(userId:)` sets the user's last active time and monotonic time.
     func test_setLastActiveTime() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
+        let currentMonotonicTime: TimeInterval = 2500.0
+        timeProvider.timeConfig = .mockTime(.now, currentMonotonicTime)
+
         try await subject.setLastActiveTime(userId: account.profile.userId)
+
         XCTAssertEqual(
             userSessionStateService.setLastActiveTimeReceivedArguments?.date,
             timeProvider.presentTime,
+        )
+        XCTAssertEqual(
+            userSessionStateService.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime,
+            currentMonotonicTime,
         )
         XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }

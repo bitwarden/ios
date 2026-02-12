@@ -23,6 +23,22 @@ protocol UserSessionKeychainRepository { // sourcery: AutoMockable
     ///
     func setLastActiveTime(_ date: Date?, userId: String) async throws
 
+    /// Gets the stored last active monotonic time for a user from the keychain.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the stored last active monotonic time.
+    /// - Returns: The last active monotonic time value as a `TimeInterval` since system boot.
+    ///
+    func getLastActiveMonotonicTime(userId: String) async throws -> TimeInterval?
+
+    /// Stores the last active monotonic time for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - monotonicTime: The last active monotonic time to store as a `TimeInterval` since system boot.
+    ///   - userId: The user's ID, used to get back the last active monotonic time later on.
+    ///
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) async throws
+
     // MARK: Unsuccessful Unlock Attempts
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.

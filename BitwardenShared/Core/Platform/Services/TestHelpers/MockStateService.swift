@@ -61,6 +61,7 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
@@ -304,6 +305,11 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
         return lastSyncTimeByUserId[userId]
+    }
+
+    func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try unwrapUserId(userId)
+        return lastSyncMonotonicTimeByUserId[userId] ?? nil
     }
 
     func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
@@ -601,6 +607,11 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         learnNewLoginActionCardStatus = status
+    }
+
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        lastSyncMonotonicTimeByUserId[userId] = monotonicTime
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {

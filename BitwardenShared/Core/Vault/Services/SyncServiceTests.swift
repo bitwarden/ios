@@ -18,6 +18,7 @@ class SyncServiceTests: BitwardenTestCase {
     var clientService: MockClientService!
     var collectionService: MockCollectionService!
     var configService: MockConfigService!
+    var flightRecorder: MockFlightRecorder!
     var folderService: MockFolderService!
     var keyConnectorService: MockKeyConnectorService!
     var organizationService: MockOrganizationService!
@@ -42,6 +43,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = MockClientService()
         collectionService = MockCollectionService()
         configService = MockConfigService()
+        flightRecorder = MockFlightRecorder()
         folderService = MockFolderService()
         keyConnectorService = MockKeyConnectorService()
         organizationService = MockOrganizationService()
@@ -71,6 +73,7 @@ class SyncServiceTests: BitwardenTestCase {
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            flightRecorder: flightRecorder,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
@@ -95,6 +98,7 @@ class SyncServiceTests: BitwardenTestCase {
         clientService = nil
         collectionService = nil
         configService = nil
+        flightRecorder = nil
         folderService = nil
         keyConnectorService = nil
         organizationService = nil
@@ -537,6 +541,175 @@ class SyncServiceTests: BitwardenTestCase {
         try XCTAssertEqual(
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
             timeProvider.presentTime,
+        )
+    }
+
+    // MARK: Monotonic Time Tests
+
+    /// `fetchSync()` doesn't sync if monotonic time shows interval hasn't passed.
+    @MainActor
+    func test_fetchSync_monotonicTime_blocksEarlySyncAttempt() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.timeConfig = .mockTime(.now, 1800.0) // Only 800 seconds elapsed (< 30 min)
+
+        // calculateTamperResistantElapsedTime shows 800 seconds elapsed, below 30 min threshold
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 800,
+            elapsedMonotonic: 800,
+            elapsedWallClock: 800,
+            tamperingDetected: false,
+        )
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty)
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking needs sync with monotonic time for userId: 1"))
+    }
+
+    /// `fetchSync()` syncs if monotonic time shows interval has passed.
+    func test_fetchSync_monotonicTime_allowsSyncAfterInterval() async throws {
+        client.results = [
+            .httpSuccess(testData: .accountRevisionDate(timeProvider.presentTime)),
+            .httpSuccess(testData: .syncWithCipher),
+        ]
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.timeConfig = .mockTime(.now, 2801.0) // 1801 seconds elapsed (> 30 min)
+
+        // calculateTamperResistantElapsedTime shows 1801 seconds elapsed, above 30 min threshold
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 1801,
+            elapsedMonotonic: 1801,
+            elapsedWallClock: 1801,
+            tamperingDetected: false,
+        )
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertNotNil(cipherService.replaceCiphersCiphers)
+    }
+
+    /// `fetchSync()` forces sync when device reboot is detected.
+    func test_fetchSync_monotonicTime_forceSyncAfterReboot() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1800)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 10000.0
+        timeProvider.timeConfig = .mockTime(.now, 100.0) // Negative elapsed (reboot)
+
+        // calculateTamperResistantElapsedTime detects tampering (reboot detected)
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 11700,
+            effectiveElapsed: 1800,
+            elapsedMonotonic: -9900,
+            elapsedWallClock: 1800,
+            tamperingDetected: true,
+        )
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertEqual(client.requests.count, 1)
+    }
+
+    /// `fetchSync()` falls back to wall-clock when monotonic time unavailable (migration).
+    @MainActor
+    func test_fetchSync_monotonicTime_fallbackToWallClockOnMigration() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-1700)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = nil // Migration case
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty) // Wall-clock fallback blocks
+        XCTAssertTrue(flightRecorder.logMessages.contains("Checking needs sync with wall-clock time for userId: 1"))
+    }
+
+    /// `fetchSync()` protects against clock manipulation using monotonic time.
+    func test_fetchSync_monotonicTime_protectsAgainstClockAttack() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        // User sets clock back 1 hour
+        let manipulatedTime = timeProvider.presentTime.addingTimeInterval(-3600)
+        stateService.lastSyncTimeByUserId["1"] = manipulatedTime
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.timeConfig = .mockTime(.now, 1600.0) // Only 10 min monotonic elapsed
+
+        // calculateTamperResistantElapsedTime shows only 600 seconds (10 min) elapsed
+        // Wall-clock shows 3600s but monotonic time shows only 600s
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 3000,
+            effectiveElapsed: 600,
+            elapsedMonotonic: 600,
+            elapsedWallClock: 3600,
+            tamperingDetected: false,
+        )
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertTrue(client.requests.isEmpty) // Attack blocked
+    }
+
+    /// `fetchSync()` forces sync when clock manipulation with large divergence is detected.
+    func test_fetchSync_monotonicTime_forcesSyncOnClockManipulationDetection() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        // Clock divergence detected
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime.addingTimeInterval(-600)
+        stateService.lastSyncMonotonicTimeByUserId["1"] = 1000.0
+        timeProvider.timeConfig = .mockTime(.now, 1300.0)
+
+        // calculateTamperResistantElapsedTime detects tampering (large clock divergence)
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 300,
+            effectiveElapsed: 300,
+            elapsedMonotonic: 300,
+            elapsedWallClock: 600,
+            tamperingDetected: true,
+        )
+
+        keyConnectorService.userNeedsMigrationResult = .success(false)
+
+        try await subject.fetchSync(forceSync: false, isPeriodic: true)
+
+        XCTAssertEqual(client.requests.count, 1) // Sync forced due to tampering detection
+    }
+
+    /// `fetchSync()` updates monotonic time after successful sync.
+    func test_fetchSync_updatesMonotonicTimeAfterSync() async throws {
+        client.result = .httpSuccess(testData: .syncWithCipher)
+        stateService.activeAccount = .fixture()
+
+        timeProvider.timeConfig = .mockTime(.now, 5000.0)
+
+        try await subject.fetchSync(forceSync: false)
+
+        try XCTAssertEqual(
+            XCTUnwrap(stateService.lastSyncMonotonicTimeByUserId["1"]),
+            5000.0,
         )
     }
 

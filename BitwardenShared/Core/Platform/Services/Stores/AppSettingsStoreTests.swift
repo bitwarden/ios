@@ -601,6 +601,48 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
+    /// `lastSyncMonotonicTime(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_lastSyncMonotonicTime_isInitiallyNil() {
+        XCTAssertNil(subject.lastSyncMonotonicTime(userId: "-1"))
+    }
+
+    /// `lastSyncMonotonicTime(userId:)` can be used to get the last sync monotonic time for a user.
+    func test_lastSyncMonotonicTime_withValue() {
+        let monotonicTime1: TimeInterval = 12345.67
+        let monotonicTime2: TimeInterval = 98765.43
+
+        subject.setLastSyncMonotonicTime(monotonicTime1, userId: "1")
+        subject.setLastSyncMonotonicTime(monotonicTime2, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "1"), monotonicTime1)
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "2"), monotonicTime2)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_1"), 12345.67)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_2"), 98765.43)
+
+        let monotonicTime3: TimeInterval = 11111.22
+        let monotonicTime4: TimeInterval = 22222.33
+
+        subject.setLastSyncMonotonicTime(monotonicTime3, userId: "1")
+        subject.setLastSyncMonotonicTime(monotonicTime4, userId: "2")
+
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "1"), monotonicTime3)
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "2"), monotonicTime4)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_1"), 11111.22)
+        XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSyncMonotonic_2"), 22222.33)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` can be used to clear the monotonic time by setting nil.
+    func test_lastSyncMonotonicTime_clearValue() {
+        let monotonicTime: TimeInterval = 54321.98
+
+        subject.setLastSyncMonotonicTime(monotonicTime, userId: "1")
+        XCTAssertEqual(subject.lastSyncMonotonicTime(userId: "1"), monotonicTime)
+
+        subject.setLastSyncMonotonicTime(nil, userId: "1")
+        XCTAssertNil(subject.lastSyncMonotonicTime(userId: "1"))
+        XCTAssertNil(userDefaults.object(forKey: "bwPreferencesStorage:lastSyncMonotonic_1"))
+    }
+
     /// `learnNewLoginActionCardStatus` returns `.incomplete` if there isn't a previously stored value.
     func test_learnNewLoginActionCardStatus_isInitiallyIncomplete() {
         XCTAssertEqual(subject.learnNewLoginActionCardStatus, .incomplete)
