@@ -260,6 +260,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: Networking/Tests/NetworkingTests/Support/Info.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: Networking
         includes:
