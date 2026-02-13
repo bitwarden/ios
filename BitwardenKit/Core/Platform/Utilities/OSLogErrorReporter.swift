@@ -43,6 +43,10 @@ public final class OSLogErrorReporter: ErrorReporter {
         #endif
     }
 
+    public func setAppContext(_ appContext: String) {
+        // No-op
+    }
+
     public func setRegion(_ region: String, isPreAuth: Bool) {
         // No-op
     }

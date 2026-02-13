@@ -412,6 +412,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         nfcReaderService: NFCReaderService? = nil,
     ) {
         let appContextHelper = DefaultAppContextHelper(appContext: appContext)
+
+        errorReporter.setAppContext(appContext.appContextName)
+
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )

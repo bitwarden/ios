@@ -9,3 +9,15 @@ public enum AppContext: Equatable {
     /// The main app is running.
     case mainApp
 }
+
+extension AppContext {
+    /// A safe string representation of the current app context
+    var appContextName: String {
+        switch self {
+        case .appExtension:
+            "App Extension"
+        case .mainApp:
+            "Main App"
+        }
+    }
+}
