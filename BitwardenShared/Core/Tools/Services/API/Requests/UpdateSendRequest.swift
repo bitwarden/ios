@@ -40,8 +40,10 @@ struct UpdateSendRequest: Request {
             throw BitwardenError.dataError("Received a send from the API with a missing ID.")
         }
         requestModel = SendRequestModel(
+            authType: SendAuthType(authType: send.authType),
             deletionDate: send.deletionDate,
             disabled: send.disabled,
+            emails: send.emails,
             expirationDate: send.expirationDate,
             file: send.file.map(SendFileModel.init),
             hideEmail: send.hideEmail,

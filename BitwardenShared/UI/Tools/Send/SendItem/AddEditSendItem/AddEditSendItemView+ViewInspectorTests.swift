@@ -209,7 +209,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.accessType = .anyoneWithPassword
         processor.state.password = ""
         XCTAssertThrowsError(
-            try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyPassword)
+            try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.copyPassword),
         )
     }
 
