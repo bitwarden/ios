@@ -128,7 +128,7 @@ class SettingsViewTests: BitwardenTestCase {
     /// Updating the value of the `sessionTimeoutValue` sends the  `.sessionTimeoutValueChanged()` action.
     @MainActor
     func test_sessionTimeoutValue_updateValue() throws {
-        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
+        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         processor.state.sessionTimeoutValue = .never
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.sessionTimeout)
         try menuField.select(newValue: SessionTimeoutValue.fifteenMinutes)

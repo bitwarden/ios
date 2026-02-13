@@ -2,7 +2,7 @@
 
 /// The enumeration of biometric authentication authorization.
 ///
-enum BiometricAuthorizationStatus: Equatable {
+public enum BiometricAuthorizationStatus: Equatable {
     /// BiometricAuth access has been authorized or may be authorized pending a system permissions alert.
     case authorized(BiometricAuthenticationType)
 
