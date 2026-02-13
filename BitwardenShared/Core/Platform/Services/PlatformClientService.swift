@@ -16,6 +16,16 @@ protocol PlatformClientService: AnyObject {
     /// Load feature flags into the client.
     /// - Parameter flags: Flags to load.
     func loadFlags(_ flags: [String: Bool]) throws
+    
+    /// Server communication configuration operations.
+    /// - Parameters:
+    ///   - repository: The repository to use for server communication operations.
+    ///   - platformApi: The platform API to use for server communication operations.
+    /// - Returns: A server communication client to interact with.
+    func serverCommunicationConfig(
+        repository: ServerCommunicationConfigRepository,
+        platformApi: ServerCommunicationConfigPlatformApi,
+    )  -> ServerCommunicationConfigClient
 
     /// Returns an object to handle state.
     func state() -> StateClientProtocol

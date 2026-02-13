@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - ServerConfig
@@ -7,12 +8,14 @@ import Foundation
 public struct ServerConfig: Equatable, Codable, Sendable {
     // MARK: Properties
 
-    /// The environment URLs of the server.
-    public let environment: EnvironmentServerConfig?
+    /// The communication settings.
+    public let communication: CommunicationSettings?
 
     /// The particular time of the server configuration.
     public let date: Date
 
+    /// The environment URLs of the server.
+    public let environment: EnvironmentServerConfig?
     /// Feature flags to configure the client.
     public let featureStates: [String: AnyCodable]
 
@@ -26,6 +29,7 @@ public struct ServerConfig: Equatable, Codable, Sendable {
     public let version: String
 
     public init(date: Date, responseModel: ConfigResponseModel) {
+        communication = responseModel.communication.map(CommunicationSettings.init)
         environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
         featureStates = responseModel.featureStates ?? [:]
@@ -91,5 +95,84 @@ public struct EnvironmentServerConfig: Equatable, Codable, Sendable {
         notifications = responseModel.notifications
         sso = responseModel.sso
         vault = responseModel.vault
+    }
+}
+
+// MARK: - CommunicationSettings
+
+/// Server communication configuration settings.
+///
+public struct CommunicationSettings: Equatable, Codable, Sendable {
+    // MARK: Properties
+
+    /// Bootstrap configuration determining how to establish server communication.
+    public let bootstrap: String
+
+    /// SSO cookie vendor settings for load balancer authentication.
+    public let ssoCookieVendor: SsoCookieVendorSettings?
+
+    // MARK: Initialization
+
+    /// Creates a new communication settings instance.
+    ///
+    /// - Parameters:
+    ///   - bootstrap: Bootstrap configuration determining how to establish server communication.
+    ///   - ssoCookieVendor: SSO cookie vendor settings for load balancer authentication.
+    ///
+    public init(
+        bootstrap: String,
+        ssoCookieVendor: SsoCookieVendorSettings?,
+    ) {
+        self.bootstrap = bootstrap
+        self.ssoCookieVendor = ssoCookieVendor
+    }
+
+    public init(responseModel: CommunicationSettingsResponseModel) {
+        self.bootstrap = responseModel.bootstrap
+        self.ssoCookieVendor = responseModel.ssoCookieVendor.map(SsoCookieVendorSettings.init)
+    }
+}
+
+// MARK: - SsoCookieVendorSettings
+
+/// SSO cookie vendor configuration settings.
+///
+/// This configuration is provided by the server for load balancer authentication.
+///
+public struct SsoCookieVendorSettings: Equatable, Codable, Sendable {
+    // MARK: Properties
+
+    /// Identity provider login URL for browser redirect during bootstrap.
+    public let idpLoginUrl: String?
+
+    /// Cookie name (base name, without shard suffix).
+    public let cookieName: String?
+
+    /// Cookie domain for validation.
+    public let cookieDomain: String?
+
+    // MARK: Initialization
+
+    /// Creates a new SSO cookie vendor settings instance.
+    ///
+    /// - Parameters:
+    ///   - idpLoginUrl: Identity provider login URL for browser redirect during bootstrap.
+    ///   - cookieName: Cookie name (base name, without shard suffix).
+    ///   - cookieDomain: Cookie domain for validation.
+    ///
+    public init(
+        idpLoginUrl: String?,
+        cookieName: String?,
+        cookieDomain: String?,
+    ) {
+        self.idpLoginUrl = idpLoginUrl
+        self.cookieName = cookieName
+        self.cookieDomain = cookieDomain
+    }
+
+    public init(responseModel: SsoCookieVendorSettingsResponseModel) {
+        self.idpLoginUrl = responseModel.idpLoginUrl
+        self.cookieName = responseModel.cookieName
+        self.cookieDomain = responseModel.cookieDomain
     }
 }

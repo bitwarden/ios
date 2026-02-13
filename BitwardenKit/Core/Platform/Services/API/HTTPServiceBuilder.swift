@@ -19,6 +19,12 @@ public class HTTPServiceBuilder {
     /// codes or tries to parse the error otherwise.
     private let responseValidationHandler = ResponseValidationHandler()
 
+    /// A `RequestHandler` that handles whether the HTTP request needs SSO vendor cookie.
+    private let ssoCookieVendorRequestHandler: RequestHandler
+
+    /// A `ResponseHandler` that handles whether the HTTP response needs SSO cookie refresh.
+    private let ssoCookieVendorResponseHandler: ResponseHandler
+
     // MARK: Initialization
 
     /// Initialize an `HTTPServiceBuilder`.
@@ -28,15 +34,21 @@ public class HTTPServiceBuilder {
     ///   - defaultHeadersRequestHandler: A `RequestHandler` that applies default headers
     ///     (user agent, client type & name, etc) to requests.
     ///   - loggers: The loggers used to log HTTP requests and responses.
+    ///   - ssoCookieVendorRequestHandler: A `RequestHandler` that handles whether the HTTP request needs SSO vendor cookie.
+    ///   - ssoCookieVendorResponseHandler: A `ResponseHandler` that handles whether the HTTP response needs SSO cookie refresh.
     ///
     public init(
         client: HTTPClient,
         defaultHeadersRequestHandler: DefaultHeadersRequestHandler,
         loggers: [HTTPLogger],
+        ssoCookieVendorRequestHandler: RequestHandler,
+        ssoCookieVendorResponseHandler: ResponseHandler,
     ) {
         self.client = client
         self.defaultHeadersRequestHandler = defaultHeadersRequestHandler
         self.loggers = loggers
+        self.ssoCookieVendorRequestHandler = ssoCookieVendorRequestHandler
+        self.ssoCookieVendorResponseHandler = ssoCookieVendorResponseHandler
     }
 
     // MARK: Methods
@@ -57,8 +69,14 @@ public class HTTPServiceBuilder {
             baseURLGetter: baseURLGetter,
             client: client,
             loggers: loggers,
-            requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler],
+            requestHandlers: [
+                defaultHeadersRequestHandler,
+                ssoCookieVendorRequestHandler,
+            ],
+            responseHandlers: [
+                ssoCookieVendorResponseHandler, // Order matters here, DO NOT invert with `responseValidationHandler`.
+                responseValidationHandler,
+            ],
             tokenProvider: tokenProvider,
         )
     }

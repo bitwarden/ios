@@ -54,6 +54,7 @@ class APIService {
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
         flightRecorder: FlightRecorder,
+        serverCommunicationConfigClientSingleton: () -> ServerCommunicationConfigClientSingleton,
         stateService: StateService,
         tokenService: TokenService,
     ) {
@@ -71,6 +72,12 @@ class APIService {
                 FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
                 OSLogHTTPLogger(),
             ],
+            ssoCookieVendorRequestHandler: SSOCookieVendorRequestHandler(
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton(),
+            ),
+            ssoCookieVendorResponseHandler: SSOCookieVendorResponseHandler(
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton(),
+            ),
         )
 
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(

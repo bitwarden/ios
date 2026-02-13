@@ -472,9 +472,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
+
+        // Create holder for breaking circular dependency.
+        // This is set later in this initializer, after serverCommunicationConfigClientSingleton is created.
+        var serverCommunicationConfigClientSingletonHolder: ServerCommunicationConfigClientSingleton?
+
         let apiService = APIService(
             environmentService: environmentService,
             flightRecorder: flightRecorder,
+            serverCommunicationConfigClientSingleton: { serverCommunicationConfigClientSingletonHolder },
             stateService: stateService,
             tokenService: tokenService,
         )
@@ -510,7 +516,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             sdkRepositoryFactory: DefaultSdkRepositoryFactory(
                 cipherDataStore: dataStore,
+                configService: configService,
                 errorReporter: errorReporter,
+                stateService: stateService,
             ),
             stateService: stateService,
         )
