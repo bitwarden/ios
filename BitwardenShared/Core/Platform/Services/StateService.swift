@@ -196,6 +196,38 @@ protocol StateService: AnyObject {
     ///
     func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData?
 
+    /// Gets the client certificate configuration for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the client certificate configuration.
+    ///   Defaults to the active account if `nil`.
+    /// - Returns: The client certificate configuration, or `nil` if none is configured.
+    ///
+    func getClientCertificateConfiguration(userId: String?) async throws -> ClientCertificateConfiguration?
+
+    /// Sets the client certificate configuration for a user ID.
+    ///
+    /// - Parameters:
+    ///   - configuration: The client certificate configuration to set.
+    ///   - userId: The user ID associated with the client certificate configuration.
+    ///     Defaults to the active account if `nil`.
+    ///
+    func setClientCertificateConfiguration(
+        _ configuration: ClientCertificateConfiguration,
+        userId: String?
+    ) async throws
+
+    /// Gets the global client certificate configuration (not user-specific).
+    ///
+    /// - Returns: The global client certificate configuration, or `nil` if none is configured.
+    ///
+    func getGlobalClientCertificateConfiguration() async -> ClientCertificateConfiguration?
+
+    /// Sets the global client certificate configuration (not user-specific).
+    ///
+    /// - Parameter configuration: The client certificate configuration to set.
+    ///
+    func setGlobalClientCertificateConfiguration(_ configuration: ClientCertificateConfiguration) async
+
     /// Gets the events stored to disk to be uploaded in the future.
     ///
     /// - Parameters:
@@ -1618,6 +1650,27 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
+    }
+
+    func getClientCertificateConfiguration(userId: String?) async throws -> ClientCertificateConfiguration? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.clientCertificateConfiguration(userId: userId)
+    }
+
+    func setClientCertificateConfiguration(
+        _ configuration: ClientCertificateConfiguration,
+        userId: String?
+    ) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setClientCertificateConfiguration(configuration, userId: userId)
+    }
+
+    func getGlobalClientCertificateConfiguration() async -> ClientCertificateConfiguration? {
+        appSettingsStore.globalClientCertificateConfiguration()
+    }
+
+    func setGlobalClientCertificateConfiguration(_ configuration: ClientCertificateConfiguration) async {
+        appSettingsStore.setGlobalClientCertificateConfiguration(configuration)
     }
 
     func getEvents(userId: String?) async throws -> [EventData] {
