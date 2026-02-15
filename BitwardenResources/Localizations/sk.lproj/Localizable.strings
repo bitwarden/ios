@@ -1303,3 +1303,11 @@
 "RestartPremium" = "Reštartovať Prémium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Táto položka je archivovaná. Uloženie zmien ju obnoví do trezoru.";
 "SettingUpAutofill" = "Nastavuje sa automatické vypĺňanie…";
+"AddEmail" = "Pridať e-mail";
+"AnyoneWithPasswordSetByYou" = "Ktokoľvek s heslom od vás";
+"AnyoneWithTheLink" = "Ktokoľvek s odkazom";
+"AnyoneWithThisLinkCanViewThisSend" = "Ktokoľvek s týmto odkazom môže zobraziť tento Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "Po zdieľaní tohto odkazu na Send budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tohto Sendu.";
+"SpecificPeople" = "Konkrétne osoby";
+"WhoCanView" = "Kto môže zobraziť";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Zdieľanie s konkrétnymi osobami je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";

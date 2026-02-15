@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerével, hogy elkerüljük a további adatvesztést.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Másoljuk és osszuk meg ezt a hibajelentést az ügyfél sikerével, hogy elkerüljük a további adatvesztést.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -40,7 +40,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Ezt a jelszót %#@times@ alkalommal tették közzé adatsértések miatt. Meg kellene változtatni.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Meg kellene változtatni.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -125,7 +125,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ sikeresen importálásra került.</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -193,7 +193,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>A PIN kódnak legalább %#@characters@ karakterből kell állnia. A PIN kód beállításai alaphelyzetbe kerülnek, ha valaha is teljesen kijelentkezünk az alkalmazásból.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ A PIN kód beállításai alaphelyzetbe kerülnek, ha valaha is teljesen kijelentkezünk az alkalmazásból.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

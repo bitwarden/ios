@@ -1303,3 +1303,11 @@
 "RestartPremium" = "重启高级版";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "此项目已归档。保存更改会将其恢复到您的密码库。";
 "SettingUpAutofill" = "正在设置自动填充…";
+"AddEmail" = "添加电子邮箱";
+"AnyoneWithPasswordSetByYou" = "拥有您设置的密码的任何人";
+"AnyoneWithTheLink" = "拥有此链接的任何人";
+"AnyoneWithThisLinkCanViewThisSend" = "拥有此链接的任何人都可以查看此 Send。";
+"AfterSharingThisSendLinkDescriptionLong" = "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。";
+"SpecificPeople" = "指定人员";
+"WhoCanView" = "谁可以查看";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "与指定人员共享是高级版功能。您当前的方案不包含对此功能的访问权限。";
