@@ -696,6 +696,20 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         } catch UserVerificationError.cancelled {
             return
+        } catch let error as ServerError {
+            switch error {
+            case .validationError:
+                return
+            case let .error(errorResponse: errorResponse):
+                await coordinator.showErrorAlert(error: error)
+                let bwError = BitwardenError.generalError(
+                    type: "Save item failed",
+                    message: errorResponse.message,
+                    error: error,
+                )
+                services.errorReporter.log(error: bwError)
+                return
+            }
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
