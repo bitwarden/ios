@@ -11,11 +11,24 @@ protocol TokenService: AnyObject {
     ///
     func getAccessToken() async throws -> String
 
+    /// Returns the access token for a specific user.
+    ///
+    /// - Parameter userId: The user ID to get the access token for.
+    /// - Returns: The access token for the specified user.
+    ///
+    func getAccessToken(userId: String) async throws -> String
+
     /// Returns the access token's expiration date for the current account.
     ///
     /// - Returns: The access token's expiration date for the current account.
     ///
     func getAccessTokenExpirationDate() async throws -> Date?
+
+    /// Returns the active account's user ID.
+    ///
+    /// - Returns: The active account's user ID.
+    ///
+    func getActiveAccountId() async throws -> String
 
     /// Returns whether the user is an external user.
     ///
@@ -29,6 +42,13 @@ protocol TokenService: AnyObject {
     ///
     func getRefreshToken() async throws -> String
 
+    /// Returns the refresh token for a specific user.
+    ///
+    /// - Parameter userId: The user ID to get the refresh token for.
+    /// - Returns: The refresh token for the specified user.
+    ///
+    func getRefreshToken(userId: String) async throws -> String
+
     /// Sets a new access and refresh token for the current account.
     ///
     /// - Parameters:
@@ -37,6 +57,16 @@ protocol TokenService: AnyObject {
     ///   - expirationDate: The access token's expiration date.
     ///
     func setTokens(accessToken: String, refreshToken: String, expirationDate: Date) async throws
+
+    /// Sets a new access and refresh token for a specific user.
+    ///
+    /// - Parameters:
+    ///   - accessToken: The account's updated access token.
+    ///   - refreshToken: The account's updated refresh token.
+    ///   - expirationDate: The access token's expiration date.
+    ///   - userId: The user ID to set the tokens for.
+    ///
+    func setTokens(accessToken: String, refreshToken: String, expirationDate: Date, userId: String) async throws
 }
 
 // MARK: - DefaultTokenService
@@ -98,6 +128,24 @@ actor DefaultTokenService: TokenService {
 
     func setTokens(accessToken: String, refreshToken: String, expirationDate: Date) async throws {
         let userId = try await stateService.getActiveAccountId()
+        try await keychainRepository.setAccessToken(accessToken, userId: userId)
+        try await keychainRepository.setRefreshToken(refreshToken, userId: userId)
+        await stateService.setAccessTokenExpirationDate(expirationDate, userId: userId)
+    }
+
+    func getAccessToken(userId: String) async throws -> String {
+        try await keychainRepository.getAccessToken(userId: userId)
+    }
+
+    func getActiveAccountId() async throws -> String {
+        try await stateService.getActiveAccountId()
+    }
+
+    func getRefreshToken(userId: String) async throws -> String {
+        try await keychainRepository.getRefreshToken(userId: userId)
+    }
+
+    func setTokens(accessToken: String, refreshToken: String, expirationDate: Date, userId: String) async throws {
         try await keychainRepository.setAccessToken(accessToken, userId: userId)
         try await keychainRepository.setRefreshToken(refreshToken, userId: userId)
         await stateService.setAccessTokenExpirationDate(expirationDate, userId: userId)

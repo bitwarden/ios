@@ -29,6 +29,10 @@ class MockKeychainRepository: KeychainRepository {
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
     var setRefreshTokenResult: Result<Void, Error> = .success(())
 
+    // Track which userId was passed to get/set methods for testing
+    var getAccessTokenUserId: String?
+    var getRefreshTokenUserId: String?
+
     func deleteAllItems() async throws {
         deleteAllItemsCalled = true
         mockStorage.removeAll()
@@ -65,7 +69,8 @@ class MockKeychainRepository: KeychainRepository {
     }
 
     func getAccessToken(userId: String) async throws -> String {
-        try getAccessTokenResult.get()
+        getAccessTokenUserId = userId
+        return try getAccessTokenResult.get()
     }
 
     func getAuthenticatorVaultKey(userId: String) async throws -> String {
@@ -77,7 +82,8 @@ class MockKeychainRepository: KeychainRepository {
     }
 
     func getRefreshToken(userId: String) async throws -> String {
-        try getRefreshTokenResult.get()
+        getRefreshTokenUserId = userId
+        return try getRefreshTokenResult.get()
     }
 
     func getPendingAdminLoginRequest(userId: String) async throws -> String? {

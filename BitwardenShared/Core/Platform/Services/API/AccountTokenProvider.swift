@@ -81,16 +81,22 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
             defer { self.refreshTask = nil }
 
             do {
-                let refreshToken = try await tokenService.getRefreshToken()
+                // Check if this is the best place to apply the changes
+                let userId = try await tokenService.getActiveAccountId()
+
+                // Use captured userId for all operations
+                let refreshToken = try await tokenService.getRefreshToken(userId: userId)
                 let response = try await httpService.send(
                     IdentityTokenRefreshRequest(refreshToken: refreshToken),
                 )
                 let expirationDate = timeProvider.presentTime.addingTimeInterval(TimeInterval(response.expiresIn))
 
+                // Store tokens using the SAME userId (even if active account changed)
                 try await tokenService.setTokens(
                     accessToken: response.accessToken,
                     refreshToken: response.refreshToken,
                     expirationDate: expirationDate,
+                    userId: userId,
                 )
 
                 return response.accessToken

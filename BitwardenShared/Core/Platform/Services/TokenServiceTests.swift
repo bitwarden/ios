@@ -174,4 +174,58 @@ class TokenServiceTests: BitwardenTestCase {
         )
         XCTAssertEqual(stateService.accessTokenExpirationDateByUserId["1"], expirationDate)
     }
+
+    // MARK: Tests - Explicit userId Methods replace the older ones if changes are correct
+
+    /// `getAccessToken(userId:)` returns the access token for the specified user without calling getActiveAccountId.
+    func test_getAccessToken_withUserId() async throws {
+        keychainRepository.getAccessTokenResult = .success("USER_2_TOKEN")
+
+        let accessToken = try await subject.getAccessToken(userId: "2")
+        XCTAssertEqual(accessToken, "USER_2_TOKEN")
+        XCTAssertEqual(keychainRepository.getAccessTokenUserId, "2")
+    }
+
+    /// `getActiveAccountId()` returns the active account's user ID.
+    func test_getActiveAccountId() async throws {
+        stateService.activeAccount = .fixture()
+
+        let userId = try await subject.getActiveAccountId()
+        XCTAssertEqual(userId, "1")
+    }
+
+    /// `getActiveAccountId()` throws an error if there isn't an active account.
+    func test_getActiveAccountId_noAccount() async {
+        stateService.activeAccount = nil
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getActiveAccountId()
+        }
+    }
+
+    /// `getRefreshToken(userId:)` returns the refresh token for the specified user without calling getActiveAccountId.
+    func test_getRefreshToken_withUserId() async throws {
+        keychainRepository.getRefreshTokenResult = .success("USER_2_REFRESH")
+
+        let refreshToken = try await subject.getRefreshToken(userId: "2")
+        XCTAssertEqual(refreshToken, "USER_2_REFRESH")
+        XCTAssertEqual(keychainRepository.getRefreshTokenUserId, "2")
+    }
+
+    /// `setTokens(accessToken:refreshToken:expirationDate:userId:)` sets tokens for the specified user
+    /// without calling getActiveAccountId.
+    func test_setTokens_withUserId() async throws {
+        let expirationDate = Date(year: 2025, month: 10, day: 1)
+        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒", expirationDate: expirationDate, userId: "2")
+
+        XCTAssertEqual(
+            keychainRepository.mockStorage[keychainRepository.formattedKey(for: .accessToken(userId: "2"))],
+            "🔑",
+        )
+        XCTAssertEqual(
+            keychainRepository.mockStorage[keychainRepository.formattedKey(for: .refreshToken(userId: "2"))],
+            "🔒",
+        )
+        XCTAssertEqual(stateService.accessTokenExpirationDateByUserId["2"], expirationDate)
+    }
 }
