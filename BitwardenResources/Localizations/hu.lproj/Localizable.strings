@@ -1303,3 +1303,11 @@
 "RestartPremium" = "Prémium előfizetés újraindítása";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Ez az elem archiválva van. A változtatások mentése visszahelyezi a széfbe.";
 "SettingUpAutofill" = "Automatikus kitöltés beállítása…";
+"AddEmail" = "E-mail cím hozzáadása";
+"AnyoneWithPasswordSetByYou" = "Bárki az általam beállított jelszóval";
+"AnyoneWithTheLink" = "Bárki ezzel a hivatkozással";
+"AnyoneWithThisLinkCanViewThisSend" = "Bárki ezzel a hivatkozással megtekintheti ezt a Send elemet.";
+"AfterSharingThisSendLinkDescriptionLong" = "A Send hivatkozás megosztása után a személyeknek ellenőrizniük kell email címüket egy kóddal a Send megtekintéséhez.";
+"SpecificPeople" = "Adott személyek";
+"WhoCanView" = "Ki láthatja";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";

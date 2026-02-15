@@ -1303,3 +1303,11 @@
 "RestartPremium" = "Подновяване на платения абонамент";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Този елемент е в архива. Запазването на промени по него ще го извади от там и ще го върне в трезора.";
 "SettingUpAutofill" = "Настройване на автоматичното попълване…";
+"AddEmail" = "Добавяне на е-поща";
+"AnyoneWithPasswordSetByYou" = "Всеки с парола, зададена от Вас";
+"AnyoneWithTheLink" = "Всеки с връзката";
+"AnyoneWithThisLinkCanViewThisSend" = "Всеки с тази връзка може да види това Изпращане.";
+"AfterSharingThisSendLinkDescriptionLong" = "След като споделите тази връзка към Изпращане, хората ще трябва да потвърдят е-пощата си чрез код, за да могат да видят това Изпращане.";
+"SpecificPeople" = "Определени хора";
+"WhoCanView" = "Кой може да преглежда";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Споделянето с определени хора е платена функционалност. Текущият Ви план не включва достъп до нея.";

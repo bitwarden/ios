@@ -924,7 +924,7 @@
 "SetUpUnlock" = "Ustaw odblokowanie";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Skonfiguruj biometrię lub ustaw kod PIN, aby szybko uzyskać dostęp do sejfu i automatycznie uzupełniać dane logowania.";
 "SetUpLater" = "Skonfiguruj później";
-"GenerateMasterPassword" = "Generuj hasło główne";
+"GenerateMasterPassword" = "Wygeneruj hasło główne";
 "Generate" = "Generuj";
 "WriteThisPasswordDownAndKeepItSomewhereSafe" = "Zapisz to hasło i przechowuj je w bezpiecznym miejscu.";
 "LearnAboutOtherWaysToPreventAccountLockout" = "Dowiedz się więcej o innych sposobach zapobiegania blokowaniu konta";
@@ -1041,7 +1041,7 @@
 "GotIt" = "Ok";
 "GenerateCrash" = "Wygeneruj awarię";
 "GenerateErrorReport" = "Wygeneruj raport błędu";
-"GenerateSdkErrorReport" = "Generate SDK error report";
+"GenerateSdkErrorReport" = "Wygeneruj raport błędu SDK";
 "AllowAuthenticatorSyncing" = "Synchronizacja z aplikacją Authenticator";
 "AuthenticatorSync" = "Synchronizacja aplikacji Authenticator";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nie znaleziono konta. Zaloguj się ponownie, jeśli nadal widzisz ten błąd.";
@@ -1277,7 +1277,7 @@
 "ContactYourAdminToRegainAccess" = "Skontaktuj się z administratorem, aby odzyskać dostęp.";
 "LeaveX" = "Opuść organizację %1$@";
 "HowToManageMyVault" = "Jak zarządzać sejfem";
-"YouLeftTheOrganization" = "You left the organization";
+"YouLeftTheOrganization" = "Nie należysz już do tej organizacji";
 "ThisSettingIsManagedByYourOrganization" = "Ustawienie jest zarządzane przez Twoją organizację.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@.";
@@ -1294,7 +1294,7 @@
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "Archiwum jest puste";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
-"ArchiveUnavailable" = "Archive unavailable";
+"ArchiveUnavailable" = "Archiwum jest niedostępne";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Upgrade to premium";
 "ThisItemIsArchived" = "Element jest zarchiwizowany.";
@@ -1303,3 +1303,11 @@
 "RestartPremium" = "Restart Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Element jest zarchiwizowany. Zapisanie zmian spowoduje przywrócenie go do sejfu.";
 "SettingUpAutofill" = "Setting up Autofill…";
+"AddEmail" = "Dodaj adres e-mail";
+"AnyoneWithPasswordSetByYou" = "Każdy, kto ma hasło wysyłki";
+"AnyoneWithTheLink" = "Każdy, kto ma link";
+"AnyoneWithThisLinkCanViewThisSend" = "Każdy, kto ma link, może odczytać wysyłkę.";
+"AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
+"SpecificPeople" = "Konkretni użytkownicy";
+"WhoCanView" = "Kto może odczytać";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";

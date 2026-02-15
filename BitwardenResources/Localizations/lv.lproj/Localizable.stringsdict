@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Šis kļūdas ziņojums jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Šis kļūdas ziņojums jāievieto starpliktuvē un jākopīgo ar klientu atbalstu, lai izvairītos no papildu datu zudumiem.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>zero</key>
@@ -44,7 +44,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Šī parole datu noplūdēs ir atklāta %#@times@. To vajadzētu nomainīt.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ To vajadzētu nomainīt.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>zero</key>
@@ -139,7 +139,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ sekmīgi ievietots/i</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>zero</key>
@@ -215,7 +215,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>PIN ir jābūt vismaz %#@characters@ garam. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>zero</key>

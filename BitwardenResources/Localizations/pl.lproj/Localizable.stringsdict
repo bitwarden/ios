@@ -27,7 +27,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Hasło główne musi zawierać co najmniej %#@characters@.</string>
+      <string>%#@MasterPasswordMustBeAtLeastCharactersLong@</string>
       <key>MasterPasswordMustBeAtLeastCharactersLong</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -153,7 +153,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Zaimportowano %#@items@</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
