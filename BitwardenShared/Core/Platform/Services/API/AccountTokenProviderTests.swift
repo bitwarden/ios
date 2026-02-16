@@ -10,6 +10,8 @@ class AccountTokenProviderTests: BitwardenTestCase {
     // MARK: Properties
 
     var client: MockHTTPClient!
+    var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: DefaultAccountTokenProvider!
     var timeProvider: MockTimeProvider!
     var tokenService: MockTokenService!
@@ -24,6 +26,8 @@ class AccountTokenProviderTests: BitwardenTestCase {
         super.setUp()
 
         client = MockHTTPClient()
+        errorReporter = MockErrorReporter()
+        stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 10, day: 2)))
         tokenService = MockTokenService()
 
@@ -31,6 +35,8 @@ class AccountTokenProviderTests: BitwardenTestCase {
             httpService: HTTPService(baseURL: URL(string: "https://example.com")!, client: client),
             timeProvider: timeProvider,
             tokenService: tokenService,
+            errorReporter: errorReporter,
+            stateService: stateService
         )
     }
 
@@ -38,6 +44,8 @@ class AccountTokenProviderTests: BitwardenTestCase {
         super.tearDown()
 
         client = nil
+        errorReporter = nil
+        stateService = nil
         subject = nil
         timeProvider = nil
         tokenService = nil
@@ -169,5 +177,42 @@ class AccountTokenProviderTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.refreshToken()
         }
+    }
+
+    /// `refreshToken()` logs an error when the active account changes during the token refresh operation.
+    func test_refreshToken_logsRaceCondition_whenUserIdChanges() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user-1"))
+        tokenService.accessToken = "🔑"
+        tokenService.refreshToken = "🔒"
+
+        client.result = .httpSuccess(testData: .identityTokenRefresh)
+
+        // Simulate account switch during HTTP request
+        client.onRequest = { _ in
+            self.stateService.activeAccount = .fixture(profile: .fixture(userId: "user-2"))
+        }
+
+        _ = try await subject.refreshToken()
+
+        // Verify error was logged
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let error = errorReporter.errors[0] as? TokenRefreshRaceConditionError
+        XCTAssertNotNil(error)
+        XCTAssertEqual(error?.userIdBefore, "user-1")
+        XCTAssertEqual(error?.userIdAfter, "user-2")
+    }
+
+    /// `refreshToken()` does not log an error when the active account remains the same.
+    func test_refreshToken_doesNotLogError_whenUserIdStaysSame() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "user-1"))
+        tokenService.accessToken = "🔑"
+        tokenService.refreshToken = "🔒"
+
+        client.result = .httpSuccess(testData: .identityTokenRefresh)
+
+        _ = try await subject.refreshToken()
+
+        // Verify no error was logged
+        XCTAssertEqual(errorReporter.errors.count, 0)
     }
 }

@@ -9,6 +9,7 @@ extension APIService {
         accountTokenProvider: AccountTokenProvider? = nil,
         client: HTTPClient,
         environmentService: EnvironmentService = MockEnvironmentService(),
+        errorReporter: ErrorReporter = MockErrorReporter(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         stateService: StateService = MockStateService(),
     ) {
@@ -16,6 +17,7 @@ extension APIService {
             accountTokenProvider: accountTokenProvider,
             client: client,
             environmentService: environmentService,
+            errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             stateService: stateService,
             tokenService: MockTokenService(),

@@ -474,6 +474,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let apiService = APIService(
             environmentService: environmentService,
+            errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             stateService: stateService,
             tokenService: tokenService,
