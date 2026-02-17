@@ -9,6 +9,7 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+@MainActor
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -88,8 +89,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         cipherService = nil
         client = nil

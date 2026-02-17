@@ -9,6 +9,7 @@ import XCTest
 
 // MARK: - AuthServiceTests
 
+@MainActor
 class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -76,8 +77,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         accountAPIService = nil
         appSettingsStore = nil
@@ -317,7 +318,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             loginRequestId: "1",
         )
         XCTAssertEqual(client.requests.last?.body, try tokenRequest.encode())
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithDevice(_:email:)` throws an error if there's no cached data.
@@ -621,7 +622,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let unlockMethod = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
 
         XCTAssertEqual(unlockMethod, .deviceKey)
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` returns the key connector unlock method if the user
@@ -635,7 +636,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!),
         )
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     // `loginWithSingleSignOn(code:email:)` returns the master password unlock method if the user
@@ -655,7 +656,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .masterPassword(account),
         )
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` throws an error if the user doesn't have a master password set.
@@ -665,7 +666,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(error: AuthError.requireSetPassword) {
             _ = try await subject.loginWithSingleSignOn(code: "super_cool_secret_code", email: "")
         }
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithSingleSignOn(code:email:)` returns an account if the vault is still locked after authenticating.
@@ -716,7 +717,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` uses the cached request but with two factor
@@ -791,7 +792,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` uses the cached request
@@ -858,7 +859,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode()` returns the device key unlock method if the user uses trusted
@@ -897,7 +898,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             remember: true,
         )
         XCTAssertEqual(unlockMethod, .deviceKey)
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `loginWithTwoFactorCode(email:code:method:remember:)` set forcePasswordResetReason as
@@ -1059,7 +1060,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             unlockMethod,
             .keyConnector(keyConnectorURL: URL(string: "https://vault.bitwarden.com/key-connector")!),
         )
-        await assertGetConfig()
+        assertGetConfig()
     }
 
     /// `requirePasswordChange(email:masterPassword:policy)` returns `false` if there
