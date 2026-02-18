@@ -44,7 +44,7 @@ enum SendAuthType: Int, Codable, Equatable, Sendable {
         if let authType = Self(rawValue: rawValue) {
             self = authType
         } else {
-            Logger.application.warning("SendAuthType: Unknown auth type received: \(rawValue)")
+            Logger.application.error("SendAuthType: Unknown auth type received: \(rawValue)")
             self = .unknown
         }
     }
