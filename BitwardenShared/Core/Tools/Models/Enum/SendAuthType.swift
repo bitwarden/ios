@@ -4,7 +4,6 @@ import OSLog
 // MARK: - SendAuthType
 
 /// An enum representing the authentication type for a Send in API models.
-/// Maps to the server's integer representation of auth types.
 ///
 enum SendAuthType: Int, Codable, Equatable, Sendable {
     /// Email-based OTP authentication (specific people).
