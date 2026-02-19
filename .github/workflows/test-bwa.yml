@@ -168,7 +168,7 @@ jobs:
           kill "$PYEETD_PID"
 
       - name: Print Logs Summary
-        if: failure() && steps.test.outcome == 'failure'
+        if: steps.test.outcome != 'skipped'
         run: |
           xcresultparser -f -o cli "$_TESTS_RESULT_BUNDLE_PATH"
           xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" >> "$GITHUB_STEP_SUMMARY"
