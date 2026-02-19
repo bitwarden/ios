@@ -12,16 +12,14 @@ struct SendResponseModel: Codable, Equatable, JSONResponse {
     /// The identifier used to access the send.
     let accessId: String
 
+    /// The authentication type for this send.
+    let authType: SendAuthType?
+
     /// The deletion date of the send.
     let deletionDate: Date
 
     /// Whether the send is disabled.
     let disabled: Bool
-
-    /// Comma-separated list of email hashes that may access the send using OTP
-    /// authentication. Mutually exclusive with password.
-    ///
-    let emailHashes: String?
 
     /// Comma-separated list of emails that may access the send using OTP
     /// authentication. Mutually exclusive with password.

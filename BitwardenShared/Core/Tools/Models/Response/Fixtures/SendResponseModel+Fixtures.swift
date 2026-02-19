@@ -6,9 +6,9 @@ extension SendResponseModel {
     static func fixture(
         accessCount: UInt32 = 0,
         accessId: String = "ACCESS_ID",
+        authType: SendAuthType? = nil,
         deletionDate: Date = Date(),
         disabled: Bool = false,
-        emailHashes: String? = nil,
         emails: String? = nil,
         expirationDate: Date? = nil,
         file: SendFileModel? = nil,
@@ -26,9 +26,9 @@ extension SendResponseModel {
         self.init(
             accessCount: accessCount,
             accessId: accessId,
+            authType: authType,
             deletionDate: deletionDate,
             disabled: disabled,
-            emailHashes: emailHashes,
             emails: emails,
             expirationDate: expirationDate,
             file: file,

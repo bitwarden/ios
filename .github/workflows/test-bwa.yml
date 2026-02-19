@@ -171,8 +171,7 @@ jobs:
         if: failure() && steps.test.outcome == 'failure'
         run: |
           xcresultparser -f -o cli "$_TESTS_RESULT_BUNDLE_PATH"
-          echo "# Test Summary" >> "$GITHUB_STEP_SUMMARY"
-          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" | grep "Number of" >> "$GITHUB_STEP_SUMMARY"
+          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Convert coverage to Cobertura
         run: |
