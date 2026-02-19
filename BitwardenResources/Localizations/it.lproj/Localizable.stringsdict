@@ -40,7 +40,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Questa password risulta esposta in %#@times@ eventi di violazione dati. Cambiala al più presto per la tua sicurezza.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Cambiala al più presto per la tua sicurezza.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -125,7 +125,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ importato correttamente</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

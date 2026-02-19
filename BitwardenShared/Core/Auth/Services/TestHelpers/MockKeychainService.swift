@@ -10,6 +10,7 @@ class MockKeychainService {
     var accessControlProtection: CFTypeRef?
     var accessControlResult: Result<SecAccessControl, KeychainServiceError> = .failure(.accessControlFailed(nil))
     var addAttributes: CFDictionary?
+    var addCalls = [CFDictionary]()
     var addResult: Result<Void, KeychainServiceError> = .success(())
     var deleteQueries = [CFDictionary]()
     var deleteResult: Result<Void, KeychainServiceError> = .success(())
@@ -31,6 +32,7 @@ extension MockKeychainService: KeychainService {
 
     func add(attributes: CFDictionary) throws {
         addAttributes = attributes
+        addCalls.append(attributes)
         try addResult.get()
     }
 
