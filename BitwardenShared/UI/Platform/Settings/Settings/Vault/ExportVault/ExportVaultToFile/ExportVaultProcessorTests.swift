@@ -151,6 +151,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(exportService.exportVaultContentsFormat, .encryptedJson(password: "file password"))
         XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
         XCTAssertEqual(eventService.collectEventType, .userClientExportedVault)
+        XCTAssertEqual(exportService.exportVaultContentsIncludeArchived, true)
     }
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
@@ -279,6 +280,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
         XCTAssertEqual(eventService.collectEventType, .userClientExportedVault)
+        XCTAssertEqual(exportService.exportVaultContentsIncludeArchived, true)
     }
 
     /// `.receive()` with  `.exportVaultTapped` clears the user's master password after exporting
