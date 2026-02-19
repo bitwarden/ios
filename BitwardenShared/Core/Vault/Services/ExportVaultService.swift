@@ -40,16 +40,18 @@ protocol ExportVaultService: AnyObject {
     ///
     /// - Parameters:
     ///   - format: The format of the exported file.
-    ///
+    ///   - includeArchivedItems: Whether to include archived items in the export.
     /// - Returns: A string representing the file content.
     ///
-    func exportVaultFileContents(format: ExportFileType) async throws -> String
+    func exportVaultFileContents(format: ExportFileType, includeArchivedItems: Bool) async throws -> String
 
     /// Fetches all the ciphers to export for the current user.
     ///
+    /// - Parameters:
+    ///   - includeArchivedItems: Whether to include archived items in the export.
     /// - Returns: The ciphers to export belonging to the current user.
     ///
-    func fetchAllCiphersToExport() async throws -> [Cipher]
+    func fetchAllCiphersToExport(includeArchivedItems: Bool) async throws -> [Cipher]
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -82,7 +84,10 @@ extension ExportVaultService {
     ///
     func exportVault(format: ExportFileType) async throws -> URL {
         // Export the vault in the correct file content format.
-        let exportFileContents = try await exportVaultFileContents(format: format)
+        let exportFileContents = try await exportVaultFileContents(
+            format: format,
+            includeArchivedItems: true,
+        )
 
         // Generate the file name.
         let fileName = generateExportFileName(extension: format.fileExtension)
@@ -182,10 +187,10 @@ class DefaultExportVaultService: ExportVaultService {
         }
     }
 
-    func exportVaultFileContents(format: ExportFileType) async throws -> String {
+    func exportVaultFileContents(format: ExportFileType, includeArchivedItems: Bool) async throws -> String {
         var exportFormat: BitwardenSdk.ExportFormat
         let folders = try await folderService.fetchAllFolders()
-        var ciphers = try await fetchAllCiphersToExport()
+        var ciphers = try await fetchAllCiphersToExport(includeArchivedItems: includeArchivedItems)
 
         switch format {
         case .csv:
@@ -209,14 +214,23 @@ class DefaultExportVaultService: ExportVaultService {
         )
     }
 
-    func fetchAllCiphersToExport() async throws -> [Cipher] {
+    func fetchAllCiphersToExport(includeArchivedItems: Bool) async throws -> [Cipher] {
         let restrictedTypes = await policyService.getRestrictedItemCipherTypes()
-
         let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
 
         return try await cipherService.fetchAllCiphers().filter { cipher in
-            !cipher.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled)
-                && cipher.organizationId == nil
+            // Always exclude deleted items
+            if cipher.deletedDate != nil {
+                return false
+            }
+
+            // Handle archived items based on includeArchivedItems parameter
+            if cipher.archivedDate != nil, !includeArchivedItems, archiveItemsFeatureFlagEnabled {
+                return false
+            }
+
+            // Apply organization and restricted type filters
+            return cipher.organizationId == nil
                 && !restrictedTypes.contains(BitwardenShared.CipherType(type: cipher.type))
         }
     }
