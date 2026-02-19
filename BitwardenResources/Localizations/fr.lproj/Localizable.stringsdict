@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Copier et partager ce rapport d'erreur avec le succès client pour éviter des pertes de données supplémentaires.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Copier et partager ce rapport d'erreur avec le succès client pour éviter des pertes de données supplémentaires.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -125,7 +125,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ importé avec succès</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
