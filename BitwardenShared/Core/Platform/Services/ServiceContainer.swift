@@ -866,6 +866,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             flightRecorder: flightRecorder,
+            notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
