@@ -74,7 +74,7 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
         await fulfillment(of: [expectation], timeout: 1)
     }
 
-    /// `isInForegroundPublisher` initially emits `true`.
+    /// `isInForegroundPublisher` initially emits `false`.
     @MainActor
     func test_isInForegroundPublisher_initialValue() async throws {
         let expectation = expectation(description: #function)
@@ -88,7 +88,7 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
         }
         await fulfillment(of: [expectation], timeout: 1)
         task.cancel()
-        XCTAssertEqual(received, true)
+        XCTAssertEqual(received, false)
     }
 
     /// `isInForegroundPublisher` emits `false` when the app enters the background.

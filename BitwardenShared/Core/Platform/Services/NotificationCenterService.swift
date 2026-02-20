@@ -30,7 +30,7 @@ class DefaultNotificationCenterService: NotificationCenterService {
     private var cancellables = Set<AnyCancellable>()
 
     /// The subject tracking the app's current foreground state.
-    private let isInForegroundSubject = CurrentValueSubject<Bool, Never>(true)
+    private let isInForegroundSubject = CurrentValueSubject<Bool, Never>(false)
 
     /// The NotificationCenter to use in subscribing to notifications.
     private let notificationCenter: NotificationCenter
