@@ -206,33 +206,25 @@ class DefaultNotificationService: NotificationService {
             case .syncCipherCreate,
                  .syncCipherUpdate:
                 let data: SyncCipherNotification = try notificationData.data()
-                if data.userId == userId {
+                if await checkActiveUser(notification: data, type: type, userId: userId) {
                     try await syncService.fetchUpsertSyncCipher(data: data)
-                } else {
-                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncFolderCreate,
                  .syncFolderUpdate:
                 let data: SyncFolderNotification = try notificationData.data()
-                if data.userId == userId {
+                if await checkActiveUser(notification: data, type: type, userId: userId) {
                     try await syncService.fetchUpsertSyncFolder(data: data)
-                } else {
-                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncCipherDelete,
                  .syncLoginDelete:
                 let data: SyncCipherNotification = try notificationData.data()
-                if data.userId == userId {
+                if await checkActiveUser(notification: data, type: type, userId: userId) {
                     try await syncService.deleteCipher(data: data)
-                } else {
-                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncFolderDelete:
                 let data: SyncFolderNotification = try notificationData.data()
-                if data.userId == userId {
+                if await checkActiveUser(notification: data, type: type, userId: userId) {
                     try await syncService.deleteFolder(data: data)
-                } else {
-                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncCiphers,
                  .syncSettings,
@@ -260,17 +252,13 @@ class DefaultNotificationService: NotificationService {
             case .syncSendCreate,
                  .syncSendUpdate:
                 let data: SyncSendNotification = try notificationData.data()
-                if data.userId == userId {
+                if await checkActiveUser(notification: data, type: type, userId: userId) {
                     try await syncService.fetchUpsertSyncSend(data: data)
-                } else {
-                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncSendDelete:
                 let data: SyncSendNotification = try notificationData.data()
-                if data.userId == userId {
+                if await checkActiveUser(notification: data, type: type, userId: userId) {
                     try await syncService.deleteSend(data: data)
-                } else {
-                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .authRequest:
                 try await handleLoginRequest(notificationData, userId: userId)
@@ -293,6 +281,27 @@ class DefaultNotificationService: NotificationService {
     }
 
     // MARK: Private Methods
+
+    /// Checks whether a notification belongs to the active user, logging a skip message if not.
+    ///
+    /// - Parameters:
+    ///   - notification: The notification payload containing a user ID to check.
+    ///   - type: The notification type, used in the skip log message.
+    ///   - userId: The active user's ID.
+    ///
+    /// - Returns: `true` if the notification belongs to the active user, `false` otherwise.
+    ///
+    private func checkActiveUser(
+        notification: NotificationWithUser,
+        type: NotificationType,
+        userId: String,
+    ) async -> Bool {
+        guard notification.userId == userId else {
+            await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
+            return false
+        }
+        return true
+    }
 
     /// A helper function to decode the push notification payload.
     ///

@@ -67,10 +67,19 @@ enum PushNotificationDataError: Error, CustomNSError {
     }
 }
 
+// MARK: - NotificationWithUser
+
+/// A push notification payload that includes a user ID.
+///
+protocol NotificationWithUser {
+    /// The user ID associated with this notification.
+    var userId: String { get }
+}
+
 // MARK: - SyncCipherNotification
 
 /// Additional information that can be contained in the push notification payload for certain types of notifications.
-struct SyncCipherNotification: Codable, Equatable {
+struct SyncCipherNotification: Codable, Equatable, NotificationWithUser {
     /// The collection ids of the cipher.
     let collectionIds: [String]?
 
@@ -90,7 +99,7 @@ struct SyncCipherNotification: Codable, Equatable {
 // MARK: - SyncFolderNotification
 
 /// Additional information that can be contained in the push notification payload for certain types of notifications.
-struct SyncFolderNotification: Codable, Equatable {
+struct SyncFolderNotification: Codable, Equatable, NotificationWithUser {
     /// The id of the folder.
     let id: String
 
@@ -135,7 +144,7 @@ struct LogoutNotification: Codable, Equatable {
 // MARK: - SyncSendNotification
 
 /// Additional information that can be contained in the push notification payload for certain types of notifications.
-struct SyncSendNotification: Codable, Equatable {
+struct SyncSendNotification: Codable, Equatable, NotificationWithUser {
     /// The id of the send.
     let id: String
 
