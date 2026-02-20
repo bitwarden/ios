@@ -231,7 +231,7 @@ DEPENDENCIES
   abbrev
   csv
   dotenv
-  fastlane (= 2.229.1)
+  fastlane
   logger
   mutex_m
   ostruct
