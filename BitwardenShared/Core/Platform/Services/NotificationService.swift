@@ -99,6 +99,9 @@ class DefaultNotificationService: NotificationService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// The API service used to make notification requests.
     private let notificationAPIService: NotificationAPIService
 
@@ -121,6 +124,7 @@ class DefaultNotificationService: NotificationService {
     ///   - authService: The service used by the application to handle authentication tasks.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - notificationAPIService: The API service used to make notification requests.
     ///   - refreshableApiService: The API service used to refresh tokens.
     ///   - stateService: The service used by the application to manage account state.
@@ -131,6 +135,7 @@ class DefaultNotificationService: NotificationService {
         authService: AuthService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         notificationAPIService: NotificationAPIService,
         refreshableApiService: RefreshableAPIService,
         stateService: StateService,
@@ -141,6 +146,7 @@ class DefaultNotificationService: NotificationService {
         self.authService = authService
         self.configService = configService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.notificationAPIService = notificationAPIService
         self.refreshableApiService = refreshableApiService
         self.stateService = stateService
@@ -192,28 +198,41 @@ class DefaultNotificationService: NotificationService {
             else { return }
             let userId = try await stateService.getActiveAccountId()
 
-            Logger.application.debug("Notification received: \(message)")
+            Logger.application.debug("Notification received: \(message, privacy: .public)")
+            await flightRecorder.log("[Notification] Received push notification, type: \(type)")
 
             // Handle the notification according to the type of data.
             switch type {
             case .syncCipherCreate,
                  .syncCipherUpdate:
-                if let data: SyncCipherNotification = notificationData.data(), data.userId == userId {
+                let data: SyncCipherNotification = try notificationData.data()
+                if data.userId == userId {
                     try await syncService.fetchUpsertSyncCipher(data: data)
+                } else {
+                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncFolderCreate,
                  .syncFolderUpdate:
-                if let data: SyncFolderNotification = notificationData.data(), data.userId == userId {
+                let data: SyncFolderNotification = try notificationData.data()
+                if data.userId == userId {
                     try await syncService.fetchUpsertSyncFolder(data: data)
+                } else {
+                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncCipherDelete,
                  .syncLoginDelete:
-                if let data: SyncCipherNotification = notificationData.data(), data.userId == userId {
+                let data: SyncCipherNotification = try notificationData.data()
+                if data.userId == userId {
                     try await syncService.deleteCipher(data: data)
+                } else {
+                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncFolderDelete:
-                if let data: SyncFolderNotification = notificationData.data(), data.userId == userId {
+                let data: SyncFolderNotification = try notificationData.data()
+                if data.userId == userId {
                     try await syncService.deleteFolder(data: data)
+                } else {
+                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncCiphers,
                  .syncSettings,
@@ -223,7 +242,7 @@ class DefaultNotificationService: NotificationService {
                 try await refreshableApiService.refreshAccessToken()
                 try await syncService.fetchSync(forceSync: true)
             case .logOut:
-                guard let data: LogoutNotification = notificationData.data() else { return }
+                let data: LogoutNotification = try notificationData.data()
 
                 if data.reason == .kdfChange,
                    // TODO: PM-26960 Remove user ID check with noLogoutOnKdfChange feature flag.
@@ -240,12 +259,18 @@ class DefaultNotificationService: NotificationService {
                 }
             case .syncSendCreate,
                  .syncSendUpdate:
-                if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
+                let data: SyncSendNotification = try notificationData.data()
+                if data.userId == userId {
                     try await syncService.fetchUpsertSyncSend(data: data)
+                } else {
+                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .syncSendDelete:
-                if let data: SyncSendNotification = notificationData.data(), data.userId == userId {
+                let data: SyncSendNotification = try notificationData.data()
+                if data.userId == userId {
                     try await syncService.deleteSend(data: data)
+                } else {
+                    await flightRecorder.log("[Notification] Skipping \(type): userId does not match active user")
                 }
             case .authRequest:
                 try await handleLoginRequest(notificationData, userId: userId)
@@ -297,7 +322,7 @@ class DefaultNotificationService: NotificationService {
     ///   - userId: The user's id.
     ///
     private func handleLoginRequest(_ notificationData: PushNotificationData, userId: String) async throws {
-        guard let data: LoginRequestNotification = notificationData.data() else { return }
+        let data: LoginRequestNotification = try notificationData.data()
 
         // Save the notification data.
         await stateService.setLoginRequest(data)

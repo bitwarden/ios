@@ -18,12 +18,52 @@ struct PushNotificationData: Codable {
     // MARK: Methods
 
     /// Convert the payload string into data.
-    func data<T: Codable>() -> T? {
-        if let data = payload?.data(using: .utf8),
-           let object = try? JSONDecoder.pascalOrSnakeCaseDecoder.decode(T.self, from: data) {
-            return object
+    ///
+    /// - Throws: `PushNotificationDataError.payloadDecodingFailed` if the payload is absent,
+    ///   empty, or cannot be decoded as `T`.
+    ///
+    func data<T: Codable>() throws -> T {
+        do {
+            guard let payloadString = payload, !payloadString.isEmpty else {
+                throw BitwardenError.dataError("Push notification payload is nil or empty")
+            }
+            return try JSONDecoder.pascalOrSnakeCaseDecoder.decode(T.self, from: Data(payloadString.utf8))
+        } catch {
+            throw PushNotificationDataError.payloadDecodingFailed(type: type, underlyingError: error)
         }
-        return nil
+    }
+}
+
+// MARK: - PushNotificationDataError
+
+/// An error thrown when a push notification payload cannot be decoded.
+///
+enum PushNotificationDataError: Error, CustomNSError {
+    /// Thrown when the push notification payload cannot be decoded into the expected type.
+    case payloadDecodingFailed(type: NotificationType?, underlyingError: Error)
+
+    var errorCode: Int {
+        // NOTE: New cases should be appended (vs alphabetized) to this switch statement with an
+        // incremented integer. This ensures the code for existing errors doesn't change.
+        switch self {
+        case .payloadDecodingFailed: 1
+        }
+    }
+
+    var errorUserInfo: [String: Any] {
+        var userInfo: [String: Any] = [
+            "Error Type": String(reflecting: self),
+        ]
+
+        switch self {
+        case let .payloadDecodingFailed(type, underlyingError):
+            userInfo[NSUnderlyingErrorKey] = underlyingError
+            if let type {
+                userInfo["Notification Type"] = String(reflecting: type)
+            }
+        }
+
+        return userInfo
     }
 }
 
