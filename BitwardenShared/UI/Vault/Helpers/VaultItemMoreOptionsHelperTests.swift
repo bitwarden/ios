@@ -104,6 +104,49 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToArchive))
     }
 
+    /// `showMoreOptionsAlert()` and press `archive` presents master password re-prompt
+    /// alert and archives the cipher when the master password is confirmed.
+    @MainActor
+    func test_showMoreOptionsAlert_archive_passwordReprompt() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        masterPasswordRepromptHelper.repromptForMasterPasswordAutoComplete = false
+
+        let cipherView = CipherView.loginFixture(archivedDate: nil, deletedDate: nil, reprompt: .password)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var toastToDisplay: Toast?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { toastToDisplay = $0 },
+            handleOpenURL: { _ in },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertTrue(optionsAlert.alertActions.contains(where: { $0.title == Localizations.archive }))
+
+        coordinator.loadingOverlaysShown = []
+        vaultRepository.archiveCipherResult = .success(())
+        try await optionsAlert.tapAction(title: Localizations.archive)
+
+        // Validate master password re-prompt is shown.
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherView, cipherView)
+
+        // Validate archive operation hasn't occurred yet.
+        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
+        XCTAssertNil(toastToDisplay)
+
+        // Complete the master password reprompt.
+        await masterPasswordRepromptHelper.repromptForMasterPasswordCompletion?()
+
+        // Validate archive operation completes successfully.
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.sendingToArchive)
+        XCTAssertEqual(vaultRepository.archiveCipher, [cipherView])
+        XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToArchive))
+    }
+
     /// `showMoreOptionsAlert()` shows archive option and calls `handleMoreOptionsAction` with
     /// `.archive` when the archive action is tapped but it's unavailable so it displays an alert stating it so.
     @MainActor
@@ -746,6 +789,48 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.unarchiveCipherResult = .success(())
         try await optionsAlert.tapAction(title: Localizations.unarchive)
 
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.movingItemToVault)
+        XCTAssertEqual(vaultRepository.unarchiveCipher, [cipherView])
+        XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToVault))
+    }
+
+    /// `showMoreOptionsAlert()` and press `unarchive` presents master password re-prompt
+    /// alert and unarchives the cipher when the master password is confirmed.
+    @MainActor
+    func test_showMoreOptionsAlert_unarchive_passwordReprompt() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        masterPasswordRepromptHelper.repromptForMasterPasswordAutoComplete = false
+
+        let cipherView = CipherView.loginFixture(archivedDate: .now, deletedDate: nil, reprompt: .password)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var toastToDisplay: Toast?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { toastToDisplay = $0 },
+            handleOpenURL: { _ in },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertTrue(optionsAlert.alertActions.contains(where: { $0.title == Localizations.unarchive }))
+
+        coordinator.loadingOverlaysShown = []
+        vaultRepository.unarchiveCipherResult = .success(())
+        try await optionsAlert.tapAction(title: Localizations.unarchive)
+
+        // Validate master password re-prompt is shown.
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherView, cipherView)
+
+        // Validate unarchive operation hasn't occurred yet.
+        XCTAssertTrue(vaultRepository.unarchiveCipher.isEmpty)
+        XCTAssertNil(toastToDisplay)
+
+        // Complete the master password reprompt.
+        await masterPasswordRepromptHelper.repromptForMasterPasswordCompletion?()
+
+        // Validate unarchive operation completes successfully.
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.movingItemToVault)
         XCTAssertEqual(vaultRepository.unarchiveCipher, [cipherView])
         XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToVault))
