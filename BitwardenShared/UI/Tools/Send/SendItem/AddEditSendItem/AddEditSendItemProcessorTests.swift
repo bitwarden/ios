@@ -613,7 +613,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .dismiss(nil))
     }
 
-    /// `didCompleteGenerator(for:with:)` does not update password for non-password types.
+    /// `didCompleteGenerator(for:with:)` does not update password when username is generated.
     @MainActor
     func test_didCompleteGenerator_username() {
         subject.state.password = "originalPassword"
