@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -11,6 +12,7 @@ import XCTest
 final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var activeAccountStateProvider: MockActiveAccountStateProvider!
     var deviceAuthKeychainRepository: MockDeviceAuthKeychainRepository!
     var subject: DefaultDeviceAuthKeyService!
 
@@ -19,8 +21,11 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        activeAccountStateProvider = MockActiveAccountStateProvider()
         deviceAuthKeychainRepository = MockDeviceAuthKeychainRepository()
+
         subject = DefaultDeviceAuthKeyService(
+            activeAccountStateProvider: activeAccountStateProvider,
             deviceAuthKeychainRepository: deviceAuthKeychainRepository,
         )
     }
@@ -28,6 +33,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        activeAccountStateProvider = nil
         deviceAuthKeychainRepository = nil
         subject = nil
     }
