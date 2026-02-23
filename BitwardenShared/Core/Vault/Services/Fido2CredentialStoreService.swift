@@ -187,7 +187,7 @@ private extension Cipher {
 
 #if DEBUG
 
-/// A wrapper of a `Fido2CredentialStore` which adds debugging info for the `Fido2DebugginReportBuilder`.
+/// A wrapper of a `Fido2CredentialStore` which adds debugging info for the `Fido2DebuggingReportBuilder`.
 final class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
     let fido2CredentialStore: Fido2CredentialStore
 

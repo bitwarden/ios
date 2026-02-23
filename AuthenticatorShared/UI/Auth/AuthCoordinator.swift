@@ -98,7 +98,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator, HasRouter
     /// - Parameters:
     ///   - account: The active account.
     ///   - animated: Whether to animate the transition.
-    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
+    ///   - attemptAutomaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
     ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
     ///
     private func showVaultUnlock() {

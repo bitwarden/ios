@@ -19,7 +19,7 @@ struct LoginDecryptionOptionsState: Equatable {
     /// Email of the active user to be displayed
     var email: String = ""
 
-    /// Whether the remeber device toggle is on.
+    /// Whether the remember device toggle is on.
     var isRememberDeviceToggleOn: Bool = true
 
     /// The organization identifier being used during the single-sign process.

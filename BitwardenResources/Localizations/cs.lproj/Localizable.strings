@@ -592,7 +592,7 @@
 "CaptchaFailed" = "Captcha selhala. Zkuste to znovu.";
 "UpdatedMasterPassword" = "Hlavní heslo bylo aktualizováno";
 "UpdateMasterPassword" = "Aktualizovat hlavní heslo";
-"UpdateMasterPasswordWarning" = "Administrátor v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.";
+"UpdateMasterPasswordWarning" = "Správce v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.";
 "UpdatingPassword" = "Aktualizování hesla";
 "UpdatePasswordError" = "Aktuálně nelze aktualizovat heslo";
 "RemoveMasterPassword" = "Odebrat hlavní heslo";
@@ -1303,3 +1303,11 @@
 "RestartPremium" = "Restartovat Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Tato položka je archivována. Uložení změn ji obnoví do Vašeho trezoru.";
 "SettingUpAutofill" = "Nastavování automatického vyplňování...";
+"AddEmail" = "Přidat e-mail";
+"AnyoneWithPasswordSetByYou" = "Kdokoli s heslem od Vás";
+"AnyoneWithTheLink" = "Kdokoli s odkazem";
+"AnyoneWithThisLinkCanViewThisSend" = "Kdokoli s tímto odkazem může zobrazit tento Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "Po sdílení tohoto odkazu Send budou muset jednotlivci ověřit svůj e-mail pomocí kódu pro zobrazení tohoto Send.";
+"SpecificPeople" = "Vybraní lidé";
+"WhoCanView" = "Kdo může zobrazit";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sdílení s vybranými lidmi je prémiová funkce. Váš aktuální plán nezahrnuje přístup k této funkci.";

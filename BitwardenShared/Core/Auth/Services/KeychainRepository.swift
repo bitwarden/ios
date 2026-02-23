@@ -346,9 +346,7 @@ class DefaultKeychainRepository: KeychainRepository {
             throw BitwardenError.dataError("JSON string contains invalid UTF-8 encoding.")
         }
 
-        let value = try JSONDecoder.defaultDecoder.decode(T.self, from: jsonData)
-
-        return value
+        return try JSONDecoder.defaultDecoder.decode(T.self, from: jsonData)
     }
 
     /// The core key/value pairs for Keychain operations.

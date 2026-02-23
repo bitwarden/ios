@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - ImportCXFRoute
 
-/// A route to specific screens in the Credential Exhange import flow.
+/// A route to specific screens in the Credential Exchange import flow.
 public enum ImportCXFRoute: Equatable, Hashable {
     /// A route to dismiss the screen currently presented modally.
     case dismiss
