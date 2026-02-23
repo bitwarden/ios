@@ -3,6 +3,7 @@
 --ifdef noindent
 --swiftversion 6.2
 --header strip
+--import-grouping testable-last
 --funcattributes prev-line
 --typeattributes prev-line
 --varattributes preserve
@@ -12,5 +13,5 @@
 --exclude **/Generated,build,vendor/bundle
 
 # rules
---disable elseOnSameLine,semicolons,unusedArguments,opaqueGenericParameters,wrapMultilineStatementBraces,preferForLoop
+--disable elseOnSameLine,semicolons,unusedArguments,opaqueGenericParameters,wrapMultilineStatementBraces,preferForLoop,wrapPropertyBodies,wrapFunctionBodies,blankLinesBetweenImports,noForceUnwrapInTests,redundantProperty,redundantThrows,redundantAsync,redundantViewBuilder,simplifyGenericConstraints,emptyExtensions
 --enable blankLineAfterImports,isEmpty,blockComments,docComments,sortSwitchCases

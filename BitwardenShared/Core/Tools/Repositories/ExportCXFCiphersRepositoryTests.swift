@@ -117,6 +117,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(result.count, 2)
         XCTAssertEqual(result[0].id, "1")
         XCTAssertEqual(result[1].id, "2")
+        XCTAssertEqual(exportVaultService.fetchAllCiphersIncludeArchived, false)
     }
 
     /// `getAllCiphersToExportCXF()` throws when fetching ciphers throws.
@@ -148,7 +149,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         clientService.mockExporters.exportCxfResult = .success(
             """
             {"items":[{"title":"Item 1","creationAt":1735689600,"credentials":[{"password":{"fieldType":"concealed-string","value":"pass"},"type":"basic-auth","username":{"fieldType":"string","value":"user"}}],"id":"","modifiedAt":1740787200},{"title":"Item 2","creationAt":1740009600,"credentials":[{"number":{"value":"4111111111111111","fieldType":"string"},"fullName":{"value":"John Doe","fieldType":"string"},"type":"credit-card","cardType":{"value":"type","fieldType":"string"}}],"id":"","modifiedAt":1743552000}],"collections":[],"username":"User1","id":"","email":"user1@example.com"}
-            """) // swiftlint:disable:previous line_length
+            """, // swiftlint:disable:previous line_length
+        )
 
         let result = try await subject.getExportVaultDataForCXF()
 

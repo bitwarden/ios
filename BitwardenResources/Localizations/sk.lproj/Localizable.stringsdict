@@ -6,21 +6,21 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Skopírujte toto hlásenie o chybe a poskytnite ho zákazníckej podpore, aby ste predišli strate údajov.</string>
-      <key>vaultitems</key>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Skopírujte toto hlásenie o chybe a poskytnite ho zákazníckej podpore, aby ste predišli strate údajov.</string>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden nedokázal dešifrovať %d položku trezoru</string>
+        <string>Bitwarden nedokázal dešifrovať %d položku trezoru.</string>
         <key>few</key>
-        <string>Bitwarden nedokázal dešifrovať %d položky trezoru</string>
+        <string>Bitwarden nedokázal dešifrovať %d položky trezoru.</string>
         <key>many</key>
-        <string>Bitwarden nedokázal dešifrovať %d položiek trezoru</string>
+        <string>Bitwarden nedokázal dešifrovať %d položiek trezoru.</string>
         <key>other</key>
-        <string>Bitwarden nedokázal dešifrovať %d položiek trezoru</string>
+        <string>Bitwarden nedokázal dešifrovať %d položiek trezoru.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -28,49 +28,49 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>Hlavné heslo musí obsahovať aspoň %#@characters@.</string>
-      <key>characters</key>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d znak</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znak.</string>
         <key>few</key>
-        <string>%d znaky</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znaky.</string>
         <key>many</key>
-        <string>%d znakov</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znakov.</string>
         <key>other</key>
-        <string>%d znakov</string>
+        <string>Hlavné heslo musí obsahovať aspoň %d znakov.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Toto heslo uniklo %#@times@ v dátových únikoch. Mali by ste ho zmeniť.</string>
-      <key>times</key>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Mali by ste ho zmeniť.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d-krát</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
         <key>few</key>
-        <string>%d-krát</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
         <key>many</key>
-        <string>%d-krát</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
         <key>other</key>
-        <string>%d-krát</string>
+        <string>Toto heslo uniklo %d-krát v dátových únikoch.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
     <key>XCharacters</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@characters@</string>
-      <key>characters</key>
+      <string>%#@Characters@</string>
+      <key>Characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -90,8 +90,8 @@
     <key>XDays</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@days@</string>
-      <key>days</key>
+      <string>%#@Days@</string>
+      <key>Days</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -111,8 +111,8 @@
     <key>XHours</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
+      <string>%#@Hours@</string>
+      <key>Hours</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -132,8 +132,8 @@
     <key>XItems</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@</string>
-      <key>items</key>
+      <string>%#@Items@</string>
+      <key>Items</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -153,29 +153,29 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Úspešne importované: %#@items@</string>
-      <key>items</key>
+      <string>%#@ItemsSuccessfullyImported@</string>
+      <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d položka</string>
+        <string>%d položka úspešne importovaná</string>
         <key>few</key>
-        <string>%d položky</string>
+        <string>%d položky úspešne importované</string>
         <key>many</key>
-        <string>%d položiek</string>
+        <string>%d položiek úspešne importovaných</string>
         <key>other</key>
-        <string>%d položiek</string>
+        <string>%d položiek úspešne importovaných</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
     <key>XMinutes</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
-      <key>minutes</key>
+      <string>%#@Minutes@</string>
+      <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -195,8 +195,8 @@
     <key>XSeconds</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@seconds@</string>
-      <key>seconds</key>
+      <string>%#@Seconds@</string>
+      <key>Seconds</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -216,8 +216,8 @@
     <key>XWeeks</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@weeks@</string>
-      <key>weeks</key>
+      <string>%#@Weeks@</string>
+      <key>Weeks</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -237,21 +237,21 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Váš PIN kód musí mať aspoň %#@characters@. Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.</string>
-      <key>characters</key>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.</string>
+      <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d znak</string>
+        <string>Váš PIN kód musí mať aspoň %d znak.</string>
         <key>few</key>
-        <string>%d znaky</string>
+        <string>Váš PIN kód musí mať aspoň %d znaky.</string>
         <key>many</key>
-        <string>%d znakov</string>
+        <string>Váš PIN kód musí mať aspoň %d znakov.</string>
         <key>other</key>
-        <string>%d znakov</string>
+        <string>Váš PIN kód musí mať aspoň %d znakov.</string>
       </dict>
     </dict>
   </dict>

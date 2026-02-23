@@ -333,13 +333,15 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
     func addHiddenItemsSection() async -> VaultListSectionsBuilder {
         var items: [VaultListItem] = []
 
-        let hasPremium = await stateService.doesActiveAccountHavePremium()
         if await configService.getFeatureFlag(.archiveVaultItems) {
-            if hasPremium || preparedData.ciphersArchivedCount > 0 {
-                items.append(
-                    VaultListItem(id: "Archive", itemType: .group(.archive, preparedData.ciphersArchivedCount)),
-                )
-            }
+            let hasPremium = await stateService.doesActiveAccountHavePremium()
+            items.append(
+                VaultListItem(
+                    id: "Archive",
+                    hasPremium: hasPremium,
+                    itemType: .group(.archive, preparedData.ciphersArchivedCount),
+                ),
+            )
         }
 
         items.append(VaultListItem(id: "Trash", itemType: .group(.trash, preparedData.ciphersDeletedCount)))

@@ -67,8 +67,8 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
                 ),
             ),
         )
-        XCTAssertEqual(privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(signedPublicKey, "VERIFYING_KEY")
+        XCTAssertEqual(privateKey, "WRAPPED_PRIVATE_KEY")
+        XCTAssertEqual(signedPublicKey, "SIGNED_PUBLIC_KEY")
         XCTAssertEqual(signingKey, "WRAPPED_SIGNING_KEY")
         XCTAssertEqual(securityState, "SECURITY_STATE")
     }
@@ -97,8 +97,8 @@ class CryptoClientProtocolExtensionsTests: BitwardenTestCase {
             XCTFail("Expected V2 accountCryptographicState")
             return
         }
-        XCTAssertEqual(privateKey, "PRIVATE_KEY")
-        XCTAssertEqual(signedPublicKey, "VERIFYING_KEY")
+        XCTAssertEqual(privateKey, "WRAPPED_PRIVATE_KEY")
+        XCTAssertEqual(signedPublicKey, "SIGNED_PUBLIC_KEY")
         XCTAssertEqual(signingKey, "WRAPPED_SIGNING_KEY")
         XCTAssertEqual(securityState, "SECURITY_STATE")
     }

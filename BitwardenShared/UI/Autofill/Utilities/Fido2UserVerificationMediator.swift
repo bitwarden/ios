@@ -136,11 +136,15 @@ extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
                     reason: Localizations.userVerificationForPasskey,
                 )
             }
-            let verifyPin = { try await self.userVerificationRunner.verifyWithAttempts(
-                verifyFunction: self.userVerificationHelper.verifyPin)
+            let verifyPin = {
+                try await self.userVerificationRunner.verifyWithAttempts(
+                    verifyFunction: self.userVerificationHelper.verifyPin,
+                )
             }
-            let verifyMasterPassword = { try await self.userVerificationRunner.verifyWithAttempts(
-                verifyFunction: self.userVerificationHelper.verifyMasterPassword)
+            let verifyMasterPassword = {
+                try await self.userVerificationRunner.verifyWithAttempts(
+                    verifyFunction: self.userVerificationHelper.verifyMasterPassword,
+                )
             }
             let result = try await userVerificationRunner.verifyInQueue(verifyFunctions: [
                 verifyDeviceLocalAuth,

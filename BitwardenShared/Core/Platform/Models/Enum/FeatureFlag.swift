@@ -29,6 +29,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
+    /// Flag to enable/disable sends email verification feature.
+    static let sendEmailVerification = FeatureFlag(rawValue: "pm-19051-send-email-verification")
+
     public static var allCases: [FeatureFlag] {
         [
             .archiveVaultItems,
@@ -39,6 +42,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
             .noLogoutOnKdfChange,
+            .sendEmailVerification,
         ]
     }
 }

@@ -52,7 +52,7 @@ class MockAppModule:
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
     var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
-    // swiftlint:disable:next weak_navigator identifier_name
+    // swiftlint:disable:next weak_navigator
     var selectLanguageCoordinatorStackNavigator: StackNavigator?
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()

@@ -1,6 +1,7 @@
-@testable import AuthenticatorShared
 import BitwardenKitMocks
 import Combine
+
+@testable import AuthenticatorShared
 
 class MockTOTPExpirationManagerFactory: TOTPExpirationManagerFactory {
     var cancellables: Set<AnyCancellable> = []

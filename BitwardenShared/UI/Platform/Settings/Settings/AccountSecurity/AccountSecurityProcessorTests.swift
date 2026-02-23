@@ -22,6 +22,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var twoStepLoginService: MockTwoStepLoginService!
     var vaultTimeoutService: MockVaultTimeoutService!
     var subject: AccountSecurityProcessor!
+    var userSessionStateService: MockUserSessionStateService!
     var vaultUnlockSetupHelper: MockVaultUnlockSetupHelper!
 
     // MARK: Setup & Teardown
@@ -39,8 +40,12 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         twoStepLoginService = MockTwoStepLoginService()
+        userSessionStateService = MockUserSessionStateService()
         vaultTimeoutService = MockVaultTimeoutService()
         vaultUnlockSetupHelper = MockVaultUnlockSetupHelper()
+
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
 
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -53,6 +58,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 settingsRepository: settingsRepository,
                 stateService: stateService,
                 twoStepLoginService: twoStepLoginService,
+                userSessionStateService: userSessionStateService,
                 vaultTimeoutService: vaultTimeoutService,
             ),
             state: AccountSecurityState(),
@@ -72,6 +78,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         policyService = nil
         settingsRepository = nil
         subject = nil
+        twoStepLoginService = nil
+        userSessionStateService = nil
         vaultUnlockSetupHelper = nil
     }
 
@@ -108,6 +116,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
@@ -186,6 +195,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             ),
         )
         stateService.userHasMasterPassword[userId] = true
+
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.isPolicyTimeoutEnabled)
@@ -418,7 +428,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_loadData_biometricsValue() async {
         let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
-        biometricsRepository.getBiometricUnlockStatusActiveUser = biometricUnlockStatus
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
 
@@ -429,7 +439,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     @MainActor
     func test_perform_loadData_biometricsValue_error() async {
         struct TestError: Error {}
-        biometricsRepository.getBiometricUnlockStatusError = TestError()
+        biometricsRepository.getBiometricUnlockStatusThrowableError = TestError()
         subject.state.biometricUnlockStatus = .notAvailable
         await subject.perform(.loadData)
 
@@ -466,11 +476,11 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .setUpLater
 
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.faceID, enabled: false)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: false)
         await subject.perform(.loadData)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
 
-        biometricsRepository.getBiometricUnlockStatusActiveUser = .available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         await subject.perform(.loadData)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
     }

@@ -7,16 +7,16 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@vaultitems@. Copia e condividi questo report di errore con il servizio clienti per evitare ulteriori disagi.</string>
-      <key>vaultitems</key>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden non può decifrare %d elemento</string>
+        <string>Bitwarden non può decifrare %d elemento.</string>
         <key>other</key>
-        <string>Bitwarden non può decifrare %d elementi</string>
+        <string>Bitwarden non può decifrare %d elementi.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -24,41 +24,41 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>La password principale deve essere una stringa di almeno %#@characters@ caratteri.</string>
-      <key>characters</key>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d carattere</string>
+        <string>La password principale deve avere una lunghezza minima di %d carattere.</string>
         <key>other</key>
-        <string>%d caratteri</string>
+        <string>La password principale deve avere una lunghezza minima di %d caratteri.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Questa password risulta esposta in %#@times@ eventi di violazione dati. Cambiala al più presto per la tua sicurezza.</string>
-      <key>times</key>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Cambiala al più presto per la tua sicurezza.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d volta</string>
+        <string>Questa password è stata esposta in %d in violazione di dati.</string>
         <key>other</key>
-        <string>%d volte</string>
+        <string>Questa password è stata esposta in %d in violazioni di dati.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
     <key>XCharacters</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@characters@</string>
-      <key>characters</key>
+      <string>%#@Characters@</string>
+      <key>Characters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -74,8 +74,8 @@
     <key>XDays</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@days@</string>
-      <key>days</key>
+      <string>%#@Days@</string>
+      <key>Days</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -91,8 +91,8 @@
     <key>XHours</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@hours@</string>
-      <key>hours</key>
+      <string>%#@Hours@</string>
+      <key>Hours</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -108,8 +108,8 @@
     <key>XItems</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@</string>
-      <key>items</key>
+      <string>%#@Items@</string>
+      <key>Items</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -125,25 +125,25 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ importato correttamente</string>
-      <key>items</key>
+      <string>%#@ItemsSuccessfullyImported@</string>
+      <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d elemento</string>
+        <string>%d elemento importato correttamente</string>
         <key>other</key>
-        <string>%d elementi</string>
+        <string>%d elementi importati correttamente</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
     <key>XMinutes</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
-      <key>minutes</key>
+      <string>%#@Minutes@</string>
+      <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -159,8 +159,8 @@
     <key>XSeconds</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@seconds@</string>
-      <key>seconds</key>
+      <string>%#@Seconds@</string>
+      <key>Seconds</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -176,8 +176,8 @@
     <key>XWeeks</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@weeks@</string>
-      <key>weeks</key>
+      <string>%#@Weeks@</string>
+      <key>Weeks</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -194,16 +194,16 @@
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>Il PIN deve contenere almeno %#@characters@ caratteri. Ricorda che il PIN si disattiva ogni volta che fai un logout completo dall'applicazione.</string>
-      <key>characters</key>
+      <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d carattere</string>
+        <string>Il tuo PIN deve contenere almeno %d carattere.</string>
         <key>other</key>
-        <string>%d caratteri</string>
+        <string>Il tuo PIN deve contenere almeno %d caratteri.</string>
       </dict>
     </dict>
   </dict>

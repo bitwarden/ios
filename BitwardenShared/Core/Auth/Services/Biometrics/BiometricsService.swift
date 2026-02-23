@@ -137,7 +137,7 @@ class DefaultBiometricsService: BiometricsService {
             return .noBiometrics
         }
         guard let laError = error as? LAError else {
-            // A non LAError occured
+            // A non LAError occurred
             Logger.application.log("Other error: \(error.localizedDescription)")
             return .unknownError(error.localizedDescription, biometricAuthType)
         }

@@ -35,19 +35,19 @@ protocol TrustDeviceService {
 
     /// Get value to decide if the device should be trusted.
     ///
-    /// - Returns: Boolean value refering to if device should be trusted.
+    /// - Returns: Boolean value referring to if device should be trusted.
     ///
     func getShouldTrustDevice() async throws -> Bool
 
-    /// Set value refering to if device should be trusted.
+    /// Set value referring to if device should be trusted.
     ///
-    /// - Parameter value: Boolean value refering to if device should be trusted.
+    /// - Parameter value: Boolean value referring to if device should be trusted.
     ///
     func setShouldTrustDevice(_ value: Bool) async throws
 
     /// Is the current device trusted.
     ///
-    /// - Returns: Boolean value refering to if device is trusted.
+    /// - Returns: Boolean value referring to if device is trusted.
     ///
     func isDeviceTrusted() async throws -> Bool
 }
@@ -96,8 +96,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
     func getDeviceKey() async throws -> String? {
         let activeUserId = try await stateService.getActiveAccountId()
         do {
-            return try await keychainRepository.getDeviceKey(
-                userId: activeUserId)
+            return try await keychainRepository.getDeviceKey(userId: activeUserId)
         } catch {
             return nil
         }

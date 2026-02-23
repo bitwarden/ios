@@ -377,7 +377,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `handleAndRoute(_ :)` delivers the locked active user to `.vaultUnlock`
-    ///     thorugh  `.didLockAccount()`.
+    ///     through  `.didLockAccount()`.
     func test_handleAndRoute_didLockAccount_active() async {
         let alt = Account.fixtureAccountLogin()
         let active = Account.fixture()
@@ -1092,6 +1092,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
         )
         XCTAssertTrue(authRepository.checkSessionTimeoutCalled)
+        XCTAssertEqual(authRepository.checkSessionTimeoutIsAppRestart, true)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.complete`

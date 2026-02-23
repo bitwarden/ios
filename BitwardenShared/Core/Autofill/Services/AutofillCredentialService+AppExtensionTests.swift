@@ -153,10 +153,6 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         prepareDataForIdentitiesReplacement()
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return false }
-            return subject.hasCipherChangesSubscription
-        }
         credentialIdentityFactory.createCredentialIdentitiesMocker
             .withResult { cipher in
                 if cipher.id == "3" {
@@ -173,6 +169,11 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
                     []
                 }
             }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.hasCipherChangesSubscription
+        }
 
         // Send an upserted cipher
         cipherService.cipherChangesSubject.send(

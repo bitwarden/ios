@@ -137,10 +137,13 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType, Outpu
 
         controller?.delegate = self
 
-        context.perform { [weak self] in
+        // Capture a strong reference to controller to prevent a race condition where cancel()
+        // could set self.controller to nil on self.queue while this perform block executes
+        // on the context's queue, causing EXC_BAD_ACCESS when accessing the deallocated controller.
+        context.perform { [weak self, controller] in
             do {
-                try self?.controller?.performFetch()
-                if self?.controller?.fetchedObjects != nil {
+                try controller?.performFetch()
+                if controller?.fetchedObjects != nil {
                     self?.queue.async {
                         self?.hasChangesToSend = true
                         self?.fulfillDemand()
@@ -196,7 +199,10 @@ private final class FetchedResultsSubscription<SubscriberType, ResultType, Outpu
         hasChangesToSend = false
         demand -= 1
 
-        controller?.managedObjectContext.perform { [weak self] in
+        // Capture a strong reference to controller to prevent a race condition where cancel()
+        // could set self.controller to nil on self.queue while this perform block executes
+        // on the context's queue, causing EXC_BAD_ACCESS when accessing the deallocated controller.
+        controller?.managedObjectContext.perform { [weak self, controller] in
             guard let self,
                   let fetchedObjects = controller?.fetchedObjects
             else { return }

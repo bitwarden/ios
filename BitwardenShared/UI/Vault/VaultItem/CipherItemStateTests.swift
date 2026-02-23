@@ -109,7 +109,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         XCTAssertEqual(
             state.archiveInfoText,
-            Localizations.thisItemIsArchivedSavingChangesWillRestoreItToYourVault
+            Localizations.thisItemIsArchivedSavingChangesWillRestoreItToYourVault,
         )
     }
 

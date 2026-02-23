@@ -244,7 +244,7 @@ extension AuthRouter {
 
         // Check all accounts for timeouts on startup (both time-based and "no unlock method after restart")
         var activeUserShouldTimeout = false
-        await services.authRepository.checkSessionTimeouts { _ in
+        await services.authRepository.checkSessionTimeouts(isAppRestart: true) { _ in
             activeUserShouldTimeout = true
         }
 

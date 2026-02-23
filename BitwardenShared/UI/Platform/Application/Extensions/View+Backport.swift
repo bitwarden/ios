@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - View
 
-/// Extension of `View` to have the `backport` object availalbe to ease
+/// Extension of `View` to have the `backport` object available to ease
 /// with available APIs.
 ///
 /// Adapted from https://davedelong.com/blog/2021/10/09/simplifying-backwards-compatibility-in-swift/

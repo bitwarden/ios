@@ -273,13 +273,13 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try assertInlineSnapshot(of: String(data: XCTUnwrap(fileManager.writeDataData), encoding: .utf8), as: .lines) {
             """
             Bitwarden iOS Flight Recorder
-            Log Start: 2025-01-01T00:00:00Z
-            Log Duration: 24h
+            🕒 Log Start: 2025-01-01T00:00:00Z
+            ⏳ Log Duration: 24h
             📝 Bitwarden 1.0 (1)
             📦 Bundle: com.8bit.bitwarden
             📱 Device: iPhone14,2
             🍏 System: iOS 16.4
-            User ID: n/a
+            👤 User ID: n/a
 
 
             """
@@ -518,6 +518,50 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             stateService.flightRecorderData,
             FlightRecorderData(activeLog: activeLog, inactiveLogs: [inactiveLog1]),
+        )
+    }
+
+    /// `init()` starts the log lifecycle timer and removes multiple expired inactive logs.
+    func test_init_logLifecycleTimer_multipleInactiveLogsExpire() async throws {
+        let expiredLog1 = FlightRecorderData.LogMetadata(
+            duration: .oneHour,
+            startDate: Date(year: 2024, month: 10, day: 30),
+        )
+        let expiredLog2 = FlightRecorderData.LogMetadata(
+            duration: .oneHour,
+            startDate: Date(year: 2024, month: 11, day: 1),
+        )
+        let expiredLog3 = FlightRecorderData.LogMetadata(
+            duration: .oneHour,
+            startDate: Date(year: 2024, month: 11, day: 15),
+        )
+        timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 1, day: 1, hour: 5))
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            inactiveLogs: [expiredLog1, inactiveLog1, expiredLog2, inactiveLog2, expiredLog3],
+        )
+        subject = makeSubject(disableLogLifecycleTimer: false)
+
+        var publisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
+
+        // Flight recorder is enabled due to active log.
+        let isEnabled = await publisher.next()
+        XCTAssertEqual(isEnabled, true)
+
+        try await waitForAsync { self.stateService.flightRecorderData?.inactiveLogs.count == 2 }
+
+        // All expired inactive logs are removed.
+        try XCTAssertEqual(
+            Set(fileManager.removeItemURLs),
+            Set([
+                flightRecorderLogURL().appendingPathComponent(expiredLog1.fileName),
+                flightRecorderLogURL().appendingPathComponent(expiredLog2.fileName),
+                flightRecorderLogURL().appendingPathComponent(expiredLog3.fileName),
+            ]),
+        )
+        XCTAssertEqual(
+            stateService.flightRecorderData,
+            FlightRecorderData(activeLog: activeLog, inactiveLogs: [inactiveLog1, inactiveLog2]),
         )
     }
 

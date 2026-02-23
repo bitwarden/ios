@@ -16,6 +16,9 @@ mint run xcodegen --spec "$repo_root/project-bwa.yml"
 mint run xcodegen --spec "$repo_root/project-bwth.yml"
 echo "✅ Bootstrapped!"
 
+# Set up git hooks
+"$script_dir/setup-hooks.sh"
+
 # Check Xcode version matches .xcode-version
 xcode_version_file="$repo_root/.xcode-version"
 

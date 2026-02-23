@@ -38,6 +38,14 @@ protocol KeychainService: AnyObject {
     /// - Returns: The search results.
     ///
     func search(query: CFDictionary) throws -> AnyObject?
+
+    /// Updates an existing keychain item.
+    ///
+    /// - Parameters:
+    ///   - query: Query to identify the item to update.
+    ///   - attributes: New attributes to set.
+    ///
+    func update(query: CFDictionary, attributes: CFDictionary) throws
 }
 
 // MARK: - DefaultKeychainService
@@ -80,6 +88,10 @@ class DefaultKeychainService: KeychainService {
         var foundItem: AnyObject?
         try resolve(SecItemCopyMatching(query, &foundItem))
         return foundItem
+    }
+
+    func update(query: CFDictionary, attributes: CFDictionary) throws {
+        try resolve(SecItemUpdate(query, attributes))
     }
 
     // MARK: Private Methods

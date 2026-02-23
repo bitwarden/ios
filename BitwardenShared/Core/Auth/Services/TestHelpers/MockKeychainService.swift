@@ -10,11 +10,15 @@ class MockKeychainService {
     var accessControlProtection: CFTypeRef?
     var accessControlResult: Result<SecAccessControl, KeychainServiceError> = .failure(.accessControlFailed(nil))
     var addAttributes: CFDictionary?
+    var addCalls = [CFDictionary]()
     var addResult: Result<Void, KeychainServiceError> = .success(())
     var deleteQueries = [CFDictionary]()
     var deleteResult: Result<Void, KeychainServiceError> = .success(())
     var searchQuery: CFDictionary?
     var searchResult: Result<AnyObject?, KeychainServiceError> = .success(nil)
+    var updateAttributes: CFDictionary?
+    var updateQuery: CFDictionary?
+    var updateResult: Result<Void, Error> = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
 }
 
 // MARK: KeychainService
@@ -28,6 +32,7 @@ extension MockKeychainService: KeychainService {
 
     func add(attributes: CFDictionary) throws {
         addAttributes = attributes
+        addCalls.append(attributes)
         try addResult.get()
     }
 
@@ -39,6 +44,12 @@ extension MockKeychainService: KeychainService {
     func search(query: CFDictionary) throws -> AnyObject? {
         searchQuery = query
         return try searchResult.get()
+    }
+
+    func update(query: CFDictionary, attributes: CFDictionary) throws {
+        updateQuery = query
+        updateAttributes = attributes
+        try updateResult.get()
     }
 }
 

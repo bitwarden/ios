@@ -177,6 +177,9 @@ class DefaultSyncService: SyncService {
     /// The time provider for this service.
     private let timeProvider: TimeProvider
 
+    /// The service used by the application to manage user session state.
+    private let userSessionStateService: UserSessionStateService
+
     /// The service used by the application to manage vault access.
     private let vaultTimeoutService: VaultTimeoutService
 
@@ -200,6 +203,7 @@ class DefaultSyncService: SyncService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///   - timeProvider: The time provider for this service.
+    ///   - userSessionStateService: The service used by the application to manage user session state.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
@@ -218,6 +222,7 @@ class DefaultSyncService: SyncService {
         stateService: StateService,
         syncAPIService: SyncAPIService,
         timeProvider: TimeProvider,
+        userSessionStateService: UserSessionStateService,
         vaultTimeoutService: VaultTimeoutService,
     ) {
         self.accountAPIService = accountAPIService
@@ -235,6 +240,7 @@ class DefaultSyncService: SyncService {
         self.stateService = stateService
         self.syncAPIService = syncAPIService
         self.timeProvider = timeProvider
+        self.userSessionStateService = userSessionStateService
         self.vaultTimeoutService = vaultTimeoutService
     }
 
@@ -394,7 +400,7 @@ extension DefaultSyncService {
         let userId = try await stateService.getActiveAccountId()
         guard userId == data.userId else { return }
 
-        // If the local data is more recent than the nofication, skip the sync.
+        // If the local data is more recent than the notification, skip the sync.
         let localCipher = try await cipherService.fetchCipher(withId: data.id)
         if let localCipher, let revisionDate = data.revisionDate, localCipher.revisionDate >= revisionDate {
             return
@@ -479,21 +485,17 @@ extension DefaultSyncService {
         guard let value = timeoutPolicyValues.timeoutValue?.rawValue else { return }
 
         let timeoutAction = try await stateService.getTimeoutAction()
-        let timeoutValue = try await stateService.getVaultTimeout()
+        let timeoutValue = try await userSessionStateService.getVaultTimeout()
 
         // For onAppRestart and never policy types, preserve the user's current timeout value
         // as these policy types don't restrict the value itself, only the behavior
         if type == SessionTimeoutType.onAppRestart || type == SessionTimeoutType.never {
-            try await stateService.setVaultTimeout(
-                value: timeoutValue,
-            )
+            try await userSessionStateService.setVaultTimeout(timeoutValue)
         } else {
             // Only update the user's stored vault timeout value if
             // their stored timeout value is > the policy's timeout value.
             if timeoutValue.rawValue > value || timeoutValue.rawValue < 0 {
-                try await stateService.setVaultTimeout(
-                    value: SessionTimeoutValue(rawValue: value),
-                )
+                try await userSessionStateService.setVaultTimeout(SessionTimeoutValue(rawValue: value))
             }
         }
 

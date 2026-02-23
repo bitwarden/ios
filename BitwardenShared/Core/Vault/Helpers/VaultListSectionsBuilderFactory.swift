@@ -13,7 +13,7 @@ protocol VaultListSectionsBuilderFactory { // sourcery: AutoMockable
 
 // MARK: - DefaultVaultListSectionsBuilderFactory
 
-/// The default implemetnation of `VaultListSectionsBuilderFactory`.
+/// The default implementation of `VaultListSectionsBuilderFactory`.
 struct DefaultVaultListSectionsBuilderFactory: VaultListSectionsBuilderFactory {
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService

@@ -45,7 +45,12 @@ class EventAPIServiceTests: BitwardenTestCase {
             try? JSONDecoder.defaultDecoder.decode([EventRequestModel].self, from: data),
             [
                 EventRequestModel(type: .cipherClientViewed, cipherId: "1", organizationId: nil, date: date),
-                EventRequestModel(type: .cipherClientViewed, cipherId: "2", organizationId: nil, date: date.addingTimeInterval(1)),
+                EventRequestModel(
+                    type: .cipherClientViewed,
+                    cipherId: "2",
+                    organizationId: nil,
+                    date: date.addingTimeInterval(1),
+                ),
             ],
         )
         XCTAssertEqual(request.method, .post)
@@ -70,7 +75,12 @@ class EventAPIServiceTests: BitwardenTestCase {
             try? JSONDecoder.defaultDecoder.decode([EventRequestModel].self, from: data),
             [
                 EventRequestModel(type: .cipherClientViewed, cipherId: "1", organizationId: "org-123", date: date),
-                EventRequestModel(type: .userLoggedIn, cipherId: nil, organizationId: "org-456", date: date.addingTimeInterval(1)),
+                EventRequestModel(
+                    type: .userLoggedIn,
+                    cipherId: nil,
+                    organizationId: "org-456",
+                    date: date.addingTimeInterval(1),
+                ),
             ],
         )
     }

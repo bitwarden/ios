@@ -128,7 +128,7 @@ public extension StackNavigator {
     ///   - navigationTitle: The navigation title to pre-populate the navigation bar so that it doesn't flash.
     ///   - searchController: If non-nil, pre-populate the navigation bar with a search bar backed by the
     ///         supplied UISearchController.
-    ///     Normal SwiftUI search contorls will not work if this value is supplied. Tracking the searchController
+    ///     Normal SwiftUI search controls will not work if this value is supplied. Tracking the searchController
     ///     behavior must be done through a UISearchControllerDelegate or a UISearchResultsUpdating object.
     ///
     func push(

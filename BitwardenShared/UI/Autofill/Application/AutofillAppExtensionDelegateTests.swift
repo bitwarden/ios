@@ -70,7 +70,8 @@ class AutofillAppExtensionDelegateTests: BitwardenTestCase {
         XCTAssertEqual(subject.rpID, expectedRpID)
 
         subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
-            credentialIdentity: .fixture(relyingPartyIdentifier: expectedRpID)))
+            credentialIdentity: .fixture(relyingPartyIdentifier: expectedRpID),
+        ))
         XCTAssertEqual(subject.rpID, expectedRpID)
 
         subject.extensionMode = .autofillVaultList([])

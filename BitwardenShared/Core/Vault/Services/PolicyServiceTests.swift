@@ -254,7 +254,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                     data: [:],
                     type: .passwordGenerator,
                 ),
-            ])
+            ],
+        )
 
         var options = PasswordGenerationOptions()
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)

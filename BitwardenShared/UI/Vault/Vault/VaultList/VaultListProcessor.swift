@@ -21,6 +21,7 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthService
         & HasChangeKdfService
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -208,9 +209,15 @@ extension VaultListProcessor {
         setProfileSwitcher(visible: false)
         switch state.vaultFilterType {
         case let .organization(organization):
-            coordinator.navigate(to: .addItem(organizationId: organization.id, type: type))
+            coordinator.navigate(
+                to: .addItem(organizationId: organization.id, type: type),
+                context: self,
+            )
         default:
-            coordinator.navigate(to: .addItem(type: type))
+            coordinator.navigate(
+                to: .addItem(type: type),
+                context: self,
+            )
         }
         reviewPromptTask?.cancel()
     }
@@ -222,6 +229,8 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
         if await services.configService.getFeatureFlag(.archiveVaultItems) {
             state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
@@ -317,7 +326,16 @@ extension VaultListProcessor {
             } else {
                 navigateToViewItem(cipherListView: cipherListView, id: item.id)
             }
-        case let .group(group, _):
+        case let .group(group, count):
+            if !state.hasPremium, group == .archive, count == 0 {
+                coordinator.showAlert(
+                    Alert.archiveUnavailable(action: { [weak self] in
+                        guard let self else { return }
+                        state.url = services.environmentService.upgradeToPremiumURL
+                    }),
+                )
+                return
+            }
             coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
         case let .totp(_, model):
             navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
@@ -346,7 +364,10 @@ extension VaultListProcessor {
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
