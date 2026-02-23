@@ -139,14 +139,12 @@ class AddEditSendItemProcessor:
             state.recipientEmails[index] = value
         case let .removeRecipientEmail(index):
             guard index >= 0, index < state.recipientEmails.count else { return }
-            // If it's the first email row (index 0), clear the field and unfocus it instead of removing
-            // to preserve the empty row state for the "Specific People" access type.
             if index == 0, state.recipientEmails.count == 1 {
                 state.recipientEmails[0] = ""
-                state.focusedRecipientEmailIndex = nil
             } else {
                 state.recipientEmails.remove(at: index)
             }
+            state.focusedRecipientEmailIndex = nil
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
