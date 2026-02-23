@@ -355,14 +355,14 @@ class AddEditSendItemProcessor:
         if state.accessType == .specificPeople {
             // Check if at least one email is provided
             guard !state.normalizedRecipientEmails.isEmpty else {
-                coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
+                coordinator.showAlert(.noEmailAddressesEntered)
                 return false
             }
 
             // Validate each email address
             for email in state.normalizedRecipientEmails {
                 guard email.isValidEmail else {
-                    coordinator.showAlert(.invalidEmail)
+                    coordinator.showAlert(.invalidEmailAddresses)
                     return false
                 }
             }
