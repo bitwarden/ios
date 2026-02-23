@@ -14,6 +14,7 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ///     assertion request, which should be equal to the cipher ID of the device auth key record.
     ///   - userId: Currently active user ID for the account.
     /// - Returns: A ``GetAssertionResult``, or `nil` if the device auth key does not exist.
+    ///
     func assertDeviceAuthKey(
         for request: GetAssertionRequest,
         recordIdentifier: String,
@@ -28,6 +29,7 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ///   - masterPasswordHash: Master password hash suitable for server authentication.
     ///   - overwrite: Whether to overwrite an existing value if a previous one is already found.
     ///   - userId: Currently active user ID for the account.
+    ///
     func createDeviceAuthKey(
         masterPasswordHash: String,
         overwrite: Bool,
@@ -47,19 +49,26 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ///
     /// - Parameters:
     ///   - userId: Currently active user ID for the account.
+    ///
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata?
 }
 
 // MARK: - DefaultDeviceAuthKeyService
 
-/// Implementation of DeviceAuthKeyService
+/// Default implementation of DeviceAuthKeyService
 struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     // MARK: Properties
 
+    /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
 
     // MARK: Initializers
 
+    /// Creates a new instance of `DefaultDeviceAuthKeyService`.
+    ///
+    /// - Parameters:
+    ///   - deviceAuthKeychainRepository: The repository for managing device auth keys in the keychain.
+    ///
     init(
         deviceAuthKeychainRepository: DeviceAuthKeychainRepository,
     ) {
@@ -103,6 +112,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     ///
     /// - Parameters:
     ///   - userId: User ID for the account to fetch.
+    ///
     private func getDeviceAuthKeyRecord(userId: String) async throws -> DeviceAuthKeyRecord? {
         try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: userId)
     }
@@ -110,7 +120,11 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
 
 // MARK: - DeviceAuthKeyError
 
+/// Errors that can occur when working with device auth keys.
 enum DeviceAuthKeyError: Error {
+    /// The device auth key is missing or invalid.
     case missingOrInvalidKey
+
+    /// The requested functionality has not yet been implemented.
     case notImplemented
 }
