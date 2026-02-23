@@ -38,7 +38,7 @@ extension Alert {
             message: Localizations.enterAtLeastOneValidEmailToShareSend,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
