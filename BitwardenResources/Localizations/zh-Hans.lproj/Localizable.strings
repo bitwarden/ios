@@ -407,8 +407,8 @@
 "MovedItemToOrg" = "%1$@ 已移动到 %2$@。";
 "ItemShared" = "项目已共享。";
 "SelectOneCollection" = "您必须至少选择一个集合。";
-"Share" = "共享";
-"ShareAll" = "共享所有";
+"Share" = "分享";
+"ShareAll" = "分享所有";
 "ShareItem" = "共享项目";
 "MoveToOrganization" = "移动到组织";
 "NoOrgsToList" = "没有可列出的组织。";
