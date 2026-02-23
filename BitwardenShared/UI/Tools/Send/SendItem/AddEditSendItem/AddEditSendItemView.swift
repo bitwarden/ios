@@ -16,6 +16,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
+    /// Tracks which recipient email field is focused.
+    @FocusState private var focusedRecipientEmailIndex: Int?
+
     /// The environment's openURL action for opening URLs.
     @Environment(\.openURL) var openURL
 
@@ -118,6 +121,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             guard let url = newValue else { return }
             openURL(url)
             store.send(.clearURL)
+        }
+        .onChange(of: store.state.focusedRecipientEmailIndex) { newValue in
+            guard focusedRecipientEmailIndex != newValue else { return }
+            focusedRecipientEmailIndex = newValue
+        }
+        .onChange(of: focusedRecipientEmailIndex) { newValue in
+            guard store.state.focusedRecipientEmailIndex != newValue else { return }
+            store.send(.focusedRecipientEmailIndexChanged(newValue))
         }
     }
 
@@ -397,15 +408,18 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     ),
                     accessibilityIdentifier: "SendRecipientEmailEntry\(index)",
                 ) {
-                    Button {
-                        store.send(.removeRecipientEmail(index: index))
-                    } label: {
-                        SharedAsset.Icons.trash24.swiftUIImage
-                            .imageStyle(.rowIcon(color: SharedAsset.Colors.error.swiftUIColor))
+                    if shouldShowTrashIcon(for: index) {
+                        Button {
+                            store.send(.removeRecipientEmail(index: index))
+                        } label: {
+                            SharedAsset.Icons.trash24.swiftUIImage
+                                .imageStyle(.rowIcon(color: SharedAsset.Colors.error.swiftUIColor))
+                        }
+                        .accessibilityLabel(Localizations.delete)
+                        .accessibilityIdentifier("RemoveRecipientEmailButton\(index)")
                     }
-                    .accessibilityLabel(Localizations.delete)
-                    .accessibilityIdentifier("RemoveRecipientEmailButton\(index)")
                 }
+                .focused($focusedRecipientEmailIndex, equals: index)
                 .textFieldConfiguration(.email)
 
                 Divider()
@@ -434,6 +448,23 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ),
         )
         .accessibilityIdentifier("SendTextContentEntry")
+    }
+
+    // MARK: Private Methods
+
+    /// Determines whether the trash icon should be shown for the recipient email at the given index.
+    /// Hides the trash icon when there's only one empty email field.
+    ///
+    /// - Parameter index: The index of the recipient email field.
+    /// - Returns: `true` if the trash icon should be shown, `false` otherwise.
+    ///
+    private func shouldShowTrashIcon(for index: Int) -> Bool {
+        let emails = store.state.recipientEmails
+        // Hide trash only when it's the first and only email field and it's empty
+        let isFirstAndOnlyEmptyEmail = index == 0
+            && emails.count == 1
+            && (emails[safeIndex: index]?.isEmpty ?? true)
+        return !isFirstAndOnlyEmptyEmail
     }
 }
 
