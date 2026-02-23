@@ -778,12 +778,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertNotNil(subject.state.url)
     }
 
-    /// `receive(_:)` with `.addRecipientEmail` adds an empty email to the list.
+    /// `receive(_:)` with `.addRecipientEmail` adds an empty email to the list and focuses it.
     @MainActor
     func test_receive_addRecipientEmail() {
         subject.state.recipientEmails = ["test@example.com"]
         subject.receive(.addRecipientEmail)
         XCTAssertEqual(subject.state.recipientEmails, ["test@example.com", ""])
+        XCTAssertEqual(subject.state.focusedRecipientEmailIndex, 1)
     }
 
     /// `receive(_:)` with `.clearURL` clears the URL in the state.

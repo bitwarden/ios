@@ -104,6 +104,7 @@ class AddEditSendItemProcessor:
             }
         case .addRecipientEmail:
             state.recipientEmails.append("")
+            state.focusedRecipientEmailIndex = state.recipientEmails.count - 1
         case .chooseFilePressed:
             presentFileSelectionAlert()
         case .clearURL:
