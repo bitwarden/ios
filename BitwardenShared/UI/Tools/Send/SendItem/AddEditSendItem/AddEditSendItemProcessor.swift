@@ -502,8 +502,12 @@ extension AddEditSendItemProcessor: GeneratorCoordinatorDelegate {
     }
 
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
-        if case .password = type {
+        switch type {
+        case .passphrase,
+             .password:
             state.password = value
+        case .username:
+            break
         }
         coordinator.navigate(to: .dismiss(nil))
     }
