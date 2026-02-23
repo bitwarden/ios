@@ -82,6 +82,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         recordIdentifier: String,
         userId: String,
     ) async throws -> GetAssertionResult? {
+        // TODO: PM-26177 to finish building out this stub
         throw DeviceAuthKeyError.notImplemented
     }
 
@@ -90,6 +91,7 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         overwrite: Bool,
         userId: String,
     ) async throws -> DeviceAuthKeyRecord {
+        // TODO: PM-26177 to finish building out this stub
         throw DeviceAuthKeyError.notImplemented
     }
 
