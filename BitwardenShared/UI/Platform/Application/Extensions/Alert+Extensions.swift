@@ -26,7 +26,7 @@ extension Alert {
             message: Localizations.oneOrMoreEmailAddressesIncorrect,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
-            ]
+            ],
         )
     }
 
