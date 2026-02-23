@@ -10,7 +10,11 @@ protocol NotificationCenterService: AnyObject {
     ///
     func didEnterBackgroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>>
 
-    /// A publisher that emits the app's current foreground state, starting with `true`.
+    /// A publisher that emits the app's current foreground state, starting with `false`.
+    /// In app extension contexts, `willEnterForegroundNotification` is never posted (the host
+    /// app is already in the foreground when an extension activates), so this publisher will
+    /// always emit `false` in extensions. Consumers that require foreground gating should
+    /// only subscribe in main app contexts.
     ///
     func isInForegroundPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 
