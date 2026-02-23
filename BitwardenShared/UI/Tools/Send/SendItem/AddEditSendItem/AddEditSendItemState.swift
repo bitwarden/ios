@@ -104,6 +104,9 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A password that can be used to limit access to this item.
     var password: String = ""
 
+    /// The index of the currently focused recipient email field, or `nil` if none is focused.
+    var focusedRecipientEmailIndex: Int?
+
     /// The list of recipient emails for the "specific people" access type.
     var recipientEmails: [String] = []
 
