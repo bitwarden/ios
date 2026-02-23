@@ -361,7 +361,7 @@ class AddEditSendItemProcessor:
 
             // Validate each email address
             for email in state.normalizedRecipientEmails {
-                guard email.isValidEmail else {
+                guard email.isValidEmail() else {
                     coordinator.showAlert(.invalidEmailAddresses)
                     return false
                 }
