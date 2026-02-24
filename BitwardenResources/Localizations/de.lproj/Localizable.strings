@@ -1308,6 +1308,6 @@
 "AnyoneWithTheLink" = "Alle mit dem Link";
 "AnyoneWithThisLinkCanViewThisSend" = "Alle mit diesem Link können dieses Send anzeigen.";
 "AfterSharingThisSendLinkDescriptionLong" = "Nach dem Teilen dieses Send-Links müssen Personen ihre E-Mail-Adresse mit einem Code verifizieren, um dieses Send anzuzeigen.";
-"SpecificPeople" = "Specific people";
+"SpecificPeople" = "Bestimmte Personen";
 "WhoCanView" = "Wer kann das sehen";
-"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Das Teilen mit bestimmten Personen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
