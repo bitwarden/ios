@@ -103,7 +103,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     }
 
     func getAllCiphersToExportCXF() async throws -> [Cipher] {
-        try await exportVaultService.fetchAllCiphersToExport()
+        try await exportVaultService.fetchAllCiphersToExport(includeArchivedItems: false)
     }
 
     @available(iOS 26.0, *)

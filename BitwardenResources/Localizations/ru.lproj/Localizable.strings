@@ -1305,3 +1305,11 @@
 "RestartPremium" = "Переподключить Премиум";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Этот элемент архивирован. Сохранение изменений восстановит его в ваше хранилище.";
 "SettingUpAutofill" = "Настройка автозаполнения…";
+"AddEmail" = "Добавить email";
+"AnyoneWithPasswordSetByYou" = "Любой, у кого есть установленный вами пароль";
+"AnyoneWithTheLink" = "Любой, у кого есть ссылка";
+"AnyoneWithThisLinkCanViewThisSend" = "Любой, у кого есть эта ссылка, сможет просмотреть эту Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send.";
+"SpecificPeople" = "Конкретные пользователи";
+"WhoCanView" = "Кто может просматривать";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Совместное использование с конкретными пользователями является Премиум функцией. Она не входит в ваш текущий тарифный план.";

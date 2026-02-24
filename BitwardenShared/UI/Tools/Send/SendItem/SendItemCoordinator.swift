@@ -13,12 +13,15 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     // MARK: Types
 
     typealias Module = FileSelectionModule
+        & GeneratorModule
         & NavigatorBuilderModule
         & ProfileSwitcherModule
         & SendItemModule
 
-    typealias Services = HasAuthRepository
+    typealias Services = GeneratorCoordinator.Services
+        & HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
@@ -31,6 +34,10 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
     /// coordinator in memory.
     private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
+
+    /// The most recent coordinator used to navigate to a `GeneratorRoute`. Used to keep the
+    /// coordinator in memory.
+    private var generatorCoordinator: AnyCoordinator<GeneratorRoute, Void>?
 
     // MARK: Properties
 
@@ -91,6 +98,9 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
             showFileSelection(route: route, delegate: delegate)
+        case .generator:
+            guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
+            showGenerator(delegate: delegate)
         case let .share(url):
             showShareSheet(for: [url])
         case let .view(sendView):
@@ -193,6 +203,23 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         coordinator.start()
         coordinator.navigate(to: route)
         fileSelectionCoordinator = coordinator
+    }
+
+    /// Shows the password generator screen.
+    ///
+    /// - Parameter delegate: The delegate to notify when password generation is complete.
+    ///
+    private func showGenerator(delegate: GeneratorCoordinatorDelegate) {
+        let navigationController = module.makeNavigationController()
+        navigationController.removeHairlineDivider()
+        let coordinator = module.makeGeneratorCoordinator(
+            delegate: delegate,
+            stackNavigator: navigationController,
+        )
+        coordinator.start()
+        coordinator.navigate(to: .generator(staticType: .password))
+        stackNavigator?.present(navigationController)
+        generatorCoordinator = coordinator
     }
 
     /// Presents the system share sheet for the specified items.

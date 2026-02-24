@@ -5,9 +5,6 @@ import Foundation
 /// `PlatformClientProtocol` but returns the protocols so they can be mocked for testing.
 ///
 protocol PlatformClientService: AnyObject {
-    /// Returns an object to handle Fido2 operations.
-    func fido2() -> ClientFido2Service
-
     /// Gets the fingerprint (public key) based on `req`.
     /// - Parameter request: Request with parameters for the fingerprint.
     /// - Returns: Fingerprint public key.
@@ -29,10 +26,6 @@ protocol PlatformClientService: AnyObject {
 // MARK: PlatformClient
 
 extension PlatformClient: PlatformClientService {
-    func fido2() -> ClientFido2Service {
-        fido2() as ClientFido2
-    }
-
     func fingerprint(request req: FingerprintRequest) throws -> String {
         try fingerprint(req: req)
     }
