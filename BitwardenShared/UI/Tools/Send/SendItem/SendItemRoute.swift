@@ -59,6 +59,9 @@ public enum SendItemRoute: Equatable, Hashable {
     ///
     case fileSelection(_ route: FileSelectionRoute)
 
+    /// A route to the password generator screen.
+    case generator
+
     /// A route to share the provided URL.
     ///
     /// - Parameter url: The `URL` to share.

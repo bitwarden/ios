@@ -20,6 +20,8 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
 
+        XCTAssertEqual(subject.preferredAction, subject.alertActions[0])
+
         try await subject.tapAction(title: Localizations.upgradeToPremium)
         XCTAssertTrue(called)
     }
@@ -28,6 +30,33 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
     func test_archiveUnavailable_cancel() async throws {
         var called = false
         let subject = Alert.archiveUnavailable { called = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(called)
+    }
+
+    /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
+    /// "Specific People" Send feature requires premium.
+    func test_specificPeopleUnavailable() async throws {
+        var called = false
+        let subject = Alert.specificPeopleUnavailable { called = true }
+
+        XCTAssertEqual(subject.title, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(subject.message, Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.upgradeToPremium)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.upgradeToPremium)
+        XCTAssertTrue(called)
+    }
+
+    /// `specificPeopleUnavailable(action:)` doesn't call action when cancel is tapped.
+    func test_specificPeopleUnavailable_cancel() async throws {
+        var called = false
+        let subject = Alert.specificPeopleUnavailable { called = true }
 
         try await subject.tapCancel()
         XCTAssertFalse(called)

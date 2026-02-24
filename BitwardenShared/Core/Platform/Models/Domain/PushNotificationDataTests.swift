@@ -4,7 +4,7 @@ import XCTest
 
 class PushNotificationDataTests: BitwardenTestCase {
     /// `data` decodes the payload as expected.
-    func test_data() {
+    func test_data() throws {
         let subject = PushNotificationData(
             contextId: nil,
             payload: """
@@ -17,7 +17,7 @@ class PushNotificationDataTests: BitwardenTestCase {
             type: .syncCipherCreate,
         )
 
-        let data: SyncCipherNotification? = subject.data()
+        let data: SyncCipherNotification = try subject.data()
 
         XCTAssertEqual(
             data,
@@ -31,13 +31,46 @@ class PushNotificationDataTests: BitwardenTestCase {
         )
     }
 
-    /// `data` returns nil if there was a problem decoding the payload.
-    func test_data_nil() {
+    /// `data` throws a `PushNotificationDataError` when the payload is `nil`.
+    func test_data_payloadNil() throws {
+        let subject = PushNotificationData(contextId: nil, payload: nil, type: .syncCipherCreate)
+
+        XCTAssertThrowsError(try subject.data() as SyncCipherNotification) { error in
+            guard case let PushNotificationDataError.payloadDecodingFailed(type, underlyingError) = error else {
+                XCTFail("Expected PushNotificationDataError.payloadDecodingFailed, got \(error)")
+                return
+            }
+            XCTAssertEqual(type, .syncCipherCreate)
+            XCTAssertEqual((underlyingError as NSError).domain, "Data Error")
+        }
+    }
+
+    /// `data` throws a `PushNotificationDataError` when the payload is an empty string.
+    func test_data_payloadEmpty() throws {
+        let subject = PushNotificationData(contextId: nil, payload: "", type: .syncCipherCreate)
+
+        XCTAssertThrowsError(try subject.data() as SyncCipherNotification) { error in
+            guard case let PushNotificationDataError.payloadDecodingFailed(type, underlyingError) = error else {
+                XCTFail("Expected PushNotificationDataError.payloadDecodingFailed, got \(error)")
+                return
+            }
+            XCTAssertEqual(type, .syncCipherCreate)
+            XCTAssertEqual((underlyingError as NSError).domain, "Data Error")
+        }
+    }
+
+    /// `data` throws a `PushNotificationDataError` if there was a problem decoding the payload.
+    func test_data_payloadInvalid() throws {
         let subject = PushNotificationData(contextId: nil, payload: "gibberish", type: .syncCipherCreate)
 
-        let data: SyncCipherNotification? = subject.data()
-
-        XCTAssertNil(data)
+        XCTAssertThrowsError(try subject.data() as SyncCipherNotification) { error in
+            guard case let PushNotificationDataError.payloadDecodingFailed(type, underlyingError) = error else {
+                XCTFail("Expected PushNotificationDataError.payloadDecodingFailed, got \(error)")
+                return
+            }
+            XCTAssertEqual(type, .syncCipherCreate)
+            XCTAssertTrue(underlyingError is DecodingError)
+        }
     }
 
     /// `data()` decodes a logout notification.
@@ -53,7 +86,7 @@ class PushNotificationDataTests: BitwardenTestCase {
             type: .logOut,
         )
 
-        let data: LogoutNotification = try XCTUnwrap(subject.data())
+        let data: LogoutNotification = try subject.data()
         XCTAssertEqual(data, LogoutNotification(
             date: Date(year: 2025, month: 10, day: 1),
             reason: .unknown,
@@ -75,7 +108,7 @@ class PushNotificationDataTests: BitwardenTestCase {
             type: .logOut,
         )
 
-        let data: LogoutNotification = try XCTUnwrap(subject.data())
+        let data: LogoutNotification = try subject.data()
         XCTAssertEqual(data, LogoutNotification(
             date: Date(year: 2025, month: 10, day: 1),
             reason: .kdfChange,
@@ -97,7 +130,7 @@ class PushNotificationDataTests: BitwardenTestCase {
             type: .logOut,
         )
 
-        let data: LogoutNotification = try XCTUnwrap(subject.data())
+        let data: LogoutNotification = try subject.data()
         XCTAssertEqual(data, LogoutNotification(
             date: Date(year: 2025, month: 10, day: 1),
             reason: .unknown,
