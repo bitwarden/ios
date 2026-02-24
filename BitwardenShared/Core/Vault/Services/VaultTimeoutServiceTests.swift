@@ -30,6 +30,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         super.setUp()
 
         biometricsRepository = MockBiometricsRepository()
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         cancellables = []
         clientService = MockClientService()
         configService = MockConfigService()
