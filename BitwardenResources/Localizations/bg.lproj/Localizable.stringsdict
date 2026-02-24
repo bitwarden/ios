@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Копирайте доклада за грешката и го изпратете на поддръжката, за да избегнете загубата на данни.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -40,7 +40,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Тази парола е била разкрита %#@times@ пъти в пробиви. Непременно я сменете.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Непременно я сменете.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -125,7 +125,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ – успешно внасяне</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -193,7 +193,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Вашият ПИН трябва да бъде с дължина поне %#@characters@ знака. Настройките за ПИН се изчистват при всяко пълно излизане от програмата.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Настройките за ПИН се изчистват при всяко пълно излизане от програмата.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

@@ -139,12 +139,14 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             return
         }
 
-        await performOperationAndShowToast(
-            handleDisplayToast: handleDisplayToast,
-            loadingTitle: Localizations.sendingToArchive,
-            toastTitle: Localizations.itemMovedToArchive,
-        ) {
-            try await services.vaultRepository.archiveCipher(cipher)
+        await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipher) {
+            await self.performOperationAndShowToast(
+                handleDisplayToast: handleDisplayToast,
+                loadingTitle: Localizations.sendingToArchive,
+                toastTitle: Localizations.itemMovedToArchive,
+            ) {
+                try await self.services.vaultRepository.archiveCipher(cipher)
+            }
         }
     }
 
@@ -225,12 +227,14 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
         case let .launch(url):
             handleOpenURL(url.sanitized)
         case let .unarchive(cipher):
-            await performOperationAndShowToast(
-                handleDisplayToast: handleDisplayToast,
-                loadingTitle: Localizations.movingItemToVault,
-                toastTitle: Localizations.itemMovedToVault,
-            ) {
-                try await services.vaultRepository.unarchiveCipher(cipher)
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
+                await self.performOperationAndShowToast(
+                    handleDisplayToast: handleDisplayToast,
+                    loadingTitle: Localizations.movingItemToVault,
+                    toastTitle: Localizations.itemMovedToVault,
+                ) {
+                    try await self.services.vaultRepository.unarchiveCipher(cipher)
+                }
             }
         case let .view(id):
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {

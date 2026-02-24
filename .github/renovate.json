@@ -1,10 +1,22 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>bitwarden/renovate-config"],
-  "enabledManagers": ["bundler", "github-actions", "mint", "regex", "swift"],
-  "regexManagers": [
+  "extends": [
+    "github>bitwarden/renovate-config"
+  ],
+  "enabledManagers": [
+    "bundler",
+    "github-actions",
+    "mint",
+    "custom.regex",
+    "swift"
+  ],
+  "customManagers": [
     {
-      "fileMatch": ["\\.github/workflows/test\\.yml$", "\\.github/workflows/test-bwa\\.yml$"],
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/\\.github/workflows/test\\.yml$/",
+        "/\\.github/workflows/test-bwa\\.yml$/"
+      ],
       "matchStrings": [
         "uses: codecov/codecov-action@[a-f0-9]+(?:[^\\n]*\\n){1,10}[^\\n]*version: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"
       ],
@@ -15,13 +27,23 @@
   "packageRules": [
     {
       "groupName": "bundler minor",
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchManagers": ["bundler"]
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchManagers": [
+        "bundler"
+      ]
     },
     {
       "groupName": "gh minor",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["minor", "patch"]
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ]
     }
   ]
 }
