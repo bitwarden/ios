@@ -436,7 +436,7 @@ mint run swiftgen config run --config swiftgen-pm.yml              # Generate as
 
 - **Error reporting**: `ErrorReporter` protocol with `OSLogErrorReporter` for development logging
 - **Flight recorder**: In-app logging system for debugging production issues
-- **Diagnostic runes**: Check Xcode console for SDK errors (prefix: `BitwardenSdk`)
+- **SDK diagnostics**: Check Xcode console for SDK errors (prefix: `BitwardenSdk`)
 - **Network debugging**: Networking layer in `Networking/` Swift package — set breakpoints in `APIService` implementations
 - **State debugging**: Add `print(subject.state)` in processor tests to inspect state changes
 
