@@ -267,9 +267,9 @@ public class ServiceContainer: Services {
         )
 
         let migrationService = DefaultMigrationService(
+            appGroupUserDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository,
         )
 
         let notificationCenterService = DefaultNotificationCenterService()
