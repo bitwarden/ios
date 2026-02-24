@@ -38,14 +38,17 @@ extension Alert {
     static func specificPeopleUnavailable(
         action: @escaping () -> Void,
     ) -> Alert {
-        Alert(
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
             title: Localizations.premiumSubscriptionRequired,
             message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
             alertActions: [
-                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
+                preferredAction,
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ],
         )
+        alert.preferredAction = preferredAction
+        return alert
     }
 
     /// Returns an alert notifying the user that one or more items in their vault were unable to be
