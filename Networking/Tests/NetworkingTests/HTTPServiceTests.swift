@@ -11,8 +11,8 @@ class HTTPServiceTests: XCTestCase {
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
 
         client = MockHTTPClient()
 
@@ -22,8 +22,8 @@ class HTTPServiceTests: XCTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         client = nil
         subject = nil

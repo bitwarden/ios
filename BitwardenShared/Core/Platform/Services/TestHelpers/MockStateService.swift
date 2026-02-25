@@ -96,7 +96,6 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var setAccountSetupAutofillCalled = false
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var setBiometricIntegrityStateError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()

@@ -4,7 +4,7 @@ import XCTest
 
 class RequestBodyTests: XCTestCase {
     struct TestRequestBodyJSON: JSONRequestBody {
-        static var encoder = JSONEncoder()
+        static let encoder = JSONEncoder()
 
         let name = "john"
     }

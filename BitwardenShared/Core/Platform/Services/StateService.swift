@@ -2324,7 +2324,7 @@ struct AccountVolatileData {
     var hasBeenUnlockedInteractively = false
 }
 
-// MARK: Biometrics
+// MARK: BiometricsStateService
 
 extension DefaultStateService: BiometricsStateService {
     func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
