@@ -862,12 +862,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         #endif
 
         let deviceAuthKeyService = DefaultDeviceAuthKeyService(
-            authAPIService: apiService,
-            clientService: clientService,
-            environmentService: environmentService,
-            keychainRepository: keychainRepository,
+            activeAccountStateProvider: stateService,
+            deviceAuthKeychainRepository: keychainRepository,
         )
-        
+
         let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(
             appContextHelper: appContextHelper,

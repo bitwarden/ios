@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenSdk
+import Combine
 import Foundation
 
 // MARK: - DeviceAuthKeyService
@@ -159,8 +160,10 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         overwrite: Bool,
         userId: String?,
     ) async throws -> DeviceAuthKeyRecord {
+        let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
+
         var curVal = deviceAuthKeySubject.value
-        curVal[userId] = true
+        curVal[resolvedUserId] = true
         deviceAuthKeySubject.send(curVal)
 
         // TODO: PM-26177 to finish building out this stub
