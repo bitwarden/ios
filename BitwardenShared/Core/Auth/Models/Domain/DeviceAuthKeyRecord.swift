@@ -140,6 +140,7 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
                         rpName: rpName,
                         userDisplayName: userDisplayName,
                         discoverable: discoverable,
+                        // TODO(PM-26177): SDK will add this field
                         // hmacSecret: hmacSecret,
                         creationDate: creationDate
                     ),
@@ -198,6 +199,7 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
                         rpName: rpName,
                         userDisplayName: userDisplayName,
                         discoverable: discoverable,
+                        // TODO(PM-26177): SDK will add this field
                         // hmacSecret: hmacSecret,
                         creationDate: creationDate
                     ),
