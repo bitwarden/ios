@@ -251,6 +251,31 @@ public class AppProcessor {
         _ = await services.configService.getConfig()
     }
 
+    // MARK: Custom Extension Methods
+    
+    /// Returns whether the vault is currently locked.
+    public func isLocked() async -> Bool {
+        return await (try? services.authRepository.isLocked()) ?? true
+    }
+    
+    /// Returns whether there is an active account.
+    public func hasAccount() async -> Bool {
+        if let _ = try? await services.stateService.getActiveAccountId() {
+            return true
+        }
+        return false
+    }
+    
+    /// Fetches all decrypted ciphers for the active account.
+    public func fetchVault() async throws -> [BitwardenSdk.CipherListView] {
+        return try await services.vaultRepository.fetchAllCiphers()
+    }
+    
+    /// Fetches the full cipher for a given CipherListView.
+    public func fetchCipher(from listView: BitwardenSdk.CipherListView) async throws -> BitwardenSdk.CipherView {
+        return try await services.vaultRepository.fetchCipher(from: listView)
+    }
+
     // MARK: Autofill Methods
 
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be

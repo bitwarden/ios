@@ -38,6 +38,7 @@ schemes:
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
+        - BitwardenSafariWebExtension
         - BitwardenShareExtension
         - BitwardenShared
         - BitwardenKit/AuthenticatorBridgeKit
@@ -111,6 +112,20 @@ schemes:
         - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/Bitwarden-Unit.xctestplan
+  BitwardenSafariWebExtension:
+    build:
+      targets:
+        BitwardenSafariWebExtension: all
+    test:
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      language: en
+      region: US
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShared:
     build:
       targets:
@@ -170,6 +185,7 @@ targets:
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
+      - target: BitwardenSafariWebExtension
       - target: BitwardenShareExtension
       - target: BitwardenWatchApp
       - target: BitwardenKit/AuthenticatorBridgeKit
@@ -504,3 +520,21 @@ targets:
         INFOPLIST_FILE: BitwardenWatchWidgetExtension/Application/Support/Info.plist
     sources:
       - path: BitwardenWatchWidgetExtension
+
+  BitwardenSafariWebExtension:
+    type: app-extension
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenSafariWebExtension.xcconfig
+      Release: Configs/BitwardenSafariWebExtension.xcconfig
+    settings:
+      base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenSafariWebExtension/Application/Support/BitwardenSafariWebExtension.entitlements
+        INFOPLIST_FILE: BitwardenSafariWebExtension/Application/Support/Info.plist
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: BitwardenSafariWebExtension
+    dependencies:
+      - package: BitwardenSdk
+      - target: BitwardenShared

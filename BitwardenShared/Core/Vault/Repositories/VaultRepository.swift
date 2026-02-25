@@ -129,6 +129,12 @@ public protocol VaultRepository: AnyObject {
     ///
     func fetchFolders() async throws -> [FolderView]
 
+    /// Fetches all ciphers for the current user and returns them as a decrypted list view.
+    ///
+    /// - Returns: A list of all decrypted ciphers.
+    ///
+    func fetchAllCiphers() async throws -> [CipherListView]
+
     /// Fetches an organization with the specified id.
     /// - Parameter id: The id of the organization to fetch.
     /// - Returns: The organization with such id or `nil` if not found.
@@ -633,6 +639,11 @@ extension DefaultVaultRepository: VaultRepository {
         return try await clientService.vault().folders()
             .decryptList(folders: folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
+
+    func fetchAllCiphers() async throws -> [CipherListView] {
+        let ciphers = try await cipherService.fetchAllCiphers()
+        return try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
     }
 
     func deleteAttachment(withId attachmentId: String, cipherId: String) async throws -> CipherView? {
