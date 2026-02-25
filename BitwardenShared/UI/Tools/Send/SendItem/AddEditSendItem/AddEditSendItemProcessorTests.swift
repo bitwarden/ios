@@ -837,7 +837,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertEqual(coordinator.alertShown, [
-            .invalidEmail,
+            .invalidEmailAddresses,
         ])
     }
 
@@ -851,7 +851,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.email),
+            .noEmailAddressesEntered,
         ])
     }
 
@@ -887,7 +887,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.email),
+            .noEmailAddressesEntered,
         ])
     }
 
@@ -901,7 +901,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.email),
+            .noEmailAddressesEntered,
         ])
     }
 
