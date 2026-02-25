@@ -112,7 +112,8 @@ class DefaultAutofillCredentialService {
 
     /// The factory to create credential identities.
     private let credentialIdentityFactory: CredentialIdentityFactory
-    
+
+    /// The service to use device auth key for passkey assertions.
     private let deviceAuthKeyService: DeviceAuthKeyService
 
     /// The service used by the application to report non-fatal errors.
@@ -233,7 +234,7 @@ class DefaultAutofillCredentialService {
                 .combineLatest(deviceAuthKeyService.deviceAuthKeyPublisher())
                 .values {
                 syncIdentities(
-                    vaultLockStatus: vaultLockStatus
+                    vaultLockStatus: vaultLockStatus,
                 )
             }
         }
@@ -318,11 +319,11 @@ class DefaultAutofillCredentialService {
     }
 
     /// Replaces all credential identities in the identity store with the current list of ciphers
-    /// for the user.
+    /// and potentially the device auth key for the user.
     ///
-    /// - Parameter userId: The ID of the user whose ciphers should be added to the identity store.
+    /// - Parameter userId: The ID of the user whose ciphers and device auth key should be added to the identity store.
     ///
-    private func replaceAllIdentities(userId: String) async {
+    private func replaceAllIdentities(userId: String) async { // swiftlint:disable: this function_body_length
         guard await identityStore.state().isEnabled else { return }
 
         do {
@@ -351,7 +352,8 @@ class DefaultAutofillCredentialService {
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
-                
+
+                // Register the Device Auth Key if we have one
                 if let metadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
                    let credId = Data(base64Encoded: metadata.credentialId),
                    let userHandle = Data(base64Encoded: metadata.userHandle) {
@@ -471,23 +473,29 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
         )
 
-        // Before trying to unlock the device, try to satisfy credential with device auth key.
+        // Before trying to unlock the device, see if we can satisfy the credential request with the device auth key.
         if let recordIdentifier = credentialIdentity.recordIdentifier,
-           let deviceResult = try? await deviceAuthKeyService.assertDeviceAuthKey(
-            for: request,
-            recordIdentifier: recordIdentifier,
-            userId: stateService.getActiveAccountId()
-           ) {
-            return ASPasskeyAssertionCredential(
-                userHandle: deviceResult.userHandle,
-                relyingParty: credentialIdentity.relyingPartyIdentifier,
-                signature: deviceResult.signature,
-                clientDataHash: passkeyRequest.clientDataHash,
-                authenticatorData: deviceResult.authenticatorData,
-                credentialID: deviceResult.credentialId,
-            )
+           let deviceAuthKeyMetadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: stateService.getActiveAccountId()),
+           credentialIdentity.recordIdentifier == deviceAuthKeyMetadata.cipherId {
+            // The credential request is for the device auth key, so we serve that up.
+            if let deviceResult = try? await deviceAuthKeyService.assertDeviceAuthKey(
+                for: request,
+                recordIdentifier: recordIdentifier,
+                userId: stateService.getActiveAccountId()
+            ) {
+                return ASPasskeyAssertionCredential(
+                    userHandle: deviceResult.userHandle,
+                    relyingParty: credentialIdentity.relyingPartyIdentifier,
+                    signature: deviceResult.signature,
+                    clientDataHash: passkeyRequest.clientDataHash,
+                    authenticatorData: deviceResult.authenticatorData,
+                    credentialID: deviceResult.credentialId,
+                )
+            }
         }
-        
+
+        // If the device auth key doesn't match (or errors), then we unlock the vault to serve up a passkey from it.
+
         try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
         guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
             throw Fido2Error.userInteractionRequired
@@ -660,7 +668,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw error
         }
     }
-    
+
     /// Removes the credential identities associated with the cipher on the store.
     /// - Parameter cipher: The cipher to get the credential identities from.
     @available(iOS 17.0, *)

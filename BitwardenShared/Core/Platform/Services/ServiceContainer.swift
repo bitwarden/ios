@@ -71,10 +71,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The service to get server-specified configuration
     public let configService: ConfigService
-    
+
     /// The service to make and use the device auth key.
     let deviceAuthKeyService: DeviceAuthKeyService
-    
+
     /// The service used by the application to manage the environment settings.
     public let environmentService: EnvironmentService
 
