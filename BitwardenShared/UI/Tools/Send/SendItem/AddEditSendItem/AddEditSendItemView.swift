@@ -408,7 +408,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     ),
                     accessibilityIdentifier: "SendRecipientEmailEntry\(index)",
                 ) {
-                    if shouldShowTrashIcon(for: index) {
+                    if store.state.shouldShowTrashIcon(for: index) {
                         Button {
                             store.send(.removeRecipientEmail(index: index))
                         } label: {
@@ -448,23 +448,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ),
         )
         .accessibilityIdentifier("SendTextContentEntry")
-    }
-
-    // MARK: Private Methods
-
-    /// Determines whether the trash icon should be shown for the recipient email at the given index.
-    /// Hides the trash icon when there's only one empty email field.
-    ///
-    /// - Parameter index: The index of the recipient email field.
-    /// - Returns: `true` if the trash icon should be shown, `false` otherwise.
-    ///
-    private func shouldShowTrashIcon(for index: Int) -> Bool {
-        let emails = store.state.recipientEmails
-        // Hide trash only when it's the first and only email field and it's empty
-        let isFirstAndOnlyEmptyEmail = index == 0
-            && emails.count == 1
-            && (emails[safeIndex: index]?.isEmpty ?? true)
-        return !isFirstAndOnlyEmptyEmail
     }
 }
 
