@@ -77,25 +77,64 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             let vaultData = try await appProcessor.fetchVault()
             var responseItems: [[String: Any]] = []
             
-            // Filter vault data by URL (basic implementation for now)
-            // In a real implementation this should use Bitwarden's MatchService
             for listView in vaultData {
                 let fullCipher = try await appProcessor.fetchCipher(from: listView)
-                guard let login = fullCipher.login else { continue }
                 
-                // Simplified matching logic: just check if any URI contains the host
-                let matched = login.uris?.contains(where: { uri in
-                    guard let uriStr = uri.uri, let urlObj = URL(string: url), let host = urlObj.host else { return false }
-                    return uriStr.contains(host)
-                }) ?? false
+                var itemDict: [String: Any]? = nil
                 
-                if matched {
-                    responseItems.append([
+                if let login = fullCipher.login {
+                    // Simplified matching logic: just check if any URI contains the host
+                    let matched = login.uris?.contains(where: { uri in
+                        guard let uriStr = uri.uri, let urlObj = URL(string: url), let host = urlObj.host else { return false }
+                        return uriStr.contains(host)
+                    }) ?? false
+                    
+                    if matched {
+                        itemDict = [
+                            "type": "login",
+                            "id": fullCipher.id ?? "",
+                            "name": fullCipher.name,
+                            "username": login.username ?? "",
+                            "password": login.password ?? ""
+                        ]
+                    }
+                } else if let card = fullCipher.card {
+                    itemDict = [
+                        "type": "card",
                         "id": fullCipher.id ?? "",
                         "name": fullCipher.name,
-                        "username": login.username ?? "",
-                        "password": login.password ?? ""
-                    ])
+                        "cardholderName": card.cardholderName ?? "",
+                        "number": card.number ?? "",
+                        "brand": card.brand ?? "",
+                        "expMonth": card.expMonth ?? "",
+                        "expYear": card.expYear ?? "",
+                        "code": card.code ?? ""
+                    ]
+                } else if let identity = fullCipher.identity {
+                    itemDict = [
+                        "type": "identity",
+                        "id": fullCipher.id ?? "",
+                        "name": fullCipher.name,
+                        "title": identity.title ?? "",
+                        "firstName": identity.firstName ?? "",
+                        "middleName": identity.middleName ?? "",
+                        "lastName": identity.lastName ?? "",
+                        "address1": identity.address1 ?? "",
+                        "address2": identity.address2 ?? "",
+                        "address3": identity.address3 ?? "",
+                        "city": identity.city ?? "",
+                        "state": identity.state ?? "",
+                        "postalCode": identity.postalCode ?? "",
+                        "country": identity.country ?? "",
+                        "company": identity.company ?? "",
+                        "email": identity.email ?? "",
+                        "phone": identity.phone ?? "",
+                        "username": identity.username ?? ""
+                    ]
+                }
+                
+                if let dict = itemDict {
+                    responseItems.append(dict)
                 }
             }
             
