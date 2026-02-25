@@ -18,6 +18,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var clientService: MockClientService!
     var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
+    var deviceAuthKeyService: MockDeviceAuthKeyService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
@@ -43,6 +44,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = MockClientService()
         configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
+        deviceAuthKeyService = MockDeviceAuthKeyService()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
@@ -62,6 +64,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             clientService: clientService,
             configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
+            deviceAuthKeyService: deviceAuthKeyService,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
@@ -91,6 +94,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = nil
         configService = nil
         credentialIdentityFactory = nil
+        deviceAuthKeyService = nil
         errorReporter = nil
         eventService = nil
         fido2UserInterfaceHelperDelegate = nil
