@@ -1710,6 +1710,24 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.reviewPromptData
     }
 
+    func clearServerCommunicationCookieValue(hostname: String) async throws {
+        guard let config = try await keychainRepository.getServerCommunicationConfig(hostname: hostname),
+              case let .ssoCookieVendor(vendorConfig) = config.bootstrap else {
+            return
+        }
+        let clearedConfig = ServerCommunicationConfig(
+            bootstrap: .ssoCookieVendor(
+                SsoCookieVendorConfig(
+                    idpLoginUrl: vendorConfig.idpLoginUrl,
+                    cookieName: vendorConfig.cookieName,
+                    cookieDomain: vendorConfig.cookieDomain,
+                    cookieValue: nil,
+                )
+            ),
+        )
+        try await keychainRepository.setServerCommunicationConfig(clearedConfig, hostname: hostname)
+    }
+
     func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
         do {
             return try await keychainRepository.getServerCommunicationConfig(hostname: hostname)

@@ -21,6 +21,9 @@ public enum AppRoute: Equatable {
     /// A route to the send interface.
     case sendItem(SendItemRoute)
 
+    /// A route to the SSO sync error screen.
+    case ssoSyncError
+
     /// A route to the tab interface.
     case tab(TabRoute)
 

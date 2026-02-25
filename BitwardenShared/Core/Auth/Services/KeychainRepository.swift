@@ -570,7 +570,10 @@ extension DefaultKeychainRepository {
         try await setValue(value, for: .pendingAdminLoginRequest(userId: userId))
     }
 
-    func setServerCommunicationConfig(_ config: BitwardenSdk.ServerCommunicationConfig?, hostname: String) async throws {
+    func setServerCommunicationConfig(
+        _ config: BitwardenSdk.ServerCommunicationConfig?,
+        hostname: String,
+    ) async throws {
         guard let config else {
             try await deleteServerCommunicationConfig(hostname: hostname)
             return

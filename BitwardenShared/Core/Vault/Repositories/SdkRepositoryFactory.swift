@@ -28,7 +28,6 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
     private let stateService: StateService
 
     // MARK: Init
-    
     /// Initializes a `DefaultSdkRepositoryFactory`.
     /// - Parameters:
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.

@@ -4,6 +4,7 @@ import BitwardenResources
 import BitwardenSdk
 import Combine
 import Foundation
+import OSLog
 import UIKit
 
 // MARK: - AppLinksError
@@ -133,6 +134,13 @@ public class AppProcessor {
                 await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
             }
         }
+
+        Task {
+            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard hostname != nil else { continue }
+                coordinator?.navigate(to: .ssoSyncError)
+            }
+        }
     }
 
     // MARK: Methods
@@ -142,6 +150,11 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
+        if url.absoluteString.hasPrefix(BitwardenDeepLinkConstants.ssoCookieVendor) {
+            await handleSSOCookieUrl(url)
+            return
+        }
+
         var route = await getBitwardenUrlRoute(url: url)
         if route == nil {
             route = await getOtpAuthUrlRoute(url: url)
@@ -467,6 +480,30 @@ extension AppProcessor {
         }
     }
 
+    /// Handles a `bitwarden://sso-cookie-vendor` deep link by extracting cookies from
+    /// the URL query parameters and delivering them to the pending SSO cookie acquisition.
+    ///
+    /// - Parameter url: The deep link URL containing cookie name-value pairs as query items.
+    ///
+    private func handleSSOCookieUrl(_ url: URL) async {
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let cookies = components?.queryItems?.compactMap { item -> AcquiredCookie? in
+            guard let value = item.value, item.name != "d" else {
+                return nil
+            }
+
+            #if DEBUG
+            Logger(subsystem: Bundle.main.bundleIdentifier!, category: "CookieReporter")
+                .warning("Acquiring COOKIE \(item.name):\(value)")
+            #endif
+
+            return AcquiredCookie(name: item.name, value: value)
+        }
+        await services.serverCommunicationConfigAPIService.cookiesAcquired(
+            cookies: .success(cookies),
+        )
+    }
+
     /// Attempt to create an `AppRoute` from an "bitwarden://" url.
     ///
     /// - Parameter url: The Bitwarden URL received by the app.
@@ -520,6 +557,11 @@ extension AppProcessor {
             services.errorReporter.log(error: error)
         }
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: true))
+    }
+
+    /// Show the SSO sync error view.
+    private func showSSOSyncError() {
+        coordinator?.navigate(to: .ssoSyncError)
     }
 
     /// Starts timer to send organization events regularly

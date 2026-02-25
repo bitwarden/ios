@@ -1,3 +1,4 @@
+import BitwardenResources
 import BitwardenSdk
 import Foundation
 
@@ -9,6 +10,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Properties
@@ -74,11 +76,15 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
             services.errorReporter.log(error: BitwardenSdk.BitwardenError.Api(ApiError.ResponseContent(
                 message: "Generated SDK error report from debug view.",
             )))
+        case let .toastShown(toast):
+            state.toast = toast
         }
     }
 
     override func perform(_ effect: DebugMenuEffect) async {
         switch effect {
+        case .clearSsoCookies:
+            await clearSsoCookies()
         case .viewAppeared:
             await fetchFlags()
         case .refreshFeatureFlags:
@@ -93,6 +99,18 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     }
 
     // MARK: Private Functions
+
+    /// Clears the SSO cookie value stored in the keychain for the current environment's hostname.
+    private func clearSsoCookies() async {
+        do {
+            let hostname = services.environmentService.baseURL.host ?? ""
+            try await services.configService.clearServerCommunicationCookieValue(hostname: hostname)
+
+            state.toast = Toast(title: Localizations.ssoCookiesCleared)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Fetch the current debug feature flags.
     private func fetchFlags() async {

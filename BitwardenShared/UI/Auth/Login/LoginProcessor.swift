@@ -148,16 +148,16 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             coordinator.hideLoadingOverlay()
         }
 
-        do {
-            let deviceIdentifier = await services.appIdService.getOrCreateAppId()
-            let isKnownDevice = try await services.deviceAPIService.knownDevice(
-                email: state.username,
-                deviceIdentifier: deviceIdentifier,
-            )
-            state.isLoginWithDeviceVisible = isKnownDevice
-        } catch {
-            await handleErrorResponse(error)
-        }
+//        do {
+//            let deviceIdentifier = await services.appIdService.getOrCreateAppId()
+//            let isKnownDevice = try await services.deviceAPIService.knownDevice(
+//                email: state.username,
+//                deviceIdentifier: deviceIdentifier,
+//            )
+//            state.isLoginWithDeviceVisible = isKnownDevice
+//        } catch {
+//            await handleErrorResponse(error)
+//        }
     }
 
     /// Handles network error responses.

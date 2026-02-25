@@ -62,10 +62,7 @@ public struct CommunicationSettingsResponseModel: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// Bootstrap configuration determining how to establish server communication.
-    public let bootstrap: String
-
-    /// SSO cookie vendor settings for load balancer authentication.
-    public let ssoCookieVendor: SsoCookieVendorSettingsResponseModel?
+    public let bootstrap: CommunicationBootstrapSettingsResponseModel
 
     // MARK: Initialization
 
@@ -73,49 +70,48 @@ public struct CommunicationSettingsResponseModel: Equatable, Codable, Sendable {
     ///
     /// - Parameters:
     ///   - bootstrap: Bootstrap configuration determining how to establish server communication.
-    ///   - ssoCookieVendor: SSO cookie vendor settings for load balancer authentication.
     ///
-    public init(
-        bootstrap: String,
-        ssoCookieVendor: SsoCookieVendorSettingsResponseModel?,
-    ) {
+    public init(bootstrap: CommunicationBootstrapSettingsResponseModel) {
         self.bootstrap = bootstrap
-        self.ssoCookieVendor = ssoCookieVendor
     }
 }
 
-// MARK: - SsoCookieVendorSettingsResponseModel
+// MARK: - CommunicationBootstrapSettingsResponseModel
 
-/// SSO cookie vendor configuration settings.
+/// Bootstrap configuration settings for server communication.
 ///
-/// This configuration is provided by the server for load balancer authentication.
-///
-public struct SsoCookieVendorSettingsResponseModel: Equatable, Codable, Sendable {
+public struct CommunicationBootstrapSettingsResponseModel: Equatable, Codable, Sendable {
     // MARK: Properties
 
+    /// The bootstrap type (e.g. `"ssoCookieVendor"`, `"direct"`).
+    public let type: String
+
     /// Identity provider login URL for browser redirect during bootstrap.
-    public let idpLoginUrl: String
+    public let idpLoginUrl: String?
 
     /// Cookie name (base name, without shard suffix).
-    public let cookieName: String
+    public let cookieName: String?
 
     /// Cookie domain for validation.
-    public let cookieDomain: String
+    public let cookieDomain: String?
 
     // MARK: Initialization
 
-    /// Creates a new SSO cookie vendor settings instance.
+    /// Creates a new bootstrap settings instance.
     ///
     /// - Parameters:
+    ///   - type: The bootstrap type.
     ///   - idpLoginUrl: Identity provider login URL for browser redirect during bootstrap.
     ///   - cookieName: Cookie name (base name, without shard suffix).
     ///   - cookieDomain: Cookie domain for validation.
     ///
     public init(
-        idpLoginUrl: String,
-        cookieName: String,
-        cookieDomain: String,
+        type: String,
+        idpLoginUrl: String?,
+        cookieName: String?,
+        cookieDomain: String?,
     ) {
+        self.type = type
         self.idpLoginUrl = idpLoginUrl
         self.cookieName = cookieName
         self.cookieDomain = cookieDomain

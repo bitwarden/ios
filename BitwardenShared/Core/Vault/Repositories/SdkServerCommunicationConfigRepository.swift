@@ -16,7 +16,8 @@ final class SdkServerCommunicationConfigRepository: ServerCommunicationConfigRep
     }
 
     func get(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
-        try await stateService.getServerCommunicationConfig(hostname: hostname)
+        let conf = try await stateService.getServerCommunicationConfig(hostname: hostname)
+        return conf
     }
 
     func save(hostname: String, config: BitwardenSdk.ServerCommunicationConfig) async throws {

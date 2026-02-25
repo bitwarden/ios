@@ -34,8 +34,10 @@ public class HTTPServiceBuilder {
     ///   - defaultHeadersRequestHandler: A `RequestHandler` that applies default headers
     ///     (user agent, client type & name, etc) to requests.
     ///   - loggers: The loggers used to log HTTP requests and responses.
-    ///   - ssoCookieVendorRequestHandler: A `RequestHandler` that handles whether the HTTP request needs SSO vendor cookie.
-    ///   - ssoCookieVendorResponseHandler: A `ResponseHandler` that handles whether the HTTP response needs SSO cookie refresh.
+    ///   - ssoCookieVendorRequestHandler: A `RequestHandler` that handles whether the HTTP request
+    ///   needs SSO vendor cookie.
+    ///   - ssoCookieVendorResponseHandler: A `ResponseHandler` that handles whether the HTTP response
+    ///    needs SSO cookie refresh.
     ///
     public init(
         client: HTTPClient,

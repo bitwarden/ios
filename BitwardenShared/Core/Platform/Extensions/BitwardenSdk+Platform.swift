@@ -88,8 +88,8 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
     }
 
     init(communicationSettings: CommunicationSettings) {
-        guard communicationSettings.bootstrap == "ssoCookieVendor",
-              let ssoCookieVendor = communicationSettings.ssoCookieVendor else {
+        let bootstrap = communicationSettings.bootstrap
+        guard bootstrap.type == BitwardenSdk.BootstrapConfig.BootstrapType.ssoCookieVendor.rawValue else {
             self.init(bootstrap: .direct)
             return
         }
@@ -97,9 +97,9 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
         self.init(
             bootstrap: .ssoCookieVendor(
                 SsoCookieVendorConfig(
-                    idpLoginUrl: ssoCookieVendor.idpLoginUrl,
-                    cookieName: ssoCookieVendor.cookieName,
-                    cookieDomain: ssoCookieVendor.cookieDomain,
+                    idpLoginUrl: bootstrap.idpLoginUrl,
+                    cookieName: bootstrap.cookieName,
+                    cookieDomain: bootstrap.cookieDomain,
                     cookieValue: nil,
                 ),
             ),

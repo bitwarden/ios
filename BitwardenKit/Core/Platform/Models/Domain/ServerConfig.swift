@@ -16,6 +16,7 @@ public struct ServerConfig: Equatable, Codable, Sendable {
 
     /// The environment URLs of the server.
     public let environment: EnvironmentServerConfig?
+
     /// Feature flags to configure the client.
     public let featureStates: [String: AnyCodable]
 
@@ -106,10 +107,7 @@ public struct CommunicationSettings: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// Bootstrap configuration determining how to establish server communication.
-    public let bootstrap: String
-
-    /// SSO cookie vendor settings for load balancer authentication.
-    public let ssoCookieVendor: SsoCookieVendorSettings?
+    public let bootstrap: CommunicationBootstrapSettings
 
     // MARK: Initialization
 
@@ -117,30 +115,25 @@ public struct CommunicationSettings: Equatable, Codable, Sendable {
     ///
     /// - Parameters:
     ///   - bootstrap: Bootstrap configuration determining how to establish server communication.
-    ///   - ssoCookieVendor: SSO cookie vendor settings for load balancer authentication.
     ///
-    public init(
-        bootstrap: String,
-        ssoCookieVendor: SsoCookieVendorSettings?,
-    ) {
+    public init(bootstrap: CommunicationBootstrapSettings) {
         self.bootstrap = bootstrap
-        self.ssoCookieVendor = ssoCookieVendor
     }
 
     public init(responseModel: CommunicationSettingsResponseModel) {
-        self.bootstrap = responseModel.bootstrap
-        self.ssoCookieVendor = responseModel.ssoCookieVendor.map(SsoCookieVendorSettings.init)
+        bootstrap = CommunicationBootstrapSettings(responseModel: responseModel.bootstrap)
     }
 }
 
-// MARK: - SsoCookieVendorSettings
+// MARK: - CommunicationBootstrapSettings
 
-/// SSO cookie vendor configuration settings.
+/// Bootstrap configuration settings for server communication.
 ///
-/// This configuration is provided by the server for load balancer authentication.
-///
-public struct SsoCookieVendorSettings: Equatable, Codable, Sendable {
+public struct CommunicationBootstrapSettings: Equatable, Codable, Sendable {
     // MARK: Properties
+
+    /// The bootstrap type (e.g. `"ssoCookieVendor"`, `"direct"`).
+    public let type: String
 
     /// Identity provider login URL for browser redirect during bootstrap.
     public let idpLoginUrl: String?
@@ -153,26 +146,30 @@ public struct SsoCookieVendorSettings: Equatable, Codable, Sendable {
 
     // MARK: Initialization
 
-    /// Creates a new SSO cookie vendor settings instance.
+    /// Creates a new bootstrap settings instance.
     ///
     /// - Parameters:
+    ///   - type: The bootstrap type.
     ///   - idpLoginUrl: Identity provider login URL for browser redirect during bootstrap.
     ///   - cookieName: Cookie name (base name, without shard suffix).
     ///   - cookieDomain: Cookie domain for validation.
     ///
     public init(
+        type: String,
         idpLoginUrl: String?,
         cookieName: String?,
         cookieDomain: String?,
     ) {
+        self.type = type
         self.idpLoginUrl = idpLoginUrl
         self.cookieName = cookieName
         self.cookieDomain = cookieDomain
     }
 
-    public init(responseModel: SsoCookieVendorSettingsResponseModel) {
-        self.idpLoginUrl = responseModel.idpLoginUrl
-        self.cookieName = responseModel.cookieName
-        self.cookieDomain = responseModel.cookieDomain
+    public init(responseModel: CommunicationBootstrapSettingsResponseModel) {
+        type = responseModel.type
+        idpLoginUrl = responseModel.idpLoginUrl
+        cookieName = responseModel.cookieName
+        cookieDomain = responseModel.cookieDomain
     }
 }

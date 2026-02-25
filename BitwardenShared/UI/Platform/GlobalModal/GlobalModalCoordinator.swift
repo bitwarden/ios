@@ -1,27 +1,18 @@
+import BitwardenKit
 import Foundation
 
-/// An object that is notified when the debug menu is dismissed.
+/// A coordinator that manages navigation for global modals.
 ///
-public protocol DebugMenuCoordinatorDelegate: AnyObject { // sourcery: AutoMockable
-    /// The debug menu has been dismissed.
-    ///
-    func didDismissDebugMenu()
-}
-
-/// A coordinator that manages navigation for the debug menu.
-///
-public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
+public final class GlobalModalCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     public typealias Services = HasConfigService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasServerCommunicationConfigAPIService
 
     // MARK: Private Properties
-
-    /// The delegate for this coordinator, which is notified when the debug menu is dismissed.
-    private weak var delegate: DebugMenuCoordinatorDelegate?
 
     /// The services used by this coordinator.
     private let services: Services
@@ -33,19 +24,16 @@ public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Initialization
 
-    /// Creates a new `DebugMenuCoordinator`.
+    /// Creates a new `GlobalModalCoordinator`.
     ///
     /// - Parameters:
-    ///   - delegate: The delegate for this coordinator, which is notified when the debug menu is dismissed.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     public init(
-        delegate: DebugMenuCoordinatorDelegate,
         services: Services,
         stackNavigator: StackNavigator,
     ) {
-        self.delegate = delegate
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -53,39 +41,48 @@ public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     // MARK: Methods
 
     public func navigate(
-        to route: DebugMenuRoute,
+        to route: GlobalModalRoute,
         context: AnyObject?,
     ) {
         switch route {
-        case .dismiss:
-            stackNavigator?.dismiss {
-                self.delegate?.didDismissDebugMenu()
-            }
+        case let .dismissWithAction(onDismiss):
+            stackNavigator?.dismiss(animated: true, completion: {
+                onDismiss?.action()
+            })
+        case .ssoSyncError:
+            showSSOSyncError()
         }
     }
 
-    /// Starts the process of displaying the debug menu.
-    public func start() {
-        showDebugMenu()
-    }
+    /// Starts the coordinator.
+    public func start() {}
 
     // MARK: Private Methods
 
     /// Configures and displays the debug menu.
-    private func showDebugMenu() {
-        let processor = DebugMenuProcessor(
+    private func showSSOSyncError() {
+        let processor = SsoSyncErrorProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: self,
             services: services,
-            state: DebugMenuState(),
+            state: SsoSyncErrorState(),
         )
 
-        let view = DebugMenuView(store: Store(processor: processor))
+        let view = SsoSyncErrorView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
 }
 
 // MARK: - HasErrorAlertServices
 
-extension DebugMenuCoordinator: HasErrorAlertServices {
+extension GlobalModalCoordinator: HasErrorAlertServices {
     public var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - SsoSyncErrorProcessorDelegate
+
+extension GlobalModalCoordinator: SsoSyncErrorProcessorDelegate {
+    func dismiss(action: DismissAction?) {
+        navigate(to: .dismissWithAction(action))
+    }
 }

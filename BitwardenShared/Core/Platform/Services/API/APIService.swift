@@ -54,7 +54,7 @@ class APIService {
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
         flightRecorder: FlightRecorder,
-        serverCommunicationConfigClientSingleton: () -> ServerCommunicationConfigClientSingleton,
+        serverCommunicationConfigClientSingleton: @escaping () -> ServerCommunicationConfigClientSingleton?,
         stateService: StateService,
         tokenService: TokenService,
     ) {
@@ -73,10 +73,12 @@ class APIService {
                 OSLogHTTPLogger(),
             ],
             ssoCookieVendorRequestHandler: SSOCookieVendorRequestHandler(
-                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton(),
+                environmentService: environmentService,
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             ),
             ssoCookieVendorResponseHandler: SSOCookieVendorResponseHandler(
-                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton(),
+                environmentService: environmentService,
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             ),
         )
 

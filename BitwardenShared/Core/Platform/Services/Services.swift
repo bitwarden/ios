@@ -45,6 +45,7 @@ typealias Services = HasAPIService
     & HasReviewPromptService
     & HasSearchProcessorMediatorFactory
     & HasSendRepository
+    & HasServerCommunicationConfigAPIService
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
@@ -303,6 +304,13 @@ protocol HasSearchProcessorMediatorFactory {
 public protocol HasSendRepository {
     /// The repository used by the application to manage send data for the UI layer.
     var sendRepository: SendRepository { get }
+}
+
+/// Protocol for an object that provides a `ServerCommunicationConfigAPIService`.
+///
+public protocol HasServerCommunicationConfigAPIService {
+    /// The service used to handle server communication configuration.
+    var serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService { get }
 }
 
 /// Protocol for an object that provides a `SettingsRepository`.
