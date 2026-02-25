@@ -2,6 +2,7 @@ import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import Combine
 import TestHelpers
 import XCTest
 
@@ -18,6 +19,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var clientService: MockClientService!
     var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
+    var deviceAuthKeySubject = CurrentValueSubject<[String: Bool], Never>([:])
     var deviceAuthKeyService: MockDeviceAuthKeyService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
@@ -57,6 +59,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         timeProvider = MockTimeProvider(.currentTime)
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
+
+        deviceAuthKeyService.deviceAuthKeyPublisherReturnValue = deviceAuthKeySubject.eraseToAnyPublisher()
 
         subject = DefaultAutofillCredentialService(
             appContextHelper: appContextHelper,
