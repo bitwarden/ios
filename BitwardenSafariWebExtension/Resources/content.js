@@ -11,7 +11,8 @@ const ICON_DATA_URI = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy5
 const ICONS = {
     login: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 0L24 65.5v281l232 165.5 232-165.5V65.5L256 0z"/></svg>',
     card: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M480 80H32C14.33 80 0 94.33 0 112v288c0 17.67 14.33 32 32 32h448c17.67 0 32-14.33 32-32V112c0-17.67-14.33-32-32-32zM96 352H64v-32h32v32zm0-64H64v-32h32v32zm0-64H64v-32h32v32zm384 128H160v-32h320v32zm0-64H160v-32h320v32zm0-64H160v-32h320v32z"/></svg>',
-    identity: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M384 128h-32V96c0-17.67-14.33-32-32-32H96C78.33 64 64 78.33 64 96v256c0 17.67 14.33 32 32 32h32v32c0 17.67 14.33 32 32 32h224c17.67 0 32-14.33 32-32V160c0-17.67-14.33-32-32-32zm-64 224H160v-64h160v64zm0-96H160v-64h160v64z"/></svg>'
+    identity: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M384 128h-32V96c0-17.67-14.33-32-32-32H96C78.33 64 64 78.33 64 96v256c0 17.67 14.33 32 32 32h32v32c0 17.67 14.33 32 32 32h224c17.67 0 32-14.33 32-32V160c0-17.67-14.33-32-32-32zm-64 224H160v-64h160v64zm0-96H160v-64h160v64z"/></svg>',
+    unlock: '<svg viewBox="0 0 448 512"><path fill="currentColor" d="M144 192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80V144C80 64.47 144.5 0 224 0C281.5 0 331 33.69 354.1 82.27C361.7 98.23 354.9 117.3 338.1 124.9C322.9 132.5 303.9 125.7 296.3 109.8C283.4 82.63 255.9 64 224 64C179.8 64 144 99.82 144 144V192H144zM224 288C197.5 288 176 309.5 176 336C176 362.5 197.5 384 224 384C250.5 384 272 362.5 272 336C272 309.5 250.5 288 224 288z"/></svg>'
 };
 
 // Heuristics
@@ -127,7 +128,34 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
     popup.style.left = (window.scrollX + rect.left) + 'px';
 
     if (errorMsg) {
-        popup.innerHTML = `<div class="bw-popup-error">${errorMsg}</div>`;
+        if (errorMsg === "Vault is locked") {
+            popup.innerHTML = `
+                <div class="bw-popup-locked">
+                    <span class="cipher-subtitle">Unlock your account to view autofill suggestions</span>
+                    <div class="inline-menu-list-actions-item unlock-button" id="unlock-vault-btn">
+                        <div class="cipher-container">
+                            <div class="cipher-icon">${ICONS.unlock}</div>
+                            <div class="cipher-details">
+                                <span class="cipher-name">Unlock account</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            setTimeout(() => {
+                const btn = popup.querySelector("#unlock-vault-btn");
+                btn.addEventListener('click', () => {
+                    browser.runtime.sendMessage({ type: "unlock" }).then(res => {
+                        if (res.status === "unlocked") {
+                            popup.remove();
+                            showPopup(inputField, icon); // Refresh
+                        }
+                    });
+                });
+            }, 0);
+        } else {
+            popup.innerHTML = `<div class="bw-popup-error">${errorMsg}</div>`;
+        }
     } else if (items.length === 0) {
         popup.innerHTML = `<div class="bw-popup-empty">No matching items found</div>`;
     } else {

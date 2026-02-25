@@ -14,16 +14,16 @@ function sendToNative(message) {
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("Background received message from content script:", message);
-    
+
     // Route messages to native iOS app
-    if (message.type === "vaultStatus" || message.type === "getItems") {
+    if (message.type === "vaultStatus" || message.type === "getItems" || message.type === "unlock") {
         sendToNative(message).then(response => {
             sendResponse(response);
         }).catch(err => {
             console.error("Native messaging error:", err);
             sendResponse({ error: err.message });
         });
-        
+
         return true; // Keep message channel open for async response
     }
 });

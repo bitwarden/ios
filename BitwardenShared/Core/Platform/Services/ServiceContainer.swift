@@ -396,6 +396,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.watchService = watchService
     }
 
+    /// Unlocks the vault with biometrics.
+    public func unlockVaultWithBiometrics() async throws {
+        try await authRepository.unlockVaultWithBiometrics()
+    }
+
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     /// - Parameters:

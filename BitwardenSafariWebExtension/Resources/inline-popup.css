@@ -115,3 +115,33 @@
 #bitwarden-inline-popup .bw-popup-error {
     color: #d32f2f;
 }
+#bitwarden-inline-popup .bw-popup-locked {
+    background-color: #2c3338;
+    color: #ffffff;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+#bitwarden-inline-popup .bw-popup-locked .cipher-subtitle {
+    color: #cccccc !important;
+    padding: 4px 8px;
+    white-space: normal;
+}
+
+#bitwarden-inline-popup .unlock-button {
+    margin-top: 4px;
+    border-bottom: none;
+    background-color: #3b434b;
+}
+
+#bitwarden-inline-popup .unlock-button:hover {
+    background-color: #464f58;
+}
+
+#bitwarden-inline-popup .unlock-button .cipher-name {
+    color: #ffffff;
+}
+
+#bitwarden-inline-popup .unlock-button .cipher-icon svg path {
+    fill: #ffffff;
+}

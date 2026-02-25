@@ -32,6 +32,10 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             Task { @MainActor in
                 await handleGetItems(url: url, context: context)
             }
+        case "unlock":
+            Task { @MainActor in
+                await handleUnlock(context: context)
+            }
         default:
             sendResponse(["error": "Unknown message type: \(type)"], to: context)
         }
@@ -58,6 +62,22 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         }
         
         sendResponse(["status": status], to: context)
+    }
+
+    @MainActor
+    private func handleUnlock(context: NSExtensionContext) async {
+        let errorReporter = OSLogErrorReporter()
+        let services = ServiceContainer(appContext: .appExtension, errorReporter: errorReporter)
+        let appModule = DefaultAppModule(services: services)
+        let appProcessor = AppProcessor(appModule: appModule, services: services)
+
+        do {
+            try await services.unlockVaultWithBiometrics()
+            sendResponse(["status": "unlocked"], to: context)
+        } catch {
+            os_log("Failed to unlock vault with biometrics: %{public}s", log: logger, type: .error, String(describing: error))
+            sendResponse(["error": "Unlock failed"], to: context)
+        }
     }
     
     @MainActor
