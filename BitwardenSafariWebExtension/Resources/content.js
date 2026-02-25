@@ -1,6 +1,8 @@
 // content.js
 // Observes the DOM and injects the Bitwarden inline autofill icon
 
+console.log("Bitwarden Safari Web Extension: Content script loaded.");
+
 const BITWARDEN_ICON_CLASS = "bitwarden-inline-icon";
 const INLINE_POPUP_ID = "bitwarden-inline-popup";
 
@@ -11,6 +13,8 @@ function injectIcon(inputField) {
     if (inputField.parentElement.querySelector(`.${BITWARDEN_ICON_CLASS}`)) {
         return; // Already injected
     }
+
+    console.log("Bitwarden Safari Web Extension: Injecting icon into input", inputField);
 
     const wrapper = document.createElement('div');
     wrapper.style.position = 'relative';
@@ -128,14 +132,22 @@ function fillForm(form, item) {
 }
 
 function scanDOM() {
+    console.log("Bitwarden Safari Web Extension: Scanning DOM for input fields...");
     const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+    let injectedCount = 0;
+
     inputs.forEach(input => {
         // Basic heuristic to only inject on likely login fields
         const name = (input.name || "").toLowerCase();
         if (input.type === 'password' || name.includes('user') || name.includes('email') || name.includes('login')) {
             injectIcon(input);
+            injectedCount++;
         }
     });
+
+    if (injectedCount > 0) {
+        console.log(`Bitwarden Safari Web Extension: Injected ${injectedCount} icons.`);
+    }
 }
 
 // Initial scan
