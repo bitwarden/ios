@@ -118,6 +118,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238191",
@@ -143,6 +144,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238191",
@@ -168,6 +170,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238191",
@@ -191,6 +194,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238191",
@@ -243,6 +247,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 serverConfig: ServerConfig(
                     date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                     responseModel: ConfigResponseModel(
+                        communication: nil,
                         environment: nil,
                         featureStates: ["cipher-key-encryption": .bool(true)],
                         gitHash: "75238191",
@@ -269,6 +274,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238199",
@@ -291,6 +297,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 serverConfig: ServerConfig(
                     date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                     responseModel: ConfigResponseModel(
+                        communication: nil,
                         environment: nil,
                         featureStates: [:],
                         gitHash: "75238191",
@@ -315,6 +322,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 serverConfig: ServerConfig(
                     date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                     responseModel: ConfigResponseModel(
+                        communication: nil,
                         environment: nil,
                         featureStates: ["cipher-key-encryption": .bool(true)],
                         gitHash: "75238191",
@@ -342,6 +350,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 serverConfig: ServerConfig(
                     date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                     responseModel: ConfigResponseModel(
+                        communication: nil,
                         environment: nil,
                         featureStates: [:],
                         gitHash: "75238191",
@@ -365,6 +374,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 serverConfig: ServerConfig(
                     date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                     responseModel: ConfigResponseModel(
+                        communication: nil,
                         environment: nil,
                         featureStates: [:],
                         gitHash: "75238191",

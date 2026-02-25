@@ -175,6 +175,7 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ServerConfig(
                 date: Date(),
                 responseModel: ConfigResponseModel(
+                    communication: nil,
                     environment: EnvironmentServerConfigResponseModel(
                         api: nil,
                         cloudRegion: "EU",
@@ -212,6 +213,7 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ServerConfig(
                 date: Date(),
                 responseModel: ConfigResponseModel(
+                    communication: nil,
                     environment: nil,
                     featureStates: [:],
                     gitHash: "",
@@ -248,6 +250,7 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ServerConfig(
                 date: Date(),
                 responseModel: ConfigResponseModel(
+                    communication: nil,
                     environment: EnvironmentServerConfigResponseModel(
                         api: nil,
                         cloudRegion: "US",
