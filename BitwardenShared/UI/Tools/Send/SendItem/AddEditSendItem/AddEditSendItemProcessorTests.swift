@@ -560,6 +560,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.routes.last, .cancel)
     }
 
+    /// `receive(_:)` with `.focusedRecipientEmailIndexChanged` updates the focused index.
+    @MainActor
+    func test_receive_focusedRecipientEmailIndexChanged() {
+        subject.state.focusedRecipientEmailIndex = nil
+        subject.receive(.focusedRecipientEmailIndexChanged(0))
+        XCTAssertEqual(subject.state.focusedRecipientEmailIndex, 0)
+
+        subject.receive(.focusedRecipientEmailIndexChanged(nil))
+        XCTAssertNil(subject.state.focusedRecipientEmailIndex)
+    }
+
     /// `receive(_:)` with `.generatePasswordPressed` navigates to the generator when password is empty.
     @MainActor
     func test_receive_generatePasswordPressed_emptyPassword() {
@@ -777,12 +788,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertNotNil(subject.state.url)
     }
 
-    /// `receive(_:)` with `.addRecipientEmail` adds an empty email to the list.
+    /// `receive(_:)` with `.addRecipientEmail` adds an empty email to the list and focuses it.
     @MainActor
     func test_receive_addRecipientEmail() {
         subject.state.recipientEmails = ["test@example.com"]
         subject.receive(.addRecipientEmail)
         XCTAssertEqual(subject.state.recipientEmails, ["test@example.com", ""])
+        XCTAssertEqual(subject.state.focusedRecipientEmailIndex, 1)
     }
 
     /// `receive(_:)` with `.clearURL` clears the URL in the state.
@@ -823,6 +835,17 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.recipientEmails = ["test@example.com"]
         subject.receive(.removeRecipientEmail(index: 5))
         XCTAssertEqual(subject.state.recipientEmails, ["test@example.com"])
+    }
+
+    /// `receive(_:)` with `.removeRecipientEmail` clears the first email when it's the only one
+    /// instead of removing the row, to preserve the empty field state, and removes focus.
+    @MainActor
+    func test_receive_removeRecipientEmail_clearsFirstEmailWhenOnlyOne() {
+        subject.state.recipientEmails = ["test@example.com"]
+        subject.state.focusedRecipientEmailIndex = 0
+        subject.receive(.removeRecipientEmail(index: 0))
+        XCTAssertEqual(subject.state.recipientEmails, [""])
+        XCTAssertNil(subject.state.focusedRecipientEmailIndex)
     }
 
     // MARK: Validation Tests
