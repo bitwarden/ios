@@ -401,4 +401,4 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
             XCTFail("Expected .direct in result when from is .direct, got \(result.bootstrap)")
         }
     }
-}
+} // swiftlint:disable:this file_length

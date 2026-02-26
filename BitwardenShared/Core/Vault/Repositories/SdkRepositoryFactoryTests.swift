@@ -10,6 +10,7 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
     var cipherDataStore: MockCipherDataStore!
     var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: SdkRepositoryFactory!
 
     // MARK: Setup & Teardown
@@ -19,7 +20,12 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
         cipherDataStore = MockCipherDataStore()
         errorReporter = MockErrorReporter()
-        subject = DefaultSdkRepositoryFactory(cipherDataStore: cipherDataStore, errorReporter: errorReporter)
+        stateService = MockStateService()
+        subject = DefaultSdkRepositoryFactory(
+            cipherDataStore: cipherDataStore,
+            errorReporter: errorReporter,
+            stateService: stateService,
+        )
     }
 
     override func tearDown() {
@@ -27,6 +33,7 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
         cipherDataStore = nil
         errorReporter = nil
+        stateService = nil
         subject = nil
     }
 
@@ -36,5 +43,11 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
     func test_makeCipherRepository() {
         let repository = subject.makeCipherRepository(userId: "1")
         XCTAssertTrue(repository is SdkCipherRepository)
+    }
+
+    /// `makeServerCommunicationConfigRepository()` makes a server communication config repository.
+    func test_makeServerCommunicationConfigRepository() {
+        let repository = subject.makeServerCommunicationConfigRepository()
+        XCTAssertTrue(repository is SdkServerCommunicationConfigRepository)
     }
 }

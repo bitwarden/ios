@@ -8,6 +8,10 @@ protocol SdkRepositoryFactory { // sourcery: AutoMockable
     /// the repository will be registered in.
     /// - Returns: The repository for the given `userId`.
     func makeCipherRepository(userId: String) -> BitwardenSdk.CipherRepository
+
+    /// Makes a `BitwardenSdk.ServerCommunicationConfigRepository`.
+    /// - Returns: The repository to use for server communication config.
+    func makeServerCommunicationConfigRepository() -> BitwardenSdk.ServerCommunicationConfigRepository
 }
 
 /// Default implementation of `SdkRepositoryFactory`.
@@ -18,6 +22,8 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
     private let cipherDataStore: CipherDataStore
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
+    /// The service used by the application to manage account state.
+    private let stateService: StateService
 
     // MARK: Init
 
@@ -25,9 +31,15 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
     /// - Parameters:
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
-    init(cipherDataStore: CipherDataStore, errorReporter: ErrorReporter) {
+    ///   - stateService: The service used by the application to manage account state.
+    init(
+        cipherDataStore: CipherDataStore,
+        errorReporter: ErrorReporter,
+        stateService: StateService,
+    ) {
         self.cipherDataStore = cipherDataStore
         self.errorReporter = errorReporter
+        self.stateService = stateService
     }
 
     // MARK: Methods
@@ -38,5 +50,9 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
             errorReporter: errorReporter,
             userId: userId,
         )
+    }
+
+    func makeServerCommunicationConfigRepository() -> BitwardenSdk.ServerCommunicationConfigRepository {
+        SdkServerCommunicationConfigRepository(stateService: stateService)
     }
 }

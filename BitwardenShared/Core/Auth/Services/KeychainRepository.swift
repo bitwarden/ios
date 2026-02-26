@@ -36,6 +36,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for server communication configuration for a hostname.
+    case serverCommunicationConfig(hostname: String)
+
     /// The keychain item for the number of unsuccessful unlock attempts.
     case unsuccessfulUnlockAttempts(userId: String)
 
@@ -55,6 +58,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken,
+             .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
              .vaultTimeout:
             nil
@@ -74,6 +78,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
+             .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
              .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
@@ -108,6 +113,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .serverCommunicationConfig(hostname):
+            "serverCommunicationConfig_\(hostname)"
         case let .unsuccessfulUnlockAttempts(userId):
             "unsuccessfulUnlockAttempts_\(userId)"
         case let .vaultTimeout(userId):
@@ -146,6 +153,12 @@ protocol KeychainRepository: AnyObject {
     /// - Parameter userId: The user ID associated with the stored device key.
     ///
     func deletePendingAdminLoginRequest(userId: String) async throws
+
+    /// Attempts to delete the server communication config from the keychain.
+    ///
+    /// - Parameter hostname: The hostname associated with the server communication config.
+    ///
+    func deleteServerCommunicationConfig(hostname: String) async throws
 
     /// Attempts to delete the userAuthKey from the keychain.
     ///
@@ -187,6 +200,13 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: The pending admin login request.
     ///
     func getPendingAdminLoginRequest(userId: String) async throws -> String?
+
+    /// Gets the server communication configuration for a given hostname.
+    ///
+    /// - Parameter hostname: The hostname associated with the server communication config.
+    /// - Returns: The server communication config for that hostname.
+    ///
+    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig?
 
     /// Gets a user auth key value.
     ///
@@ -234,6 +254,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user ID associated with the pending admin login request.
     ///
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws
+
+    /// Sets the server communication config for a given hostname.
+    ///
+    /// - Parameters:
+    ///   - config: The server communication config.
+    ///   - hostname: The hostname associated with the config.
+    ///
+    func setServerCommunicationConfig(_ config: BitwardenSdk.ServerCommunicationConfig?, hostname: String) async throws
 
     /// Sets a user auth key/value pair.
     ///
@@ -482,6 +510,12 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteServerCommunicationConfig(hostname: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .serverCommunicationConfig(hostname: hostname)),
+        )
+    }
+
     func getAccessToken(userId: String) async throws -> String {
         try await getValue(for: .accessToken(userId: userId))
     }
@@ -500,6 +534,14 @@ extension DefaultKeychainRepository {
 
     func getPendingAdminLoginRequest(userId: String) async throws -> String? {
         try await getValue(for: .pendingAdminLoginRequest(userId: userId))
+    }
+
+    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
+        do {
+            return try await getValue(for: .serverCommunicationConfig(hostname: hostname))
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
@@ -524,6 +566,17 @@ extension DefaultKeychainRepository {
 
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws {
         try await setValue(value, for: .pendingAdminLoginRequest(userId: userId))
+    }
+
+    func setServerCommunicationConfig(
+        _ config: BitwardenSdk.ServerCommunicationConfig?,
+        hostname: String,
+    ) async throws {
+        guard let config else {
+            try await deleteServerCommunicationConfig(hostname: hostname)
+            return
+        }
+        try await setValue(config, for: .serverCommunicationConfig(hostname: hostname))
     }
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {

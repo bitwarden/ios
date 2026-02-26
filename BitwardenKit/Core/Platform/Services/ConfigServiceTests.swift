@@ -509,6 +509,16 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(flag.isEnabled)
     }
 
+    // MARK: Tests - Server communication cookie
+
+    /// `clearServerCommunicationCookieValue(hostname:)` delegates to the state service with the correct hostname.
+    func test_clearServerCommunicationCookieValue() async throws {
+        try await subject.clearServerCommunicationCookieValue(hostname: "example.com")
+
+        XCTAssertTrue(stateService.clearServerCommCookieValueCalled)
+        XCTAssertEqual(stateService.clearServerCommCookieValueHostname, "example.com")
+    }
+
     // MARK: Private
 
     /// Asserts the config publisher is publishing the right values.

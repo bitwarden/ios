@@ -89,6 +89,14 @@ public protocol ConfigService {
     /// Refreshes the list of debug feature flags by reloading their values from the settings store.
     ///
     func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag]
+
+    // MARK: Server communication cookie
+
+    /// Clears the SSO cookie value from the stored server communication config for the given hostname.
+    ///
+    /// - Parameter hostname: The hostname for which to clear the SSO cookie value.
+    ///
+    func clearServerCommunicationCookieValue(hostname: String) async throws
 }
 
 public extension ConfigService {
@@ -306,6 +314,12 @@ public class DefaultConfigService: ConfigService {
             )
         }
         return await getDebugFeatureFlags(flags)
+    }
+
+    // MARK: Server communication cookie
+
+    public func clearServerCommunicationCookieValue(hostname: String) async throws {
+        try await stateService.clearServerCommunicationCookieValue(hostname: hostname)
     }
 
     // MARK: Private
