@@ -278,8 +278,8 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
 
     /// `init(communicationSettings:)` produces `.direct` when bootstrap type is `"direct"`.
     func test_init_communicationSettings_direct() {
-        let settings = CommunicationSettings(
-            bootstrap: CommunicationBootstrapSettings(
+        let settings = ServerCommunicationSettings(
+            bootstrap: ServerCommunicationBootstrapSettings(
                 type: "direct",
                 idpLoginUrl: nil,
                 cookieName: nil,
@@ -295,8 +295,8 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
 
     /// `init(communicationSettings:)` produces `.ssoCookieVendor` when bootstrap type matches.
     func test_init_communicationSettings_ssoCookieVendor() {
-        let settings = CommunicationSettings(
-            bootstrap: CommunicationBootstrapSettings(
+        let settings = ServerCommunicationSettings(
+            bootstrap: ServerCommunicationBootstrapSettings(
                 type: "ssoCookieVendor",
                 idpLoginUrl: "https://idp.example.com",
                 cookieName: "bwauth",
@@ -317,8 +317,8 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
 
     /// `init(communicationSettings:)` falls back to `.direct` for unknown bootstrap types.
     func test_init_communicationSettings_unknownType_treatedAsDirect() {
-        let settings = CommunicationSettings(
-            bootstrap: CommunicationBootstrapSettings(
+        let settings = ServerCommunicationSettings(
+            bootstrap: ServerCommunicationBootstrapSettings(
                 type: "unknownBootstrapType",
                 idpLoginUrl: nil,
                 cookieName: nil,

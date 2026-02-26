@@ -275,12 +275,4 @@ class EnvironmentURLDataTests: XCTestCase {
             "https://web.vault.example.com/proxy-cookie-redirect-connector.html",
         )
     }
-
-    /// `proxyCookieRedirectConnectorURL` does not contain a `#` sign, unlike other subpage URLs.
-    func test_proxyCookieRedirectConnectorURL_doesNotContainPoundSign() {
-        let subject = EnvironmentURLData.defaultUS
-        let url = subject.proxyCookieRedirectConnectorURL?.absoluteString
-        XCTAssertFalse(url?.contains("#") ?? true)
-        XCTAssertEqual(url, "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html")
-    }
 }

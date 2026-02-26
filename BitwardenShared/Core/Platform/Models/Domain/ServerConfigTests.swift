@@ -70,7 +70,7 @@ final class ServerConfigTests: BitwardenTestCase {
         XCTAssertFalse(subject.supportsCipherKeyEncryption())
     }
 
-    /// `init(date:responseModel:)` maps `communication` to `CommunicationSettings` when present.
+    /// `init(date:responseModel:)` maps `communication` to `ServerCommunicationSettings` when present.
     func test_init_withCommunicationSettings_ssoCookieVendor() {
         let bootstrap = CommunicationBootstrapSettingsResponseModel(
             type: "ssoCookieVendor",
@@ -137,7 +137,7 @@ final class ServerConfigTests: BitwardenTestCase {
         XCTAssertNil(subject.communication)
     }
 
-    /// `CommunicationBootstrapSettings` initialised from a response model maps all fields.
+    /// `ServerCommunicationBootstrapSettings` initialised from a response model maps all fields.
     func test_communicationBootstrapSettings_init_fromResponseModel() {
         let responseModel = CommunicationBootstrapSettingsResponseModel(
             type: "ssoCookieVendor",
@@ -145,7 +145,7 @@ final class ServerConfigTests: BitwardenTestCase {
             cookieName: "session",
             cookieDomain: "example.com",
         )
-        let subject = CommunicationBootstrapSettings(responseModel: responseModel)
+        let subject = ServerCommunicationBootstrapSettings(responseModel: responseModel)
 
         XCTAssertEqual(subject.type, "ssoCookieVendor")
         XCTAssertEqual(subject.idpLoginUrl, "https://idp.example.com")
@@ -153,15 +153,15 @@ final class ServerConfigTests: BitwardenTestCase {
         XCTAssertEqual(subject.cookieDomain, "example.com")
     }
 
-    /// `CommunicationSettings` with equal bootstraps compare as equal.
+    /// `ServerCommunicationSettings` with equal bootstraps compare as equal.
     func test_communicationSettings_equatable() {
-        let bootstrapA = CommunicationBootstrapSettings(
+        let bootstrapA = ServerCommunicationBootstrapSettings(
             type: "direct",
             idpLoginUrl: nil,
             cookieName: nil,
             cookieDomain: nil,
         )
-        let bootstrapB = CommunicationBootstrapSettings(
+        let bootstrapB = ServerCommunicationBootstrapSettings(
             type: "ssoCookieVendor",
             idpLoginUrl: "https://idp.example.com",
             cookieName: "c",
@@ -169,12 +169,12 @@ final class ServerConfigTests: BitwardenTestCase {
         )
 
         XCTAssertEqual(
-            CommunicationSettings(bootstrap: bootstrapA),
-            CommunicationSettings(bootstrap: bootstrapA),
+            ServerCommunicationSettings(bootstrap: bootstrapA),
+            ServerCommunicationSettings(bootstrap: bootstrapA),
         )
         XCTAssertNotEqual(
-            CommunicationSettings(bootstrap: bootstrapA),
-            CommunicationSettings(bootstrap: bootstrapB),
+            ServerCommunicationSettings(bootstrap: bootstrapA),
+            ServerCommunicationSettings(bootstrap: bootstrapB),
         )
     }
 }

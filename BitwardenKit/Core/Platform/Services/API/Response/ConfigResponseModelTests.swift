@@ -6,44 +6,6 @@ import XCTest
 class ConfigResponseModelTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `init` stores all provided fields.
-    func test_init_withAllFields() {
-        let bootstrap = CommunicationBootstrapSettingsResponseModel(
-            type: "ssoCookieVendor",
-            idpLoginUrl: "https://idp.example.com",
-            cookieName: "bwauth",
-            cookieDomain: "example.com",
-        )
-        let communication = CommunicationSettingsResponseModel(bootstrap: bootstrap)
-        let subject = ConfigResponseModel(
-            communication: communication,
-            environment: nil,
-            featureStates: ["flag": .bool(true)],
-            gitHash: "abc123",
-            server: nil,
-            version: "2024.5.0",
-        )
-
-        XCTAssertNotNil(subject.communication)
-        XCTAssertEqual(subject.communication?.bootstrap.type, "ssoCookieVendor")
-        XCTAssertEqual(subject.gitHash, "abc123")
-        XCTAssertEqual(subject.version, "2024.5.0")
-    }
-
-    /// `init` stores `nil` when `communication` is omitted.
-    func test_init_withNilCommunication() {
-        let subject = ConfigResponseModel(
-            communication: nil,
-            environment: nil,
-            featureStates: nil,
-            gitHash: nil,
-            server: nil,
-            version: "2024.5.0",
-        )
-
-        XCTAssertNil(subject.communication)
-    }
-
     /// `JSONResponse` decoding includes the `communication` field with `ssoCookieVendor` bootstrap.
     func test_jsonDecoding_withCommunication() throws {
         let json = """

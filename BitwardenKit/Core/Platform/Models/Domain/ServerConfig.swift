@@ -9,7 +9,7 @@ public struct ServerConfig: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// The communication settings.
-    public let communication: CommunicationSettings?
+    public let communication: ServerCommunicationSettings?
 
     /// The particular time of the server configuration.
     public let date: Date
@@ -30,7 +30,7 @@ public struct ServerConfig: Equatable, Codable, Sendable {
     public let version: String
 
     public init(date: Date, responseModel: ConfigResponseModel) {
-        communication = responseModel.communication.map(CommunicationSettings.init)
+        communication = responseModel.communication.map(ServerCommunicationSettings.init)
         environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
         featureStates = responseModel.featureStates ?? [:]
@@ -103,11 +103,11 @@ public struct EnvironmentServerConfig: Equatable, Codable, Sendable {
 
 /// Server communication configuration settings.
 ///
-public struct CommunicationSettings: Equatable, Codable, Sendable {
+public struct ServerCommunicationSettings: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// Bootstrap configuration determining how to establish server communication.
-    public let bootstrap: CommunicationBootstrapSettings
+    public let bootstrap: ServerCommunicationBootstrapSettings
 
     // MARK: Initialization
 
@@ -116,20 +116,20 @@ public struct CommunicationSettings: Equatable, Codable, Sendable {
     /// - Parameters:
     ///   - bootstrap: Bootstrap configuration determining how to establish server communication.
     ///
-    public init(bootstrap: CommunicationBootstrapSettings) {
+    public init(bootstrap: ServerCommunicationBootstrapSettings) {
         self.bootstrap = bootstrap
     }
 
     public init(responseModel: CommunicationSettingsResponseModel) {
-        bootstrap = CommunicationBootstrapSettings(responseModel: responseModel.bootstrap)
+        bootstrap = ServerCommunicationBootstrapSettings(responseModel: responseModel.bootstrap)
     }
 }
 
-// MARK: - CommunicationBootstrapSettings
+// MARK: - ServerCommunicationBootstrapSettings
 
 /// Bootstrap configuration settings for server communication.
 ///
-public struct CommunicationBootstrapSettings: Equatable, Codable, Sendable {
+public struct ServerCommunicationBootstrapSettings: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// The bootstrap type (e.g. `"ssoCookieVendor"`, `"direct"`).
