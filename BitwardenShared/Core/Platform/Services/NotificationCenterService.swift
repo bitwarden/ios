@@ -30,7 +30,7 @@ protocol NotificationCenterService: AnyObject {
 class DefaultNotificationCenterService: NotificationCenterService {
     // MARK: Properties
 
-    /// Cancellables for the foreground/background notification subscriptions.
+    /// Cancellables for any subscriptions owned by the service.
     private var cancellables = Set<AnyCancellable>()
 
     /// The subject tracking the app's current foreground state.
