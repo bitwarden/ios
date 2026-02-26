@@ -59,45 +59,29 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `updateSDKCommunicationType(_:)` calls `setCommunicationType` with the server config
+    /// `configPublisher` triggers `setCommunicationType` with the server config
     /// when no local config exists for the hostname.
-    func test_updateSDKCommunicationType_noLocalConfig_callsSetCommunicationType() async throws {
+    @MainActor
+    func test_configPublisher_noLocalConfig_callsSetCommunicationType() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
             SdkServerCommunicationConfigRepository(stateService: stateService)
 
-        let config = ServerConfig(
-            date: Date(),
-            responseModel: ConfigResponseModel(
-                communication: CommunicationSettingsResponseModel(
-                    bootstrap: CommunicationBootstrapSettingsResponseModel(
-                        type: "direct",
-                        idpLoginUrl: nil,
-                        cookieName: nil,
-                        cookieDomain: nil,
-                    ),
-                ),
-                environment: nil,
-                featureStates: [:],
-                gitHash: "abc123",
-                server: nil,
-                version: "2024.1.0",
-            ),
-        )
+        configService.configSubject.send(makeMetaServerConfig())
 
-        await subject.updateSDKCommunicationType(config)
+        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeCallsCount, 1)
         XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedConfig, ServerCommunicationConfig(bootstrap: .direct))
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
-    /// `updateSDKCommunicationType(_:)` calls `setCommunicationType` with the server config
+    /// `configPublisher` triggers `setCommunicationType` with the server config
     /// when a local config exists for the hostname.
-    func test_updateSDKCommunicationType_withLocalConfig_callsSetCommunicationType() async throws {
+    @MainActor
+    func test_configPublisher_withLocalConfig_callsSetCommunicationType() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
         stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
         let mockSdkClient = MockServerCommunicationConfigClient()
@@ -105,139 +89,100 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
             SdkServerCommunicationConfigRepository(stateService: stateService)
 
-        let config = ServerConfig(
-            date: Date(),
-            responseModel: ConfigResponseModel(
-                communication: CommunicationSettingsResponseModel(
-                    bootstrap: CommunicationBootstrapSettingsResponseModel(
-                        type: "direct",
-                        idpLoginUrl: nil,
-                        cookieName: nil,
-                        cookieDomain: nil,
-                    ),
-                ),
-                environment: nil,
-                featureStates: [:],
-                gitHash: "abc123",
-                server: nil,
-                version: "2024.1.0",
-            ),
-        )
+        configService.configSubject.send(makeMetaServerConfig())
 
-        await subject.updateSDKCommunicationType(config)
+        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeCallsCount, 1)
         XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedConfig, ServerCommunicationConfig(bootstrap: .direct))
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
-    /// `updateSDKCommunicationType(_:)` returns early and does nothing when the server config
-    /// has no communication settings.
-    func test_updateSDKCommunicationType_noCommunicationSettings() async {
-        let config = ServerConfig(
-            date: Date(),
-            responseModel: ConfigResponseModel(
-                communication: nil,
-                environment: nil,
-                featureStates: [:],
-                gitHash: "abc123",
-                server: nil,
-                version: "2024.1.0",
-            ),
-        )
+    /// `configPublisher` does nothing when the server config has no communication settings.
+    @MainActor
+    func test_configPublisher_noCommunicationSettings() async throws {
+        configService.configSubject.send(makeMetaServerConfig(communication: nil))
 
-        await subject.updateSDKCommunicationType(config)
+        await Task.yield()
+        await Task.yield()
+        await Task.yield()
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertEqual(clientService.platformCallCount, 0)
     }
 
-    /// `updateSDKCommunicationType(_:)` returns early and does nothing when the environment's
-    /// web vault URL has no host component.
-    func test_updateSDKCommunicationType_noHostname() async {
+    /// `configPublisher` does nothing when the environment's web vault URL has no host component.
+    @MainActor
+    func test_configPublisher_noHostname() async throws {
         environmentService.webVaultURL = URL(string: "data:text/plain")!
-        let config = ServerConfig(
-            date: Date(),
-            responseModel: ConfigResponseModel(
-                communication: CommunicationSettingsResponseModel(
-                    bootstrap: CommunicationBootstrapSettingsResponseModel(
-                        type: "direct",
-                        idpLoginUrl: nil,
-                        cookieName: nil,
-                        cookieDomain: nil,
-                    ),
-                ),
-                environment: nil,
-                featureStates: [:],
-                gitHash: "abc123",
-                server: nil,
-                version: "2024.1.0",
-            ),
-        )
 
-        await subject.updateSDKCommunicationType(config)
+        configService.configSubject.send(makeMetaServerConfig())
+
+        await Task.yield()
+        await Task.yield()
+        await Task.yield()
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertEqual(clientService.platformCallCount, 0)
     }
 
-    /// `updateSDKCommunicationType(_:)` calls `setCommunicationType` when a local config exists
+    /// `configPublisher` triggers `setCommunicationType` when a local config exists
     /// for the hostname, logging any errors thrown by the SDK client.
-    func test_updateSDKCommunicationType_withLocalConfig_logsSDKClientError() async throws {
+    @MainActor
+    func test_configPublisher_withLocalConfig_logsSDKClientError() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
         stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
         clientService.platformError = BitwardenTestError.example
 
-        let config = ServerConfig(
-            date: Date(),
-            responseModel: ConfigResponseModel(
-                communication: CommunicationSettingsResponseModel(
-                    bootstrap: CommunicationBootstrapSettingsResponseModel(
-                        type: "direct",
-                        idpLoginUrl: nil,
-                        cookieName: nil,
-                        cookieDomain: nil,
-                    ),
-                ),
-                environment: nil,
-                featureStates: [:],
-                gitHash: "abc123",
-                server: nil,
-                version: "2024.1.0",
-            ),
-        )
+        configService.configSubject.send(makeMetaServerConfig())
 
-        await subject.updateSDKCommunicationType(config)
+        try await waitForAsync { !self.errorReporter.errors.isEmpty }
 
         XCTAssertEqual(clientService.platformCallCount, 1)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `updateSDKCommunicationType(_:)` logs an error when the state service throws.
-    func test_updateSDKCommunicationType_stateServiceError_logsError() async {
+    /// `configPublisher` logs an error when the state service throws.
+    @MainActor
+    func test_configPublisher_stateServiceError_logsError() async throws {
         stateService.getServerCommunicationConfigError = BitwardenTestError.example
-        let config = ServerConfig(
-            date: Date(),
-            responseModel: ConfigResponseModel(
-                communication: CommunicationSettingsResponseModel(
-                    bootstrap: CommunicationBootstrapSettingsResponseModel(
-                        type: "direct",
-                        idpLoginUrl: nil,
-                        cookieName: nil,
-                        cookieDomain: nil,
-                    ),
-                ),
-                environment: nil,
-                featureStates: [:],
-                gitHash: "abc123",
-                server: nil,
-                version: "2024.1.0",
-            ),
-        )
 
-        await subject.updateSDKCommunicationType(config)
+        configService.configSubject.send(makeMetaServerConfig())
+
+        try await waitForAsync { !self.errorReporter.errors.isEmpty }
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    // MARK: Private
+
+    /// Creates a `MetaServerConfig` for use in tests.
+    /// - Parameter communication: The communication settings to include in the server config.
+    ///   Defaults to a `direct` bootstrap type. Pass `nil` to omit communication settings.
+    private func makeMetaServerConfig(
+        communication: CommunicationSettingsResponseModel? = CommunicationSettingsResponseModel(
+            bootstrap: CommunicationBootstrapSettingsResponseModel(
+                type: "direct",
+                idpLoginUrl: nil,
+                cookieName: nil,
+                cookieDomain: nil,
+            ),
+        )
+    ) -> MetaServerConfig {
+        MetaServerConfig(
+            isPreAuth: false,
+            userId: nil,
+            serverConfig: ServerConfig(
+                date: Date(),
+                responseModel: ConfigResponseModel(
+                    communication: communication,
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: "abc123",
+                    server: nil,
+                    version: "2024.1.0",
+                ),
+            ),
+        )
     }
 }
