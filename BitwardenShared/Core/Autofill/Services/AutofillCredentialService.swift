@@ -355,7 +355,8 @@ class DefaultAutofillCredentialService {
 
                 let deviceAuthKeyFlightRecorderInfo: String
                 // Register the Device Auth Key if we have one
-                if let metadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
+                if await configService.getFeatureFlag(.deviceAuthKey),
+                   let metadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
                     let identity = ASPasskeyCredentialIdentity(
                         relyingPartyIdentifier: metadata.rpId,
                         userName: metadata.userName,
@@ -371,6 +372,7 @@ class DefaultAutofillCredentialService {
 
                 try await identityStore.replaceCredentialIdentities(identities)
                 await flightRecorder.log(
+                    // swiftlint:disable:next line_length
                     "[AutofillCredentialService] Replaced \(identities.count) credential identities\(deviceAuthKeyFlightRecorderInfo)",
                 )
             } else {

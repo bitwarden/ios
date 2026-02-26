@@ -1120,11 +1120,13 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             throw XCTSkip("Device auth keys are only available on iOS 17+")
         }
 
+        configService.featureFlagsBool[.deviceAuthKey] = true
+
         vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
         waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
         identityStore.replaceCredentialIdentitiesCalled = false
 
-        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = nil
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture()
 
         deviceAuthKeySubject.send(["1": true])
         waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
@@ -1142,6 +1144,30 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     ),
                 ),
             ],
+        )
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` does not update the credential identity store with the device auth key
+    /// when the device auth key changes when the feature flag is off.
+    func test_syncIdentities_deviceAuthKeys_unflagged() throws {
+        guard #available(iOS 17, *) else {
+            throw XCTSkip("Device auth keys are only available on iOS 17+")
+        }
+
+        configService.featureFlagsBool[.deviceAuthKey] = false
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+        identityStore.replaceCredentialIdentitiesCalled = false
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture()
+
+        deviceAuthKeySubject.send(["1": true])
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+
+        XCTAssertEqual(
+            identityStore.replaceCredentialIdentitiesIdentities,
+            [],
         )
     }
 
