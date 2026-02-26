@@ -61,6 +61,28 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
 
     // MARK: Tests - createDeviceAuthKey
 
+    /// `createDeviceAuthKey(masterPasswordHash:overwrite:userId:)` sends an event on the publisher when called.
+    func test_createDeviceAuthKey_publisher() async throws {
+        var publishedValues = [[String: Bool]]()
+
+        let publisher = subject.deviceAuthKeyPublisher()
+            .sink(receiveValue: { value in
+                publishedValues.append(value)
+            })
+        defer { publisher.cancel() }
+
+        _ = try? await subject.createDeviceAuthKey(
+            masterPasswordHash: "hashedPassword",
+            overwrite: false,
+            userId: "userId123",
+        )
+
+        XCTAssertEqual(
+            publishedValues.last,
+            ["userId123": true],
+        )
+    }
+
     /// `createDeviceAuthKey(masterPasswordHash:overwrite:userId:)` throws notImplemented error.
     ///
     func test_createDeviceAuthKey_throwsNotImplemented() async throws {
