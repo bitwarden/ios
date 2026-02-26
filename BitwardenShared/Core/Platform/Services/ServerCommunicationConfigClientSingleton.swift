@@ -91,7 +91,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
 
     /// Updates the SDK communication type with the config gotten from the server.
     /// - Parameter config: The configuration for the update.
-    func updateSDKCommunicationType(_ config: ServerConfig) async {
+    private func updateSDKCommunicationType(_ config: ServerConfig) async {
         guard let communicationSettings = config.communication,
               let hostname = environmentService.webVaultURL.host else {
             return
