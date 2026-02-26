@@ -323,7 +323,7 @@ class DefaultAutofillCredentialService {
     ///
     /// - Parameter userId: The ID of the user whose ciphers and device auth key should be added to the identity store.
     ///
-    private func replaceAllIdentities(userId: String) async { // swiftlint:disable: this function_body_length
+    private func replaceAllIdentities(userId: String) async { // swiftlint:disable:this function_body_length
         guard await identityStore.state().isEnabled else { return }
 
         do {
@@ -353,24 +353,25 @@ class DefaultAutofillCredentialService {
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
 
+                let deviceAuthKeyFlightRecorderInfo: String
                 // Register the Device Auth Key if we have one
-                if let metadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
-                   let credId = Data(base64Encoded: metadata.credentialId),
-                   let userHandle = Data(base64Encoded: metadata.userHandle) {
-                    let identity = Fido2CredentialAutofillView(
-                        credentialId: credId,
-                        cipherId: metadata.cipherId,
-                        rpId: metadata.rpId,
-                        userNameForUi: metadata.userName,
-                        userHandle: userHandle,
-                        hasCounter: false,
-                    ).toFido2CredentialIdentity()
+                if let metadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
+                    let identity = ASPasskeyCredentialIdentity(
+                        relyingPartyIdentifier: metadata.rpId,
+                        userName: metadata.userName,
+                        credentialID: metadata.credentialId,
+                        userHandle: metadata.userHandle,
+                        recordIdentifier: metadata.cipherId,
+                    )
                     identities.append(identity)
+                    deviceAuthKeyFlightRecorderInfo = ", including a device auth key"
+                } else {
+                    deviceAuthKeyFlightRecorderInfo = ""
                 }
 
                 try await identityStore.replaceCredentialIdentities(identities)
                 await flightRecorder.log(
-                    "[AutofillCredentialService] Replaced \(identities.count) credential identities",
+                    "[AutofillCredentialService] Replaced \(identities.count) credential identities\(deviceAuthKeyFlightRecorderInfo)",
                 )
             } else {
                 let identities = decryptedCiphers.compactMap { cipher in

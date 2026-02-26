@@ -1113,6 +1113,38 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
     }
 
+    /// `syncIdentities(vaultLockStatus:)` updates the credential identity store with the device auth key
+    /// when the device auth key changes.
+    func test_syncIdentities_deviceAuthKeys() throws {
+        guard #available(iOS 17, *) else {
+            throw XCTSkip("Device auth keys are only available on iOS 17+")
+        }
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+        identityStore.replaceCredentialIdentitiesCalled = false
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = nil
+
+        deviceAuthKeySubject.send(["1": true])
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+
+        XCTAssertEqual(
+            identityStore.replaceCredentialIdentitiesIdentities,
+            [
+                .passkey(
+                    PasskeyCredentialIdentity(
+                        credentialID: Data("credential-456".utf8),
+                        recordIdentifier: "cipher-123",
+                        relyingPartyIdentifier: "bitwarden.com",
+                        userHandle: Data("user-id".utf8),
+                        userName: "user@example.com",
+                    ),
+                ),
+            ],
+        )
+    }
+
     /// `syncIdentities(vaultLockStatus:)` doesn't remove identities if the store's state is disabled.
     func test_syncIdentities_removeDisabled() async throws {
         identityStore.state.mockIsEnabled = false
