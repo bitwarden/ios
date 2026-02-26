@@ -99,7 +99,9 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
 
         do {
             var commSettings = ServerCommunicationConfig(communicationSettings: communicationSettings)
-            if let localConfig = try await stateService.getServerCommunicationConfig(hostname: hostname) {
+            if let localConfig = try await stateService.getServerCommunicationConfig(hostname: hostname),
+               case .ssoCookieVendor = commSettings.bootstrap,
+               case .ssoCookieVendor = localConfig.bootstrap {
                 commSettings = commSettings.updateCookieValue(from: localConfig)
             }
 

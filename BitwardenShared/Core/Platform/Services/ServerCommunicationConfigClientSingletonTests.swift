@@ -154,7 +154,88 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `configPublisher` triggers `setCommunicationType` preserving the cookie value from the
+    /// local config when both the server config and local config are `ssoCookieVendor`.
+    @MainActor
+    func test_configPublisher_bothSSO_preservesCookieValue() async throws {
+        let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
+        let cookieValue = [AcquiredCookie(name: "cookie", value: "stored_value")]
+        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
+            bootstrap: .ssoCookieVendor(
+                SsoCookieVendorConfig(
+                    idpLoginUrl: "https://idp.example.com",
+                    cookieName: "sso_cookie",
+                    cookieDomain: ".example.com",
+                    cookieValue: cookieValue,
+                ),
+            )
+        )
+        let mockSdkClient = MockServerCommunicationConfigClient()
+        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
+        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
+            SdkServerCommunicationConfigRepository(stateService: stateService)
+
+        configService.configSubject.send(makeMetaServerConfig(communication: makeSSOCommunicationSettings()))
+
+        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+
+        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
+        guard case let .ssoCookieVendor(config) = mockSdkClient.setCommunicationTypeReceivedConfig?.bootstrap else {
+            XCTFail("Expected .ssoCookieVendor bootstrap")
+            return
+        }
+        XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
+        XCTAssertEqual(config.cookieName, "sso_cookie")
+        XCTAssertEqual(config.cookieDomain, ".example.com")
+        XCTAssertEqual(config.cookieValue?.first?.name, "cookie")
+        XCTAssertEqual(config.cookieValue?.first?.value, "stored_value")
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `configPublisher` triggers `setCommunicationType` with the server config as-is when the
+    /// server config is `ssoCookieVendor` but the local config is `direct`.
+    @MainActor
+    func test_configPublisher_serverSSO_localDirect_doesNotPreserveCookieValue() async throws {
+        let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
+        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        let mockSdkClient = MockServerCommunicationConfigClient()
+        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
+        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
+            SdkServerCommunicationConfigRepository(stateService: stateService)
+
+        configService.configSubject.send(makeMetaServerConfig(communication: makeSSOCommunicationSettings()))
+
+        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+
+        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
+        guard case let .ssoCookieVendor(config) = mockSdkClient.setCommunicationTypeReceivedConfig?.bootstrap else {
+            XCTFail("Expected .ssoCookieVendor bootstrap")
+            return
+        }
+        XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
+        XCTAssertEqual(config.cookieName, "sso_cookie")
+        XCTAssertEqual(config.cookieDomain, ".example.com")
+        XCTAssertNil(config.cookieValue)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     // MARK: Private
+
+    /// Creates a `CommunicationSettingsResponseModel` with an `ssoCookieVendor` bootstrap type.
+    private func makeSSOCommunicationSettings(
+        idpLoginUrl: String? = "https://idp.example.com",
+        cookieName: String? = "sso_cookie",
+        cookieDomain: String? = ".example.com"
+    ) -> CommunicationSettingsResponseModel {
+        CommunicationSettingsResponseModel(
+            bootstrap: CommunicationBootstrapSettingsResponseModel(
+                type: "ssoCookieVendor",
+                idpLoginUrl: idpLoginUrl,
+                cookieName: cookieName,
+                cookieDomain: cookieDomain,
+            )
+        )
+    }
 
     /// Creates a `MetaServerConfig` for use in tests.
     /// - Parameter communication: The communication settings to include in the server config.
