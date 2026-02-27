@@ -6,6 +6,17 @@ protocol ServerCommunicationConfigClientSingleton {
     /// Returns a `ServerCommunicationConfigClientProtocol` for server communication configuration.
     /// - Returns: A `ServerCommunicationConfigClientProtocol` for server communication.
     func client() async throws -> ServerCommunicationConfigClientProtocol
+
+    /// Resolves the storage key for a given `hostname` by performing domain-suffix fallback.
+    ///
+    /// Tries the exact hostname first, then progressively strips the leftmost DNS label
+    /// until a stored cookie configuration is found or no labels remain. This supports
+    /// the case where cookies are stored under a parent domain (e.g., "bitwarden.com")
+    /// but looked up by a subdomain (e.g., "api.bitwarden.com").
+    ///
+    /// - Parameter hostname: The exact hostname to check first.
+    /// - Returns: The hostname key under which the config was saved.
+    func resolveHostname(hostname: String) async -> String
 }
 
 /// Default implementation of `ServerCommunicationConfigClientSingleton`.
@@ -87,13 +98,49 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
         return serverConfigClient
     }
 
+    func resolveHostname(hostname: String) async -> String {
+        do {
+            guard let resolvedHostname = try await findServerCommunicationConfigHostname(hostname: hostname) else {
+                return hostname
+            }
+
+            return resolvedHostname
+        } catch {
+            errorReporter.log(error: error)
+            return hostname
+        }
+    }
+
     // MARK: Private Methods
+
+    /// Finds the storage key of server communication config for a given `hostname`
+    /// by performing domain-suffix fallback.
+    ///
+    /// Tries the exact hostname first, then progressively strips the leftmost DNS label
+    /// until a stored cookie configuration is found or no labels remain. This supports
+    /// the case where cookies are stored under a parent domain (e.g., "bitwarden.com")
+    /// but looked up by a subdomain (e.g., "api.bitwarden.com").
+    ///
+    /// - Parameter hostname: The exact hostname to check first.
+    /// - Returns: The hostname key under which the config was saved.
+    private func findServerCommunicationConfigHostname(hostname: String) async throws -> String? {
+        if try await stateService.getServerCommunicationConfig(hostname: hostname) != nil {
+            return hostname
+        }
+
+        guard let firstDot = hostname.firstIndex(of: ".") else {
+            return nil
+        }
+
+        let newHostname = String(hostname[hostname.index(after: firstDot)...])
+        return try await findServerCommunicationConfigHostname(hostname: newHostname)
+    }
 
     /// Updates the SDK communication type with the config gotten from the server.
     /// - Parameter config: The configuration for the update.
     private func updateSDKCommunicationType(_ config: ServerConfig) async {
         guard let communicationSettings = config.communication,
-              let hostname = environmentService.webVaultURL.host else {
+              let hostname = communicationSettings.bootstrap.cookieDomain ?? environmentService.webVaultURL.host else {
             return
         }
 

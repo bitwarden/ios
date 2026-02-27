@@ -137,7 +137,7 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
 
         // A second acquisition should be accepted and resolved normally.
         let secondTask = Task { await self.subject.acquireCookies(hostname: hostname) }
-        try await waitForAsync { emittedHostnames.filter { $0 == hostname }.count == 2 }
+        try await waitForAsync { emittedHostnames.count(where: {$0 == hostname}) == 2 }
         await subject.cookiesAcquired(cookies: .success(cookies))
         let secondResult = await secondTask.value
         XCTAssertEqual(secondResult?.first?.name, "session")

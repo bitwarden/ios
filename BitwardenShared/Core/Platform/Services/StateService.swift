@@ -1712,7 +1712,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func clearServerCommunicationCookieValue(hostname: String) async throws {
         guard let config = try await keychainRepository.getServerCommunicationConfig(hostname: hostname),
-              case let .ssoCookieVendor(vendorConfig) = config.bootstrap else {
+              let vendorConfig = config.ssoCookieVendorConfig else {
             return
         }
         let clearedConfig = ServerCommunicationConfig(
