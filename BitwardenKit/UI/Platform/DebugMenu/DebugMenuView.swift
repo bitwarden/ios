@@ -21,6 +21,11 @@ public struct DebugMenuView: View {
                 featureFlagSectionHeader
             }
             Section {
+                ssoCookiesSection
+            } header: {
+                Text("SSO cookies")
+            }
+            Section {
                 errorReportSection
             } header: {
                 Text("Error reports")
@@ -37,6 +42,20 @@ public struct DebugMenuView: View {
         .task {
             await store.perform(.viewAppeared)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: DebugMenuAction.toastShown,
+        ))
+    }
+
+    /// The SSO cookies section.
+    private var ssoCookiesSection: some View {
+        AsyncButton {
+            await store.perform(.clearSsoCookies)
+        } label: {
+            Text(Localizations.clearSsoCookies)
+        }
+        .accessibilityIdentifier("ClearSsoCookiesButton")
     }
 
     /// The error reports section.

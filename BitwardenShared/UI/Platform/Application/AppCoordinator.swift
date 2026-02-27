@@ -16,6 +16,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
+        & GlobalModalModule
         & LoginRequestModule
         & NavigatorBuilderModule
         & SendItemModule
@@ -128,6 +129,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showMigrateToMyItems(organizationId: organizationId)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
+        case .syncWithBrowser:
+            showSyncWithBrowser()
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         case let .vault(vaultRoute):
@@ -303,6 +306,25 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         )
     }
 
+    /// Show the sync with browser screen.
+    ///
+    private func showSyncWithBrowser() {
+        // Make sure that the user is not currently viewing the migrate to my items view.
+        let currentView = rootNavigator?.rootViewController?.topmostViewController()
+        guard !(currentView is UIHostingController<SyncWithBrowserView>) else { return }
+
+        let navigationController = module.makeNavigationController()
+        navigationController.isModalInPresentation = true
+        let globalModalCoordinator = module.makeGlobalModalCoordinator(stackNavigator: navigationController)
+        globalModalCoordinator.start()
+        globalModalCoordinator.navigate(to: .syncWithBrowser, context: self)
+
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            navigationController,
+            animated: true,
+        )
+    }
+
     /// Adds a transparent navigation controller to the root navigator.
     /// This is needed for the Autofill Fido2 flow when unlocking with the never unlock key
     /// and performing user verification. If we don't do this, the biometrics prompt may not be presented
@@ -439,7 +461,7 @@ extension AppCoordinator: MigrateToMyItemsProcessorDelegate {
         }
     }
 }
-
+ 
 // MARK: - SendItemDelegate
 
 extension AppCoordinator: SendItemDelegate {

@@ -133,6 +133,13 @@ public class AppProcessor {
                 await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
             }
         }
+
+        Task {
+            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard hostname != nil else { continue }
+                coordinator?.navigate(to: .syncWithBrowser)
+            }
+        }
     }
 
     // MARK: Methods
@@ -544,6 +551,11 @@ extension AppProcessor {
             services.errorReporter.log(error: error)
         }
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: true))
+    }
+
+    /// Show the sync with browser view.
+    private func showSyncWithBrowser() {
+        coordinator?.navigate(to: .syncWithBrowser)
     }
 
     /// Starts timer to send organization events regularly
