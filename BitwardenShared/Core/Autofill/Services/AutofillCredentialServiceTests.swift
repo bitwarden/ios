@@ -688,6 +688,92 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         }
     }
 
+    /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
+    /// succeeds with device auth key.
+    @available(iOS 18.0, *)
+    func test_provideFido2Credential_succeeds_deviceAuthKey() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.deviceAuthKey] = true
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture(
+            recordIdentifier: "dak-record-identifier",
+        )
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult(
+            credentialId: Data(repeating: 2, count: 3),
+            authenticatorData: Data(repeating: 2, count: 4),
+            signature: Data(repeating: 2, count: 5),
+            userHandle: Data(repeating: 2, count: 6),
+            selectedCredential: SelectedCredential.fixture(),
+        )
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
+            cipherId: "dak-record-identifier",
+        )
+
+        deviceAuthKeyService.assertDeviceAuthKeyReturnValue = expectedAssertionResult
+
+        clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .getAssertionMocker
+            .throwing(BitwardenTestError.example)
+
+        let result = try await subject.provideFido2Credential(
+            for: passkeyRequest,
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
+        )
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+
+        XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
+        XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
+        XCTAssertEqual(result.signature, expectedAssertionResult.signature)
+        XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
+        XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
+        XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
+
+        // TODO: PM-26177 once SDK is updated for full PRF support we can include this
+        XCTAssertNil(result.extensionOutput)
+    }
+
+    /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
+    /// does not succeed with device auth key if the feature flag is off.
+    @available(iOS 18.0, *)
+    func test_provideFido2Credential_succeeds_deviceAuthKey_off() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.deviceAuthKey] = false
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture(
+            recordIdentifier: "dak-record-identifier",
+        )
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult(
+            credentialId: Data(repeating: 2, count: 3),
+            authenticatorData: Data(repeating: 2, count: 4),
+            signature: Data(repeating: 2, count: 5),
+            userHandle: Data(repeating: 2, count: 6),
+            selectedCredential: SelectedCredential.fixture(),
+        )
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
+            cipherId: "dak-record-identifier",
+        )
+
+        deviceAuthKeyService.assertDeviceAuthKeyReturnValue = expectedAssertionResult
+
+        clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .getAssertionMocker
+            .throwing(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.provideFido2Credential(
+                for: passkeyRequest,
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
+            )
+        }
+    }
+
     /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
     /// returns the credential containing the TOTP code for the specified ID.
     @available(iOS 18.0, *)

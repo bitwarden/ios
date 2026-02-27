@@ -476,11 +476,12 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
         )
 
-        // Before trying to unlock the device, see if we can satisfy the credential request with the device auth key.
-        if let recordIdentifier = credentialIdentity.recordIdentifier,
+        // Before trying to unlock the vault, see if we can satisfy the credential request with the device auth key.
+        if await configService.getFeatureFlag(.deviceAuthKey),
+           let recordIdentifier = credentialIdentity.recordIdentifier,
            // swiftlint:disable:next line_length
            let deviceAuthKeyMetadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: stateService.getActiveAccountId()),
-           credentialIdentity.recordIdentifier == deviceAuthKeyMetadata.cipherId {
+           recordIdentifier == deviceAuthKeyMetadata.cipherId {
             // The credential request is for the device auth key, so we serve that up.
             if let deviceResult = try? await deviceAuthKeyService.assertDeviceAuthKey(
                 for: request,
@@ -488,12 +489,9 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
                 userId: stateService.getActiveAccountId(),
             ) {
                 return ASPasskeyAssertionCredential(
-                    userHandle: deviceResult.userHandle,
-                    relyingParty: credentialIdentity.relyingPartyIdentifier,
-                    signature: deviceResult.signature,
+                    assertionResult: deviceResult,
+                    rpId: credentialIdentity.relyingPartyIdentifier,
                     clientDataHash: passkeyRequest.clientDataHash,
-                    authenticatorData: deviceResult.authenticatorData,
-                    credentialID: deviceResult.credentialId,
                 )
             }
         }
