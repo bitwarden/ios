@@ -1,16 +1,18 @@
 import BitwardenKitMocks
 import BitwardenSdk
+
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SdkServerCommunicationConfigRepositoryTests
 
 class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
-    var stateService: MockStateService!
+    var serverCommunicationConfigStateService: MockServerCommunicationConfigStateService!
     var subject: SdkServerCommunicationConfigRepository!
 
     // MARK: Setup & Teardown
@@ -18,14 +20,16 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        stateService = MockStateService()
-        subject = SdkServerCommunicationConfigRepository(stateService: stateService)
+        serverCommunicationConfigStateService = MockServerCommunicationConfigStateService()
+        subject = SdkServerCommunicationConfigRepository(
+            serverCommunicationConfigStateService: serverCommunicationConfigStateService,
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
-        stateService = nil
+        serverCommunicationConfigStateService = nil
         subject = nil
     }
 
@@ -34,7 +38,9 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
     /// `get(hostname:)` returns the config stored for the given hostname.
     func test_get_returnsStoredConfig() async throws {
         let hostname = "example.com"
-        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.getServerCommunicationConfigReturnValue = ServerCommunicationConfig(
+            bootstrap: .direct,
+        )
 
         let result = try await subject.get(hostname: hostname)
 
@@ -54,7 +60,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
 
     /// `get(hostname:)` throws when the state service throws.
     func test_get_throwsError() async {
-        stateService.getServerCommunicationConfigError = BitwardenTestError.example
+        serverCommunicationConfigStateService.getServerCommunicationConfigThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.get(hostname: "example.com")
@@ -68,7 +74,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
 
         try await subject.save(hostname: hostname, config: config)
 
-        let saved = stateService.serverCommunicationConfigs[hostname]
+        let saved = serverCommunicationConfigStateService.setServerCommunicationConfigReceivedArguments?.config
         XCTAssertNotNil(saved)
         if case .direct = saved?.bootstrap {} else {
             XCTFail("Expected .direct bootstrap, got \(String(describing: saved?.bootstrap))")
@@ -99,11 +105,11 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
                 ),
             ),
         )
-        stateService.serverCommunicationConfigs[hostname] = localConfig
+        serverCommunicationConfigStateService.getServerCommunicationConfigReturnValue = localConfig
 
         try await subject.save(hostname: hostname, config: incomingConfig)
 
-        let saved = stateService.serverCommunicationConfigs[hostname]
+        let saved = serverCommunicationConfigStateService.setServerCommunicationConfigReceivedArguments?.config
         guard case let .ssoCookieVendor(savedSsoConfig) = saved?.bootstrap else {
             XCTFail("Expected .ssoCookieVendor bootstrap after save")
             return
@@ -117,7 +123,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
 
     /// `save(hostname:config:)` throws when `getServerCommunicationConfig` throws.
     func test_save_throwsOnGetError() async {
-        stateService.getServerCommunicationConfigError = BitwardenTestError.example
+        serverCommunicationConfigStateService.getServerCommunicationConfigThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await self.subject.save(
@@ -129,7 +135,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
 
     /// `save(hostname:config:)` throws when `setServerCommunicationConfig` throws.
     func test_save_throwsOnSetError() async {
-        stateService.setServerCommunicationConfigError = BitwardenTestError.example
+        serverCommunicationConfigStateService.setServerCommunicationConfigThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await self.subject.save(

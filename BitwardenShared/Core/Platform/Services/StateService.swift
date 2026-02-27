@@ -299,13 +299,6 @@ protocol StateService: AnyObject {
     ///
     func getReviewPromptData() async -> ReviewPromptData?
 
-    /// Gets the server communication configuration for a given hostname.
-    ///
-    /// - Parameter hostname: The hostname associated with the server communication config.
-    /// - Returns: The server communication config for that hostname.
-    ///
-    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig?
-
     /// Get whether the device should be trusted.
     ///
     /// - Returns: Whether to trust the device.
@@ -698,14 +691,6 @@ protocol StateService: AnyObject {
     /// - Parameter data: The App Review Prompt data.
     ///
     func setReviewPromptData(_ data: ReviewPromptData) async
-
-    /// Sets the server communication config for a given hostname.
-    ///
-    /// - Parameters:
-    ///   - config: The server communication config.
-    ///   - hostname: The hostname associated with the config.
-    ///
-    func setServerCommunicationConfig(_ config: BitwardenSdk.ServerCommunicationConfig?, hostname: String) async throws
 
     /// Set whether to trust the device.
     ///
@@ -1412,7 +1397,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A service used to access data in the keychain.
-    private let keychainRepository: KeychainRepository
+    let keychainRepository: KeychainRepository
 
     /// A service used to access user session data in the keychain.
     private let userSessionKeychainRepository: UserSessionKeychainRepository
@@ -1708,32 +1693,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getReviewPromptData() async -> ReviewPromptData? {
         appSettingsStore.reviewPromptData
-    }
-
-    func clearServerCommunicationCookieValue(hostname: String) async throws {
-        guard let config = try await keychainRepository.getServerCommunicationConfig(hostname: hostname),
-              let vendorConfig = config.ssoCookieVendorConfig else {
-            return
-        }
-        let clearedConfig = ServerCommunicationConfig(
-            bootstrap: .ssoCookieVendor(
-                SsoCookieVendorConfig(
-                    idpLoginUrl: vendorConfig.idpLoginUrl,
-                    cookieName: vendorConfig.cookieName,
-                    cookieDomain: vendorConfig.cookieDomain,
-                    cookieValue: nil,
-                ),
-            ),
-        )
-        try await keychainRepository.setServerCommunicationConfig(clearedConfig, hostname: hostname)
-    }
-
-    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
-        do {
-            return try await keychainRepository.getServerCommunicationConfig(hostname: hostname)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
-            return nil
-        }
     }
 
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
@@ -2115,13 +2074,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setReviewPromptData(_ data: ReviewPromptData) async {
         appSettingsStore.reviewPromptData = data
-    }
-
-    func setServerCommunicationConfig(
-        _ config: BitwardenSdk.ServerCommunicationConfig?,
-        hostname: String,
-    ) async throws {
-        try await keychainRepository.setServerCommunicationConfig(config, hostname: hostname)
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {

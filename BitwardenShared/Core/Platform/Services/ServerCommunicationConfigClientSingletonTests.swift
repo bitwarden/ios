@@ -18,7 +18,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var sdkRepositoryFactory: MockSdkRepositoryFactory!
     var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
-    var stateService: MockStateService!
+    var serverCommunicationConfigStateService: MockStateService!
     var subject: DefaultServerCommunicationConfigClientSingleton!
 
     // MARK: Setup & Teardown
@@ -32,7 +32,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         sdkRepositoryFactory = MockSdkRepositoryFactory()
         serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
-        stateService = MockStateService()
+        serverCommunicationConfigStateService = MockStateService()
         subject = DefaultServerCommunicationConfigClientSingleton(
             clientService: clientService,
             configService: configService,
@@ -40,7 +40,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
             errorReporter: errorReporter,
             sdkRepositoryFactory: sdkRepositoryFactory,
             serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
-            stateService: stateService,
+            serverCommunicationConfigStateService: serverCommunicationConfigStateService,
         )
     }
 
@@ -53,7 +53,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         errorReporter = nil
         sdkRepositoryFactory = nil
         serverCommunicationConfigAPIService = nil
-        stateService = nil
+        serverCommunicationConfigStateService = nil
         subject = nil
     }
 
@@ -67,7 +67,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(makeMetaServerConfig())
 
@@ -83,11 +83,11 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_withLocalConfig_callsSetCommunicationType() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(makeMetaServerConfig())
 
@@ -131,7 +131,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_withLocalConfig_logsSDKClientError() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
         clientService.platformError = BitwardenTestError.example
 
         configService.configSubject.send(makeMetaServerConfig())
@@ -145,7 +145,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     /// `configPublisher` logs an error when the state service throws.
     @MainActor
     func test_configPublisher_stateServiceError_logsError() async throws {
-        stateService.getServerCommunicationConfigError = BitwardenTestError.example
+        serverCommunicationConfigStateService.getServerCommunicationConfigError = BitwardenTestError.example
 
         configService.configSubject.send(makeMetaServerConfig())
 
@@ -160,7 +160,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     func test_configPublisher_bothSSO_preservesCookieValue() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
         let cookieValue = [AcquiredCookie(name: "cookie", value: "stored_value")]
-        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
             bootstrap: .ssoCookieVendor(
                 SsoCookieVendorConfig(
                     idpLoginUrl: "https://idp.example.com",
@@ -173,7 +173,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(makeMetaServerConfig(communication: makeSSOCommunicationSettings()))
 
@@ -197,11 +197,11 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_serverSSO_localDirect_doesNotPreserveCookieValue() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(makeMetaServerConfig(communication: makeSSOCommunicationSettings()))
 
@@ -225,7 +225,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_resolveHostname_exactMatch_returnsHostname() async throws {
         let hostname = "example.com"
-        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
 
         let result = await subject.resolveHostname(hostname: hostname)
 
@@ -235,7 +235,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     /// `resolveHostname(hostname:)` strips subdomains until it finds a stored config key.
     @MainActor
     func test_resolveHostname_subdomain_fallsBackToParentDomain() async throws {
-        stateService.serverCommunicationConfigs["example.com"] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs["example.com"] = ServerCommunicationConfig(bootstrap: .direct)
 
         let result = await subject.resolveHostname(hostname: "api.example.com")
 
@@ -253,7 +253,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     /// `resolveHostname(hostname:)` logs an error when the state service throws and returns the original hostname.
     @MainActor
     func test_resolveHostname_stateServiceError_logsErrorAndReturnsHostname() async throws {
-        stateService.getServerCommunicationConfigError = BitwardenTestError.example
+        serverCommunicationConfigStateService.getServerCommunicationConfigError = BitwardenTestError.example
 
         let result = await subject.resolveHostname(hostname: "api.example.com")
 
@@ -271,7 +271,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: cookieDomain)),
@@ -290,7 +290,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: nil)),

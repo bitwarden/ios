@@ -531,7 +531,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let sdkRepositoryFactory = DefaultSdkRepositoryFactory(
             cipherDataStore: dataStore,
             errorReporter: errorReporter,
-            stateService: stateService,
+            serverCommunicationConfigStateService: stateService,
         )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
@@ -552,7 +552,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             sdkRepositoryFactory: sdkRepositoryFactory,
             serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
-            stateService: stateService,
+            serverCommunicationConfigStateService: stateService,
         )
 
         let biometricsService = DefaultBiometricsService()
@@ -983,7 +983,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sdkRepositoryFactory: DefaultSdkRepositoryFactory(
                 cipherDataStore: dataStore,
                 errorReporter: errorReporter,
-                stateService: stateService,
+                serverCommunicationConfigStateService: stateService,
             ),
             stateService: stateService,
         )
