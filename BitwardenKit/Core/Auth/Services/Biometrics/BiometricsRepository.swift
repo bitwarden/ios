@@ -1,10 +1,9 @@
-import BitwardenKit
 import BitwardenSdk
 import LocalAuthentication
 
 // MARK: - BiometricsStatus
 
-enum BiometricsUnlockStatus: Equatable {
+public enum BiometricsUnlockStatus: Equatable {
     /// Biometric Unlock is available.
     case available(BiometricAuthenticationType, enabled: Bool)
 
@@ -14,7 +13,7 @@ enum BiometricsUnlockStatus: Equatable {
     // MARK: Computed Properties
 
     /// Whether biometric unlock is both available and enabled.
-    var isEnabled: Bool {
+    public var isEnabled: Bool {
         guard case let .available(_, enabled) = self else {
             return false
         }
@@ -26,7 +25,7 @@ enum BiometricsUnlockStatus: Equatable {
 
 /// A protocol for returning the available authentication policies and access controls for the user's device.
 ///
-protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
+public protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
     /// Returns the device BiometricAuthenticationType.
     ///
     /// - Returns: The `BiometricAuthenticationType`.
@@ -55,7 +54,7 @@ protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
     func setBiometricUnlockKey(authKey: String?, userId: String?) async throws
 }
 
-extension BiometricsRepository {
+public extension BiometricsRepository {
     /// Returns the status for the active user's BiometricAuthentication.
     ///
     /// - Returns: The a `BiometricAuthorizationStatus`.
@@ -81,7 +80,7 @@ extension BiometricsRepository {
 /// and access controls for the user's device, and logs an error if one occurs
 /// while obtaining the device's biometric authentication type.
 ///
-class DefaultBiometricsRepository: BiometricsRepository {
+public class DefaultBiometricsRepository: BiometricsRepository {
     // MARK: Parameters
 
     /// A service used to track device biometry data & status.
@@ -102,7 +101,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     ///   - keychainService: The service used to store the UserAuthKey key/value pair.
     ///   - stateService: The service used to update user preferences.
     ///
-    init(
+    public init(
         biometricsService: BiometricsService,
         keychainService: BiometricsKeychainRepository,
         stateService: BiometricsStateService,
@@ -112,11 +111,11 @@ class DefaultBiometricsRepository: BiometricsRepository {
         self.stateService = stateService
     }
 
-    func getBiometricAuthenticationType() -> BiometricAuthenticationType? {
+    public func getBiometricAuthenticationType() -> BiometricAuthenticationType? {
         biometricsService.getBiometricAuthenticationType()
     }
 
-    func setBiometricUnlockKey(authKey: String?, userId: String?) async throws {
+    public func setBiometricUnlockKey(authKey: String?, userId: String?) async throws {
         let userId = try await stateService.userIdOrActive(userId)
         guard let authKey,
               try await biometricsService.evaluateBiometricPolicy() else {
@@ -129,7 +128,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
         try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
     }
 
-    func getBiometricUnlockStatus(userId: String?) async throws -> BiometricsUnlockStatus {
+    public func getBiometricUnlockStatus(userId: String?) async throws -> BiometricsUnlockStatus {
         let biometryStatus = biometricsService.getBiometricAuthStatus()
         if case .lockedOut = biometryStatus {
             throw BiometricsServiceError.biometryLocked
@@ -148,7 +147,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
         }
     }
 
-    func getUserAuthKey() async throws -> String {
+    public func getUserAuthKey() async throws -> String {
         let id = try await stateService.getActiveAccountId()
 
         do {

@@ -64,11 +64,20 @@ public extension String {
         self == "bitwarden"
     }
 
-    /// A flag indicating if this string is considered a valid email address or not.
+    /// Validates whether the string is a valid email address.
     ///
-    /// An email is considered valid if it has at least one `@` symbol in it.
-    var isValidEmail: Bool {
-        contains("@")
+    /// - Parameter useStrictValidation: If `true`, validates against a regex pattern requiring
+    ///   a properly formatted email (e.g., `user@domain.com`). If `false`, only checks for
+    ///   the presence of an `@` symbol. Defaults to `true`.
+    /// - Returns: `true` if the string is a valid email according to the validation mode.
+    ///
+    func isValidEmail(useStrictValidation: Bool = true) -> Bool {
+        if useStrictValidation {
+            let emailRegex = "^[A-Za-z0-9._%+-/*]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+            return range(of: emailRegex, options: .regularExpression) != nil
+        } else {
+            return contains("@")
+        }
     }
 
     /// Returns `true` if the URL is valid.
