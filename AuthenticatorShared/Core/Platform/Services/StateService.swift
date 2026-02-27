@@ -181,7 +181,7 @@ actor DefaultStateService:
     // MARK: Methods
 
     func clearServerCommunicationCookieValue(hostname: String) async throws {
-        // no-op
+        // no-op as there's no cookie to clear on the BWA app.
     }
 
     func getActiveAccountId() async -> String {

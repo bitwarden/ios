@@ -1,10 +1,34 @@
 import BitwardenKit
 import BitwardenSdk
 
-/// A singleton for `ServerCommunicationConfigClientProtocol`. Needed to break circular dependency.
+/// A lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
+///
+/// This protocol exists specifically to break a circular dependency in `ServiceContainer`:
+///
+/// 1. `APIService` (which also conforms to `ConfigAPIService`) needs a
+///    `ServerCommunicationConfigClientSingleton` to power its SSO-cookie-vendor request and
+///    response handlers.
+/// 2. `DefaultServerCommunicationConfigClientSingleton` needs both `ClientService` (to create
+///    the underlying SDK client) and `ConfigService` (to observe server-config changes and
+///    push communication-type updates into the SDK).
+/// 3. `DefaultClientService` depends on `ConfigService`.
+/// 4. `DefaultConfigService` depends on `APIService` as its `ConfigAPIService`.
+///
+/// The result is the cycle: `APIService → ServerCommunicationConfigClientSingleton → ClientService
+/// / ConfigService → APIService`.
+///
+/// The cycle is broken by injecting the singleton into `APIService` as a lazy closure
+/// `() -> ServerCommunicationConfigClientSingleton?`.
 protocol ServerCommunicationConfigClientSingleton {
-    /// Returns a `ServerCommunicationConfigClientProtocol` for server communication configuration.
-    /// - Returns: A `ServerCommunicationConfigClientProtocol` for server communication.
+    /// Returns the shared `ServerCommunicationConfigClientProtocol`, creating it on the first call.
+    ///
+    /// The underlying client is instantiated once and cached for the lifetime of the singleton.
+    /// Subsequent calls return the same instance without re-creating it.
+    ///
+    /// - Throws: Any error thrown by `ClientService` while obtaining the pre-auth platform client
+    ///   or by the SDK when initializing the server-communication-config client.
+    /// - Returns: The shared `ServerCommunicationConfigClientProtocol` used to configure and
+    ///   interact with the server-communication settings in the SDK.
     func client() async throws -> ServerCommunicationConfigClientProtocol
 }
 
@@ -31,8 +55,9 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
     /// The server communication configuration client.
     private var serverCommunicationConfigClient: ServerCommunicationConfigClientProtocol?
 
-    /// The service used by the application to manage account state.
-    private let stateService: StateService
+    /// The service that provides state management functionality for the
+    /// server communication configuration.
+    private let serverCommunicationConfigStateService: ServerCommunicationConfigStateService
 
     /// Initializes a `DefaultServerCommunicationConfigClientSingleton`.
     /// - Parameters:
@@ -43,7 +68,8 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
     ///   - sdkRepositoryFactory: The factory to create SDK repositories.
     ///   - serverCommunicationConfigAPIService: The service that bridges server communication
     ///   configuration requests from the SDK.
-    ///   - stateService: The service used by the application to manage account state.
+    ///   - stateService: The service that provides state management functionality for the
+    ///   server communication configuration.
     init(
         clientService: ClientService,
         configService: ConfigService,
@@ -51,7 +77,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
         errorReporter: ErrorReporter,
         sdkRepositoryFactory: SdkRepositoryFactory,
         serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService,
-        stateService: StateService,
+        serverCommunicationConfigStateService: ServerCommunicationConfigStateService,
     ) {
         self.clientService = clientService
         self.configService = configService
@@ -59,7 +85,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
         self.errorReporter = errorReporter
         self.sdkRepositoryFactory = sdkRepositoryFactory
         self.serverCommunicationConfigAPIService = serverCommunicationConfigAPIService
-        self.stateService = stateService
+        self.serverCommunicationConfigStateService = serverCommunicationConfigStateService
 
         Task {
             for try await result in try await configService.configPublisher() {
@@ -99,7 +125,10 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
 
         do {
             var commSettings = ServerCommunicationConfig(communicationSettings: communicationSettings)
-            if let localConfig = try await stateService.getServerCommunicationConfig(hostname: hostname),
+            let localConfig = try await serverCommunicationConfigStateService.getServerCommunicationConfig(
+                hostname: hostname,
+            )
+            if let localConfig,
                case .ssoCookieVendor = commSettings.bootstrap,
                case .ssoCookieVendor = localConfig.bootstrap {
                 commSettings = commSettings.updateCookieValue(from: localConfig)

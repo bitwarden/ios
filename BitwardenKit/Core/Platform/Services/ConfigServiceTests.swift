@@ -515,7 +515,6 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_clearServerCommunicationCookieValue() async throws {
         try await subject.clearServerCommunicationCookieValue(hostname: "example.com")
 
-        XCTAssertTrue(stateService.clearServerCommCookieValueCalled)
         XCTAssertEqual(stateService.clearServerCommCookieValueHostname, "example.com")
     }
 
