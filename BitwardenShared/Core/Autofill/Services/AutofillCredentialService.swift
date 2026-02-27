@@ -476,17 +476,19 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
         )
 
+        let userId = try await stateService.getActiveAccountId()
+
         // Before trying to unlock the vault, see if we can satisfy the credential request with the device auth key.
         if await configService.getFeatureFlag(.deviceAuthKey),
            let recordIdentifier = credentialIdentity.recordIdentifier,
            // swiftlint:disable:next line_length
-           let deviceAuthKeyMetadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: stateService.getActiveAccountId()),
+           let deviceAuthKeyMetadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
            recordIdentifier == deviceAuthKeyMetadata.cipherId {
             // The credential request is for the device auth key, so we serve that up.
             if let deviceResult = try? await deviceAuthKeyService.assertDeviceAuthKey(
                 for: request,
                 recordIdentifier: recordIdentifier,
-                userId: stateService.getActiveAccountId(),
+                userId: userId,
             ) {
                 return ASPasskeyAssertionCredential(
                     assertionResult: deviceResult,
@@ -499,7 +501,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         // If the device auth key doesn't match (or errors), then we unlock the vault to serve up a passkey from it.
 
         try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
-        guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
+        guard await !vaultTimeoutService.isLocked(userId: userId) else {
             throw Fido2Error.userInteractionRequired
         }
 
