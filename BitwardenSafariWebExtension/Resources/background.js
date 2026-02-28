@@ -43,4 +43,30 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return false;
         }
     }
+
+    // Broadcast fill command to all frames in the sender's tab
+    if (message.type === "broadcastFill" && sender.tab && sender.tab.id) {
+        // To send to all frames, we must iterate through them if the browser defaults to top-frame only.
+        // Safari usually supports browser.webNavigation.getAllFrames.
+        if (browser.webNavigation && browser.webNavigation.getAllFrames) {
+            browser.webNavigation.getAllFrames({ tabId: sender.tab.id }).then((frames) => {
+                frames.forEach(frame => {
+                    browser.tabs.sendMessage(
+                        sender.tab.id,
+                        { type: "performBroadcastFill", item: message.item },
+                        { frameId: frame.frameId }
+                    ).catch(() => { }); // Ignore errors for frames that might not have content scripts
+                });
+                sendResponse({ status: "broadcast sequence initiated via webNavigation" });
+            });
+        } else {
+            // Fallback: try to just broadcast and hope the polyfill/browser handles it
+            browser.tabs.sendMessage(sender.tab.id, {
+                type: "performBroadcastFill",
+                item: message.item
+            }).catch(() => { });
+            sendResponse({ status: "broadcast sequence initiated (fallback)" });
+        }
+        return true;
+    }
 });

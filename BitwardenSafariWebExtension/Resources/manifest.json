@@ -4,22 +4,32 @@
     "description": "Bitwarden Safari Web Extension",
     "version": "1.0",
     "background": {
-        "scripts": ["background.js"]
+        "scripts": [
+            "background.js"
+        ]
     },
     "action": {
         "default_popup": "popup.html"
     },
     "content_scripts": [
         {
-            "matches": ["<all_urls>"],
-            "js": ["content.js"],
-            "css": ["inline-popup.css"]
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "inline-popup.css"
+            ],
+            "all_frames": true
         }
     ],
     "permissions": [
         "nativeMessaging",
         "activeTab",
-        "storage"
+        "storage",
+        "webNavigation"
     ],
     "host_permissions": [
         "<all_urls>"

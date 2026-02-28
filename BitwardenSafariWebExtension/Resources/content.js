@@ -273,7 +273,21 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
 function fillForm(form, item) {
     if (!form) return;
 
-    const inputs = form.querySelectorAll('input, select');
+    // Broadcast the fill command to all frames in case there are cross-origin iframes
+    // Safari Web Extensions inject content.js into every frame automatically.
+    // We send a message through the background script to broadcast to all frames in the current tab.
+    browser.runtime.sendMessage({
+        type: "broadcastFill",
+        item: item
+    });
+
+    // Also fill the current frame's form immediately
+    performFill(form, item);
+}
+
+// New helper to perform the actual DOM manipulation
+function performFill(formOrDocument, item) {
+    const inputs = formOrDocument.querySelectorAll('input, select');
     inputs.forEach(input => {
         const fieldType = determineFieldType(input);
 
@@ -283,7 +297,16 @@ function fillForm(form, item) {
         } else if (item.type === 'card') {
             if (fieldType === 'cardName' && item.cardholderName) input.value = item.cardholderName;
             else if (fieldType === 'cardNumber' && item.number) input.value = item.number;
-            else if (fieldType === 'cardExp' && item.expMonth && item.expYear) input.value = `${item.expMonth}/${item.expYear}`;
+            else if (fieldType === 'cardExp' && item.expMonth && item.expYear) {
+                // Determine format based on input length or common patterns
+                const format = input.placeholder || "";
+                if (format.includes("YYYY") || input.maxLength >= 7) {
+                    input.value = `${item.expMonth}/${item.expYear}`;
+                } else {
+                    const shortYear = item.expYear ? item.expYear.toString().slice(-2) : "";
+                    input.value = `${item.expMonth}/${shortYear}`;
+                }
+            }
             else if (fieldType === 'cardCvv' && item.code) input.value = item.code;
         } else if (item.type === 'identity') {
             if (fieldType === 'identityName') {
@@ -308,11 +331,29 @@ function fillForm(form, item) {
 
         // Dispatch events so React/Vue/Angular notice the change
         if (input.value) {
+            // Use the native value setter to bypass React's wrapper
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype,
+                "value"
+            )?.set;
+            if (nativeInputValueSetter) {
+                nativeInputValueSetter.call(input, input.value);
+            }
+
             input.dispatchEvent(new Event('input', { bubbles: true }));
             input.dispatchEvent(new Event('change', { bubbles: true }));
         }
     });
 }
+
+// Listen for broadcast fill commands from other frames (routed through background script)
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "performBroadcastFill" && message.item) {
+        console.log(`Bitwarden Content Script [Frame: ${window.location.hostname}]: Received broadcast fill command in frame.`);
+        // If we are in an iframe, we might just have inputs scattered in the document, not necessarily a <form>
+        performFill(document, message.item);
+    }
+});
 
 function scanDOM() {
     const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"])');
