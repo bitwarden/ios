@@ -16,7 +16,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("Background received message from content script:", message);
 
     // Route messages to native iOS app
-    if (message.type === "vaultStatus" || message.type === "getItems" || message.type === "unlock" || message.type === "unlockWithPassword") {
+    if (message.type === "vaultStatus" || message.type === "getItems" || message.type === "unlock" || message.type === "unlockWithPassword" || message.type === "lock") {
         sendToNative(message).then(response => {
             sendResponse(response);
         }).catch(err => {

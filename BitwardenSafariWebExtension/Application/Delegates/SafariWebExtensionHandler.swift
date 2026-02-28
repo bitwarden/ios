@@ -41,6 +41,10 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             Task { @MainActor in
                 await handleUnlockWithPassword(password: password, context: context)
             }
+        case "lock":
+            Task { @MainActor in
+                await handleLock(context: context)
+            }
         default:
             sendResponse(["error": "Unknown message type: \(type)"], to: context)
         }
@@ -95,6 +99,15 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             os_log("Failed to unlock vault with password: %{public}s", log: logger, type: .error, String(describing: error))
             sendResponse(["error": "Incorrect Master Password."], to: context)
         }
+    }
+
+    @MainActor
+    private func handleLock(context: NSExtensionContext) async {
+        let errorReporter = OSLogErrorReporter()
+        let services = ServiceContainer.shared(appContext: .appExtension, errorReporter: { errorReporter })
+        
+        await services.lockVault()
+        sendResponse(["status": "locked"], to: context)
     }
     
     @MainActor

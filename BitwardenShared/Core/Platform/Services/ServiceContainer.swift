@@ -406,6 +406,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         try await authRepository.unlockVaultWithPassword(password: password)
     }
 
+    /// Locks the vault.
+    public func lockVault() async {
+        await authRepository.lockVault(userId: nil)
+    }
+
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     /// - Parameters:

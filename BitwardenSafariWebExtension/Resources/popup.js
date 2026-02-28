@@ -113,11 +113,28 @@ inputMasterPassword.addEventListener('keypress', (e) => {
 });
 
 // --- Unlocked (Suggestions) Logic ---
+const btnOverflow = document.getElementById('btn-overflow');
+const overflowMenu = document.getElementById('overflow-menu');
+
+btnOverflow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    overflowMenu.classList.toggle('hidden');
+});
+
+document.addEventListener('click', (e) => {
+    if (!overflowMenu.contains(e.target) && e.target !== btnOverflow) {
+        overflowMenu.classList.add('hidden');
+    }
+});
+
 const btnLock = document.getElementById('btn-lock');
 btnLock.addEventListener('click', () => {
-    // For now, locking just resets the view locally as we don't have a 'lock' message sent to native
-    // However realistically this button should lock the vault natively.
-    showView('locked');
+    overflowMenu.classList.add('hidden');
+    sendMessage({ type: "lock" }).then(response => {
+        showView('locked');
+    }).catch(err => {
+        showView('locked');
+    });
 });
 
 function loadSuggestions() {

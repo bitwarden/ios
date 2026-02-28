@@ -38,18 +38,31 @@
         <!-- Unlocked (Suggestions) View -->
         <div id="unlocked-view" class="view hidden">
             <div class="header-container">
-                <button id="btn-lock" class="btn-icon header-btn" aria-label="Lock Vault" title="Lock Vault">
-                    <svg viewBox="0 0 448 512">
-                        <path fill="currentColor"
-                            d="M144 192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80V144C80 64.47 144.5 0 224 0C281.5 0 331 33.69 354.1 82.27C361.7 98.23 354.9 117.3 338.1 124.9C322.9 132.5 303.9 125.7 296.3 109.8C283.4 82.63 255.9 64 224 64C179.8 64 144 99.82 144 144V192H144zM224 288C197.5 288 176 309.5 176 336C176 362.5 197.5 384 224 384C250.5 384 272 362.5 272 336C272 309.5 250.5 288 224 288z" />
-                    </svg>
-                </button>
                 <div class="search-bar">
                     <svg viewBox="0 0 512 512" class="search-icon">
                         <path fill="currentColor"
                             d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z" />
                     </svg>
                     <input type="text" id="search-input" placeholder="Search" />
+                </div>
+                <div class="overflow-menu-container">
+                    <button id="btn-overflow" class="btn-icon header-btn" aria-label="Menu" title="Menu">
+                        <svg viewBox="0 0 128 512" style="width: 6px;">
+                            <path fill="currentColor"
+                                d="M64 360c30.9 0 56 25.1 56 56s-25.1 56-56 56-56-25.1-56-56 25.1-56 56-56zm0-160c30.9 0 56 25.1 56 56s-25.1 56-56 56-56-25.1-56-56 25.1-56 56-56zM120 96c0 30.9-25.1 56-56 56S8 126.9 8 96 33.1 40 64 40s56 25.1 56 56z" />
+                        </svg>
+                    </button>
+                    <div id="overflow-menu" class="overflow-menu hidden">
+                        <button id="btn-lock" class="menu-item-btn">
+                            <span class="menu-icon">
+                                <svg viewBox="0 0 448 512">
+                                    <path fill="currentColor"
+                                        d="M144 192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80V144C80 64.47 144.5 0 224 0C281.5 0 331 33.69 354.1 82.27C361.7 98.23 354.9 117.3 338.1 124.9C322.9 132.5 303.9 125.7 296.3 109.8C283.4 82.63 255.9 64 224 64C179.8 64 144 99.82 144 144V192H144zM224 288C197.5 288 176 309.5 176 336C176 362.5 197.5 384 224 384C250.5 384 272 362.5 272 336C272 309.5 250.5 288 224 288z" />
+                                </svg>
+                            </span>
+                            Lock vault
+                        </button>
+                    </div>
                 </div>
             </div>
 
