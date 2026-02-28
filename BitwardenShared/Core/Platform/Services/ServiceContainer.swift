@@ -401,6 +401,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         try await authRepository.unlockVaultWithBiometrics()
     }
 
+    /// Unlocks the vault with the master password.
+    public func unlockVaultWithPassword(password: String) async throws {
+        try await authRepository.unlockVaultWithPassword(password: password)
+    }
+
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     /// - Parameters:

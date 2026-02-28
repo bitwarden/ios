@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Test 2</title>
+    <link rel="stylesheet" href="http://localhost:8080/inline-popup.css">
+    <style>
+        body {
+            padding: 40px;
+            background-color: #f5f5f5;
+        }
+
+        #mock-input {
+            width: 300px;
+            padding: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <input type="email" id="mock-input" placeholder="Email Address">
+
+    <!-- Mocking exactly what content.js generates now -->
+    <div id="bitwarden-inline-popup" style="position: relative; margin-top: 10px;">
+        <div class="bw-popup-padded-container">
+            <div class="autofill-header">Select a login to autofill</div>
+            <div class="inline-menu-list-actions">
+                <div class="inline-menu-list-actions-item">
+                    <div class="cipher-container">
+                        <div class="cipher-icon">
+                            <svg viewBox="0 0 512 512">
+                                <path fill="currentColor" d="M256 0L24 65.5v281l232 165.5 232-165.5V65.5L256 0z" />
+                            </svg>
+                        </div>
+                        <div class="cipher-details">
+                            <span class="cipher-name">mikecadelago@gmail.com</span>
+                            <span class="cipher-subtitle">password for this website</span>
+                        </div>
+                        <div class="cipher-external-icon">
+                            <svg viewBox="0 0 448 512">
+                                <path fill="currentColor"
+                                    d="M432 320H400c-8.8 0-16 7.2-16 16V448H64V128H208c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16H48c-26.5 0-48 21.5-48 48V464c0 26.5 21.5 48 48 48H400c26.5 0 48-21.5 48-48V336c0-8.8-7.2-16-16-16zM488 0H336c-13.3 0-24 10.7-24 24s10.7 24 24 24h66.7L215.1 235.6c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0L440 78.6l10.7 10.7V24c0-13.3-10.7-24-24-24z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="inline-menu-list-actions-item">
+                    <div class="cipher-container">
+                        <div class="cipher-icon">
+                            <svg viewBox="0 0 512 512">
+                                <path fill="currentColor" d="M256 0L24 65.5v281l232 165.5 232-165.5V65.5L256 0z" />
+                            </svg>
+                        </div>
+                        <div class="cipher-details">
+                            <span class="cipher-name">secondary_account@gmail.com</span>
+                            <span class="cipher-subtitle">password for this website</span>
+                        </div>
+                        <div class="cipher-external-icon">
+                            <svg viewBox="0 0 448 512">
+                                <path fill="currentColor"
+                                    d="M432 320H400c-8.8 0-16 7.2-16 16V448H64V128H208c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16H48c-26.5 0-48 21.5-48 48V464c0 26.5 21.5 48 48 48H400c26.5 0 48-21.5 48-48V336c0-8.8-7.2-16-16-16zM488 0H336c-13.3 0-24 10.7-24 24s10.7 24 24 24h66.7L215.1 235.6c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0L440 78.6l10.7 10.7V24c0-13.3-10.7-24-24-24z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

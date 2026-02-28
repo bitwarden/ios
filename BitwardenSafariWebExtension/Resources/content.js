@@ -12,7 +12,8 @@ const ICONS = {
     login: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 0L24 65.5v281l232 165.5 232-165.5V65.5L256 0z"/></svg>',
     card: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M480 80H32C14.33 80 0 94.33 0 112v288c0 17.67 14.33 32 32 32h448c17.67 0 32-14.33 32-32V112c0-17.67-14.33-32-32-32zM96 352H64v-32h32v32zm0-64H64v-32h32v32zm0-64H64v-32h32v32zm384 128H160v-32h320v32zm0-64H160v-32h320v32zm0-64H160v-32h320v32z"/></svg>',
     identity: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M384 128h-32V96c0-17.67-14.33-32-32-32H96C78.33 64 64 78.33 64 96v256c0 17.67 14.33 32 32 32h32v32c0 17.67 14.33 32 32 32h224c17.67 0 32-14.33 32-32V160c0-17.67-14.33-32-32-32zm-64 224H160v-64h160v64zm0-96H160v-64h160v64z"/></svg>',
-    unlock: '<svg viewBox="0 0 448 512"><path fill="currentColor" d="M144 192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80V144C80 64.47 144.5 0 224 0C281.5 0 331 33.69 354.1 82.27C361.7 98.23 354.9 117.3 338.1 124.9C322.9 132.5 303.9 125.7 296.3 109.8C283.4 82.63 255.9 64 224 64C179.8 64 144 99.82 144 144V192H144zM224 288C197.5 288 176 309.5 176 336C176 362.5 197.5 384 224 384C250.5 384 272 362.5 272 336C272 309.5 250.5 288 224 288z"/></svg>'
+    unlock: '<svg viewBox="0 0 448 512"><path fill="currentColor" d="M144 192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80V144C80 64.47 144.5 0 224 0C281.5 0 331 33.69 354.1 82.27C361.7 98.23 354.9 117.3 338.1 124.9C322.9 132.5 303.9 125.7 296.3 109.8C283.4 82.63 255.9 64 224 64C179.8 64 144 99.82 144 144V192H144zM224 288C197.5 288 176 309.5 176 336C176 362.5 197.5 384 224 384C250.5 384 272 362.5 272 336C272 309.5 250.5 288 224 288z"/></svg>',
+    external: '<svg viewBox="0 0 448 512"><path fill="currentColor" d="M432 320H400c-8.8 0-16 7.2-16 16V448H64V128H208c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16H48c-26.5 0-48 21.5-48 48V464c0 26.5 21.5 48 48 48H400c26.5 0 48-21.5 48-48V336c0-8.8-7.2-16-16-16zM488 0H336c-13.3 0-24 10.7-24 24s10.7 24 24 24h66.7L215.1 235.6c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0L440 78.6l10.7 10.7V24c0-13.3-10.7-24-24-24z"/></svg>'
 };
 
 // Heuristics
@@ -124,14 +125,14 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
 
     // Position the popup below the input field
     const rect = inputField.getBoundingClientRect();
-    popup.style.top = (window.scrollY + rect.bottom + 5) + 'px';
+    popup.style.top = (window.scrollY + rect.bottom + 8) + 'px';
     popup.style.left = (window.scrollX + rect.left) + 'px';
 
     if (errorMsg) {
         if (errorMsg === "Vault is locked") {
             popup.innerHTML = `
-                <div class="bw-popup-locked">
-                    <span class="cipher-subtitle">Unlock your account to view autofill suggestions</span>
+                <div class="bw-popup-padded-container">
+                    <div class="locked-header">Unlock your account to view autofill suggestions</div>
                     <div class="inline-menu-list-actions-item unlock-button" id="unlock-vault-btn">
                         <div class="cipher-container">
                             <div class="cipher-icon">${ICONS.unlock}</div>
@@ -149,22 +150,40 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
                         if (res.status === "unlocked") {
                             popup.remove();
                             showPopup(inputField, icon); // Refresh
+                        } else if (res.error) {
+                            renderPopup(inputField, icon, [], res.error);
                         }
+                    }).catch(err => {
+                        console.error("Error unlocking vault:", err);
+                        renderPopup(inputField, icon, [], "Communication error during unlock");
                     });
                 });
             }, 0);
         } else {
-            popup.innerHTML = `<div class="bw-popup-error">${errorMsg}</div>`;
+            popup.innerHTML = `
+                <div class="bw-popup-error-container">
+                    <svg class="bw-popup-error-icon" viewBox="0 0 512 512"><path fill="currentColor" d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>
+                    <div class="bw-popup-error-text">${errorMsg}</div>
+                </div>
+            `;
         }
     } else if (items.length === 0) {
         popup.innerHTML = `<div class="bw-popup-empty">No matching items found</div>`;
     } else {
-        const list = document.createElement('ul');
+        const container = document.createElement('div');
+        container.className = 'bw-popup-padded-container';
+
+        const header = document.createElement('div');
+        header.className = 'autofill-header';
+        header.innerText = 'Select a login to autofill';
+        container.appendChild(header);
+
+        const list = document.createElement('div');
         list.className = 'inline-menu-list-actions';
 
         items.forEach(item => {
-            const li = document.createElement('li');
-            li.className = 'inline-menu-list-actions-item';
+            const row = document.createElement('div');
+            row.className = 'inline-menu-list-actions-item';
 
             let iconSvg = ICONS.login;
             let subtitle = "";
@@ -181,23 +200,26 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
                 subtitle = item.username || "No username";
             }
 
-            li.innerHTML = `
+            row.innerHTML = `
                 <div class="cipher-container">
                     <div class="cipher-icon">${iconSvg}</div>
                     <div class="cipher-details">
                         <span class="cipher-name">${item.name}</span>
                         <span class="cipher-subtitle">${subtitle}</span>
                     </div>
+                    <div class="cipher-external-icon">${ICONS.external}</div>
                 </div>
             `;
 
-            li.addEventListener('click', () => {
+            row.addEventListener('click', () => {
                 fillForm(inputField.form, item);
                 popup.remove();
             });
-            list.appendChild(li);
+            list.appendChild(row);
         });
-        popup.appendChild(list);
+
+        container.appendChild(list);
+        popup.appendChild(container);
     }
 
     document.body.appendChild(popup);

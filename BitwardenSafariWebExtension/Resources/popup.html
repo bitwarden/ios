@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bitwarden</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div id="container">
+
+        <!-- Locked View -->
+        <div id="locked-view" class="view hidden">
+            <div class="lock-icon-container">
+                <svg viewBox="0 0 448 512" class="lock-icon">
+                    <path fill="currentColor"
+                        d="M144 192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80V144C80 64.47 144.5 0 224 0C281.5 0 331 33.69 354.1 82.27C361.7 98.23 354.9 117.3 338.1 124.9C322.9 132.5 303.9 125.7 296.3 109.8C283.4 82.63 255.9 64 224 64C179.8 64 144 99.82 144 144V192H144zM224 288C197.5 288 176 309.5 176 336C176 362.5 197.5 384 224 384C250.5 384 272 362.5 272 336C272 309.5 250.5 288 224 288z" />
+                </svg>
+            </div>
+            <p class="unlock-text">Your vault is locked.</p>
+
+            <button id="btn-biometric-unlock" class="btn btn-primary btn-block">
+                Unlock with Biometrics
+            </button>
+
+            <div class="form-group password-fallback hidden" id="password-fallback-container">
+                <p class="error-text" id="unlock-error-text"></p>
+                <input type="password" id="input-master-password" placeholder="Master Password" class="form-control"
+                    autocomplete="off" />
+                <button id="btn-password-unlock" class="btn btn-primary btn-block">
+                    Unlock
+                </button>
+            </div>
+        </div>
+
+        <!-- Unlocked (Suggestions) View -->
+        <div id="unlocked-view" class="view hidden">
+            <div class="header-container">
+                <button id="btn-lock" class="btn-icon header-btn" aria-label="Lock Vault" title="Lock Vault">
+                    <svg viewBox="0 0 448 512">
+                        <path fill="currentColor"
+                            d="M144 192H384C419.3 192 448 220.7 448 256V448C448 483.3 419.3 512 384 512H64C28.65 512 0 483.3 0 448V256C0 220.7 28.65 192 64 192H80V144C80 64.47 144.5 0 224 0C281.5 0 331 33.69 354.1 82.27C361.7 98.23 354.9 117.3 338.1 124.9C322.9 132.5 303.9 125.7 296.3 109.8C283.4 82.63 255.9 64 224 64C179.8 64 144 99.82 144 144V192H144zM224 288C197.5 288 176 309.5 176 336C176 362.5 197.5 384 224 384C250.5 384 272 362.5 272 336C272 309.5 250.5 288 224 288z" />
+                    </svg>
+                </button>
+                <div class="search-bar">
+                    <svg viewBox="0 0 512 512" class="search-icon">
+                        <path fill="currentColor"
+                            d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z" />
+                    </svg>
+                    <input type="text" id="search-input" placeholder="Search" />
+                </div>
+            </div>
+
+            <div class="list-container group">
+                <div class="list-header">
+                    <svg viewBox="0 0 512 512" class="list-header-icon">
+                        <path fill="currentColor"
+                            d="M256 0L24 65.5v281l232 165.5 232-165.5V65.5L256 0zM192 192v64h128v-64h-128zm0 128v64h128v-64h-128z" />
+                    </svg>
+                    <span>Suggestions</span>
+                </div>
+                <div id="suggestions-list" class="list">
+                    <!-- Items injected here by js -->
+                    <div class="list-item empty-state hidden" id="no-suggestions-text">
+                        No suggestions found.
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <p class="error-text" id="items-error-text"></p>
+            </div>
+        </div>
+
+        <!-- Item Details View -->
+        <div id="details-view" class="view hidden">
+            <div class="header-container nav-header">
+                <button id="btn-back" class="btn-icon">
+                    <svg viewBox="0 0 320 512">
+                        <path fill="currentColor"
+                            d="M34.52 239.03L228.87 44.69c9.37-9.37 24.57-9.37 33.94 0l22.67 22.67c9.36 9.36 9.37 24.52.04 33.9L131.49 256l154.02 154.75c9.34 9.38 9.32 24.54-.04 33.9l-22.67 22.67c-9.37 9.37-24.57 9.37-33.94 0L34.52 272.97c-9.37-9.37-9.37-24.57 0-33.94z" />
+                    </svg>
+                    <span>Back</span>
+                </button>
+            </div>
+
+            <div class="details-header">
+                <div class="cipher-icon-large" id="details-icon"></div>
+                <h2 id="details-title" class="details-title"></h2>
+            </div>
+
+            <div class="list-container group" id="details-fields-list">
+                <!-- Fields injected here by js -->
+            </div>
+        </div>
+
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

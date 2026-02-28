@@ -36,6 +36,11 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             Task { @MainActor in
                 await handleUnlock(context: context)
             }
+        case "unlockWithPassword":
+            let password = message["password"] as? String ?? ""
+            Task { @MainActor in
+                await handleUnlockWithPassword(password: password, context: context)
+            }
         default:
             sendResponse(["error": "Unknown message type: \(type)"], to: context)
         }
@@ -46,7 +51,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     @MainActor
     private func handleVaultStatus(context: NSExtensionContext) async {
         let errorReporter = OSLogErrorReporter()
-        let services = ServiceContainer(appContext: .appExtension, errorReporter: errorReporter)
+        let services = ServiceContainer.shared(appContext: .appExtension, errorReporter: { errorReporter })
         let appModule = DefaultAppModule(services: services)
         let appProcessor = AppProcessor(appModule: appModule, services: services)
         
@@ -67,23 +72,35 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     @MainActor
     private func handleUnlock(context: NSExtensionContext) async {
         let errorReporter = OSLogErrorReporter()
-        let services = ServiceContainer(appContext: .appExtension, errorReporter: errorReporter)
-        let appModule = DefaultAppModule(services: services)
-        let appProcessor = AppProcessor(appModule: appModule, services: services)
+        let services = ServiceContainer.shared(appContext: .appExtension, errorReporter: { errorReporter })
 
         do {
             try await services.unlockVaultWithBiometrics()
             sendResponse(["status": "unlocked"], to: context)
         } catch {
             os_log("Failed to unlock vault with biometrics: %{public}s", log: logger, type: .error, String(describing: error))
-            sendResponse(["error": "Unlock failed"], to: context)
+            sendResponse(["error": "Biometric unlock failed. Please open the Bitwarden extension to unlock."], to: context)
+        }
+    }
+    
+    @MainActor
+    private func handleUnlockWithPassword(password: String, context: NSExtensionContext) async {
+        let errorReporter = OSLogErrorReporter()
+        let services = ServiceContainer.shared(appContext: .appExtension, errorReporter: { errorReporter })
+        
+        do {
+            try await services.unlockVaultWithPassword(password: password)
+            sendResponse(["status": "unlocked"], to: context)
+        } catch {
+            os_log("Failed to unlock vault with password: %{public}s", log: logger, type: .error, String(describing: error))
+            sendResponse(["error": "Incorrect Master Password."], to: context)
         }
     }
     
     @MainActor
     private func handleGetItems(url: String, context: NSExtensionContext) async {
         let errorReporter = OSLogErrorReporter()
-        let services = ServiceContainer(appContext: .appExtension, errorReporter: errorReporter)
+        let services = ServiceContainer.shared(appContext: .appExtension, errorReporter: { errorReporter })
         let appModule = DefaultAppModule(services: services)
         let appProcessor = AppProcessor(appModule: appModule, services: services)
         
