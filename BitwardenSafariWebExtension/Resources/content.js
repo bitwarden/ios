@@ -119,9 +119,51 @@ function showPopup(inputField, icon) {
     });
 }
 
+function isLoginForm(inputField) {
+    if (!inputField.form) {
+        // Fallback: check surrounding nearby inputs if no explicit form
+        const parent = inputField.closest('div, section, main, body');
+        if (parent) {
+            const passFields = parent.querySelectorAll('input[type="password"]');
+            return passFields.length > 0;
+        }
+        return false;
+    }
+    const inputs = inputField.form.querySelectorAll('input');
+    for (let input of inputs) {
+        if (input.type === 'password') return true;
+    }
+    return false;
+}
+
 function renderPopup(inputField, icon, items, errorMsg = null) {
     const popup = document.createElement('div');
     popup.id = INLINE_POPUP_ID;
+
+    // Filter items based on the context of the input field
+    const fieldType = determineFieldType(inputField);
+    const inLoginForm = fieldType === 'password' || isLoginForm(inputField);
+
+    let displayItems = items;
+    if (!errorMsg && items) {
+        displayItems = items.filter(item => {
+            const isCard = item.type === 'card';
+            const isIdentity = item.type === 'identity';
+            const isLogin = !isCard && !isIdentity;
+
+            if (inLoginForm) {
+                // If we are in a login/password form context, strictly only show Logins
+                return isLogin;
+            } else if (fieldType === 'username') {
+                return isLogin || isIdentity; // Out of login context, identities can provide emails
+            } else if (['cardNumber', 'cardName', 'cardExp', 'cardCvv'].includes(fieldType)) {
+                return isCard;
+            } else if (['address', 'identityName', 'phone'].includes(fieldType)) {
+                return isIdentity;
+            }
+            return true; // Unknown field: show all
+        });
+    }
 
     // Position the popup below the input field
     const rect = inputField.getBoundingClientRect();
@@ -158,7 +200,7 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
                 </div>
             `;
         }
-    } else if (items.length === 0) {
+    } else if (displayItems.length === 0) {
         popup.innerHTML = `<div class="bw-popup-empty">No matching items found</div>`;
     } else {
         const container = document.createElement('div');
@@ -166,13 +208,13 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
 
         const header = document.createElement('div');
         header.className = 'autofill-header';
-        header.innerText = 'Select a login to autofill';
+        header.innerText = 'Select an item to autofill';
         container.appendChild(header);
 
         const list = document.createElement('div');
         list.className = 'inline-menu-list-actions';
 
-        items.forEach(item => {
+        displayItems.forEach(item => {
             const row = document.createElement('div');
             row.className = 'inline-menu-list-actions-item';
 
