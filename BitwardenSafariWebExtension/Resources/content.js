@@ -146,17 +146,8 @@ function renderPopup(inputField, icon, items, errorMsg = null) {
             setTimeout(() => {
                 const btn = popup.querySelector("#unlock-vault-btn");
                 btn.addEventListener('click', () => {
-                    browser.runtime.sendMessage({ type: "unlock" }).then(res => {
-                        if (res.status === "unlocked") {
-                            popup.remove();
-                            showPopup(inputField, icon); // Refresh
-                        } else if (res.error) {
-                            renderPopup(inputField, icon, [], res.error);
-                        }
-                    }).catch(err => {
-                        console.error("Error unlocking vault:", err);
-                        renderPopup(inputField, icon, [], "Communication error during unlock");
-                    });
+                    browser.runtime.sendMessage({ type: "openPopup" });
+                    popup.remove();
                 });
             }, 0);
         } else {
