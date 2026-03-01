@@ -248,7 +248,7 @@
 "CopyTotp" = "Kopiuj kod TOTP";
 "CopyTotpAutomaticallyDescription" = "Automatycznie kopiuje kod TOTP do schowka podczas autouzupełniania.";
 "CopyTotpAutomatically" = "Kopiuj kod TOTP automatycznie";
-"PremiumRequired" = "Konto premium jest wymagane, aby skorzystać z tej funkcji.";
+"PremiumRequired" = "Konto Premium jest wymagane, aby skorzystać z tej funkcji.";
 "AttachementAdded" = "Załącznik został dodany";
 "AttachmentDeleted" = "Załącznik został usunięty";
 "ChooseFile" = "Wybierz plik";
@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Autouzupełnianie hasła";
 "BitwardenAutofillAlert2" = "Najprostszym sposobem dodania nowych danych logowania do sejfu jest rozszerzenie autouzupełniania haseł Bitwarden. Więcej informacji o używaniu rozszerzenia autouzupełniania znajdziesz w ustawieniach.";
 "InvalidEmail" = "Adres e-mail jest nieprawidłowy.";
+"InvalidEmailAddresses" = "Adres e-mail jest nieprawidłowy";
+"NoEmailAddressesEntered" = "Brak adresu e-mail";
+"EnterAtLeastOneValidEmailToShareSend" = "Wpisz co najmniej jeden prawidłowy adres e-mail, aby udostępnić wysyłkę.";
+"OneOrMoreEmailAddressesIncorrect" = "Co najmniej jeden adres e-mail jest nieprawidłowy. Sprawdź je i spróbuj ponownie.";
 "Cards" = "Karty";
 "Identities" = "Tożsamości";
 "Logins" = "Dane logowania";
@@ -651,7 +655,7 @@
 "All" = "Wszystkie";
 "Totp" = "TOTP";
 "VerificationCodes" = "Kody weryfikacyjne";
-"PremiumSubscriptionRequired" = "Konto premium jest wymagane";
+"PremiumSubscriptionRequired" = "Wymagana jest subskrypcja Premium";
 "CannotAddAuthenticatorKey" = "Nie możesz dodać klucza uwierzytelniającego?";
 "ScanQRCode" = "Zeskanuj kod QR";
 "CannotScanQRCode" = "Nie możesz zeskanować kodu QR?";
@@ -1268,9 +1272,9 @@
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Zachowaj elementy, których teraz nie potrzebujesz.";
 "GoToArchive" = "Przejdź do archiwum";
 "ItemTransfer" = "Przenoszenie elementów";
-"TransferItemsToX" = "Przenieś elementy do %1$@";
-"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
-"DeclineAndLeave" = "Decline and leave";
+"TransferItemsToX" = "Przenieś elementy do organizacji %1$@";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "Organizacja %1$@ wymaga, aby wszystkie elementy były ich własnością. Kliknij „Akceptuj”, aby przenieść własność swoich elementów.";
+"DeclineAndLeave" = "Odrzuć i wyjdź";
 "WhyAmISeeingThis" = "Dlaczego to widzę?";
 "AreYouSureYouWantToLeave" = "Na pewno chcesz opuścić?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Odrzucenie spowoduje, że Twoje osobiste elementy pozostaną na koncie, ale stracisz dostęp do udostępnionych elementów oraz funkcji organizacji.";
@@ -1284,7 +1288,7 @@
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@ i %2$@.";
 "HiddenItems" = "Ukryte elementy";
 "Archive" = "Archiwum";
-"Archived" = "Archived";
+"Archived" = "Zarchiwizowano";
 "Unarchive" = "Usuń z archiwum";
 "ItemMovedToArchive" = "Element został przeniesiony do archiwum";
 "ItemMovedToVault" = "Element został przeniesiony do archiwum";
@@ -1293,14 +1297,14 @@
 "OrganizationNotFound" = "Nie znaleziono organizacji.";
 "ItemsTransferred" = "Elementy zostały przeniesione";
 "ArchiveIsEmpty" = "Archiwum jest puste";
-"ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ArchiveEmptyDescriptionLong" = "Przenieś do archiwum elementy, których nie chcesz widzieć w wynikach wyszukiwania i sugestiach autouzupełniania, ale które mogą Ci się kiedyś przydać.";
 "ArchiveUnavailable" = "Archiwum jest niedostępne";
-"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
-"UpgradeToPremium" = "Upgrade to premium";
+"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiwizowanie elementów jest funkcją Premium. Twój obecny plan nie obejmuje dostępu do tej funkcji.";
+"UpgradeToPremium" = "Kup konto Premium";
 "ThisItemIsArchived" = "Element jest zarchiwizowany.";
-"YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
-"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
-"RestartPremium" = "Restart Premium";
+"YourPremiumSubscriptionEnded" = "Subskrypcja Premium wygasła";
+"YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Aby odzyskać dostęp do archiwum, odnów subskrypcję Premium. Jeśli przed wznowieniem subskrypcji edytujesz szczegóły archiwizowanego elementu, zostanie on przeniesiony z powrotem do sejfu.";
+"RestartPremium" = "Odnów subskrypcję Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Element jest zarchiwizowany. Zapisanie zmian spowoduje przywrócenie go do sejfu.";
 "SettingUpAutofill" = "Konfiguracja autouzupełniania…";
 "AddEmail" = "Dodaj adres e-mail";
@@ -1310,4 +1314,4 @@
 "AfterSharingThisSendLinkDescriptionLong" = "Aby wyświetlić wysyłkę, odbiorcy będą musieli zweryfikować adres e-mail za pomocą kodu.";
 "SpecificPeople" = "Konkretni użytkownicy";
 "WhoCanView" = "Kto może odczytać";
-"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Udostępnianie użytkownikom jest funkcją premium. Twój obecny plan nie zawiera tej funkcji.";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Udostępnianie użytkownikom jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";

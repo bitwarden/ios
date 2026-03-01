@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Automatické vyplňování hesel";
 "BitwardenAutofillAlert2" = "Nejjednodušší způsob, jak přidat nové přihlašovací údaje do trezoru, je pomocí rozšíření automatického vyplňování Bitwardenu. Další informace o používání rozšíření automatického vyplňování Bitwardenu naleznete na obrazovce \"Nastavení\".";
 "InvalidEmail" = "Neplatná e-mailová adresa.";
+"InvalidEmailAddresses" = "Neplatná e-mailová adresa";
+"NoEmailAddressesEntered" = "Nebyly zadány žádné e-mailové adresy";
+"EnterAtLeastOneValidEmailToShareSend" = "Zadejte alespoň jednu platnou e-mailovou adresu pro sdílení tohoto Send.";
+"OneOrMoreEmailAddressesIncorrect" = "Jedna nebo více e-mailových adres je nesprávná. Zkontrolujte ji a zkuste to znovu.";
 "Cards" = "Karty";
 "Identities" = "Identity";
 "Logins" = "Přihlašovací údaje";
@@ -1133,7 +1137,7 @@
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobrazit zaznamenané logy";
 "RecordedLogs" = "Nahrané logy";
-"NoLogsRecorded" = "Nebyly zaznamenány žádné logy";
+"NoLogsRecorded" = "Nebyly nahrány žádné logy";
 "ExpiresAtXTime" = "Vyprší v %1$@";
 "ExpiresOnXDate" = "Vyprší %1$@";
 "ExpiresTomorrow" = "Vyprší zítra";
@@ -1160,8 +1164,8 @@
 "ViewFileSend" = "Zobrazit soubor ze Send";
 "ViewTextSend" = "Zobrazit text ze Send";
 "DeleteSend" = "Smazat Send";
-"FlightRecorderOn" = "Letový zapisovač zapnutý";
-"FlightRecorderWillBeActiveUntilDescriptionLong" = "Letový zapisovač bude aktivní do %1$@ v %2$@. Pro deaktivování se vraťte do nastavení.";
+"FlightRecorderOn" = "Letový zapisovač je zapnutý";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Letový zapisovač bude aktivní do %1$@, %2$@. Pro deaktivování se vraťte do nastavení.";
 "GoToSettings" = "Přejít do nastavení";
 "SiriAndShortcutsAccess" = "Přístup Siri a Zkratek";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Povolte, aby aplikace reagovala na Siri a Zkratky pomocí záměrů aplikací.";
@@ -1191,8 +1195,8 @@
 "Algorithm" = "Algoritmus";
 "AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "V nastavení povolte synchronizaci aplikace Authenticator a zobrazte zde všechny své ověřovací kódy.";
 "Backup" = "Záloha";
-"BitwardenAuthenticator" = "Autentikátor Bitwarden";
-"BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Data Autentikátoru Bitwarden jsou zálohována a mohou být obnovena z pravidelných záloh Vašeho zařízení.";
+"BitwardenAuthenticator" = "Bitwarden Authenticator";
+"BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Data Bitwarden Authenticator jsou zálohována a mohou být obnovena z pravidelných záloh Vašeho zařízení.";
 "CopyToBitwardenVault" = "Kopírovat do trezoru Bitwarden";
 "CreateVerificationCode" = "Vytvořit ověřovací kód";
 "Data" = "Data";
@@ -1228,7 +1232,7 @@
 "SaveToBitwarden" = "Uložit do Bitwardenu";
 "ScanComplete" = "Skenování dokončeno";
 "ScanTheQRCodeInYourSettings" = "Naskenujte QR kód v nastavení dvoufázového ověření pro jakýkoli účet.";
-"SecureYourAssetsWithBitwardenAuthenticator" = "Zabezpečte své účty pomocí Autentikátoru Bitwarden";
+"SecureYourAssetsWithBitwardenAuthenticator" = "Zabezpečte své účty pomocí Bitwarden Authenticator";
 "SetSaveLocallyAsYourDefaultSaveOption" = "Nastavit \"Uložit místně\" jako výchozí volba ukládání?";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Nastavit \"Uložit do Bitwardenu\" jako výchozí volba ukládání?";
 "SignInUsingUniqueCodes" = "Přihlašujte se pomocí jedinečných kódů";

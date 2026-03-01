@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Автозаполнение паролей";
 "BitwardenAutofillAlert2" = "Самый простой способ добавлять новые логины в хранилище - использовать расширение автозаполнения паролей Bitwarden. Дополнительные сведения об использовании расширения автозаполнения паролей Bitwarden находятся в разделе “Настройки”.";
 "InvalidEmail" = "Неверный адрес email.";
+"InvalidEmailAddresses" = "Неверные адреса email";
+"NoEmailAddressesEntered" = "Не введены адреса email";
+"EnterAtLeastOneValidEmailToShareSend" = "Введите хотя бы один действительный адрес email, чтобы поделиться этой Send.";
+"OneOrMoreEmailAddressesIncorrect" = "Один или несколько адресов email указаны неверно. Проверьте и попробуйте еще раз.";
 "Cards" = "Карты";
 "Identities" = "Личная информация";
 "Logins" = "Логины";

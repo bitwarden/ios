@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Parolun avto-doldurulması";
 "BitwardenAutofillAlert2" = "Seyfinizə yeni bir giriş əlavə etməyin ən asan yolu, Bitwarden Parol Avto-doldurma uzantısıdır. Bitwarden Parol Avto-doldurma uzantısı haqqında daha ətraflı məlumat üçün “Ayarlar” ekranına gedin.";
 "InvalidEmail" = "Yararsız e-poçt ünvanı.";
+"InvalidEmailAddresses" = "Yararsız e-poçt ünvanı";
+"NoEmailAddressesEntered" = "Heç bir e-poçt ünvanı daxil edilməyib";
+"EnterAtLeastOneValidEmailToShareSend" = "Bu Send-i paylaşmaq üçün ən azı bir yararlı e-poçt ünvanı daxil edin.";
+"OneOrMoreEmailAddressesIncorrect" = "Bir və ya daha çox e-poçt ünvanı yanlışdır. Lütfən incələyib yenidən sınayın.";
 "Cards" = "Kartlar";
 "Identities" = "Kimliklər";
 "Logins" = "Girişlər";

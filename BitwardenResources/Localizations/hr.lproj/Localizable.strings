@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Auto-ispuna lozinki";
 "BitwardenAutofillAlert2" = "Najlakši način za dodavanje novih prijava u tvoj trezor je korištenjem Bitwarden proširenja za automatsko popunjavanje lozinki. Saznaj više o korištenju Bitwarden proširenja za automatsko popunjavanje lozinki u Postavkama.";
 "InvalidEmail" = "Nevažeća adresa e-pošte.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "Platne kartice";
 "Identities" = "Identiteti";
 "Logins" = "Prijave";

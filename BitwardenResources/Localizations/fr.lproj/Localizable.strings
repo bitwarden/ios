@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Saisie automatique du mot de passe";
 "BitwardenAutofillAlert2" = "La façon la plus simple d'ajouter de nouveaux identifiants à votre coffre est l'extension de Saisie Automatique de Mot de Passe de Bitwarden. En savoir plus sur l'utilisation de l'extension de Saisie Automatique de Mot de Passe de Bitwarden en naviguant vers l'écran \"Paramètres\".";
 "InvalidEmail" = "Adresse électronique invalide.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "Cartes";
 "Identities" = "Identités";
 "Logins" = "Identifiants";
