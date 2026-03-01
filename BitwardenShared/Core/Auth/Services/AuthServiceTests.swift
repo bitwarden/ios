@@ -43,6 +43,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             .withResult(ServerConfig(
                 date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                 responseModel: ConfigResponseModel(
+                    communication: nil,
                     environment: nil,
                     featureStates: [:],
                     gitHash: "75238191",
