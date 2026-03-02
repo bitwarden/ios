@@ -498,7 +498,12 @@ extension DefaultKeychainRepository {
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
-        try await getValue(for: .deviceKey(userId: userId))
+        do {
+            let value: String = try await getValue(for: .deviceKey(userId: userId))
+            return value
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -506,7 +511,12 @@ extension DefaultKeychainRepository {
     }
 
     func getPendingAdminLoginRequest(userId: String) async throws -> String? {
-        try await getValue(for: .pendingAdminLoginRequest(userId: userId))
+        do {
+            let value: String = try await getValue(for: .pendingAdminLoginRequest(userId: userId))
+            return value
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
