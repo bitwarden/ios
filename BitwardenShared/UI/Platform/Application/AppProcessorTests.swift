@@ -1201,6 +1201,32 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
     }
 
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
+    /// when a non-nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send("example.com")
+
+        waitFor(coordinator.routes.contains(.syncWithBrowser))
+
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
+    }
+
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
+    /// `.syncWithBrowser` when a nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withNilHostname_doesNotNavigate() async {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser))
+    }
+
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and
     /// they previously choose to set it up later.
     @MainActor

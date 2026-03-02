@@ -8,6 +8,7 @@ public class MockConfigService: ConfigService {
     // MARK: Properties
 
     public var clearServerCommCookieValueCalled = false
+    public var clearServerCommCookieValueError: Error?
     public var clearServerCommCookieValueHostname: String?
     public var configMocker = InvocationMockerWithThrowingResult<(forceRefresh: Bool, isPreAuth: Bool), ServerConfig?>()
     public var configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
@@ -29,6 +30,9 @@ public class MockConfigService: ConfigService {
     public func clearServerCommunicationCookieValue(hostname: String) async throws {
         clearServerCommCookieValueCalled = true
         clearServerCommCookieValueHostname = hostname
+        if let clearServerCommCookieValueError {
+            throw clearServerCommCookieValueError
+        }
     }
 
     public func configPublisher(
