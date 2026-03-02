@@ -396,6 +396,33 @@ class DefaultAutofillCredentialService {
         return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
     }
 
+    @available(iOS 17.0, *)
+    private func tryUsingDeviceAuthKey(
+        credentialIdentity: ASPasskeyCredentialIdentity,
+        passkeyRequest: ASPasskeyCredentialRequest,
+        request: GetAssertionRequest,
+        userId: String,
+    ) async throws -> ASPasskeyAssertionCredential? {
+        if await configService.getFeatureFlag(.deviceAuthKey),
+           let recordIdentifier = credentialIdentity.recordIdentifier,
+           let deviceAuthKeyMetadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
+           recordIdentifier == deviceAuthKeyMetadata.cipherId {
+            // The credential request is for the device auth key, so we serve that up.
+            if let deviceResult = try await deviceAuthKeyService.assertDeviceAuthKey(
+                for: request,
+                recordIdentifier: recordIdentifier,
+                userId: userId,
+            ) {
+                return ASPasskeyAssertionCredential(
+                    assertionResult: deviceResult,
+                    rpId: credentialIdentity.relyingPartyIdentifier,
+                    clientDataHash: passkeyRequest.clientDataHash,
+                )
+            }
+        }
+        return nil
+    }
+
     /// Attempts to unlock the user's vault if it can be done without user interaction (e.g. if
     /// the user uses never lock).
     ///
@@ -470,22 +497,13 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         let userId = try await stateService.getActiveAccountId()
 
         // Before trying to unlock the vault, see if we can satisfy the credential request with the device auth key.
-        if await configService.getFeatureFlag(.deviceAuthKey),
-           let recordIdentifier = credentialIdentity.recordIdentifier,
-           let deviceAuthKeyMetadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
-           recordIdentifier == deviceAuthKeyMetadata.cipherId {
-            // The credential request is for the device auth key, so we serve that up.
-            if let deviceResult = try await deviceAuthKeyService.assertDeviceAuthKey(
-                for: request,
-                recordIdentifier: recordIdentifier,
-                userId: userId,
-            ) {
-                return ASPasskeyAssertionCredential(
-                    assertionResult: deviceResult,
-                    rpId: credentialIdentity.relyingPartyIdentifier,
-                    clientDataHash: passkeyRequest.clientDataHash,
-                )
-            }
+        if let credential = try await tryUsingDeviceAuthKey(
+            credentialIdentity: credentialIdentity,
+            passkeyRequest: passkeyRequest,
+            request: request,
+            userId: userId,
+        ) {
+            return credential
         }
 
         // If the device auth key doesn't match (or errors), then we unlock the vault to serve up a passkey from it.
