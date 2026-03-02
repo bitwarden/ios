@@ -396,6 +396,20 @@ class DefaultAutofillCredentialService {
         return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
     }
 
+    /// Attempts to satisfy a passkey credential request using the device auth key instead of a vault passkey.
+    ///
+    /// - Parameters:
+    ///   - credentialIdentity: The passkey credential identity from the autofill request.
+    ///   - passkeyRequest: The system passkey credential request containing client data hash.
+    ///   - request: The FIDO2 get assertion request parameters.
+    ///   - userId: The ID of the user whose device auth key should be checked.
+    ///
+    /// - Returns: An `ASPasskeyAssertionCredential` if the request can be satisfied by the device auth key,
+    ///     or `nil` if the device auth key feature is disabled, no device auth key exists, or the requested
+    ///     credential doesn't match the device auth key.
+    ///
+    /// - Throws: An error if there's an issue retrieving the device auth key metadata or generating the assertion.
+    ///
     @available(iOS 17.0, *)
     private func tryUsingDeviceAuthKey(
         credentialIdentity: ASPasskeyCredentialIdentity,
