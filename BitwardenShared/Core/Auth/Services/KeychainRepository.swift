@@ -494,7 +494,7 @@ extension DefaultKeychainRepository {
         do {
             let value: String = try await getValue(for: .deviceKey(userId: userId))
             return value
-        } catch KeychainServiceError.keyNotFound {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
     }
@@ -507,7 +507,7 @@ extension DefaultKeychainRepository {
         do {
             let value: String = try await getValue(for: .pendingAdminLoginRequest(userId: userId))
             return value
-        } catch KeychainServiceError.keyNotFound {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
     }
