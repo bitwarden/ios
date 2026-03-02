@@ -737,9 +737,9 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
-    /// does not succeed with device auth key if the feature flag is off.
+    /// skips device auth key logic if the feature flag is off.
     @available(iOS 18.0, *)
-    func test_provideFido2Credential_succeeds_deviceAuthKey_off() async throws {
+    func test_provideFido2Credential_skips_deviceAuthKey_featureFlagOff() async throws {
         stateService.activeAccount = .fixture()
         configService.featureFlagsBool[.deviceAuthKey] = false
         let passkeyIdentity = ASPasskeyCredentialIdentity.fixture(
@@ -760,18 +760,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
         deviceAuthKeyService.assertDeviceAuthKeyReturnValue = expectedAssertionResult
 
-        clientService.mockPlatform.fido2Mock
-            .clientFido2AuthenticatorMock
-            .getAssertionMocker
-            .throwing(BitwardenTestError.example)
+        _ = try await subject.provideFido2Credential(
+            for: passkeyRequest,
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
+        )
 
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.provideFido2Credential(
-                for: passkeyRequest,
-                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
-                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
-            )
-        }
+        XCTAssertFalse(deviceAuthKeyService.getDeviceAuthKeyMetadataCalled)
+        XCTAssertFalse(deviceAuthKeyService.assertDeviceAuthKeyCalled)
     }
 
     /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`

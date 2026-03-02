@@ -71,6 +71,7 @@ final class DeviceAuthKeyServiceTests: BitwardenTestCase {
             })
         defer { publisher.cancel() }
 
+        // TODO: PM-26177 Once the create flow is working, this can become a `try` instead of `try?`
         _ = try? await subject.createDeviceAuthKey(
             masterPasswordHash: "hashedPassword",
             overwrite: false,
