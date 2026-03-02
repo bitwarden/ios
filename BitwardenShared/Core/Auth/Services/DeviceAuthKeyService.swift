@@ -54,6 +54,8 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
     ///
     func getDeviceAuthKeyMetadata(userId: String?) async throws -> DeviceAuthKeyMetadata?
 
+    // MARK: Publishers
+
     /// A publisher for the device auth key
     func deviceAuthKeyPublisher() -> AnyPublisher<[String: Bool], Never>
 }
