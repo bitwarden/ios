@@ -92,6 +92,9 @@ struct AccountSecurityState: Equatable {
     /// Whether the timeout policy is in effect.
     var isPolicyTimeoutEnabled = false
 
+    /// Whether the unlock other devices with this device toggle is on.
+    var isUnlockOtherDevicesOn: Bool = false
+    
     /// Whether the unlock with pin code toggle is on.
     var isUnlockWithPINCodeOn: Bool = false
 

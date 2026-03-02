@@ -508,6 +508,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String)
 
+    /// Sets the unlock other devices with this device setting for the user.
+    ///
+    /// - Parameters:
+    ///   - unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///   - userId: The user ID associated with the unlock other devices value.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String)
+
     /// Sets the user's timeout action.
     ///
     /// - Parameters:
@@ -574,6 +582,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The two-factor token.
     ///
     func twoFactorToken(email: String) -> String?
+
+    /// Gets the unlock other devices with this device setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the unlock other devices value.
+    ///
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func unlockOtherDevices(userId: String) -> Bool
 
     /// Gets the username generation options for a user ID.
     ///
@@ -765,6 +781,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
+        case unlockOtherDevices(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
         case vaultTimeoutAction(userId: String)
@@ -876,6 +893,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
+            case let .unlockOtherDevices(userId):
+                "unlockOtherDevices_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
@@ -1240,6 +1259,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(token, for: .twoFactorToken(email: email))
     }
 
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String) {
+        store(unlockOtherDevices, for: .unlockOtherDevices(userId: userId))
+    }
+
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String) {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
@@ -1266,6 +1289,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func twoFactorToken(email: String) -> String? {
         fetch(for: .twoFactorToken(email: email))
+    }
+
+    func unlockOtherDevices(userId: String) -> Bool {
+        fetch(for: .unlockOtherDevices(userId: userId))
     }
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {

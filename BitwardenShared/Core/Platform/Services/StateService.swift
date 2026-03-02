@@ -344,6 +344,14 @@ protocol StateService: AnyObject {
     ///
     func getTwoFactorToken(email: String) async -> String?
 
+    /// Gets the unlock other devices with this device value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the unlock other devices value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func getUnlockOtherDevices(userId: String?) async throws -> Bool
+
     /// Gets whether a user has a master password.
     ///
     /// - Parameter userId: The user ID of the user to determine whether they have a master password.
@@ -735,6 +743,14 @@ protocol StateService: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String) async
 
+    /// Sets the unlock other devices with this device value for an account.
+    ///
+    /// - Parameters:
+    ///   - unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String?) async throws
+
     /// Sets whether the user has a master password.
     ///
     /// - Parameter hasMasterPassword: Whether the user has a master password.
@@ -1038,6 +1054,14 @@ extension StateService {
         try await getTimeoutAction(userId: nil)
     }
 
+    /// Gets the unlock other devices with this device value for the active account.
+    ///
+    /// - Returns: Whether to allow unlocking other devices with this device.
+    ///
+    func getUnlockOtherDevices() async throws -> Bool {
+        try await getUnlockOtherDevices(userId: nil)
+    }
+
     /// Gets whether a user has a master password.
     ///
     /// - Returns: Whether the user has a master password.
@@ -1294,6 +1318,14 @@ extension StateService {
     ///
     func setTimeoutAction(action: SessionTimeoutAction) async throws {
         try await setTimeoutAction(action: action, userId: nil)
+    }
+
+    /// Sets the unlock other devices with this device value for the active account.
+    ///
+    /// - Parameter unlockOtherDevices: Whether to allow unlocking other devices with this device.
+    ///
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool) async throws {
+        try await setUnlockOtherDevices(unlockOtherDevices, userId: nil)
     }
 
     /// Sets the username generation options for the active account.
@@ -1731,6 +1763,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         return timeoutAction
     }
 
+    func getUnlockOtherDevices(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.unlockOtherDevices(userId: userId)
+    }
+
     func getTwoFactorToken(email: String) async -> String? {
         appSettingsStore.twoFactorToken(email: email)
     }
@@ -2108,6 +2145,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setTwoFactorToken(_ token: String?, email: String) async {
         appSettingsStore.setTwoFactorToken(token, email: email)
+    }
+
+    func setUnlockOtherDevices(_ unlockOtherDevices: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setUnlockOtherDevices(unlockOtherDevices, userId: userId)
     }
 
     func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
