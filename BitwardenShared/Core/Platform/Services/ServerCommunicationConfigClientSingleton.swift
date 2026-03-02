@@ -68,7 +68,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
     ///   - sdkRepositoryFactory: The factory to create SDK repositories.
     ///   - serverCommunicationConfigAPIService: The service that bridges server communication
     ///   configuration requests from the SDK.
-    ///   - stateService: The service that provides state management functionality for the
+    ///   - serverCommunicationConfigStateService: The service that provides state management functionality for the
     ///   server communication configuration.
     init(
         clientService: ClientService,
