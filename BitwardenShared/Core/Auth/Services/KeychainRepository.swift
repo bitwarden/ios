@@ -78,13 +78,13 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
-             .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
              .vaultTimeout:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
-             .refreshToken:
+             .refreshToken,
+             .serverCommunicationConfig:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         }
     }
