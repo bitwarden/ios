@@ -77,7 +77,7 @@ extension ASPasskeyAssertionCredential {
                 clientDataHash: clientDataHash,
                 authenticatorData: assertionResult.authenticatorData,
                 credentialID: assertionResult.credentialId,
-                extensionOutput: nil // TODO: PM-26177 once SDK is updated for full PRF support we can include this
+                extensionOutput: nil, // TODO: PM-26177 once SDK is updated for full PRF support we can include this
             )
         } else {
             self.init(
@@ -86,9 +86,24 @@ extension ASPasskeyAssertionCredential {
                 signature: assertionResult.signature,
                 clientDataHash: clientDataHash,
                 authenticatorData: assertionResult.authenticatorData,
-                credentialID: assertionResult.credentialId
+                credentialID: assertionResult.credentialId,
             )
         }
+    }
+}
+
+// MARK: - ASPasskeyCredentialIdentity
+
+@available(iOS 17.0, *)
+extension ASPasskeyCredentialIdentity {
+    convenience init(deviceAuthKeyMetadata metadata: DeviceAuthKeyMetadata) {
+        self.init(
+            relyingPartyIdentifier: metadata.rpId,
+            userName: metadata.userName,
+            credentialID: metadata.credentialId,
+            userHandle: metadata.userHandle,
+            recordIdentifier: metadata.cipherId,
+        )
     }
 }
 

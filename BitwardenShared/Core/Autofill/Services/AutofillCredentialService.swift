@@ -353,21 +353,12 @@ class DefaultAutofillCredentialService {
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
 
-                let deviceAuthKeyFlightRecorderInfo: String
+                var deviceAuthKeyFlightRecorderInfo = ""
                 // Register the Device Auth Key if we have one
                 if await configService.getFeatureFlag(.deviceAuthKey),
                    let metadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
-                    let identity = ASPasskeyCredentialIdentity(
-                        relyingPartyIdentifier: metadata.rpId,
-                        userName: metadata.userName,
-                        credentialID: metadata.credentialId,
-                        userHandle: metadata.userHandle,
-                        recordIdentifier: metadata.cipherId,
-                    )
-                    identities.append(identity)
+                    identities.append(ASPasskeyCredentialIdentity(deviceAuthKeyMetadata: metadata))
                     deviceAuthKeyFlightRecorderInfo = ", including a device auth key"
-                } else {
-                    deviceAuthKeyFlightRecorderInfo = ""
                 }
 
                 try await identityStore.replaceCredentialIdentities(identities)
