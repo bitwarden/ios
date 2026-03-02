@@ -88,7 +88,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
         self.serverCommunicationConfigStateService = serverCommunicationConfigStateService
 
         Task {
-            for try await result in try await configService.configPublisher() {
+            for await result in await configService.configPublisher() {
                 guard let serverConfig = result?.serverConfig else {
                     continue
                 }

@@ -111,11 +111,7 @@ class StateServiceServerCommunicationConfigTests: BitwardenTestCase {
 
         let result = try await subject.getServerCommunicationConfig(hostname: "example.com")
 
-        XCTAssertNotNil(result)
-        guard case .direct = result?.bootstrap else {
-            XCTFail("Expected .direct bootstrap, got \(String(describing: result?.bootstrap))")
-            return
-        }
+        XCTAssertEqual(result, ServerCommunicationConfig(bootstrap: .direct))
     }
 
     /// `getServerCommunicationConfig(hostname:)` returns `nil` when the keychain has no entry.

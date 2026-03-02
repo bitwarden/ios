@@ -189,7 +189,7 @@ actor DefaultClientService: ClientService {
         self.stateService = stateService
 
         Task {
-            for try await result in try await configService.configPublisher() {
+            for await result in await configService.configPublisher() {
                 guard let result,
                       !result.isPreAuth,
                       let userId = result.userId else {
