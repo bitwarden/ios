@@ -67,9 +67,10 @@ protocol AccountAPIService {
 
     /// Set the account keys.
     ///
-    ///  - Parameter requestModel: The request model containing the keys to set in the account.
+    /// - Parameter requestModel: The request model containing the keys to set in the account.
+    /// - Returns: The response containing the account keys.
     ///
-    func setAccountKeys(requestModel: KeysRequestModel) async throws
+    func setAccountKeys(requestModel: KeysRequestModel) async throws -> SetAccountKeysResponseModel
 
     /// Sets the user's key from key connector.
     ///
@@ -171,8 +172,8 @@ extension APIService: AccountAPIService {
         _ = try await apiUnauthenticatedService.send(request)
     }
 
-    func setAccountKeys(requestModel: KeysRequestModel) async throws {
-        _ = try await apiService.send(SetAccountKeysRequest(body: requestModel))
+    func setAccountKeys(requestModel: KeysRequestModel) async throws -> SetAccountKeysResponseModel {
+        try await apiService.send(SetAccountKeysRequest(body: requestModel))
     }
 
     func setKeyConnectorKey(_ requestModel: SetKeyConnectorKeyRequestModel) async throws {
