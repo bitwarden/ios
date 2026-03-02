@@ -79,7 +79,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
     ///   - sdkRepositoryFactory: The factory to create SDK repositories.
     ///   - serverCommunicationConfigAPIService: The service that bridges server communication
     ///   configuration requests from the SDK.
-    ///   - stateService: The service that provides state management functionality for the
+    ///   - serverCommunicationConfigStateService: The service that provides state management functionality for the
     ///   server communication configuration.
     init(
         clientService: ClientService,
@@ -99,7 +99,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
         self.serverCommunicationConfigStateService = serverCommunicationConfigStateService
 
         Task {
-            for try await result in try await configService.configPublisher() {
+            for await result in await configService.configPublisher() {
                 guard let serverConfig = result?.serverConfig else {
                     continue
                 }

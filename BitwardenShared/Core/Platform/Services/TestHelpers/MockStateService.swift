@@ -8,7 +8,7 @@ import Foundation
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length
+class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()

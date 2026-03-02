@@ -30,12 +30,6 @@ public final class ResponseValidationHandler: ResponseHandler {
     /// Initializes a `ResponseValidationHandler`.
     public init() {}
 
-    /// Handles receiving a `HTTPResponse`. The handler can view or modify the response before
-    /// returning it to continue to handler chain.
-    ///
-    /// - Parameter response: The `HTTPResponse` that was received by the `HTTPClient`.
-    /// - Returns: The original or modified `HTTPResponse`.
-    ///
     public func handle(
         _ response: inout HTTPResponse,
         for request: HTTPRequest,
