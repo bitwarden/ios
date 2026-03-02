@@ -356,7 +356,7 @@ class DefaultAutofillCredentialService {
                 var deviceAuthKeyFlightRecorderInfo = ""
                 // Register the Device Auth Key if we have one
                 if await configService.getFeatureFlag(.deviceAuthKey),
-                   let metadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
+                   let metadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
                     identities.append(ASPasskeyCredentialIdentity(deviceAuthKeyMetadata: metadata))
                     deviceAuthKeyFlightRecorderInfo = ", including a device auth key"
                 }
