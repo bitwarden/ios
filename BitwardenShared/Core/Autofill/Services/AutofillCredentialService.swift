@@ -472,11 +472,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         // Before trying to unlock the vault, see if we can satisfy the credential request with the device auth key.
         if await configService.getFeatureFlag(.deviceAuthKey),
            let recordIdentifier = credentialIdentity.recordIdentifier,
-           // swiftlint:disable:next line_length
-           let deviceAuthKeyMetadata = try? await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
+           let deviceAuthKeyMetadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
            recordIdentifier == deviceAuthKeyMetadata.cipherId {
             // The credential request is for the device auth key, so we serve that up.
-            if let deviceResult = try? await deviceAuthKeyService.assertDeviceAuthKey(
+            if let deviceResult = try await deviceAuthKeyService.assertDeviceAuthKey(
                 for: request,
                 recordIdentifier: recordIdentifier,
                 userId: userId,
