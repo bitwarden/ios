@@ -207,6 +207,84 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/request-otp")
     }
 
+    /// `setAccountKeys()` sets the user's account keys and returns the response.
+    func test_setAccountKeys() async throws {
+        let json = """
+        {
+          "key": null,
+          "publicKey": "mockPublicKey",
+          "privateKey": "mockPrivateKey",
+          "accountKeys": null
+        }
+        """.data(using: .utf8)!
+        client.result = .httpSuccess(testData: APITestData(data: json))
+
+        let response = try await subject.setAccountKeys(
+            requestModel: KeysRequestModel(
+                encryptedPrivateKey: "PRIVATE_KEY",
+                publicKey: "PUBLIC_KEY",
+            ),
+        )
+
+        let request = try XCTUnwrap(client.requests.first)
+        XCTAssertEqual(request.method, .post)
+        XCTAssertEqual(request.url.relativePath, "/api/accounts/keys")
+        XCTAssertNotNil(request.body)
+        XCTAssertEqual(response.publicKey, "mockPublicKey")
+        XCTAssertEqual(response.privateKey, "mockPrivateKey")
+    }
+
+    /// `setAccountKeys()` returns a response with accountKeys when provided.
+    func test_setAccountKeys_withAccountKeys() async throws {
+        let json = """
+        {
+          "key": "mockKey",
+          "publicKey": "mockPublicKey",
+          "privateKey": "mockPrivateKey",
+          "accountKeys": {
+            "signatureKeyPair": null,
+            "publicKeyEncryptionKeyPair": {
+              "wrappedPrivateKey": "mockWrappedPrivateKey",
+              "publicKey": "mockPublicKey",
+              "signedPublicKey": null
+            },
+            "securityState": null
+          }
+        }
+        """.data(using: .utf8)!
+        client.result = .httpSuccess(testData: APITestData(data: json))
+
+        let response = try await subject.setAccountKeys(
+            requestModel: KeysRequestModel(
+                encryptedPrivateKey: "PRIVATE_KEY",
+                publicKey: "PUBLIC_KEY",
+            ),
+        )
+
+        XCTAssertEqual(response.key, "mockKey")
+        XCTAssertEqual(response.publicKey, "mockPublicKey")
+        XCTAssertEqual(response.privateKey, "mockPrivateKey")
+        XCTAssertNotNil(response.accountKeys)
+        XCTAssertEqual(
+            response.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+            "mockWrappedPrivateKey",
+        )
+    }
+
+    /// `setAccountKeys()` throws an error if the request fails.
+    func test_setAccountKeys_httpFailure() async {
+        client.result = .httpFailure()
+
+        await assertAsyncThrows {
+            _ = try await subject.setAccountKeys(
+                requestModel: KeysRequestModel(
+                    encryptedPrivateKey: "PRIVATE_KEY",
+                    publicKey: "PUBLIC_KEY",
+                ),
+            )
+        }
+    }
+
     /// `setKeyConnectorKey()` sets the user's key connector key.
     func test_setKeyConnectorKey() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)

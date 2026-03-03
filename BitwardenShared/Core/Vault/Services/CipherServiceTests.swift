@@ -74,12 +74,17 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `archiveCipherWithServer(id:_:)` archives the cipher in the backend and local storage.
     func test_archiveCipherWithServer() async throws {
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .cipherResponse)
         stateService.activeAccount = .fixture()
 
         try await subject.archiveCipherWithServer(id: "1", .fixture())
 
-        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture())
+        var cipherResponse = try CipherDetailsResponseModel(
+            response: .success(body: APITestData.cipherResponse.data),
+        )
+        cipherResponse.collectionIds = Cipher.fixture().collectionIds
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, Cipher(responseModel: cipherResponse))
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
 
     /// `bulkShareCiphersWithServer(_:collectionIds:encryptedFor:)` shares multiple ciphers with the
@@ -356,12 +361,16 @@ class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `unarchiveCipherWithServer(id:_:)` unarchives the cipher in the backend and local storage.
     func test_unarchiveCipherWithServer() async throws {
-        client.result = .httpSuccess(testData: .emptyResponse)
+        client.result = .httpSuccess(testData: .cipherResponse)
         stateService.activeAccount = .fixture()
 
         try await subject.unarchiveCipherWithServer(id: "1", .fixture())
 
-        XCTAssertEqual(cipherDataStore.upsertCipherValue, .fixture())
+        var cipherResponse = try CipherDetailsResponseModel(
+            response: .success(body: APITestData.cipherResponse.data),
+        )
+        cipherResponse.collectionIds = Cipher.fixture().collectionIds
+        XCTAssertEqual(cipherDataStore.upsertCipherValue, Cipher(responseModel: cipherResponse))
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, "1")
     }
 

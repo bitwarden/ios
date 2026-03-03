@@ -1,0 +1,14 @@
+{
+  "key": null,
+  "publicKey": "mockPublicKey",
+  "privateKey": "mockPrivateKey",
+  "accountKeys": {
+    "signatureKeyPair": null,
+    "publicKeyEncryptionKeyPair": {
+      "wrappedPrivateKey": "mockWrappedPrivateKey",
+      "publicKey": "mockPublicKey",
+      "signedPublicKey": null
+    },
+    "securityState": null
+  }
+}

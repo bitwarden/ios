@@ -104,6 +104,7 @@ class AddEditSendItemProcessor:
             }
         case .addRecipientEmail:
             state.recipientEmails.append("")
+            state.focusedRecipientEmailIndex = state.recipientEmails.count - 1
         case .chooseFilePressed:
             presentFileSelectionAlert()
         case .clearURL:
@@ -112,6 +113,9 @@ class AddEditSendItemProcessor:
             state.deletionDate = newValue
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
+        case let .focusedRecipientEmailIndexChanged(newValue):
+            guard state.focusedRecipientEmailIndex != newValue else { return }
+            state.focusedRecipientEmailIndex = newValue
         case .generatePasswordPressed:
             if state.password.isEmpty {
                 coordinator.navigate(to: .generator, context: self)
@@ -135,7 +139,12 @@ class AddEditSendItemProcessor:
             state.recipientEmails[index] = value
         case let .removeRecipientEmail(index):
             guard index >= 0, index < state.recipientEmails.count else { return }
-            state.recipientEmails.remove(at: index)
+            if index == 0, state.recipientEmails.count == 1 {
+                state.recipientEmails[0] = ""
+            } else {
+                state.recipientEmails.remove(at: index)
+            }
+            state.focusedRecipientEmailIndex = nil
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
@@ -355,14 +364,14 @@ class AddEditSendItemProcessor:
         if state.accessType == .specificPeople {
             // Check if at least one email is provided
             guard !state.normalizedRecipientEmails.isEmpty else {
-                coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
+                coordinator.showAlert(.noEmailAddressesEntered)
                 return false
             }
 
             // Validate each email address
             for email in state.normalizedRecipientEmails {
-                guard email.isValidEmail else {
-                    coordinator.showAlert(.invalidEmail)
+                guard email.isValidEmail() else {
+                    coordinator.showAlert(.invalidEmailAddresses)
                     return false
                 }
             }
@@ -502,8 +511,12 @@ extension AddEditSendItemProcessor: GeneratorCoordinatorDelegate {
     }
 
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
-        if case .password = type {
+        switch type {
+        case .passphrase,
+             .password:
             state.password = value
+        case .username:
+            break
         }
         coordinator.navigate(to: .dismiss(nil))
     }

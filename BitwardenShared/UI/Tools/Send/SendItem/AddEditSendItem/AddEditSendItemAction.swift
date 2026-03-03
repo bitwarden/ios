@@ -24,6 +24,9 @@ enum AddEditSendItemAction: Equatable {
     /// The dismiss button was pressed.
     case dismissPressed
 
+    /// The focused recipient email field index changed.
+    case focusedRecipientEmailIndexChanged(Int?)
+
     /// The generate password button was pressed.
     case generatePasswordPressed
 

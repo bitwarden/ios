@@ -14,9 +14,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden kon %d kruisitems niet ontsleutelen.</string>
+        <string>Bitwarden kon %d kluisitem niet decoderen.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden kon %d kluisitems niet decoderen.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -31,9 +31,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Hoofdwachtwoord moet minstens %d tekens lang zijn.</string>
+        <string>Hoofdwachtwoord moet minstens %d teken lang zijn.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Hoofdwachtwoord moet minstens %d tekens lang zijn.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
@@ -50,7 +50,7 @@
         <key>one</key>
         <string>Dit wachtwoord is %d keer blootgesteld in datalekken.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Dit wachtwoord is %d keer blootgesteld in datalekken.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -65,7 +65,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d teken</string>
         <key>other</key>
         <string>%d tekens</string>
       </dict>
@@ -82,7 +82,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d dag</string>
         <key>other</key>
         <string>%d dagen</string>
       </dict>
@@ -99,7 +99,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d uur</string>
         <key>other</key>
         <string>%d uren</string>
       </dict>
@@ -125,7 +125,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ succesvol geïmporteerd</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -133,9 +133,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>%d item met succes geïmporteerd</string>
         <key>other</key>
-        <string>%d items succesvol geïmporteerd</string>
+        <string>%d items met succes geïmporteerd</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -150,7 +150,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d minuut</string>
         <key>other</key>
         <string>%d minuten</string>
       </dict>
@@ -167,7 +167,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d seconde</string>
         <key>other</key>
         <string>%d seconden</string>
       </dict>
@@ -201,7 +201,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>Je pincode moet minstens %d teken bevatten.</string>
         <key>other</key>
         <string>Je pincode moet minstens %d tekens bevatten.</string>
       </dict>

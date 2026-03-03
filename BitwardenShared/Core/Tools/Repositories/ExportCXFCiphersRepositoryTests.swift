@@ -117,6 +117,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(result.count, 2)
         XCTAssertEqual(result[0].id, "1")
         XCTAssertEqual(result[1].id, "2")
+        XCTAssertEqual(exportVaultService.fetchAllCiphersIncludeArchived, false)
     }
 
     /// `getAllCiphersToExportCXF()` throws when fetching ciphers throws.

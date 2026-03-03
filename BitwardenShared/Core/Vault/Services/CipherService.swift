@@ -235,10 +235,13 @@ extension DefaultCipherService {
         let userID = try await stateService.getActiveAccountId()
 
         // Archive cipher on backend.
-        _ = try await cipherAPIService.archiveCipher(withID: id)
+        var response = try await cipherAPIService.archiveCipher(withID: id)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
 
         // Archive cipher on local storage
-        try await cipherDataStore.upsertCipher(cipher, userId: userID)
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
     }
 
     func bulkShareCiphersWithServer(
@@ -419,10 +422,13 @@ extension DefaultCipherService {
         let userID = try await stateService.getActiveAccountId()
 
         // Unarchive cipher from backend.
-        _ = try await cipherAPIService.unarchiveCipher(withID: id)
+        var response = try await cipherAPIService.unarchiveCipher(withID: id)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
 
         // Unarchive cipher from local storage
-        try await cipherDataStore.upsertCipher(cipher, userId: userID)
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
     }
 
     func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {

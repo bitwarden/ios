@@ -135,6 +135,21 @@ public enum UI {
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
         UISearchBar.appearance().setImage(SharedAsset.Icons.search16.image, for: .search, state: .normal)
 
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [
+                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(for: FontFamily.DMSans.regular.font(size: 13)),
+                .foregroundColor: SharedAsset.Colors.textSecondary.color,
+            ],
+            for: .normal,
+        )
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [
+                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(for: FontFamily.DMSans.semiBold.font(size: 13)),
+                .foregroundColor: SharedAsset.Colors.textInteraction.color,
+            ],
+            for: .selected,
+        )
+
         // Adjust the appearance of `UITextView` for `BitwardenUITextField` instances on iOS 15.
         UITextView.appearance().isScrollEnabled = false
         UITextView.appearance().backgroundColor = .clear

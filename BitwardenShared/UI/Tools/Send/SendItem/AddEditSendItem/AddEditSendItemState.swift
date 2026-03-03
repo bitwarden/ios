@@ -50,6 +50,9 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A description of the size of the file attached to this send.
     var fileSize: String?
 
+    /// The index of the currently focused recipient email field, or `nil` if none is focused.
+    var focusedRecipientEmailIndex: Int?
+
     /// The id for this send.
     var id: String?
 
@@ -255,6 +258,20 @@ extension AddEditSendItemState {
             emails: accessType == .specificPeople ? normalizedRecipientEmails : [],
             authType: accessType.authType,
         )
+    }
+
+    /// Determines whether the trash icon should be shown for the recipient email at the given index.
+    /// Hides the trash icon when there's only one empty email field.
+    ///
+    /// - Parameter index: The index of the recipient email field.
+    /// - Returns: `true` if the trash icon should be shown, `false` otherwise.
+    ///
+    func shouldShowTrashIcon(for index: Int) -> Bool {
+        // Hide trash only when it's the first and only email field and it's empty
+        let isFirstAndOnlyEmptyEmail = index == 0
+            && recipientEmails.count == 1
+            && (recipientEmails[safeIndex: index]?.isEmpty ?? true)
+        return !isFirstAndOnlyEmptyEmail
     }
 
     /// Returns a `SendTextView` based on the properties of the `AddEditSendItemState`.

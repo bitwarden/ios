@@ -2,7 +2,10 @@ import Foundation
 
 /// An object that manages mock responses for `MockURLProtocol`.
 ///
-class URLProtocolMocking {
+/// This class conforms to `@unchecked Sendable` because all mutable state is
+/// protected by a private DispatchQueue that ensures thread-safe access.
+///
+final class URLProtocolMocking: @unchecked Sendable {
     typealias Response = Result<(URLResponse, Data), Error>
 
     // MARK: Properties

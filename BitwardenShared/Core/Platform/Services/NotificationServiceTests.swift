@@ -16,6 +16,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     var configService: MockConfigService!
     var delegate: MockNotificationServiceDelegate!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var notificationAPIService: NotificationAPIService!
     var stateService: MockStateService!
     var subject: DefaultNotificationService!
@@ -33,6 +34,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService = MockConfigService()
         delegate = MockNotificationServiceDelegate()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         notificationAPIService = APIService(client: client)
         refreshableApiService = MockRefreshableAPIService()
         stateService = MockStateService()
@@ -44,6 +46,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             authService: authService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             notificationAPIService: notificationAPIService,
             refreshableApiService: refreshableApiService,
             stateService: stateService,
@@ -61,6 +64,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService = nil
         delegate = nil
         errorReporter = nil
+        flightRecorder = nil
         notificationAPIService = nil
         refreshableApiService = nil
         stateService = nil
@@ -555,6 +559,74 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         XCTAssertEqual(authRepository.logoutUserId, activeAccount.profile.userId)
         XCTAssertTrue(delegate.routeToLandingCalled)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs the notification type
+    /// to the flight recorder when a notification is received.
+    @MainActor
+    func test_messageReceived_logsTypeToFlightRecorder() async throws {
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.syncCipherUpdate.rawValue,
+                "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"1\"}",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            ["[Notification] Received push notification, type: syncCipherUpdate"],
+        )
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs a userId mismatch
+    /// to the flight recorder when the notification's userId does not match the active user.
+    @MainActor
+    func test_messageReceived_logsUserIdMismatchToFlightRecorder() async throws {
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.syncCipherUpdate.rawValue,
+                "payload": "{\"Id\":\"CIPHER ID\",\"UserId\":\"different-user\"}",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertNil(syncService.fetchUpsertSyncCipherData)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[Notification] Received push notification, type: syncCipherUpdate",
+                "[Notification] Skipping syncCipherUpdate: userId does not match active user",
+            ],
+        )
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs a `PushNotificationDataError`
+    /// to the error reporter when the notification payload is malformed.
+    func test_messageReceived_malformedPayload_reportsPushNotificationDataError() async throws {
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.syncCipherUpdate.rawValue,
+                "payload": "not-valid-json",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        let error = try XCTUnwrap(errorReporter.errors.last as? PushNotificationDataError)
+        guard case let .payloadDecodingFailed(type, _) = error else {
+            XCTFail("Expected PushNotificationDataError.payloadDecodingFailed, got \(error)")
+            return
+        }
+        XCTAssertEqual(type, .syncCipherUpdate)
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles notifications being dismissed.

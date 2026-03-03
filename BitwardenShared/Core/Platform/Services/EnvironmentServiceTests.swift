@@ -50,6 +50,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
@@ -75,6 +77,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
@@ -103,6 +107,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.eu"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.eu"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.eu/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.eu/#/recover-2fa"))
         XCTAssertEqual(subject.region, .europe)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
@@ -133,6 +139,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://vault.example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.example.com/#/send"))
@@ -163,6 +171,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
@@ -187,6 +197,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
@@ -215,6 +227,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
@@ -245,6 +259,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))

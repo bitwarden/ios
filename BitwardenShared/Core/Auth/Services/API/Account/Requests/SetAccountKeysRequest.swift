@@ -6,7 +6,7 @@ import Networking
 /// The API request sent when submitting the account keys.
 ///
 struct SetAccountKeysRequest: Request {
-    typealias Response = EmptyResponse
+    typealias Response = SetAccountKeysResponseModel
     typealias Body = KeysRequestModel
 
     /// The body of this request.

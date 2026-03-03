@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Skopírujte toto hlásenie o chybe a poskytnite ho zákazníckej podpore, aby ste predišli strate údajov.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Skopírujte toto hlásenie o chybe a poskytnite ho zákazníckej podpore, aby ste predišli strate údajov.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -48,7 +48,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Toto heslo uniklo %#@times@ v dátových únikoch. Mali by ste ho zmeniť.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Mali by ste ho zmeniť.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -153,7 +153,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Úspešne importované: %#@items@</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -237,7 +237,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Váš PIN kód musí mať aspoň %#@characters@. Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

@@ -1284,7 +1284,7 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A sua organização configurou o limite de tempo máximo da sessão para %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A sua organização configurou o limite de tempo máximo da sessão para %1$@ e %2$@.";
 "HiddenItems" = "Itens ocultos";
-"Archive" = "Arquivo";
+"Archive" = "Arquivar";
 "Archived" = "Arquivados";
 "Unarchive" = "Desarquivar";
 "ItemMovedToArchive" = "Item movido para o arquivo";
@@ -1303,4 +1303,12 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Para recuperar o seu acesso ao seu arquivo, retoma sua assinatura Premium. Se editar detalhes de um item arquivado antes de retomar, ele será movido de volta para o seu cofre.";
 "RestartPremium" = "Retomar Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Este item está arquivado. Salvar alterações irá restaurá-lo para o seu cofre.";
-"SettingUpAutofill" = "Setting up Autofill…";
+"SettingUpAutofill" = "Configurando o preenchimento automático…";
+"AddEmail" = "Adicionar e-mail";
+"AnyoneWithPasswordSetByYou" = "Qualquer pessoa com uma senha configurada por você";
+"AnyoneWithTheLink" = "Qualquer pessoa com o link";
+"AnyoneWithThisLinkCanViewThisSend" = "Qualquer um com este link pode ver este Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "Após compartilhar este link de Send, indivíduos precisarão verificar seus e-mails com um código para visualizar este Send.";
+"SpecificPeople" = "Pessoas específicas";
+"WhoCanView" = "Quem pode visualizar";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "O compartilhamento com pessoas específicas é um recurso do Premium. O seu plano atual não inclui acesso a este recurso.";

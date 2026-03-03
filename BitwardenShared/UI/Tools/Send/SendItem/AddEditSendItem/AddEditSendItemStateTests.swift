@@ -61,6 +61,33 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.normalizedRecipientEmails, ["test@example.com", "another@example.com"])
     }
 
+    // MARK: shouldShowTrashIcon
+
+    /// `shouldShowTrashIcon(for:)` returns `false` when there's only one empty email field.
+    func test_shouldShowTrashIcon_singleEmptyEmail_returnsFalse() {
+        let subject = AddEditSendItemState(recipientEmails: [""])
+        XCTAssertFalse(subject.shouldShowTrashIcon(for: 0))
+    }
+
+    /// `shouldShowTrashIcon(for:)` returns `true` when there's only one non-empty email field.
+    func test_shouldShowTrashIcon_singleNonEmptyEmail_returnsTrue() {
+        let subject = AddEditSendItemState(recipientEmails: ["test@example.com"])
+        XCTAssertTrue(subject.shouldShowTrashIcon(for: 0))
+    }
+
+    /// `shouldShowTrashIcon(for:)` returns `true` for all indices when there are multiple emails.
+    func test_shouldShowTrashIcon_multipleEmails_returnsTrue() {
+        let subject = AddEditSendItemState(recipientEmails: ["test@example.com", ""])
+        XCTAssertTrue(subject.shouldShowTrashIcon(for: 0))
+        XCTAssertTrue(subject.shouldShowTrashIcon(for: 1))
+    }
+
+    /// `shouldShowTrashIcon(for:)` returns `true` when the array is empty (edge case with invalid index).
+    func test_shouldShowTrashIcon_emptyArray_returnsTrue() {
+        let subject = AddEditSendItemState(recipientEmails: [])
+        XCTAssertTrue(subject.shouldShowTrashIcon(for: 0))
+    }
+
     // MARK: availableDeletionDateTypes
 
     /// `availableDeletionDateTypes` returns the available options to display in the deletion date

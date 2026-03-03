@@ -68,7 +68,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         case let .sessionTimeoutValueChanged(timeoutValue):
             guard case .available = state.biometricUnlockStatus else { return }
 
-            if case .available(_, false, _) = state.biometricUnlockStatus {
+            if case .available(_, enabled: false) = state.biometricUnlockStatus {
                 await setBiometricAuth(true)
             }
 
@@ -188,11 +188,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         do {
             try await services.biometricsRepository.setBiometricUnlockKey(authKey: enabled ? "key" : nil)
             state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
-            // Set biometric integrity if needed.
-            if case .available(_, true, false) = state.biometricUnlockStatus {
-                try await services.biometricsRepository.configureBiometricIntegrity()
-                state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
-            }
 
             if enabled {
                 state.sessionTimeoutValue = .onAppRestart

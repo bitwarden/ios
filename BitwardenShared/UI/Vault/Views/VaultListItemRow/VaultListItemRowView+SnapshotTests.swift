@@ -44,7 +44,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.item = VaultListItem(
             id: "ID",
             hasPremium: false,
-            itemType: .group(.archive, 0)
+            itemType: .group(.archive, 0),
         )
         assertSnapshot(of: subject, as: .fixedSize())
     }

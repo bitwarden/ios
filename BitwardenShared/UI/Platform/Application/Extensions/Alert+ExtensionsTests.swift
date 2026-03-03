@@ -25,6 +25,36 @@ class AlertExtensionsTests: BitwardenTestCase {
         XCTAssertNil(action.handler)
     }
 
+    /// `invalidEmailAddresses` builds an `Alert` with the invalid email addresses title and message.
+    func test_invalidEmailAddresses() {
+        let subject = Alert.invalidEmailAddresses
+
+        XCTAssertEqual(subject.title, Localizations.invalidEmailAddresses)
+        XCTAssertEqual(subject.message, Localizations.oneOrMoreEmailAddressesIncorrect)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 1)
+
+        let action = subject.alertActions[0]
+        XCTAssertEqual(action.title, Localizations.ok)
+        XCTAssertEqual(action.style, .default)
+        XCTAssertNil(action.handler)
+    }
+
+    /// `noEmailAddressesEntered` builds an `Alert` with the no email addresses entered title and message.
+    func test_noEmailAddressesEntered() {
+        let subject = Alert.noEmailAddressesEntered
+
+        XCTAssertEqual(subject.title, Localizations.noEmailAddressesEntered)
+        XCTAssertEqual(subject.message, Localizations.enterAtLeastOneValidEmailToShareSend)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 1)
+
+        let action = subject.alertActions[0]
+        XCTAssertEqual(action.title, Localizations.ok)
+        XCTAssertEqual(action.style, .default)
+        XCTAssertNil(action.handler)
+    }
+
     /// `nameCustomFieldAlert` disables the "OK" button when the text field is empty,
     /// and enables it dynamically when the user enters text.
     @MainActor

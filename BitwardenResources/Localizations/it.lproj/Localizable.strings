@@ -1303,3 +1303,11 @@
 "RestartPremium" = "Riavvia Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Questo elemento è archiviato. Salvare le modifiche lo ripristinerà nella tua cassaforte.";
 "SettingUpAutofill" = "Configurazione del riempimento automatico…";
+"AddEmail" = "Add email";
+"AnyoneWithPasswordSetByYou" = "Anyone with a password set by you";
+"AnyoneWithTheLink" = "Anyone with the link";
+"AnyoneWithThisLinkCanViewThisSend" = "Anyone with this link can view this Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
+"SpecificPeople" = "Specific people";
+"WhoCanView" = "Who can view";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";

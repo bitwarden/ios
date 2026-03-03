@@ -82,6 +82,11 @@ public extension EnvironmentURLData {
             && webVault == nil
     }
 
+    /// The URL for a proxy on cookie redirect (used on SSO sync error).
+    var proxyCookieRedirectConnectorURL: URL? {
+        subpageURL(additionalPath: "proxy-cookie-redirect-connector.html", shouldAddPoundSign: false)
+    }
+
     /// The URL for the recovery code help page.
     var recoveryCodeURL: URL? {
         subpageURL(additionalPath: "recover-2fa")
@@ -134,13 +139,18 @@ public extension EnvironmentURLData {
     ///
     /// - Parameters:
     ///   - additionalPath: The additional path string to append to the vault's base URL
-    private func subpageURL(additionalPath: String) -> URL? {
+    private func subpageURL(additionalPath: String, shouldAddPoundSign: Bool = true) -> URL? {
         // Foundation's URL appending methods percent encode the path component that is passed into the method,
         // which includes the `#` symbol. Since the `#` character is a critical portion of these urls, we use String
         // concatenation to get around this limitation.
-        if let baseURL = webVault ?? base,
-           let url = URL(string: baseURL.sanitized.absoluteString.appending("/#/\(additionalPath)")) {
-            return url
+        if let baseURL = webVault ?? base {
+            var newUrlString = baseURL.sanitized.absoluteString
+            if shouldAddPoundSign {
+                newUrlString = newUrlString.appending("/#")
+            }
+            if let url = URL(string: newUrlString.appending("/\(additionalPath)")) {
+                return url
+            }
         }
         return nil
     }

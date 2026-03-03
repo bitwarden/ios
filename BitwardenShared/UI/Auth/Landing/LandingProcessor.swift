@@ -116,7 +116,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     ///
     private func validateEmailAndContinue() async {
         let email = state.email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        guard email.isValidEmail else {
+        guard email.isValidEmail(useStrictValidation: false) else {
             coordinator.showAlert(.invalidEmail)
             return
         }

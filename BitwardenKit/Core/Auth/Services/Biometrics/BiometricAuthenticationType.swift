@@ -2,7 +2,7 @@
 
 /// The enumeration biometric authentication types.
 ///
-enum BiometricAuthenticationType: Equatable {
+public enum BiometricAuthenticationType: Equatable {
     /// FaceID biometric authentication.
     case faceID
 

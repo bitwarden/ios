@@ -248,4 +248,31 @@ class EnvironmentURLDataTests: XCTestCase {
         let subject = EnvironmentURLData()
         XCTAssertNil(subject.webVaultHost)
     }
+
+    /// `proxyCookieRedirectConnectorURL` returns the URL for the base URL without a `#` sign.
+    func test_proxyCookieRedirectConnectorURL_baseURL() {
+        let subject = EnvironmentURLData(base: URL(string: "https://vault.example.com"))
+        XCTAssertEqual(
+            subject.proxyCookieRedirectConnectorURL?.absoluteString,
+            "https://vault.example.com/proxy-cookie-redirect-connector.html",
+        )
+    }
+
+    /// `proxyCookieRedirectConnectorURL` returns `nil` when no URLs are set.
+    func test_proxyCookieRedirectConnectorURL_noURLs() {
+        let subject = EnvironmentURLData(base: nil, webVault: nil)
+        XCTAssertNil(subject.proxyCookieRedirectConnectorURL)
+    }
+
+    /// `proxyCookieRedirectConnectorURL` uses the web vault URL when set.
+    func test_proxyCookieRedirectConnectorURL_webVaultURL() {
+        let subject = EnvironmentURLData(
+            base: URL(string: "https://vault.example.com"),
+            webVault: URL(string: "https://web.vault.example.com"),
+        )
+        XCTAssertEqual(
+            subject.proxyCookieRedirectConnectorURL?.absoluteString,
+            "https://web.vault.example.com/proxy-cookie-redirect-connector.html",
+        )
+    }
 }

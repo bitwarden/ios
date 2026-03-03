@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Sao chép và chia sẻ báo cáo lỗi này với bộ phận hỗ trợ khách hàng để tránh mất thêm dữ liệu.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Sao chép và chia sẻ báo cáo lỗi này với bộ phận hỗ trợ khách hàng để tránh mất thêm dữ liệu.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -36,7 +36,7 @@
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Mật khẩu này đã bị lộ %#@times@ trong các vụ vi phạm dữ liệu. Bạn nên thay đổi nó.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Bạn nên thay đổi nó.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -111,7 +111,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ đã được nhập thành công</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -171,7 +171,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Mã PIN của bạn phải có ít nhất %#@characters@. Mã PIN của bạn sẽ được đặt lại nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Mã PIN của bạn sẽ được đặt lại nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

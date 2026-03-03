@@ -144,6 +144,20 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `deletePendingAdminLoginRequest` succeeds quietly.
+    ///
+    func test_deletePendingAdminLoginRequest_success() async throws {
+        let item = KeychainItem.pendingAdminLoginRequest(userId: "1")
+        keychainService.deleteResult = .success(())
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.deletePendingAdminLoginRequest(userId: "1")
+        XCTAssertEqual(
+            keychainService.deleteQueries,
+            [expectedQuery],
+        )
+    }
+
     /// The service should generate a storage key for a` KeychainItem`.
     ///
     func test_formattedKey_biometrics() async {
@@ -202,6 +216,54 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAuthenticatorVaultKey(userId: "1")
         }
+    }
+
+    /// `getDeviceKey(userId:)` returns the stored device key.
+    func test_getDeviceKey() async throws {
+        keychainService.setSearchResultData(string: "DEVICE_KEY")
+        let deviceKey = try await subject.getDeviceKey(userId: "1")
+        XCTAssertEqual(deviceKey, "DEVICE_KEY")
+    }
+
+    /// `getDeviceKey(userId:)` throws an error if a non-keyNotFound error occurs.
+    func test_getDeviceKey_error() async {
+        let error = KeychainServiceError.osStatusError(-1)
+        keychainService.searchResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getDeviceKey(userId: "1")
+        }
+    }
+
+    /// `getDeviceKey(userId:)` returns `nil` when the key is not found.
+    func test_getDeviceKey_notFound() async throws {
+        let error = KeychainServiceError.keyNotFound(KeychainItem.deviceKey(userId: "1"))
+        keychainService.searchResult = .failure(error)
+        let deviceKey = try await subject.getDeviceKey(userId: "1")
+        XCTAssertNil(deviceKey)
+    }
+
+    /// `getPendingAdminLoginRequest(userId:)` returns the stored pending admin login request.
+    func test_getPendingAdminLoginRequest() async throws {
+        keychainService.setSearchResultData(string: "PENDING_ADMIN_LOGIN_REQUEST")
+        let request = try await subject.getPendingAdminLoginRequest(userId: "1")
+        XCTAssertEqual(request, "PENDING_ADMIN_LOGIN_REQUEST")
+    }
+
+    /// `getPendingAdminLoginRequest(userId:)` throws an error if a non-keyNotFound error occurs.
+    func test_getPendingAdminLoginRequest_error() async {
+        let error = KeychainServiceError.osStatusError(-1)
+        keychainService.searchResult = .failure(error)
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getPendingAdminLoginRequest(userId: "1")
+        }
+    }
+
+    /// `getPendingAdminLoginRequest(userId:)` returns `nil` when the key is not found.
+    func test_getPendingAdminLoginRequest_notFound() async throws {
+        let error = KeychainServiceError.keyNotFound(KeychainItem.pendingAdminLoginRequest(userId: "1"))
+        keychainService.searchResult = .failure(error)
+        let request = try await subject.getPendingAdminLoginRequest(userId: "1")
+        XCTAssertNil(request)
     }
 
     /// `getRefreshToken(userId:)` returns the stored refresh token.

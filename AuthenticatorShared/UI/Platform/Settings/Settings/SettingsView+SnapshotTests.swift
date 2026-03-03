@@ -49,7 +49,7 @@ class SettingsViewTests: BitwardenTestCase {
     /// Tests the view renders correctly.
     @MainActor
     func disabletest_snapshot_viewRenderWithBiometricsAvailable() {
-        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
+        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

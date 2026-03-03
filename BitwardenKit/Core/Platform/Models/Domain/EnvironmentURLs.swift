@@ -26,6 +26,9 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for importing items.
     public let importItemsURL: URL
 
+    /// The URL for a proxy on cookie redirect (used on SSO sync error).
+    public let proxyCookieRedirectConnectorURL: URL
+
     /// The URL for the recovery code help page.
     public let recoveryCodeURL: URL
 
@@ -54,6 +57,7 @@ public struct EnvironmentURLs: Equatable {
     ///   - iconsURL: The URL for the icons API.
     ///   - identityURL: The URL for the identity API.
     ///   - importItemsURL: The URL for importing items.
+    ///   - proxyCookieRedirectConnectorURL: The URL for a proxy on cookie redirect (used on SSO sync error).
     ///   - recoveryCodeURL: The URL for the recovery code help page.
     ///   - sendShareURL: The URL for sharing a send.
     ///   - settingsURL: The URL for vault settings.
@@ -68,6 +72,7 @@ public struct EnvironmentURLs: Equatable {
         iconsURL: URL,
         identityURL: URL,
         importItemsURL: URL,
+        proxyCookieRedirectConnectorURL: URL,
         recoveryCodeURL: URL,
         sendShareURL: URL,
         settingsURL: URL,
@@ -82,6 +87,7 @@ public struct EnvironmentURLs: Equatable {
         self.iconsURL = iconsURL
         self.identityURL = identityURL
         self.importItemsURL = importItemsURL
+        self.proxyCookieRedirectConnectorURL = proxyCookieRedirectConnectorURL
         self.recoveryCodeURL = recoveryCodeURL
         self.sendShareURL = sendShareURL
         self.settingsURL = settingsURL
@@ -126,6 +132,7 @@ public extension EnvironmentURLs {
         sendShareURL = environmentURLData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentURLData.settingsURL ?? webVaultURL
         changeEmailURL = environmentURLData.changeEmailURL ?? settingsURL
+        proxyCookieRedirectConnectorURL = environmentURLData.proxyCookieRedirectConnectorURL ?? webVaultURL
         setUpTwoFactorURL = environmentURLData.setUpTwoFactorURL ?? settingsURL
         upgradeToPremiumURL = environmentURLData.upgradeToPremiumURL ?? settingsURL
     }

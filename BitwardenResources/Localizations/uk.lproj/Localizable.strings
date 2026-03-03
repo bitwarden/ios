@@ -1303,3 +1303,11 @@
 "RestartPremium" = "Поновити Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Цей запис архівовано. Збереження змін відновить його до вашого сховища.";
 "SettingUpAutofill" = "Налаштування автозаповнення…";
+"AddEmail" = "Додати е-пошту";
+"AnyoneWithPasswordSetByYou" = "Будь-хто зі встановленим вами паролем";
+"AnyoneWithTheLink" = "Будь-хто з посиланням";
+"AnyoneWithThisLinkCanViewThisSend" = "Будь-хто з цим посиланням може переглядати це відправлення.";
+"AfterSharingThisSendLinkDescriptionLong" = "Після того, як ви поділитеся цим посиланням на відправлення, особам необхідно буде підтвердити свої е-пошти за допомогою коду, щоб переглянути це відправлення.";
+"SpecificPeople" = "Певні люди";
+"WhoCanView" = "Хто може переглядати";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Спільний доступ з певними людьми є Premium-функцією. Ваш поточний тарифний план не включає доступ до неї.";
