@@ -169,18 +169,33 @@ extension DataStore: CipherDataStore {
     }
 
     func hasPersonalCiphers(userId: String) async throws -> Bool {
-        try await backgroundContext.perform {
-            let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
-            fetchRequest.fetchBatchSize = 50
+        let batchSize = 50
+        var offset = 0
 
-            let results = try self.backgroundContext.fetch(fetchRequest)
-            for cipherData in results {
-                if let cipher = try? Cipher(cipherData: cipherData),
-                   cipher.organizationId == nil {
-                    return true
+        while true {
+            let found = try await backgroundContext.perform {
+                let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
+                fetchRequest.fetchLimit = batchSize
+                fetchRequest.fetchOffset = offset
+
+                let batch = try self.backgroundContext.fetch(fetchRequest)
+                if batch.isEmpty {
+                    return false as Bool?
                 }
+
+                for cipherData in batch {
+                    if let cipher = try? Cipher(cipherData: cipherData),
+                       cipher.organizationId == nil {
+                        return true as Bool?
+                    }
+                }
+                return nil
             }
-            return false
+
+            if let result = found {
+                return result
+            }
+            offset += batchSize
         }
     }
 }
