@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Tự động điền mật khẩu";
 "BitwardenAutofillAlert2" = "Cách dễ nhất để thêm các tài khoản đăng nhập mới vào kho lưu trữ sử dụng tiện ích mở rộng Bitwarden Tự động điền Mật khẩu. Để tìm hiểu thêm về cách sử dụng tiện ích mở rộng Bitwarden Tự động điền Mật khẩu, hãy truy cập vào màn hình “Cài đặt”.";
 "InvalidEmail" = "Địa chỉ email không hợp lệ.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "Thẻ";
 "Identities" = "Danh tính";
 "Logins" = "Đăng nhập";

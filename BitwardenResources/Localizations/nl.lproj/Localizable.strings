@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Wachtwoord automatisch invullen";
 "BitwardenAutofillAlert2" = "De eenvoudigste manier om nieuwe logins aan je kluis toe te voegen is door gebruik te maken van de Bitwarden Password AutoFill extensie. Leer meer over het gebruik van de Bitwarden Password AutoFill extensie via \"Instellingen\".";
 "InvalidEmail" = "Ongeldig e-mailadres.";
+"InvalidEmailAddresses" = "Ongeldige e-mailadressen";
+"NoEmailAddressesEntered" = "Geen e-mailadressen ingevoerd";
+"EnterAtLeastOneValidEmailToShareSend" = "Voer ten minste één geldig e-mailadres in om deze Send te delen.";
+"OneOrMoreEmailAddressesIncorrect" = "Een of meer e-mailadressen zijn onjuist. Controleer en probeer het opnieuw.";
 "Cards" = "Kaarten";
 "Identities" = "Identiteiten";
 "Logins" = "Logins";

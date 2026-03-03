@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Jelszó automata-kitöltés";
 "BitwardenAutofillAlert2" = "The easiest way to add new logins to your vault is by using the Bitwarden Password AutoFill extension. Learn more about using the Bitwarden Password AutoFill extension by navigating to the “Settings” screen.";
 "InvalidEmail" = "Az email cím érvénytelen.";
+"InvalidEmailAddresses" = "Az email cím érvénytelen.";
+"NoEmailAddressesEntered" = "Nincsenek megadva email címek.";
+"EnterAtLeastOneValidEmailToShareSend" = "Adjunk meg legalább egy érvényes email címet a Send elem megosztásához.";
+"OneOrMoreEmailAddressesIncorrect" = "Egy vagy több email cím helytelen. Tekintsük át és próbáljuk újra.";
 "Cards" = "Kártyák";
 "Identities" = "Azonosságok";
 "Logins" = "Bejelentkezések";
