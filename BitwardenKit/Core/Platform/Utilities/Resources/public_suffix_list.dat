@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2026-02-18_20-59-15_UTC
-// COMMIT: dfc780b86d5da2f178a1d944f5d7c10c42839c5f
+// VERSION: 2026-02-27_07-15-23_UTC
+// COMMIT: ccc3b53a1f52c921fb89f0119389b21829f9a2d1
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -3824,8 +3824,14 @@ mil.kg
 net.kg
 org.kg
 
-// kh : http://www.mptc.gov.kh/dns_registration.htm
-*.kh
+// kh : https://trc.gov.kh
+// Submitted by khnic@trc.gov.kh
+kh
+com.kh
+edu.kh
+gov.kh
+net.kh
+org.kh
 
 // ki : https://www.iana.org/domains/root/db/ki.html
 ki
@@ -12457,9 +12463,10 @@ beagleboard.io
 // Submitted by Herman Martinus <admin@bearblog.dev>
 bearblog.dev
 
-// Beget Ltd
-// Submitted by Lev Nekrasov <lnekrasov@beget.com>
+// Beget LLC : https://beget.com
+// Submitted by Lev Nekrasov & Nikita Radchenko <admin@beget.com>
 *.beget.app
+*.begetcdn.cloud
 
 // Besties : https://besties.house
 // Submitted by Hazel Cora <hazy@besties.house>
@@ -12914,7 +12921,11 @@ caffeine.site
 caffeine.xyz
 
 // dhosting.pl Sp. z o.o. : https://dhosting.pl/
-// Submitted by Michal Kokoszkiewicz <bok@dhosting.pl>
+// Submitted by Szczepan Redzioch <bok@dhosting.pl>
+mybox.company
+intouch.email
+mybox.me
+mybox.page
 dfirma.pl
 dkonto.pl
 you2.pl
@@ -16157,6 +16168,11 @@ localcert.net
 // Submitted by Douglas Chen <psl@windsurf.com>
 windsurf.app
 windsurf.build
+
+// WirelessCar : https://wirelesscar.com
+// Submitted by Martin Lindberg <drive-platform@wirelesscar.com>
+drive-platform.com
+drive-platform.io
 
 // WISP : https://wisp.gg
 // Submitted by Stepan Fedotov <stepan@wisp.gg>
