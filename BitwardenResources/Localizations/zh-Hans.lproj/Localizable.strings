@@ -381,6 +381,10 @@
 "PasswordAutofill" = "密码自动填充";
 "BitwardenAutofillAlert2" = "向您的密码库中添加新登录项目的最简单方法，就是使用 Bitwarden 密码自动填充扩展。转到「设置」界面进一步了解 Bitwarden 密码自动填充扩展的使用。";
 "InvalidEmail" = "无效的电子邮箱地址。";
+"InvalidEmailAddresses" = "无效的电子邮箱地址";
+"NoEmailAddressesEntered" = "未输入电子邮箱地址";
+"EnterAtLeastOneValidEmailToShareSend" = "输入至少一个有效的电子邮箱地址以分享此 Send。";
+"OneOrMoreEmailAddressesIncorrect" = "一个或多个电子邮箱地址不正确。请检查然后重试。";
 "Cards" = "支付卡";
 "Identities" = "身份";
 "Logins" = "登录项";

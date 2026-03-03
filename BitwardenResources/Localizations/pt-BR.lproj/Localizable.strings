@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Preenchimento automático de senhas";
 "BitwardenAutofillAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é através da extensão de preenchimento automático do Bitwarden. Saiba mais sobre como usar a extensão de preenchimento automático do Bitwarden acessando a tela de Configurações.";
 "InvalidEmail" = "Endereço de e-mail inválido.";
+"InvalidEmailAddresses" = "Endereços de e-mail inválidos";
+"NoEmailAddressesEntered" = "Nenhum endereço de e-mail digitado";
+"EnterAtLeastOneValidEmailToShareSend" = "Digite pelo menos um endereço de e-mail válido para compartilhar este Send.";
+"OneOrMoreEmailAddressesIncorrect" = "Um ou mais endereços de e-mail estão incorretos. Revise e tente novamente.";
 "Cards" = "Cartões";
 "Identities" = "Identidades";
 "Logins" = "Credenciais";

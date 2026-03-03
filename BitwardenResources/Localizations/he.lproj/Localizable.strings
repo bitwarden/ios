@@ -381,6 +381,10 @@
 "PasswordAutofill" = "מילוי אוטומטי של סיסמאות";
 "BitwardenAutofillAlert2" = "הדרך הקלה ביותר להוסיף כניסות חדשות לכספת שלך היא דרך ההרחבה של Bitwarden למילוי אוטומטי של סיסמאות. למד עוד אודות השימוש בהרחבה של Bitwarden למילוי אוטומטי של סיסמאות על ידי ניווט למסך ה“הגדרות“.";
 "InvalidEmail" = "כתובת אימייל לא תקינה.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "כרטיסים";
 "Identities" = "זהויות";
 "Logins" = "פרטי התחברות";
