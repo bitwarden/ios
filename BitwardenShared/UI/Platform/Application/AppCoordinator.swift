@@ -285,7 +285,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///
     private func showMigrateToMyItems(organizationId: String) {
         // Make sure that the user is authenticated and not currently viewing the migrate to my items view.
-        guard childCoordinator is AnyCoordinator<TabRoute, Void> else { return }
+        // In the main app, childCoordinator is TabRoute. In extensions, it's VaultRoute.
+        guard childCoordinator is AnyCoordinator<TabRoute, Void>
+            || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
+        else { return }
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
         guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
 
