@@ -45,6 +45,7 @@ typealias Services = HasAPIService
     & HasReviewPromptService
     & HasSearchProcessorMediatorFactory
     & HasSendRepository
+    & HasServerCommunicationConfigAPIService
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
@@ -305,6 +306,13 @@ public protocol HasSendRepository {
     var sendRepository: SendRepository { get }
 }
 
+/// Protocol for an object that provides a `ServerCommunicationConfigAPIService`.
+///
+public protocol HasServerCommunicationConfigAPIService {
+    /// The service used to handle server communication configuration.
+    var serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService { get }
+}
+
 /// Protocol for an object that provides a `SettingsRepository`.
 ///
 protocol HasSettingsRepository {
@@ -401,4 +409,4 @@ protocol HasVaultTimeoutService {
 protocol HasWatchService {
     /// The service used by the application to connect to and communicate with the watch app.
     var watchService: WatchService { get }
-}
+} // swiftlint:disable:this file_length

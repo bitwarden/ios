@@ -151,6 +151,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used by the application to manage send data for the UI layer.
     public let sendRepository: SendRepository
 
+    /// The service used to handle server communication configuration.
+    public let serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService
+
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
 
@@ -255,6 +258,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - policyService: The service for managing the polices for the user.
     ///   - searchProcessorMediatorFactory: The factory to make `SearchProcessorMediator`s.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
+    ///   - serverCommunicationConfigAPIService: The service used to handle server communication configuration.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The service used by the application to manage account state.
@@ -317,6 +321,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         reviewPromptService: ReviewPromptService,
         searchProcessorMediatorFactory: SearchProcessorMediatorFactory,
         sendRepository: SendRepository,
+        serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService,
         settingsRepository: SettingsRepository,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
@@ -377,6 +382,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.reviewPromptService = reviewPromptService
         self.searchProcessorMediatorFactory = searchProcessorMediatorFactory
         self.sendRepository = sendRepository
+        self.serverCommunicationConfigAPIService = serverCommunicationConfigAPIService
         self.settingsRepository = settingsRepository
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
@@ -504,15 +510,21 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             tokenProvider: tokenService,
         )
+        let sdkRepositoryFactory = DefaultSdkRepositoryFactory(
+            cipherDataStore: dataStore,
+            errorReporter: errorReporter,
+            serverCommunicationConfigStateService: stateService,
+        )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
             configService: configService,
             errorReporter: errorReporter,
-            sdkRepositoryFactory: DefaultSdkRepositoryFactory(
-                cipherDataStore: dataStore,
-                errorReporter: errorReporter,
-            ),
+            sdkRepositoryFactory: sdkRepositoryFactory,
             stateService: stateService,
+        )
+
+        let serverCommunicationConfigAPIService = DefaultServerCommunicationConfigAPIService(
+            errorReporter: errorReporter,
         )
 
         let biometricsService = DefaultBiometricsService()
@@ -944,6 +956,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sdkRepositoryFactory: DefaultSdkRepositoryFactory(
                 cipherDataStore: dataStore,
                 errorReporter: errorReporter,
+                serverCommunicationConfigStateService: stateService,
             ),
             stateService: stateService,
         )
@@ -1005,6 +1018,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             reviewPromptService: reviewPromptService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             sendRepository: sendRepository,
+            serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,

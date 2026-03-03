@@ -1397,7 +1397,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A service used to access data in the keychain.
-    private let keychainRepository: KeychainRepository
+    let keychainRepository: KeychainRepository
 
     /// A service used to access user session data in the keychain.
     private let userSessionKeychainRepository: UserSessionKeychainRepository

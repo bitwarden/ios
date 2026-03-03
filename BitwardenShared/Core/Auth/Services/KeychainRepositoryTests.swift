@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
