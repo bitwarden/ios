@@ -14,6 +14,7 @@ public class MockEnvironmentService: EnvironmentService {
     public var iconsURL = URL(string: "https://example.com/icons")!
     public var identityURL = URL(string: "https://example.com/identity")!
     public var importItemsURL = URL(string: "https://example.com/#/tools/import")!
+    public var proxyCookieRedirectConnectorURL = URL(string: "https://example.com/proxy-cookie-redirect-connector")!
     public var recoveryCodeURL = URL(string: "https://example.com/#/recover-2fa")!
     public var region = RegionType.selfHosted
     public var sendShareURL = URL(string: "https://example.com/#/send")!
