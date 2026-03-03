@@ -382,6 +382,10 @@
 "PasswordAutofill" = "கடவுச்சொல் தானாக நிரப்புதல்";
 "BitwardenAutofillAlert2" = "The easiest way to add new logins to your vault is by using the Bitwarden Password AutoFill extension. Learn more about using the Bitwarden Password AutoFill extension by navigating to the “Settings” screen.";
 "InvalidEmail" = "செல்லாத மின்னஞ்சல் முகவரி.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "அட்டைகள்";
 "Identities" = "அடையாளங்கள்";
 "Logins" = "உள்நுழைவுகள்";

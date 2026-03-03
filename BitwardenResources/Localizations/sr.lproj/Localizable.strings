@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Ауто-пуњење лозинке";
 "BitwardenAutofillAlert2" = "Најлакши начин за додавање нових пријава у свој сеф је користећи додатка Bitwarden. Сазнајте више о коришћењу додатка Bitwarden преко екрана „Подешавања“.";
 "InvalidEmail" = "Неисправна адреса Е-поште.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "Кредитне Картице";
 "Identities" = "Идентитети";
 "Logins" = "Пријаве";

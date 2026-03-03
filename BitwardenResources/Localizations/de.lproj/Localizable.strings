@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Passwort automatisch ausfüllen";
 "BitwardenAutofillAlert2" = "Die einfachste Möglichkeit, neue Zugangsdaten zu deinem Tresor hinzuzufügen, ist die Bitwarden-Erweiterung zum automatischen Ausfüllen von Passwörtern. Mehr darüber erfährst du in den „Einstellungen“.";
 "InvalidEmail" = "Ungültige E-Mail-Adresse.";
+"InvalidEmailAddresses" = "Ungültige E-Mail-Adressen";
+"NoEmailAddressesEntered" = "Keine E-Mail-Adressen eingegeben";
+"EnterAtLeastOneValidEmailToShareSend" = "Gib mindestens eine gültige E-Mail-Adresse ein, um dieses Send mit anderen zu teilen.";
+"OneOrMoreEmailAddressesIncorrect" = "Eine oder mehrere E-Mail-Adressen sind falsch. Bitte überprüfe sie und versuche es erneut.";
 "Cards" = "Karten";
 "Identities" = "Identitäten";
 "Logins" = "Zugangsdaten";
