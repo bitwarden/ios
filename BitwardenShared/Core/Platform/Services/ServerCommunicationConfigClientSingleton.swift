@@ -150,7 +150,7 @@ actor DefaultServerCommunicationConfigClientSingleton: ServerCommunicationConfig
     /// - Parameter hostname: The exact hostname to check first.
     /// - Returns: The hostname key under which the config was saved.
     private func findServerCommunicationConfigHostname(hostname: String) async throws -> String? {
-        if try await stateService.getServerCommunicationConfig(hostname: hostname) != nil {
+        if try await serverCommunicationConfigStateService.getServerCommunicationConfig(hostname: hostname) != nil {
             return hostname
         }
 

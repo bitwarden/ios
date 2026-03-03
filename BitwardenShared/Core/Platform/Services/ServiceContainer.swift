@@ -552,7 +552,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             sdkRepositoryFactory: sdkRepositoryFactory,
             serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
-            stateService: stateService,
+            serverCommunicationConfigStateService: stateService,
         )
 
         let biometricsService = DefaultBiometricsService()

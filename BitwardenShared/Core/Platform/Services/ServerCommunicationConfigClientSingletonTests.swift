@@ -277,7 +277,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: stateService)
 
         configService.configSubject.send(
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: cookieDomain)),
@@ -296,7 +296,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(stateService: stateService)
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: stateService)
 
         configService.configSubject.send(
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: nil)),
