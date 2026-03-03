@@ -268,12 +268,7 @@ class DefaultSyncService: SyncService {
         guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
         else { return }
 
-        let allCiphers = try await cipherService.fetchAllCiphers()
-        let hasPersonalVaultItems = allCiphers.contains { cipher in
-            cipher.organizationId == nil
-        }
-
-        guard hasPersonalVaultItems else { return }
+        guard try await cipherService.hasPersonalCiphers() else { return }
 
         await delegate?.migrateVaultToMyItems(organizationId: organizationId)
     }

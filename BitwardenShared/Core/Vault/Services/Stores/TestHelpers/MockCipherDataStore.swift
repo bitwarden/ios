@@ -15,6 +15,9 @@ class MockCipherDataStore: CipherDataStore {
     var fetchAllCiphersUserId: String?
     var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
 
+    var hasPersonalCiphersUserId: String?
+    var hasPersonalCiphersResult: Result<Bool, Error> = .success(false)
+
     var fetchCipherId: String?
     var fetchCipherResult: Cipher?
     var fetchCipherUserId: String?
@@ -45,6 +48,11 @@ class MockCipherDataStore: CipherDataStore {
     func fetchAllCiphers(userId: String) async throws -> [BitwardenSdk.Cipher] {
         fetchAllCiphersUserId = userId
         return try fetchAllCiphersResult.get()
+    }
+
+    func hasPersonalCiphers(userId: String) async throws -> Bool {
+        hasPersonalCiphersUserId = userId
+        return try hasPersonalCiphersResult.get()
     }
 
     func fetchCipher(withId id: String, userId: String) async -> Cipher? {

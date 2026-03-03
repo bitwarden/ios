@@ -76,6 +76,16 @@ protocol CipherDataStore: AnyObject {
     ///   - userId: The user ID of the user associated with the cipher.
     ///
     func upsertCipher(_ cipher: Cipher, userId: String) async throws
+
+    /// Checks whether the user has any personal ciphers (ciphers with no organization).
+    ///
+    /// This method uses batch fetching with early termination for efficiency,
+    /// avoiding the need to load all ciphers into memory.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the ciphers.
+    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
+    ///
+    func hasPersonalCiphers(userId: String) async throws -> Bool
 }
 
 extension DataStore: CipherDataStore {
@@ -156,5 +166,21 @@ extension DataStore: CipherDataStore {
         }
 
         cipherChangeSubject.send((userId, .upserted(cipher)))
+    }
+
+    func hasPersonalCiphers(userId: String) async throws -> Bool {
+        try await backgroundContext.perform {
+            let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
+            fetchRequest.fetchBatchSize = 50
+
+            let results = try self.backgroundContext.fetch(fetchRequest)
+            for cipherData in results {
+                if let cipher = try? Cipher(cipherData: cipherData),
+                   cipher.organizationId == nil {
+                    return true
+                }
+            }
+            return false
+        }
     }
 }
