@@ -208,17 +208,12 @@ public final class HTTPService: Sendable {
     /// - Parameter httpRequest: The request to apply request handlers to.
     ///
     private func applyRequestHandlers(_ httpRequest: inout HTTPRequest) async throws {
-        do {
-            for handler in requestHandlers {
-                httpRequest = try await handler.handle(&httpRequest)
-            }
+        for handler in requestHandlers {
+            httpRequest = try await handler.handle(&httpRequest)
+        }
 
-            if let tokenProvider {
-                try await httpRequest.headers["Authorization"] = "Bearer \(tokenProvider.getToken())"
-            }
-        } catch {
-            let asdfasfd = error
-            throw error
+        if let tokenProvider {
+            try await httpRequest.headers["Authorization"] = "Bearer \(tokenProvider.getToken())"
         }
     }
 
