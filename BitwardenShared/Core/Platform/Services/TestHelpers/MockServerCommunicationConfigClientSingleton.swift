@@ -5,7 +5,7 @@ import TestHelpers
 
 final class MockServerCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton {
     var clientResult: Result<ServerCommunicationConfigClientProtocol, Error> =
-        .failure(BitwardenTestError.example)
+        .success(MockServerCommunicationConfigClient())
 
     var resolveHostnameReceivedHostname: String?
     var resolveHostnameResult: String?

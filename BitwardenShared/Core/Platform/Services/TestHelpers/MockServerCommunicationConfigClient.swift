@@ -12,7 +12,11 @@ final class MockServerCommunicationConfigClient: ServerCommunicationConfigClient
     var cookiesResult: [BitwardenSdk.AcquiredCookie] = []
 
     var getConfigCallsCount = 0
-    var getConfigResult: Result<ServerCommunicationConfig, Error> = .failure(BitwardenTestError.example)
+    var getConfigResult: Result<ServerCommunicationConfig, Error> = .success(
+        ServerCommunicationConfig(
+            bootstrap: .direct,
+        ),
+    )
 
     var needsBootstrapReceivedHostname: String?
     var needsBootstrapResult = false
