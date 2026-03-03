@@ -11,7 +11,7 @@ public enum AppContext: Equatable {
 }
 
 extension AppContext {
-    /// A safe string representation of the current app context
+    /// A safe string representation of the current app context.
     var appContextName: String {
         switch self {
         case .appExtension:

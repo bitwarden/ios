@@ -20,7 +20,7 @@ public protocol ErrorReporter: AnyObject {
     ///
     func log(error: Error)
 
-    /// Sets the current app context
+    /// Sets the current app context.
     /// - Parameters:
     ///   - appContext: The context in which the app is running (either app or extension).
     func setAppContext(_ appContext: String)
