@@ -142,6 +142,11 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
+        if url.absoluteString.hasPrefix(BitwardenDeepLinkConstants.ssoCookieVendor) {
+            await handleSSOCookieUrl(url)
+            return
+        }
+
         var route = await getBitwardenUrlRoute(url: url)
         if route == nil {
             route = await getOtpAuthUrlRoute(url: url)
@@ -465,6 +470,25 @@ extension AppProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Handles a `bitwarden://sso-cookie-vendor` deep link by extracting cookies from
+    /// the URL query parameters and delivering them to the pending SSO cookie acquisition.
+    ///
+    /// - Parameter url: The deep link URL containing cookie name-value pairs as query items.
+    ///
+    private func handleSSOCookieUrl(_ url: URL) async {
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let cookies = components?.queryItems?.compactMap { item -> AcquiredCookie? in
+            guard let value = item.value, item.name != "d" else {
+                return nil
+            }
+
+            return AcquiredCookie(name: item.name, value: value)
+        }
+        await services.serverCommunicationConfigAPIService.cookiesAcquired(
+            cookies: .success(cookies),
+        )
     }
 
     /// Attempt to create an `AppRoute` from an "bitwarden://" url.
