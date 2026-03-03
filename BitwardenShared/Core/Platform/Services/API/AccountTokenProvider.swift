@@ -93,7 +93,7 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
             defer { self.refreshTask = nil }
 
             do {
-                // Capture userId BEFORE refresh
+                // TODO: PM-33074 Remove logs after confirmation that the error doesn't happen anymore.
                 let userIdBefore = try await stateService.getActiveAccountId()
 
                 let refreshToken = try await tokenService.getRefreshToken()
@@ -108,10 +108,8 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
                     expirationDate: expirationDate,
                 )
 
-                // Capture userId AFTER refresh
                 let userIdAfter = try await stateService.getActiveAccountId()
 
-                // Detect race condition
                 if userIdBefore != userIdAfter {
                     let error = TokenRefreshRaceConditionError(
                         userIdBefore: userIdBefore,

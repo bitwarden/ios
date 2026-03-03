@@ -36,7 +36,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
             timeProvider: timeProvider,
             tokenService: tokenService,
             errorReporter: errorReporter,
-            stateService: stateService
+            stateService: stateService,
         )
     }
 
