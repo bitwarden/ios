@@ -34,19 +34,19 @@ class SyncWithBrowserViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the "Launch browser" button dispatches the `.launchBrowserTapped` effect.
-    @MainActor
-    func test_launchBrowserButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.launchBrowser)
-        try await button.tap()
-        XCTAssertEqual(processor.effects.last, .launchBrowserTapped)
-    }
-
     /// Tapping the "Continue without syncing" button dispatches the `.continueWithoutSyncingTapped` action.
     @MainActor
     func test_continueWithoutSyncingButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.continueWithoutSyncing)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .continueWithoutSyncingTapped)
+    }
+
+    /// Tapping the "Launch browser" button dispatches the `.launchBrowserTapped` effect.
+    @MainActor
+    func test_launchBrowserButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.launchBrowser)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .launchBrowserTapped)
     }
 }

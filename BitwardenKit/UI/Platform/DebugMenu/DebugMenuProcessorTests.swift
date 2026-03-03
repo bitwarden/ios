@@ -71,6 +71,28 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.featureFlags.contains(flag))
     }
 
+    /// `perform(.clearSsoCookies)` clears the SSO cookie and shows a success toast.
+    @MainActor
+    func test_perform_clearSsoCookies_success() async {
+        await subject.perform(.clearSsoCookies)
+
+        XCTAssertTrue(configService.clearServerCommCookieValueCalled)
+        XCTAssertEqual(configService.clearServerCommCookieValueHostname, environmentService.baseURL.host)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.ssoCookiesCleared)
+    }
+
+    /// `perform(.clearSsoCookies)` logs an error when the clear operation fails.
+    @MainActor
+    func test_perform_clearSsoCookies_error() async {
+        configService.clearServerCommCookieValueError = BitwardenTestError.example
+
+        await subject.perform(.clearSsoCookies)
+
+        XCTAssertTrue(configService.clearServerCommCookieValueCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// `perform(.refreshFeatureFlags)` refreshes the current feature flags.
     @MainActor
     func test_perform_refreshFeatureFlags() async {
@@ -124,30 +146,6 @@ class DebugMenuProcessorTests: BitwardenTestCase {
                 message: "Generated SDK error report from debug view.",
             )),
         )
-    }
-
-    // MARK: Tests - ClearSsoCookies Effect
-
-    /// `perform(.clearSsoCookies)` clears the SSO cookie and shows a success toast.
-    @MainActor
-    func test_perform_clearSsoCookies_success() async {
-        await subject.perform(.clearSsoCookies)
-
-        XCTAssertTrue(configService.clearServerCommCookieValueCalled)
-        XCTAssertEqual(configService.clearServerCommCookieValueHostname, environmentService.baseURL.host)
-        XCTAssertEqual(subject.state.toast?.title, Localizations.ssoCookiesCleared)
-    }
-
-    /// `perform(.clearSsoCookies)` logs an error when the clear operation fails.
-    @MainActor
-    func test_perform_clearSsoCookies_error() async {
-        configService.clearServerCommCookieValueError = BitwardenTestError.example
-
-        await subject.perform(.clearSsoCookies)
-
-        XCTAssertTrue(configService.clearServerCommCookieValueCalled)
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-        XCTAssertNil(subject.state.toast)
     }
 
     // MARK: Tests - ToastShown Action

@@ -52,7 +52,6 @@ struct SyncWithBrowserView: View {
         .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .scrollView()
-        // .navigationBar(title: Localizations.syncWithBrowser, titleDisplayMode: .inline)
         .task {
             await store.perform(.appeared)
         }
