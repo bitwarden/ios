@@ -119,24 +119,24 @@ public final class HTTPService: Sendable {
     ///
     /// - Parameters:
     ///   - httpRequest: The http request to perform.
-    ///   - validate: An optional validation block that will be executed after the request has been
-    ///     completed, but before the response handlers have processed the response.
-    ///   - shouldRetryIfUnauthorized: A flag indicating if this request should be retried when an
-    ///     authentication error is encountered. If true, the token provider will be used to refresh
-    ///     the token before attempting the network request again. If authentication fails a second
-    ///     time this method will throw the authentication error.
     ///   - shouldFollowRedirect: A flag indicating if response handlers should be given the
     ///     opportunity to re-send this request when a redirect is encountered. If false, the
     ///     `retryWith` closure passed to each `ResponseHandler` will be `nil`, preventing any
     ///     handler from triggering a further redirect. This prevents infinite recursion when a
     ///     redirect-following handler re-invokes `send`.
+    ///   - shouldRetryIfUnauthorized: A flag indicating if this request should be retried when an
+    ///     authentication error is encountered. If true, the token provider will be used to refresh
+    ///     the token before attempting the network request again. If authentication fails a second
+    ///     time this method will throw the authentication error.
+    ///   - validate: An optional validation block that will be executed after the request has been
+    ///     completed, but before the response handlers have processed the response.
     /// - Returns: The http response received for the request.
     ///
     public func send(
         _ httpRequest: HTTPRequest,
-        validate: ((HTTPResponse) throws -> Void)? = nil,
-        shouldRetryIfUnauthorized: Bool = false,
         shouldFollowRedirect: Bool = true,
+        shouldRetryIfUnauthorized: Bool = false,
+        validate: ((HTTPResponse) throws -> Void)? = nil,
     ) async throws -> HTTPResponse {
         var httpRequest = httpRequest
         try await applyRequestHandlers(&httpRequest)
@@ -155,9 +155,9 @@ public final class HTTPService: Sendable {
             // Send the request again, but don't retry if still unauthorized to prevent a retry loop.
             return try await send(
                 httpRequest,
-                validate: validate,
-                shouldRetryIfUnauthorized: false,
                 shouldFollowRedirect: shouldFollowRedirect,
+                shouldRetryIfUnauthorized: false,
+                validate: validate,
             )
         }
 
@@ -167,9 +167,9 @@ public final class HTTPService: Sendable {
             ? { newRequest in
                 try await self.send(
                     newRequest,
-                    validate: validate,
-                    shouldRetryIfUnauthorized: shouldRetryIfUnauthorized,
                     shouldFollowRedirect: false,
+                    shouldRetryIfUnauthorized: shouldRetryIfUnauthorized,
+                    validate: validate,
                 )
             }
             : nil
@@ -196,8 +196,8 @@ public final class HTTPService: Sendable {
 
         let httpResponse = try await send(
             httpRequest,
-            validate: request.validate,
             shouldRetryIfUnauthorized: shouldRetryIfUnauthorized,
+            validate: request.validate,
         )
 
         return try R.Response(response: httpResponse)
@@ -208,17 +208,12 @@ public final class HTTPService: Sendable {
     /// - Parameter httpRequest: The request to apply request handlers to.
     ///
     private func applyRequestHandlers(_ httpRequest: inout HTTPRequest) async throws {
-        do {
-            for handler in requestHandlers {
-                httpRequest = try await handler.handle(&httpRequest)
-            }
+        for handler in requestHandlers {
+            httpRequest = try await handler.handle(&httpRequest)
+        }
 
-            if let tokenProvider {
-                try await httpRequest.headers["Authorization"] = "Bearer \(tokenProvider.getToken())"
-            }
-        } catch {
-            let asdfasfd = error
-            throw error
+        if let tokenProvider {
+            try await httpRequest.headers["Authorization"] = "Bearer \(tokenProvider.getToken())"
         }
     }
 

@@ -61,11 +61,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
 
         let result = try await subject.getServerCommunicationConfig(hostname: "example.com")
 
-        XCTAssertNotNil(result)
-        guard case .direct = result?.bootstrap else {
-            XCTFail("Expected .direct bootstrap, got \(String(describing: result?.bootstrap))")
-            return
-        }
+        XCTAssertEqual(result, ServerCommunicationConfig(bootstrap: .direct))
     }
 
     /// `getServerCommunicationConfig(hostname:)` returns `nil` when the key is not found.
@@ -107,10 +103,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
         let updateAttributes = try XCTUnwrap(keychainService.updateAttributes as? [CFString: Any])
         let valueData = try XCTUnwrap(updateAttributes[kSecValueData] as? Data)
         let decoded = try JSONDecoder.defaultDecoder.decode(ServerCommunicationConfig.self, from: valueData)
-        guard case .direct = decoded.bootstrap else {
-            XCTFail("Expected .direct bootstrap in stored config")
-            return
-        }
+        XCTAssertEqual(decoded, ServerCommunicationConfig(bootstrap: .direct))
     }
 
     /// `setServerCommunicationConfig(_:hostname:)` deletes the keychain item when config is `nil`.

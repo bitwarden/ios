@@ -44,11 +44,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
 
         let result = try await subject.get(hostname: hostname)
 
-        XCTAssertNotNil(result)
-        guard case .direct = result?.bootstrap else {
-            XCTFail("Expected .direct bootstrap, got \(String(describing: result?.bootstrap))")
-            return
-        }
+        XCTAssertEqual(result, ServerCommunicationConfig(bootstrap: .direct))
     }
 
     /// `get(hostname:)` returns `nil` when no config exists for the hostname.
@@ -75,10 +71,8 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
         try await subject.save(hostname: hostname, config: config)
 
         let saved = serverCommunicationConfigStateService.setServerCommunicationConfigReceivedArguments?.config
-        XCTAssertNotNil(saved)
-        if case .direct = saved?.bootstrap {} else {
-            XCTFail("Expected .direct bootstrap, got \(String(describing: saved?.bootstrap))")
-        }
+
+        XCTAssertEqual(saved, ServerCommunicationConfig(bootstrap: .direct))
     }
 
     /// `save(hostname:config:)` merges the cookie value from the incoming config when a local

@@ -7,7 +7,7 @@ import Foundation
 ///
 public protocol ConfigService {
     /// A publisher that updates with a new value when a new server configuration is received.
-    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>>
+    func configPublisher() async -> AsyncPublisher<AnyPublisher<MetaServerConfig?, Never>>
 
     /// Retrieves the current configuration. This will return the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
@@ -335,7 +335,7 @@ public class DefaultConfigService: ConfigService {
         return try? await stateService.getServerConfig()
     }
 
-    public func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
+    public func configPublisher() async -> AsyncPublisher<AnyPublisher<MetaServerConfig?, Never>> {
         configSubject.eraseToAnyPublisher().values
     }
 

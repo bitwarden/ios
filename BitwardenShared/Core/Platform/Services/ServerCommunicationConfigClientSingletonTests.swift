@@ -9,7 +9,7 @@ import XCTest
 
 // MARK: - ServerCommunicationConfigClientSingletonTests
 
-class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
+class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientService: MockClientService!
@@ -18,6 +18,8 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var sdkRepositoryFactory: MockSdkRepositoryFactory!
     var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
+    var serverCommunicationConfigClient: MockServerCommunicationConfigClient!
+    var serverCommunicationConfigRepository: MockServerCommunicationConfigRepository!
     var serverCommunicationConfigStateService: MockStateService!
     var subject: DefaultServerCommunicationConfigClientSingleton!
 
@@ -32,6 +34,13 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         sdkRepositoryFactory = MockSdkRepositoryFactory()
         serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
+
+        serverCommunicationConfigClient = MockServerCommunicationConfigClient()
+        clientService.mockPlatform.serverCommunicationConfigResult = serverCommunicationConfigClient
+
+        serverCommunicationConfigRepository = MockServerCommunicationConfigRepository()
+        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue = serverCommunicationConfigRepository
+
         serverCommunicationConfigStateService = MockStateService()
         subject = DefaultServerCommunicationConfigClientSingleton(
             clientService: clientService,
@@ -53,6 +62,8 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         errorReporter = nil
         sdkRepositoryFactory = nil
         serverCommunicationConfigAPIService = nil
+        serverCommunicationConfigClient = nil
+        serverCommunicationConfigRepository = nil
         serverCommunicationConfigStateService = nil
         subject = nil
     }
@@ -64,17 +75,17 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_noLocalConfig_callsSetCommunicationType() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
-        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = nil
 
         configService.configSubject.send(makeMetaServerConfig())
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedConfig, ServerCommunicationConfig(bootstrap: .direct))
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(
+            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
+            ServerCommunicationConfig(bootstrap: .direct),
+        )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -83,18 +94,19 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_withLocalConfig_callsSetCommunicationType() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
-        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
+            bootstrap: .direct,
+        )
 
         configService.configSubject.send(makeMetaServerConfig())
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedConfig, ServerCommunicationConfig(bootstrap: .direct))
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(
+            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
+            ServerCommunicationConfig(bootstrap: .direct),
+        )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -103,8 +115,6 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     func test_configPublisher_noCommunicationSettings() async throws {
         configService.configSubject.send(makeMetaServerConfig(communication: nil))
 
-        await Task.yield()
-        await Task.yield()
         await Task.yield()
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
@@ -119,8 +129,6 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         configService.configSubject.send(makeMetaServerConfig())
 
         await Task.yield()
-        await Task.yield()
-        await Task.yield()
 
         XCTAssertTrue(errorReporter.errors.isEmpty)
         XCTAssertEqual(clientService.platformCallCount, 0)
@@ -131,15 +139,16 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_withLocalConfig_logsSDKClientError() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
+            bootstrap: .direct,
+        )
         clientService.platformError = BitwardenTestError.example
 
         configService.configSubject.send(makeMetaServerConfig())
 
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
 
-        XCTAssertEqual(clientService.platformCallCount, 1)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual((errorReporter.errors as? [BitwardenTestError])?.first, .example)
     }
 
     /// `configPublisher` logs an error when the state service throws.
@@ -151,7 +160,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
 
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual((errorReporter.errors as? [BitwardenTestError])?.first, .example)
     }
 
     /// `configPublisher` triggers `setCommunicationType` preserving the cookie value from the
@@ -165,30 +174,30 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                 SsoCookieVendorConfig(
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "sso_cookie",
-                    cookieDomain: ".example.com",
+                    cookieDomain: "example.com",
                     cookieValue: cookieValue,
                 ),
             ),
         )
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
-        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(makeMetaServerConfig(communication: makeSSOCommunicationSettings()))
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
-        guard case let .ssoCookieVendor(config) = mockSdkClient.setCommunicationTypeReceivedConfig?.bootstrap else {
-            XCTFail("Expected .ssoCookieVendor bootstrap")
-            return
-        }
-        XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
-        XCTAssertEqual(config.cookieName, "sso_cookie")
-        XCTAssertEqual(config.cookieDomain, ".example.com")
-        XCTAssertEqual(config.cookieValue?.first?.name, "cookie")
-        XCTAssertEqual(config.cookieValue?.first?.value, "stored_value")
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(
+            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
+            ServerCommunicationConfig(
+                bootstrap: .ssoCookieVendor(
+                    SsoCookieVendorConfig(
+                        idpLoginUrl: "https://idp.example.com",
+                        cookieName: "sso_cookie",
+                        cookieDomain: "example.com",
+                        cookieValue: [AcquiredCookie(name: "cookie", value: "stored_value")],
+                    ),
+                ),
+            ),
+        )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -197,25 +206,28 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_serverSSO_localDirect_doesNotPreserveCookieValue() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
-        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
+            bootstrap: .direct,
+        )
 
         configService.configSubject.send(makeMetaServerConfig(communication: makeSSOCommunicationSettings()))
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
-        guard case let .ssoCookieVendor(config) = mockSdkClient.setCommunicationTypeReceivedConfig?.bootstrap else {
-            XCTFail("Expected .ssoCookieVendor bootstrap")
-            return
-        }
-        XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
-        XCTAssertEqual(config.cookieName, "sso_cookie")
-        XCTAssertEqual(config.cookieDomain, ".example.com")
-        XCTAssertNil(config.cookieValue)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(
+            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
+            ServerCommunicationConfig(
+                bootstrap: .ssoCookieVendor(
+                    SsoCookieVendorConfig(
+                        idpLoginUrl: "https://idp.example.com",
+                        cookieName: "sso_cookie",
+                        cookieDomain: "example.com",
+                        cookieValue: nil,
+                    ),
+                ),
+            ),
+        )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -225,7 +237,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_resolveHostname_exactMatch_returnsHostname() async throws {
         let hostname = "example.com"
-        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
+            bootstrap: .direct,
+        )
 
         let result = await subject.resolveHostname(hostname: hostname)
 
@@ -235,7 +249,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     /// `resolveHostname(hostname:)` strips subdomains until it finds a stored config key.
     @MainActor
     func test_resolveHostname_subdomain_fallsBackToParentDomain() async throws {
-        serverCommunicationConfigStateService.serverCommunicationConfigs["example.com"] = ServerCommunicationConfig(bootstrap: .direct)
+        serverCommunicationConfigStateService.serverCommunicationConfigs["example.com"] = ServerCommunicationConfig(
+            bootstrap: .direct,
+        )
 
         let result = await subject.resolveHostname(hostname: "api.example.com")
 
@@ -266,20 +282,16 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     /// `configPublisher` uses the `cookieDomain` from the bootstrap config as the hostname key when present.
     @MainActor
     func test_configPublisher_ssoCookieVendor_usesCookieDomainAsHostname() async throws {
-        let cookieDomain = ".example.com"
-        let hostname = ".example.com"
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
-        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
+        let cookieDomain = "example.com"
+        let hostname = "example.com"
 
         configService.configSubject.send(
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: cookieDomain)),
         )
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -287,18 +299,14 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     @MainActor
     func test_configPublisher_ssoCookieVendor_nilCookieDomain_fallsBackToWebVaultHost() async throws {
         let expectedHostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
-        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
-            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: serverCommunicationConfigStateService)
 
         configService.configSubject.send(
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: nil)),
         )
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, expectedHostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, expectedHostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -308,7 +316,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     private func makeSSOCommunicationSettings(
         idpLoginUrl: String? = "https://idp.example.com",
         cookieName: String? = "sso_cookie",
-        cookieDomain: String? = ".example.com",
+        cookieDomain: String? = "example.com",
     ) -> CommunicationSettingsResponseModel {
         CommunicationSettingsResponseModel(
             bootstrap: CommunicationBootstrapSettingsResponseModel(

@@ -35,8 +35,7 @@ public class MockConfigService: ConfigService {
         }
     }
 
-    public func configPublisher(
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
+    public func configPublisher() async -> AsyncPublisher<AnyPublisher<MetaServerConfig?, Never>> {
         configSubject.eraseToAnyPublisher().values
     }
 
