@@ -252,7 +252,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         client.results = [
             .httpSuccess(testData: .organizationAutoEnrollStatus),
             .httpSuccess(testData: .organizationKeys),
-            .httpSuccess(testData: .emptyResponse),
+            .httpSuccess(testData: .setAccountKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
         clientService.mockAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
@@ -291,7 +291,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         client.results = [
             .httpSuccess(testData: .organizationAutoEnrollStatus),
             .httpSuccess(testData: .organizationKeys),
-            .httpSuccess(testData: .emptyResponse),
+            .httpSuccess(testData: .setAccountKeys),
             .httpSuccess(testData: .emptyResponse),
         ]
         clientService.mockAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
@@ -309,6 +309,42 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 encryptedUserKey: nil,
             ),
         )
+    }
+
+    /// `createNewSsoUser()` stores the accountKeys from the setAccountKeys response.
+    func test_createNewSsoUser_withAccountKeys() async throws {
+        let registerTdeInput = RegisterTdeKeyResponse(
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            adminReset: "adminReset",
+            deviceKey: TrustDeviceResponse(
+                deviceKey: "deviceKey",
+                protectedUserKey: "protectedUserKey",
+                protectedDevicePrivateKey: "protectedDevicePrivateKey",
+                protectedDevicePublicKey: "protectedDevicePublicKey",
+            ),
+        )
+        stateService.activeAccount = Account.fixture()
+        client.results = [
+            .httpSuccess(testData: .organizationAutoEnrollStatus),
+            .httpSuccess(testData: .organizationKeys),
+            .httpSuccess(testData: .setAccountKeysWithAccountKeys),
+            .httpSuccess(testData: .emptyResponse),
+        ]
+        clientService.mockAuth.makeRegisterTdeKeysResult = .success(registerTdeInput)
+        trustDeviceService.trustDeviceWithExistingKeysResult = .success(())
+
+        try await subject.createNewSsoUser(orgIdentifier: "Bitwarden", rememberDevice: true)
+
+        XCTAssertEqual(trustDeviceService.trustDeviceWithExistingKeysValue, registerTdeInput.deviceKey)
+        let storedKeys = stateService.accountEncryptionKeys["1"]
+        XCTAssertNotNil(storedKeys?.accountKeys)
+        XCTAssertEqual(
+            storedKeys?.accountKeys?.publicKeyEncryptionKeyPair.wrappedPrivateKey,
+            "mockWrappedPrivateKey",
+        )
+        XCTAssertEqual(storedKeys?.encryptedPrivateKey, "privateKey")
+        XCTAssertNil(storedKeys?.encryptedUserKey)
     }
 
     /// `deleteAccount()` deletes the active account and removes it from the state.
