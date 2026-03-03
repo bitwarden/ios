@@ -478,9 +478,27 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
+
+        // Create holder for breaking circular dependency.
+        // This is set later in this initializer, after serverCommConfigClientSingletonHolder is created.
+        var serverCommConfigClientSingletonHolder: ServerCommunicationConfigClientSingleton?
+        defer {
+            precondition(
+                serverCommConfigClientSingletonHolder != nil,
+                "`serverCommConfigClientSingletonHolder` needs to be set prior to this defer block.",
+            )
+        }
+
+        let noRedirectSession = URLSession(
+            configuration: .default,
+            delegate: NoRedirectSessionDelegate(),
+            delegateQueue: nil,
+        )
         let apiService = APIService(
+            client: noRedirectSession,
             environmentService: environmentService,
             flightRecorder: flightRecorder,
+            serverCommunicationConfigClientSingleton: { serverCommConfigClientSingletonHolder },
             stateService: stateService,
             tokenService: tokenService,
         )
@@ -525,6 +543,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let serverCommunicationConfigAPIService = DefaultServerCommunicationConfigAPIService(
             errorReporter: errorReporter,
+        )
+
+        serverCommConfigClientSingletonHolder = DefaultServerCommunicationConfigClientSingleton(
+            clientService: clientService,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            sdkRepositoryFactory: sdkRepositoryFactory,
+            serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
+            serverCommunicationConfigStateService: stateService,
         )
 
         let biometricsService = DefaultBiometricsService()

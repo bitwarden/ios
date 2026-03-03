@@ -170,7 +170,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                 SsoCookieVendorConfig(
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "sso_cookie",
-                    cookieDomain: ".example.com",
+                    cookieDomain: "example.com",
                     cookieValue: cookieValue,
                 ),
             ),
@@ -188,7 +188,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                     SsoCookieVendorConfig(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
-                        cookieDomain: ".example.com",
+                        cookieDomain: "example.com",
                         cookieValue: [AcquiredCookie(name: "cookie", value: "stored_value")],
                     ),
                 ),
@@ -216,12 +216,95 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                     SsoCookieVendorConfig(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
-                        cookieDomain: ".example.com",
+                        cookieDomain: "example.com",
                         cookieValue: nil,
                     ),
                 ),
             ),
         )
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    // MARK: resolveHostname tests
+
+    /// `resolveHostname(hostname:)` returns the exact hostname when the state service has a config for it.
+    @MainActor
+    func test_resolveHostname_exactMatch_returnsHostname() async throws {
+        let hostname = "example.com"
+        stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(bootstrap: .direct)
+
+        let result = await subject.resolveHostname(hostname: hostname)
+
+        XCTAssertEqual(result, hostname)
+    }
+
+    /// `resolveHostname(hostname:)` strips subdomains until it finds a stored config key.
+    @MainActor
+    func test_resolveHostname_subdomain_fallsBackToParentDomain() async throws {
+        stateService.serverCommunicationConfigs["example.com"] = ServerCommunicationConfig(bootstrap: .direct)
+
+        let result = await subject.resolveHostname(hostname: "api.example.com")
+
+        XCTAssertEqual(result, "example.com")
+    }
+
+    /// `resolveHostname(hostname:)` returns the original hostname when no config is found at any level.
+    @MainActor
+    func test_resolveHostname_noMatch_returnsOriginalHostname() async throws {
+        let result = await subject.resolveHostname(hostname: "api.example.com")
+
+        XCTAssertEqual(result, "api.example.com")
+    }
+
+    /// `resolveHostname(hostname:)` logs an error when the state service throws and returns the original hostname.
+    @MainActor
+    func test_resolveHostname_stateServiceError_logsErrorAndReturnsHostname() async throws {
+        stateService.getServerCommunicationConfigError = BitwardenTestError.example
+
+        let result = await subject.resolveHostname(hostname: "api.example.com")
+
+        XCTAssertEqual(result, "api.example.com")
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    // MARK: configPublisher tests
+
+    /// `configPublisher` uses the `cookieDomain` from the bootstrap config as the hostname key when present.
+    @MainActor
+    func test_configPublisher_ssoCookieVendor_usesCookieDomainAsHostname() async throws {
+        let cookieDomain = "example.com"
+        let hostname = "example.com"
+        let mockSdkClient = MockServerCommunicationConfigClient()
+        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
+        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: stateService)
+
+        configService.configSubject.send(
+            makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: cookieDomain)),
+        )
+
+        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+
+        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `configPublisher` falls back to the environment's web vault URL host when `cookieDomain` is `nil`.
+    @MainActor
+    func test_configPublisher_ssoCookieVendor_nilCookieDomain_fallsBackToWebVaultHost() async throws {
+        let expectedHostname = try XCTUnwrap(environmentService.webVaultURL.host)
+        let mockSdkClient = MockServerCommunicationConfigClient()
+        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
+        sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
+            SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: stateService)
+
+        configService.configSubject.send(
+            makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: nil)),
+        )
+
+        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+
+        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, expectedHostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -231,7 +314,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     private func makeSSOCommunicationSettings(
         idpLoginUrl: String? = "https://idp.example.com",
         cookieName: String? = "sso_cookie",
-        cookieDomain: String? = ".example.com",
+        cookieDomain: String? = "example.com",
     ) -> CommunicationSettingsResponseModel {
         CommunicationSettingsResponseModel(
             bootstrap: CommunicationBootstrapSettingsResponseModel(
