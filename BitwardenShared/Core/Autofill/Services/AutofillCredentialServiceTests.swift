@@ -25,6 +25,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var flightRecorder: MockFlightRecorder!
     var identityStore: MockCredentialIdentityStore!
+    var notificationCenterService: MockNotificationCenterService!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var timeProvider: MockTimeProvider!
@@ -50,6 +51,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         flightRecorder = MockFlightRecorder()
         identityStore = MockCredentialIdentityStore()
+        notificationCenterService = MockNotificationCenterService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -68,6 +70,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             flightRecorder: flightRecorder,
             identityStore: identityStore,
+            notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -98,6 +101,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         fido2UserInterfaceHelper = nil
         flightRecorder = nil
         identityStore = nil
+        notificationCenterService = nil
         pasteboardService = nil
         stateService = nil
         timeProvider = nil
@@ -1256,5 +1260,53 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         waitFor(identityStore.replaceCredentialIdentitiesCalled)
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` does not replace identities when the app is in the
+    /// background, even if the vault is unlocked.
+    func test_syncIdentities_skipsReplaceWhenInBackground() async throws {
+        notificationCenterService.isInForegroundSubject.send(false)
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+
+        // Allow the sync task time to process the cipher emission and enter the foreground-wait state.
+        try await Task.sleep(nanoseconds: 100_000_000)
+
+        XCTAssertFalse(identityStore.replaceCredentialIdentitiesCalled)
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` defers a replace until the app returns to the foreground
+    /// when a cipher change arrives while backgrounded.
+    func test_syncIdentities_replacesOnForeground() {
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com",
+                ),
+            ),
+        ])
+        credentialIdentityFactory.createCredentialIdentitiesMocker
+            .withResult([
+                .password(
+                    PasswordCredentialIdentity(
+                        id: "1",
+                        uri: "bitwarden.com",
+                        username: "user@bitwarden.com",
+                    ),
+                ),
+            ])
+
+        // Background the app, then unlock the vault. The sync task will subscribe to ciphersPublisher
+        // but defer the replace until the app foregrounds.
+        notificationCenterService.isInForegroundSubject.send(false)
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+
+        // Return to foreground — the deferred replace should now execute.
+        notificationCenterService.isInForegroundSubject.send(true)
+        waitFor(identityStore.replaceCredentialIdentitiesIdentities != nil)
+
+        XCTAssertEqual(identityStore.replaceCredentialIdentitiesIdentities?.count, 1)
     }
 } // swiftlint:disable:this file_length

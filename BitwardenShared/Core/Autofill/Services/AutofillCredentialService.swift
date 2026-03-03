@@ -135,6 +135,9 @@ class DefaultAutofillCredentialService {
     /// The last user ID that had their identities synced.
     private(set) var lastSyncedUserId: String?
 
+    /// The service used to subscribe to notification center events.
+    private let notificationCenterService: NotificationCenterService
+
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
 
@@ -171,6 +174,7 @@ class DefaultAutofillCredentialService {
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
+    ///   - notificationCenterService: The service used to subscribe to notification center events.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: Provides the present time.
@@ -189,6 +193,7 @@ class DefaultAutofillCredentialService {
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
         flightRecorder: FlightRecorder,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -206,6 +211,7 @@ class DefaultAutofillCredentialService {
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
         self.flightRecorder = flightRecorder
         self.identityStore = identityStore
+        self.notificationCenterService = notificationCenterService
         self.pasteboardService = pasteboardService
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -268,7 +274,9 @@ class DefaultAutofillCredentialService {
 
     /// Synchronizes the identities in the identity store for the user with the specified lock status.
     ///
-    /// - If the user's vault is unlocked, identities in the store will be replaced by the user's identities.
+    /// - If the user's vault is unlocked, identities in the store will be replaced by the user's
+    ///   identities. If the app is backgrounded when a cipher change occurs, the update is deferred
+    ///   until the app returns to the foreground.
     /// - If the user's vault is locked, there's no changes to the identity store.
     /// - If there's no active user, all identities are removed from the store.
     ///
@@ -281,6 +289,13 @@ class DefaultAutofillCredentialService {
             if let vaultLockStatus, !vaultLockStatus.isVaultLocked {
                 do {
                     for try await _ in try await self.cipherService.ciphersPublisher().values {
+                        // Guard against calling replaceCredentialIdentities from the background,
+                        // which throws ASCredentialIdentityStoreErrorDomain Code 0. If backgrounded,
+                        // wait here until the app returns to the foreground.
+                        for await isInForeground in notificationCenterService.isInForegroundPublisher()
+                            where isInForeground {
+                            break
+                        }
                         await replaceAllIdentities(userId: vaultLockStatus.userId)
                     }
                 } catch {

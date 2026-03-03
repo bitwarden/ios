@@ -33,6 +33,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var flightRecorder: MockFlightRecorder!
     var identityStore: MockCredentialIdentityStore!
+    var notificationCenterService: MockNotificationCenterService!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var timeProvider: MockTimeProvider!
@@ -60,6 +61,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         flightRecorder = MockFlightRecorder()
         identityStore = MockCredentialIdentityStore()
+        notificationCenterService = MockNotificationCenterService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -78,6 +80,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             flightRecorder: flightRecorder,
             identityStore: identityStore,
+            notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -102,6 +105,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         fido2UserInterfaceHelper = nil
         flightRecorder = nil
         identityStore = nil
+        notificationCenterService = nil
         pasteboardService = nil
         stateService = nil
         timeProvider = nil
