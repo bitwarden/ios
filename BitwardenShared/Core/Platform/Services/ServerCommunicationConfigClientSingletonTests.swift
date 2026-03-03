@@ -170,7 +170,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                 SsoCookieVendorConfig(
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "sso_cookie",
-                    cookieDomain: ".example.com",
+                    cookieDomain: "example.com",
                     cookieValue: cookieValue,
                 ),
             ),
@@ -188,7 +188,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                     SsoCookieVendorConfig(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
-                        cookieDomain: ".example.com",
+                        cookieDomain: "example.com",
                         cookieValue: [AcquiredCookie(name: "cookie", value: "stored_value")],
                     ),
                 ),
@@ -216,7 +216,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
                     SsoCookieVendorConfig(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
-                        cookieDomain: ".example.com",
+                        cookieDomain: "example.com",
                         cookieValue: nil,
                     ),
                 ),
@@ -272,8 +272,8 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     /// `configPublisher` uses the `cookieDomain` from the bootstrap config as the hostname key when present.
     @MainActor
     func test_configPublisher_ssoCookieVendor_usesCookieDomainAsHostname() async throws {
-        let cookieDomain = ".example.com"
-        let hostname = ".example.com"
+        let cookieDomain = "example.com"
+        let hostname = "example.com"
         let mockSdkClient = MockServerCommunicationConfigClient()
         clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
@@ -314,7 +314,7 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     private func makeSSOCommunicationSettings(
         idpLoginUrl: String? = "https://idp.example.com",
         cookieName: String? = "sso_cookie",
-        cookieDomain: String? = ".example.com",
+        cookieDomain: String? = "example.com",
     ) -> CommunicationSettingsResponseModel {
         CommunicationSettingsResponseModel(
             bootstrap: CommunicationBootstrapSettingsResponseModel(
