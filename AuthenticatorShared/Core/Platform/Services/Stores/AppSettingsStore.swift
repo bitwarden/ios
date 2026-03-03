@@ -43,14 +43,6 @@ protocol AppSettingsStore: AnyObject {
     /// The server config used prior to user authentication.
     var preAuthServerConfig: ServerConfig? { get set }
 
-    /// The system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
-    /// - Returns: A base64 encoded `String`
-    ///  representing the last known Biometric Integrity State `Data` for the userID.
-    ///
-    func biometricIntegrityState(userId: String) -> String?
-
     /// Gets the closed state for the given card.
     ///
     /// - Parameter card: The card to get the closed state for.
@@ -117,14 +109,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the biometric authentication preference.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
-
-    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
-    ///
-    /// - Parameters:
-    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
-    ///   - userId: The user ID associated with the Biometric Integrity State.
-    ///
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
 
     /// Sets the closed state to true for the given card.
     ///
@@ -307,7 +291,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
-        case biometricIntegrityState(userId: String, bundleId: String)
         case cardClosedState(card: ItemListCard)
         case clearClipboardValue(userId: String)
         case debugFeatureFlag(name: String)
@@ -334,8 +317,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "theme"
             case let .biometricAuthEnabled(userId):
                 "biometricUnlock_\(userId)"
-            case let .biometricIntegrityState(userId, bundleId):
-                "biometricIntegritySource_\(userId)_\(bundleId)"
             case let .cardClosedState(card: card):
                 "cardClosedState_\(card)"
             case let .clearClipboardValue(userId):
@@ -424,15 +405,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         set { store(newValue, for: .preAuthServerConfig) }
     }
 
-    func biometricIntegrityState(userId: String) -> String? {
-        fetch(
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId,
-            ),
-        )
-    }
-
     func cardClosedState(card: ItemListCard) -> Bool {
         fetch(for: .cardClosedState(card: card))
     }
@@ -475,16 +447,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
         store(isEnabled, for: .biometricAuthEnabled(userId: userId))
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        store(
-            base64EncodedIntegrityState,
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId,
-            ),
-        )
     }
 
     func setCardClosedState(card: ItemListCard) {

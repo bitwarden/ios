@@ -643,14 +643,16 @@ extension DefaultAuthRepository: AuthRepository {
             rememberDevice: rememberDevice,
         )
 
-        try await accountAPIService.setAccountKeys(requestModel: KeysRequestModel(
-            encryptedPrivateKey: registrationKeys.privateKey,
-            publicKey: registrationKeys.publicKey,
-        ))
+        let setAccountKeysResponse = try await accountAPIService.setAccountKeys(
+            requestModel: KeysRequestModel(
+                encryptedPrivateKey: registrationKeys.privateKey,
+                publicKey: registrationKeys.publicKey,
+            ),
+        )
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
-                accountKeys: nil,
+                accountKeys: setAccountKeysResponse.accountKeys,
                 encryptedPrivateKey: registrationKeys.privateKey,
                 encryptedUserKey: nil,
             ),

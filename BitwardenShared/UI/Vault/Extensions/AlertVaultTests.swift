@@ -20,6 +20,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
 
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
+
         try await subject.tapAction(title: Localizations.upgradeToPremium)
         XCTAssertTrue(called)
     }
@@ -46,6 +49,9 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertEqual(subject.alertActions[0].style, .default)
         XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
         XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        let preferredAction = try XCTUnwrap(subject.preferredAction)
+        XCTAssertTrue(preferredAction === subject.alertActions[0])
 
         try await subject.tapAction(title: Localizations.upgradeToPremium)
         XCTAssertTrue(called)

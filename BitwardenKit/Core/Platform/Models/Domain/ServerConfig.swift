@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 // MARK: - ServerConfig
@@ -7,11 +8,14 @@ import Foundation
 public struct ServerConfig: Equatable, Codable, Sendable {
     // MARK: Properties
 
-    /// The environment URLs of the server.
-    public let environment: EnvironmentServerConfig?
+    /// The communication settings.
+    public let communication: ServerCommunicationSettings?
 
     /// The particular time of the server configuration.
     public let date: Date
+
+    /// The environment URLs of the server.
+    public let environment: EnvironmentServerConfig?
 
     /// Feature flags to configure the client.
     public let featureStates: [String: AnyCodable]
@@ -26,6 +30,7 @@ public struct ServerConfig: Equatable, Codable, Sendable {
     public let version: String
 
     public init(date: Date, responseModel: ConfigResponseModel) {
+        communication = responseModel.communication.map(ServerCommunicationSettings.init)
         environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
         featureStates = responseModel.featureStates ?? [:]
@@ -91,5 +96,80 @@ public struct EnvironmentServerConfig: Equatable, Codable, Sendable {
         notifications = responseModel.notifications
         sso = responseModel.sso
         vault = responseModel.vault
+    }
+}
+
+// MARK: - CommunicationSettings
+
+/// Server communication configuration settings.
+///
+public struct ServerCommunicationSettings: Equatable, Codable, Sendable {
+    // MARK: Properties
+
+    /// Bootstrap configuration determining how to establish server communication.
+    public let bootstrap: ServerCommunicationBootstrapSettings
+
+    // MARK: Initialization
+
+    /// Creates a new communication settings instance.
+    ///
+    /// - Parameters:
+    ///   - bootstrap: Bootstrap configuration determining how to establish server communication.
+    ///
+    public init(bootstrap: ServerCommunicationBootstrapSettings) {
+        self.bootstrap = bootstrap
+    }
+
+    public init(responseModel: CommunicationSettingsResponseModel) {
+        bootstrap = ServerCommunicationBootstrapSettings(responseModel: responseModel.bootstrap)
+    }
+}
+
+// MARK: - ServerCommunicationBootstrapSettings
+
+/// Bootstrap configuration settings for server communication.
+///
+public struct ServerCommunicationBootstrapSettings: Equatable, Codable, Sendable {
+    // MARK: Properties
+
+    /// The bootstrap type (e.g. `"ssoCookieVendor"`, `"direct"`).
+    public let type: String
+
+    /// Identity provider login URL for browser redirect during bootstrap.
+    public let idpLoginUrl: String?
+
+    /// Cookie name (base name, without shard suffix).
+    public let cookieName: String?
+
+    /// Cookie domain for validation.
+    public let cookieDomain: String?
+
+    // MARK: Initialization
+
+    /// Creates a new bootstrap settings instance.
+    ///
+    /// - Parameters:
+    ///   - type: The bootstrap type.
+    ///   - idpLoginUrl: Identity provider login URL for browser redirect during bootstrap.
+    ///   - cookieName: Cookie name (base name, without shard suffix).
+    ///   - cookieDomain: Cookie domain for validation.
+    ///
+    public init(
+        type: String,
+        idpLoginUrl: String?,
+        cookieName: String?,
+        cookieDomain: String?,
+    ) {
+        self.type = type
+        self.idpLoginUrl = idpLoginUrl
+        self.cookieName = cookieName
+        self.cookieDomain = cookieDomain
+    }
+
+    public init(responseModel: CommunicationBootstrapSettingsResponseModel) {
+        type = responseModel.type
+        idpLoginUrl = responseModel.idpLoginUrl
+        cookieName = responseModel.cookieName
+        cookieDomain = responseModel.cookieDomain
     }
 }

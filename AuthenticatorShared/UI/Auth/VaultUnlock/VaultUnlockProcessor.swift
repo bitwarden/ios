@@ -72,7 +72,7 @@ class VaultUnlockProcessor: StateProcessor<
             ?? .notAvailable
         // If biometric unlock is available and enabled
         // attempt to unlock the vault with biometrics once.
-        if case .available(_, true, _) = state.biometricUnlockStatus,
+        if case .available(_, enabled: true) = state.biometricUnlockStatus,
            shouldAttemptAutomaticBiometricUnlock {
             shouldAttemptAutomaticBiometricUnlock = false
             await unlockWithBiometrics()
@@ -83,7 +83,7 @@ class VaultUnlockProcessor: StateProcessor<
     ///
     private func unlockWithBiometrics() async {
         let status = try? await services.biometricsRepository.getBiometricUnlockStatus()
-        guard case let .available(_, enabled: enabled, _) = status,
+        guard case let .available(_, enabled: enabled) = status,
               enabled else {
             await loadData()
             return
