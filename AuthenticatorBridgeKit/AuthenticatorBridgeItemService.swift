@@ -144,10 +144,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// - Parameter userId: the id of the user for which to fetch items.
     ///
     public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
-        let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
-        let result = try dataStore.backgroundContext.fetch(fetchRequest)
-        let encryptedItems = result.compactMap { data in
-            data.model
+        let context = dataStore.backgroundContext
+        let encryptedItems = try await context.perform {
+            let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
+            let result = try context.fetch(fetchRequest)
+            return result.compactMap(\.model)
         }
         return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
     }
