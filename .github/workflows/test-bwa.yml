@@ -171,6 +171,7 @@ jobs:
             -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
             -derivedDataPath build/DerivedData \
             -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
+            -showBuildTimingSummary \
             -quiet
           kill "$PYEETD_PID"
 
@@ -214,7 +215,7 @@ jobs:
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
-            -quiet
+            -showBuildTimingSummary
           kill "$PYEETD_PID"
 
       - name: Print Logs Summary
