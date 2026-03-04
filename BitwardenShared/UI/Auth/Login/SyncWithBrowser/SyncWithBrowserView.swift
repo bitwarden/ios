@@ -55,11 +55,6 @@ struct SyncWithBrowserView: View {
         .task {
             await store.perform(.appeared)
         }
-        .onChange(of: store.state.url) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearURL)
-        }
     }
 }
 

@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenSdk
 import Combine
+import Foundation
 
 /// A service that bridges server communication configuration requests from the SDK,
 /// allowing the app to acquire cookies on behalf of the SDK and deliver the results back.
@@ -9,11 +10,13 @@ public protocol ServerCommunicationConfigAPIService: ServerCommunicationConfigPl
     /// before the continuation is awaited. Starts with `nil`.
     func acquireCookiesPublisher() async -> AnyPublisher<String?, Never>
 
-    /// Resumes the pending continuation with the result of a cookie acquisition.
+    /// Parses cookies from the given callback URL and resumes the pending continuation.
     ///
-    /// - Parameter cookies: The result of the cookie acquisition, containing the acquired cookies
-    ///   or an error if acquisition failed.
-    func cookiesAcquired(cookies: Result<[BitwardenSdk.AcquiredCookie]?, Error>) async
+    /// Query items whose name is `"d"` are excluded from the result. If `callbackURL` is `nil`
+    /// (e.g. the web auth session was cancelled), the continuation is resumed with `nil`.
+    ///
+    /// - Parameter callbackURL: The callback URL returned by the web auth session, or `nil`.
+    func cookiesAcquired(from callbackURL: URL?) async
 }
 
 /// Default implementation of `ServerCommunicationConfigAPIService`.
@@ -51,8 +54,20 @@ final actor DefaultServerCommunicationConfigAPIService: ServerCommunicationConfi
         acquireCookiesSubject.eraseToAnyPublisher()
     }
 
-    func cookiesAcquired(cookies: Result<[BitwardenSdk.AcquiredCookie]?, Error>) async {
-        acquireCookiesContinuation?.resume(with: cookies)
-        acquireCookiesContinuation = nil
+    func cookiesAcquired(from callbackURL: URL?) async {
+        defer { acquireCookiesContinuation = nil }
+
+        guard callbackURL?.absoluteString.starts(with: BitwardenDeepLinkConstants.ssoCookieVendor) == true else {
+            acquireCookiesContinuation?.resume(with: .success(nil))
+            return
+        }
+
+        let components = callbackURL.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
+        let cookies = components?.queryItems?.compactMap { item -> AcquiredCookie? in
+            guard let value = item.value, item.name != "d" else { return nil }
+            return AcquiredCookie(name: item.name, value: value)
+        }
+
+        acquireCookiesContinuation?.resume(with: .success(cookies))
     }
 }

@@ -13,6 +13,13 @@ protocol SyncWithBrowserProcessorDelegate: AnyObject {
     /// - Parameter action: The action to execute after this function runs, if any.
     ///
     func dismiss(action: DismissAction?)
+
+    /// Starts a web authentication session for the SSO cookie acquisition flow and awaits its result.
+    ///
+    /// - Parameter url: The URL to open in the web authentication session.
+    /// - Returns: The callback URL after the session completes, or `nil` if cancelled or errored.
+    ///
+    func performWebAuthSession(url: URL) async -> URL?
 }
 
 // MARK: - SyncWithBrowserProcessor
@@ -70,23 +77,36 @@ final class SyncWithBrowserProcessor: StateProcessor<
         case .appeared:
             loadEnvironmentUrl()
         case .launchBrowserTapped:
-            state.url = services.environmentService.proxyCookieRedirectConnectorURL
-            delegate?.dismiss(action: nil)
+            let callbackURL = await delegate?.performWebAuthSession(
+                url: services.environmentService.proxyCookieRedirectConnectorURL,
+            )
+
+            // Dismiss the modal first; deliver cookies via the DismissAction so the origin
+            // view/processor receives the result after the sheet is gone.
+            delegate?.dismiss(action: DismissAction {
+                Task {
+                    // On certain scenarios, we need to wait a bit for the animation of the
+                    // view to get dismissed ends before calling the callback so the original
+                    // request's alert is shown at the right time.
+                    try? await Task.sleep(nanoseconds: 300_000_000)
+
+                    await self.services.serverCommunicationConfigAPIService.cookiesAcquired(
+                        from: callbackURL,
+                    )
+                }
+            })
         }
     }
 
     override func receive(_ action: SyncWithBrowserAction) {
         switch action {
-        case .clearURL:
-            state.url = nil
         case .continueWithoutSyncingTapped:
             delegate?.dismiss(action: DismissAction {
-                // we need to set the cookies acquired to `nil` to cancel the acquisition after the view is
-                // dismissed so the proper dialog alert can be presented to the user
-                // from the origin view/processor.
+                // Deliver nil cookies after the modal is dismissed so the proper dialog alert
+                // can be presented to the user from the origin view/processor.
                 Task {
                     await self.services.serverCommunicationConfigAPIService.cookiesAcquired(
-                        cookies: .success(nil),
+                        from: nil,
                     )
                 }
             })

@@ -62,26 +62,43 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
     // MARK: Tests - LaunchBrowserTapped Effect
 
-    /// `perform(_:)` with `.launchBrowserTapped` sets the URL to open and dismisses the view.
+    /// `perform(_:)` with `.launchBrowserTapped` starts an ASWA session with the connector URL and,
+    /// on success, dismisses with an action that delivers the acquired cookies.
     @MainActor
-    func test_perform_launchBrowserTapped_setsUrlAndDismisses() async {
+    func test_perform_launchBrowserTapped_success() async throws {
+        let callbackURL = URL(string: "bitwarden://sso-cookie-vendor?cookie1=value1")!
+        delegate.performWebAuthSessionResult = callbackURL
+
         await subject.perform(.launchBrowserTapped)
 
-        XCTAssertEqual(subject.state.url, environmentService.proxyCookieRedirectConnectorURL)
+        XCTAssertEqual(delegate.performWebAuthSessionURL, environmentService.proxyCookieRedirectConnectorURL)
         XCTAssertTrue(delegate.dismissCalled)
-        XCTAssertNil(delegate.dismissAction)
+        let dismissAction = try XCTUnwrap(delegate.dismissAction)
+
+        dismissAction.action()
+
+        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredFromCalled }
+
+        XCTAssertEqual(serverCommunicationConfigAPIService.cookiesAcquiredFromURL, callbackURL)
     }
 
-    // MARK: Tests - ClearURL Action
-
-    /// `receive(_:)` with `.clearURL` clears the URL from state.
+    /// `perform(_:)` with `.launchBrowserTapped` starts an ASWA session and, when the user cancels
+    /// (nil callback URL), dismisses with an action that delivers nil cookies.
     @MainActor
-    func test_receive_clearURL_clearsStateUrl() {
-        subject.state.url = URL(string: "https://example.com")
+    func test_perform_launchBrowserTapped_cancelled() async throws {
+        delegate.performWebAuthSessionResult = nil
 
-        subject.receive(.clearURL)
+        await subject.perform(.launchBrowserTapped)
 
-        XCTAssertNil(subject.state.url)
+        XCTAssertEqual(delegate.performWebAuthSessionURL, environmentService.proxyCookieRedirectConnectorURL)
+        XCTAssertTrue(delegate.dismissCalled)
+        let dismissAction = try XCTUnwrap(delegate.dismissAction)
+
+        dismissAction.action()
+
+        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredFromCalled }
+
+        XCTAssertNil(serverCommunicationConfigAPIService.cookiesAcquiredFromURL)
     }
 
     // MARK: Tests - ContinueWithoutSyncingTapped Action
@@ -97,11 +114,9 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         dismissAction.action()
 
-        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredResult != nil }
+        try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredFromCalled }
 
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try result.get()
-        XCTAssertNil(cookies)
+        XCTAssertNil(serverCommunicationConfigAPIService.cookiesAcquiredFromURL)
     }
 }
 
@@ -110,9 +125,16 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 class MockSyncWithBrowserProcessorDelegate: SyncWithBrowserProcessorDelegate {
     var dismissCalled = false
     var dismissAction: DismissAction?
+    var performWebAuthSessionURL: URL?
+    var performWebAuthSessionResult: URL?
 
     func dismiss(action: DismissAction?) {
         dismissCalled = true
         dismissAction = action
+    }
+
+    func performWebAuthSession(url: URL) async -> URL? {
+        performWebAuthSessionURL = url
+        return performWebAuthSessionResult
     }
 }

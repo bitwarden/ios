@@ -37,7 +37,6 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_acquireCookies_success() async throws {
         let hostname = "example.com"
-        let cookies = [AcquiredCookie(name: "session", value: "token123")]
 
         let publisher = await subject.acquireCookiesPublisher()
         var emittedHostnames = [String?]()
@@ -48,33 +47,11 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
 
         try await waitForAsync { emittedHostnames.contains(hostname) }
 
-        await subject.cookiesAcquired(cookies: .success(cookies))
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
 
         let result = await acquireTask.value
-        XCTAssertEqual(result?.first?.name, "session")
-        XCTAssertEqual(result?.first?.value, "token123")
-    }
-
-    /// `acquireCookies(hostname:)` returns `nil` and logs the error when `cookiesAcquired`
-    /// is called with a failure result.
-    @MainActor
-    func test_acquireCookies_error() async throws {
-        let hostname = "example.com"
-
-        let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
-        defer { cancellable.cancel() }
-
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: hostname) }
-
-        try await waitForAsync { emittedHostnames.contains(hostname) }
-
-        await subject.cookiesAcquired(cookies: .failure(BitwardenTestError.example))
-
-        let result = await acquireTask.value
-        XCTAssertNil(result)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(result?.contains(where: { $0.name == "auth" && $0.value == "token123" }) == true)
+        XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
     /// `acquireCookiesPublisher()` returns a publisher that starts with `nil`.
@@ -93,7 +70,6 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_acquireCookies_concurrentCallDropped() async throws {
         let hostname = "example.com"
-        let cookies = [AcquiredCookie(name: "session", value: "token123")]
 
         let publisher = await subject.acquireCookiesPublisher()
         var emittedHostnames = [String?]()
@@ -111,10 +87,11 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         XCTAssertFalse(emittedHostnames.contains("other.com"))
 
         // The original continuation should still be satisfied normally.
-        await subject.cookiesAcquired(cookies: .success(cookies))
-        let firstResult = await firstTask.value
-        XCTAssertEqual(firstResult?.first?.name, "session")
-        XCTAssertEqual(firstResult?.first?.value, "token123")
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
+
+        let result = await firstTask.value
+        XCTAssertTrue(result?.contains(where: { $0.name == "auth" && $0.value == "token123" }) == true)
+        XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
     /// `acquireCookies(hostname:)` succeeds on a subsequent call once the previous
@@ -122,7 +99,6 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_acquireCookies_succeedsAfterPreviousCompletes() async throws {
         let hostname = "example.com"
-        let cookies = [AcquiredCookie(name: "session", value: "token123")]
 
         let publisher = await subject.acquireCookiesPublisher()
         var emittedHostnames = [String?]()
@@ -132,20 +108,116 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         // Complete the first acquisition.
         let firstTask = Task { await self.subject.acquireCookies(hostname: hostname) }
         try await waitForAsync { emittedHostnames.contains(hostname) }
-        await subject.cookiesAcquired(cookies: .success(cookies))
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
         _ = await firstTask.value
 
         // A second acquisition should be accepted and resolved normally.
         let secondTask = Task { await self.subject.acquireCookies(hostname: hostname) }
         try await waitForAsync { emittedHostnames.count(where: { $0 == hostname }) == 2 }
-        await subject.cookiesAcquired(cookies: .success(cookies))
-        let secondResult = await secondTask.value
-        XCTAssertEqual(secondResult?.first?.name, "session")
-        XCTAssertEqual(secondResult?.first?.value, "token123")
+
+        // The original continuation should still be satisfied normally.
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
+
+        let result = await secondTask.value
+        XCTAssertTrue(result?.contains(where: { $0.name == "auth" && $0.value == "token123" }) == true)
+        XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
-    /// `cookiesAcquired(cookies:)` with no pending continuation does not crash.
-    func test_cookiesAcquired_noPendingContinuation_doesNotCrash() async {
-        await subject.cookiesAcquired(cookies: .success([AcquiredCookie(name: "n", value: "v")]))
+    // MARK: Tests - cookiesAcquired(from:)
+
+    /// `cookiesAcquired(from:)` parses cookies from the callback URL query parameters and delivers
+    /// them to the pending continuation.
+    @MainActor
+    func test_cookiesAcquiredFrom_parsesCookies() async throws {
+        let publisher = await subject.acquireCookiesPublisher()
+        var emittedHostnames = [String?]()
+        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        defer { cancellable.cancel() }
+
+        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
+        try await waitForAsync { emittedHostnames.contains("example.com") }
+
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
+
+        let result = await acquireTask.value
+        let cookies = try XCTUnwrap(result)
+        XCTAssertEqual(cookies.count, 2)
+        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "token123" }))
+        XCTAssertTrue(cookies.contains(where: { $0.name == "session" && $0.value == "abc" }))
+    }
+
+    /// `cookiesAcquired(from:)` excludes the `"d"` query parameter from the delivered cookies.
+    @MainActor
+    func test_cookiesAcquiredFrom_excludesDParam() async throws {
+        let publisher = await subject.acquireCookiesPublisher()
+        var emittedHostnames = [String?]()
+        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        defer { cancellable.cancel() }
+
+        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
+        try await waitForAsync { emittedHostnames.contains("example.com") }
+
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendorDParam)
+
+        let result = await acquireTask.value
+        let cookies = try XCTUnwrap(result)
+        XCTAssertFalse(cookies.contains(where: { $0.name == "d" }))
+        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "myToken" }))
+    }
+
+    /// `cookiesAcquired(from:)` with a URL that has no query parameters resumes the pending
+    /// continuation with nil cookies.
+    @MainActor
+    func test_cookiesAcquiredFrom_noQueryParameters_deliversNilCookies() async throws {
+        let publisher = await subject.acquireCookiesPublisher()
+        var emittedHostnames = [String?]()
+        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        defer { cancellable.cancel() }
+
+        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
+        try await waitForAsync { emittedHostnames.contains("example.com") }
+
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendorNoCookies)
+
+        let result = await acquireTask.value
+        XCTAssertNil(result)
+    }
+
+    /// `cookiesAcquired(from:)` with a nil URL (e.g. web auth session cancelled) resumes the
+    /// pending continuation with nil cookies.
+    @MainActor
+    func test_cookiesAcquiredFrom_nilURL_resumesWithNilCookies() async throws {
+        let publisher = await subject.acquireCookiesPublisher()
+        var emittedHostnames = [String?]()
+        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        defer { cancellable.cancel() }
+
+        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
+        try await waitForAsync { emittedHostnames.contains("example.com") }
+
+        // nil signals cancellation; the continuation is resumed with nil.
+        await subject.cookiesAcquired(from: nil)
+
+        let result = await acquireTask.value
+        XCTAssertNil(result)
+    }
+
+    /// `cookiesAcquired(from:)` with a URL that does not match the SSO cookie vendor scheme
+    /// resumes the pending continuation with nil cookies.
+    @MainActor
+    func test_cookiesAcquiredFrom_nonMatchingURL_resumesWithNilCookies() async throws {
+        let publisher = await subject.acquireCookiesPublisher()
+        var emittedHostnames = [String?]()
+        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        defer { cancellable.cancel() }
+
+        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
+        try await waitForAsync { emittedHostnames.contains("example.com") }
+
+        // A URL with a different path does not match the scheme; the continuation is resumed with nil.
+        await subject.cookiesAcquired(from: URL(string: "bitwarden://other-path?cookie=value")!)
+
+        let result = await acquireTask.value
+        XCTAssertNil(result)
     }
 }

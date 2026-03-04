@@ -877,44 +877,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and delivers
-    /// the cookies parsed from the query parameters.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_deliversCookies() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendor)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try XCTUnwrap(try result.get())
-        XCTAssertEqual(cookies.count, 2)
-        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "token123" }))
-        XCTAssertTrue(cookies.contains(where: { $0.name == "session" && $0.value == "abc" }))
-        XCTAssertEqual(coordinator.alertShown, [])
-        XCTAssertEqual(coordinator.routes, [])
-    }
-
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link with no
-    /// query parameters and delivers an empty cookie list.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_noCookies_deliversEmptyList() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendorNoCookies)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try result.get()
-        XCTAssertTrue(cookies == nil || cookies?.isEmpty == true)
-    }
-
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and excludes
-    /// the `"d"` query parameter from the delivered cookies.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_excludesDParam() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendorDParam)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try XCTUnwrap(try result.get())
-        XCTAssertFalse(cookies.contains(where: { $0.name == "d" }))
-        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "myToken" }))
-    }
-
     /// `provideCredential(for:)` returns the credential with the specified identifier.
     func test_provideCredential() async throws {
         let credential = ASPasswordCredential(user: "user@bitwarden.com", password: "password123")

@@ -1,12 +1,14 @@
+import AuthenticationServices
 import BitwardenKit
 import Foundation
 
 /// A coordinator that manages navigation for global modals.
 ///
-public final class GlobalModalCoordinator: Coordinator, HasStackNavigator {
+public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
-    public typealias Services = HasConfigService
+    typealias Services = HasAuthService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
@@ -16,6 +18,9 @@ public final class GlobalModalCoordinator: Coordinator, HasStackNavigator {
 
     /// The services used by this coordinator.
     private let services: Services
+
+    /// The active web authentication session, retained to prevent premature deallocation.
+    private var webAuthSession: ASWebAuthenticationSession?
 
     // MARK: Properties
 
@@ -30,7 +35,7 @@ public final class GlobalModalCoordinator: Coordinator, HasStackNavigator {
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
-    public init(
+    init(
         services: Services,
         stackNavigator: StackNavigator,
     ) {
@@ -84,5 +89,31 @@ extension GlobalModalCoordinator: HasErrorAlertServices {
 extension GlobalModalCoordinator: SyncWithBrowserProcessorDelegate {
     func dismiss(action: DismissAction?) {
         navigate(to: .dismissWithAction(action))
+    }
+
+    func performWebAuthSession(url: URL) async -> URL? {
+        await withCheckedContinuation { continuation in
+            let session = ASWebAuthenticationSession(
+                url: url,
+                callbackURLScheme: services.authService.callbackUrlScheme,
+            ) { [weak self] callbackURL, _ in
+                // Any error (including user cancellation) is treated as nil — no cookies acquired.
+                self?.webAuthSession = nil
+                continuation.resume(returning: callbackURL)
+            }
+            // Keep the shared Safari session so existing SSO cookies are visible.
+            session.prefersEphemeralWebBrowserSession = false
+            session.presentationContextProvider = self
+            webAuthSession = session
+            session.start()
+        }
+    }
+}
+
+// MARK: - ASWebAuthenticationPresentationContextProviding
+
+extension GlobalModalCoordinator: ASWebAuthenticationPresentationContextProviding {
+    public func presentationAnchor(for _: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }
