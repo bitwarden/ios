@@ -85,7 +85,7 @@ final class SyncWithBrowserProcessor: StateProcessor<
             // view/processor receives the result after the sheet is gone.
             delegate?.dismiss(action: DismissAction {
                 Task {
-                    // On certain scenarios, we need to wait a bit for the animation of the
+                    // In certain scenarios, we need to wait a bit for the animation of the
                     // view to get dismissed ends before calling the callback so the original
                     // request's alert is shown at the right time.
                     try? await Task.sleep(nanoseconds: 300_000_000)

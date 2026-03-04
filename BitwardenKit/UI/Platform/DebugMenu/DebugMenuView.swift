@@ -48,16 +48,6 @@ public struct DebugMenuView: View {
         ))
     }
 
-    /// The SSO cookies section.
-    private var ssoCookiesSection: some View {
-        AsyncButton {
-            await store.perform(.clearSsoCookies)
-        } label: {
-            Text(Localizations.clearSsoCookies)
-        }
-        .accessibilityIdentifier("ClearSsoCookiesButton")
-    }
-
     /// The error reports section.
     private var errorReportSection: some View {
         Group {
@@ -110,6 +100,16 @@ public struct DebugMenuView: View {
             }
             .accessibilityLabel("RefreshFeatureFlagsButton")
         }
+    }
+
+    /// The SSO cookies section.
+    private var ssoCookiesSection: some View {
+        AsyncButton {
+            await store.perform(.clearSsoCookies)
+        } label: {
+            Text(Localizations.clearSsoCookies)
+        }
+        .accessibilityIdentifier("ClearSsoCookiesButton")
     }
 }
 

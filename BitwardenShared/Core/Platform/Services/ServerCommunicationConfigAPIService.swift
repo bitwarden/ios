@@ -64,6 +64,7 @@ final actor DefaultServerCommunicationConfigAPIService: ServerCommunicationConfi
 
         let components = callbackURL.flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
         let cookies = components?.queryItems?.compactMap { item -> AcquiredCookie? in
+            // Exclude query items whose name is "d", which are the only ones that are not cookies values.
             guard let value = item.value, item.name != "d" else { return nil }
             return AcquiredCookie(name: item.name, value: value)
         }
