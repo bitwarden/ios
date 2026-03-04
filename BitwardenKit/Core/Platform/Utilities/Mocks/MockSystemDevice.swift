@@ -1,6 +1,6 @@
 @testable import BitwardenKit
 
-public class MockSystemDevice: SystemDevice {
+public final class MockSystemDevice: SystemDevice {
     public var model: String
     public var modelIdentifier: String
     public var systemName: String
