@@ -55,6 +55,8 @@ extension ServiceContainer {
         sendRepository: SendRepository = MockSendRepository(),
         // swiftlint:disable:next line_length
         serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService = MockServerCommunicationConfigAPIService(),
+        // swiftlint:disable:next line_length
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),
         sharedTimeoutService: SharedTimeoutService = MockSharedTimeoutService(),
         stateService: StateService = MockStateService(),
@@ -131,6 +133,7 @@ extension ServiceContainer {
             searchProcessorMediatorFactory: actualSearchProcessorMediatorFactory,
             sendRepository: sendRepository,
             serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
+            serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,

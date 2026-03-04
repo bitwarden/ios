@@ -46,6 +46,7 @@ typealias Services = HasAPIService
     & HasSearchProcessorMediatorFactory
     & HasSendRepository
     & HasServerCommunicationConfigAPIService
+    & HasServerCommunicationConfigClientSingleton
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService

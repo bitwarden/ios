@@ -17,6 +17,7 @@ public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasServerCommunicationConfigClientSingleton
 
     // MARK: Private Properties
 

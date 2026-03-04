@@ -13,6 +13,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<DebugMenuRoute, Void>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
+    var serverCommunicationConfigClientSingleton: MockServerCommunicationConfigClientSingleton!
     var subject: DebugMenuProcessor!
 
     // MARK: Set Up & Tear Down
@@ -24,12 +25,14 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<DebugMenuRoute, Void>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        serverCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton()
         subject = DebugMenuProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             ),
             state: DebugMenuState(featureFlags: []),
         )
@@ -42,6 +45,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         coordinator = nil
         environmentService = nil
         errorReporter = nil
+        serverCommunicationConfigClientSingleton = nil
         subject = nil
     }
 
@@ -74,20 +78,33 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     /// `perform(.clearSsoCookies)` clears the SSO cookie and shows a success toast.
     @MainActor
     func test_perform_clearSsoCookies_success() async {
+        let resolvedHostname = "vault.resolved.example.com"
+        serverCommunicationConfigClientSingleton.resolveHostnameResult = resolvedHostname
+
         await subject.perform(.clearSsoCookies)
 
+        XCTAssertEqual(
+            serverCommunicationConfigClientSingleton.resolveHostnameReceivedHostname,
+            environmentService.webVaultURL.host,
+        )
         XCTAssertTrue(configService.clearServerCommCookieValueCalled)
-        XCTAssertEqual(configService.clearServerCommCookieValueHostname, environmentService.baseURL.host)
+        XCTAssertEqual(configService.clearServerCommCookieValueHostname, resolvedHostname)
         XCTAssertEqual(subject.state.toast?.title, Localizations.ssoCookiesCleared)
     }
 
     /// `perform(.clearSsoCookies)` logs an error when the clear operation fails.
     @MainActor
     func test_perform_clearSsoCookies_error() async {
+        let resolvedHostname = "vault.resolved.example.com"
+        serverCommunicationConfigClientSingleton.resolveHostnameResult = resolvedHostname
         configService.clearServerCommCookieValueError = BitwardenTestError.example
 
         await subject.perform(.clearSsoCookies)
 
+        XCTAssertEqual(
+            serverCommunicationConfigClientSingleton.resolveHostnameReceivedHostname,
+            environmentService.webVaultURL.host,
+        )
         XCTAssertTrue(configService.clearServerCommCookieValueCalled)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertNil(subject.state.toast)

@@ -12,6 +12,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     typealias Services = HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasServerCommunicationConfigClientSingleton
 
     // MARK: Properties
 
@@ -103,7 +104,14 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     /// Clears the SSO cookie value stored in the keychain for the current environment's hostname.
     private func clearSsoCookies() async {
         do {
-            let hostname = services.environmentService.baseURL.host ?? ""
+            guard let webVaultURLHost = services.environmentService.webVaultURL.host else {
+                return
+            }
+
+            let hostname = await  services.serverCommunicationConfigClientSingleton.resolveHostname(
+                hostname: webVaultURLHost,
+            )
+
             try await services.configService.clearServerCommunicationCookieValue(hostname: hostname)
 
             state.toast = Toast(title: Localizations.ssoCookiesCleared)
