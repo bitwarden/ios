@@ -778,22 +778,30 @@ extension VaultAutofillListProcessor {
                 let ownershipOptions = try await services.vaultRepository
                     .fetchCipherOwnershipOptions(includePersonal: false)
 
-                if let defaultOwner = ownershipOptions.first,
-                   let ownerOrgId = defaultOwner.organizationId {
-                    organizationId = ownerOrgId
+                // Find an org that both has the policy AND is eligible for ownership
+                let eligibleOwner = ownershipOptions.first { owner in
+                    guard let orgId = owner.organizationId else { return false }
+                    return organizationsWithPersonalOwnershipPolicy.contains(orgId)
+                }
 
-                    // If the organization has personal ownership policy, get the default collection
-                    if organizationsWithPersonalOwnershipPolicy.contains(ownerOrgId) {
-                        let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
-                        let collectionsForOwner = collections.filter { $0.organizationId == ownerOrgId }
+                guard let defaultOwner = eligibleOwner,
+                      let ownerOrgId = defaultOwner.organizationId else {
+                    // No eligible organization available - abort with error
+                    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                    return
+                }
 
-                        if let defaultCollection = collectionsForOwner.first(where: {
-                            $0.type == .defaultUserCollection
-                        }),
-                           let defaultCollectionId = defaultCollection.id {
-                            collectionIds = [defaultCollectionId]
-                        }
-                    }
+                organizationId = ownerOrgId
+
+                // Get the default collection for the organization
+                let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
+                let collectionsForOwner = collections.filter { $0.organizationId == ownerOrgId }
+
+                if let defaultCollection = collectionsForOwner.first(where: {
+                    $0.type == .defaultUserCollection
+                }),
+                   let defaultCollectionId = defaultCollection.id {
+                    collectionIds = [defaultCollectionId]
                 }
             }
 

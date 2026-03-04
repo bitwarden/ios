@@ -258,6 +258,38 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
     }
 
+    /// `receive(_:)` with `.addTapped` shows an error alert when personal ownership is disabled
+    /// but no eligible organization is available (e.g., org status is .accepted, not .confirmed).
+    @MainActor
+    func test_receive_addTapped_fido2CreationEmptyViewNoEligibleOrganization() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required,
+        )
+
+        // Set up personal ownership policy for an organization
+        let policyOrgId = "org-with-policy"
+        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = [policyOrgId]
+
+        // But ownership options returns a different org (simulating the policy org not being confirmed)
+        vaultRepository.fetchCipherOwnershipOptions = [
+            .organization(id: "different-org", name: "Different Organization"),
+        ]
+
+        subject.receive(.addTapped(fromFAB: false))
+
+        waitFor(!coordinator.alertShown.isEmpty)
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(title: Localizations.anErrorHasOccurred)
+        )
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+    }
+
     /// `receive(_:)` with `.addTapped` shows an alert and logs
     /// when executed from the empty view and in the create Fido2 credential context but user verification throws.
     @MainActor
