@@ -61,6 +61,16 @@ protocol CipherDataStore: AnyObject {
     ///
     func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never>
 
+    /// Checks whether the user has any personal ciphers (ciphers with no organization).
+    ///
+    /// This method uses batch fetching with early termination for efficiency,
+    /// avoiding the need to load all ciphers into memory.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the ciphers.
+    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
+    ///
+    func hasPersonalCiphers(userId: String) async throws -> Bool
+
     /// Replaces a list of `Cipher` objects for a user.
     ///
     /// - Parameters:
@@ -76,16 +86,6 @@ protocol CipherDataStore: AnyObject {
     ///   - userId: The user ID of the user associated with the cipher.
     ///
     func upsertCipher(_ cipher: Cipher, userId: String) async throws
-
-    /// Checks whether the user has any personal ciphers (ciphers with no organization).
-    ///
-    /// This method uses batch fetching with early termination for efficiency,
-    /// avoiding the need to load all ciphers into memory.
-    ///
-    /// - Parameter userId: The user ID of the user associated with the ciphers.
-    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
-    ///
-    func hasPersonalCiphers(userId: String) async throws -> Bool
 }
 
 extension DataStore: CipherDataStore {
@@ -149,25 +149,6 @@ extension DataStore: CipherDataStore {
             .eraseToAnyPublisher()
     }
 
-    func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {
-        let deleteRequest = CipherData.deleteByUserIdRequest(userId: userId)
-        let insertRequest = try CipherData.batchInsertRequest(objects: ciphers, userId: userId)
-        try await executeBatchReplace(
-            deleteRequest: deleteRequest,
-            insertRequest: insertRequest,
-        )
-
-        cipherChangeSubject.send((userId, .replacedAll))
-    }
-
-    func upsertCipher(_ cipher: Cipher, userId: String) async throws {
-        try await backgroundContext.performAndSave {
-            _ = try CipherData(context: self.backgroundContext, userId: userId, cipher: cipher)
-        }
-
-        cipherChangeSubject.send((userId, .upserted(cipher)))
-    }
-
     func hasPersonalCiphers(userId: String) async throws -> Bool {
         let batchSize = 50
         var offset = 0
@@ -197,5 +178,24 @@ extension DataStore: CipherDataStore {
             }
             offset += batchSize
         }
+    }
+
+    func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {
+        let deleteRequest = CipherData.deleteByUserIdRequest(userId: userId)
+        let insertRequest = try CipherData.batchInsertRequest(objects: ciphers, userId: userId)
+        try await executeBatchReplace(
+            deleteRequest: deleteRequest,
+            insertRequest: insertRequest,
+        )
+
+        cipherChangeSubject.send((userId, .replacedAll))
+    }
+
+    func upsertCipher(_ cipher: Cipher, userId: String) async throws {
+        try await backgroundContext.performAndSave {
+            _ = try CipherData(context: self.backgroundContext, userId: userId, cipher: cipher)
+        }
+
+        cipherChangeSubject.send((userId, .upserted(cipher)))
     }
 }

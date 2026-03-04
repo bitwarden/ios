@@ -7,6 +7,9 @@ class MockCipherDataStore: CipherDataStore {
     var cipherCountUserId: String?
     var cipherCountResult: Result<Int, Error> = .success(0)
 
+    var cipherChangesSubjectByUserId: [String: CurrentValueSubject<CipherChange, Never>] = [:]
+    var cipherSubjectByUserId: [String: CurrentValueSubject<[Cipher], Error>] = [:]
+
     var deleteAllCiphersUserId: String?
 
     var deleteCipherId: String?
@@ -15,15 +18,12 @@ class MockCipherDataStore: CipherDataStore {
     var fetchAllCiphersUserId: String?
     var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
 
-    var hasPersonalCiphersUserId: String?
-    var hasPersonalCiphersResult: Result<Bool, Error> = .success(false)
-
     var fetchCipherId: String?
     var fetchCipherResult: Cipher?
     var fetchCipherUserId: String?
 
-    var cipherSubjectByUserId: [String: CurrentValueSubject<[Cipher], Error>] = [:]
-    var cipherChangesSubjectByUserId: [String: CurrentValueSubject<CipherChange, Never>] = [:]
+    var hasPersonalCiphersUserId: String?
+    var hasPersonalCiphersResult: Result<Bool, Error> = .success(false)
 
     var replaceCiphersValue: [Cipher]?
     var replaceCiphersUserId: String?
@@ -34,6 +34,26 @@ class MockCipherDataStore: CipherDataStore {
     func cipherCount(userId: String) async throws -> Int {
         cipherCountUserId = userId
         return try cipherCountResult.get()
+    }
+
+    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
+        if let subject = cipherSubjectByUserId[userId] {
+            return subject.eraseToAnyPublisher()
+        } else {
+            let subject = CurrentValueSubject<[Cipher], Error>([])
+            cipherSubjectByUserId[userId] = subject
+            return subject.eraseToAnyPublisher()
+        }
+    }
+
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never> {
+        if let subject = cipherChangesSubjectByUserId[userId] {
+            return subject.eraseToAnyPublisher()
+        } else {
+            let subject = CurrentValueSubject<CipherChange, Never>(.upserted(.fixture()))
+            cipherChangesSubjectByUserId[userId] = subject
+            return subject.dropFirst().eraseToAnyPublisher()
+        }
     }
 
     func deleteAllCiphers(userId: String) async throws {
@@ -50,35 +70,15 @@ class MockCipherDataStore: CipherDataStore {
         return try fetchAllCiphersResult.get()
     }
 
-    func hasPersonalCiphers(userId: String) async throws -> Bool {
-        hasPersonalCiphersUserId = userId
-        return try hasPersonalCiphersResult.get()
-    }
-
     func fetchCipher(withId id: String, userId: String) async -> Cipher? {
         fetchCipherId = id
         fetchCipherUserId = userId
         return fetchCipherResult
     }
 
-    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never> {
-        if let subject = cipherChangesSubjectByUserId[userId] {
-            return subject.eraseToAnyPublisher()
-        } else {
-            let subject = CurrentValueSubject<CipherChange, Never>(.upserted(.fixture()))
-            cipherChangesSubjectByUserId[userId] = subject
-            return subject.dropFirst().eraseToAnyPublisher()
-        }
-    }
-
-    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
-        if let subject = cipherSubjectByUserId[userId] {
-            return subject.eraseToAnyPublisher()
-        } else {
-            let subject = CurrentValueSubject<[Cipher], Error>([])
-            cipherSubjectByUserId[userId] = subject
-            return subject.eraseToAnyPublisher()
-        }
+    func hasPersonalCiphers(userId: String) async throws -> Bool {
+        hasPersonalCiphersUserId = userId
+        return try hasPersonalCiphersResult.get()
     }
 
     func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {
