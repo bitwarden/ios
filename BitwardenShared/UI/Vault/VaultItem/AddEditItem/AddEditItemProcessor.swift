@@ -776,7 +776,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         do {
             for try await cipherView in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
                 guard let cipherView else { continue }
-                state.update(from: cipherView)
+                state.update(
+                    from: cipherView,
+                    overrideLoginItemState: state.loginState,
+                )
             }
         } catch {
             services.errorReporter.log(error: error)

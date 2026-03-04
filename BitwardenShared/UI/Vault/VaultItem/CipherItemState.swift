@@ -501,8 +501,11 @@ extension CipherItemState: AddEditItemState {
         collectionIds.append(defaultCollectionId)
     }
 
-    mutating func update(from cipherView: CipherView) {
-        apply(cipherView: cipherView)
+    mutating func update(
+        from cipherView: CipherView,
+        overrideLoginItemState: LoginItemState?,
+    ) {
+        apply(cipherView: cipherView, overrideLoginItemState: overrideLoginItemState)
     }
 }
 
