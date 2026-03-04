@@ -666,7 +666,7 @@ extension AppProcessor: SyncServiceDelegate {
             coordinator?.showAlert(
                 Alert(
                     title: Localizations.itemTransfer,
-                    message: Localizations.itemTransferRequiresMainApp,
+                    message: Localizations.itemTransferRequiresMainAppDescriptionLong,
                     alertActions: [
                         AlertAction(title: Localizations.ok, style: .cancel) { [weak self] _ in
                             self?.appExtensionDelegate?.didCancel()

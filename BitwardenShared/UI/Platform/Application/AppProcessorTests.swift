@@ -1520,7 +1520,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.alertShown.count, 1)
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(alert.title, Localizations.itemTransfer)
-        XCTAssertEqual(alert.message, Localizations.itemTransferRequiresMainApp)
+        XCTAssertEqual(alert.message, Localizations.itemTransferRequiresMainAppDescriptionLong)
         XCTAssertEqual(alert.alertActions.count, 1)
         XCTAssertEqual(alert.alertActions.first?.title, Localizations.ok)
 
