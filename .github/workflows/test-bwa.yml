@@ -123,9 +123,9 @@ jobs:
 
       - name: Install Homebrew Dependencies and run bootstrap.sh
         run: |
-          brew update
-          brew bundle
-          ./Scripts/bootstrap.sh
+          time brew update
+          time brew bundle
+          time ./Scripts/bootstrap.sh
 
       - name: Boot Simulator
         id: boot-simulator
@@ -148,6 +148,26 @@ jobs:
             -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
             -quiet
           kill "$PYEETD_PID"
+
+      - name: Print DerivedData file tree
+        if: always()
+        run: |
+          echo "=== Disk Usage Report ==="
+          echo ""
+          echo "--- Homebrew ---"
+          du -sh ~/Library/Caches/Homebrew
+          du -sh /opt/homebrew/Cellar
+
+          echo ""
+          echo "--- top level build/ ---"
+          du -sh build
+          du -sh build/DerivedData
+          du -sh build/DerivedData/*
+          du -sh build/DerivedData/Build/*
+
+          echo ""
+          echo "=== build/ Directory Trees ==="
+          find build/ -type d
 
       - name: Test
         id: test
