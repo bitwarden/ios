@@ -7,7 +7,7 @@ final class MockServerCommunicationConfigRepository: ServerCommunicationConfigRe
     var setHostname: String?
     var setConfig: ServerCommunicationConfig?
 
-    func get(hostname: String) async throws  -> ServerCommunicationConfig? {
+    func get(hostname: String) async throws -> ServerCommunicationConfig? {
         getHostname = hostname
         return try getResult.get()
     }
