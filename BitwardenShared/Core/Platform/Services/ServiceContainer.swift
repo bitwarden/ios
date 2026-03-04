@@ -548,8 +548,21 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
         )
 
+        let biometricsService = DefaultBiometricsService()
+        let biometricsRepository = DefaultBiometricsRepository(
+            biometricsService: biometricsService,
+            keychainService: keychainRepository,
+            stateService: stateService,
+        )
+
+        let localAuthService = DefaultLocalAuthService()
+
+        let notificationCenterService = DefaultNotificationCenterService()
+
         let serverCommunicationConfigAPIService = DefaultServerCommunicationConfigAPIService(
+            appContextHelper: appContextHelper,
             errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
         )
 
         let serverCommunicationConfigClientSingleton = DefaultServerCommunicationConfigClientSingleton(
@@ -562,17 +575,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             serverCommunicationConfigStateService: stateService,
         )
         serverCommConfigClientSingletonHolder = serverCommunicationConfigClientSingleton
-
-        let biometricsService = DefaultBiometricsService()
-        let biometricsRepository = DefaultBiometricsRepository(
-            biometricsService: biometricsService,
-            keychainService: keychainRepository,
-            stateService: stateService,
-        )
-
-        let localAuthService = DefaultLocalAuthService()
-
-        let notificationCenterService = DefaultNotificationCenterService()
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,

@@ -11,7 +11,9 @@ import XCTest
 class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appContextHelper: MockAppContextHelper!
     var errorReporter: MockErrorReporter!
+    var notificationCenterService: MockNotificationCenterService!
     var subject: DefaultServerCommunicationConfigAPIService!
 
     // MARK: Setup & Teardown
@@ -19,14 +21,22 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        appContextHelper = MockAppContextHelper()
         errorReporter = MockErrorReporter()
-        subject = DefaultServerCommunicationConfigAPIService(errorReporter: errorReporter)
+        notificationCenterService = MockNotificationCenterService()
+        subject = DefaultServerCommunicationConfigAPIService(
+            appContextHelper: appContextHelper,
+            errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
+        )
     }
 
     override func tearDown() {
         super.tearDown()
 
+        appContextHelper = nil
         errorReporter = nil
+        notificationCenterService = nil
         subject = nil
     }
 
@@ -54,15 +64,45 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
-    /// `acquireCookiesPublisher()` returns a publisher that starts with `nil`.
-    func test_acquireCookiesPublisher_initialValueIsNil() async {
-        let publisher = await subject.acquireCookiesPublisher()
+    /// `acquireCookies(hostname:)` returns `nil` without emitting a hostname when the main app
+    /// is backgrounded.
+    @MainActor
+    func test_acquireCookies_mainAppBackgrounded_returnsNilWithoutEmitting() async throws {
+        notificationCenterService.isInForegroundSubject.send(false)
 
-        var receivedValues = [String?]()
-        let cancellable = publisher.sink { receivedValues.append($0) }
+        let publisher = await subject.acquireCookiesPublisher()
+        var emittedHostnames = [String?]()
+        let cancellable = publisher.sink { emittedHostnames.append($0) }
         defer { cancellable.cancel() }
 
-        XCTAssertEqual(receivedValues, [nil])
+        let result = await subject.acquireCookies(hostname: "example.com")
+
+        XCTAssertNil(result)
+        // Only the initial nil should have been emitted; no hostname.
+        XCTAssertEqual(emittedHostnames, [nil])
+    }
+
+    /// `acquireCookies(hostname:)` skips the foreground check and proceeds normally when running
+    /// in an app extension context, even if the app is backgrounded.
+    @MainActor
+    func test_acquireCookies_appExtension_skipsForegroundCheckAndSucceeds() async throws {
+        appContextHelper.appContext = .appExtension
+        notificationCenterService.isInForegroundSubject.send(false)
+
+        let publisher = await subject.acquireCookiesPublisher()
+        var emittedHostnames = [String?]()
+        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        defer { cancellable.cancel() }
+
+        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
+
+        try await waitForAsync { emittedHostnames.contains("example.com") }
+
+        await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
+
+        let result = await acquireTask.value
+        XCTAssertTrue(result?.contains(where: { $0.name == "auth" && $0.value == "token123" }) == true)
+        XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
     /// `acquireCookies(hostname:)` returns `nil` immediately when called while another
@@ -121,6 +161,17 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         let result = await secondTask.value
         XCTAssertTrue(result?.contains(where: { $0.name == "auth" && $0.value == "token123" }) == true)
         XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
+    }
+
+    /// `acquireCookiesPublisher()` returns a publisher that starts with `nil`.
+    func test_acquireCookiesPublisher_initialValueIsNil() async {
+        let publisher = await subject.acquireCookiesPublisher()
+
+        var receivedValues = [String?]()
+        let cancellable = publisher.sink { receivedValues.append($0) }
+        defer { cancellable.cancel() }
+
+        XCTAssertEqual(receivedValues, [nil])
     }
 
     // MARK: Tests - cookiesAcquired(from:)
