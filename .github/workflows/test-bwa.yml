@@ -134,6 +134,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deriveddata-${{ github.workflow }}
 
+      - name: Restore timestamps
+        uses: chetan/git-restore-mtime-action@d186aca54f8760da4dec55313195e51ed3ebb0b3 # v2.3
+        #uses: alerque/git-warp-time@4355035da0c2766a949d05bcb404237622d6bb25 # v1.0.0
+
       # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
       - name: Set IgnoreFileSystemDeviceInodeChanges flag
         run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
