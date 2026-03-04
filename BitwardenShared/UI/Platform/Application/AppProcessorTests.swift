@@ -1166,13 +1166,15 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
     /// when a non-nil hostname is emitted.
     @MainActor
-    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async {
+    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async throws {
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         serverCommunicationConfigAPIService.acquireCookiesSubject.send("example.com")
 
-        waitFor(coordinator.routes.contains(.syncWithBrowser))
+        try await waitForAsync { [weak self] in
+            self?.coordinator.routes.contains(.syncWithBrowser) == true
+        }
 
         XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
     }
