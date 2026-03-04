@@ -1,4 +1,5 @@
 import BitwardenSdk
+import CryptoKit
 import Foundation
 
 /// A protocol for a service that handles Fido2 tasks. This is similar to
@@ -19,6 +20,17 @@ protocol ClientFido2Service: AnyObject {
     /// - Parameter cipherView: `CipherView` containing the Fido2 credentials to decrypt.
     /// - Returns: An array of decrypted Fido2 credentials of type `Fido2CredentialAutofillView`.
     func decryptFido2AutofillCredentials(cipherView: CipherView) throws -> [Fido2CredentialAutofillView]
+
+    /// - Parameters:
+    ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.
+    ///   - credentialStore: `Fido2CredentialStore` with necessary platform side logic related to credential storage.
+    ///   - deviceKey: `SymmetricKey` used to encrypt data on the device.
+    /// - Returns: Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks.
+    func deviceAuthenticator(
+        userInterface: Fido2UserInterface,
+        credentialStore: Fido2CredentialStore,
+        deviceKey: SymmetricKey,
+    ) throws -> ClientFido2AuthenticatorProtocol
 
     /// Returns the `ClientFido2Authenticator` to perform Fido2 authenticator tasks.
     /// - Parameters:
@@ -43,6 +55,17 @@ extension ClientFido2: ClientFido2Service {
 
     func decryptFido2AutofillCredentials(cipher cipherView: CipherView) throws -> [Fido2CredentialAutofillView] {
         try decryptFido2AutofillCredentials(cipherView: cipherView)
+    }
+
+    func deviceAuthenticator(
+        userInterface: Fido2UserInterface,
+        credentialStore: Fido2CredentialStore,
+        deviceKey: SymmetricKey,
+    ) throws -> ClientFido2AuthenticatorProtocol {
+        let encryptionKey = deviceKey.withUnsafeBytes { bytes in
+            Data(Array(bytes))
+        }
+        throw DeviceAuthKeyError.notImplemented
     }
 
     func vaultAuthenticator(

@@ -25,7 +25,7 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
     public let discoverable: EncString
 
     /// The HMAC secret, if the credential supports the hmac-secret extension.
-    public let hmacSecret: EncString?
+    public let hmacSecret: EncString
 
     /// The algorithm used for the key (e.g., "ES256" for ECDSA with SHA-256).
     public let keyAlgorithm: EncString
@@ -43,16 +43,16 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
     public let rpId: EncString
 
     /// The human-readable name of the relying party.
-    public let rpName: EncString?
+    public let rpName: EncString
 
     /// The user's human-readable display name.
-    public let userDisplayName: EncString?
+    public let userDisplayName: EncString
 
     /// The user identifier for the relying party.
-    public let userId: EncString?
+    public let userId: EncString
 
     /// The user's username or login name.
-    public let userName: EncString?
+    public let userName: EncString
 
     /// Creates a new device auth key record.
     ///
@@ -80,16 +80,16 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
         creationDate: Date,
         credentialId: EncString,
         discoverable: EncString,
-        hmacSecret: EncString?,
+        hmacSecret: EncString,
         keyAlgorithm: EncString,
         keyCurve: EncString,
         keyType: EncString,
         keyValue: EncString,
         rpId: EncString,
-        rpName: EncString?,
-        userDisplayName: EncString?,
-        userId: EncString?,
-        userName: EncString?,
+        rpName: EncString,
+        userDisplayName: EncString,
+        userId: EncString,
+        userName: EncString,
     ) {
         self.cipherId = cipherId
         self.cipherName = cipherName
@@ -107,5 +107,123 @@ public struct DeviceAuthKeyRecord: Codable, Equatable, Sendable {
         self.userDisplayName = userDisplayName
         self.userId = userId
         self.userName = userName
+    }
+
+    func toCipherView() -> CipherView {
+        CipherView(
+            id: cipherId,
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            key: nil,
+            name: cipherName,
+            notes: nil,
+            type: .login,
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: true,
+                fido2Credentials: [
+                    Fido2Credential(
+                        credentialId: credentialId,
+                        keyType: keyType,
+                        keyAlgorithm: keyAlgorithm,
+                        keyCurve: keyCurve,
+                        keyValue: keyValue,
+                        rpId: rpId,
+                        userHandle: userId,
+                        userName: userName,
+                        counter: counter,
+                        rpName: rpName,
+                        userDisplayName: userDisplayName,
+                        discoverable: discoverable,
+                        // TODO(PM-26177): SDK will add this field
+                        // hmacSecret: hmacSecret,
+                        creationDate: creationDate
+                    ),
+                ]
+            ),
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            sshKey: nil,
+            favorite: false,
+            reprompt: .none,
+            organizationUseTotp: false,
+            edit: false,
+            permissions: nil,
+            viewPassword: false,
+            localData: nil,
+            attachments: nil,
+            attachmentDecryptionFailures: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: creationDate,
+            deletedDate: nil,
+            revisionDate: creationDate,
+            archivedDate: nil
+        )
+    }
+
+    func toCipher() -> Cipher {
+        Cipher(
+            id: cipherId,
+            organizationId: nil,
+            folderId: nil,
+            collectionIds: [],
+            key: nil,
+            name: cipherName,
+            notes: nil,
+            type: .login,
+            login: BitwardenSdk.Login(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: true,
+                fido2Credentials: [
+                    Fido2Credential(
+                        credentialId: credentialId,
+                        keyType: keyType,
+                        keyAlgorithm: keyAlgorithm,
+                        keyCurve: keyCurve,
+                        keyValue: keyValue,
+                        rpId: rpId,
+                        userHandle: userId,
+                        userName: userName,
+                        counter: counter,
+                        rpName: rpName,
+                        userDisplayName: userDisplayName,
+                        discoverable: discoverable,
+                        // TODO(PM-26177): SDK will add this field
+                        // hmacSecret: hmacSecret,
+                        creationDate: creationDate
+                    ),
+                ]
+            ),
+            identity: nil,
+            card: nil,
+            secureNote: nil,
+            sshKey: nil,
+            favorite: false,
+            reprompt: .none,
+            organizationUseTotp: false,
+            edit: false,
+            permissions: nil,
+            viewPassword: false,
+            localData: nil,
+            attachments: nil,
+            fields: nil,
+            passwordHistory: nil,
+            creationDate: creationDate,
+            deletedDate: nil,
+            revisionDate: creationDate,
+            archivedDate: nil,
+            data: nil,
+        )
     }
 }
