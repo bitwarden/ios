@@ -449,7 +449,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
         fido2CredentialNewView: Fido2CredentialNewView,
         organizationId: String? = nil,
         collectionIds: [String] = [],
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self = CipherView(
             id: nil,

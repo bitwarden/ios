@@ -800,7 +800,7 @@ extension VaultAutofillListProcessor {
                 if let defaultCollection = collectionsForOwner.first(where: {
                     $0.type == .defaultUserCollection
                 }),
-                   let defaultCollectionId = defaultCollection.id {
+                    let defaultCollectionId = defaultCollection.id {
                     collectionIds = [defaultCollectionId]
                 }
             }

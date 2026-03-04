@@ -236,7 +236,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 id: defaultCollectionId,
                 name: "Default Collection",
                 organizationId: organizationId,
-                type: .defaultUserCollection
+                type: .defaultUserCollection,
             ),
         ])
 
@@ -285,7 +285,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         XCTAssertEqual(
             coordinator.alertShown.last,
-            .defaultAlert(title: Localizations.anErrorHasOccurred)
+            .defaultAlert(title: Localizations.anErrorHasOccurred),
         )
         XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
