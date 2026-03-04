@@ -24,18 +24,45 @@ final actor DefaultServerCommunicationConfigAPIService: ServerCommunicationConfi
     /// Subject that backs the `acquireCookiesPublisher`.
     let acquireCookiesSubject = CurrentValueSubject<String?, Never>(nil)
 
+    /// Helper to know about the app context.
+    let appContextHelper: AppContextHelper
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
+    /// The service used to subscribe to notification center events.
+    let notificationCenterService: NotificationCenterService
+
     /// Initializes a `ServerCommunicationConfigAPIService`.
-    /// - Parameter errorReporter: The service used by the application to report non-fatal errors.
-    init(errorReporter: ErrorReporter) {
+    /// - Parameters:
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - notificationCenterService: The service used to subscribe to notification center events.
+    init(
+        appContextHelper: AppContextHelper,
+        errorReporter: ErrorReporter,
+        notificationCenterService: NotificationCenterService,
+    ) {
+        self.appContextHelper = appContextHelper
         self.errorReporter = errorReporter
+        self.notificationCenterService = notificationCenterService
     }
 
     func acquireCookies(hostname: String) async -> [BitwardenSdk.AcquiredCookie]? {
         // Drop concurrent calls: an acquisition is already in flight.
-        guard acquireCookiesContinuation == nil else { return nil }
+        guard acquireCookiesContinuation == nil else {
+            return nil
+        }
+
+        if appContextHelper.appContext == .mainApp {
+            // we only check if it's on foreground on the main app, as most times the extension just closes
+            // when sending the browser to background so practically we shouldn't have requests
+            // on extensions backgrounded.
+            let isInForeground = await notificationCenterService.isInForegroundPublisher().first(where: { _ in true })
+            guard isInForeground == true else {
+                return nil
+            }
+        }
+
         acquireCookiesSubject.send(hostname)
         do {
             return try await withCheckedThrowingContinuation { continuation in
