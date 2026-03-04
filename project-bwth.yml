@@ -76,21 +76,6 @@ targets:
       - target: TestHarnessShared
       - target: BitwardenKit/BitwardenKit
       - target: BitwardenKit/BitwardenResources
-    postCompileScripts:
-      - script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run swiftlint
-        name: Swiftlint
-        basedOnDependencyAnalysis: false
-      - script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run swiftformat --lint --lenient .
-        name: SwiftFormat Lint
-        basedOnDependencyAnalysis: false
   TestHarnessTests:
     type: bundle.unit-test
     platform: iOS
