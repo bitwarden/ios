@@ -134,6 +134,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deriveddata-${{ github.workflow }}
 
+      # src: https://stackoverflow.com/questions/53753511/is-it-possible-to-copy-an-xcode-derived-data-cache
+      - name: Set IgnoreFileSystemDeviceInodeChanges flag
+        run: defaults write com.apple.dt.XCBuild IgnoreFileSystemDeviceInodeChanges -bool YES
+
       - name: Update local config
         run: |
           ./Scripts-bwa/update_test_local_config.sh "${_COMPILER_FLAGS}"
