@@ -1496,4 +1496,38 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
     }
+
+    /// `migrateVaultToMyItems(organizationId:)` shows a warning alert instead of the migration
+    /// screen when running in an app extension, and closes the extension when OK is tapped.
+    @MainActor
+    func test_migrateVaultToMyItems_inAppExtension() async throws {
+        let delegate = MockAppExtensionDelegate()
+        delegate.isInAppExtension = true
+        subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks(),
+        )
+        subject.coordinator = coordinator.asAnyCoordinator()
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.migrateVaultToMyItems(organizationId: "org-123")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+
+        // Verify alert is shown with correct content.
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.title, Localizations.itemTransfer)
+        XCTAssertEqual(alert.message, Localizations.itemTransferRequiresMainApp)
+        XCTAssertEqual(alert.alertActions.count, 1)
+        XCTAssertEqual(alert.alertActions.first?.title, Localizations.ok)
+
+        // Verify tapping OK closes the extension.
+        XCTAssertFalse(delegate.didCancelCalled)
+        let okAction = try XCTUnwrap(alert.alertActions.first)
+        await okAction.handler?(okAction, [])
+        XCTAssertTrue(delegate.didCancelCalled)
+    }
 }
