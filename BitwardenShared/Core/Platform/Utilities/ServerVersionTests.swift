@@ -16,7 +16,7 @@ class ServerVersionTests: BitwardenTestCase {
         XCTAssertNil(ServerVersion("2024;2-0#metadata"))
     }
 
-    /// `init(_:)` returns the struct correclty on valid format on server versions.
+    /// `init(_:)` returns the struct correctly on valid format on server versions.
     func test_init_validFormatVersions() {
         XCTAssertNotNil(ServerVersion("2024.0.0"))
         XCTAssertNotNil(ServerVersion("2024.18.1"))

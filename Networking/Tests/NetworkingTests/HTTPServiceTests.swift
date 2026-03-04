@@ -11,8 +11,8 @@ class HTTPServiceTests: XCTestCase {
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
 
         client = MockHTTPClient()
 
@@ -22,8 +22,8 @@ class HTTPServiceTests: XCTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         client = nil
         subject = nil
@@ -224,6 +224,73 @@ class HTTPServiceTests: XCTestCase {
         XCTAssertEqual(tokenProvider.refreshTokenCallCount, 1)
     }
 
+    /// `send(_:)` passes a non-nil `retryWith` to response handlers by default, allowing them to
+    /// re-send the request (e.g. after a redirect).
+    func test_sendRequest_responseHandler_retryWithProvidedByDefault() async throws {
+        var capturedRetryWith: ((HTTPRequest) async throws -> HTTPResponse)?
+        let responseHandler = CapturingRetryWithResponseHandler { retryWith in
+            capturedRetryWith = retryWith
+        }
+
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            responseHandlers: [responseHandler],
+        )
+
+        client.result = .success(.success())
+        _ = try await subject.send(TestRequest())
+
+        XCTAssertNotNil(capturedRetryWith)
+    }
+
+    /// `send(_:)` passes `nil` as `retryWith` to response handlers when `shouldFollowRedirect` is
+    /// false, preventing recursive redirect-following.
+    func test_sendRequest_responseHandler_retryWithNilWhenRedirectDisabled() async throws {
+        var capturedRetryWith: ((HTTPRequest) async throws -> HTTPResponse)?
+        let responseHandler = CapturingRetryWithResponseHandler { retryWith in
+            capturedRetryWith = retryWith
+        }
+
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            responseHandlers: [responseHandler],
+        )
+
+        client.result = .success(.success())
+        let httpRequest = HTTPRequest(url: URL(string: "https://example.com")!)
+        _ = try await subject.send(httpRequest, shouldFollowRedirect: false)
+
+        XCTAssertNil(capturedRetryWith)
+    }
+
+    /// `send(_:)` re-sends the request via `retryWith` when a response handler calls it, and
+    /// the final response from the retried request is returned to the caller.
+    func test_sendRequest_responseHandler_retryWithReSendsRequest() async throws {
+        let redirectResponse = HTTPResponse.success(statusCode: 302)
+        let finalResponse = HTTPResponse.success(statusCode: 200)
+
+        let responseHandler = RedirectFollowingResponseHandler()
+
+        subject = HTTPService(
+            baseURL: URL(string: "https://example.com")!,
+            client: client,
+            responseHandlers: [responseHandler],
+        )
+
+        client.results = [
+            .success(redirectResponse),
+            .success(finalResponse),
+        ]
+
+        let httpRequest = HTTPRequest(url: URL(string: "https://example.com")!)
+        let result = try await subject.send(httpRequest)
+
+        XCTAssertEqual(result.statusCode, 200)
+        XCTAssertEqual(client.requests.count, 2)
+    }
+
     /// `send(_:)` throws the error encountered when validating the response.
     func test_sendRequest_validatesResponse() async {
         let response = HTTPResponse.failure(statusCode: 400)
@@ -239,3 +306,37 @@ class HTTPServiceTests: XCTestCase {
 }
 
 private struct RequestError: Error {}
+
+/// A `ResponseHandler` that captures the `retryWith` closure passed to it for inspection in tests.
+@MainActor
+private class CapturingRetryWithResponseHandler: ResponseHandler {
+    var onHandle: (((HTTPRequest) async throws -> HTTPResponse)?) -> Void
+
+    init(onHandle: @escaping (((HTTPRequest) async throws -> HTTPResponse)?) -> Void) {
+        self.onHandle = onHandle
+    }
+
+    func handle(
+        _ response: inout HTTPResponse,
+        for request: HTTPRequest,
+        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
+    ) async throws -> HTTPResponse {
+        onHandle(retryWith)
+        return response
+    }
+}
+
+/// A `ResponseHandler` that follows a 302 redirect by calling `retryWith` with the original request.
+@MainActor
+private class RedirectFollowingResponseHandler: ResponseHandler {
+    func handle(
+        _ response: inout HTTPResponse,
+        for request: HTTPRequest,
+        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
+    ) async throws -> HTTPResponse {
+        guard response.statusCode == 302, let retryWith else {
+            return response
+        }
+        return try await retryWith(request)
+    }
+}

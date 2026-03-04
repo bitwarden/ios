@@ -1008,6 +1008,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         let config = ServerConfig(
             date: Date(timeIntervalSince1970: 100),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: EnvironmentServerConfigResponseModel(
                     api: "https://vault.bitwarden.com",
                     cloudRegion: "US",
@@ -1051,6 +1052,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         let config = ServerConfig(
             date: Date(timeIntervalSince1970: 100),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: EnvironmentServerConfigResponseModel(
                     api: "https://vault.bitwarden.com",
                     cloudRegion: "US",

@@ -27,7 +27,7 @@ class EnvironmentURLDataTests: XCTestCase {
     }
 
     /// `defaultUS` returns the properly configured `EnvironmentURLData`
-    /// with the deafult Urls for united states region.
+    /// with the default Urls for united states region.
     func test_defaultUS() {
         XCTAssertEqual(
             EnvironmentURLData.defaultUS,
@@ -44,7 +44,7 @@ class EnvironmentURLDataTests: XCTestCase {
     }
 
     /// `defaultEU` returns the properly configured `EnvironmentURLData`
-    /// with the deafult Urls for europe region.
+    /// with the default Urls for europe region.
     func test_defaultEU() {
         XCTAssertEqual(
             EnvironmentURLData.defaultEU,
@@ -217,7 +217,7 @@ class EnvironmentURLDataTests: XCTestCase {
         )
     }
 
-    /// `upgradeToPremiumURL` returns the upgrate to premium URL.
+    /// `upgradeToPremiumURL` returns the upgrade to premium URL.
     func test_upgradeToPremiumURL() {
         let subject = EnvironmentURLData(
             base: URL(string: "https://vault.example.com"),
@@ -247,5 +247,32 @@ class EnvironmentURLDataTests: XCTestCase {
     func test_webVaultHost_nil() {
         let subject = EnvironmentURLData()
         XCTAssertNil(subject.webVaultHost)
+    }
+
+    /// `proxyCookieRedirectConnectorURL` returns the URL for the base URL without a `#` sign.
+    func test_proxyCookieRedirectConnectorURL_baseURL() {
+        let subject = EnvironmentURLData(base: URL(string: "https://vault.example.com"))
+        XCTAssertEqual(
+            subject.proxyCookieRedirectConnectorURL?.absoluteString,
+            "https://vault.example.com/proxy-cookie-redirect-connector.html",
+        )
+    }
+
+    /// `proxyCookieRedirectConnectorURL` returns `nil` when no URLs are set.
+    func test_proxyCookieRedirectConnectorURL_noURLs() {
+        let subject = EnvironmentURLData(base: nil, webVault: nil)
+        XCTAssertNil(subject.proxyCookieRedirectConnectorURL)
+    }
+
+    /// `proxyCookieRedirectConnectorURL` uses the web vault URL when set.
+    func test_proxyCookieRedirectConnectorURL_webVaultURL() {
+        let subject = EnvironmentURLData(
+            base: URL(string: "https://vault.example.com"),
+            webVault: URL(string: "https://web.vault.example.com"),
+        )
+        XCTAssertEqual(
+            subject.proxyCookieRedirectConnectorURL?.absoluteString,
+            "https://web.vault.example.com/proxy-cookie-redirect-connector.html",
+        )
     }
 }

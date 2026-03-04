@@ -20,7 +20,7 @@
         <key>many</key>
         <string>Bitwarden не вдалося розшифрувати %d записів сховища.</string>
         <key>other</key>
-        <string>Bitwarden не вдалося розшифрувати %d запис сховища.</string>
+        <string>Bitwarden не вдалося розшифрувати %d записів сховища.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -153,7 +153,7 @@
     <key>XItemsSuccessfullyImported</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@items@ записів успішно імпортовано</string>
+      <string>%#@ItemsSuccessfullyImported@</string>
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

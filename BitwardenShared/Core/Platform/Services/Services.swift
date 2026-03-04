@@ -45,6 +45,8 @@ typealias Services = HasAPIService
     & HasReviewPromptService
     & HasSearchProcessorMediatorFactory
     & HasSendRepository
+    & HasServerCommunicationConfigAPIService
+    & HasServerCommunicationConfigClientSingleton
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
@@ -220,7 +222,7 @@ protocol HasGeneratorRepository {
 /// Protocol for an object that provides a `ImportCiphersRepository`.
 ///
 protocol HasImportCiphersRepository {
-    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    /// The repository used by the application to manage importing credential in Credential Exchange flow.
     var importCiphersRepository: ImportCiphersRepository { get }
 }
 
@@ -303,6 +305,13 @@ protocol HasSearchProcessorMediatorFactory {
 public protocol HasSendRepository {
     /// The repository used by the application to manage send data for the UI layer.
     var sendRepository: SendRepository { get }
+}
+
+/// Protocol for an object that provides a `ServerCommunicationConfigAPIService`.
+///
+public protocol HasServerCommunicationConfigAPIService {
+    /// The service used to handle server communication configuration.
+    var serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService { get }
 }
 
 /// Protocol for an object that provides a `SettingsRepository`.
@@ -401,4 +410,4 @@ protocol HasVaultTimeoutService {
 protocol HasWatchService {
     /// The service used by the application to connect to and communicate with the watch app.
     var watchService: WatchService { get }
-}
+} // swiftlint:disable:this file_length

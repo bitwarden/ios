@@ -83,6 +83,14 @@ protocol CipherService {
     ///
     func fetchAllCiphers() async throws -> [Cipher]
 
+    /// Checks whether the current user has any personal ciphers (ciphers with no organization).
+    ///
+    /// This is more efficient than `fetchAllCiphers()` when you only need to check existence.
+    ///
+    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
+    ///
+    func hasPersonalCiphers() async throws -> Bool
+
     /// Attempts to synchronize a cipher with the server.
     ///
     /// This method fetches the updated cipher value from the server and updates the value in the
@@ -235,10 +243,13 @@ extension DefaultCipherService {
         let userID = try await stateService.getActiveAccountId()
 
         // Archive cipher on backend.
-        _ = try await cipherAPIService.archiveCipher(withID: id)
+        var response = try await cipherAPIService.archiveCipher(withID: id)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
 
         // Archive cipher on local storage
-        try await cipherDataStore.upsertCipher(cipher, userId: userID)
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
     }
 
     func bulkShareCiphersWithServer(
@@ -337,6 +348,11 @@ extension DefaultCipherService {
         return try await cipherDataStore.fetchAllCiphers(userId: userId)
     }
 
+    func hasPersonalCiphers() async throws -> Bool {
+        let userId = try await stateService.getActiveAccountId()
+        return try await cipherDataStore.hasPersonalCiphers(userId: userId)
+    }
+
     func syncCipherWithServer(withId id: String) async throws {
         let userId = try await stateService.getActiveAccountId()
         let response = try await cipherAPIService.getCipher(withId: id)
@@ -419,10 +435,13 @@ extension DefaultCipherService {
         let userID = try await stateService.getActiveAccountId()
 
         // Unarchive cipher from backend.
-        _ = try await cipherAPIService.unarchiveCipher(withID: id)
+        var response = try await cipherAPIService.unarchiveCipher(withID: id)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
 
         // Unarchive cipher from local storage
-        try await cipherDataStore.upsertCipher(cipher, userId: userID)
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
     }
 
     func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {

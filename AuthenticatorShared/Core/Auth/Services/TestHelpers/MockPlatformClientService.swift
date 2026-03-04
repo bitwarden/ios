@@ -3,17 +3,12 @@ import BitwardenSdk
 @testable import AuthenticatorShared
 
 class MockPlatformClientService: PlatformClientService {
-    var fido2Mock = MockClientFido2Service()
     var fingerprintMaterialString: String?
     var fingerprintResult: Result<String, Error> = .success("a-fingerprint-phrase-string-placeholder")
     var featureFlags: [String: Bool] = [:]
     var loadFlagsError: Error?
     var stateMock = MockStateClient()
     var userFingerprintCalled = false
-
-    func fido2() -> ClientFido2Service {
-        fido2Mock
-    }
 
     func fingerprint(request req: BitwardenSdk.FingerprintRequest) throws -> String {
         try fingerprintResult.get()

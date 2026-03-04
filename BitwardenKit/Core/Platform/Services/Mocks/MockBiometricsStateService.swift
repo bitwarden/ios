@@ -34,7 +34,7 @@ public class MockBiometricsStateService: BiometricsStateService {
             return getBiometricAuthenticationEnabledActiveAccount
         }
         guard let value = getBiometricAuthenticationEnabledByUserId[userId] else {
-            throw BitwardenTestError.mock("Mock error not user for userId \(userId)")
+            throw BitwardenTestError.mock("Mock error not set for userId \(userId)")
         }
         return value
     }

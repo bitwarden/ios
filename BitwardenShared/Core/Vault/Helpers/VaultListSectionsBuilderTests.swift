@@ -149,7 +149,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addAutofillCombinedSingleSection()` adds a vault section combinining passwords and Fido2 items.
+    /// `addAutofillCombinedSingleSection()` adds a vault section combining passwords and Fido2 items.
     func test_addAutofillCombinedSingleSection() {
         setUpSubject(withData: VaultListPreparedData(
             fido2Items: [
@@ -192,7 +192,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addAutofillPasswordsSection()` adds a vault section combinining exact and fuzzy match items.
+    /// `addAutofillPasswordsSection()` adds a vault section combining exact and fuzzy match items.
     func test_addAutofillPasswordsSection() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [
@@ -405,10 +405,14 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
               - Group[Trash]: Trash (10)
             """
         }
+
+        // Verify hasPremium is correctly set on the Archive item
+        let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
+        XCTAssertEqual(archiveItem?.hasPremium, true)
     }
 
-    /// `addHiddenItemsSection()` does not add archive when the feature flag is on but the user
-    /// does not have premium and there are no archived items.
+    /// `addHiddenItemsSection()` adds archive when the feature flag is on even if the user
+    /// does not have premium and there are no archived items, showing premium required UI.
     @MainActor
     func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_noArchivedItems() async {
         configService.featureFlagsBool[.archiveVaultItems] = true
@@ -423,13 +427,22 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[HiddenItems]: Hidden items
+              - Group[Archive]: Archive (0)
               - Group[Trash]: Trash (10)
             """
         }
+
+        // Verify hasPremium is correctly set on the Archive item
+        let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
+        XCTAssertEqual(archiveItem?.hasPremium, false)
+
+        // Verify that premium subscription is required (should show locked icon and subtitle)
+        XCTAssertEqual(archiveItem?.subtitle, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(archiveItem?.accessoryIcon?.name, SharedAsset.Icons.locked24.name)
     }
 
     /// `addHiddenItemsSection()` adds archive when the feature flag is on and the user
-    /// does not have premium but there are archived items (grandfathered).
+    /// does not have premium but there are archived items.
     @MainActor
     func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_hasArchivedItems() async {
         configService.featureFlagsBool[.archiveVaultItems] = true
@@ -448,6 +461,14 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
               - Group[Trash]: Trash (10)
             """
         }
+
+        // Verify hasPremium is correctly set on the Archive item
+        let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
+        XCTAssertEqual(archiveItem?.hasPremium, false)
+
+        // Verify that premium subscription is NOT required since there are archived items
+        XCTAssertNil(archiveItem?.subtitle)
+        XCTAssertNil(archiveItem?.accessoryIcon)
     }
 
     /// `addTOTPSection()` adds the TOTP section with an item when there are TOTP items.

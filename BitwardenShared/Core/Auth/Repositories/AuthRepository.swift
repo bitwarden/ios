@@ -300,7 +300,7 @@ protocol AuthRepository: AnyObject {
     ///
     func validatePassword(_ password: String) async throws -> Bool
 
-    /// Validates thes user's entered PIN.
+    /// Validates the user's entered PIN.
     /// - Parameter pin: Pin to validate.
     /// - Returns: `true` if valid, `false` otherwise.
     func validatePin(pin: String) async throws -> Bool
@@ -643,14 +643,16 @@ extension DefaultAuthRepository: AuthRepository {
             rememberDevice: rememberDevice,
         )
 
-        try await accountAPIService.setAccountKeys(requestModel: KeysRequestModel(
-            encryptedPrivateKey: registrationKeys.privateKey,
-            publicKey: registrationKeys.publicKey,
-        ))
+        let setAccountKeysResponse = try await accountAPIService.setAccountKeys(
+            requestModel: KeysRequestModel(
+                encryptedPrivateKey: registrationKeys.privateKey,
+                publicKey: registrationKeys.publicKey,
+            ),
+        )
 
         try await stateService.setAccountEncryptionKeys(
             AccountEncryptionKeys(
-                accountKeys: nil,
+                accountKeys: setAccountKeysResponse.accountKeys,
                 encryptedPrivateKey: registrationKeys.privateKey,
                 encryptedUserKey: nil,
             ),

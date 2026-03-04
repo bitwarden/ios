@@ -47,6 +47,9 @@ public class ServiceContainer: Services {
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
+    /// The service used by the application to manage the environment settings.
+    public let environmentService: EnvironmentService
+
     /// A helper for building an error report containing the details of an error that occurred.
     public let errorReportBuilder: ErrorReportBuilder
 
@@ -73,6 +76,9 @@ public class ServiceContainer: Services {
 
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
+
+    /// The lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
+    public let serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton
 
     /// The service used by the application to manage account state.
     let stateService: StateService
@@ -102,6 +108,7 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get locally-specified configuration.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
+    ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
     ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
@@ -112,6 +119,8 @@ public class ServiceContainer: Services {
     ///   - migrationService: The service to do data migrations
     ///   - notificationCenterService:  The service used to receive foreground and background notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - serverCommunicationConfigClientSingleton: The lazily-initialized, cached holder for a
+    ///   `ServerCommunicationConfigClientProtocol` instance..
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
@@ -128,6 +137,7 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
+        environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
@@ -137,6 +147,7 @@ public class ServiceContainer: Services {
         migrationService: MigrationService,
         notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton,
         stateService: StateService,
         timeProvider: TimeProvider,
         totpExpirationManagerFactory: TOTPExpirationManagerFactory,
@@ -152,6 +163,7 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.configService = configService
         self.cryptographyService = cryptographyService
+        self.environmentService = environmentService
         self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
@@ -162,6 +174,7 @@ public class ServiceContainer: Services {
         self.notificationCenterService = notificationCenterService
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
+        self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.stateService = stateService
         self.totpExpirationManagerFactory = totpExpirationManagerFactory
         self.totpService = totpService
@@ -267,9 +280,9 @@ public class ServiceContainer: Services {
         )
 
         let migrationService = DefaultMigrationService(
+            appGroupUserDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository,
         )
 
         let notificationCenterService = DefaultNotificationCenterService()
@@ -352,6 +365,7 @@ public class ServiceContainer: Services {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
@@ -361,6 +375,7 @@ public class ServiceContainer: Services {
             migrationService: migrationService,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
+            serverCommunicationConfigClientSingleton: StubServerCommunicationConfigClientSingleton(),
             stateService: stateService,
             timeProvider: timeProvider,
             totpExpirationManagerFactory: totpExpirationManagerFactory,

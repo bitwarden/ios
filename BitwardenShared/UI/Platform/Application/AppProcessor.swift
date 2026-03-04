@@ -133,6 +133,13 @@ public class AppProcessor {
                 await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
             }
         }
+
+        Task {
+            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard hostname != nil else { continue }
+                coordinator?.navigate(to: .syncWithBrowser)
+            }
+        }
     }
 
     // MARK: Methods
@@ -244,7 +251,7 @@ public class AppProcessor {
         await checkIfLockedAndPerformNavigation(route: route)
     }
 
-    /// Perpares the current environment configuration by loading the URLs for the active account
+    /// Prepares the current environment configuration by loading the URLs for the active account
     /// and getting the current server config.
     public func prepareEnvironmentConfig() async {
         await services.environmentService.loadURLsForActiveAccount()
@@ -659,6 +666,24 @@ extension AppProcessor: SyncServiceDelegate {
 
     func migrateVaultToMyItems(organizationId: String) {
         coordinator?.hideLoadingOverlay()
+
+        // In app extensions, show a warning dialog instead of the migration screen.
+        // Users must complete the migration process in the main app.
+        if appExtensionDelegate?.isInAppExtension == true {
+            coordinator?.showAlert(
+                Alert(
+                    title: Localizations.itemTransfer,
+                    message: Localizations.itemTransferRequiresMainAppDescriptionLong,
+                    alertActions: [
+                        AlertAction(title: Localizations.ok, style: .cancel) { [weak self] _ in
+                            self?.appExtensionDelegate?.didCancel()
+                        },
+                    ],
+                ),
+            )
+            return
+        }
+
         coordinator?.navigate(to: .migrateToMyItems(organizationId: organizationId))
     }
 }

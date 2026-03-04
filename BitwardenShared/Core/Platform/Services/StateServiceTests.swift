@@ -93,7 +93,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `addPendingAppIntentAction(_:)` adds the pending app intent actions to a non-existing collection of actions
-    /// so it first creates the collecton and it gets added to it.
+    /// so it first creates the collection and it gets added to it.
     func test_addPendingAppIntentAction_currentNil() async {
         appSettingsStore.pendingAppIntentActions = nil
         await subject.addPendingAppIntentAction(.lockAll)
@@ -997,6 +997,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let config = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -1022,6 +1023,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let model = ServerConfig(
             date: Date(timeIntervalSince1970: 100),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "1234",
@@ -2400,6 +2402,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let config = ServerConfig(
             date: Date(timeIntervalSince1970: 100),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "1234",
@@ -2434,6 +2437,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let model = ServerConfig(
             date: Date(timeIntervalSince1970: 100),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "1234",

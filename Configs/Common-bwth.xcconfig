@@ -5,7 +5,7 @@ BASE_BUNDLE_ID = $(ORGANIZATION_IDENTIFIER).testharness
 SHARED_APP_GROUP_IDENTIFIER = group.${ORGANIZATION_IDENTIFIER}.testharness
 APPICON_NAME = AppIcon
 
-// The above code signing settings can be overriden by adding a Local-bwth.xcconfig
+// The above code signing settings can be overridden by adding a Local-bwth.xcconfig
 // file in the Configs directory.
 //
 // As an example, add the file Local-bwth.xcconfig with the following contents:

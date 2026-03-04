@@ -103,7 +103,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
-    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    /// The repository used by the application to manage importing credential in Credential Exchange flow.
     let importCiphersRepository: ImportCiphersRepository
 
     /// The service used to access & store data on the device keychain.
@@ -142,7 +142,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The helper used for app rehydration.
     let rehydrationHelper: RehydrationHelper
 
-    /// The service used by the appllication to manage app review prompts related data.
+    /// The service used by the application to manage app review prompts related data.
     let reviewPromptService: ReviewPromptService
 
     /// The factory to make `SearchProcessorMediator`s.
@@ -150,6 +150,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The repository used by the application to manage send data for the UI layer.
     public let sendRepository: SendRepository
+
+    /// The service used to handle server communication configuration.
+    public let serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService
+
+    /// The lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
+    public let serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton
 
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
@@ -239,7 +245,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - importCiphersRepository: The repository used by the application to manage importing credential
-    ///   in Credential Exhange flow.
+    ///   in Credential Exchange flow.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
     ///   - languageStateService: The service for handling language state.
@@ -255,6 +261,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - policyService: The service for managing the polices for the user.
     ///   - searchProcessorMediatorFactory: The factory to make `SearchProcessorMediator`s.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
+    ///   - serverCommunicationConfigAPIService: The service used to handle server communication configuration.
+    ///   - serverCommunicationConfigClientSingleton: The lazily-initialized, cached holder for a
+    ///   `ServerCommunicationConfigClientProtocol` instance.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The service used by the application to manage account state.
@@ -317,6 +326,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         reviewPromptService: ReviewPromptService,
         searchProcessorMediatorFactory: SearchProcessorMediatorFactory,
         sendRepository: SendRepository,
+        serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService,
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton,
         settingsRepository: SettingsRepository,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
@@ -377,6 +388,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.reviewPromptService = reviewPromptService
         self.searchProcessorMediatorFactory = searchProcessorMediatorFactory
         self.sendRepository = sendRepository
+        self.serverCommunicationConfigAPIService = serverCommunicationConfigAPIService
+        self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.settingsRepository = settingsRepository
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
@@ -472,9 +485,27 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
+
+        // Create holder for breaking circular dependency.
+        // This is set later in this initializer, after serverCommConfigClientSingletonHolder is created.
+        var serverCommConfigClientSingletonHolder: ServerCommunicationConfigClientSingleton?
+        defer {
+            precondition(
+                serverCommConfigClientSingletonHolder != nil,
+                "`serverCommConfigClientSingletonHolder` needs to be set prior to this defer block.",
+            )
+        }
+
+        let noRedirectSession = URLSession(
+            configuration: .default,
+            delegate: NoRedirectSessionDelegate(),
+            delegateQueue: nil,
+        )
         let apiService = APIService(
+            client: noRedirectSession,
             environmentService: environmentService,
             flightRecorder: flightRecorder,
+            serverCommunicationConfigClientSingleton: { serverCommConfigClientSingletonHolder },
             stateService: stateService,
             tokenService: tokenService,
         )
@@ -504,14 +535,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             tokenProvider: tokenService,
         )
+        let sdkRepositoryFactory = DefaultSdkRepositoryFactory(
+            cipherDataStore: dataStore,
+            errorReporter: errorReporter,
+            serverCommunicationConfigStateService: stateService,
+        )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
             configService: configService,
             errorReporter: errorReporter,
-            sdkRepositoryFactory: DefaultSdkRepositoryFactory(
-                cipherDataStore: dataStore,
-                errorReporter: errorReporter,
-            ),
+            sdkRepositoryFactory: sdkRepositoryFactory,
             stateService: stateService,
         )
 
@@ -525,6 +558,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let localAuthService = DefaultLocalAuthService()
 
         let notificationCenterService = DefaultNotificationCenterService()
+
+        let serverCommunicationConfigAPIService = DefaultServerCommunicationConfigAPIService(
+            appContextHelper: appContextHelper,
+            errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
+        )
+
+        let serverCommunicationConfigClientSingleton = DefaultServerCommunicationConfigClientSingleton(
+            clientService: clientService,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            sdkRepositoryFactory: sdkRepositoryFactory,
+            serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
+            serverCommunicationConfigStateService: stateService,
+        )
+        serverCommConfigClientSingletonHolder = serverCommunicationConfigClientSingleton
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
@@ -555,7 +605,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             timeProvider: timeProvider,
         )
 
-        let exportVaultService = DefultExportVaultService(
+        let exportVaultService = DefaultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
             configService: configService,
@@ -734,6 +784,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             notificationAPIService: apiService,
             refreshableApiService: apiService,
             stateService: stateService,
@@ -868,6 +919,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             flightRecorder: flightRecorder,
+            notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -944,6 +996,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sdkRepositoryFactory: DefaultSdkRepositoryFactory(
                 cipherDataStore: dataStore,
                 errorReporter: errorReporter,
+                serverCommunicationConfigStateService: stateService,
             ),
             stateService: stateService,
         )
@@ -1005,6 +1058,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             reviewPromptService: reviewPromptService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             sendRepository: sendRepository,
+            serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
+            serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,

@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Ауто-пуњење лозинке";
 "BitwardenAutofillAlert2" = "Најлакши начин за додавање нових пријава у свој сеф је користећи додатка Bitwarden. Сазнајте више о коришћењу додатка Bitwarden преко екрана „Подешавања“.";
 "InvalidEmail" = "Неисправна адреса Е-поште.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "Кредитне Картице";
 "Identities" = "Идентитети";
 "Logins" = "Пријаве";
@@ -1304,3 +1308,11 @@
 "RestartPremium" = "Restart Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "This item is archived. Saving changes will restore it to your vault.";
 "SettingUpAutofill" = "Setting up Autofill…";
+"AddEmail" = "Add email";
+"AnyoneWithPasswordSetByYou" = "Anyone with a password set by you";
+"AnyoneWithTheLink" = "Anyone with the link";
+"AnyoneWithThisLinkCanViewThisSend" = "Anyone with this link can view this Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
+"SpecificPeople" = "Specific people";
+"WhoCanView" = "Who can view";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";

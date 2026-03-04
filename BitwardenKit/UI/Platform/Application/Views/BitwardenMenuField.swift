@@ -440,7 +440,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
     .background(Color(.systemGroupedBackground))
 }
 
-#Preview("Addititional Menu") {
+#Preview("Additional Menu") {
     Group {
         BitwardenMenuField(
             title: "Animals",

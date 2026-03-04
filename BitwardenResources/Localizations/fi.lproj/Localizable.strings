@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Salasanan automaattitäyttö";
 "BitwardenAutofillAlert2" = "The easiest way to add new logins to your vault is by using the Bitwarden Password AutoFill extension. Learn more about using the Bitwarden Password AutoFill extension by navigating to the “Settings” screen.";
 "InvalidEmail" = "Virheellinen sähköpostiosoite.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "Kortit";
 "Identities" = "Henkilöllisyydet";
 "Logins" = "Kirjautumistiedot";
@@ -1303,3 +1307,11 @@
 "RestartPremium" = "Restart Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "This item is archived. Saving changes will restore it to your vault.";
 "SettingUpAutofill" = "Setting up Autofill…";
+"AddEmail" = "Add email";
+"AnyoneWithPasswordSetByYou" = "Anyone with a password set by you";
+"AnyoneWithTheLink" = "Anyone with the link";
+"AnyoneWithThisLinkCanViewThisSend" = "Anyone with this link can view this Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
+"SpecificPeople" = "Specific people";
+"WhoCanView" = "Who can view";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";

@@ -57,6 +57,10 @@ extension DefaultEnvironmentService {
         environmentURLs.importItemsURL
     }
 
+    var proxyCookieRedirectConnectorURL: URL {
+        environmentURLs.proxyCookieRedirectConnectorURL
+    }
+
     var recoveryCodeURL: URL {
         environmentURLs.recoveryCodeURL
     }

@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - FileAPIServieTests
+// MARK: - FileAPIServiceTests
 
 class FileAPIServiceTests: BitwardenTestCase {
     // MARK: Properties

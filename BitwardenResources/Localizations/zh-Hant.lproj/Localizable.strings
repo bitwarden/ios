@@ -381,6 +381,10 @@
 "PasswordAutofill" = "密碼自動填入";
 "BitwardenAutofillAlert2" = "使用 Bitwarden 密碼自動填入延伸功能是新增登入資料至密碼庫的最簡單方法。請至「設定」頁面了解更多關於 Bitwarden 密碼自動填入延伸功能的使用資訊。";
 "InvalidEmail" = "無效的電子郵件地址。";
+"InvalidEmailAddresses" = "電郵無效";
+"NoEmailAddressesEntered" = "尚未輸入任何電子郵件地址";
+"EnterAtLeastOneValidEmailToShareSend" = "請至少輸入一個有效的電子郵件地址以分享此 Send。";
+"OneOrMoreEmailAddressesIncorrect" = "一個或多個電子郵件地址不正確。請檢查後再試一次。";
 "Cards" = "支付卡";
 "Identities" = "身分";
 "Logins" = "登入資料";
@@ -779,7 +783,7 @@
 "Application" = "應用程式";
 "YouCannotEditPasskeyApplicationBecauseItWouldInvalidateThePasskey" = "您不能編輯密碼金鑰應用程式，因為這會使密碼金鑰失效";
 "PasskeyWillNotBeCopied" = "密碼金鑰不會被複製";
-"ThePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem" = "不會將密碼金鑰複製到拓製的項目中。您想繼續拓製該項目嗎？";
+"ThePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem" = "不會將密碼金鑰複製到副本的項目中。您想繼續製作該項目的副本嗎？";
 "CopyApplication" = "複製應用程式";
 "AvailableForTwoStepLogin" = "可用於兩步驟登入";
 "MasterPasswordRePromptHelp" = "主密碼重新詢問說明";
@@ -1304,3 +1308,11 @@
 "RestartPremium" = "重新啟用進階版";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "此項目已被封存。儲存變更將會把它還原至您的密碼庫。";
 "SettingUpAutofill" = "正在設定自動填入…";
+"AddEmail" = "新增電子郵件";
+"AnyoneWithPasswordSetByYou" = "任何持有您設定之密碼的人";
+"AnyoneWithTheLink" = "任何持有連結的人";
+"AnyoneWithThisLinkCanViewThisSend" = "任何持有此連結的人都可以檢視此 Send。";
+"AfterSharingThisSendLinkDescriptionLong" = "分享此 Send 連結後，收件者需使用驗證碼驗證其電子郵件，才能檢視此 Send。";
+"SpecificPeople" = "特定人員";
+"WhoCanView" = "誰可以檢視";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "與特定人員分享為 Premium 功能。您目前的方案不包含此功能的使用權限。";

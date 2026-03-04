@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Автозаполнение паролей";
 "BitwardenAutofillAlert2" = "Самый простой способ добавлять новые логины в хранилище - использовать расширение автозаполнения паролей Bitwarden. Дополнительные сведения об использовании расширения автозаполнения паролей Bitwarden находятся в разделе “Настройки”.";
 "InvalidEmail" = "Неверный адрес email.";
+"InvalidEmailAddresses" = "Неверные адреса email";
+"NoEmailAddressesEntered" = "Не введены адреса email";
+"EnterAtLeastOneValidEmailToShareSend" = "Введите хотя бы один действительный адрес email, чтобы поделиться этой Send.";
+"OneOrMoreEmailAddressesIncorrect" = "Один или несколько адресов email указаны неверно. Проверьте и попробуйте еще раз.";
 "Cards" = "Карты";
 "Identities" = "Личная информация";
 "Logins" = "Логины";
@@ -1305,3 +1309,11 @@
 "RestartPremium" = "Переподключить Премиум";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Этот элемент архивирован. Сохранение изменений восстановит его в ваше хранилище.";
 "SettingUpAutofill" = "Настройка автозаполнения…";
+"AddEmail" = "Добавить email";
+"AnyoneWithPasswordSetByYou" = "Любой, у кого есть установленный вами пароль";
+"AnyoneWithTheLink" = "Любой, у кого есть ссылка";
+"AnyoneWithThisLinkCanViewThisSend" = "Любой, у кого есть эта ссылка, сможет просмотреть эту Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "После того, как вы поделитесь ссылкой на Send, пользователю нужно будет подтвердить свой email кодом, чтобы просмотреть эту Send.";
+"SpecificPeople" = "Конкретные пользователи";
+"WhoCanView" = "Кто может просматривать";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Совместное использование с конкретными пользователями является Премиум функцией. Она не входит в ваш текущий тарифный план.";

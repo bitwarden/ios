@@ -21,6 +21,7 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthService
         & HasChangeKdfService
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -30,6 +31,7 @@ final class VaultListProcessor: StateProcessor<
         & HasReviewPromptService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -100,6 +102,8 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .checkVaultMigration:
+            await checkVaultMigration()
         case .dismissArchiveOnboardingActionCard:
             state.shouldShowArchiveOnboardingActionCard = false
             await services.stateService.setArchiveOnboardingShown(true)
@@ -229,6 +233,8 @@ extension VaultListProcessor {
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
 
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+
         if await services.configService.getFeatureFlag(.archiveVaultItems) {
             state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
         }
@@ -284,6 +290,16 @@ extension VaultListProcessor {
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
+    /// Checks if the user needs to migrate their vault. The SyncService delegate handles navigation.
+    ///
+    private func checkVaultMigration() async {
+        do {
+            try await services.syncService.checkUserNeedsVaultMigration()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Checks available item types user can create.
     ///
     private func loadItemTypesUserCanCreate() async {
@@ -323,7 +339,16 @@ extension VaultListProcessor {
             } else {
                 navigateToViewItem(cipherListView: cipherListView, id: item.id)
             }
-        case let .group(group, _):
+        case let .group(group, count):
+            if !state.hasPremium, group == .archive, count == 0 {
+                coordinator.showAlert(
+                    Alert.archiveUnavailable(action: { [weak self] in
+                        guard let self else { return }
+                        state.url = services.environmentService.upgradeToPremiumURL
+                    }),
+                )
+                return
+            }
             coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
         case let .totp(_, model):
             navigateToViewItem(cipherListView: model.cipherListView, id: model.id)

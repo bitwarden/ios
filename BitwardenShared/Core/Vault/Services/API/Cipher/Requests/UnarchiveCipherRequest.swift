@@ -4,7 +4,7 @@ import Networking
 /// Data model for performing an unarchive cipher request.
 ///
 struct UnarchiveCipherRequest: Request {
-    typealias Response = EmptyResponse
+    typealias Response = CipherDetailsResponseModel
 
     // MARK: Properties
 

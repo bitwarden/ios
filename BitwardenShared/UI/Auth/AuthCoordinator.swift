@@ -244,7 +244,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showVaultUnlock(
                 account: account,
                 animated: animated,
-                attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitch,
             )
         case let .vaultUnlockSetup(accountSetupFlow):
@@ -816,13 +816,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// - Parameters:
     ///   - account: The active account.
     ///   - animated: Whether to animate the transition.
-    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
+    ///   - attemptAutomaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
     ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
     ///
     private func showVaultUnlock(
         account: Account,
         animated: Bool,
-        attemptAutmaticBiometricUnlock: Bool,
+        attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool,
     ) {
         let processor = VaultUnlockProcessor(
@@ -831,7 +831,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             services: services,
             state: VaultUnlockState(account: account),
         )
-        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
+        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutomaticBiometricUnlock
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: animated)
         if didSwitchAccountAutomatically {

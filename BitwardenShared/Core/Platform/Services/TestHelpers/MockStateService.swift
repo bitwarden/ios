@@ -1,13 +1,14 @@
 import BitwardenKit
 import BitwardenKitMocks
 import struct BitwardenSdk.EnrollPinResponse
+import struct BitwardenSdk.ServerCommunicationConfig
 import Combine
 import Foundation
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:disable:this type_body_length
+class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
@@ -89,6 +90,9 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var siriAndShortcutsAccess = [String: Bool]()
     var timeoutAction = [String: SessionTimeoutAction]()
+    var serverCommunicationConfigs = [String: BitwardenSdk.ServerCommunicationConfig]()
+    var getServerCommunicationConfigError: Error?
+    var setServerCommunicationConfigError: Error?
     var serverConfig = [String: ServerConfig]()
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
     // swiftlint:disable:next identifier_name
@@ -97,7 +101,6 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
     var setAccountSetupAutofillCalled = false
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var setBiometricIntegrityStateError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
@@ -361,6 +364,11 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 
     func getReviewPromptData() async -> BitwardenShared.ReviewPromptData? {
         reviewPromptData
+    }
+
+    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
+        if let getServerCommunicationConfigError { throw getServerCommunicationConfigError }
+        return serverCommunicationConfigs[hostname]
     }
 
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
@@ -694,6 +702,14 @@ class MockStateService: StateService, ActiveAccountStateProvider { // swiftlint:
 
     func setReviewPromptData(_ data: BitwardenShared.ReviewPromptData) async {
         reviewPromptData = data
+    }
+
+    func setServerCommunicationConfig(
+        _ config: BitwardenSdk.ServerCommunicationConfig?,
+        hostname: String,
+    ) async throws {
+        if let setServerCommunicationConfigError { throw setServerCommunicationConfigError }
+        serverCommunicationConfigs[hostname] = config
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {

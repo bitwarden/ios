@@ -26,6 +26,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTOTPExpirationManagerFactory
         & HasTextAutofillHelperFactory
         & HasTimeProvider
@@ -128,7 +129,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
-        case .excludedCredentialFoundChaged:
+        case .checkVaultMigration:
+            await checkVaultMigration()
+        case .excludedCredentialFoundChanged:
             if let cipherIdFound = state.excludedCredentialIdFound {
                 await updateExcludedCredentialSection(from: cipherIdFound)
             }
@@ -240,6 +243,15 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
     }
 
+    /// Checks if the user needs to migrate their vault. The SyncService delegate handles navigation.
+    private func checkVaultMigration() async {
+        do {
+            try await services.syncService.checkUserNeedsVaultMigration()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Fetches initial sync if necessary, checking if the user has synced before.
     private func fetchInitialSyncIfNecessary() async {
         do {
@@ -322,7 +334,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
-    /// Initilaizes the TOTP expiration managers so the TOTP codes are refreshed automatically.
+    /// Initializes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     func initTotpExpirationManagers() {
         vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
             onExpiration: { [weak self] expiredItems in
@@ -674,7 +686,7 @@ extension VaultAutofillListProcessor {
                 userVerificationPreference: userVerificationPreference,
             )
             let createdCredential = try await services.clientService.platform().fido2()
-                .authenticator(
+                .vaultAuthenticator(
                     userInterface: services.fido2UserInterfaceHelper,
                     credentialStore: services.fido2CredentialStore,
                 )

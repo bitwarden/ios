@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Automatické vypĺňanie hesiel";
 "BitwardenAutofillAlert2" = "Najjednoduchší spôsob, ako pridať nové prihlasovacie údaje do trezora, je z rozšírenia Bitwardenu na automatické vypĺňanie. Ďalšie informácie o používaní rozšírenia pre automatické vypĺňanie získate prechodom na obrazovku nastavení.";
 "InvalidEmail" = "Neplatná e-mailová adresa.";
+"InvalidEmailAddresses" = "Neplatná e-mailová adresa";
+"NoEmailAddressesEntered" = "Nezadali ste žiadne e-mailové adresy";
+"EnterAtLeastOneValidEmailToShareSend" = "Zadajte aspoň jednu platnú e-mailovú adresu, aby ste mohli zdieľať tento Send.";
+"OneOrMoreEmailAddressesIncorrect" = "Jedna alebo viaceré e-mailové adresy sú nesprávne. Skontrolujte ich a skúste to znovu.";
 "Cards" = "Karty";
 "Identities" = "Identity";
 "Logins" = "Prihlasovacie údaje";
@@ -1303,3 +1307,11 @@
 "RestartPremium" = "Reštartovať Prémium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Táto položka je archivovaná. Uloženie zmien ju obnoví do trezoru.";
 "SettingUpAutofill" = "Nastavuje sa automatické vypĺňanie…";
+"AddEmail" = "Pridať e-mail";
+"AnyoneWithPasswordSetByYou" = "Ktokoľvek s heslom od vás";
+"AnyoneWithTheLink" = "Ktokoľvek s odkazom";
+"AnyoneWithThisLinkCanViewThisSend" = "Ktokoľvek s týmto odkazom môže zobraziť tento Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "Po zdieľaní tohto odkazu na Send budú musieť jednotlivci overiť svoju e-mailovú adresu pomocou kódu na zobrazenie tohto Sendu.";
+"SpecificPeople" = "Konkrétne osoby";
+"WhoCanView" = "Kto môže zobraziť";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Zdieľanie s konkrétnymi osobami je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";

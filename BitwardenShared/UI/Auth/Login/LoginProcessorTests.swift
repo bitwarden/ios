@@ -93,6 +93,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ServerConfig(
                 date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                 responseModel: ConfigResponseModel(
+                    communication: nil,
                     environment: nil,
                     featureStates: [:],
                     gitHash: "75238191",
@@ -127,6 +128,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ServerConfig(
                 date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                 responseModel: ConfigResponseModel(
+                    communication: nil,
                     environment: nil,
                     featureStates: [:],
                     gitHash: "75238191",
@@ -139,7 +141,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         let validationResponse = ResponseValidationErrorModel(
             error: "Invalid credentials",
-            errorDescription: "an error occured",
+            errorDescription: "an error occurred",
             errorModel: .init(
                 message: "message",
                 object: "object",
@@ -305,6 +307,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ServerConfig(
                 date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                 responseModel: ConfigResponseModel(
+                    communication: nil,
                     environment: nil,
                     featureStates: [:],
                     gitHash: "75238191",

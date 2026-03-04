@@ -15,6 +15,12 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
+    /// The keychain item for the device auth key.
+    case deviceAuthKey(userId: String)
+
+    /// The keychain item for the device auth key metadata.
+    case deviceAuthKeyMetadata(userId: String)
+
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
@@ -33,6 +39,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for server communication configuration for a hostname.
+    case serverCommunicationConfig(hostname: String)
+
     /// The keychain item for the number of unsuccessful unlock attempts.
     case unsuccessfulUnlockAttempts(userId: String)
 
@@ -47,15 +56,18 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         case .accessToken,
              .authenticatorVaultKey,
              .deviceKey,
+             .deviceAuthKeyMetadata,
              .lastActiveMonotonicTime,
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken,
+             .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
              .vaultTimeout:
             nil
-        case .biometrics:
+        case .biometrics,
+             .deviceAuthKey:
             .biometryCurrentSet
         }
     }
@@ -65,6 +77,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         switch self {
         case .biometrics,
              .deviceKey,
+             .deviceAuthKey,
+             .deviceAuthKeyMetadata,
              .lastActiveMonotonicTime,
              .lastActiveTime,
              .neverLock,
@@ -74,7 +88,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
-             .refreshToken:
+             .refreshToken,
+             .serverCommunicationConfig:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         }
     }
@@ -91,6 +106,10 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
             "deviceKey_" + id
+        case let .deviceAuthKey(userId: id):
+            "deviceAuthKey_" + id
+        case let .deviceAuthKeyMetadata(userId: id):
+            "deviceAuthKeyMetadata_" + id
         case let .lastActiveMonotonicTime(userId):
             "lastActiveMonotonicTime_\(userId)"
         case let .lastActiveTime(userId):
@@ -101,6 +120,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .serverCommunicationConfig(hostname):
+            "serverCommunicationConfig_\(hostname)"
         case let .unsuccessfulUnlockAttempts(userId):
             "unsuccessfulUnlockAttempts_\(userId)"
         case let .vaultTimeout(userId):
@@ -111,7 +132,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
 
 // MARK: - KeychainRepository
 
-protocol KeychainRepository: AnyObject {
+protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository {
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws
@@ -327,6 +348,21 @@ class DefaultKeychainRepository: KeychainRepository {
         throw KeychainServiceError.keyNotFound(item)
     }
 
+    /// Gets the value associated with the keychain item from the keychain.
+    ///
+    /// - Parameter item: The keychain item used to fetch the associated value.
+    /// - Returns: The fetched value associated with the keychain item.
+    ///
+    func getValue<T: Codable>(for item: KeychainItem) async throws -> T {
+        let string = try await getValue(for: item)
+
+        guard let jsonData = string.data(using: .utf8) else {
+            throw BitwardenError.dataError("JSON string contains invalid UTF-8 encoding.")
+        }
+
+        return try JSONDecoder.defaultDecoder.decode(T.self, from: jsonData)
+    }
+
     /// The core key/value pairs for Keychain operations.
     ///
     /// - Parameter item: The `KeychainItem` to be queried.
@@ -386,6 +422,20 @@ class DefaultKeychainRepository: KeychainRepository {
             try keychainService.add(attributes: addAttributes)
         }
     }
+
+    /// Sets a value associated with a keychain item in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The value associated with the keychain item to set.
+    ///   - item: The keychain item used to set the associated value.
+    ///
+    func setValue<T: Codable>(_ value: T, for item: KeychainItem) async throws {
+        let jsonData = try JSONEncoder.defaultEncoder.encode(value)
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+            throw BitwardenError.dataError("JSON data is not valid.")
+        }
+        try await setValue(jsonString, for: item)
+    }
 }
 
 extension DefaultKeychainRepository {
@@ -414,6 +464,7 @@ extension DefaultKeychainRepository {
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
+            // Also exclude `deviceAuthKey` and `deviceAuthKeyMetadata` since they are used to log back into an account.
             .lastActiveMonotonicTime(userId: userId),
             .lastActiveTime(userId: userId),
             .neverLock(userId: userId),
@@ -455,7 +506,12 @@ extension DefaultKeychainRepository {
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
-        try await getValue(for: .deviceKey(userId: userId))
+        do {
+            let value: String = try await getValue(for: .deviceKey(userId: userId))
+            return value
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
     }
 
     func getRefreshToken(userId: String) async throws -> String {
@@ -463,7 +519,12 @@ extension DefaultKeychainRepository {
     }
 
     func getPendingAdminLoginRequest(userId: String) async throws -> String? {
-        try await getValue(for: .pendingAdminLoginRequest(userId: userId))
+        do {
+            let value: String = try await getValue(for: .pendingAdminLoginRequest(userId: userId))
+            return value
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
@@ -511,6 +572,48 @@ extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func setUserBiometricAuthKey(userId: String, value: String) async throws {
         let key = KeychainItem.biometrics(userId: userId)
         try await setUserAuthKey(for: key, value: value)
+    }
+}
+
+// MARK: DeviceAuthKeychainRepository
+
+extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
+    func deleteDeviceAuthKey(userId: String) async throws {
+        // We want to delete metadata first because that's what's used to determine if we're in a
+        // consistent state.
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .deviceAuthKeyMetadata(userId: userId)),
+        )
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .deviceAuthKey(userId: userId)),
+        )
+    }
+
+    func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord? {
+        do {
+            return try await getValue(for: .deviceAuthKey(userId: userId))
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
+    }
+
+    func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
+        do {
+            return try await getValue(for: .deviceAuthKeyMetadata(userId: userId))
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
+    }
+
+    func setDeviceAuthKey(
+        record: DeviceAuthKeyRecord,
+        metadata: DeviceAuthKeyMetadata,
+        userId: String,
+    ) async throws {
+        // We want to set metadata last because that's what's used to determine if we're in a
+        // consistent state.
+        try await setValue(record, for: .deviceAuthKey(userId: userId))
+        try await setValue(metadata, for: .deviceAuthKeyMetadata(userId: userId))
     }
 }
 

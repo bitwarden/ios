@@ -33,6 +33,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var pendingAppIntentActionMediator: MockPendingAppIntentActionMediator!
     var policyService: MockPolicyService!
     var router: MockRouter<AuthEvent, AuthRoute>!
+    var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
     var stateService: MockStateService!
     var subject: AppProcessor!
     var syncService: MockSyncService!
@@ -68,6 +69,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationService = MockNotificationService()
         pendingAppIntentActionMediator = MockPendingAppIntentActionMediator()
         policyService = MockPolicyService()
+        serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -94,6 +96,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 pendingAppIntentActionMediator: pendingAppIntentActionMediator,
                 policyService: policyService,
                 notificationCenterService: notificationCenterService,
+                serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
                 stateService: stateService,
                 syncService: syncService,
                 vaultRepository: vaultRepository,
@@ -122,6 +125,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         pendingAppIntentActionMediator = nil
         policyService = nil
         router = nil
+        serverCommunicationConfigAPIService = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -211,7 +215,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.events, [.didTimeout(userId: "1")])
     }
 
-    /// `init()` subscribes to will enter foreground events ands completes the user's autofill setup
+    /// `init()` subscribes to will enter foreground events and completes the user's autofill setup
     /// process if autofill is enabled and they previously choose to set it up later.
     @MainActor
     func test_init_appForeground_completeAutofillAccountSetup() async throws {
@@ -1159,6 +1163,34 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
     }
 
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
+    /// when a non-nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async throws {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send("example.com")
+
+        try await waitForAsync { [weak self] in
+            self?.coordinator.routes.contains(.syncWithBrowser) == true
+        }
+
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
+    }
+
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
+    /// `.syncWithBrowser` when a nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withNilHostname_doesNotNavigate() async {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser))
+    }
+
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and
     /// they previously choose to set it up later.
     @MainActor
@@ -1495,5 +1527,39 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
+    }
+
+    /// `migrateVaultToMyItems(organizationId:)` shows a warning alert instead of the migration
+    /// screen when running in an app extension, and closes the extension when OK is tapped.
+    @MainActor
+    func test_migrateVaultToMyItems_inAppExtension() async throws {
+        let delegate = MockAppExtensionDelegate()
+        delegate.isInAppExtension = true
+        subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks(),
+        )
+        subject.coordinator = coordinator.asAnyCoordinator()
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.migrateVaultToMyItems(organizationId: "org-123")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+
+        // Verify alert is shown with correct content.
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.title, Localizations.itemTransfer)
+        XCTAssertEqual(alert.message, Localizations.itemTransferRequiresMainAppDescriptionLong)
+        XCTAssertEqual(alert.alertActions.count, 1)
+        XCTAssertEqual(alert.alertActions.first?.title, Localizations.ok)
+
+        // Verify tapping OK closes the extension.
+        XCTAssertFalse(delegate.didCancelCalled)
+        let okAction = try XCTUnwrap(alert.alertActions.first)
+        await okAction.handler?(okAction, [])
+        XCTAssertTrue(delegate.didCancelCalled)
     }
 }

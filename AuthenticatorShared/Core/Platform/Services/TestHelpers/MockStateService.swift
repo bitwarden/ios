@@ -12,19 +12,13 @@ class MockStateService: StateService {
     var appLanguage: LanguageOption = .default
     var hasSeenWelcomeTutorial: Bool = false
     var appTheme: AppTheme?
-    var biometricsEnabled = [String: Bool]()
-    var biometricIntegrityStates = [String: String?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var clearClipboardResult: Result<Void, Error> = .success(())
-    var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var getBiometricIntegrityStateError: Error?
     var getSecretKeyResult: Result<String, Error> = .success("qwerty")
     var flightRecorderData: FlightRecorderData?
     var preAuthServerConfig: ServerConfig?
     var secretKeyValues = [String: String]()
     var serverConfig = [String: ServerConfig]()
-    var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var setBiometricIntegrityStateError: Error?
     var setSecretKeyResult: Result<Void, Error> = .success(())
     var timeProvider = MockTimeProvider(.currentTime)
     var showWebIcons = true
@@ -122,33 +116,5 @@ class MockStateService: StateService {
         } else {
             throw BitwardenTestError.example
         }
-    }
-}
-
-// MARK: Biometrics
-
-extension MockStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        try getBiometricAuthenticationEnabledResult.get()
-        return biometricsEnabled["localtest"] ?? false
-    }
-
-    func getBiometricIntegrityState() async throws -> String? {
-        if let getBiometricIntegrityStateError {
-            throw getBiometricIntegrityStateError
-        }
-        return biometricIntegrityStates["localtest"] ?? nil
-    }
-
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        try setBiometricAuthenticationEnabledResult.get()
-        biometricsEnabled["localtest"] = isEnabled
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedState: String?) async throws {
-        if let setBiometricIntegrityStateError {
-            throw setBiometricIntegrityStateError
-        }
-        biometricIntegrityStates["localtest"] = base64EncodedState
     }
 }

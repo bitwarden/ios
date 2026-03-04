@@ -16,14 +16,39 @@ extension Alert {
     static func archiveUnavailable(
         action: @escaping () -> Void,
     ) -> Alert {
-        Alert(
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _ in action() }
+        let alert = Alert(
             title: Localizations.archiveUnavailable,
             message: Localizations.archivingItemsIsAPremiumFeatureDescriptionLong,
             alertActions: [
-                AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() },
+                preferredAction,
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ],
         )
+        alert.preferredAction = preferredAction
+        return alert
+    }
+
+    /// Returns an alert for when the "Specific People" Send feature is unavailable due to
+    /// lack of premium subscription.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute on upgrading to premium.
+    /// - Returns: The alert when "Specific People" is unavailable.
+    static func specificPeopleUnavailable(
+        action: @escaping () -> Void,
+    ) -> Alert {
+        let preferredAction = AlertAction(title: Localizations.upgradeToPremium, style: .default) { _, _ in action() }
+        let alert = Alert(
+            title: Localizations.premiumSubscriptionRequired,
+            message: Localizations.sharingWithSpecificPeopleIsPremiumFeatureDescriptionLong,
+            alertActions: [
+                preferredAction,
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+        alert.preferredAction = preferredAction
+        return alert
     }
 
     /// Returns an alert notifying the user that one or more items in their vault were unable to be

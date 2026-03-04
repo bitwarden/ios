@@ -42,6 +42,13 @@ public protocol HasLanguageStateService {
     var languageStateService: LanguageStateService { get }
 }
 
+/// Protocol for an object that provides a `ServerCommunicationConfigClientSingleton`.
+///
+public protocol HasServerCommunicationConfigClientSingleton {
+    /// A lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
+    var serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton { get }
+}
+
 /// Protocol for an object that provides a `TimeProvider`.
 ///
 public protocol HasTimeProvider {

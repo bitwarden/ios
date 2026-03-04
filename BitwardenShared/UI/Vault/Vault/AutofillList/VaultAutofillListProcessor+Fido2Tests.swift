@@ -288,10 +288,10 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` updates the state with the excluded credential
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` updates the state with the excluded credential
     /// vault list section.
     @MainActor
-    func test_perform_excludedCredentialFoundChaged() async throws {
+    func test_perform_excludedCredentialFoundChanged() async throws {
         let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(cipher)
@@ -309,7 +309,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 
@@ -328,11 +328,11 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertEqual(firstItem.id, cipher.id)
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` updates the state with the excluded credential
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` updates the state with the excluded credential
     /// vault list section but then sets `excludedCredentialFound` to `nil` in state when cipher
     /// has no Fido2 credentials.
     @MainActor
-    func test_perform_excludedCredentialFoundChaged_cipherHasNoFido2Credentials() async throws {
+    func test_perform_excludedCredentialFoundChanged_cipherHasNoFido2Credentials() async throws {
         let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(cipher)
@@ -350,7 +350,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 
@@ -375,16 +375,16 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` throws when getting the excluded credential cipher
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when getting the excluded credential cipher
     /// from the publisher so it shows an error and cancels the extension flow.
     @MainActor
-    func test_perform_excludedCredentialFoundChaged_cipherPublisherThrows() async throws {
+    func test_perform_excludedCredentialFoundChanged_cipherPublisherThrows() async throws {
         let cipher = CipherView.fixture()
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 
@@ -415,7 +415,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` throws when creating the excluded credential cipher
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when creating the excluded credential cipher
     /// section so it shows an error and cancels the extension flow.
     @MainActor
     func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
@@ -425,7 +425,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         vaultRepository.createAutofillListExcludedCredentialSectionResult = .failure(BitwardenTestError.example)
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 

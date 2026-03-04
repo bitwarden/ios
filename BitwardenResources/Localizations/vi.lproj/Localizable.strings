@@ -381,6 +381,10 @@
 "PasswordAutofill" = "Tự động điền mật khẩu";
 "BitwardenAutofillAlert2" = "Cách dễ nhất để thêm các tài khoản đăng nhập mới vào kho lưu trữ sử dụng tiện ích mở rộng Bitwarden Tự động điền Mật khẩu. Để tìm hiểu thêm về cách sử dụng tiện ích mở rộng Bitwarden Tự động điền Mật khẩu, hãy truy cập vào màn hình “Cài đặt”.";
 "InvalidEmail" = "Địa chỉ email không hợp lệ.";
+"InvalidEmailAddresses" = "Invalid email addresses";
+"NoEmailAddressesEntered" = "No email addresses entered";
+"EnterAtLeastOneValidEmailToShareSend" = "Enter at least one valid email address to share this Send.";
+"OneOrMoreEmailAddressesIncorrect" = "One or more email addresses are incorrect. Please review and try again.";
 "Cards" = "Thẻ";
 "Identities" = "Danh tính";
 "Logins" = "Đăng nhập";
@@ -1303,3 +1307,11 @@
 "RestartPremium" = "Restart Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Mục này đã được lưu trữ. Lưu thay đổi sẽ khôi phục mục này về kho của bạn.";
 "SettingUpAutofill" = "Setting up Autofill…";
+"AddEmail" = "Add email";
+"AnyoneWithPasswordSetByYou" = "Anyone with a password set by you";
+"AnyoneWithTheLink" = "Anyone with the link";
+"AnyoneWithThisLinkCanViewThisSend" = "Anyone with this link can view this Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
+"SpecificPeople" = "Specific people";
+"WhoCanView" = "Who can view";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";

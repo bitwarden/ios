@@ -90,8 +90,8 @@ class PendingAppIntentActionMediatorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `executePendingAppIntentActions()` with `.lockAll` with no delegate locks all vaults but doens't inform
-    /// to the delegate.
+    /// `executePendingAppIntentActions()` with `.lockAll` with no delegate locks all vaults but
+    /// doesn't inform the delegate.
     func test_executePendingAppIntentActions_lockAllNoDelegate() async throws {
         stateService.activeAccount = .fixture()
         stateService.pendingAppIntentActions = [.lockAll]
