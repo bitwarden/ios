@@ -176,6 +176,7 @@ jobs:
           du -sh build/DerivedData
           du -sh build/DerivedData/*
           du -sh build/DerivedData/Build/*
+          du -sh build/DerivedData/Build/Intermediates.noindex/*
           du -sh build/DerivedData/SourcePackages/*
           du -sh build/DerivedData/SourcePackages/artifacts/*
           du -sh build/DerivedData/SourcePackages/checkouts/*
