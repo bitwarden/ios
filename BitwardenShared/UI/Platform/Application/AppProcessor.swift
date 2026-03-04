@@ -683,6 +683,24 @@ extension AppProcessor: SyncServiceDelegate {
 
     func migrateVaultToMyItems(organizationId: String) {
         coordinator?.hideLoadingOverlay()
+
+        // In app extensions, show a warning dialog instead of the migration screen.
+        // Users must complete the migration process in the main app.
+        if appExtensionDelegate?.isInAppExtension == true {
+            coordinator?.showAlert(
+                Alert(
+                    title: Localizations.itemTransfer,
+                    message: Localizations.itemTransferRequiresMainAppDescriptionLong,
+                    alertActions: [
+                        AlertAction(title: Localizations.ok, style: .cancel) { [weak self] _ in
+                            self?.appExtensionDelegate?.didCancel()
+                        },
+                    ],
+                ),
+            )
+            return
+        }
+
         coordinator?.navigate(to: .migrateToMyItems(organizationId: organizationId))
     }
 }
