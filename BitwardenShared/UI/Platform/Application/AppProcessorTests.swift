@@ -33,6 +33,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var pendingAppIntentActionMediator: MockPendingAppIntentActionMediator!
     var policyService: MockPolicyService!
     var router: MockRouter<AuthEvent, AuthRoute>!
+    var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
     var stateService: MockStateService!
     var subject: AppProcessor!
     var syncService: MockSyncService!
@@ -68,6 +69,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationService = MockNotificationService()
         pendingAppIntentActionMediator = MockPendingAppIntentActionMediator()
         policyService = MockPolicyService()
+        serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -94,6 +96,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 pendingAppIntentActionMediator: pendingAppIntentActionMediator,
                 policyService: policyService,
                 notificationCenterService: notificationCenterService,
+                serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
                 stateService: stateService,
                 syncService: syncService,
                 vaultRepository: vaultRepository,
@@ -122,6 +125,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         pendingAppIntentActionMediator = nil
         policyService = nil
         router = nil
+        serverCommunicationConfigAPIService = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -871,6 +875,44 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and delivers
+    /// the cookies parsed from the query parameters.
+    @MainActor
+    func test_openUrl_ssoCookieVendor_deliversCookies() async throws {
+        await subject.openUrl(.bitwardenSSOCookieVendor)
+
+        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
+        let cookies = try XCTUnwrap(try result.get())
+        XCTAssertEqual(cookies.count, 2)
+        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "token123" }))
+        XCTAssertTrue(cookies.contains(where: { $0.name == "session" && $0.value == "abc" }))
+        XCTAssertEqual(coordinator.alertShown, [])
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link with no
+    /// query parameters and delivers an empty cookie list.
+    @MainActor
+    func test_openUrl_ssoCookieVendor_noCookies_deliversEmptyList() async throws {
+        await subject.openUrl(.bitwardenSSOCookieVendorNoCookies)
+
+        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
+        let cookies = try result.get()
+        XCTAssertTrue(cookies == nil || cookies?.isEmpty == true)
+    }
+
+    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and excludes
+    /// the `"d"` query parameter from the delivered cookies.
+    @MainActor
+    func test_openUrl_ssoCookieVendor_excludesDParam() async throws {
+        await subject.openUrl(.bitwardenSSOCookieVendorDParam)
+
+        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
+        let cookies = try XCTUnwrap(try result.get())
+        XCTAssertFalse(cookies.contains(where: { $0.name == "d" }))
+        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "myToken" }))
     }
 
     /// `provideCredential(for:)` returns the credential with the specified identifier.

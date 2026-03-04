@@ -36,7 +36,11 @@ public final class ResponseValidationHandler: ResponseHandler {
     /// - Parameter response: The `HTTPResponse` that was received by the `HTTPClient`.
     /// - Returns: The original or modified `HTTPResponse`.
     ///
-    public func handle(_ response: inout HTTPResponse) async throws -> HTTPResponse {
+    public func handle(
+        _ response: inout HTTPResponse,
+        for request: HTTPRequest,
+        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
+    ) async throws -> HTTPResponse {
         guard (200 ..< 300).contains(response.statusCode) else {
             // If the response can be parsed, throw an error containing the response message.
             if let errorResponse = try? ErrorResponseModel(response: response) {

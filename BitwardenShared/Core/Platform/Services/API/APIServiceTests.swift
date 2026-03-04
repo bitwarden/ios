@@ -30,10 +30,12 @@ class APIServiceTests: BitwardenTestCase {
     func test_buildKeyConnectorService() {
         let service = subject.buildKeyConnectorService(baseURL: URL(string: "https://example.com/api")!)
 
-        XCTAssertEqual(service.responseHandlers.count, 1)
+        XCTAssertEqual(service.responseHandlers.count, 2)
         XCTAssertTrue(service.responseHandlers.contains(where: { $0 is ResponseValidationHandler }))
-        XCTAssertEqual(service.requestHandlers.count, 1)
+        XCTAssertTrue(service.responseHandlers.contains(where: { $0 is SSOCookieVendorResponseHandler }))
+        XCTAssertEqual(service.requestHandlers.count, 2)
         XCTAssertTrue(service.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler }))
+        XCTAssertTrue(service.requestHandlers.contains(where: { $0 is SSOCookieVendorRequestHandler }))
         XCTAssertTrue(service.tokenProvider is AccountTokenProvider)
     }
 
