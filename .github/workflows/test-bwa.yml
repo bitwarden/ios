@@ -57,6 +57,15 @@ env:
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
+  # xcode26 compilation cache
+  COMPILATION_CACHE_ENABLE_CACHING: "YES"
+  COMPILATION_CACHE_ENABLE_PLUGIN: "YES"
+  SWIFT_ENABLE_COMPILE_CACHE: "YES"
+  CLANG_ENABLE_COMPILE_CACHE: "YES"
+  SWIFT_ENABLE_EXPLICIT_MODULES: "YES"
+  SWIFT_USE_INTEGRATED_DRIVER: "YES"
+  CLANG_ENABLE_MODULES: "YES"
+
 jobs:
   test:
     name: Test
