@@ -150,7 +150,19 @@ protocol AddEditItemState: Sendable {
     ///
     /// - Parameter cipherView: The updated `CipherView`.
     ///
-    mutating func update(from cipherView: CipherView)
+    mutating func update(
+        from cipherView: CipherView,
+        overrideLoginItemState: LoginItemState?,
+    )
+}
+
+extension AddEditItemState {
+    mutating func update(from cipherView: CipherView) {
+        update(
+            from: cipherView,
+            overrideLoginItemState: nil,
+        )
+    }
 }
 
 /// extension for `GuidedTourStepState` to provide states for learn new login guided tour.
