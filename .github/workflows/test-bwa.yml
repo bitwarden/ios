@@ -117,6 +117,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
+      - name: Cache DerivedData
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: build/DerivedData
+          key: ${{ runner.os }}-deriveddata-${{ github.workflow }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-deriveddata-${{ github.workflow }}
+
       - name: Update local config
         run: |
           ./Scripts-bwa/update_test_local_config.sh "${_COMPILER_FLAGS}"
