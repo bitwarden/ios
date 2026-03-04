@@ -24,6 +24,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
+        & HasPolicyService
         & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTOTPExpirationManagerFactory
@@ -764,12 +765,50 @@ extension VaultAutofillListProcessor {
             return
         }
 
-        let newCipher = CipherView(
-            fido2CredentialNewView: fido2CredentialNewView,
-            timeProvider: services.timeProvider,
-        )
+        do {
+            // Check if personal ownership is disabled and get the default owner/collections
+            let organizationsWithPersonalOwnershipPolicy = await services.policyService
+                .organizationsApplyingPolicyToUser(.personalOwnership)
+            let isPersonalOwnershipDisabled = !organizationsWithPersonalOwnershipPolicy.isEmpty
 
-        await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
+            var organizationId: String?
+            var collectionIds: [String] = []
+
+            if isPersonalOwnershipDisabled {
+                let ownershipOptions = try await services.vaultRepository
+                    .fetchCipherOwnershipOptions(includePersonal: false)
+
+                if let defaultOwner = ownershipOptions.first,
+                   let ownerOrgId = defaultOwner.organizationId {
+                    organizationId = ownerOrgId
+
+                    // If the organization has personal ownership policy, get the default collection
+                    if organizationsWithPersonalOwnershipPolicy.contains(ownerOrgId) {
+                        let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
+                        let collectionsForOwner = collections.filter { $0.organizationId == ownerOrgId }
+
+                        if let defaultCollection = collectionsForOwner.first(where: {
+                            $0.type == .defaultUserCollection
+                        }),
+                           let defaultCollectionId = defaultCollection.id {
+                            collectionIds = [defaultCollectionId]
+                        }
+                    }
+                }
+            }
+
+            let newCipher = CipherView(
+                fido2CredentialNewView: fido2CredentialNewView,
+                organizationId: organizationId,
+                collectionIds: collectionIds,
+                timeProvider: services.timeProvider,
+            )
+
+            await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
     }
 
     /// Checks user and executes `pickedCredentialForCreation` for the Fido2 flow.
