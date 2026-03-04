@@ -613,4 +613,28 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Validate - toast should be shown after dismiss completes.
         XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
     }
+
+    // MARK: - SyncWithBrowser Tests
+
+    /// `navigate(to:)` with `.syncWithBrowser` presents a navigation controller containing the
+    /// sync with browser view via the global modal coordinator.
+    @MainActor
+    func test_navigateTo_syncWithBrowser() {
+        // Set up.
+        rootNavigator.rootViewController = MockUIViewController()
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .syncWithBrowser)
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.globalModalCoordinator.isStarted)
+        XCTAssertEqual(module.globalModalCoordinator.routes.last, .syncWithBrowser)
+    }
 } // swiftlint:disable:this file_length

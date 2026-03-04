@@ -133,6 +133,13 @@ public class AppProcessor {
                 await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
             }
         }
+
+        Task {
+            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard hostname != nil else { continue }
+                coordinator?.navigate(to: .syncWithBrowser)
+            }
+        }
     }
 
     // MARK: Methods

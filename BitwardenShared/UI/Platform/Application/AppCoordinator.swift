@@ -16,6 +16,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
+        & GlobalModalModule
         & LoginRequestModule
         & NavigatorBuilderModule
         & SendItemModule
@@ -128,6 +129,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showMigrateToMyItems(organizationId: organizationId)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
+        case .syncWithBrowser:
+            showSyncWithBrowser()
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         case let .vault(vaultRoute):
@@ -297,6 +300,25 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         coordinator.navigate(to: .migrateToMyItems(organizationId: organizationId), context: self)
 
         // Present the migrate to my items view.
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            navigationController,
+            animated: true,
+        )
+    }
+
+    /// Show the sync with browser screen.
+    ///
+    private func showSyncWithBrowser() {
+        // Make sure that the user is not currently viewing the migrate to my items view.
+        let currentView = rootNavigator?.rootViewController?.topmostViewController()
+        guard !(currentView is UIHostingController<SyncWithBrowserView>) else { return }
+
+        let navigationController = module.makeNavigationController()
+        navigationController.isModalInPresentation = true
+        let globalModalCoordinator = module.makeGlobalModalCoordinator(stackNavigator: navigationController)
+        globalModalCoordinator.start()
+        globalModalCoordinator.navigate(to: .syncWithBrowser, context: self)
+
         rootNavigator?.rootViewController?.topmostViewController().present(
             navigationController,
             animated: true,
