@@ -155,7 +155,7 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
         }
         XCTAssertEqual(
             errorResponse.message,
-            Localizations.tourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain,
+            Localizations.yourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain,
         )
     }
 
