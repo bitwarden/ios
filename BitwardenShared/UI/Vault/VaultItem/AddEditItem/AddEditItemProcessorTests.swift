@@ -1777,6 +1777,36 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `perform(_:)` with `.streamCipherDetails` preserves the in-memory login state (including
+    /// TOTP codes) when a vault sync update arrives without a TOTP key.
+    @MainActor
+    func test_perform_streamCipherDetails_preservesLoginState() async throws {
+        let totpKey = "JBSWY3DPEHPK3PXP"
+        subject.state = try XCTUnwrap(
+            CipherItemState(
+                existing: .fixture(id: "1", login: .fixture(totp: totpKey), type: .login),
+                hasPremium: false,
+            ),
+        )
+        subject.state.loginState.totpState = LoginTOTPState(totpKey)
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        let updatedCipher = CipherView.fixture(
+            id: "1",
+            login: .fixture(password: "updated-password", totp: nil),
+            name: "Updated Name",
+            type: .login,
+        )
+        vaultRepository.cipherDetailsSubject.send(updatedCipher)
+        try await waitForAsync { self.subject.state.name == "Updated Name" }
+
+        XCTAssertEqual(subject.state.loginState.totpState, LoginTOTPState(totpKey))
+    }
+
     /// `perform(_:)` with `.unarchivePressed` calls the vault item action helper to unarchive the item.
     @MainActor
     func test_perform_unarchivePressed() async {

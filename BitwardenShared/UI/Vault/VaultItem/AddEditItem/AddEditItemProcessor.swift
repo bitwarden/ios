@@ -770,13 +770,19 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         await services.stateService.setAddSitePromptShown(true)
     }
 
-    /// Stream the cipher details.
+    /// Streams cipher details for the current cipher, updating state whenever the vault repository
+    /// emits an updated `CipherView`. The current `loginState` is passed as an override so that
+    /// any in-memory TOTP codes added via BWA import—but not yet persisted to the server—are
+    /// preserved and not overwritten by the incoming vault sync update.
     private func streamCipherDetails() async {
         guard let cipherId = state.cipher.id else { return }
         do {
             for try await cipherView in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
                 guard let cipherView else { continue }
-                state.update(from: cipherView)
+                state.update(
+                    from: cipherView,
+                    overrideLoginItemState: state.loginState,
+                )
             }
         } catch {
             services.errorReporter.log(error: error)
