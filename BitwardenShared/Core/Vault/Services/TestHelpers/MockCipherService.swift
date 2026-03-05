@@ -42,6 +42,9 @@ class MockCipherService: CipherService {
     var fetchAllCiphersCalled = false
     var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
 
+    var hasPersonalCiphersCalled = false
+    var hasPersonalCiphersResult: Result<Bool, Error> = .success(false)
+
     var deleteCipherId: String?
     var deleteCipherWithServerResult: Result<Void, Error> = .success(())
 
@@ -135,6 +138,11 @@ class MockCipherService: CipherService {
     func fetchAllCiphers() async throws -> [Cipher] {
         fetchAllCiphersCalled = true
         return try fetchAllCiphersResult.get()
+    }
+
+    func hasPersonalCiphers() async throws -> Bool {
+        hasPersonalCiphersCalled = true
+        return try hasPersonalCiphersResult.get()
     }
 
     func fetchCipher(withId id: String) async throws -> Cipher? {

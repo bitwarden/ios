@@ -877,44 +877,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and delivers
-    /// the cookies parsed from the query parameters.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_deliversCookies() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendor)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try XCTUnwrap(try result.get())
-        XCTAssertEqual(cookies.count, 2)
-        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "token123" }))
-        XCTAssertTrue(cookies.contains(where: { $0.name == "session" && $0.value == "abc" }))
-        XCTAssertEqual(coordinator.alertShown, [])
-        XCTAssertEqual(coordinator.routes, [])
-    }
-
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link with no
-    /// query parameters and delivers an empty cookie list.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_noCookies_deliversEmptyList() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendorNoCookies)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try result.get()
-        XCTAssertTrue(cookies == nil || cookies?.isEmpty == true)
-    }
-
-    /// `openUrl(_:)` handles receiving a `bitwarden://sso-cookie-vendor` deep link and excludes
-    /// the `"d"` query parameter from the delivered cookies.
-    @MainActor
-    func test_openUrl_ssoCookieVendor_excludesDParam() async throws {
-        await subject.openUrl(.bitwardenSSOCookieVendorDParam)
-
-        let result = try XCTUnwrap(serverCommunicationConfigAPIService.cookiesAcquiredResult)
-        let cookies = try XCTUnwrap(try result.get())
-        XCTAssertFalse(cookies.contains(where: { $0.name == "d" }))
-        XCTAssertTrue(cookies.contains(where: { $0.name == "auth" && $0.value == "myToken" }))
-    }
-
     /// `provideCredential(for:)` returns the credential with the specified identifier.
     func test_provideCredential() async throws {
         let credential = ASPasswordCredential(user: "user@bitwarden.com", password: "password123")
@@ -1199,6 +1161,34 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
+    }
+
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
+    /// when a non-nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async throws {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send("example.com")
+
+        try await waitForAsync { [weak self] in
+            self?.coordinator.routes.contains(.syncWithBrowser) == true
+        }
+
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
+    }
+
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
+    /// `.syncWithBrowser` when a nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withNilHostname_doesNotNavigate() async {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser))
     }
 
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and
@@ -1537,5 +1527,39 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
+    }
+
+    /// `migrateVaultToMyItems(organizationId:)` shows a warning alert instead of the migration
+    /// screen when running in an app extension, and closes the extension when OK is tapped.
+    @MainActor
+    func test_migrateVaultToMyItems_inAppExtension() async throws {
+        let delegate = MockAppExtensionDelegate()
+        delegate.isInAppExtension = true
+        subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks(),
+        )
+        subject.coordinator = coordinator.asAnyCoordinator()
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.migrateVaultToMyItems(organizationId: "org-123")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+
+        // Verify alert is shown with correct content.
+        XCTAssertEqual(coordinator.alertShown.count, 1)
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.title, Localizations.itemTransfer)
+        XCTAssertEqual(alert.message, Localizations.itemTransferRequiresMainAppDescriptionLong)
+        XCTAssertEqual(alert.alertActions.count, 1)
+        XCTAssertEqual(alert.alertActions.first?.title, Localizations.ok)
+
+        // Verify tapping OK closes the extension.
+        XCTAssertFalse(delegate.didCancelCalled)
+        let okAction = try XCTUnwrap(alert.alertActions.first)
+        await okAction.handler?(okAction, [])
+        XCTAssertTrue(delegate.didCancelCalled)
     }
 }
