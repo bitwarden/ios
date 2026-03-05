@@ -70,7 +70,7 @@ final class ItemListCoordinator: Coordinator, HasStackNavigator {
         self.stackNavigator = stackNavigator
     }
 
-    // MARK: - Methods
+    // MARK: Methods
 
     func handleEvent(_ event: ItemListEvent, context: AnyObject?) async {
         switch event {
