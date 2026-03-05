@@ -597,6 +597,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 800,
             elapsedMonotonic: 800,
             elapsedWallClock: 800,
+            isReboot: false,
             tamperingDetected: false,
         )
 
@@ -626,6 +627,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 1801,
             elapsedMonotonic: 1801,
             elapsedWallClock: 1801,
+            isReboot: false,
             tamperingDetected: false,
         )
 
@@ -652,6 +654,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 1800,
             elapsedMonotonic: -9900,
             elapsedWallClock: 1800,
+            isReboot: false,
             tamperingDetected: true,
         )
 
@@ -697,6 +700,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 600,
             elapsedMonotonic: 600,
             elapsedWallClock: 3600,
+            isReboot: false,
             tamperingDetected: false,
         )
 
@@ -723,6 +727,7 @@ class SyncServiceTests: BitwardenTestCase {
             effectiveElapsed: 300,
             elapsedMonotonic: 300,
             elapsedWallClock: 600,
+            isReboot: false,
             tamperingDetected: true,
         )
 
