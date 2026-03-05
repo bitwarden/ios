@@ -803,6 +803,30 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(subject, expected)
     }
+
+    /// `update(from:overrideLoginItemState:)` preserves the overridden login state instead of
+    /// applying the one derived from the updated cipher view.
+    func test_updateFromCipherView_withOverrideLoginItemState() throws {
+        let totpKey = "JBSWY3DPEHPK3PXP"
+        var subject = try XCTUnwrap(
+            CipherItemState(
+                existing: .fixture(login: .fixture(totp: totpKey), type: .login),
+                hasPremium: false,
+            ),
+        )
+        let originalLoginState = subject.loginState
+
+        let updatedCipher = CipherView.fixture(
+            id: "123",
+            login: .fixture(password: "updated-password", totp: nil),
+            name: "Updated Name",
+            type: .login,
+        )
+        subject.update(from: updatedCipher, overrideLoginItemState: originalLoginState)
+
+        XCTAssertEqual(subject.name, "Updated Name")
+        XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
+    }
 }
 
 // MARK: - CipherItemState
