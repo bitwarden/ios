@@ -22,11 +22,17 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     /// The delegate to use for specific operations on the token provider.
     private weak var accountTokenProviderDelegate: AccountTokenProviderDelegate?
 
+    /// The service used to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// The `HTTPService` used to make the API call to refresh the access token.
     private let httpService: HTTPService
 
     /// The task associated with refreshing the token, if one is in progress.
     private(set) var refreshTask: Task<String, Error>?
+
+    /// The service used to manage account state.
+    private let stateService: StateService
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
@@ -42,15 +48,21 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     ///   - httpService: The service used to make the API call to refresh the access token.
     ///   - timeProvider: The service used to get the present time.
     ///   - tokenService: The service used to get the current tokens from.
+    ///   - errorReporter: The service used to report non-fatal errors.
+    ///   - stateService: The service used to manage account state.
     ///
     init(
         httpService: HTTPService,
         timeProvider: TimeProvider = CurrentTime(),
         tokenService: TokenService,
+        errorReporter: ErrorReporter,
+        stateService: StateService,
     ) {
         self.httpService = httpService
         self.timeProvider = timeProvider
         self.tokenService = tokenService
+        self.errorReporter = errorReporter
+        self.stateService = stateService
     }
 
     // MARK: Methods
@@ -81,6 +93,9 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
             defer { self.refreshTask = nil }
 
             do {
+                // TODO: PM-33074 Remove logs after confirmation that the error doesn't happen anymore.
+                let userIdBefore = try await stateService.getActiveAccountId()
+
                 let refreshToken = try await tokenService.getRefreshToken()
                 let response = try await httpService.send(
                     IdentityTokenRefreshRequest(refreshToken: refreshToken),
@@ -92,6 +107,16 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
                     refreshToken: response.refreshToken,
                     expirationDate: expirationDate,
                 )
+
+                let userIdAfter = try await stateService.getActiveAccountId()
+
+                if userIdBefore != userIdAfter {
+                    let error = TokenRefreshRaceConditionError(
+                        userIdBefore: userIdBefore,
+                        userIdAfter: userIdAfter,
+                    )
+                    errorReporter.log(error: error)
+                }
 
                 return response.accessToken
             } catch {
