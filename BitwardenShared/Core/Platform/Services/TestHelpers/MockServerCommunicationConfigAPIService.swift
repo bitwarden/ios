@@ -1,5 +1,6 @@
 import BitwardenSdk
 import Combine
+import Foundation
 
 @testable import BitwardenShared
 
@@ -7,6 +8,8 @@ final class MockServerCommunicationConfigAPIService: ServerCommunicationConfigAP
     var acquireCookiesCalledHostname: String?
     var acquireCookiesResult: [BitwardenSdk.AcquiredCookie]?
     var acquireCookiesSubject = CurrentValueSubject<String?, Never>(nil)
+    var cookiesAcquiredFromCalled = false
+    var cookiesAcquiredFromURL: URL?
     var cookiesAcquiredResult: Result<[BitwardenSdk.AcquiredCookie]?, Error>?
 
     func acquireCookies(hostname: String) async -> [BitwardenSdk.AcquiredCookie]? {
@@ -18,7 +21,8 @@ final class MockServerCommunicationConfigAPIService: ServerCommunicationConfigAP
         acquireCookiesSubject.eraseToAnyPublisher()
     }
 
-    func cookiesAcquired(cookies: Result<[BitwardenSdk.AcquiredCookie]?, Error>) async {
-        cookiesAcquiredResult = cookies
+    func cookiesAcquired(from callbackURL: URL?) async {
+        cookiesAcquiredFromCalled = true
+        cookiesAcquiredFromURL = callbackURL
     }
 }

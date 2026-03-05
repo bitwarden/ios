@@ -72,6 +72,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service to get server-specified configuration
     public let configService: ConfigService
 
+    /// The service to make and use the device auth key.
+    let deviceAuthKeyService: DeviceAuthKeyService
+
     /// The service used by the application to manage the environment settings.
     public let environmentService: EnvironmentService
 
@@ -154,6 +157,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used to handle server communication configuration.
     public let serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService
 
+    /// The lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
+    public let serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton
+
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
 
@@ -229,6 +235,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
+    ///   - deviceAuthKeyService: The service to make and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReportBuilder: A helper for building an error report containing the details of an
     ///     error that occurred.
@@ -259,6 +266,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - searchProcessorMediatorFactory: The factory to make `SearchProcessorMediator`s.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - serverCommunicationConfigAPIService: The service used to handle server communication configuration.
+    ///   - serverCommunicationConfigClientSingleton: The lazily-initialized, cached holder for a
+    ///   `ServerCommunicationConfigClientProtocol` instance.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The service used by the application to manage account state.
@@ -295,6 +304,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         changeKdfService: ChangeKdfService,
         clientService: ClientService,
         configService: ConfigService,
+        deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
         errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
@@ -322,6 +332,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         searchProcessorMediatorFactory: SearchProcessorMediatorFactory,
         sendRepository: SendRepository,
         serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService,
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton,
         settingsRepository: SettingsRepository,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
@@ -356,6 +367,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.changeKdfService = changeKdfService
         self.clientService = clientService
         self.configService = configService
+        self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
         self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
@@ -383,6 +395,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.searchProcessorMediatorFactory = searchProcessorMediatorFactory
         self.sendRepository = sendRepository
         self.serverCommunicationConfigAPIService = serverCommunicationConfigAPIService
+        self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.settingsRepository = settingsRepository
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
@@ -541,20 +554,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
         )
 
-        let serverCommunicationConfigAPIService = DefaultServerCommunicationConfigAPIService(
-            errorReporter: errorReporter,
-        )
-
-        serverCommConfigClientSingletonHolder = DefaultServerCommunicationConfigClientSingleton(
-            clientService: clientService,
-            configService: configService,
-            environmentService: environmentService,
-            errorReporter: errorReporter,
-            sdkRepositoryFactory: sdkRepositoryFactory,
-            serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
-            serverCommunicationConfigStateService: stateService,
-        )
-
         let biometricsService = DefaultBiometricsService()
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
@@ -565,6 +564,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let localAuthService = DefaultLocalAuthService()
 
         let notificationCenterService = DefaultNotificationCenterService()
+
+        let serverCommunicationConfigAPIService = DefaultServerCommunicationConfigAPIService(
+            appContextHelper: appContextHelper,
+            errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
+        )
+
+        let serverCommunicationConfigClientSingleton = DefaultServerCommunicationConfigClientSingleton(
+            clientService: clientService,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            sdkRepositoryFactory: sdkRepositoryFactory,
+            serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
+            serverCommunicationConfigStateService: stateService,
+        )
+        serverCommConfigClientSingletonHolder = serverCommunicationConfigClientSingleton
 
         let folderService = DefaultFolderService(
             folderAPIService: apiService,
@@ -895,6 +911,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         #endif
 
+        let deviceAuthKeyService = DefaultDeviceAuthKeyService(
+            activeAccountStateProvider: stateService,
+            deviceAuthKeychainRepository: keychainRepository,
+        )
+
         let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(
             appContextHelper: appContextHelper,
@@ -902,6 +923,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
+            deviceAuthKeyService: deviceAuthKeyService,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
@@ -1020,6 +1042,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
+            deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
@@ -1047,6 +1070,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             sendRepository: sendRepository,
             serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
+            serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,

@@ -31,6 +31,9 @@ class MockSyncService: SyncService {
     var needsSyncResult: Result<Bool, Error> = .success(false)
     var needsSyncOnlyCheckLocalData: Bool = false
 
+    var checkUserNeedsVaultMigrationCalled = false
+    var checkUserNeedsVaultMigrationResult: Result<Void, Error> = .success(())
+
     func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
         didFetchSync = true
         fetchSyncForceSync = forceSync
@@ -72,5 +75,10 @@ class MockSyncService: SyncService {
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool {
         needsSyncOnlyCheckLocalData = onlyCheckLocalData
         return try needsSyncResult.get()
+    }
+
+    func checkUserNeedsVaultMigration() async throws {
+        checkUserNeedsVaultMigrationCalled = true
+        try checkUserNeedsVaultMigrationResult.get()
     }
 }

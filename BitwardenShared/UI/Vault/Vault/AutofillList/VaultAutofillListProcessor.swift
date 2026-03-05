@@ -26,6 +26,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTOTPExpirationManagerFactory
         & HasTextAutofillHelperFactory
         & HasTimeProvider
@@ -128,6 +129,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
+        case .checkVaultMigration:
+            await checkVaultMigration()
         case .excludedCredentialFoundChanged:
             if let cipherIdFound = state.excludedCredentialIdFound {
                 await updateExcludedCredentialSection(from: cipherIdFound)
@@ -238,6 +241,15 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
+    }
+
+    /// Checks if the user needs to migrate their vault. The SyncService delegate handles navigation.
+    private func checkVaultMigration() async {
+        do {
+            try await services.syncService.checkUserNeedsVaultMigration()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Fetches initial sync if necessary, checking if the user has synced before.

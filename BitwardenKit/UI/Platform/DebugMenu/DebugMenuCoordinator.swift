@@ -14,8 +14,10 @@ public final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     public typealias Services = HasConfigService
+        & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasServerCommunicationConfigClientSingleton
 
     // MARK: Private Properties
 

@@ -34,6 +34,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultListProcessor!
+    var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
     var vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper!
     var vaultRepository: MockVaultRepository!
@@ -67,6 +68,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
 
         stateService = MockStateService()
+        syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
@@ -84,6 +86,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             reviewPromptService: reviewPromptService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             stateService: stateService,
+            syncService: syncService,
             timeProvider: timeProvider,
             vaultRepository: vaultRepository,
         )
@@ -152,6 +155,25 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.reviewPromptTask?.value
         XCTAssertFalse(subject.state.isEligibleForAppReview)
         XCTAssertNil(subject.state.toast?.title)
+    }
+
+    /// `perform(_:)` with `.checkVaultMigration` calls the sync service to check for vault migration.
+    @MainActor
+    func test_perform_checkVaultMigration() async {
+        await subject.perform(.checkVaultMigration)
+
+        XCTAssertTrue(syncService.checkUserNeedsVaultMigrationCalled)
+    }
+
+    /// `perform(_:)` with `.checkVaultMigration` logs any errors that occur.
+    @MainActor
+    func test_perform_checkVaultMigration_error() async {
+        syncService.checkUserNeedsVaultMigrationResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.checkVaultMigration)
+
+        XCTAssertTrue(syncService.checkUserNeedsVaultMigrationCalled)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `itemArchived()` delegate method shows the expected toast.

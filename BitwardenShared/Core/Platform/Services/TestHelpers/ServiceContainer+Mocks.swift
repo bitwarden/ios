@@ -26,6 +26,7 @@ extension ServiceContainer {
         changeKdfService: ChangeKdfService = MockChangeKdfService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
+        deviceAuthKeyService: DeviceAuthKeyService = MockDeviceAuthKeyService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         errorReporter: ErrorReporter = MockErrorReporter(),
@@ -55,6 +56,8 @@ extension ServiceContainer {
         sendRepository: SendRepository = MockSendRepository(),
         // swiftlint:disable:next line_length
         serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService = MockServerCommunicationConfigAPIService(),
+        // swiftlint:disable:next line_length
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),
         sharedTimeoutService: SharedTimeoutService = MockSharedTimeoutService(),
         stateService: StateService = MockStateService(),
@@ -104,6 +107,7 @@ extension ServiceContainer {
             changeKdfService: changeKdfService,
             clientService: clientService,
             configService: configService,
+            deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,
             errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
@@ -131,6 +135,7 @@ extension ServiceContainer {
             searchProcessorMediatorFactory: actualSearchProcessorMediatorFactory,
             sendRepository: sendRepository,
             serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
+            serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,

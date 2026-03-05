@@ -566,6 +566,37 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled ?? true)
     }
 
+    /// `navigate(to:)` with `.migrateToMyItems` shows the migrate to my items view in app extension context.
+    @MainActor
+    func test_navigateTo_migrateToMyItems_appExtension() {
+        // Set up - create coordinator in app extension context.
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: appExtensionDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: services,
+        )
+        rootNavigator.rootViewController = MockUIViewController()
+
+        // Navigate to vault first so childCoordinator is a VaultRoute coordinator.
+        subject.navigate(to: .vault(.autofillList))
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .migrateToMyItems(organizationId: "org-123"))
+    }
+
     /// `didLeaveOrganization()` dismisses the view and shows a toast.
     @MainActor
     func test_didLeaveOrganization() {
@@ -612,5 +643,29 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         // Validate - toast should be shown after dismiss completes.
         XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
+    // MARK: - SyncWithBrowser Tests
+
+    /// `navigate(to:)` with `.syncWithBrowser` presents a navigation controller containing the
+    /// sync with browser view via the global modal coordinator.
+    @MainActor
+    func test_navigateTo_syncWithBrowser() {
+        // Set up.
+        rootNavigator.rootViewController = MockUIViewController()
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .syncWithBrowser)
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.globalModalCoordinator.isStarted)
+        XCTAssertEqual(module.globalModalCoordinator.routes.last, .syncWithBrowser)
     }
 } // swiftlint:disable:this file_length
