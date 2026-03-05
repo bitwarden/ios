@@ -629,16 +629,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
         )
 
-        let watchService = DefaultWatchService(
-            cipherService: cipherService,
-            clientService: clientService,
-            configService: configService,
-            environmentService: environmentService,
-            errorReporter: errorReporter,
-            organizationService: organizationService,
-            stateService: stateService,
-        )
-
         let keyConnectorService = DefaultKeyConnectorService(
             accountAPIService: apiService,
             clientService: clientService,
@@ -671,6 +661,17 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             timeProvider: timeProvider,
             userSessionStateService: stateService,
+        )
+
+        let watchService = DefaultWatchService(
+            cipherService: cipherService,
+            clientService: clientService,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            organizationService: organizationService,
+            stateService: stateService,
+            vaultTimeoutService: vaultTimeoutService,
         )
 
         let reviewPromptService = DefaultReviewPromptService(

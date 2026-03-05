@@ -47,6 +47,9 @@ class DefaultWatchService: NSObject, WatchService {
     /// it can be cancelled and recreated when the user changes.
     private var syncCiphersTask: Task<Void, Never>?
 
+    /// The service used by the application to manage vault access.
+    private let vaultTimeoutService: VaultTimeoutService
+
     /// The factory used to create and check support for watch sessions.
     private let watchSessionFactory: WatchSessionFactory
 
@@ -62,6 +65,7 @@ class DefaultWatchService: NSObject, WatchService {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///   - watchSessionFactory: The factory used to create and check support for watch sessions.
     ///
     init(
@@ -73,6 +77,7 @@ class DefaultWatchService: NSObject, WatchService {
         organizationService: OrganizationService,
         stateService: StateService,
         watchSessionFactory: WatchSessionFactory = DefaultWatchSessionFactory(),
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -81,13 +86,22 @@ class DefaultWatchService: NSObject, WatchService {
         self.errorReporter = errorReporter
         self.organizationService = organizationService
         self.stateService = stateService
+        self.vaultTimeoutService = vaultTimeoutService
         self.watchSessionFactory = watchSessionFactory
         super.init()
 
-        // Listen for changes in the settings and data that would require syncing with the watch.
+        // Listen for changes in the settings, vault lock state, and data that would require
+        // syncing with the watch.
         Task {
-            for await (userId, shouldConnect) in await self.stateService.connectToWatchPublisher().values {
-                syncWithWatch(userId: userId, shouldConnect: shouldConnect)
+            let connectPublisher = await self.stateService.connectToWatchPublisher()
+            let vaultStatusPublisher = await self.vaultTimeoutService.vaultLockStatusPublisher()
+
+            // Use the publishers as triggers only — reading their combined values directly would
+            // produce intermediate mismatched states, since both independently subscribe to
+            // `activeAccountIdPublisher()` and emit sequentially on account changes.
+            // `syncWithWatch()` reads all relevant state in a single pass to ensure consistency.
+            for await _ in connectPublisher.combineLatest(vaultStatusPublisher).values {
+                syncWithWatch()
             }
         }
     }
@@ -100,10 +114,7 @@ class DefaultWatchService: NSObject, WatchService {
     ///
     func handleMessage(_ message: [String: Any]) async {
         if let actionMessage = message["actionMessage"] as? String, actionMessage == "triggerSync" {
-            let userId = try? await stateService.getActiveAccountId()
-            let shouldConnect = try? await stateService.getConnectToWatch()
-            let lastUserShouldConnectToWatch = await stateService.getLastUserShouldConnectToWatch()
-            syncWithWatch(userId: userId, shouldConnect: shouldConnect ?? lastUserShouldConnectToWatch)
+            syncWithWatch()
         }
     }
 
@@ -179,6 +190,30 @@ class DefaultWatchService: NSObject, WatchService {
         }
     }
 
+    /// Fetch the current account state and sync with the watch.
+    ///
+    private func syncWithWatch() {
+        // This method will be called whenever the connect value, vault lock state, or account
+        // value changes, so the task listening to the cipher updates will need to be cancelled
+        // and recreated each time.
+        syncCiphersTask?.cancel()
+        syncCiphersTask = Task {
+            let userId = try? await stateService.getActiveAccountId()
+            let connectToWatch = try? await stateService.getConnectToWatch()
+            let lastUserShouldConnect = await stateService.getLastUserShouldConnectToWatch()
+            let isVaultLocked = if let userId {
+                await vaultTimeoutService.isLocked(userId: userId)
+            } else {
+                true
+            }
+            await syncWithWatch(
+                userId: userId,
+                shouldConnect: connectToWatch ?? lastUserShouldConnect,
+                isVaultLocked: isVaultLocked,
+            )
+        }
+    }
+
     /// Sync data with the watch.
     ///
     /// - Parameters:
@@ -226,27 +261,27 @@ class DefaultWatchService: NSObject, WatchService {
     /// - Parameters:
     ///   - userId: The user's id, if one exists.
     ///   - shouldConnect: Whether the user has toggled on the connect to watch setting.
+    ///   - isVaultLocked: Whether the active vault is currently locked.
     ///
-    private func syncWithWatch(userId: String?, shouldConnect: Bool) {
-        // This method will be called whenever the connect value or the account value changes,
-        // so the task listening to the cipher updates will need to be cancelled and recreated
-        // each time.
-        syncCiphersTask?.cancel()
-        syncCiphersTask = Task {
-            do {
-                // If the user isn't logged in, sync the watch with an empty list of ciphers.
-                guard userId != nil else {
-                    try await syncWithWatch(ciphers: [], shouldConnect: shouldConnect)
-                    return
-                }
-
-                // Otherwise, listen to the publisher to sync any cipher updates with the watch.
-                for try await ciphers in try await cipherService.ciphersPublisher().values {
-                    try await syncWithWatch(ciphers: ciphers, shouldConnect: shouldConnect)
-                }
-            } catch {
-                self.errorReporter.log(error: error)
+    private func syncWithWatch(userId: String?, shouldConnect: Bool, isVaultLocked: Bool) async {
+        do {
+            // If the user isn't logged in, sync the watch with an empty list of ciphers.
+            guard userId != nil else {
+                try await syncWithWatch(ciphers: [], shouldConnect: shouldConnect)
+                return
             }
+
+            // If the vault is locked, skip cipher sync to avoid decryption errors.
+            guard !isVaultLocked else {
+                return
+            }
+
+            // Otherwise, listen to the publisher to sync any cipher updates with the watch.
+            for try await ciphers in try await cipherService.ciphersPublisher().values {
+                try await syncWithWatch(ciphers: ciphers, shouldConnect: shouldConnect)
+            }
+        } catch {
+            errorReporter.log(error: error)
         }
     }
 }
@@ -254,8 +289,15 @@ class DefaultWatchService: NSObject, WatchService {
 // MARK: - WCSessionDelegate
 
 extension DefaultWatchService: WCSessionDelegate {
-    /// Required delegate method that requires no action on the app.
-    func session(_: WCSession, activationDidCompleteWith _: WCSessionActivationState, error _: Error?) {}
+    /// Triggers a sync when the session activates successfully.
+    func session(
+        _ session: WCSession,
+        activationDidCompleteWith activationState: WCSessionActivationState,
+        error: Error?,
+    ) {
+        guard activationState == .activated, error == nil else { return }
+        syncWithWatch()
+    }
 
     /// Required delegate method that requires no action on the app.
     func sessionDidBecomeInactive(_: WCSession) {}
