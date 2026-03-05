@@ -24,6 +24,12 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
+    /// The keychain item for a user's last active boot epoch.
+    ///
+    /// The boot epoch is `wallTime − monotonicTime` and is used to detect the reboot-timing attack.
+    ///
+    case lastActiveBootEpoch(userId: String)
+
     /// The keychain item for a user's last active time.
     case lastActiveTime(userId: String)
 
@@ -57,6 +63,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .authenticatorVaultKey,
              .deviceKey,
              .deviceAuthKeyMetadata,
+             .lastActiveBootEpoch,
              .lastActiveMonotonicTime,
              .lastActiveTime,
              .neverLock,
@@ -79,6 +86,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .deviceKey,
              .deviceAuthKey,
              .deviceAuthKeyMetadata,
+             .lastActiveBootEpoch,
              .lastActiveMonotonicTime,
              .lastActiveTime,
              .neverLock,
@@ -110,6 +118,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "deviceAuthKey_" + id
         case let .deviceAuthKeyMetadata(userId: id):
             "deviceAuthKeyMetadata_" + id
+        case let .lastActiveBootEpoch(userId):
+            "lastActiveBootEpoch_\(userId)"
         case let .lastActiveMonotonicTime(userId):
             "lastActiveMonotonicTime_\(userId)"
         case let .lastActiveTime(userId):
@@ -465,6 +475,7 @@ extension DefaultKeychainRepository {
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
             // Also exclude `deviceAuthKey` and `deviceAuthKeyMetadata` since they are used to log back into an account.
+            .lastActiveBootEpoch(userId: userId),
             .lastActiveMonotonicTime(userId: userId),
             .lastActiveTime(userId: userId),
             .neverLock(userId: userId),
@@ -651,6 +662,20 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
     func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) async throws {
         let value = monotonicTime.map { String($0) } ?? ""
         try await setValue(value, for: .lastActiveMonotonicTime(userId: userId))
+    }
+
+    func getLastActiveBootEpoch(userId: String) async throws -> TimeInterval? {
+        do {
+            let stored = try await getValue(for: .lastActiveBootEpoch(userId: userId))
+            return TimeInterval(stored)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return nil
+        }
+    }
+
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String) async throws {
+        let value = bootEpoch.map { String($0) } ?? ""
+        try await setValue(value, for: .lastActiveBootEpoch(userId: userId))
     }
 
     // MARK: Unsuccessful Unlock Attempts

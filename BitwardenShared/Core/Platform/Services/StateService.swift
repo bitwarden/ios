@@ -2340,6 +2340,16 @@ extension DefaultStateService: UserSessionStateService {
         try await userSessionKeychainRepository.setLastActiveMonotonicTime(monotonicTime, userId: userId)
     }
 
+    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveBootEpoch(userId: userId)
+    }
+
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveBootEpoch(bootEpoch, userId: userId)
+    }
+
     // MARK: Unsuccessful Unlock Attempts
 
     func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {

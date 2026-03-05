@@ -39,6 +39,26 @@ protocol UserSessionKeychainRepository { // sourcery: AutoMockable
     ///
     func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) async throws
 
+    /// Gets the stored boot epoch for a user from the keychain.
+    ///
+    /// The boot epoch is computed as `wallTime − monotonicTime` and represents when the device
+    /// was last booted in wall-clock terms. It is used to detect the reboot-timing attack:
+    /// an attacker who reboots the device and waits for the monotonic clock to match the stored
+    /// value causes a large boot epoch drift that is caught by this check.
+    ///
+    /// - Parameter userId: The user ID associated with the stored boot epoch.
+    /// - Returns: The boot epoch as a `TimeInterval`, or `nil` if not yet stored.
+    ///
+    func getLastActiveBootEpoch(userId: String) async throws -> TimeInterval?
+
+    /// Stores the boot epoch for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - bootEpoch: The boot epoch to store, computed as `wallTime − monotonicTime`.
+    ///   - userId: The user's ID.
+    ///
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String) async throws
+
     // MARK: Unsuccessful Unlock Attempts
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.

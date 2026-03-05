@@ -39,6 +39,23 @@ protocol UserSessionStateService { // sourcery: AutoMockable
     ///
     func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws
 
+    /// Gets the stored boot epoch for a user.
+    ///
+    /// The boot epoch is `wallTime − monotonicTime` and is used to detect the reboot-timing attack.
+    ///
+    /// - Parameter userId: The user ID associated with the stored boot epoch.
+    /// - Returns: The boot epoch as a `TimeInterval`, or `nil` if not yet stored.
+    ///
+    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval?
+
+    /// Sets the boot epoch for a user.
+    ///
+    /// - Parameters:
+    ///   - bootEpoch: The boot epoch, computed as `wallTime − monotonicTime`.
+    ///   - userId: The user ID associated with the boot epoch.
+    ///
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws
+
     // MARK: Unsuccessful Unlock Attempts
 
     /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.

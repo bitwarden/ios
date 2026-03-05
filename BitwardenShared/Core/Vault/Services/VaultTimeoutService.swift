@@ -208,7 +208,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                 let result = timeProvider.calculateTamperResistantElapsedTime(
                     lastMonotonicTime: lastActiveMonotonic,
                     lastWallClockTime: lastActiveTime,
-                    divergenceThreshold: 15.0,
+                    divergenceThreshold: 5.0,
                 )
 
                 // Force timeout if tampering detected (reboot or clock manipulation)
@@ -216,7 +216,21 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                     return true
                 }
 
-                // Both clocks agree - use the effective elapsed time (max of both for extra safety)
+                // Check for the reboot-timing attack: an attacker who reboots the device and
+                // waits until the monotonic clock matches the stored value bypasses the isReboot
+                // flag. The boot epoch shifts dramatically across a reboot and catches this.
+                // Guard on isReboot: a legitimate reboot is already caught above via tamperingDetected.
+                let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
+                let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
+                    - timeProvider.monotonicTime
+                if let storedBootEpoch, !result.isReboot {
+                    let epochDrift = abs(currentBootEpoch - storedBootEpoch)
+                    if epochDrift > 5.0 {
+                        return true
+                    }
+                }
+
+                // Use monotonic elapsed time exclusively as the tamper-resistant timeout source
                 let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
                 return result.effectiveElapsed >= timeoutSeconds
             } else {
@@ -281,8 +295,11 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func setLastActiveTime(userId: String) async throws {
         let now = timeProvider.presentTime
+        let currentMonotonic = timeProvider.monotonicTime
+        let bootEpoch = now.timeIntervalSinceReferenceDate - currentMonotonic
         try await userSessionStateService.setLastActiveTime(now, userId: userId)
-        try await userSessionStateService.setLastActiveMonotonicTime(timeProvider.monotonicTime, userId: userId)
+        try await userSessionStateService.setLastActiveMonotonicTime(currentMonotonic, userId: userId)
+        try await userSessionStateService.setLastActiveBootEpoch(bootEpoch, userId: userId)
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         try await updateSharedTimeout(
             lastActiveTime: now,

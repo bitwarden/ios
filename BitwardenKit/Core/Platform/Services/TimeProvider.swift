@@ -74,23 +74,29 @@ public class CurrentTime: TimeProvider {
     public func calculateTamperResistantElapsedTime(
         lastMonotonicTime: TimeInterval,
         lastWallClockTime: Date,
-        divergenceThreshold: TimeInterval = 15.0,
+        divergenceThreshold: TimeInterval = 5.0,
     ) -> TamperResistantTimeResult {
         let elapsedMonotonic = monotonicTime - lastMonotonicTime
         let elapsedWallClock = presentTime.timeIntervalSince(lastWallClockTime)
         let divergence = abs(elapsedWallClock - elapsedMonotonic)
 
-        // Detect reboot or clock manipulation via divergence
-        let tamperingDetected = divergence > divergenceThreshold
+        // A negative monotonic elapsed time means the device rebooted since the last active time.
+        // Monotonic time resets to ~0 on reboot, so current < stored → negative result.
+        let isReboot = elapsedMonotonic < 0
 
-        // Use maximum of both clocks for extra safety against small manipulations
-        let effectiveElapsed = max(elapsedMonotonic, elapsedWallClock)
+        // Detect reboot or obvious clock manipulation via divergence
+        let tamperingDetected = isReboot || divergence > divergenceThreshold
+
+        // Use monotonic time exclusively as the tamper-resistant source for the timeout decision.
+        // Wall-clock is retained only for divergence detection (anomaly signaling).
+        let effectiveElapsed = elapsedMonotonic
 
         return TamperResistantTimeResult(
             divergence: divergence,
             effectiveElapsed: effectiveElapsed,
             elapsedMonotonic: elapsedMonotonic,
             elapsedWallClock: elapsedWallClock,
+            isReboot: isReboot,
             tamperingDetected: tamperingDetected,
         )
     }
@@ -108,7 +114,8 @@ public extension TimeProvider {
     /// This method detects clock manipulation and device reboots by comparing elapsed time
     /// from both the monotonic clock (unaffected by user clock changes) and wall-clock time.
     /// If the divergence between the two exceeds the threshold, tampering is detected.
-    /// The divergence threshold default is 15.0 seconds to account for legitimate NTP corrections.
+    /// The divergence threshold default is 5.0 seconds, which is well above normal NTP corrections
+    /// (typically < 500ms) while still providing a tight anomaly detection window.
     ///
     /// - Parameters:
     ///   - lastMonotonicTime: The previously stored monotonic time (seconds since boot).
@@ -122,7 +129,7 @@ public extension TimeProvider {
         calculateTamperResistantElapsedTime(
             lastMonotonicTime: lastMonotonicTime,
             lastWallClockTime: lastWallClockTime,
-            divergenceThreshold: 15.0,
+            divergenceThreshold: 5.0,
         )
     }
 }
@@ -136,7 +143,7 @@ public struct TamperResistantTimeResult {
     /// The divergence between the two clocks.
     public let divergence: TimeInterval
 
-    /// The effective elapsed time to use (max of both clocks if no tampering detected).
+    /// The effective elapsed time to use, derived exclusively from the monotonic clock.
     public let effectiveElapsed: TimeInterval
 
     /// The elapsed time according to monotonic clock.
@@ -144,6 +151,13 @@ public struct TamperResistantTimeResult {
 
     /// The elapsed time according to wall-clock.
     public let elapsedWallClock: TimeInterval
+
+    /// Whether the device was rebooted since the last active time was recorded.
+    ///
+    /// A reboot is detected when `elapsedMonotonic` is negative, meaning the stored monotonic
+    /// time is greater than the current monotonic time (which resets to ~0 on each boot).
+    ///
+    public let isReboot: Bool
 
     /// Whether clock manipulation or device reboot was detected.
     public let tamperingDetected: Bool
@@ -153,21 +167,24 @@ public struct TamperResistantTimeResult {
     /// Initializes a `TamperResistantTimeResult`.
     /// - Parameters:
     ///   - divergence: The divergence between the two clocks.
-    ///   - effectiveElapsed: The effective elapsed time to use (max of both clocks if no tampering detected).
+    ///   - effectiveElapsed: The effective elapsed time, derived exclusively from the monotonic clock.
     ///   - elapsedMonotonic: The elapsed time according to monotonic clock.
     ///   - elapsedWallClock: The elapsed time according to wall-clock.
+    ///   - isReboot: Whether the device was rebooted since the last active time was recorded.
     ///   - tamperingDetected: Whether clock manipulation or device reboot was detected.
     public init(
         divergence: TimeInterval,
         effectiveElapsed: TimeInterval,
         elapsedMonotonic: TimeInterval,
         elapsedWallClock: TimeInterval,
+        isReboot: Bool,
         tamperingDetected: Bool,
     ) {
         self.divergence = divergence
         self.effectiveElapsed = effectiveElapsed
         self.elapsedMonotonic = elapsedMonotonic
         self.elapsedWallClock = elapsedWallClock
+        self.isReboot = isReboot
         self.tamperingDetected = tamperingDetected
     }
 }

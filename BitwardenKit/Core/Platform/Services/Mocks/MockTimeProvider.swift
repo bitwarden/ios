@@ -31,6 +31,7 @@ public class MockTimeProvider: TimeProvider {
         effectiveElapsed: 10,
         elapsedMonotonic: 10,
         elapsedWallClock: 10,
+        isReboot: false,
         tamperingDetected: false,
     )
 

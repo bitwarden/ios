@@ -99,6 +99,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 240,
             elapsedMonotonic: 240,
             elapsedWallClock: 240,
+            isReboot: false,
             tamperingDetected: false,
         )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -114,6 +115,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 300,
             elapsedMonotonic: 300,
             elapsedWallClock: 300,
+            isReboot: false,
             tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -128,6 +130,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 360,
             elapsedMonotonic: 360,
             elapsedWallClock: 360,
+            isReboot: false,
             tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -141,6 +144,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 999_999,
             elapsedMonotonic: 999_999,
             elapsedWallClock: 999_999,
+            isReboot: false,
             tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -195,6 +199,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 7140,
             elapsedMonotonic: 7140,
             elapsedWallClock: 7140,
+            isReboot: false,
             tamperingDetected: false,
         )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -209,6 +214,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 7200,
             elapsedMonotonic: 7200,
             elapsedWallClock: 7200,
+            isReboot: false,
             tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -223,6 +229,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 7260,
             elapsedMonotonic: 7260,
             elapsedWallClock: 7260,
+            isReboot: false,
             tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -236,6 +243,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 999_999,
             elapsedMonotonic: 999_999,
             elapsedWallClock: 999_999,
+            isReboot: false,
             tamperingDetected: false,
         )
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
@@ -281,9 +289,10 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         // calculateTamperResistantElapsedTime detects tampering (reboot)
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
             divergence: 5020,
-            effectiveElapsed: 120,
+            effectiveElapsed: -4900,
             elapsedMonotonic: -4900,
             elapsedWallClock: 120,
+            isReboot: true,
             tamperingDetected: true,
         )
 
@@ -313,6 +322,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 600,
             elapsedMonotonic: 600,
             elapsedWallClock: 120,
+            isReboot: false,
             tamperingDetected: true,
         )
 
@@ -342,6 +352,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             effectiveElapsed: 120,
             elapsedMonotonic: 120,
             elapsedWallClock: 120,
+            isReboot: false,
             tamperingDetected: false,
         )
 
@@ -349,8 +360,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertFalse(shouldTimeout)
     }
 
-    /// `.hasPassedSessionTimeout()` uses effective elapsed time which is max of both clocks.
-    func test_hasPassedSessionTimeout_effectiveElapsedUsesMax() async throws {
+    /// `.hasPassedSessionTimeout()` uses monotonic elapsed time exclusively for the timeout decision.
+    func test_hasPassedSessionTimeout_effectiveElapsedIsMonotonic() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
@@ -359,18 +370,18 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let currentMonotonicTime: TimeInterval = 1000.0
         timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
 
-        // Small divergence (within threshold), but effective elapsed (max) exceeds timeout
+        // Monotonic says 310s elapsed, wall-clock says 300s.
+        // effectiveElapsed = elapsedMonotonic = 310 ≥ 300s timeout → should lock.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -5, to: currentTime)
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 310
 
-        // No tampering detected (divergence within 15s threshold)
-        // But effective elapsed uses max(310, 300) = 310 which exceeds 300s timeout
         timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
             divergence: 10,
             effectiveElapsed: 310,
             elapsedMonotonic: 310,
             elapsedWallClock: 300,
+            isReboot: false,
             tamperingDetected: false,
         )
 
@@ -409,6 +420,75 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
         shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` forces timeout when boot epoch drift indicates
+    /// the reboot-timing attack: attacker rebooted the device and waited until
+    /// `currentMonotonic ≈ lastActiveMonotonic` so `isReboot` is false, but the boot
+    /// epoch shifts dramatically across a reboot.
+    func test_hasPassedSessionTimeout_bootEpochDrift_forcesTimeout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        // Attacker waited until currentMonotonic matches stored value → small positive elapsed
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .second, value: -10, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 10
+
+        // No per-session tampering detected: monotonic elapsed is small, no clock divergence
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 10,
+            elapsedMonotonic: 10,
+            elapsedWallClock: 10,
+            isReboot: false,
+            tamperingDetected: false,
+        )
+
+        // Stored boot epoch is from before the reboot (large shift indicates a reboot occurred)
+        let preRebootBootEpoch = currentTime.timeIntervalSinceReferenceDate - currentMonotonicTime - 86400
+        userSessionStateService.getLastActiveBootEpochReturnValue = preRebootBootEpoch
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        // Boot epoch drift (≈ 86400s) far exceeds threshold → force timeout
+        XCTAssertTrue(shouldTimeout)
+    }
+
+    /// `.hasPassedSessionTimeout()` does not force timeout when boot epoch is nil
+    /// (first session after upgrading to a build that introduced boot epoch tracking).
+    func test_hasPassedSessionTimeout_bootEpochNil_noForcedTimeout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
+
+        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
+        let currentMonotonicTime: TimeInterval = 1000.0
+        timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        // Last active 2 minutes ago, within timeout
+        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
+            .date(byAdding: .minute, value: -2, to: currentTime)
+        userSessionStateService.getLastActiveMonotonicTimeReturnValue = currentMonotonicTime - 120
+
+        timeProvider.calculateTamperResistantElapsedTimeResult = TamperResistantTimeResult(
+            divergence: 0,
+            effectiveElapsed: 120,
+            elapsedMonotonic: 120,
+            elapsedWallClock: 120,
+            isReboot: false,
+            tamperingDetected: false,
+        )
+
+        // Boot epoch not yet stored (upgrade scenario) → check must be silently skipped
+        userSessionStateService.getLastActiveBootEpochReturnValue = nil
+
+        let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
+        XCTAssertFalse(shouldTimeout)
     }
 
     /// `isPinUnlockAvailable` throws errors.
