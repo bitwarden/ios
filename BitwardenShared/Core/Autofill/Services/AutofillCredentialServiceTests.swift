@@ -2,6 +2,7 @@ import AuthenticationServices
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import Combine
 import TestHelpers
 import XCTest
 
@@ -18,6 +19,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var clientService: MockClientService!
     var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
+    var deviceAuthKeySubject = CurrentValueSubject<[String: Bool], Never>([:])
+    var deviceAuthKeyService: MockDeviceAuthKeyService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
@@ -44,6 +47,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = MockClientService()
         configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
+        deviceAuthKeyService = MockDeviceAuthKeyService()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
@@ -58,12 +62,15 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         totpService = MockTOTPService()
         vaultTimeoutService = MockVaultTimeoutService()
 
+        deviceAuthKeyService.deviceAuthKeyPublisherReturnValue = deviceAuthKeySubject.eraseToAnyPublisher()
+
         subject = DefaultAutofillCredentialService(
             appContextHelper: appContextHelper,
             cipherService: cipherService,
             clientService: clientService,
             configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
+            deviceAuthKeyService: deviceAuthKeyService,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
@@ -94,6 +101,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = nil
         configService = nil
         credentialIdentityFactory = nil
+        deviceAuthKeyService = nil
         errorReporter = nil
         eventService = nil
         fido2UserInterfaceHelperDelegate = nil
@@ -684,6 +692,88 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         }
     }
 
+    /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
+    /// succeeds with device auth key.
+    @available(iOS 18.0, *)
+    func test_provideFido2Credential_succeeds_deviceAuthKey() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.deviceAuthKey] = true
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture(
+            recordIdentifier: "dak-record-identifier",
+        )
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult(
+            credentialId: Data(repeating: 2, count: 3),
+            authenticatorData: Data(repeating: 2, count: 4),
+            signature: Data(repeating: 2, count: 5),
+            userHandle: Data(repeating: 2, count: 6),
+            selectedCredential: SelectedCredential.fixture(),
+        )
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
+            cipherId: "dak-record-identifier",
+        )
+
+        deviceAuthKeyService.assertDeviceAuthKeyReturnValue = expectedAssertionResult
+
+        clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .getAssertionMocker
+            .throwing(BitwardenTestError.example)
+
+        let result = try await subject.provideFido2Credential(
+            for: passkeyRequest,
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
+        )
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+
+        XCTAssertEqual(result.userHandle, expectedAssertionResult.userHandle)
+        XCTAssertEqual(result.relyingParty, passkeyIdentity.relyingPartyIdentifier)
+        XCTAssertEqual(result.signature, expectedAssertionResult.signature)
+        XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
+        XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
+        XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
+
+        // TODO: PM-26177 once SDK is updated for full PRF support we can include this
+        XCTAssertNil(result.extensionOutput)
+    }
+
+    /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
+    /// skips device auth key logic if the feature flag is off.
+    @available(iOS 18.0, *)
+    func test_provideFido2Credential_skips_deviceAuthKey_featureFlagOff() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.deviceAuthKey] = false
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture(
+            recordIdentifier: "dak-record-identifier",
+        )
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+        let expectedAssertionResult = GetAssertionResult(
+            credentialId: Data(repeating: 2, count: 3),
+            authenticatorData: Data(repeating: 2, count: 4),
+            signature: Data(repeating: 2, count: 5),
+            userHandle: Data(repeating: 2, count: 6),
+            selectedCredential: SelectedCredential.fixture(),
+        )
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
+            cipherId: "dak-record-identifier",
+        )
+
+        deviceAuthKeyService.assertDeviceAuthKeyReturnValue = expectedAssertionResult
+
+        _ = try await subject.provideFido2Credential(
+            for: passkeyRequest,
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate,
+        )
+
+        XCTAssertFalse(deviceAuthKeyService.getDeviceAuthKeyMetadataCalled)
+        XCTAssertFalse(deviceAuthKeyService.assertDeviceAuthKeyCalled)
+    }
+
     /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
     /// returns the credential containing the TOTP code for the specified ID.
     @available(iOS 18.0, *)
@@ -1106,6 +1196,64 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
                     ),
                 ),
             ],
+        )
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` updates the credential identity store with the device auth key
+    /// when the device auth key changes.
+    func test_syncIdentities_deviceAuthKeys() throws {
+        guard #available(iOS 17, *) else {
+            throw XCTSkip("Device auth keys are only available on iOS 17+")
+        }
+
+        configService.featureFlagsBool[.deviceAuthKey] = true
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+        identityStore.replaceCredentialIdentitiesCalled = false
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture()
+
+        deviceAuthKeySubject.send(["1": true])
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+
+        XCTAssertEqual(
+            identityStore.replaceCredentialIdentitiesIdentities,
+            [
+                .passkey(
+                    PasskeyCredentialIdentity(
+                        credentialID: Data("credential-456".utf8),
+                        recordIdentifier: "cipher-123",
+                        relyingPartyIdentifier: "bitwarden.com",
+                        userHandle: Data("user-id".utf8),
+                        userName: "user@example.com",
+                    ),
+                ),
+            ],
+        )
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` does not update the credential identity store with the device auth key
+    /// when the device auth key changes when the feature flag is off.
+    func test_syncIdentities_deviceAuthKeys_unflagged() throws {
+        guard #available(iOS 17, *) else {
+            throw XCTSkip("Device auth keys are only available on iOS 17+")
+        }
+
+        configService.featureFlagsBool[.deviceAuthKey] = false
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+        identityStore.replaceCredentialIdentitiesCalled = false
+
+        deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture()
+
+        deviceAuthKeySubject.send(["1": true])
+        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+
+        XCTAssertEqual(
+            identityStore.replaceCredentialIdentitiesIdentities,
+            [],
         )
     }
 

@@ -113,6 +113,9 @@ class DefaultAutofillCredentialService {
     /// The factory to create credential identities.
     private let credentialIdentityFactory: CredentialIdentityFactory
 
+    /// The service to use device auth key for passkey assertions.
+    private let deviceAuthKeyService: DeviceAuthKeyService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -167,6 +170,7 @@ class DefaultAutofillCredentialService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - credentialIdentityFactory: The factory to create credential identities.
+    ///   - deviceAuthKeyService: The service to use device auth key for passkey assertions.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service to manage events.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
@@ -187,6 +191,7 @@ class DefaultAutofillCredentialService {
         clientService: ClientService,
         configService: ConfigService,
         credentialIdentityFactory: CredentialIdentityFactory,
+        deviceAuthKeyService: DeviceAuthKeyService,
         errorReporter: ErrorReporter,
         eventService: EventService,
         fido2CredentialStore: Fido2CredentialStore,
@@ -205,6 +210,7 @@ class DefaultAutofillCredentialService {
         self.clientService = clientService
         self.configService = configService
         self.credentialIdentityFactory = credentialIdentityFactory
+        self.deviceAuthKeyService = deviceAuthKeyService
         self.errorReporter = errorReporter
         self.eventService = eventService
         self.fido2CredentialStore = fido2CredentialStore
@@ -228,8 +234,14 @@ class DefaultAutofillCredentialService {
         }
 
         Task {
-            for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
-                syncIdentities(vaultLockStatus: vaultLockStatus)
+            // Trigger autofill sync when vault lock status or device auth key changes.
+            for await (vaultLockStatus, _) in await self.vaultTimeoutService
+                .vaultLockStatusPublisher()
+                .combineLatest(deviceAuthKeyService.deviceAuthKeyPublisher())
+                .values {
+                syncIdentities(
+                    vaultLockStatus: vaultLockStatus,
+                )
             }
         }
     }
@@ -322,11 +334,11 @@ class DefaultAutofillCredentialService {
     }
 
     /// Replaces all credential identities in the identity store with the current list of ciphers
-    /// for the user.
+    /// and potentially the device auth key for the user.
     ///
-    /// - Parameter userId: The ID of the user whose ciphers should be added to the identity store.
+    /// - Parameter userId: The ID of the user whose ciphers and device auth key should be added to the identity store.
     ///
-    private func replaceAllIdentities(userId: String) async {
+    private func replaceAllIdentities(userId: String) async { // swiftlint:disable:this function_body_length
         guard await identityStore.state().isEnabled else { return }
 
         do {
@@ -356,9 +368,18 @@ class DefaultAutofillCredentialService {
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
 
+                var deviceAuthKeyFlightRecorderInfo = ""
+                // Register the Device Auth Key if we have one
+                if await configService.getFeatureFlag(.deviceAuthKey),
+                   let metadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
+                    identities.append(ASPasskeyCredentialIdentity(deviceAuthKeyMetadata: metadata))
+                    deviceAuthKeyFlightRecorderInfo = ", including a device auth key"
+                }
+
                 try await identityStore.replaceCredentialIdentities(identities)
                 await flightRecorder.log(
-                    "[AutofillCredentialService] Replaced \(identities.count) credential identities",
+                    // swiftlint:disable:next line_length
+                    "[AutofillCredentialService] Replaced \(identities.count) credential identities\(deviceAuthKeyFlightRecorderInfo)",
                 )
             } else {
                 let identities = decryptedCiphers.compactMap { cipher in
@@ -388,6 +409,47 @@ class DefaultAutofillCredentialService {
         }
 
         return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
+    }
+
+    /// Attempts to satisfy a passkey credential request using the device auth key instead of a vault passkey.
+    ///
+    /// - Parameters:
+    ///   - credentialIdentity: The passkey credential identity from the autofill request.
+    ///   - passkeyRequest: The system passkey credential request containing client data hash.
+    ///   - request: The FIDO2 get assertion request parameters.
+    ///   - userId: The ID of the user whose device auth key should be checked.
+    ///
+    /// - Returns: An `ASPasskeyAssertionCredential` if the request can be satisfied by the device auth key,
+    ///     or `nil` if the device auth key feature is disabled, no device auth key exists, or the requested
+    ///     credential doesn't match the device auth key.
+    ///
+    /// - Throws: An error if there's an issue retrieving the device auth key metadata or generating the assertion.
+    ///
+    @available(iOS 17.0, *)
+    private func tryUsingDeviceAuthKey(
+        credentialIdentity: ASPasskeyCredentialIdentity,
+        passkeyRequest: ASPasskeyCredentialRequest,
+        request: GetAssertionRequest,
+        userId: String,
+    ) async throws -> ASPasskeyAssertionCredential? {
+        if await configService.getFeatureFlag(.deviceAuthKey),
+           let recordIdentifier = credentialIdentity.recordIdentifier,
+           let deviceAuthKeyMetadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
+           recordIdentifier == deviceAuthKeyMetadata.cipherId {
+            // The credential request is for the device auth key, so we serve that up.
+            if let deviceResult = try await deviceAuthKeyService.assertDeviceAuthKey(
+                for: request,
+                recordIdentifier: recordIdentifier,
+                userId: userId,
+            ) {
+                return ASPasskeyAssertionCredential(
+                    assertionResult: deviceResult,
+                    rpId: credentialIdentity.relyingPartyIdentifier,
+                    clientDataHash: passkeyRequest.clientDataHash,
+                )
+            }
+        }
+        return nil
     }
 
     /// Attempts to unlock the user's vault if it can be done without user interaction (e.g. if
@@ -457,14 +519,28 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw AppProcessorError.invalidOperation
         }
 
-        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
-        guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
-            throw Fido2Error.userInteractionRequired
-        }
-
         let request = GetAssertionRequest(
             passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
         )
+
+        let userId = try await stateService.getActiveAccountId()
+
+        // Before trying to unlock the vault, see if we can satisfy the credential request with the device auth key.
+        if let credential = try await tryUsingDeviceAuthKey(
+            credentialIdentity: credentialIdentity,
+            passkeyRequest: passkeyRequest,
+            request: request,
+            userId: userId,
+        ) {
+            return credential
+        }
+
+        // If the device auth key doesn't match (or errors), then we unlock the vault to serve up a passkey from it.
+
+        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
+        guard await !vaultTimeoutService.isLocked(userId: userId) else {
+            throw Fido2Error.userInteractionRequired
+        }
 
         return try await provideFido2Credential(
             with: request,
