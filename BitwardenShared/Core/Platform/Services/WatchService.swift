@@ -38,7 +38,7 @@ class DefaultWatchService: NSObject, WatchService {
     private let organizationService: OrganizationService
 
     /// The watch connect session.
-    private var session: WCSession?
+    private var session: (any WatchSession)?
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -46,6 +46,9 @@ class DefaultWatchService: NSObject, WatchService {
     /// Keep a reference to the task used to sync the watch when the ciphers change, so that
     /// it can be cancelled and recreated when the user changes.
     private var syncCiphersTask: Task<Void, Never>?
+
+    /// The factory used to create and check support for watch sessions.
+    private let watchSessionFactory: WatchSessionFactory
 
     // MARK: Initialization
 
@@ -59,6 +62,7 @@ class DefaultWatchService: NSObject, WatchService {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - watchSessionFactory: The factory used to create and check support for watch sessions.
     ///
     init(
         cipherService: CipherService,
@@ -68,6 +72,7 @@ class DefaultWatchService: NSObject, WatchService {
         errorReporter: ErrorReporter,
         organizationService: OrganizationService,
         stateService: StateService,
+        watchSessionFactory: WatchSessionFactory = DefaultWatchSessionFactory(),
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -76,6 +81,7 @@ class DefaultWatchService: NSObject, WatchService {
         self.errorReporter = errorReporter
         self.organizationService = organizationService
         self.stateService = stateService
+        self.watchSessionFactory = watchSessionFactory
         super.init()
 
         // Listen for changes in the settings and data that would require syncing with the watch.
@@ -88,8 +94,21 @@ class DefaultWatchService: NSObject, WatchService {
 
     // MARK: Methods
 
+    /// Handle messages received from the watch to listen for requests to sync.
+    ///
+    /// - Parameter message: The message received from the watch.
+    ///
+    func handleMessage(_ message: [String: Any]) async {
+        if let actionMessage = message["actionMessage"] as? String, actionMessage == "triggerSync" {
+            let userId = try? await stateService.getActiveAccountId()
+            let shouldConnect = try? await stateService.getConnectToWatch()
+            let lastUserShouldConnectToWatch = await stateService.getLastUserShouldConnectToWatch()
+            syncWithWatch(userId: userId, shouldConnect: shouldConnect ?? lastUserShouldConnectToWatch)
+        }
+    }
+
     func isSupported() -> Bool {
-        WCSession.isSupported()
+        watchSessionFactory.isSupported()
     }
 
     // MARK: Private Methods
@@ -149,26 +168,10 @@ class DefaultWatchService: NSObject, WatchService {
         return (userData, .valid)
     }
 
-    /// Handle messages received from the watch to listen for requests to sync.
-    ///
-    /// - Parameter message: The message received from the watch.
-    ///
-    private func handleMessage(_ message: [String: Any]) {
-        if let actionMessage = message["actionMessage"] as? String,
-           actionMessage == "triggerSync" {
-            Task {
-                let userId = try? await self.stateService.getActiveAccountId()
-                let shouldConnect = try? await self.stateService.getConnectToWatch()
-                let lastUserShouldConnectToWatch = await self.stateService.getLastUserShouldConnectToWatch()
-                syncWithWatch(userId: userId, shouldConnect: shouldConnect ?? lastUserShouldConnectToWatch)
-            }
-        }
-    }
-
     /// Start the session to connect to the watch.
     private func startSession() {
-        if WCSession.isSupported(), session == nil {
-            session = WCSession.default
+        if watchSessionFactory.isSupported(), session == nil {
+            session = watchSessionFactory.makeSession()
             session?.delegate = self
         }
         if session?.activationState != .activated {
@@ -183,7 +186,7 @@ class DefaultWatchService: NSObject, WatchService {
     ///   - shouldConnect: Whether the user has toggled on the connect to watch setting.
     ///
     private func syncWithWatch(ciphers: [Cipher], shouldConnect: Bool) async throws {
-        guard WCSession.isSupported() else { return }
+        guard watchSessionFactory.isSupported() else { return }
 
         // Connect the session if necessary.
         if shouldConnect, session?.activationState != .activated {
@@ -262,7 +265,9 @@ extension DefaultWatchService: WCSessionDelegate {
 
     /// Handle messages received from the watch.
     func session(_: WCSession, didReceiveMessage message: [String: Any]) {
-        handleMessage(message)
+        Task {
+            await handleMessage(message)
+        }
     }
 
     /// Handle messages received from the watch.
@@ -271,14 +276,16 @@ extension DefaultWatchService: WCSessionDelegate {
         didReceiveMessage message: [String: Any],
         replyHandler _: @escaping ([String: Any]) -> Void,
     ) {
-        handleMessage(message)
+        Task {
+            await handleMessage(message)
+        }
     }
 }
 
-// MARK: - WCSession
+// MARK: WatchSession Extension
 
-extension WCSession {
-    /// A convenience method for supreme laziness to send a state to the watch.
+extension WatchSession {
+    /// A convenience method to send an invalid state to the watch.
     ///
     /// - Parameter state: The invalid state to send.
     ///
