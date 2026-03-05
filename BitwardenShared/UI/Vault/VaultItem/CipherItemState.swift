@@ -427,7 +427,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     ///     primarily used when cloning a cipher to provide a default name for the cloned `CipherView`
     ///     that is different from the original.
     ///   - overrideLoginItemState: An optional value to override the `CipherView`s `LoginItemState`.
-    ///     This is primarily used when cloning a cipher to exclude FIDO2 credentials.
+    ///     Used when cloning a cipher (to exclude FIDO2 credentials) and during streaming vault
+    ///     sync updates (to preserve in-memory TOTP codes that have been added via BWA import but
+    ///     not yet persisted to the server).
     ///
     private mutating func apply(
         cipherView: CipherView,

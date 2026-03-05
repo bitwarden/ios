@@ -148,7 +148,12 @@ protocol AddEditItemState: Sendable {
     /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
     /// preserve any additional UI properties on the state.
     ///
-    /// - Parameter cipherView: The updated `CipherView`.
+    /// - Parameters:
+    ///   - cipherView: The updated `CipherView`.
+    ///   - overrideLoginItemState: An optional `LoginItemState` to use in place of the one derived
+    ///     from `cipherView`. When non-nil, the provided state is used as-is, preserving any
+    ///     in-memory login properties (such as TOTP codes) that may not yet be reflected in the
+    ///     cipher view.
     ///
     mutating func update(
         from cipherView: CipherView,
@@ -157,6 +162,12 @@ protocol AddEditItemState: Sendable {
 }
 
 extension AddEditItemState {
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`, using
+    /// the cipher view's own login state (no override). This will preserve any additional UI
+    /// properties on the state.
+    ///
+    /// - Parameter cipherView: The updated `CipherView`.
+    ///
     mutating func update(from cipherView: CipherView) {
         update(
             from: cipherView,
