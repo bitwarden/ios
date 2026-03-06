@@ -16,5 +16,6 @@ STRINGS_FILES=(
 # Run each fix-localizable-strings command against every strings file.
 # Any extra arguments passed to this script (e.g. --dry-run) are forwarded as-is.
 for strings_file in "${STRINGS_FILES[@]}"; do
+    echo "${strings_file}"
     python3 "${PYTHON}" delete-duplicates --strings "${REPO_ROOT}/${strings_file}" "$@"
 done

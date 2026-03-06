@@ -34,7 +34,7 @@ def cmd_delete_duplicates(args):
     if not removed:
         print("No duplicate strings found.")
         return
-    print(f"Removed {len(removed)} duplicate occurrence(s) from {args.strings}:")
+    print(f"Removed {len(removed)} duplicate occurrence(s):")
     for key in removed:
         print(f"  {key}")
 
