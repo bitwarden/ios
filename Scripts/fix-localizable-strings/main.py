@@ -11,7 +11,6 @@ Usage:
 """
 
 import argparse
-import sys
 
 from delete_duplicate_strings import delete_duplicates, deduplicate
 
@@ -49,7 +48,7 @@ def build_parser():
     parser = argparse.ArgumentParser(
         description="Tools for maintaining Localizable.strings files."
     )
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command")
 
     dup_parser = subparsers.add_parser(
         "delete-duplicates",
@@ -78,7 +77,6 @@ def main():
         cmd_delete_duplicates(args)
     else:
         parser.print_help()
-        sys.exit(1)
 
 
 if __name__ == "__main__":

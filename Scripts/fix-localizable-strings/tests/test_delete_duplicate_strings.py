@@ -75,7 +75,7 @@ class TestDeduplicateRemovesDuplicates(unittest.TestCase):
         )
         result, removed = deduplicate(content)
         self.assertEqual(result, expected)
-        self.assertCountEqual(removed, ["alpha", "beta"])
+        self.assertEqual(removed, ["alpha", "beta"])
 
     def test_non_duplicate_entries_are_preserved(self):
         content = (
