@@ -52,6 +52,7 @@ struct SyncWithBrowserView: View {
         .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .scrollView()
+        .dismissKeyboardOnAppear()
         .task {
             await store.perform(.appeared)
         }
