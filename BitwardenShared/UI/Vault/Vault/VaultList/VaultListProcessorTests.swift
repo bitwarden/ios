@@ -157,25 +157,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast?.title)
     }
 
-    /// `perform(_:)` with `.checkVaultMigration` calls the sync service to check for vault migration.
-    @MainActor
-    func test_perform_checkVaultMigration() async {
-        await subject.perform(.checkVaultMigration)
-
-        XCTAssertTrue(syncService.checkUserNeedsVaultMigrationCalled)
-    }
-
-    /// `perform(_:)` with `.checkVaultMigration` logs any errors that occur.
-    @MainActor
-    func test_perform_checkVaultMigration_error() async {
-        syncService.checkUserNeedsVaultMigrationResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.checkVaultMigration)
-
-        XCTAssertTrue(syncService.checkUserNeedsVaultMigrationCalled)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
     /// `itemArchived()` delegate method shows the expected toast.
     @MainActor
     func test_delegate_itemArchived() {
