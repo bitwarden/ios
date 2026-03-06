@@ -127,9 +127,10 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
-        case let .migrateToMyItems(organizationId):
+        case let .migrateToMyItems(organizationId, isExtension):
             showMigrateToMyItems(
                 organizationId: organizationId,
+                isExtension: isExtension,
                 delegate: context as? MigrateToMyItemsProcessorDelegate,
             )
         case let .moveToOrganization(cipher):
@@ -400,17 +401,24 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     /// - Parameters:
     ///   - organizationId: The organization ID that requires the vault migration.
+    ///   - isExtension: Whether the view is being displayed in an app extension context.
     ///   - delegate: The delegate to notify of events.
     ///
     private func showMigrateToMyItems(
         organizationId: String,
+        isExtension: Bool,
         delegate: MigrateToMyItemsProcessorDelegate?,
     ) {
         let processor = MigrateToMyItemsProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: MigrateToMyItemsState(organizationId: organizationId),
+            state: MigrateToMyItemsState(
+                isExtension: isExtension,
+                organizationId: organizationId,
+                page: isExtension ? .extensionPrompt : .transfer,
+            ),
         )
         let view = MigrateToMyItemsView(store: Store(processor: processor))
         stackNavigator?.replace(view)
