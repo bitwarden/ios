@@ -16,27 +16,33 @@ import sys
 from delete_duplicate_strings import delete_duplicates, deduplicate
 
 
+def _pluralize(count, singular, plural):
+    return singular if count == 1 else plural
+
+
 def cmd_delete_duplicates(args):
     if args.dry_run:
         with open(args.strings, encoding="utf-8") as f:
             content = f.read()
         _, removed = deduplicate(content)
         if not removed:
-            print("No duplicate strings found.")
+            print("  No duplicate strings found.")
             return
-        print(f"Found {len(removed)} duplicate occurrence(s):")
+        noun = _pluralize(len(removed), "occurrence", "occurrences")
+        print(f"  Found {len(removed)} duplicate {noun}:")
         for key in removed:
-            print(f"  {key}")
-        print("\nDry run — no changes written.")
+            print(f"    {key}")
+        print("\n  Dry run — no changes written.")
         return
 
     removed = delete_duplicates(args.strings)
     if not removed:
-        print("No duplicate strings found.")
+        print("  No duplicate strings found.")
         return
-    print(f"Removed {len(removed)} duplicate occurrence(s):")
+    noun = _pluralize(len(removed), "occurrence", "occurrences")
+    print(f"  Removed {len(removed)} duplicate {noun}:")
     for key in removed:
-        print(f"  {key}")
+        print(f"    {key}")
 
 
 def build_parser():
