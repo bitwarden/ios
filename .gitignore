@@ -91,7 +91,7 @@ review-*.md
 # Generated files
 BitwardenKit/Core/Platform/Utilities/SDKVersionInfo.swift
 
-# Python
+# Python from https://github.com/github/gitignore/blob/main/Python.gitignore
 __pycache__/
 *.py[codz]
 *$py.class
