@@ -90,3 +90,8 @@ review-*.md
 
 # Generated files
 BitwardenKit/Core/Platform/Utilities/SDKVersionInfo.swift
+
+# Python
+__pycache__/
+*.py[codz]
+*$py.class
