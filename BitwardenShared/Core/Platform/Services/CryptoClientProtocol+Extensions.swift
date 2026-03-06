@@ -30,6 +30,7 @@ extension CryptoClientProtocol {
                 email: account.profile.email,
                 accountCryptographicState: accountCryptographicState,
                 method: method,
+                upgradeToken: nil,
             ),
         )
     }
