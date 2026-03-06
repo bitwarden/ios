@@ -51,34 +51,15 @@ class TestDeduplicateNoDuplicates(unittest.TestCase):
 class TestDeduplicateRemovesDuplicates(unittest.TestCase):
     """Cases where duplicates are removed."""
 
-    def test_removes_second_occurrence_of_duplicate_key(self):
-        content = (
-            '"greeting" = "Hello";\n'
-            '"greeting" = "Hi";\n'
-        )
-        result, removed = deduplicate(content)
-        self.assertIn('"greeting" = "Hello";', result)
-        self.assertNotIn('"greeting" = "Hi";', result)
-        self.assertEqual(removed, ["greeting"])
-
-    def test_preserves_first_occurrence_value(self):
-        content = (
-            '"key" = "first value";\n'
-            '"key" = "second value";\n'
-        )
-        result, removed = deduplicate(content)
-        self.assertIn('"key" = "first value";', result)
-        self.assertNotIn('"key" = "second value";', result)
-
     def test_removes_all_occurrences_beyond_first(self):
         content = (
             '"key" = "first";\n'
             '"key" = "second";\n'
             '"key" = "third";\n'
         )
+        expected = '"key" = "first";\n'
         result, removed = deduplicate(content)
-        self.assertEqual(result.count('"key"'), 1)
-        self.assertIn('"key" = "first";', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["key", "key"])
 
     def test_removes_multiple_distinct_duplicate_keys(self):
@@ -88,9 +69,12 @@ class TestDeduplicateRemovesDuplicates(unittest.TestCase):
             '"alpha" = "A again";\n'
             '"beta" = "B again";\n'
         )
+        expected = (
+            '"alpha" = "A";\n'
+            '"beta" = "B";\n'
+        )
         result, removed = deduplicate(content)
-        self.assertEqual(result.count('"alpha"'), 1)
-        self.assertEqual(result.count('"beta"'), 1)
+        self.assertEqual(result, expected)
         self.assertCountEqual(removed, ["alpha", "beta"])
 
     def test_non_duplicate_entries_are_preserved(self):
@@ -100,9 +84,13 @@ class TestDeduplicateRemovesDuplicates(unittest.TestCase):
             '"alpha" = "A again";\n'
             '"gamma" = "G";\n'
         )
+        expected = (
+            '"alpha" = "A";\n'
+            '"beta" = "B";\n'
+            '"gamma" = "G";\n'
+        )
         result, removed = deduplicate(content)
-        self.assertIn('"beta"', result)
-        self.assertIn('"gamma"', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["alpha"])
 
 
@@ -116,14 +104,13 @@ class TestDeduplicatePreservesFirstOccurrencePosition(unittest.TestCase):
             '"more" = "More";\n'
             '"key" = "second";\n'
         )
+        expected = (
+            '"other" = "Other";\n'
+            '"key" = "first";\n'
+            '"more" = "More";\n'
+        )
         result, _ = deduplicate(content)
-        lines = result.splitlines()
-        # "other" should come before "key", which should come before "more"
-        other_idx = next(i for i, l in enumerate(lines) if '"other"' in l)
-        key_idx = next(i for i, l in enumerate(lines) if '"key"' in l)
-        more_idx = next(i for i, l in enumerate(lines) if '"more"' in l)
-        self.assertLess(other_idx, key_idx)
-        self.assertLess(key_idx, more_idx)
+        self.assertEqual(result, expected)
 
 
 class TestDeduplicateCommentHandling(unittest.TestCase):
@@ -134,10 +121,14 @@ class TestDeduplicateCommentHandling(unittest.TestCase):
             '"greeting" = "Hello";\n'
             '/* This is a duplicate */\n'
             '"greeting" = "Hi";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '"greeting" = "Hello";\n'
+            '"farewell" = "Goodbye";\n'
         )
         result, removed = deduplicate(content)
-        self.assertNotIn("This is a duplicate", result)
-        self.assertNotIn('"greeting" = "Hi";', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["greeting"])
 
     def test_removes_line_comment_with_duplicate(self):
@@ -145,10 +136,14 @@ class TestDeduplicateCommentHandling(unittest.TestCase):
             '"greeting" = "Hello";\n'
             '// duplicate greeting\n'
             '"greeting" = "Hi";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '"greeting" = "Hello";\n'
+            '"farewell" = "Goodbye";\n'
         )
         result, removed = deduplicate(content)
-        self.assertNotIn("// duplicate greeting", result)
-        self.assertNotIn('"greeting" = "Hi";', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["greeting"])
 
     def test_removes_multi_line_block_comment_with_duplicate(self):
@@ -157,11 +152,14 @@ class TestDeduplicateCommentHandling(unittest.TestCase):
             '/* This comment\n'
             '   spans multiple lines */\n'
             '"greeting" = "Hi";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '"greeting" = "Hello";\n'
+            '"farewell" = "Goodbye";\n'
         )
         result, removed = deduplicate(content)
-        self.assertNotIn("This comment", result)
-        self.assertNotIn("spans multiple lines", result)
-        self.assertNotIn('"greeting" = "Hi";', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["greeting"])
 
     def test_removes_stacked_comments_with_duplicate(self):
@@ -170,10 +168,14 @@ class TestDeduplicateCommentHandling(unittest.TestCase):
             '/* Comment one */\n'
             '// Comment two\n'
             '"greeting" = "Hi";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '"greeting" = "Hello";\n'
+            '"farewell" = "Goodbye";\n'
         )
         result, removed = deduplicate(content)
-        self.assertNotIn("Comment one", result)
-        self.assertNotIn("Comment two", result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["greeting"])
 
     def test_preserves_comment_on_first_occurrence(self):
@@ -181,9 +183,15 @@ class TestDeduplicateCommentHandling(unittest.TestCase):
             '/* This comment belongs to the first occurrence */\n'
             '"greeting" = "Hello";\n'
             '"greeting" = "Hi";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '/* This comment belongs to the first occurrence */\n'
+            '"greeting" = "Hello";\n'
+            '"farewell" = "Goodbye";\n'
         )
         result, removed = deduplicate(content)
-        self.assertIn("This comment belongs to the first occurrence", result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["greeting"])
 
     def test_preserves_comment_on_non_duplicate_entry(self):
@@ -192,10 +200,16 @@ class TestDeduplicateCommentHandling(unittest.TestCase):
             '"greeting" = "Hi";\n'
             '/* This belongs to farewell */\n'
             '"farewell" = "Goodbye";\n'
+            '"done" = "Done";\n'
+        )
+        expected = (
+            '"greeting" = "Hello";\n'
+            '/* This belongs to farewell */\n'
+            '"farewell" = "Goodbye";\n'
+            '"done" = "Done";\n'
         )
         result, removed = deduplicate(content)
-        self.assertIn("This belongs to farewell", result)
-        self.assertIn('"farewell" = "Goodbye";', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["greeting"])
 
 
@@ -209,10 +223,16 @@ class TestDeduplicateBlankLineBreaksCommentAssociation(unittest.TestCase):
             '/* Orphaned comment */\n'
             '\n'
             '"greeting" = "Hi";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '"greeting" = "Hello";\n'
+            '/* Orphaned comment */\n'
+            '\n'
+            '"farewell" = "Goodbye";\n'
         )
         result, removed = deduplicate(content)
-        self.assertIn("Orphaned comment", result)
-        self.assertNotIn('"greeting" = "Hi";', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["greeting"])
 
     def test_blank_lines_between_entries_are_preserved(self):
@@ -235,10 +255,14 @@ class TestDeduplicateBlankLineBreaksCommentAssociation(unittest.TestCase):
             '\n'
             '"beta" = "B";\n'
         )
+        expected = (
+            '"alpha" = "A";\n'
+            '\n'
+            '\n'
+            '"beta" = "B";\n'
+        )
         result, removed = deduplicate(content)
-        self.assertIn('"alpha" = "A";', result)
-        self.assertNotIn('"alpha" = "A again";', result)
-        self.assertIn('"beta" = "B";', result)
+        self.assertEqual(result, expected)
         self.assertEqual(removed, ["alpha"])
 
 
