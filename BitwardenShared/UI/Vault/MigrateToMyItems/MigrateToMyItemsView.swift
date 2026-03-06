@@ -37,6 +37,10 @@ struct MigrateToMyItemsView: View {
                     backToolbarButton {
                         store.send(.backTapped)
                     }
+                } else if store.state.isExtension {
+                    closeToolbarButton {
+                        store.send(.closeTapped)
+                    }
                 }
             }
         }

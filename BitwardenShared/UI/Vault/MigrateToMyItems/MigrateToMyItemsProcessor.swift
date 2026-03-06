@@ -89,7 +89,8 @@ final class MigrateToMyItemsProcessor: StateProcessor<
         switch action {
         case .backTapped:
             state.page = .transfer
-        case .continueToBitwardenTapped:
+        case .closeTapped,
+             .continueToBitwardenTapped:
             appExtensionDelegate?.didCancel()
         case .declineAndLeaveTapped:
             state.page = .declineConfirmation

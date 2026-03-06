@@ -185,6 +185,16 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    // MARK: Tests - CloseTapped Action
+
+    /// `receive(_:)` with `.closeTapped` calls didCancel on the app extension delegate.
+    @MainActor
+    func test_receive_closeTapped() {
+        subject.receive(.closeTapped)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+    }
+
     // MARK: Tests - ContinueToBitwardenTapped Action
 
     /// `receive(_:)` with `.continueToBitwardenTapped` calls didCancel on the app extension delegate.
