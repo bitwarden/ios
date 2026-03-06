@@ -15,9 +15,15 @@ struct MigrateToMyItemsState: Equatable, Sendable {
 
         /// The confirmation screen shown when the user chooses to decline.
         case declineConfirmation
+
+        /// The page shown in app extensions prompting the user to complete migration in the main app.
+        case extensionPrompt
     }
 
     // MARK: Properties
+
+    /// Whether the view is being displayed in an app extension context.
+    var isExtension: Bool = false
 
     /// The ID of the organization requesting the item transfer.
     var organizationId: String
