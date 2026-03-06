@@ -125,8 +125,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showExtensionSetup(route: extensionSetupRoute)
         case let .loginRequest(loginRequest):
             showLoginRequest(loginRequest)
-        case let .migrateToMyItems(organizationId):
-            showMigrateToMyItems(organizationId: organizationId)
+        case let .migrateToMyItems(organizationId, isExtension):
+            showMigrateToMyItems(organizationId: organizationId, isExtension: isExtension)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
         case .syncWithBrowser:
@@ -284,14 +284,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// Show the migrate to my items screen.
     ///
-    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    /// - Parameters:
+    ///   - organizationId: The organization ID that requires the vault migration.
+    ///   - isExtension: Whether the view is being displayed in an app extension context.
     ///
-    private func showMigrateToMyItems(organizationId: String) {
-        // Make sure that the user is authenticated and not currently viewing the migrate to my items view.
-        // In the main app, childCoordinator is TabRoute. In extensions, it's VaultRoute.
-        guard childCoordinator is AnyCoordinator<TabRoute, Void>
-            || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
-        else { return }
+    private func showMigrateToMyItems(organizationId: String, isExtension: Bool) {
+        // Make sure that the user is not currently viewing the migrate to my items view.
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
         guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
 
@@ -300,7 +298,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         navigationController.isModalInPresentation = true
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .migrateToMyItems(organizationId: organizationId), context: self)
+        coordinator.navigate(
+            to: .migrateToMyItems(organizationId: organizationId, isExtension: isExtension),
+            context: self,
+        )
 
         // Present the migrate to my items view.
         rootNavigator?.rootViewController?.topmostViewController().present(
@@ -393,13 +394,21 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
         switch appContext {
         case .appExtension:
-            guard let appExtensionDelegate else {
+            // Navigate to vault first to set up the childCoordinator.
+            if let appExtensionDelegate, let route = appExtensionDelegate.authCompletionRoute {
+                navigate(to: route)
+            } else {
                 navigate(to: .vault(.autofillList))
-                return
             }
 
-            guard let route = appExtensionDelegate.authCompletionRoute else { return }
-            navigate(to: route)
+            // Check for pending vault migration after setting up the vault coordinator.
+            Task {
+                if let organizationId = try? await services.syncService.organizationIdRequiringVaultMigration() {
+                    await MainActor.run {
+                        navigate(to: .migrateToMyItems(organizationId: organizationId, isExtension: true))
+                    }
+                }
+            }
         case .mainApp:
             showTab(route: .vault(.list))
 
@@ -418,6 +427,15 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             if let authCompletionRoute {
                 navigate(to: authCompletionRoute)
                 self.authCompletionRoute = nil
+            }
+
+            // Check for pending vault migration after unlock.
+            Task {
+                if let organizationId = try? await services.syncService.organizationIdRequiringVaultMigration() {
+                    await MainActor.run {
+                        navigate(to: .migrateToMyItems(organizationId: organizationId))
+                    }
+                }
             }
         }
     }

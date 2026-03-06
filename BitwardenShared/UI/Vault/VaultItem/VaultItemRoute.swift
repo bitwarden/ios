@@ -72,9 +72,11 @@ enum VaultItemRoute: Equatable, Hashable {
 
     /// A route to the migrate to my items screen.
     ///
-    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    /// - Parameters:
+    ///   - organizationId: The organization ID that requires the vault migration.
+    ///   - isExtension: Whether the view is being displayed in an app extension context.
     ///
-    case migrateToMyItems(organizationId: String)
+    case migrateToMyItems(organizationId: String, isExtension: Bool = false)
 
     /// A route to the move to organization screen.
     case moveToOrganization(CipherView)

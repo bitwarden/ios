@@ -1526,13 +1526,13 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         subject.migrateVaultToMyItems(organizationId: "org-123")
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
+        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123", isExtension: false)])
     }
 
-    /// `migrateVaultToMyItems(organizationId:)` shows a warning alert instead of the migration
-    /// screen when running in an app extension, and closes the extension when OK is tapped.
+    /// `migrateVaultToMyItems(organizationId:)` navigates to the migrate to my items route
+    /// with `isExtension: true` when running in an app extension.
     @MainActor
-    func test_migrateVaultToMyItems_inAppExtension() async throws {
+    func test_migrateVaultToMyItems_inAppExtension() {
         let delegate = MockAppExtensionDelegate()
         delegate.isInAppExtension = true
         subject = AppProcessor(
@@ -1546,20 +1546,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         subject.migrateVaultToMyItems(organizationId: "org-123")
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertTrue(coordinator.routes.isEmpty)
-
-        // Verify alert is shown with correct content.
-        XCTAssertEqual(coordinator.alertShown.count, 1)
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert.title, Localizations.itemTransfer)
-        XCTAssertEqual(alert.message, Localizations.itemTransferRequiresMainAppDescriptionLong)
-        XCTAssertEqual(alert.alertActions.count, 1)
-        XCTAssertEqual(alert.alertActions.first?.title, Localizations.ok)
-
-        // Verify tapping OK closes the extension.
-        XCTAssertFalse(delegate.didCancelCalled)
-        let okAction = try XCTUnwrap(alert.alertActions.first)
-        await okAction.handler?(okAction, [])
-        XCTAssertTrue(delegate.didCancelCalled)
+        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123", isExtension: true)])
     }
 }

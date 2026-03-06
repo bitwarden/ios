@@ -172,63 +172,6 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(syncServiceDelegate.migrateVaultToMyItemsOrganizationId, "org-123")
     }
 
-    /// `checkUserNeedsVaultMigration()` can be called directly and triggers migration when conditions are met.
-    @MainActor
-    func test_checkUserNeedsVaultMigration_direct_allConditionsMet() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
-        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
-        cipherService.hasPersonalCiphersResult = .success(true)
-
-        try await subject.checkUserNeedsVaultMigration()
-
-        XCTAssertTrue(cipherService.hasPersonalCiphersCalled)
-        XCTAssertTrue(syncServiceDelegate.migrateVaultToMyItemsCalled)
-        XCTAssertEqual(syncServiceDelegate.migrateVaultToMyItemsOrganizationId, "org-123")
-    }
-
-    /// `checkUserNeedsVaultMigration()` does not call delegate when feature flag is disabled (direct call).
-    @MainActor
-    func test_checkUserNeedsVaultMigration_direct_featureFlagDisabled() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.migrateMyVaultToMyItems] = false
-        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
-        cipherService.hasPersonalCiphersResult = .success(true)
-
-        try await subject.checkUserNeedsVaultMigration()
-
-        XCTAssertFalse(cipherService.hasPersonalCiphersCalled)
-        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
-    }
-
-    /// `checkUserNeedsVaultMigration()` does not call delegate when no organization applies policy (direct call).
-    @MainActor
-    func test_checkUserNeedsVaultMigration_direct_noOrganization() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
-        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = nil
-        cipherService.hasPersonalCiphersResult = .success(true)
-
-        try await subject.checkUserNeedsVaultMigration()
-
-        XCTAssertFalse(cipherService.hasPersonalCiphersCalled)
-        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
-    }
-
-    /// `checkUserNeedsVaultMigration()` does not call delegate when user has no personal vault items (direct call).
-    @MainActor
-    func test_checkUserNeedsVaultMigration_direct_noPersonalItems() async throws {
-        stateService.activeAccount = .fixture()
-        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
-        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
-        cipherService.hasPersonalCiphersResult = .success(false)
-
-        try await subject.checkUserNeedsVaultMigration()
-
-        XCTAssertTrue(cipherService.hasPersonalCiphersCalled)
-        XCTAssertFalse(syncServiceDelegate.migrateVaultToMyItemsCalled)
-    }
-
     /// `checkUserNeedsVaultMigration()` does not call delegate when feature flag is disabled.
     @MainActor
     func test_checkUserNeedsVaultMigration_featureFlagDisabled() async throws {
