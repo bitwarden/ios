@@ -289,7 +289,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     ///   - isExtension: Whether the view is being displayed in an app extension context.
     ///
     private func showMigrateToMyItems(organizationId: String, isExtension: Bool) {
-        // Make sure that the user is authenticated and not currently viewing the migrate to my items view.
+        // Make sure that the user is not currently viewing the migrate to my items view.
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
         guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
 
