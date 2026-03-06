@@ -57,7 +57,7 @@ def deduplicate(content: str) -> tuple[str, list[str]]:
             continue
 
         # --- Block comment start (does not end on the same line) ---
-        if "/*" in stripped and "*/" not in stripped:
+        if stripped.startswith("/*") and "*/" not in stripped:
             in_block_comment = True
             pending.append(line)
             continue
