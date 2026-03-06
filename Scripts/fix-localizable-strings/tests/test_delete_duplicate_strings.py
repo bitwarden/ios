@@ -300,6 +300,7 @@ class TestDeleteDuplicatesFileIO(unittest.TestCase):
         )
         f.write(content)
         f.close()
+        self.addCleanup(os.unlink, f.name)
         return f.name
 
     def test_modifies_file_in_place(self):
@@ -308,13 +309,11 @@ class TestDeleteDuplicatesFileIO(unittest.TestCase):
         with open(path) as f:
             result = f.read()
         self.assertNotIn('"a" = "A again";', result)
-        os.unlink(path)
 
     def test_returns_removed_keys(self):
         path = self._write('"a" = "A";\n"a" = "A again";\n')
         removed = delete_duplicates(path)
         self.assertEqual(removed, ["a"])
-        os.unlink(path)
 
     def test_does_not_write_file_when_no_duplicates(self):
         path = self._write('"a" = "A";\n')
@@ -323,13 +322,11 @@ class TestDeleteDuplicatesFileIO(unittest.TestCase):
         mtime_after = os.path.getmtime(path)
         self.assertEqual(removed, [])
         self.assertEqual(mtime_before, mtime_after)
-        os.unlink(path)
 
     def test_returns_empty_list_when_no_duplicates(self):
         path = self._write('"a" = "A";\n"b" = "B";\n')
         removed = delete_duplicates(path)
         self.assertEqual(removed, [])
-        os.unlink(path)
 
 
 if __name__ == "__main__":
