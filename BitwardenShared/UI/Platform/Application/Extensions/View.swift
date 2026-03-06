@@ -2,6 +2,27 @@ import BitwardenKit
 import BitwardenResources
 import SwiftUI
 
+// MARK: - KeyboardDismissOnAppearView
+
+/// A transparent UIViewRepresentable that dismisses the keyboard when it appears.
+/// Uses `window?.endEditing(true)` to avoid `UIApplication.shared`, making it
+/// safe for use in both app targets and app extensions.
+///
+private struct KeyboardDismissOnAppearView: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView(frame: .zero)
+        view.backgroundColor = .clear
+        DispatchQueue.main.async {
+            view.window?.endEditing(true)
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+// MARK: - View
+
 /// Helper functions extended off the `View` protocol.
 ///
 extension View {
@@ -153,5 +174,12 @@ extension View {
         )
         .padding([.trailing, .bottom], 16)
         .hidden(hidden)
+    }
+
+    /// Dismisses the keyboard when the view appears.
+    /// Safe for use in both app targets and app extensions.
+    ///
+    func dismissKeyboardOnAppear() -> some View {
+        background(KeyboardDismissOnAppearView())
     }
 }
