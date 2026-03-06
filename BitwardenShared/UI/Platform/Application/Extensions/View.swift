@@ -135,6 +135,13 @@ extension View {
         .hidden(hidden)
     }
 
+    /// Dismisses the keyboard when the view appears.
+    /// Safe for use in both app targets and app extensions.
+    ///
+    func dismissKeyboardOnAppear() -> some View {
+        background(KeyboardDismissOnAppearView())
+    }
+
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
     /// - Parameters:
@@ -174,12 +181,5 @@ extension View {
         )
         .padding([.trailing, .bottom], 16)
         .hidden(hidden)
-    }
-
-    /// Dismisses the keyboard when the view appears.
-    /// Safe for use in both app targets and app extensions.
-    ///
-    func dismissKeyboardOnAppear() -> some View {
-        background(KeyboardDismissOnAppearView())
     }
 }
