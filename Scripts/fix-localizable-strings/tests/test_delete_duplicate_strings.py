@@ -48,6 +48,41 @@ class TestDeduplicateNoDuplicates(unittest.TestCase):
         self.assertEqual(removed, [])
 
 
+class TestDeduplicateEntryValueContainingCommentSyntax(unittest.TestCase):
+    """Entries whose values contain comment-like syntax must not be misclassified
+    as comments, which would suppress deduplication of subsequent entries."""
+
+    def test_duplicate_after_entry_with_block_comment_syntax_in_value(self):
+        content = (
+            '"key" = "Use /* to start a block comment";\n'
+            '"key" = "duplicate";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '"key" = "Use /* to start a block comment";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        result, removed = deduplicate(content)
+        self.assertEqual(result, expected)
+        self.assertEqual(removed, ["key"])
+
+    def test_closing_comment_syntax_in_later_value_does_not_corrupt_output(self):
+        content = (
+            '"key" = "Use /* to start a block comment";\n'
+            '"key" = "duplicate";\n'
+            '"other" = "This */ ends nothing";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        expected = (
+            '"key" = "Use /* to start a block comment";\n'
+            '"other" = "This */ ends nothing";\n'
+            '"farewell" = "Goodbye";\n'
+        )
+        result, removed = deduplicate(content)
+        self.assertEqual(result, expected)
+        self.assertEqual(removed, ["key"])
+
+
 class TestDeduplicateRemovesDuplicates(unittest.TestCase):
     """Cases where duplicates are removed."""
 
