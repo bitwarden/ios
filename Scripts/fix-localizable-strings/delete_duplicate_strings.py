@@ -23,12 +23,13 @@ def deduplicate(content: str) -> tuple[str, list[str]]:
     immediately preceding a removed duplicate — with no intervening blank lines
     — is also removed.
 
-    - Parameters:
-        - content: The full text of the `.strings` file.
+    Args:
+        content: The full text of the `.strings` file.
 
-    - Returns: A tuple of ``(new_content, removed_keys)`` where ``new_content``
-      is the deduplicated file text and ``removed_keys`` is a list of keys that
-      were removed, in the order they were encountered.
+    Returns:
+        A tuple of ``(new_content, removed_keys)`` where ``new_content`` is the
+        deduplicated file text and ``removed_keys`` is a list of keys that were
+        removed, in the order they were encountered.
     """
     lines = content.splitlines(keepends=True)
     output: list[str] = []
@@ -97,11 +98,12 @@ def deduplicate(content: str) -> tuple[str, list[str]]:
 def delete_duplicates(strings_path: str) -> list[str]:
     """Remove duplicate entries from a Localizable.strings file in place.
 
-    - Parameters:
-        - strings_path: Path to the `.strings` file to process.
+    Args:
+        strings_path: Path to the `.strings` file to process.
 
-    - Returns: A list of keys that were removed, in the order they were
-      encountered. Returns an empty list if no duplicates were found.
+    Returns:
+        A list of keys that were removed, in the order they were encountered.
+        Returns an empty list if no duplicates were found.
     """
     with open(strings_path, encoding="utf-8") as f:
         content = f.read()

@@ -11,15 +11,16 @@ Usage:
 """
 
 import argparse
+import sys
 
 from delete_duplicate_strings import delete_duplicates, deduplicate
 
 
-def _pluralize(count, singular, plural):
+def _pluralize(count: int, singular: str, plural: str) -> str:
     return singular if count == 1 else plural
 
 
-def cmd_delete_duplicates(args):
+def cmd_delete_duplicates(args: argparse.Namespace) -> None:
     if args.dry_run:
         with open(args.strings, encoding="utf-8") as f:
             content = f.read()
@@ -77,6 +78,7 @@ def main():
         cmd_delete_duplicates(args)
     else:
         parser.print_help()
+        sys.exit(1)
 
 
 if __name__ == "__main__":
