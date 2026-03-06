@@ -3,9 +3,6 @@ import Combine
 @testable import BitwardenShared
 
 class MockSyncService: SyncService {
-    var checkUserNeedsVaultMigrationCalled = false
-    var checkUserNeedsVaultMigrationResult: Result<Void, Error> = .success(())
-
     var delegate: SyncServiceDelegate?
 
     var deleteCipherData: SyncCipherNotification?
@@ -37,11 +34,6 @@ class MockSyncService: SyncService {
 
     var organizationIdRequiringVaultMigrationCalled = false
     var organizationIdRequiringVaultMigrationResult: Result<String?, Error> = .success(nil)
-
-    func checkUserNeedsVaultMigration() async throws {
-        checkUserNeedsVaultMigrationCalled = true
-        try checkUserNeedsVaultMigrationResult.get()
-    }
 
     func deleteCipher(data: SyncCipherNotification) async throws {
         deleteCipherData = data
