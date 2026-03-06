@@ -3,12 +3,10 @@ import Combine
 @testable import BitwardenShared
 
 class MockSyncService: SyncService {
-    weak var delegate: SyncServiceDelegate?
-    var didFetchSync = false
-    var fetchSyncForceSync: Bool?
-    var fetchSyncHandler: (() -> Void)?
-    var fetchSyncIsPeriodic: Bool?
-    var fetchSyncResult: Result<Void, Error> = .success(())
+    var checkUserNeedsVaultMigrationCalled = false
+    var checkUserNeedsVaultMigrationResult: Result<Void, Error> = .success(())
+
+    var delegate: SyncServiceDelegate?
 
     var deleteCipherData: SyncCipherNotification?
     var deleteCipherResult: Result<Void, Error> = .success(())
@@ -19,6 +17,12 @@ class MockSyncService: SyncService {
     var deleteSendData: SyncSendNotification?
     var deleteSendResult: Result<Void, Error> = .success(())
 
+    var didFetchSync = false
+    var fetchSyncForceSync: Bool?
+    var fetchSyncHandler: (() -> Void)?
+    var fetchSyncIsPeriodic: Bool?
+    var fetchSyncResult: Result<Void, Error> = .success(())
+
     var fetchUpsertSyncCipherData: SyncCipherNotification?
     var fetchUpsertSyncCipherResult: Result<Void, Error> = .success(())
 
@@ -28,18 +32,15 @@ class MockSyncService: SyncService {
     var fetchUpsertSyncSendData: SyncSendNotification?
     var fetchUpsertSyncSendResult: Result<Void, Error> = .success(())
 
-    var needsSyncResult: Result<Bool, Error> = .success(false)
     var needsSyncOnlyCheckLocalData: Bool = false
+    var needsSyncResult: Result<Bool, Error> = .success(false)
 
-    var checkUserNeedsVaultMigrationCalled = false
-    var checkUserNeedsVaultMigrationResult: Result<Void, Error> = .success(())
+    var organizationIdRequiringVaultMigrationCalled = false
+    var organizationIdRequiringVaultMigrationResult: Result<String?, Error> = .success(nil)
 
-    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
-        didFetchSync = true
-        fetchSyncForceSync = forceSync
-        fetchSyncIsPeriodic = isPeriodic
-        fetchSyncHandler?()
-        try fetchSyncResult.get()
+    func checkUserNeedsVaultMigration() async throws {
+        checkUserNeedsVaultMigrationCalled = true
+        try checkUserNeedsVaultMigrationResult.get()
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {
@@ -55,6 +56,14 @@ class MockSyncService: SyncService {
     func deleteSend(data: SyncSendNotification) async throws {
         deleteSendData = data
         return try deleteSendResult.get()
+    }
+
+    func fetchSync(forceSync: Bool, isPeriodic: Bool) async throws {
+        didFetchSync = true
+        fetchSyncForceSync = forceSync
+        fetchSyncIsPeriodic = isPeriodic
+        fetchSyncHandler?()
+        try fetchSyncResult.get()
     }
 
     func fetchUpsertSyncCipher(data: SyncCipherNotification) async throws {
@@ -77,8 +86,8 @@ class MockSyncService: SyncService {
         return try needsSyncResult.get()
     }
 
-    func checkUserNeedsVaultMigration() async throws {
-        checkUserNeedsVaultMigrationCalled = true
-        try checkUserNeedsVaultMigrationResult.get()
+    func organizationIdRequiringVaultMigration() async throws -> String? {
+        organizationIdRequiringVaultMigrationCalled = true
+        return try organizationIdRequiringVaultMigrationResult.get()
     }
 }
