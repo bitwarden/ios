@@ -53,7 +53,7 @@ struct SSOCookieVendorResponseHandler: ResponseHandler {
         throw ServerError.error(
             errorResponse: ErrorResponseModel(
                 validationErrors: nil,
-                message: Localizations.tryAgain,
+                message: Localizations.yourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain,
             ),
         )
     }
