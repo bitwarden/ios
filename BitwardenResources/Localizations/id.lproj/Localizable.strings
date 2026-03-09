@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Sandi utama tidak valid. Coba Lagi.";
 "InvalidPIN" = "PIN Tidak Valid. Coba Lagi.";
 "Launch" = "Luncurkan";
+"LaunchBrowser" = "Buka browser";
 "LogIn" = "Masuk";
 "LoginCredentials" = "Kredensial login";
 "LogInNoun" = "Masuk";
@@ -647,7 +648,7 @@
 "SpecialCharacters" = "Karakter spesial (!@#$%^&*)";
 "TapToGoBack" = "Ketuk untuk kembali";
 "PasswordIsVisibleTapToHide" = "Kata sandi terlihat, ketuk untuk menyembunyikannya.";
-"PasswordIsNotVisibleTapToShow" = "Kata sandi tidak terlihat, ketuk untuk menampilkannya.";
+"PasswordIsNotVisibleTapToShow" = "Sandi tidak terlihat, ketuk untuk menampilkannya.";
 "FilterByVault" = "Saring item berdasarkan brankas";
 "AllVaults" = "Semua brankas";
 "Vaults" = "Brankas";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Lanjut ke Kebijakan Privasi?";
 "ContinueToAppStore" = "Lanjut ke app store?";
 "ContinueToDeviceSettings" = "Lanjut ke Setelan perangkat?";
+"ContinueWithoutSyncing" = "Lanjutkan tanpa sinkronisasi";
 "TwoStepLoginDescriptionLong" = "Amankan akun Anda dengan menyiapkan login dua langkah di apl web Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Anda dapat mengubah sandi utama di apl web Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Anda bisa mengimpor data ke brankas Anda di %1$@.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Isi otomatis sandi";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Atur isi otomatis di semua perangkat Anda untuk login dengan sekali ketuk di mana saja.";
 "GotIt" = "Dimengerti";
+"ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "Hasilkan crash";
 "GenerateErrorReport" = "Buat laporan kesalahan";
 "GenerateSdkErrorReport" = "Buat laporan kesalahan SDK";
@@ -1239,7 +1242,9 @@
 "Skip" = "Tewati";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Simpan semua login Anda dan sinkronisasi kode verifikasi langsung dengan apl Authenticator.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "Sinkronkan dengan aplikasi Bitwarden";
+"SyncWithBrowser" = "Sinkron dengan browser";
 "SyncWithTheBitwardenApp" = "Sinkron dengan aplikasi Bitwarden";
 "TakeMeToTheAppSettings" = "Bawa saya ke setelan apl";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Format data yang diberikan tidak sesuai dengan yang diharapkan. Periksa file Anda dan pastikan jenis data yang benar digunakan.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "Keluar %1$@";
 "HowToManageMyVault" = "Bagaimana cara mengelola Brankas Saya";
 "YouLeftTheOrganization" = "Anda telah keluar dari organisasi";
+"ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Pengaturan ini dikelola oleh organisasi Anda.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Organisasi Anda telah menetapkan batas waktu sesi bawaan menjadi %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Organisasi Anda telah menetapkan batas waktu sesi maksimum ke %1$@.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Orang tertentu";
 "WhoCanView" = "Siapa yang dapat melihat";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Berbagi dengan orang tertentu adalah fitur Premium. Paket Anda saat ini tidak termasuk akses ke fitur ini.";
+"SsoCookiesCleared" = "SSO cookies cleared";

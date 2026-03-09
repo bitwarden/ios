@@ -2070,9 +2070,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let user1 = appSettingsStore.state?.accounts["1"]
         XCTAssertEqual(user1?.profile.userDecryptionOptions?.masterPasswordUnlock, masterPasswordUnlockUser1)
+        XCTAssertEqual(user1?.profile.kdfType, .pbkdf2sha256)
+        XCTAssertEqual(user1?.profile.kdfIterations, 600_000)
+        XCTAssertNil(user1?.profile.kdfMemory)
+        XCTAssertNil(user1?.profile.kdfParallelism)
 
         let user2 = appSettingsStore.state?.accounts["2"]
         XCTAssertEqual(user2?.profile.userDecryptionOptions?.masterPasswordUnlock, masterPasswordUnlockUser2)
+        XCTAssertEqual(user2?.profile.kdfType, .argon2id)
+        XCTAssertEqual(user2?.profile.kdfIterations, 3)
+        XCTAssertEqual(user2?.profile.kdfMemory, 64)
+        XCTAssertEqual(user2?.profile.kdfParallelism, 4)
         // Ensure any existing other decryption options aren't affected.
         XCTAssertEqual(
             user2?.profile.userDecryptionOptions,

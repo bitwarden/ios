@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Neispravna glavna lozinka. Pokušaj ponovo.";
 "InvalidPIN" = "Neispravan PIN. Pokušaj ponovo.";
 "Launch" = "Otvori web stranicu";
+"LaunchBrowser" = "Launch browser";
 "LogIn" = "Prijavi se";
 "LoginCredentials" = "Vjerodajnice za prijavu";
 "LogInNoun" = "Prijava";
@@ -837,6 +838,7 @@
 "ContinueToPrivacyPolicy" = "Nastavi na politiku privatnosti?";
 "ContinueToAppStore" = "Nastavi u trgovinu aplikacijama?";
 "ContinueToDeviceSettings" = "Nastavi na postavke uređaja?";
+"ContinueWithoutSyncing" = "Continue without syncing";
 "TwoStepLoginDescriptionLong" = "Učini svoj račun sigurnijim uključivanjem prijave dvofaktorskom autentifikacijom u Bitwarden web aplikaciji.";
 "ChangeMasterPasswordDescriptionLong" = "Svoju lozinku možeš promijeniti u Bitwarden web aplikaciji.";
 "YouCanImportDataToYourVaultOnX" = "Svoje podatke možeš uvesti u trezor na %1$@.";
@@ -1044,6 +1046,7 @@
 "AutofillPasswords" = "Auto-ispuni lozinke";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Na svim svojim uređajima uključi auto-ispunu za prijavu jednim dodirom.";
 "GotIt" = "U redu";
+"ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "Generiraj crash";
 "GenerateErrorReport" = "Generiraj zapisnik o greškama";
 "GenerateSdkErrorReport" = "Generate SDK error report";
@@ -1240,7 +1243,9 @@
 "Skip" = "Preskoči";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Pohrani sve svoje prijave i sinkroniziraj kôdove za provjeru izravno s aplikacijom Autentifikator.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "Sinkroniziraj s Bitwarden aplikacijom";
+"SyncWithBrowser" = "Sync with browser";
 "SyncWithTheBitwardenApp" = "Sinkroniziraj s Bitwardenom";
 "TakeMeToTheAppSettings" = "U postavke aplikacije";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Navedeni format podataka ne odgovara očekivanom. Provjeri svoju datoteku i osiguraj da se koriste ispravne vrste podataka.";
@@ -1283,6 +1288,7 @@
 "LeaveX" = "Napusti %1$@";
 "HowToManageMyVault" = "How to manage My vault";
 "YouLeftTheOrganization" = "You left the organization";
+"ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Ovom postavkom upravlja tvoja organizacija.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Tvoja organizacaija je postavila zadani istek sesije na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Tvoja organizacaija je postavila zadani istek sesije na %1$@.";
@@ -1316,3 +1322,4 @@
 "SpecificPeople" = "Specific people";
 "WhoCanView" = "Who can view";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"SsoCookiesCleared" = "SSO cookies cleared";

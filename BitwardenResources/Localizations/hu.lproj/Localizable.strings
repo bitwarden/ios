@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "A mesterjelszó érvénytelen. Próbáljuk újra.";
 "InvalidPIN" = "A pinkód érvénytelen. Próbáljuk újra.";
 "Launch" = "Indítás";
+"LaunchBrowser" = "Böngésző indítása";
 "LogIn" = "Belépés";
 "LoginCredentials" = "Bejelentkezési hitelesítések";
 "LogInNoun" = "Bejelentkezés";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Tovább az adatvédelmi szabályzathoz?";
 "ContinueToAppStore" = "Tovább az alkalmazásboltba?";
 "ContinueToDeviceSettings" = "Továbblépés az eszköz beállításokhoz?";
+"ContinueWithoutSyncing" = "Folytatás szinkronizálás nélkül";
 "TwoStepLoginDescriptionLong" = "Tegyük biztonságosabbá a fiókot a kétlépcsős bejelentkezés beállításával a Bitwarden webalkalmazásban.";
 "ChangeMasterPasswordDescriptionLong" = "A mesterjelszó a Bitwarden webalkalmazásban módosítható.";
 "YouCanImportDataToYourVaultOnX" = "Adatokat importálhatunk a széfbe itt: %1$@.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Jelszavak automata-kitöltése";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Állítsa be az összes eszközén az automata-kitöltést, hogy egy koppintással be tudjon lépni bárhol.";
 "GotIt" = "Rendben";
+"ClearSsoCookies" = "SSO sütik törlése";
 "GenerateCrash" = "Összeomlás generálás";
 "GenerateErrorReport" = "Hibajelentés generálása";
 "GenerateSdkErrorReport" = "SDK hibajelentés generálása";
@@ -1239,7 +1242,9 @@
 "Skip" = "Kihagyás";
 "Steam" = "Folyam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Tároljuk az összes bejelentkezést és szinkronizáljuk az ellenőrző kódokat közvetlenül a Hitelesítő alkalmazással.";
+"SyncWithBrowserDescriptionLong" = "%1$@ csatlakozáshoz szinkronizáljuk az alapértelmezett böngészőt a Bitwarden mobilalkalmazással. A böngésző megnyitásakor fejezzük be a bejelentkezést, ha a rendszer azt kéri. A szinkronizálás befejezése után visszakerülünk ebbe az alkalmazásba.";
 "SyncWithBitwardenApp" = "Szinkronizálás a Bitwarden alkalmazással";
+"SyncWithBrowser" = "Szinkronizálás böngészővel";
 "SyncWithTheBitwardenApp" = "Szinkronizálás a Bitwarden alkalmazással";
 "TakeMeToTheAppSettings" = "Ugrás az alkalmazás beállításaihoz";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "A megadott adat formátum nem egyezik a várttal. Ellenőrizzük a fájlokat és győződjünk meg arról, hogy a megfelelő adat típusokat használjuk.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "%1$@ elhagyása";
 "HowToManageMyVault" = "Hogyan kezeljük a saját széfet";
 "YouLeftTheOrganization" = "Megtörtént a szervezet elhagyása.";
+"ItemTransferRequiresMainAppDescriptionLong" = "Egy szervezet a személyes elemek tulajdonjogát kéri. Nyissuk meg a fő Bitwarden alkalmazást a kérés áttekintéséhez és befejezéséhez.";
 "ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet lezeli.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Adott személyek";
 "WhoCanView" = "Ki láthatja";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
+"SsoCookiesCleared" = "Az SSO sütik törlésre kerültek.";
