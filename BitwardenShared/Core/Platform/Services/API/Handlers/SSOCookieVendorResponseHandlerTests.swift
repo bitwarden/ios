@@ -153,7 +153,10 @@ class SSOCookieVendorResponseHandlerTests: BitwardenTestCase {
             XCTFail("Expected ServerError.error, got \(String(describing: thrownError))")
             return
         }
-        XCTAssertEqual(errorResponse.message, Localizations.tryAgain)
+        XCTAssertEqual(
+            errorResponse.message,
+            Localizations.yourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain,
+        )
     }
 
     /// `handle(_:for:retryWith:)` throws the underlying error when `acquireCookie` fails with
