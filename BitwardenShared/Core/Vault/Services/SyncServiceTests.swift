@@ -8,8 +8,8 @@ import XCTest
 
 import BitwardenSdk
 
-// swiftlint:disable:next type_body_length
-class SyncServiceTests: BitwardenTestCase {
+@MainActor
+class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appContextHelper: MockAppContextHelper!
@@ -86,8 +86,8 @@ class SyncServiceTests: BitwardenTestCase {
         subject.delegate = syncServiceDelegate
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         appContextHelper = nil
         cipherService = nil
