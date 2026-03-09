@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Neplatné hlavné heslo. Skúste to znova.";
 "InvalidPIN" = "Neplatný PIN kód. Skúste znova.";
 "Launch" = "Spustiť";
+"LaunchBrowser" = "Spustiť prehliadač";
 "LogIn" = "Prihlásiť sa";
 "LoginCredentials" = "Prihlasovacie údaje";
 "LogInNoun" = "Prihlásenie";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Pokračovať na zásady ochrany osobných údajov?";
 "ContinueToAppStore" = "Pokračovať v obchode s aplikáciami?";
 "ContinueToDeviceSettings" = "Pokračovať do nastavení zariadenia?";
+"ContinueWithoutSyncing" = "Pokračovať bez synchronizácie";
 "TwoStepLoginDescriptionLong" = "Zabezpečte svoj účet nastavením dvojstupňového prihlasovania vo webovej aplikácii Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Hlavné heslo si môžete zmeniť vo webovej aplikácii Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Údaje do trezora môžete importovať na stránke %1$@.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Automatické vypĺňanie hesiel";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte si automatické vypĺňanie na všetkých svojich zariadeniach a prihláste sa jediným ťuknutím kdekoľvek.";
 "GotIt" = "Chápem";
+"ClearSsoCookies" = "Vymazať cookies SSO";
 "GenerateCrash" = "Generovať zlyhanie";
 "GenerateErrorReport" = "Generovať správu o zlyhaní";
 "GenerateSdkErrorReport" = "Generovať správu o zlyhaní SDK";
@@ -1239,7 +1242,9 @@
 "Skip" = "Preskočiť";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Ukladajte všetky svoje prihlasovacie údaje a synchronizujte overovacie kódy priamo s aplikáciou Authenticator.";
+"SyncWithBrowserDescriptionLong" = "Ak sa chcete pripojiť k %1$@, synchronizujte svoj predvolený prehliadač s mobilnou aplikáciou Bitwarden. Po otvorení prehliadača sa prihláste, ak budete vyzvaní. Po dokončení synchronizácie budete presmerovaný do tejto aplikácie.";
 "SyncWithBitwardenApp" = "Synchronizovať s apkou Bitwarden";
+"SyncWithBrowser" = "Synchronizácia s prehliadačom";
 "SyncWithTheBitwardenApp" = "Synchronizovať s apkou Bitwarden";
 "TakeMeToTheAppSettings" = "Prejsť do nastavení apky";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Poskytnutý formát údajov nezodpovedá očakávaniam. Skontrolujte súbor a uistite sa, že sú použité správne typy údajov.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "Opustiť %1$@";
 "HowToManageMyVault" = "Ako spravovať môj trezor";
 "YouLeftTheOrganization" = "Opustili ste organizáciu";
+"ItemTransferRequiresMainAppDescriptionLong" = "Organizácia žiada o vlastníctvo vašich osobných položiek. Otvorte hlavnú aplikáciu Bitwarden, aby ste túto žiadosť skontrolovali a dokončili.";
 "ThisSettingIsManagedByYourOrganization" = "Toto nastavenie spravuje vaša organizácia.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaša organizácia nastavila predvolený časový limit relácie na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Konkrétne osoby";
 "WhoCanView" = "Kto môže zobraziť";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Zdieľanie s konkrétnymi osobami je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
+"SsoCookiesCleared" = "Cookies SSO vymazané";

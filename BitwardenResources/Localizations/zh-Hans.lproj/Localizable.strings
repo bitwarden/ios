@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "无效的主密码。请重试。";
 "InvalidPIN" = "无效的 PIN 码。请重试。";
 "Launch" = "前往";
+"LaunchBrowser" = "启动浏览器";
 "LogIn" = "登录";
 "LoginCredentials" = "登录凭据";
 "LogInNoun" = "登录";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "查看隐私政策吗？";
 "ContinueToAppStore" = "前往 App Store 吗？";
 "ContinueToDeviceSettings" = "前往设备设置吗？";
+"ContinueWithoutSyncing" = "继续而不同步";
 "TwoStepLoginDescriptionLong" = "在 Bitwarden 网页 App 中设置两步登录，让您的账户更加安全。";
 "ChangeMasterPasswordDescriptionLong" = "您可以在 Bitwarden 网页 App 上更改您的主密码。";
 "YouCanImportDataToYourVaultOnX" = "您可以通过 %1$@ 将数据导入您的密码库。";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "自动填充密码";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "在所有设备上设置自动填充，随时随地轻点一下即可登录。";
 "GotIt" = "知道了";
+"ClearSsoCookies" = "清除 SSO Cookie";
 "GenerateCrash" = "生成崩溃报告";
 "GenerateErrorReport" = "生成错误报告";
 "GenerateSdkErrorReport" = "生成 SDK 错误报告";
@@ -1239,7 +1242,9 @@
 "Skip" = "跳过";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "保存您所有的登录信息并直接与验证器 App 同步验证码。";
+"SyncWithBrowserDescriptionLong" = "要连接到 %1$@，请将您的默认浏览器与 Bitwarden 移动 App 同步。浏览器打开后，如果提示登录，请完成登录。同步完成后，您将返回此 App。";
 "SyncWithBitwardenApp" = "与 Bitwarden App 同步";
+"SyncWithBrowser" = "与浏览器同步";
 "SyncWithTheBitwardenApp" = "与 Bitwarden App 同步";
 "TakeMeToTheAppSettings" = "跳转到 App 设置";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "提供的数据格式不符合预期，请检查您的文件并确保使用正确的数据类型。";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "退出 %1$@";
 "HowToManageMyVault" = "如何管理我的密码库";
 "YouLeftTheOrganization" = "您已退出该组织";
+"ItemTransferRequiresMainAppDescriptionLong" = "某个组织正在请求您的个人项目的所有权。打开主 Bitwarden App 以审查并完成此请求。";
 "ThisSettingIsManagedByYourOrganization" = "此设置由您的组织管理。";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "您的组织已将默认会话超时设置为 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的组织已将最大会话超时设置为 %1$@ 。";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "指定人员";
 "WhoCanView" = "谁可以查看";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "与指定人员共享是高级版功能。您当前的方案不包含对此功能的访问权限。";
+"SsoCookiesCleared" = "SSO Cookie 已清除";
