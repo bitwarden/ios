@@ -274,8 +274,6 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
     func test_configPublisher_ssoCookieVendor_usesCookieDomainAsHostname() async throws {
         let cookieDomain = "example.com"
         let hostname = "example.com"
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
             SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: stateService)
 
@@ -283,9 +281,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: cookieDomain)),
         )
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, hostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
@@ -293,8 +291,6 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
     @MainActor
     func test_configPublisher_ssoCookieVendor_nilCookieDomain_fallsBackToWebVaultHost() async throws {
         let expectedHostname = try XCTUnwrap(environmentService.webVaultURL.host)
-        let mockSdkClient = MockServerCommunicationConfigClient()
-        clientService.mockPlatform.serverCommunicationConfigResult = mockSdkClient
         sdkRepositoryFactory.makeServerCommunicationConfigRepositoryReturnValue =
             SdkServerCommunicationConfigRepository(serverCommunicationConfigStateService: stateService)
 
@@ -302,9 +298,9 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swif
             makeMetaServerConfig(communication: makeSSOCommunicationSettings(cookieDomain: nil)),
         )
 
-        try await waitForAsync { mockSdkClient.setCommunicationTypeCallsCount == 1 }
+        try await waitForAsync { self.serverCommunicationConfigClient.setCommunicationTypeCallsCount > 0 }
 
-        XCTAssertEqual(mockSdkClient.setCommunicationTypeReceivedHostname, expectedHostname)
+        XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, expectedHostname)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
