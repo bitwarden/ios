@@ -1,4 +1,10 @@
 public protocol ConfigStateService: ActiveAccountStateProvider {
+    /// Clears the SSO cookie value from the stored server communication config for the given hostname.
+    ///
+    /// - Parameter hostname: The hostname for which to clear the SSO cookie value.
+    ///
+    func clearServerCommunicationCookieValue(hostname: String) async throws
+
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
     func getPreAuthServerConfig() async -> ServerConfig?

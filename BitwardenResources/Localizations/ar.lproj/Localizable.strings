@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "كلمة المرور الرئيسية خاطئة. الرجاء المحاولة مرة أخرى.";
 "InvalidPIN" = "رقم التعريف الشخصي غير صالح. الرجاء المحاولة مرة أخرى.";
 "Launch" = "بدء";
+"LaunchBrowser" = "Launch browser";
 "LogIn" = "تسجيل الدخول";
 "LoginCredentials" = "معلومات الدخول";
 "LogInNoun" = "تسجيل الدخول";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "هل تريد المتابعة إلى سياسة الخصوصية؟";
 "ContinueToAppStore" = "هل تريد المتابعة إلى متجر التطبيقات؟";
 "ContinueToDeviceSettings" = "هل تريد المتابعة إلى إعدادات الجهاز؟";
+"ContinueWithoutSyncing" = "Continue without syncing";
 "TwoStepLoginDescriptionLong" = "اجعل حسابك أكثر أمنا من خلال إعداد تسجيل الدخول بخطوتين في تطبيق بت واردن على شبكة الإنترنت.";
 "ChangeMasterPasswordDescriptionLong" = "يمكنك تغيير كلمة المرور الرئيسية الخاصة بك على تطبيق ويب بت واردن.";
 "YouCanImportDataToYourVaultOnX" = "يمكنك استيراد البيانات إلى خزانتك على %1$@.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "الملء التلقائي لكلمات المرور";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "إعداد التعبئة التلقائية على جميع الأجهزة الخاصة بك لتسجيل الدخول بنقرة واحدة في أي مكان.";
 "GotIt" = "فهمت";
+"ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "توليد تحطم";
 "GenerateErrorReport" = "إنشاء تقرير الخطأ";
 "GenerateSdkErrorReport" = "Generate SDK error report";
@@ -1240,7 +1243,9 @@
 "Skip" = "تخطي";
 "Steam" = "ستيم";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "تخزين جميع تسجيلات الدخول الخاصة بك ومزامنة رموز التحقق مباشرة مع تطبيق المصادقة.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "المزامنة مع تطبيق Bitwarden";
+"SyncWithBrowser" = "Sync with browser";
 "SyncWithTheBitwardenApp" = "المزامنة مع تطبيق Bitwarden";
 "TakeMeToTheAppSettings" = "خذني إلى إعدادات التطبيق";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "تنسيق البيانات المقدم لا يتطابق مع ما هو متوقع. الرجاء التحقق من الملف الخاص بك والتأكد من استخدام أنواع البيانات الصحيحة.";
@@ -1283,6 +1288,7 @@
 "LeaveX" = "Leave %1$@";
 "HowToManageMyVault" = "How to manage My vault";
 "YouLeftTheOrganization" = "You left the organization";
+"ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
@@ -1316,3 +1322,4 @@
 "SpecificPeople" = "Specific people";
 "WhoCanView" = "Who can view";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"SsoCookiesCleared" = "SSO cookies cleared";

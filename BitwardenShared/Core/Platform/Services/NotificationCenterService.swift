@@ -10,6 +10,14 @@ protocol NotificationCenterService: AnyObject {
     ///
     func didEnterBackgroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>>
 
+    /// A publisher that emits the app's current foreground state, starting with `false`.
+    /// In app extension contexts, `willEnterForegroundNotification` is never posted (the host
+    /// app is already in the foreground when an extension activates), so this publisher will
+    /// always emit `false` in extensions. Consumers that require foreground gating should
+    /// only subscribe in main app contexts.
+    ///
+    func isInForegroundPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
+
     /// A publisher for when the app enters the foreground.
     ///
     func willEnterForegroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>>
@@ -22,8 +30,14 @@ protocol NotificationCenterService: AnyObject {
 class DefaultNotificationCenterService: NotificationCenterService {
     // MARK: Properties
 
+    /// Cancellables for any subscriptions owned by the service.
+    private var cancellables = Set<AnyCancellable>()
+
+    /// The subject tracking the app's current foreground state.
+    private let isInForegroundSubject = CurrentValueSubject<Bool, Never>(false)
+
     /// The NotificationCenter to use in subscribing to notifications.
-    let notificationCenter: NotificationCenter
+    private let notificationCenter: NotificationCenter
 
     // MARK: Initialization
 
@@ -33,6 +47,16 @@ class DefaultNotificationCenterService: NotificationCenterService {
     ///
     init(notificationCenter: NotificationCenter = NotificationCenter.default) {
         self.notificationCenter = notificationCenter
+
+        notificationCenter
+            .publisher(for: UIApplication.didEnterBackgroundNotification)
+            .sink { [weak self] _ in self?.isInForegroundSubject.send(false) }
+            .store(in: &cancellables)
+
+        notificationCenter
+            .publisher(for: UIApplication.willEnterForegroundNotification)
+            .sink { [weak self] _ in self?.isInForegroundSubject.send(true) }
+            .store(in: &cancellables)
     }
 
     // MARK: Methods
@@ -43,6 +67,10 @@ class DefaultNotificationCenterService: NotificationCenterService {
             .map { _ in }
             .eraseToAnyPublisher()
             .values
+    }
+
+    func isInForegroundPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {
+        isInForegroundSubject.eraseToAnyPublisher().values
     }
 
     func willEnterForegroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {

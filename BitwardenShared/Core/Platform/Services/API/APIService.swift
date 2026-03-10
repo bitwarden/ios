@@ -46,6 +46,8 @@ class APIService {
     ///   - environmentService: The service used by the application to retrieve the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
+    ///   - serverCommunicationConfigClientSingleton: The service to get the server communication client
+    ///   used to break circular dependency.
     ///   - stateService: The service used by the application to manage account state.
     ///   - tokenService: The `TokenService` which manages accessing and updating the active
     ///     account's tokens.
@@ -56,6 +58,7 @@ class APIService {
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
+        serverCommunicationConfigClientSingleton: @escaping () -> ServerCommunicationConfigClientSingleton?,
         stateService: StateService,
         tokenService: TokenService,
     ) {
@@ -73,6 +76,12 @@ class APIService {
                 FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
                 OSLogHTTPLogger(),
             ],
+            ssoCookieVendorRequestHandler: SSOCookieVendorRequestHandler(
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
+            ),
+            ssoCookieVendorResponseHandler: SSOCookieVendorResponseHandler(
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
+            ),
         )
 
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(

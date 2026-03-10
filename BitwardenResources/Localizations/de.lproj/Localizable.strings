@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Ungültiges Master-Passwort. Bitte erneut versuchen.";
 "InvalidPIN" = "Ungültiger PIN. Bitte erneut versuchen.";
 "Launch" = "Öffnen";
+"LaunchBrowser" = "Browser starten";
 "LogIn" = "Anmelden";
 "LoginCredentials" = "Zugangsdaten";
 "LogInNoun" = "Zugangsdaten";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Weiter zur Datenschutzerklärung?";
 "ContinueToAppStore" = "Weiter zum App Store?";
 "ContinueToDeviceSettings" = "Weiter zu den Geräteeinstellungen?";
+"ContinueWithoutSyncing" = "Ohne Synchronisierung fortfahren";
 "TwoStepLoginDescriptionLong" = "Mache dein Konto sicherer, indem du eine Zwei-Faktor-Authentifizierung in der Bitwarden Web-App einrichtest.";
 "ChangeMasterPasswordDescriptionLong" = "Du kannst dein Master-Passwort in der Bitwarden Web-App ändern.";
 "YouCanImportDataToYourVaultOnX" = "Du kannst Daten in deinem Tresor auf %1$@ importieren.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Passwörter automatisch ausfüllen";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Richte Auto-Ausfüllen auf all deinen Geräten ein, um dich mit einem einzigen Fingertipp überall anzumelden.";
 "GotIt" = "Verstanden";
+"ClearSsoCookies" = "SSO-Cookies löschen";
 "GenerateCrash" = "Absturz erzeugen";
 "GenerateErrorReport" = "Fehlerbericht generieren";
 "GenerateSdkErrorReport" = "SDK-Fehlerbericht generieren";
@@ -1239,7 +1242,9 @@
 "Skip" = "Überspringen";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Speicher alle deine Zugangsdaten und synchronisiere Verifizierungscodes direkt mit der Authenticator-App.";
+"SyncWithBrowserDescriptionLong" = "Um dich mit %1$@ zu verbinden, synchronisiere deinen Standardbrowser mit der mobilen Bitwarden-App. Wenn sich dein Browser öffnet, dann schließ die Anmeldung ab, wenn du dazu aufgefordert wirst. Sobald die Synchronisierung abgeschlossen ist, wirst du zu dieser App zurückgeleitet.";
 "SyncWithBitwardenApp" = "Mit der Bitwarden-App synchronisieren";
+"SyncWithBrowser" = "Mit Browser synchronisieren";
 "SyncWithTheBitwardenApp" = "Mit der Bitwarden-App synchronisieren";
 "TakeMeToTheAppSettings" = "Bring mich zu den App-Einstellungen";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Das angegebene Datenformat entspricht nicht den Erwartungen. Bitte überprüfe deine Datei und stelle sicher, dass die korrekten Datentypen verwendet werden.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "%1$@ verlassen";
 "HowToManageMyVault" = "So verwaltest du deinen Tresor";
 "YouLeftTheOrganization" = "Du hast die Organisation verlassen";
+"ItemTransferRequiresMainAppDescriptionLong" = "Eine Organisation möchte die Besitzrechte an deinen persönlichen Einträgen übernehmen. Öffne die Bitwarden-App, um diese Anfrage zu überprüfen und abzuschließen.";
 "ThisSettingIsManagedByYourOrganization" = "Diese Einstellung wird von deiner Organisation verwaltet.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Deine Organisation hat das Standard-Sitzungs-Timeout auf %1$@ gesetzt.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ gesetzt.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Bestimmte Personen";
 "WhoCanView" = "Wer kann das sehen";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Das Teilen mit bestimmten Personen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
+"SsoCookiesCleared" = "SSO-Cookies gelöscht";

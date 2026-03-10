@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Yararsız ana parol. Yenidən sınayın.";
 "InvalidPIN" = "Yararsız PIN. Yenidən sınayın.";
 "Launch" = "Başlat";
+"LaunchBrowser" = "Brauzeri başlat";
 "LogIn" = "Giriş et";
 "LoginCredentials" = "Giriş kimlik məlumatları";
 "LogInNoun" = "Giriş";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Məxfilik Siyasəti ilə davam edirsiniz?";
 "ContinueToAppStore" = "Tətbiq mağazası ilə davam edilsin?";
 "ContinueToDeviceSettings" = "Cihaz Ayarlarına davam edilsin?";
+"ContinueWithoutSyncing" = "Sinxrn olmadan davam et";
 "TwoStepLoginDescriptionLong" = "Bitwarden veb tətbiqində iki addımlı girişi quraraq hesabınızı daha güvənli edin.";
 "ChangeMasterPasswordDescriptionLong" = "Ana parolunuzu Bitwarden veb tətbiqində dəyişdirə bilərsiniz.";
 "YouCanImportDataToYourVaultOnX" = "Veriləri %1$@ üzərindən seyfinizə köçürə bilərsiniz.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Parolları avto-doldur";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Bütün cihazlarınızda avto-doldurmanı quraraq tək toxunuşla istənilən yerdən giriş edin.";
 "GotIt" = "Anladım";
+"ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "Çökmə yarat";
 "GenerateErrorReport" = "Xəta hesabatı yarat";
 "GenerateSdkErrorReport" = "SDK xəta hesabatını yarat";
@@ -1239,7 +1242,9 @@
 "Skip" = "Ötür";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Bütün girişlərinizi saxlayın və doğrulama kodlarını birbaşa Authenticator tətbiqi ilə sinxronlaşdırın.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "Bitwarden tətbiqi ilə sinxronlaşdır";
+"SyncWithBrowser" = "Brauzerlə sinxronlaşdır";
 "SyncWithTheBitwardenApp" = "Bitwarden tətbiqi ilə sinxronlaşdır";
 "TakeMeToTheAppSettings" = "Məni tətbiq ayarlarına apar";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Təqdim edilən veri formatı gözlənilənlə uyuşmur. Lütfən faylınızı yoxlayın və düzgün veri növünün istifadə olunduğuna əmin olun.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "%1$@ - tərk et";
 "HowToManageMyVault" = "Seyfimi necə idarə edim";
 "YouLeftTheOrganization" = "Təşkilatı tərk etmisiniz";
+"ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Bu ayar, təşkilatınız tərəfindən idarə olunur.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Təşkilatınız, seansın ilkin bitmə vaxtını %1$@ olaraq təyin etdi.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Xüsusi insanlar";
 "WhoCanView" = "Kimlər baxa bilər";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Xüsusi insanlarla paylaşım, Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";
+"SsoCookiesCleared" = "SSO cookies cleared";

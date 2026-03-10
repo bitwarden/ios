@@ -402,3 +402,33 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
         }
     }
 }
+
+// MARK: - ServerCommunicationConfigSSOCookieVendorConfigTests
+
+class ServerCommunicationConfigSSOCookieVendorConfigTests: BitwardenTestCase {
+    // swiftlint:disable:previous type_name
+    /// `ssoCookieVendorConfig` returns the config when bootstrap is `.ssoCookieVendor`.
+    func test_ssoCookieVendorConfig_ssoCookieVendor_returnsConfig() {
+        let ssoConfig = SsoCookieVendorConfig(
+            idpLoginUrl: "https://idp.example.com",
+            cookieName: "auth",
+            cookieDomain: "example.com",
+            cookieValue: nil,
+        )
+        let subject = ServerCommunicationConfig(bootstrap: .ssoCookieVendor(ssoConfig))
+
+        let result = subject.ssoCookieVendorConfig
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.idpLoginUrl, "https://idp.example.com")
+        XCTAssertEqual(result?.cookieName, "auth")
+        XCTAssertEqual(result?.cookieDomain, "example.com")
+    }
+
+    /// `ssoCookieVendorConfig` returns `nil` when bootstrap is `.direct`.
+    func test_ssoCookieVendorConfig_direct_returnsNil() {
+        let subject = ServerCommunicationConfig(bootstrap: .direct)
+
+        XCTAssertNil(subject.ssoCookieVendorConfig)
+    }
+} // swiftlint:disable:this file_length

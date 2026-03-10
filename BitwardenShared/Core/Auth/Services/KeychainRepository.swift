@@ -36,6 +36,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
+    /// The keychain item for server communication configuration for a hostname.
+    case serverCommunicationConfig(hostname: String)
+
     /// The keychain item for the number of unsuccessful unlock attempts.
     case unsuccessfulUnlockAttempts(userId: String)
 
@@ -55,6 +58,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
              .neverLock,
              .pendingAdminLoginRequest,
              .refreshToken,
+             .serverCommunicationConfig,
              .unsuccessfulUnlockAttempts,
              .vaultTimeout:
             nil
@@ -79,7 +83,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
-             .refreshToken:
+             .refreshToken,
+             .serverCommunicationConfig:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         }
     }
@@ -108,6 +113,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
             "pendingAdminLoginRequest_\(userId)"
         case let .refreshToken(userId):
             "refreshToken_\(userId)"
+        case let .serverCommunicationConfig(hostname):
+            "serverCommunicationConfig_\(hostname)"
         case let .unsuccessfulUnlockAttempts(userId):
             "unsuccessfulUnlockAttempts_\(userId)"
         case let .vaultTimeout(userId):
@@ -118,7 +125,7 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
 
 // MARK: - KeychainRepository
 
-protocol KeychainRepository: AnyObject {
+protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository {
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws

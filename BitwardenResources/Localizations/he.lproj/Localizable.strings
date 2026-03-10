@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "סיסמה ראשית שגויה. נסה שוב.";
 "InvalidPIN" = "קוד PIN שגוי. נסה שוב.";
 "Launch" = "הפעל";
+"LaunchBrowser" = "Launch browser";
 "LogIn" = "התחבר";
 "LoginCredentials" = "סיסמאות כניסה";
 "LogInNoun" = "כניסה";
@@ -838,6 +839,7 @@
 "ContinueToPrivacyPolicy" = "להמשיך אל מדיניות הפרטיות?";
 "ContinueToAppStore" = "להמשיך אל חנות האפליקציות?";
 "ContinueToDeviceSettings" = "להמשיך אל הגדרות המכשיר?";
+"ContinueWithoutSyncing" = "Continue without syncing";
 "TwoStepLoginDescriptionLong" = "הפוך את החשבון שלך למאובטח יותר על ידי הגדרת כניסה דו־שלבית ביישום הרשת של Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "אתה יכול לשנות את הסיסמה הראשית שלך ביישום הרשת של Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "אתה יכול ייבא נתונים לכספת שלך ב־%1$@.";
@@ -1045,6 +1047,7 @@
 "AutofillPasswords" = "מלא אוטומטית סיסמאות";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "הגדר מילוי אוטומטי בכל המכשירים שלך כדי להיכנס עם הקשה אחת בכל מקום.";
 "GotIt" = "הבנתי";
+"ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "צור קריסה";
 "GenerateErrorReport" = "צור דוח שגיאות";
 "GenerateSdkErrorReport" = "Generate SDK error report";
@@ -1241,7 +1244,9 @@
 "Skip" = "דלג";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "אחסן את כל הכניסות שלך וסנכרן קודי אימות ישירות עם יישום המאמת.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "סנכרן עם יישום Bitwarden";
+"SyncWithBrowser" = "Sync with browser";
 "SyncWithTheBitwardenApp" = "סנכרן עם היישום Bitwarden";
 "TakeMeToTheAppSettings" = "קח אותי אל הגדרות היישום";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "תבנית הנתונים שסופקה אינה תואמת את מה שצפוי. נא לבדוק את הקובץ שלך ולוודא שנעשה שימוש בסוגי נתונים נכונים.";
@@ -1284,6 +1289,7 @@
 "LeaveX" = "עזיבת %1$@";
 "HowToManageMyVault" = "איך לנהל את הכספת שלי";
 "YouLeftTheOrganization" = "עזבת את הארגון";
+"ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "הגדרה זו מנוהלת על ידי הארגון שלך.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "הארגון שלך הגדיר את פסק הזמן המרבי להפעלה ל־%1$@.";
@@ -1317,3 +1323,4 @@
 "SpecificPeople" = "Specific people";
 "WhoCanView" = "Who can view";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"SsoCookiesCleared" = "SSO cookies cleared";

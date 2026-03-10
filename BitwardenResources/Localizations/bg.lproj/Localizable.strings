@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Грешна главна парола. Пробвайте отново.";
 "InvalidPIN" = "Неправилен ПИН. Пробвайте отново.";
 "Launch" = "Пускане";
+"LaunchBrowser" = "Стартиране на браузъра";
 "LogIn" = "Вписване";
 "LoginCredentials" = "Данни за вписване";
 "LogInNoun" = "Вход";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Продължаване към Политиката за поверителност?";
 "ContinueToAppStore" = "Продължаване към магазина за приложения?";
 "ContinueToDeviceSettings" = "Продължаване към настройките на устройството?";
+"ContinueWithoutSyncing" = "Продължаване без синхронизиране";
 "TwoStepLoginDescriptionLong" = "Подобрете защитата на регистрацията си, като настроите двустепенното удостоверяване в уеб приложението на Битуорден.";
 "ChangeMasterPasswordDescriptionLong" = "Може да промените главната си парола в уеб приложението на Битуорден.";
 "YouCanImportDataToYourVaultOnX" = "Може да внесете данни в трезора си на %1$@.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Автоматично попълване на пароли";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автоматичното попълвана на всички свои устройства, за да се вписвате навсякъде с едно докосване.";
 "GotIt" = "Разбрано";
+"ClearSsoCookies" = "Изчистване на бисквитките за еднократно удостоверяване";
 "GenerateCrash" = "Създаване на срив";
 "GenerateErrorReport" = "Създаване на доклад за грешка";
 "GenerateSdkErrorReport" = "Създаване на доклад за грешки от SDK";
@@ -1239,7 +1242,9 @@
 "Skip" = "Пропускане";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Съхранявайте всички свои данни за вписване и синхронизирайте кодовете си за удостоверяване директно с приложението за удостоверяване.";
+"SyncWithBrowserDescriptionLong" = "За да се свържете с %1$@, синхронизирайте стандартния си браузър с мобилното приложение на Битуорден. Когато браузърът се отвори, завършете процедурата по вписване, ако е нужно След като синхронизирането завърши, ще се върнете автоматично в това приложение.";
 "SyncWithBitwardenApp" = "Синхронизиране с приложението на Битуорден";
+"SyncWithBrowser" = "Синхронизиране с браузъра";
 "SyncWithTheBitwardenApp" = "Синхронизиране с приложението на Битуорден";
 "TakeMeToTheAppSettings" = "Към настройките на приложението";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Предоставеният формат на данните не отговаря на това, което се очаква. Моля, проверете файла и се уверете, че се ползват правилните типове данни.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "Напускане на %1$@";
 "HowToManageMyVault" = "Как да управлявам трезора си";
 "YouLeftTheOrganization" = "Напуснахте организацията";
+"ItemTransferRequiresMainAppDescriptionLong" = "Организация иска да поеме собствеността върху Вашите лични данни. Отворете основното приложение на Битуорден, за да прегледате и завършите процедурата.";
 "ThisSettingIsManagedByYourOrganization" = "Тази настройка се управлява от организацията Ви.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Организацията Ви е настроила стандартното разрешено време за достъп да бъде %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Организацията Ви е настроила максималното разрешено време за достъп на %1$@.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Определени хора";
 "WhoCanView" = "Кой може да преглежда";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Споделянето с определени хора е платена функционалност. Текущият Ви план не включва достъп до нея.";
+"SsoCookiesCleared" = "Бисквитките за еднократното удостоверяване са изчистени";

@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 
 // MARK: - DebugMenuModule
