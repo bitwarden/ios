@@ -1075,6 +1075,72 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertTrue(needsSync)
         XCTAssertTrue(client.requests.isEmpty)
     }
+
+    // MARK: - organizationIdRequiringVaultMigration Tests
+
+    /// `organizationIdRequiringVaultMigration()` returns `nil` when the feature flag is disabled.
+    @MainActor
+    func test_organizationIdRequiringVaultMigration_featureFlagDisabled() async throws {
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = false
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        cipherService.hasPersonalCiphersResult = .success(true)
+
+        let result = try await subject.organizationIdRequiringVaultMigration()
+
+        XCTAssertNil(result)
+        XCTAssertFalse(cipherService.hasPersonalCiphersCalled)
+    }
+
+    /// `organizationIdRequiringVaultMigration()` returns the organization ID when all conditions are met.
+    @MainActor
+    func test_organizationIdRequiringVaultMigration_hasPersonalVaultItems() async throws {
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        cipherService.hasPersonalCiphersResult = .success(true)
+
+        let result = try await subject.organizationIdRequiringVaultMigration()
+
+        XCTAssertEqual(result, "org-123")
+        XCTAssertTrue(cipherService.hasPersonalCiphersCalled)
+    }
+
+    /// `organizationIdRequiringVaultMigration()` throws when `hasPersonalCiphers()` throws.
+    @MainActor
+    func test_organizationIdRequiringVaultMigration_hasPersonalCiphersThrows() async throws {
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        cipherService.hasPersonalCiphersResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.organizationIdRequiringVaultMigration()
+        }
+    }
+
+    /// `organizationIdRequiringVaultMigration()` returns `nil` when no organization applies the policy.
+    @MainActor
+    func test_organizationIdRequiringVaultMigration_noOrganizationAppliesPolicy() async throws {
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = nil
+        cipherService.hasPersonalCiphersResult = .success(true)
+
+        let result = try await subject.organizationIdRequiringVaultMigration()
+
+        XCTAssertNil(result)
+        XCTAssertFalse(cipherService.hasPersonalCiphersCalled)
+    }
+
+    /// `organizationIdRequiringVaultMigration()` returns `nil` when user has no personal vault items.
+    @MainActor
+    func test_organizationIdRequiringVaultMigration_noPersonalVaultItems() async throws {
+        configService.featureFlagsBool[.migrateMyVaultToMyItems] = true
+        policyService.getEarliestOrganizationApplyingPolicyResult[.personalOwnership] = "org-123"
+        cipherService.hasPersonalCiphersResult = .success(false)
+
+        let result = try await subject.organizationIdRequiringVaultMigration()
+
+        XCTAssertNil(result)
+        XCTAssertTrue(cipherService.hasPersonalCiphersCalled)
+    }
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {
