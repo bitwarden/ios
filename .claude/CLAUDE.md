@@ -311,18 +311,3 @@ mint run swiftgen config run --config swiftgen-pm.yml              # Generate as
 
 **Do not duplicate information from these files — reference them instead.**
 
-### Internal Documentation
-- [Architectural Decision Records (ADRs)](https://contributing.bitwarden.com/architecture/adr/)
-- [Contributing Guidelines](https://contributing.bitwarden.com/contributing/)
-- [Accessibility](https://contributing.bitwarden.com/contributing/accessibility/)
-- [Setup Guide](https://contributing.bitwarden.com/getting-started/mobile/ios/)
-
-### Security Documentation
-- [Security Whitepaper](https://bitwarden.com/help/bitwarden-security-white-paper/)
-- [Security Definitions](https://contributing.bitwarden.com/architecture/security/definitions)
-
-### Key Libraries
-- [Bitwarden SDK](https://github.com/bitwarden/sdk-internal) — Rust-based cryptographic operations
-- [ViewInspector](https://github.com/nalexn/ViewInspector) — SwiftUI view testing
-- [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) — Visual regression testing
-- [Sourcery](https://github.com/krzysztofzablocki/Sourcery) — Code generation for mocks
