@@ -98,7 +98,8 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
     }
 
-    /// `didCompleteAuth()` in app extension shows vault migration screen when migration is pending.
+    /// `didCompleteAuth()` in app extension shows vault migration screen when migration is pending
+    /// and `canAutofill` is false (e.g., extension setup flow).
     @MainActor
     func test_didCompleteAuth_appExtension_vaultMigration() {
         let syncService = MockSyncService()
@@ -109,6 +110,9 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             rehydrationHelper: rehydrationHelper,
             syncService: syncService,
         )
+
+        // Vault migration check only happens when canAutofill is false (not in autofill flow).
+        appExtensionDelegate.canAutofill = false
 
         subject = AppCoordinator(
             appContext: .appExtension,
@@ -136,6 +140,47 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             module.vaultItemCoordinator.routes.last,
             .migrateToMyItems(organizationId: "org-123", isExtension: true),
         )
+    }
+
+    /// `didCompleteAuth()` in app extension does NOT show vault migration screen when `canAutofill`
+    /// is true (autofill extension flow) to avoid interrupting the user's autofill experience.
+    @MainActor
+    func test_didCompleteAuth_appExtension_canAutofill_doesNotShowVaultMigration() async throws {
+        let syncService = MockSyncService()
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
+
+        let servicesWithMigration = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            rehydrationHelper: rehydrationHelper,
+            syncService: syncService,
+        )
+
+        // canAutofill is true by default, simulating the autofill extension flow.
+        appExtensionDelegate.canAutofill = true
+
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: appExtensionDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: servicesWithMigration,
+        )
+        rootNavigator.rootViewController = MockUIViewController()
+
+        appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        // Vault coordinator should be started.
+        XCTAssertTrue(module.vaultCoordinator.isStarted)
+        XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
+        XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
+
+        // Give async task time to potentially run (it shouldn't check migration).
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        // Migration screen should NOT be shown because canAutofill is true.
+        XCTAssertFalse((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled ?? false)
+        XCTAssertFalse(module.vaultItemCoordinator.isStarted)
     }
 
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the auth completion route.
