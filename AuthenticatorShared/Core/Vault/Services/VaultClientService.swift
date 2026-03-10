@@ -63,6 +63,8 @@ extension VaultClient: VaultClientService {
                 codeGenerationDate: calculationDate,
                 period: response.period,
             )
+        } catch BitwardenSdk.TotpError.InvalidOtpauth {
+            throw TOTPKeyError.invalidOtpauth
         } catch BitwardenSdk.TotpError.MissingSecret {
             throw TOTPKeyError.missingSecret
         } catch {

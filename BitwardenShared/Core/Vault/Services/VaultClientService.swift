@@ -68,6 +68,8 @@ extension VaultClient: VaultClientService {
         do {
             let response = try generateTotp(key: key, time: calculationDate)
             return totpCodeModel(from: response, calculationDate: calculationDate)
+        } catch BitwardenSdk.TotpError.InvalidOtpauth {
+            throw TOTPKeyError.invalidOtpauth
         } catch BitwardenSdk.TotpError.MissingSecret {
             throw TOTPKeyError.missingSecret
         } catch {
@@ -80,6 +82,8 @@ extension VaultClient: VaultClientService {
         do {
             let response = try generateTotpCipherView(view: cipherListView, time: calculationDate)
             return totpCodeModel(from: response, calculationDate: calculationDate)
+        } catch BitwardenSdk.BitwardenError.Totp(.InvalidOtpauth) {
+            throw TOTPKeyError.invalidOtpauth
         } catch BitwardenSdk.BitwardenError.Totp(.MissingSecret) {
             throw TOTPKeyError.missingSecret
         } catch {
