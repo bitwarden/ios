@@ -125,8 +125,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showExtensionSetup(route: extensionSetupRoute)
         case let .loginRequest(loginRequest):
             showLoginRequest(loginRequest)
-        case let .migrateToMyItems(organizationId, isExtension):
-            showMigrateToMyItems(organizationId: organizationId, isExtension: isExtension)
+        case let .migrateToMyItems(organizationId):
+            showMigrateToMyItems(organizationId: organizationId)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
         case .syncWithBrowser:
@@ -284,11 +284,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// Show the migrate to my items screen.
     ///
-    /// - Parameters:
-    ///   - organizationId: The organization ID that requires the vault migration.
-    ///   - isExtension: Whether the view is being displayed in an app extension context.
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
     ///
-    private func showMigrateToMyItems(organizationId: String, isExtension: Bool) {
+    private func showMigrateToMyItems(organizationId: String) {
         // Make sure that the user is not currently viewing the migrate to my items view.
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
         guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
@@ -299,7 +297,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(
-            to: .migrateToMyItems(organizationId: organizationId, isExtension: isExtension),
+            to: .migrateToMyItems(organizationId: organizationId),
             context: self,
         )
 
@@ -427,11 +425,11 @@ extension AppCoordinator: AuthCoordinatorDelegate {
                 do {
                     if let organizationId = try await services.syncService.organizationIdRequiringVaultMigration() {
                         await MainActor.run {
-                            navigate(to: .migrateToMyItems(organizationId: organizationId, isExtension: true))
+                            navigate(to: .migrateToMyItems(organizationId: organizationId))
                         }
                     }
                 } catch {
-                        services.errorReporter.log(error: error)
+                    services.errorReporter.log(error: error)
                 }
             }
         }

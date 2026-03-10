@@ -138,7 +138,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
         XCTAssertEqual(
             module.vaultItemCoordinator.routes.last,
-            .migrateToMyItems(organizationId: "org-123", isExtension: true),
+            .migrateToMyItems(organizationId: "org-123"),
         )
     }
 
@@ -227,7 +227,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
         XCTAssertEqual(
             module.vaultItemCoordinator.routes.last,
-            .migrateToMyItems(organizationId: "org-123", isExtension: false),
+            .migrateToMyItems(organizationId: "org-123"),
         )
     }
 

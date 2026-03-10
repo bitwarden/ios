@@ -666,10 +666,7 @@ extension AppProcessor: SyncServiceDelegate {
 
     func migrateVaultToMyItems(organizationId: String) {
         coordinator?.hideLoadingOverlay()
-        coordinator?.navigate(to: .migrateToMyItems(
-            organizationId: organizationId,
-            isExtension: appExtensionDelegate?.isInAppExtension == true,
-        ))
+        coordinator?.navigate(to: .migrateToMyItems(organizationId: organizationId))
     }
 }
 

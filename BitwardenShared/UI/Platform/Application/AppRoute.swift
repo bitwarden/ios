@@ -17,11 +17,9 @@ public enum AppRoute: Equatable {
 
     /// A route to show the migrate to my items screen.
     ///
-    /// - Parameters:
-    ///   - organizationId: The organization ID that requires the vault migration.
-    ///   - isExtension: Whether the view is being displayed in an app extension context.
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
     ///
-    case migrateToMyItems(organizationId: String, isExtension: Bool = false)
+    case migrateToMyItems(organizationId: String)
 
     /// A route to the send interface.
     case sendItem(SendItemRoute)

@@ -21,6 +21,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasAPIService
+        & HasAppContextHelper
         & HasAuthRepository
         & HasConfigService
         & HasEnvironmentService
@@ -127,10 +128,9 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
-        case let .migrateToMyItems(organizationId, isExtension):
+        case let .migrateToMyItems(organizationId):
             showMigrateToMyItems(
                 organizationId: organizationId,
-                isExtension: isExtension,
                 delegate: context as? MigrateToMyItemsProcessorDelegate,
             )
         case let .moveToOrganization(cipher):
@@ -401,14 +401,13 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     /// - Parameters:
     ///   - organizationId: The organization ID that requires the vault migration.
-    ///   - isExtension: Whether the view is being displayed in an app extension context.
     ///   - delegate: The delegate to notify of events.
     ///
     private func showMigrateToMyItems(
         organizationId: String,
-        isExtension: Bool,
         delegate: MigrateToMyItemsProcessorDelegate?,
     ) {
+        let isExtension = services.appContextHelper.appContext == .appExtension
         let processor = MigrateToMyItemsProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),

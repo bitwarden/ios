@@ -1526,26 +1526,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         subject.migrateVaultToMyItems(organizationId: "org-123")
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123", isExtension: false)])
-    }
-
-    /// `migrateVaultToMyItems(organizationId:)` navigates to the migrate to my items route
-    /// with `isExtension: true` when running in an app extension.
-    @MainActor
-    func test_migrateVaultToMyItems_inAppExtension() {
-        let delegate = MockAppExtensionDelegate()
-        delegate.isInAppExtension = true
-        subject = AppProcessor(
-            appExtensionDelegate: delegate,
-            appModule: appModule,
-            services: ServiceContainer.withMocks(),
-        )
-        subject.coordinator = coordinator.asAnyCoordinator()
-        coordinator.isLoadingOverlayShowing = true
-
-        subject.migrateVaultToMyItems(organizationId: "org-123")
-
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123", isExtension: true)])
+        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
     }
 }
