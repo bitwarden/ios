@@ -1889,6 +1889,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
                 trustedDeviceOption: nil,
             )
         userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
+
+        profile.kdfIterations = masterPasswordUnlock.kdf.iterations
+        profile.kdfType = masterPasswordUnlock.kdf.kdfType
+        profile.kdfMemory = masterPasswordUnlock.kdf.memory
+        profile.kdfParallelism = masterPasswordUnlock.kdf.parallelism
+
         profile.userDecryptionOptions = userDecryptionOptions
         state.accounts[userId]?.profile = profile
         appSettingsStore.state = state

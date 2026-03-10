@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Недійсний головний пароль. Спробуйте знову.";
 "InvalidPIN" = "Недійсний PIN. Спробуйте знову.";
 "Launch" = "Перейти";
+"LaunchBrowser" = "Запустити браузер";
 "LogIn" = "Увійти";
 "LoginCredentials" = "Облікові дані для входу";
 "LogInNoun" = "Вхід";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Перейти до політики приватності?";
 "ContinueToAppStore" = "Продовжити в App Store?";
 "ContinueToDeviceSettings" = "Відкрити налаштування пристрою?";
+"ContinueWithoutSyncing" = "Продовжити без синхронізації";
 "TwoStepLoginDescriptionLong" = "Додайте вищий рівень захисту облікового запису, налаштувавши двоетапну перевірку у вебпрограмі Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Ви можете змінити головний пароль у вебпрограмі Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Ви можете імпортувати дані у своє сховище на %1$@.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Автозаповнення паролів";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Налаштуйте автозаповнення на всіх пристроях для входу одним дотиком.";
 "GotIt" = "Зрозуміло";
+"ClearSsoCookies" = "Clear SSO cookies";
 "GenerateCrash" = "Генерувати звіт про збій";
 "GenerateErrorReport" = "Генерувати звіт про помилку";
 "GenerateSdkErrorReport" = "Генерувати звіт про помилку SDK";
@@ -1239,7 +1242,9 @@
 "Skip" = "Пропустити";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Зберігайте всі паролі та синхронізуйте коди підтвердження безпосередньо з програмою Authenticator.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "Синхронізувати з програмою Bitwarden";
+"SyncWithBrowser" = "Синхронізувати з браузером";
 "SyncWithTheBitwardenApp" = "Синхронізувати з програмою Bitwarden";
 "TakeMeToTheAppSettings" = "Перейти до налаштувань програми";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Наданий формат даних не відповідає очікуваному формату. Перевірте ваш файл і переконайтеся, що використовуються правильні типи даних.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "Покинути %1$@";
 "HowToManageMyVault" = "Як керувати моїм сховищем";
 "YouLeftTheOrganization" = "Ви покинули організацію";
+"ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Цим параметром керує ваша організація.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша організація встановила максимальний час очікування сеансу %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша організація встановила максимальний час сеансу %1$@.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Певні користувачі";
 "WhoCanView" = "Хто може переглядати";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Спільний доступ з певними користувачами є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
+"SsoCookiesCleared" = "SSO cookies cleared";

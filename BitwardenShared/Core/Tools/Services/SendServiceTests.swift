@@ -7,6 +7,7 @@ import XCTest
 
 // swiftlint:disable file_length type_body_length function_body_length
 
+@MainActor
 class SendServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -33,8 +34,8 @@ class SendServiceTests: BitwardenTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
         client = nil
         sendDataStore = nil
         stateService = nil

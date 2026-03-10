@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Hasło główne jest nieprawidłowe. Spróbuj ponownie.";
 "InvalidPIN" = "Kod PIN jest nieprawidłowy. Spróbuj ponownie.";
 "Launch" = "Uruchom";
+"LaunchBrowser" = "Uruchom przeglądarkę";
 "LogIn" = "Zaloguj się";
 "LoginCredentials" = "Dane logowania";
 "LogInNoun" = "Zaloguj się";
@@ -836,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Kontynuować przejście do polityki prywatności?";
 "ContinueToAppStore" = "Kontynuować przejście do App Store?";
 "ContinueToDeviceSettings" = "Kontynuować przejście do ustawień urządzenia?";
+"ContinueWithoutSyncing" = "Kontynuuj bez synchronizacji";
 "TwoStepLoginDescriptionLong" = "Zwiększ bezpieczeństwo konta, konfigurując logowanie dwustopniowe w aplikacji internetowej Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Możesz zmienić hasło główne w aplikacji internetowej Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Zaimportuj dane do sejfu na stronie %1$@.";
@@ -1043,6 +1045,7 @@
 "AutofillPasswords" = "Autouzupełnianie haseł";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Skonfiguruj autouzupełnianie na wszystkich swoich urządzeniach, aby logować się jednym kliknięciem.";
 "GotIt" = "Ok";
+"ClearSsoCookies" = "Wyczyść pliki cookies SSO";
 "GenerateCrash" = "Wygeneruj awarię";
 "GenerateErrorReport" = "Wygeneruj raport błędu";
 "GenerateSdkErrorReport" = "Wygeneruj raport błędu SDK";
@@ -1239,7 +1242,9 @@
 "Skip" = "Pomiń";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Przechowuj wszystkie dane logowania i synchronizuj kody weryfikacyjne z aplikacją Bitwarden Authenticator.";
+"SyncWithBrowserDescriptionLong" = "Aby połączyć się z %1$@, zsynchronizuj domyślną przeglądarkę z aplikacją mobilną Bitwarden. Zaloguj się do przeglądarki, jeśli to będzie konieczne. Po zakończeniu synchronizacji nastąpi powrót do aplikacji.";
 "SyncWithBitwardenApp" = "Synchronizacja z aplikacją Bitwarden";
+"SyncWithBrowser" = "Synchronizuj z przeglądarką";
 "SyncWithTheBitwardenApp" = "Synchronizuj z aplikacją Bitwarden";
 "TakeMeToTheAppSettings" = "Przejdź do ustawień aplikacji";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Format danych nie jest zgodny z oczekiwanym. Sprawdź plik i upewnij się, że używasz prawidłowych danych.";
@@ -1282,6 +1287,7 @@
 "LeaveX" = "Opuść organizację %1$@";
 "HowToManageMyVault" = "Jak zarządzać sejfem";
 "YouLeftTheOrganization" = "Nie należysz już do tej organizacji";
+"ItemTransferRequiresMainAppDescriptionLong" = "Organizacja prosi o prawo własności do Twoich osobistych elementów. Otwórz aplikację Bitwarden, aby sprawdzić prośbę.";
 "ThisSettingIsManagedByYourOrganization" = "Ustawienie jest zarządzane przez Twoją organizację.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@.";
@@ -1315,3 +1321,4 @@
 "SpecificPeople" = "Konkretni użytkownicy";
 "WhoCanView" = "Kto może odczytać";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Udostępnianie użytkownikom jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
+"SsoCookiesCleared" = "Pliki cookies SSO zostały wyczyszczone";
