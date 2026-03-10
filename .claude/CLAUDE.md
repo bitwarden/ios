@@ -63,7 +63,7 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 ├── AuthenticatorBridgeKit/             # PM ↔ Authenticator communication
 ├── Networking/                         # URLSession-based networking (Swift package)
 ├── BitwardenAutoFillExtension/         # AutoFill Credential Provider extension
-├── BitwardenActionExtension/           # Action extension (find/save logins)
+├── BitwardenActionExtension/           # Action extension (autofill via share sheet)
 ├── BitwardenShareExtension/            # Share extension (create Sends)
 ├── BitwardenWatchApp/                  # watchOS companion
 ├── GlobalTestHelpers/                  # Shared test utilities
@@ -77,62 +77,7 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 
 **CRITICAL**: Do NOT add new top-level subdirectories to `Core/` or `UI/`. The fixed subdirectories are: `Auth/`, `Autofill/`, `Platform/`, `Tools/`, `Vault/`.
 
-### Key Principles
-
-1. **Unidirectional Data Flow**: State mutations only occur in Processors via `receive(_:)` (sync) or `perform(_:)` (async). Views never mutate state directly.
-2. **Protocol-Based Dependency Injection**: All services/repositories are protocols. `ServiceContainer` conforms to composed `Has*` protocols. Components declare local `Services` typealiases limiting access.
-3. **Coordinator-Driven Navigation**: Coordinators own navigation containers (UINavigationController). Business logic stays in Processors; Coordinators handle navigation only.
-4. **Zero-Knowledge**: All encryption/decryption via Bitwarden SDK. Keys stored in iOS Keychain. Server never sees plaintext.
-
-### Core Patterns
-
-Each feature typically has these files:
-
-| File | Purpose |
-|------|---------|
-| `*Coordinator.swift` | Navigation, creates child views/coordinators via Module protocol |
-| `*Processor.swift` | State management, handles Actions (sync) and Effects (async) |
-| `*State.swift` | View state definition (must be `Equatable`) |
-| `*View.swift` | SwiftUI view, sends actions/effects to Store |
-| `*Action.swift` | Synchronous user interactions (enum) |
-| `*Effect.swift` | Asynchronous user interactions (enum) |
-
-Additional patterns (Has* Protocol Composition, Router, Module) are documented with code examples in `Docs/Architecture.md`.
-
-## Development Guide
-
-### Adding a New Feature (UI Screen)
-
-1. **Define the State** (`UI/<Domain>/<Feature>/<Feature>State.swift`) — struct conforming to `Equatable`
-2. **Define Actions and Effects** — separate enums for sync (`Action`) and async (`Effect`) user interactions
-3. **Define Routes** (`UI/<Domain>/<Feature>/<Feature>Route.swift`) — navigation destinations enum
-4. **Implement the Processor** (`UI/<Domain>/<Feature>/<Feature>Processor.swift`) — subclass `StateProcessor`, handle actions in `receive(_:)` and effects in `perform(_:)`
-5. **Implement the View** (`UI/<Domain>/<Feature>/<Feature>View.swift`) — SwiftUI view using `@ObservedObject var store: Store<State, Action, Effect>`
-6. **Implement the Coordinator** (`UI/<Domain>/<Feature>/<Feature>Coordinator.swift`) — navigation handling, creates processor and view
-7. **Register in Module** — Add factory method to the appropriate Module protocol and implement in `DefaultAppModule`
-8. **Write Tests** — Co-locate test files with implementation. See Testing section
-9. **Add DocC Documentation** — All public types/methods require DocC docs except protocol implementations and mocks
-
-See `Docs/Architecture.md` for complete code templates and examples for each step.
-
-### Adding a New Service/Repository
-
-1. **Define the Protocol** (`Core/<Domain>/Services/<ServiceName>.swift`) — annotate with `// sourcery: AutoMockable`
-2. **Implement** (`Core/<Domain>/Services/<ServiceName>.swift` or separate file for multiple implementations)
-3. **Add Has* Protocol** (`Core/Platform/Services/Services.swift`)
-4. **Register in ServiceContainer** — Add property and include in initializer
-5. **Run Sourcery** to generate mocks: `mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml`
-
-Example protocol definition:
-```swift
-protocol ExampleService { // sourcery: AutoMockable
-    func fetchData() async throws -> [ExampleModel]
-}
-```
-
-### Common Patterns
-
-Common patterns for error handling, alert presentation, and store bindings are documented with code examples in `Docs/Architecture.md`.
+For key principles (unidirectional data flow, dependency injection, coordinator navigation, zero-knowledge), core patterns (Coordinator/Processor/State/View/Action/Effect files), adding new features, adding services/repositories, and common patterns, see `Docs/Architecture.md`.
 
 ## Data Models
 
@@ -168,90 +113,7 @@ Xcode version requirement: see `.xcode-version` file
 
 ## Testing
 
-### Core Directives
-
-**You MUST follow these directives when writing or analyzing tests:**
-- Follow guidelines in `Docs/Testing.md` (authoritative source)
-- Every type containing logic **must** be tested
-- Test files are **co-located** with implementation files
-
-### Test Structure
-
-```
-# Tests live alongside implementation (not in separate directory):
-BitwardenShared/UI/Platform/Application/
-├── AppProcessor.swift
-├── AppProcessorTests.swift              # Unit tests
-├── AppView.swift
-├── AppView+SnapshotTests.swift          # Snapshot tests
-└── AppView+ViewInspectorTests.swift     # ViewInspector tests
-```
-
-### Writing Tests
-
-**Naming**: `test_<functionName>_<behaviorDescription>`
-
-For complete test templates (Processor, Service, Repository, Coordinator, View), see `Docs/Testing.md`.
-
-**Snapshot Test Template**:
-```swift
-class ExampleView_SnapshotTests: BitwardenTestCase {
-    // Note: Snapshot tests are currently disabled. Prefix function names with `disable`.
-    func disabletest_snapshot_default() {
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-        )
-    }
-}
-```
-
-**Decision Matrix**:
-
-| Component | Unit Tests | ViewInspector | Snapshots |
-|-----------|-----------|---------------|-----------|
-| Processor | Required | N/A | N/A |
-| Service | Required | N/A | N/A |
-| Repository | Required | N/A | N/A |
-| Coordinator | Required | N/A | N/A |
-| Model | If logic | N/A | N/A |
-| View | N/A | Required | Required |
-
-### Running Tests
-
-**Note**: Before running unit tests, check for an active iOS Simulator. If found, prefer using it as the destination to avoid launching a new instance.
-
-```bash
-# Unit tests (any simulator)
-xcodebuild test -workspace Bitwarden.xcworkspace -scheme Bitwarden \
-  -testPlan Bitwarden-Unit \
-  -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
-
-# Snapshot tests (MUST match exact simulator)
-xcodebuild test -workspace Bitwarden.xcworkspace -scheme Bitwarden \
-  -testPlan Bitwarden-Snapshot \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0.1'
-
-# Record new snapshots
-RECORD_MODE=1 xcodebuild test -testPlan Bitwarden-Snapshot ...
-
-# Authenticator tests
-xcodebuild test -workspace Authenticator.xcworkspace -scheme Authenticator \
-  -testPlan Authenticator-Unit \
-  -destination 'platform=iOS Simulator,name=iPhone 15 Pro'
-
-# Specific test
-xcodebuild test -workspace Bitwarden.xcworkspace -scheme Bitwarden \
-  -only-testing:BitwardenShared-Tests/ExampleProcessorTests/test_receive_action_updatesState
-```
-
-### Test Environment
-
-- **Simulator**: Snapshot tests require a specific simulator name and iOS version (see `.test-simulator-device-name`, `.test-simulator-ios-version`)
-- **Mock generation**: `// sourcery: AutoMockable` annotation on protocols → mocks generated in `*/Sourcery/Generated/AutoMockable.generated.swift`
-- **ServiceContainer.withMocks()**: Convenience method in `ServiceContainer+Mocks.swift` providing all mock dependencies with sensible defaults
-- **Test base class**: `BitwardenTestCase` (extends XCTest)
-- **Test plans** in `TestPlans/`: `*-Default` (all), `*-Unit`, `*-Snapshot`, `*-ViewInspector`
+**You MUST follow testing guidelines in `Docs/Testing.md`** (authoritative source for test structure, naming, templates, decision matrix, running tests, and simulator configuration). Snapshot tests are currently disabled — prefix function names with `disable`.
 
 ## Code Style & Standards
 
