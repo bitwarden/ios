@@ -304,10 +304,8 @@ mint run swiftgen config run --config swiftgen-pm.yml              # Generate as
 
 ## References
 
-### Critical Resources
 - `Docs/Architecture.md` — Architecture patterns and principles (authoritative)
 - `Docs/Testing.md` — Testing guidelines and component-specific strategies (authoritative)
-- https://contributing.bitwarden.com/contributing/code-style/swift — Code style guidelines
 
 **Do not duplicate information from these files — reference them instead.**
 
