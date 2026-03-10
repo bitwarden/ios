@@ -1404,13 +1404,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         await subject.perform(.savePressed)
 
-        let loggedError = try XCTUnwrap(errorReporter.errors.first as? NSError)
-        XCTAssertEqual(loggedError.domain, "General Error: Save item failed")
-        XCTAssertEqual(loggedError.code, BitwardenError.Code.generalError.rawValue)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let generalError = try XCTUnwrap(errorReporter.errors.last as? NSError)
+        XCTAssertEqual(generalError.domain, "General Error: Save item failed")
     }
 
-    /// `perform(_:)` with `.savePressed` does not log to the error reporter when a
-    /// `ServerError.error` carries a message other than the targeted cipher-encryption message.
+    /// `perform(_:)` with `.savePressed` does not wrap the error in a `BitwardenError.generalError`
+    /// when a `ServerError.error` carries a message other than the targeted cipher-encryption
+    /// message. The raw `ServerError` is still sent to the reporter via the generic catch-all log.
     @MainActor
     func test_perform_savePressed_serverError_otherMessage_doesNotLog() async throws {
         let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
@@ -1420,7 +1421,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         await subject.perform(.savePressed)
 
-        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors.count, 1)
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.

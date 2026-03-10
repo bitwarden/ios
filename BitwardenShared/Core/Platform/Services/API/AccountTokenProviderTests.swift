@@ -28,6 +28,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
         client = MockHTTPClient()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+        stateService.activeAccount = .fixture()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 10, day: 2)))
         tokenService = MockTokenService()
 
