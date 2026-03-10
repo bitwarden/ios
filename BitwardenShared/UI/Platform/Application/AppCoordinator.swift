@@ -400,17 +400,6 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             } else {
                 navigate(to: .vault(.autofillList))
             }
-
-            // Check for pending vault migration after setting up the vault coordinator.
-            if appExtensionDelegate?.canAutofill != true {
-                Task {
-                    if let organizationId = try? await services.syncService.organizationIdRequiringVaultMigration() {
-                        await MainActor.run {
-                            navigate(to: .migrateToMyItems(organizationId: organizationId, isExtension: true))
-                        }
-                    }
-                }
-            }
         case .mainApp:
             showTab(route: .vault(.list))
 
@@ -430,13 +419,19 @@ extension AppCoordinator: AuthCoordinatorDelegate {
                 navigate(to: authCompletionRoute)
                 self.authCompletionRoute = nil
             }
+        }
 
-            // Check for pending vault migration after unlock.
+        // Check for pending vault migration after setting up the vault coordinator.
+        if appExtensionDelegate?.canAutofill != true {
             Task {
-                if let organizationId = try? await services.syncService.organizationIdRequiringVaultMigration() {
-                    await MainActor.run {
-                        navigate(to: .migrateToMyItems(organizationId: organizationId))
+                do {
+                    if let organizationId = try await services.syncService.organizationIdRequiringVaultMigration() {
+                        await MainActor.run {
+                            navigate(to: .migrateToMyItems(organizationId: organizationId, isExtension: true))
+                        }
                     }
+                } catch {
+                        services.errorReporter.log(error: error)
                 }
             }
         }
