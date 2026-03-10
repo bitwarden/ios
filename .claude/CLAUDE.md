@@ -169,7 +169,7 @@ Configured in `project-pm.yml`:
 - Sourcery mock generation runs as pre-build phase
 - SwiftGen asset code generation runs as pre-build phase
 
-## Anti-Patterns
+## Patterns
 
 ### DO
 
