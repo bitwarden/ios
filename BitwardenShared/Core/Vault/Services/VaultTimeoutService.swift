@@ -195,50 +195,45 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             // On app restart, trigger timeout if this is actually an app restart
             return isAppRestart
         default:
+            let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
             let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
-            guard let lastActiveTime else {
+
+            // We need both times to calculate session timeout. If any of the times is not present
+            // then treat it as the session has timed out.
+            guard let lastActiveMonotonic, let lastActiveTime else {
                 return true
             }
 
-            let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
-
             // Use monotonic time for tamper-resistant timeout checking
-            if let lastActiveMonotonic {
-                await flightRecorder.log("Checking timeout with monotonic time for userId: \(userId)")
-                let result = timeProvider.calculateTamperResistantElapsedTime(
-                    lastMonotonicTime: lastActiveMonotonic,
-                    lastWallClockTime: lastActiveTime,
-                    divergenceThreshold: 5.0,
-                )
+            await flightRecorder.log("Checking timeout with monotonic time for userId: \(userId)")
+            let result = timeProvider.calculateTamperResistantElapsedTime(
+                lastMonotonicTime: lastActiveMonotonic,
+                lastWallClockTime: lastActiveTime,
+                divergenceThreshold: 5.0,
+            )
 
-                // Force timeout if tampering detected (reboot or clock manipulation)
-                if result.tamperingDetected {
+            // Force timeout if tampering detected (reboot or clock manipulation)
+            if result.tamperingDetected {
+                return true
+            }
+
+            // Check for the reboot-timing attack: an attacker who reboots the device and
+            // waits until the monotonic clock matches the stored value bypasses the isReboot
+            // flag. The boot epoch shifts dramatically across a reboot and catches this.
+            // Guard on isReboot: a legitimate reboot is already caught above via tamperingDetected.
+            let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
+            let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
+                - timeProvider.monotonicTime
+            if let storedBootEpoch, !result.isReboot {
+                let epochDrift = abs(currentBootEpoch - storedBootEpoch)
+                if epochDrift > 5.0 {
                     return true
                 }
-
-                // Check for the reboot-timing attack: an attacker who reboots the device and
-                // waits until the monotonic clock matches the stored value bypasses the isReboot
-                // flag. The boot epoch shifts dramatically across a reboot and catches this.
-                // Guard on isReboot: a legitimate reboot is already caught above via tamperingDetected.
-                let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
-                let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
-                    - timeProvider.monotonicTime
-                if let storedBootEpoch, !result.isReboot {
-                    let epochDrift = abs(currentBootEpoch - storedBootEpoch)
-                    if epochDrift > 5.0 {
-                        return true
-                    }
-                }
-
-                // Use monotonic elapsed time exclusively as the tamper-resistant timeout source
-                let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
-                return result.effectiveElapsed >= timeoutSeconds
-            } else {
-                await flightRecorder.log("Checking timeout with wall-clock time for userId: \(userId)")
-                // Migration fallback: use wall-clock if monotonic time not available
-                return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
-                    >= TimeInterval(vaultTimeout.seconds)
             }
+
+            // Use monotonic elapsed time exclusively as the tamper-resistant timeout source
+            let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
+            return result.effectiveElapsed >= timeoutSeconds
         }
     }
 
