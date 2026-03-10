@@ -36,11 +36,34 @@ public extension UIViewController {
             )
             popoverPresentationController.permittedArrowDirections = []
         }
-        availablePresenter?.present(
+        availablePresenter?.safePresent(
             viewController,
             animated: animated,
             completion: onCompletion,
         )
+    }
+
+    /// Safely presents a view controller by ensuring no presentation is already in progress. This helps
+    /// avoid potential race conditions with presenting while another view is being dismissed.
+    ///
+    /// This method checks if a presentation is currently in progress and waits if necessary before
+    /// presenting the view controller. If a view controller is already being presented and being
+    /// dismissed, it will retry after a short delay.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller to present.
+    ///   - animated: Whether the transition should be animated.
+    ///   - completion: A closure to call on completion.
+    ///
+    func safePresent(_ viewController: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
+        guard presentedViewController == nil || presentedViewController?.isBeingDismissed == false else {
+            // Already presenting something, but it's in the process of dismissing. Wait and retry.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.safePresent(viewController, animated: animated, completion: completion)
+            }
+            return
+        }
+        present(viewController, animated: animated, completion: completion)
     }
 
     /// Returns the topmost view controller starting from this view controller and navigating down the view hierarchy.
