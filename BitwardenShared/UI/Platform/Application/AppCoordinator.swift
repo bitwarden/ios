@@ -402,10 +402,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             }
 
             // Check for pending vault migration after setting up the vault coordinator.
-            Task {
-                if let organizationId = try? await services.syncService.organizationIdRequiringVaultMigration() {
-                    await MainActor.run {
-                        navigate(to: .migrateToMyItems(organizationId: organizationId, isExtension: true))
+            if appExtensionDelegate?.canAutofill != true {
+                Task {
+                    if let organizationId = try? await services.syncService.organizationIdRequiringVaultMigration() {
+                        await MainActor.run {
+                            navigate(to: .migrateToMyItems(organizationId: organizationId, isExtension: true))
+                        }
                     }
                 }
             }
