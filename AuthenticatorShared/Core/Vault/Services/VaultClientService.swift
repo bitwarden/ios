@@ -56,12 +56,18 @@ extension VaultClient: VaultClientService {
 
     func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
-        let response = try generateTotp(key: key, time: calculationDate)
-        return TOTPCodeModel(
-            code: response.code,
-            codeGenerationDate: calculationDate,
-            period: response.period,
-        )
+        do {
+            let response = try generateTotp(key: key, time: calculationDate)
+            return TOTPCodeModel(
+                code: response.code,
+                codeGenerationDate: calculationDate,
+                period: response.period,
+            )
+        } catch BitwardenSdk.TotpError.MissingSecret {
+            throw TOTPKeyError.missingSecret
+        } catch {
+            throw TOTPServiceError.unableToGenerateCode(error.localizedDescription)
+        }
     }
 
     func passwordHistory() -> PasswordHistoryClientProtocol {

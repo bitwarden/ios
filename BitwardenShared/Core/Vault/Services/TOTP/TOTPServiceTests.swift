@@ -186,7 +186,7 @@ final class TOTPServiceTests: BitwardenTestCase {
 
     func test_getTOTPConfiguration_failure() {
         XCTAssertThrowsError(try subject.getTOTPConfiguration(key: nil)) { error in
-            XCTAssertEqual(error as? TOTPServiceError, .invalidKeyFormat)
+            XCTAssertEqual(error as? TOTPKeyError, .invalidKeyFormat)
         }
     }
 }

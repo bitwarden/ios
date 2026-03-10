@@ -6,7 +6,7 @@ class MockTOTPService: TOTPService {
     var capturedKey: String?
     var copyTotpIfPossibleCalled = false
     var copyTotpIfPossibleError: Error?
-    var getTOTPConfigResult: Result<TOTPKeyModel, Error> = .failure(TOTPServiceError.invalidKeyFormat)
+    var getTOTPConfigResult: Result<TOTPKeyModel, Error> = .failure(TOTPKeyError.invalidKeyFormat)
 
     func copyTotpIfPossible(cipher: BitwardenSdk.CipherView) async throws {
         copyTotpIfPossibleCalled = true
