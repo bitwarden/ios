@@ -198,7 +198,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
         // Verify error was logged
         XCTAssertEqual(errorReporter.errors.count, 1)
-        let error = errorReporter.errors[0] as? TokenRefreshRaceConditionError
+        let error = errorReporter.errors[0] as? AccountTokenProviderError
         XCTAssertNotNil(error)
         XCTAssertEqual(error?.userIdBefore, "user-1")
         XCTAssertEqual(error?.userIdAfter, "user-2")
@@ -216,5 +216,27 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
         // Verify no error was logged
         XCTAssertEqual(errorReporter.errors.count, 0)
+    }
+
+    /// `refreshToken()` logs an error when `getActiveAccountId` throws after tokens are stored,
+    /// but still returns the access token successfully.
+    func test_refreshToken_logsError_whenGetUserIdAfterThrows() async throws {
+        tokenService.accessToken = "🔑"
+        tokenService.refreshToken = "🔒"
+        client.result = .httpSuccess(testData: .identityTokenRefresh)
+
+        // Remove the active account during the HTTP request so the second
+        // getActiveAccountId() call (after setTokens) throws noActiveAccount.
+        client.onRequest = { _ in
+            self.stateService.activeAccount = nil
+        }
+
+        let token = try await subject.refreshToken()
+
+        // Token is still returned successfully despite the diagnostic check throwing
+        XCTAssertEqual(token, "ACCESS_TOKEN")
+        // The thrown error was logged via errorReporter
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        XCTAssertEqual(errorReporter.errors[0] as? StateServiceError, StateServiceError.noActiveAccount)
     }
 }

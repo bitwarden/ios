@@ -1,10 +1,10 @@
 import Foundation
 
-// MARK: - TokenRefreshRaceConditionError
+// MARK: - AccountTokenProviderError
 
 /// Error logged when the active account changes during a token refresh operation.
 ///
-struct TokenRefreshRaceConditionError: Error, CustomStringConvertible {
+struct AccountTokenProviderError: Error, CustomStringConvertible {
     // MARK: Properties
 
     /// The active user ID before the token refresh operation.

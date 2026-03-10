@@ -108,13 +108,16 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
                     expirationDate: expirationDate,
                 )
 
-                let userIdAfter = try await stateService.getActiveAccountId()
-
-                if userIdBefore != userIdAfter {
-                    let error = TokenRefreshRaceConditionError(
-                        userIdBefore: userIdBefore,
-                        userIdAfter: userIdAfter,
-                    )
+                do {
+                    let userIdAfter = try await stateService.getActiveAccountId()
+                    if userIdBefore != userIdAfter {
+                        let error = AccountTokenProviderError(
+                            userIdBefore: userIdBefore,
+                            userIdAfter: userIdAfter,
+                        )
+                        errorReporter.log(error: error)
+                    }
+                } catch {
                     errorReporter.log(error: error)
                 }
 
