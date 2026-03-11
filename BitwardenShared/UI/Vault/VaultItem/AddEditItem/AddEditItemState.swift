@@ -145,36 +145,22 @@ protocol AddEditItemState: Sendable {
     /// Selects the `.defaultUserCollection` if needed, mainly checking the organization policies apply.
     mutating func selectDefaultCollectionIfNeeded()
 
-    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
-    /// preserve any additional UI properties on the state.
-    ///
-    /// - Parameters:
-    ///   - cipherView: The updated `CipherView`.
-    ///   - overrideLoginItemState: An optional `LoginItemState` to use in place of the one derived
-    ///     from `cipherView`. When non-nil, the provided state is used as-is, preserving any
-    ///     in-memory login properties (such as TOTP codes) that may not yet be reflected in the
-    ///     cipher view.
-    ///
-    mutating func update(
-        from cipherView: CipherView,
-        overrideLoginItemState: LoginItemState?,
-    )
-
     /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`,
-    /// selectively preserving the given TOTP state. All other login fields (password, username,
-    /// URIs, etc.) are updated normally from the cipher view. The provided TOTP state always takes
-    /// precedence over whatever value is derived from the cipher view.
+    /// optionally preserving a TOTP state that should take precedence over the cipher view.
+    /// All other login fields (password, username, URIs, etc.) are updated normally from the
+    /// cipher view.
     ///
     /// - Parameters:
     ///   - cipherView: The updated `CipherView`.
-    ///   - preservingTOTPState: The `LoginTOTPState` that takes precedence over the value derived from the cipher view.
+    ///   - preservingTOTPState: When non-nil, this TOTP state takes precedence over whatever
+    ///     value is derived from the cipher view. Pass `nil` to let the cipher view's TOTP value
+    ///     apply normally.
     ///
     mutating func update(
         from cipherView: CipherView,
-        preservingTOTPState: LoginTOTPState,
+        preservingTOTPState: LoginTOTPState?,
     )
 }
-
 extension AddEditItemState {
     /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`, using
     /// the cipher view's own login state (no override). This will preserve any additional UI
@@ -183,10 +169,7 @@ extension AddEditItemState {
     /// - Parameter cipherView: The updated `CipherView`.
     ///
     mutating func update(from cipherView: CipherView) {
-        update(
-            from: cipherView,
-            overrideLoginItemState: nil,
-        )
+        update(from: cipherView, preservingTOTPState: nil)
     }
 }
 

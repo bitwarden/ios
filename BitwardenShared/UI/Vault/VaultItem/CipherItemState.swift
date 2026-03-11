@@ -511,14 +511,7 @@ extension CipherItemState: AddEditItemState {
 
     mutating func update(
         from cipherView: CipherView,
-        overrideLoginItemState: LoginItemState?,
-    ) {
-        apply(cipherView: cipherView, overrideLoginItemState: overrideLoginItemState)
-    }
-
-    mutating func update(
-        from cipherView: CipherView,
-        preservingTOTPState totpState: LoginTOTPState,
+        preservingTOTPState totpState: LoginTOTPState?,
     ) {
         apply(cipherView: cipherView, overrideTOTPState: totpState)
     }
