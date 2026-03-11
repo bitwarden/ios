@@ -161,10 +161,10 @@ protocol AddEditItemState: Sendable {
         preservingTOTPState: LoginTOTPState?,
     )
 }
+
 extension AddEditItemState {
-    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`, using
-    /// the cipher view's own login state (no override). This will preserve any additional UI
-    /// properties on the state.
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`.
+    /// This will preserve any additional UI properties on the state.
     ///
     /// - Parameter cipherView: The updated `CipherView`.
     ///
