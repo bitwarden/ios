@@ -319,13 +319,13 @@ extension GeneratorState {
                     stepperField(
                         accessibilityId: "MinNumberValueLabel",
                         keyPath: \.passwordState.minimumNumber,
-                        range: 0 ... 5,
+                        range: 0 ... 9,
                         title: Localizations.minNumbers,
                     ),
                     stepperField(
                         accessibilityId: "MinSpecialValueLabel",
                         keyPath: \.passwordState.minimumSpecial,
-                        range: 0 ... 5,
+                        range: 0 ... 9,
                         title: Localizations.minSpecial,
                     ),
                     toggleField(

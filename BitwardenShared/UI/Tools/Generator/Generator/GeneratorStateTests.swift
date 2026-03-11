@@ -68,8 +68,8 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
               Toggle: a-z Value: true
               Toggle: 0-9 Value: true
               Toggle: !@#$%^&* Value: false
-              Stepper: Minimum numbers Value: 1 Range: 0...5
-              Stepper: Minimum special Value: 1 Range: 0...5
+              Stepper: Minimum numbers Value: 1 Range: 0...9
+              Stepper: Minimum special Value: 1 Range: 0...9
               Toggle: Avoid ambiguous characters Value: false
             """
         }
