@@ -428,9 +428,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     ///     that is different from the original.
     ///   - overrideLoginItemState: An optional value to override the `CipherView`s `LoginItemState`.
     ///     Used when cloning a cipher to exclude FIDO2 credentials.
-    ///   - overrideTOTPState: An optional TOTP state to restore after building the login state from
-    ///     the cipher view. Applied only when the cipher view itself has no TOTP key (i.e., the
-    ///     in-memory key has not yet been persisted to the server).
+    ///   - overrideTOTPState: An optional TOTP state that always takes precedence over whatever
+    ///     TOTP value is derived from the cipher view. Used to preserve an in-memory TOTP key
+    ///     added via BWA import that may not yet be persisted to the server.
     ///
     private mutating func apply(
         cipherView: CipherView,
@@ -453,7 +453,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         isMasterPasswordRePromptOn = cipherView.reprompt == .password
         var newLoginState = overrideLoginItemState
             ?? cipherView.loginItemState(showTOTP: accountHasPremium || cipherView.organizationUseTotp)
-        if let overrideTOTPState, case .none = newLoginState.totpState {
+        if let overrideTOTPState {
             newLoginState.totpState = overrideTOTPState
         }
         loginState = newLoginState

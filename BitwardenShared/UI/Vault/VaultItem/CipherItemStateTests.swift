@@ -804,9 +804,10 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subject, expected)
     }
 
-    /// `update(from:preservingTOTPState:)` preserves the in-memory TOTP state when the incoming
-    /// cipher view has no TOTP key, while still updating all other login fields normally.
-    func test_updateFromCipherView_preservingTOTPState() throws {
+    /// `update(from:preservingTOTPState:)` preserves the in-memory TOTP state regardless of
+    /// whether the incoming cipher view has a TOTP key, while still updating all other login
+    /// fields normally.
+    func test_updateFromCipherView_TOTPState() throws {
         let totpKey = "JBSWY3DPEHPK3PXP"
         var subject = try XCTUnwrap(
             CipherItemState(
@@ -816,17 +817,29 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         let originalLoginState = subject.loginState
 
-        let updatedCipher = CipherView.fixture(
+        // Cipher arrives with no TOTP key: override wins.
+        let updatedCipherNoTotp = CipherView.fixture(
             id: "123",
             login: .fixture(password: "updated-password", totp: nil),
             name: "Updated Name",
             type: .login,
         )
-        subject.update(from: updatedCipher, preservingTOTPState: originalLoginState.totpState)
+        subject.update(from: updatedCipherNoTotp, preservingTOTPState: originalLoginState.totpState)
 
         XCTAssertEqual(subject.name, "Updated Name")
         XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
         XCTAssertEqual(subject.loginState.password, "updated-password")
+
+        // Cipher arrives with a different TOTP key: override still wins.
+        let updatedCipherWithTotp = CipherView.fixture(
+            id: "123",
+            login: .fixture(password: "updated-password", totp: "DIFFERENTKEY"),
+            name: "Updated Name",
+            type: .login,
+        )
+        subject.update(from: updatedCipherWithTotp, preservingTOTPState: originalLoginState.totpState)
+
+        XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
     }
 }
 

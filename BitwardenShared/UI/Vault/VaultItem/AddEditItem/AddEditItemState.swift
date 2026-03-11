@@ -162,13 +162,12 @@ protocol AddEditItemState: Sendable {
 
     /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`,
     /// selectively preserving the given TOTP state. All other login fields (password, username,
-    /// URIs, etc.) are updated normally from the cipher view. The TOTP state is restored only
-    /// when the incoming cipher view has no TOTP key of its own — i.e., the in-memory key has not
-    /// yet been persisted to the server.
+    /// URIs, etc.) are updated normally from the cipher view. The provided TOTP state always takes
+    /// precedence over whatever value is derived from the cipher view.
     ///
     /// - Parameters:
     ///   - cipherView: The updated `CipherView`.
-    ///   - preservingTOTPState: The `LoginTOTPState` to restore if the cipher view has no TOTP key.
+    ///   - preservingTOTPState: The `LoginTOTPState` that takes precedence over the value derived from the cipher view.
     ///
     mutating func update(
         from cipherView: CipherView,
