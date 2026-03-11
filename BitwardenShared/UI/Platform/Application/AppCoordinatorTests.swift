@@ -651,6 +651,9 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_navigateTo_migrateToMyItems() {
         rootNavigator.rootViewController = MockUIViewController()
 
+        // First authenticate to set up the childCoordinator (TabRoute).
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
         let task = Task {
             subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))
         }
@@ -675,6 +678,10 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             services: services,
         )
         rootNavigator.rootViewController = MockUIViewController()
+
+        // First authenticate to set up the childCoordinator (VaultRoute).
+        appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
+        subject.didCompleteAuth(rehydratableTarget: nil)
 
         let task = Task {
             subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))

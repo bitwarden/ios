@@ -691,6 +691,19 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
     }
 
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
+    /// coordinator if the user's vault is unlocked but a vault migration is required.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultUnlockedMigrationRequired() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
+
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
     /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and an
     /// invalid item is found. It shows a generic error alert and does not produce a route.
     @MainActor
