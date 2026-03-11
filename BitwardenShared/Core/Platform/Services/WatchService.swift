@@ -198,17 +198,35 @@ class DefaultWatchService: NSObject, WatchService {
         // and recreated each time.
         syncCiphersTask?.cancel()
         syncCiphersTask = Task {
-            let userId = try? await stateService.getActiveAccountId()
-            let connectToWatch = try? await stateService.getConnectToWatch()
-            let lastUserShouldConnect = await stateService.getLastUserShouldConnectToWatch()
+            let userId: String?
+            do {
+                userId = try await stateService.getActiveAccountId()
+            } catch StateServiceError.noActiveAccount {
+                userId = nil
+            } catch {
+                userId = nil
+                errorReporter.log(error: error)
+            }
+
+            let shouldConnect: Bool
+            do {
+                shouldConnect = try await stateService.getConnectToWatch()
+            } catch StateServiceError.noActiveAccount {
+                shouldConnect = await stateService.getLastUserShouldConnectToWatch()
+            } catch {
+                shouldConnect = await stateService.getLastUserShouldConnectToWatch()
+                errorReporter.log(error: error)
+            }
+
             let isVaultLocked = if let userId {
                 await vaultTimeoutService.isLocked(userId: userId)
             } else {
                 true
             }
+
             await syncWithWatch(
                 userId: userId,
-                shouldConnect: connectToWatch ?? lastUserShouldConnect,
+                shouldConnect: shouldConnect,
                 isVaultLocked: isVaultLocked,
             )
         }

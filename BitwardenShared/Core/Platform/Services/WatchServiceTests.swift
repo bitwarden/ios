@@ -8,10 +8,12 @@ import WatchConnectivity
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - WatchServiceTests
 
 @MainActor
-struct WatchServiceTests {
+struct WatchServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherService: MockCipherService!
@@ -122,6 +124,58 @@ struct WatchServiceTests {
     }
 
     // MARK: syncWithWatch Tests
+
+    /// `syncWithWatch()` logs an unexpected error from `getActiveAccountId` and falls
+    /// back to treating the user as logged out.
+    @Test
+    func syncWithWatch_getActiveAccountIdUnexpectedError_logsError() async throws {
+        stateService.activeAccount = nil
+        stateService.getActiveAccountIdError = BitwardenTestError.example
+        stateService.lastUserShouldConnectToWatch = true
+
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+            stateService.connectToWatchSubject.send((nil, false))
+        }
+
+        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        #expect(dto.state == .needLogin)
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+    }
+
+    /// `syncWithWatch()` falls back to `getLastUserShouldConnectToWatch` without logging
+    /// an error when `getConnectToWatch` throws `noActiveAccount`.
+    @Test
+    func syncWithWatch_getConnectToWatchNoActiveAccount_fallsBackSilently() async throws {
+        stateService.connectToWatchResult = .failure(StateServiceError.noActiveAccount)
+        stateService.lastUserShouldConnectToWatch = true
+
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+            stateService.connectToWatchSubject.send(("1", true))
+        }
+
+        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        #expect(dto.state == .need2FAItem)
+        #expect(errorReporter.errors.isEmpty)
+    }
+
+    /// `syncWithWatch()` falls back to `getLastUserShouldConnectToWatch` and logs an error
+    /// when `getConnectToWatch` throws an unexpected error.
+    @Test
+    func syncWithWatch_getConnectToWatchUnexpectedError_logsErrorAndFallsBack() async throws {
+        stateService.connectToWatchResult = .failure(BitwardenTestError.example)
+        stateService.lastUserShouldConnectToWatch = true
+
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+            stateService.connectToWatchSubject.send(("1", true))
+        }
+
+        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        #expect(dto.state == .need2FAItem)
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+    }
 
     /// `syncWithWatch()` sends a `.needLogin` state when there is no active account.
     @Test
