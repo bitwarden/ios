@@ -287,6 +287,13 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// - Parameter organizationId: The organization ID that requires the vault migration.
     ///
     private func showMigrateToMyItems(organizationId: String) {
+        // Make sure that the user is authenticated.
+        // In the main app, childCoordinator is TabRoute. In extensions, it's VaultRoute or SendItemRoute.
+        guard childCoordinator is AnyCoordinator<TabRoute, Void>
+                || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
+                || childCoordinator is AnyCoordinator<SendItemRoute, AuthAction>
+        else { return }
+
         // Make sure that the user is not currently viewing the migrate to my items view.
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
         guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
