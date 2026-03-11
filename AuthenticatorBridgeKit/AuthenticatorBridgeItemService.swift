@@ -144,10 +144,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// - Parameter userId: the id of the user for which to fetch items.
     ///
     public func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
-        let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
-        let result = try dataStore.backgroundContext.fetch(fetchRequest)
-        let encryptedItems = result.compactMap { data in
-            data.model
+        let context = dataStore.backgroundContext
+        let encryptedItems = try await context.perform {
+            let fetchRequest = AuthenticatorBridgeItemData.fetchByUserIdRequest(userId: userId)
+            let result = try context.fetch(fetchRequest)
+            return result.compactMap(\.model)
         }
         return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
     }
@@ -235,13 +236,14 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// logout timeout. If so, then their shared items are deleted.
     ///
     private func checkForLogout() async throws {
-        let userIds = try dataStore.backgroundContext.performAndWait {
+        let context = dataStore.backgroundContext
+        let userIds = try await context.perform {
             let fetchRequest = NSFetchRequest<NSDictionary>(entityName: AuthenticatorBridgeItemData.entityName)
             fetchRequest.propertiesToFetch = ["userId"]
             fetchRequest.returnsDistinctResults = true
             fetchRequest.resultType = .dictionaryResultType
 
-            let results = try dataStore.backgroundContext.fetch(fetchRequest)
+            let results = try context.fetch(fetchRequest)
             return results.compactMap { ($0 as? [String: Any])?["userId"] as? String }
         }
 
