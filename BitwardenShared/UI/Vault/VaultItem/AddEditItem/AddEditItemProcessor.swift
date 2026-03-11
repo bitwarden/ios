@@ -771,9 +771,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     }
 
     /// Streams cipher details for the current cipher, updating state whenever the vault repository
-    /// emits an updated `CipherView`. The current `loginState` is passed as an override so that
-    /// any in-memory TOTP codes added via BWA import—but not yet persisted to the server—are
-    /// preserved and not overwritten by the incoming vault sync update.
+    /// emits an updated `CipherView`. Only the TOTP state is preserved from the current
+    /// `loginState` — all other login fields (password, username, URIs, etc.) are updated
+    /// normally. This ensures that any in-memory TOTP code added via BWA import but not yet
+    /// persisted to the server is not overwritten by an incoming vault sync update.
     private func streamCipherDetails() async {
         guard let cipherId = state.cipher.id else { return }
         do {
@@ -781,7 +782,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 guard let cipherView else { continue }
                 state.update(
                     from: cipherView,
-                    overrideLoginItemState: state.loginState,
+                    preservingTOTPState: state.loginState.totpState,
                 )
             }
         } catch {

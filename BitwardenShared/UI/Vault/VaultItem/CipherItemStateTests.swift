@@ -804,9 +804,9 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(subject, expected)
     }
 
-    /// `update(from:overrideLoginItemState:)` preserves the overridden login state instead of
-    /// applying the one derived from the updated cipher view.
-    func test_updateFromCipherView_withOverrideLoginItemState() throws {
+    /// `update(from:preservingTOTPState:)` preserves the in-memory TOTP state when the incoming
+    /// cipher view has no TOTP key, while still updating all other login fields normally.
+    func test_updateFromCipherView_preservingTOTPState() throws {
         let totpKey = "JBSWY3DPEHPK3PXP"
         var subject = try XCTUnwrap(
             CipherItemState(
@@ -822,10 +822,11 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             name: "Updated Name",
             type: .login,
         )
-        subject.update(from: updatedCipher, overrideLoginItemState: originalLoginState)
+        subject.update(from: updatedCipher, preservingTOTPState: originalLoginState.totpState)
 
         XCTAssertEqual(subject.name, "Updated Name")
         XCTAssertEqual(subject.loginState.totpState, originalLoginState.totpState)
+        XCTAssertEqual(subject.loginState.password, "updated-password")
     }
 }
 

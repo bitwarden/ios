@@ -427,14 +427,16 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     ///     primarily used when cloning a cipher to provide a default name for the cloned `CipherView`
     ///     that is different from the original.
     ///   - overrideLoginItemState: An optional value to override the `CipherView`s `LoginItemState`.
-    ///     Used when cloning a cipher (to exclude FIDO2 credentials) and during streaming vault
-    ///     sync updates (to preserve in-memory TOTP codes that have been added via BWA import but
-    ///     not yet persisted to the server).
+    ///     Used when cloning a cipher to exclude FIDO2 credentials.
+    ///   - overrideTOTPState: An optional TOTP state to restore after building the login state from
+    ///     the cipher view. Applied only when the cipher view itself has no TOTP key (i.e., the
+    ///     in-memory key has not yet been persisted to the server).
     ///
     private mutating func apply(
         cipherView: CipherView,
         overrideName: String? = nil,
         overrideLoginItemState: LoginItemState? = nil,
+        overrideTOTPState: LoginTOTPState? = nil,
     ) {
         let type = CipherType(type: cipherView.type)
 
@@ -449,8 +451,12 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         identityState = cipherView.identityItemState()
         isFavoriteOn = cipherView.favorite
         isMasterPasswordRePromptOn = cipherView.reprompt == .password
-        loginState = overrideLoginItemState
+        var newLoginState = overrideLoginItemState
             ?? cipherView.loginItemState(showTOTP: accountHasPremium || cipherView.organizationUseTotp)
+        if let overrideTOTPState, case .none = newLoginState.totpState {
+            newLoginState.totpState = overrideTOTPState
+        }
+        loginState = newLoginState
         name = overrideName ?? cipherView.name
         notes = cipherView.notes ?? ""
         organizationId = cipherView.organizationId
@@ -508,6 +514,13 @@ extension CipherItemState: AddEditItemState {
         overrideLoginItemState: LoginItemState?,
     ) {
         apply(cipherView: cipherView, overrideLoginItemState: overrideLoginItemState)
+    }
+
+    mutating func update(
+        from cipherView: CipherView,
+        preservingTOTPState totpState: LoginTOTPState,
+    ) {
+        apply(cipherView: cipherView, overrideTOTPState: totpState)
     }
 }
 
