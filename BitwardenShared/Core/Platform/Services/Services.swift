@@ -17,6 +17,7 @@ typealias Services = HasAPIService
     & HasBiometricsRepository
     & HasCameraService
     & HasChangeKdfService
+    & HasCipherOwnershipHelper
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
@@ -145,6 +146,13 @@ protocol HasBiometricsRepository {
 protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
     var cameraService: CameraService { get }
+}
+
+/// Protocol for an object that provides a `CipherOwnershipHelper`.
+///
+protocol HasCipherOwnershipHelper {
+    /// A helper to create cipher views with proper ownership based on policies.
+    var cipherOwnershipHelper: CipherOwnershipHelper { get }
 }
 
 /// Protocol for an object that provides a `ChangeKdfService`.
