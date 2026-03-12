@@ -20,6 +20,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!
     var authRepository: MockAuthRepository!
     var autofillCredentialService: MockAutofillCredentialService!
+    var cipherOwnershipHelper: MockCipherOwnershipHelper!
     var clientService: MockClientService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
@@ -40,6 +41,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate = MockAutofillAppExtensionDelegate()
         authRepository = MockAuthRepository()
         autofillCredentialService = MockAutofillCredentialService()
+        cipherOwnershipHelper = MockCipherOwnershipHelper()
         clientService = MockClientService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -54,12 +56,25 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)))
         vaultRepository = MockVaultRepository()
 
+        // Set default return value for cipherOwnershipHelper
+        // This matches what CipherView(fido2CredentialNewView:) would produce
+        // for a Fido2CredentialNewView with rpName: "rpName", userName: "username", rpId: "myApp.com"
+        cipherOwnershipHelper.createCipherViewReturnValue = .fixture(
+            id: nil,
+            login: .fixture(
+                uris: [.fixture(uri: "myApp.com")],
+                username: "username",
+            ),
+            name: "rpName",
+        )
+
         subject = VaultAutofillListProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 autofillCredentialService: autofillCredentialService,
+                cipherOwnershipHelper: cipherOwnershipHelper,
                 clientService: clientService,
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
@@ -79,6 +94,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate = nil
         authRepository = nil
         autofillCredentialService = nil
+        cipherOwnershipHelper = nil
         clientService = nil
         coordinator = nil
         errorReporter = nil
@@ -208,7 +224,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `receive(_:)` with `.addTapped` creates a new cipher with organization ID and collection IDs
-    /// when personal ownership is disabled.
+    /// when personal ownership is disabled (via cipherOwnershipHelper).
     @MainActor
     func test_receive_addTapped_fido2CreationEmptyViewWithOrganization() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -220,25 +236,16 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
         fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
 
-        // Set up personal ownership policy for an organization
+        // Set up cipherOwnershipHelper to return a cipher with organization and collection
         let organizationId = "org-123"
-        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = [organizationId]
-
-        // Set up ownership options without personal
-        vaultRepository.fetchCipherOwnershipOptions = [
-            .organization(id: organizationId, name: "Test Organization"),
-        ]
-
-        // Set up collections with a default collection
         let defaultCollectionId = "collection-456"
-        vaultRepository.fetchCollectionsResult = .success([
-            .fixture(
-                id: defaultCollectionId,
-                name: "Default Collection",
-                organizationId: organizationId,
-                type: .defaultUserCollection,
-            ),
-        ])
+        cipherOwnershipHelper.createCipherViewReturnValue = .fixture(
+            collectionIds: [defaultCollectionId],
+            id: nil,
+            login: .fixture(uris: [.fixture(uri: "myApp.com")], username: "username"),
+            name: "rpName",
+            organizationId: organizationId,
+        )
 
         subject.receive(.addTapped(fromFAB: false))
 
@@ -259,7 +266,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     }
 
     /// `receive(_:)` with `.addTapped` shows an error alert when personal ownership is disabled
-    /// but no eligible organization is available (e.g., org status is .accepted, not .confirmed).
+    /// but no eligible organization is available (via cipherOwnershipHelper throwing error).
     @MainActor
     func test_receive_addTapped_fido2CreationEmptyViewNoEligibleOrganization() throws {
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -270,22 +277,20 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             requireVerification: .required,
         )
 
-        // Set up personal ownership policy for an organization
-        let policyOrgId = "org-with-policy"
-        policyService.organizationsApplyingPolicyToUserResult[.personalOwnership] = [policyOrgId]
-
-        // But ownership options returns a different org (simulating the policy org not being confirmed)
-        vaultRepository.fetchCipherOwnershipOptions = [
-            .organization(id: "different-org", name: "Different Organization"),
-        ]
+        // Set up cipherOwnershipHelper to throw noEligibleOrganization error
+        cipherOwnershipHelper.createCipherViewThrowableError = CipherOwnershipHelperError.noEligibleOrganization
 
         subject.receive(.addTapped(fromFAB: false))
 
-        waitFor(!coordinator.alertShown.isEmpty)
+        waitFor(!errorReporter.errors.isEmpty)
 
         XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(title: Localizations.anErrorHasOccurred),
+            coordinator.errorAlertsShown.last as? CipherOwnershipHelperError,
+            CipherOwnershipHelperError.noEligibleOrganization,
+        )
+        XCTAssertEqual(
+            errorReporter.errors.last as? CipherOwnershipHelperError,
+            CipherOwnershipHelperError.noEligibleOrganization,
         )
         XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
