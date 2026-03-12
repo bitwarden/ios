@@ -64,7 +64,8 @@ public extension UIViewController {
         remainingAttempts: Int = 10,
         completion: (() -> Void)?,
     ) {
-        guard presentedViewController == nil || presentedViewController?.isBeingDismissed == false else {
+        let presentedViewControllerIsBeingDismissed = presentedViewController?.isBeingDismissed ?? false
+        guard !presentedViewControllerIsBeingDismissed else {
             guard remainingAttempts > 0 else {
                 let presented = presentedViewController
                 // UIKit merely logs a warning (and drops the completion on the floor) when `present()` fails.
