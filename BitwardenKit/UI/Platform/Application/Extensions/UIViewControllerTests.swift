@@ -1,5 +1,6 @@
-import BitwardenKit
 import XCTest
+
+@testable import BitwardenKit
 
 class UIViewControllerTests: BitwardenTestCase {
     // MARK: safePresent

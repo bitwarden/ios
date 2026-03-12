@@ -58,7 +58,7 @@ public extension UIViewController {
     ///   - completion: A closure to call on completion. Note: if the retry limit is exceeded, the
     ///     presentation is dropped and this closure will not be called.
     ///
-    func safePresent(
+    internal func safePresent(
         _ viewController: UIViewController,
         animated: Bool,
         remainingAttempts: Int = 10,
