@@ -318,6 +318,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
         let navigationController = module.makeNavigationController()
         navigationController.isModalInPresentation = true
+        navigationController.modalPresentationStyle = .fullScreen
         let globalModalCoordinator = module.makeGlobalModalCoordinator(stackNavigator: navigationController)
         globalModalCoordinator.start()
         globalModalCoordinator.navigate(to: .syncWithBrowser, context: self)
