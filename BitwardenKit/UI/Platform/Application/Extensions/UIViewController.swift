@@ -1,3 +1,4 @@
+import OSLog
 import UIKit
 
 public extension UIViewController {
@@ -63,7 +64,17 @@ public extension UIViewController {
         completion: (() -> Void)?,
     ) {
         guard presentedViewController == nil || presentedViewController?.isBeingDismissed == false else {
-            guard remainingAttempts > 0 else { return }
+            guard remainingAttempts > 0 else {
+                let presented = presentedViewController
+                // UIKit merely logs a warning when attempting to present, but it fails.
+                // Unfortunately, since in an extension like this we don't have good access to our error reporter,
+                // we have to follow the same pattern.
+                Logger.application.warning(
+                    // swiftlint:disable:next line_length
+                    "Warning: Attempt to present \(viewController) on \(self) which is already presenting \(String(describing: presented)) - retry limit exceeded, presentation dropped",
+                )
+                return
+            }
             // Already presenting something, but it's in the process of dismissing. Wait and retry.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 self?.safePresent(
