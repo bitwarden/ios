@@ -1,5 +1,6 @@
 import AuthenticatorBridgeKit
 import AuthenticatorBridgeKitMocks
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import Combine
@@ -18,6 +19,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
     var clientService: MockClientService!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var policyService: MockPolicyService!
     var sharedTimeoutService: MockSharedTimeoutService!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
@@ -35,6 +37,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = MockClientService()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        policyService = MockPolicyService()
         sharedTimeoutService = MockSharedTimeoutService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(
@@ -53,6 +56,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            policyService: policyService,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -68,6 +72,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         clientService = nil
         configService = nil
         errorReporter = nil
+        policyService = nil
         subject = nil
         stateService = nil
         timeProvider = nil
@@ -373,6 +378,51 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.timeoutAction["1"] = .logout
         timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
         XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` returns the policy-forced timeout action when the user doesn't
+    /// have a master password, has biometrics enabled, and a policy specifies a timeout action.
+    func test_sessionTimeoutAction_noMasterPassword_biometricsEnabled_policyForcesLogout() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(timeoutAction: .logout, timeoutType: nil, timeoutValue: nil),
+        )
+
+        let timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` returns the policy-forced timeout action when the user doesn't
+    /// have a master password, has pin unlock enabled, and a policy specifies a timeout action.
+    func test_sessionTimeoutAction_noMasterPassword_pinEnabled_policyForcesLock() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.timeoutAction["1"] = .logout
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue["1"] = "KEY"
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(timeoutAction: .lock, timeoutType: nil, timeoutValue: nil),
+        )
+
+        let timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .lock)
+    }
+
+    /// `sessionTimeoutAction()` returns the stored timeout action when the user doesn't have a
+    /// master password, has biometrics enabled, and the policy has no timeout action set.
+    func test_sessionTimeoutAction_noMasterPassword_biometricsEnabled_policyNoAction() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        policyService.fetchTimeoutPolicyValuesResult = .success(
+            SessionTimeoutPolicy(timeoutAction: nil, timeoutType: nil, timeoutValue: nil),
+        )
+
+        let timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .lock)
     }
 
     /// `sessionTimeoutAction()` throws errors.

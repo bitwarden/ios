@@ -129,6 +129,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service for managing the polices for the user.
+    private let policyService: PolicyService
+
     /// A service that manages account timeout between apps.
     private let sharedTimeoutService: SharedTimeoutService
 
@@ -153,6 +156,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - policyService: The service for managing the polices for the user.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
@@ -163,6 +167,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        policyService: PolicyService,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -172,6 +177,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
+        self.policyService = policyService
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -237,14 +243,20 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         guard hasMasterPassword else {
             let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus(userId: userId).isEnabled
             let isPinEnabled = try await isPinUnlockAvailable(userId: userId)
-            if isPinEnabled || isBiometricsEnabled {
-                return timeoutAction
-            } else {
+            guard isPinEnabled || isBiometricsEnabled else {
                 // If the user doesn't have a master password and hasn't enabled a pin or
                 // biometrics, their timeout action needs to be logout.
                 try await stateService.setTimeoutAction(action: .logout, userId: userId)
                 return .logout
             }
+
+            // If there's a policy for session timeout action active, then it's forced.
+            if let policy = try await policyService.fetchTimeoutPolicyValues(),
+               let policyTimeoutAction = policy.timeoutAction {
+                return policyTimeoutAction
+            }
+
+            return timeoutAction
         }
         return timeoutAction
     }
