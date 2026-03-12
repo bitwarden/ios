@@ -17,6 +17,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     typealias Services = HasAuthRepository
         & HasAutofillCredentialService
+        & HasCipherOwnershipHelper
         & HasClientService
         & HasConfigService
         & HasErrorReporter
@@ -766,56 +767,13 @@ extension VaultAutofillListProcessor {
         }
 
         do {
-            // Check if personal ownership is disabled and get the default owner/collections
-            let organizationsWithPersonalOwnershipPolicy = await services.policyService
-                .organizationsApplyingPolicyToUser(.personalOwnership)
-            let isPersonalOwnershipDisabled = !organizationsWithPersonalOwnershipPolicy.isEmpty
-
-            var organizationId: String?
-            var collectionIds: [String] = []
-
-            if isPersonalOwnershipDisabled {
-                let ownershipOptions = try await services.vaultRepository
-                    .fetchCipherOwnershipOptions(includePersonal: false)
-
-                // Find an org that both has the policy AND is eligible for ownership
-                let eligibleOwner = ownershipOptions.first { owner in
-                    guard let orgId = owner.organizationId else { return false }
-                    return organizationsWithPersonalOwnershipPolicy.contains(orgId)
-                }
-
-                guard let defaultOwner = eligibleOwner,
-                      let ownerOrgId = defaultOwner.organizationId else {
-                    // No eligible organization available - abort with error
-                    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                    return
-                }
-
-                organizationId = ownerOrgId
-
-                // Get the default collection for the organization
-                let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
-                let collectionsForOwner = collections.filter { $0.organizationId == ownerOrgId }
-
-                if let defaultCollection = collectionsForOwner.first(where: {
-                    $0.type == .defaultUserCollection
-                }),
-                    let defaultCollectionId = defaultCollection.id {
-                    collectionIds = [defaultCollectionId]
-                }
-            }
-
-            let newCipher = CipherView(
-                fido2CredentialNewView: fido2CredentialNewView,
-                organizationId: organizationId,
-                collectionIds: collectionIds,
-                timeProvider: services.timeProvider,
+            let newCipher = try await services.cipherOwnershipHelper.createCipherView(
+                from: fido2CredentialNewView,
             )
-
             await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
