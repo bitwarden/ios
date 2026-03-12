@@ -8,11 +8,13 @@ class UIViewControllerTests: BitwardenTestCase {
     func test_safePresent_presentsWhenNoPresentedViewController() {
         let subject = TrackingViewController()
         let viewController = UIViewController()
+        var completionCalled = false
 
-        subject.safePresent(viewController, animated: false, completion: nil)
+        subject.safePresent(viewController, animated: false, completion: { completionCalled = true })
 
         XCTAssertEqual(subject.presentedViewControllers.count, 1)
         XCTAssertTrue(subject.presentedViewControllers.first === viewController)
+        XCTAssertTrue(completionCalled)
     }
 
     /// `safePresent` defers presentation while a dismiss is in progress and retries until it succeeds.
@@ -20,8 +22,9 @@ class UIViewControllerTests: BitwardenTestCase {
         let subject = TrackingViewController()
         subject.mockPresentedViewController = BeingDismissedViewController()
         let viewController = UIViewController()
+        var completionCalled = false
 
-        subject.safePresent(viewController, animated: false, completion: nil)
+        subject.safePresent(viewController, animated: false, completion: { completionCalled = true })
 
         // Not yet presented — retry is pending.
         XCTAssertTrue(subject.presentedViewControllers.isEmpty)
@@ -33,6 +36,7 @@ class UIViewControllerTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.presentedViewControllers.count, 1)
         XCTAssertTrue(subject.presentedViewControllers.first === viewController)
+        XCTAssertTrue(completionCalled)
     }
 
     /// `safePresent` does not present when the retry limit is exhausted while a dismiss is in progress.
@@ -40,10 +44,12 @@ class UIViewControllerTests: BitwardenTestCase {
         let subject = TrackingViewController()
         subject.mockPresentedViewController = BeingDismissedViewController()
         let viewController = UIViewController()
+        var completionCalled = false
 
-        subject.safePresent(viewController, animated: false, remainingAttempts: 0, completion: nil)
+        subject.safePresent(viewController, animated: false, remainingAttempts: 0, completion: { completionCalled = true })
 
         XCTAssertTrue(subject.presentedViewControllers.isEmpty)
+        XCTAssertFalse(completionCalled)
     }
 
     // MARK: topmostViewController
