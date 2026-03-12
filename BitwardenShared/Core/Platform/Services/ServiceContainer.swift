@@ -871,7 +871,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             ),
         )
 
+        let cipherEncryptionMediator = DefaultCipherEncryptionMediator(
+            cipherService: cipherService,
+            clientService: clientService,
+        )
+
         let vaultRepository = DefaultVaultRepository(
+            cipherEncryptionMediator: cipherEncryptionMediator,
             cipherService: cipherService,
             clientService: clientService,
             collectionHelper: collectionHelper,
