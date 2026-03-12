@@ -5,6 +5,7 @@ import XCTest
 
 // MARK: - ImportCiphersAPIServiceTests
 
+@MainActor
 class ImportCiphersAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -19,8 +20,8 @@ class ImportCiphersAPIServiceTests: BitwardenTestCase {
         subject = APIService(client: client)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
         client = nil
         subject = nil
     }

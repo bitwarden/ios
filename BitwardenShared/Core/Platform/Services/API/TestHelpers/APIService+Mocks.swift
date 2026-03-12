@@ -10,6 +10,8 @@ extension APIService {
         client: HTTPClient,
         environmentService: EnvironmentService = MockEnvironmentService(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
+        // swiftlint:disable:next line_length
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
         stateService: StateService = MockStateService(),
     ) {
         self.init(
@@ -17,6 +19,7 @@ extension APIService {
             client: client,
             environmentService: environmentService,
             flightRecorder: flightRecorder,
+            serverCommunicationConfigClientSingleton: { serverCommunicationConfigClientSingleton },
             stateService: stateService,
             tokenService: MockTokenService(),
         )

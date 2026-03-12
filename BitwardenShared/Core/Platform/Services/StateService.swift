@@ -1397,7 +1397,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A service used to access data in the keychain.
-    private let keychainRepository: KeychainRepository
+    let keychainRepository: KeychainRepository
 
     /// A service used to access user session data in the keychain.
     private let userSessionKeychainRepository: UserSessionKeychainRepository
@@ -1869,6 +1869,12 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
                 trustedDeviceOption: nil,
             )
         userDecryptionOptions.masterPasswordUnlock = masterPasswordUnlock
+
+        profile.kdfIterations = masterPasswordUnlock.kdf.iterations
+        profile.kdfType = masterPasswordUnlock.kdf.kdfType
+        profile.kdfMemory = masterPasswordUnlock.kdf.memory
+        profile.kdfParallelism = masterPasswordUnlock.kdf.parallelism
+
         profile.userDecryptionOptions = userDecryptionOptions
         state.accounts[userId]?.profile = profile
         appSettingsStore.state = state
@@ -2159,8 +2165,9 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     }
 
     func connectToWatchPublisher() async -> AnyPublisher<(String?, Bool), Never> {
-        activeAccountIdPublisher().flatMap { userId in
-            self.connectToWatchByUserIdSubject.map { values in
+        activeAccountIdPublisher()
+            .combineLatest(connectToWatchByUserIdSubject)
+            .map { userId, values in
                 let userValue = if let userId {
                     // Get the user's setting, if they're logged in.
                     values[userId] ?? self.appSettingsStore.connectToWatch(userId: userId)
@@ -2170,8 +2177,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
                 }
                 return (userId, userValue)
             }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {

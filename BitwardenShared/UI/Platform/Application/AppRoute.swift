@@ -21,6 +21,9 @@ public enum AppRoute: Equatable {
     /// A route to the send interface.
     case sendItem(SendItemRoute)
 
+    /// A route to the sync with browser screen.
+    case syncWithBrowser
+
     /// A route to the tab interface.
     case tab(TabRoute)
 

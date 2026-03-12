@@ -3,10 +3,17 @@ import TestHelpers
 
 public class MockConfigStateService: ConfigStateService {
     public var activeAccountId: String?
+    public var clearServerCommCookieValueCalled = false
+    public var clearServerCommCookieValueHostname: String?
     public var preAuthServerConfig: ServerConfig?
     public var serverConfig = [String: ServerConfig]()
 
     public init() {}
+
+    public func clearServerCommunicationCookieValue(hostname: String) async throws {
+        clearServerCommCookieValueCalled = true
+        clearServerCommCookieValueHostname = hostname
+    }
 
     public func getActiveAccountId() async throws -> String {
         guard let activeAccountId else { throw BitwardenTestError.example }

@@ -20,6 +20,7 @@ typealias Services = HasAPIService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
+    & HasDeviceAuthKeyService
     & HasEnvironmentService
     & HasErrorReportBuilder
     & HasErrorReporter
@@ -45,6 +46,8 @@ typealias Services = HasAPIService
     & HasReviewPromptService
     & HasSearchProcessorMediatorFactory
     & HasSendRepository
+    & HasServerCommunicationConfigAPIService
+    & HasServerCommunicationConfigClientSingleton
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
@@ -165,6 +168,13 @@ protocol HasClientService {
 protocol HasDeviceAPIService {
     /// The service used by the application to make device-related API requests.
     var deviceAPIService: DeviceAPIService { get }
+}
+
+/// Protocol for an object that provides a `DeviceAuthKeyService`.
+///
+protocol HasDeviceAuthKeyService {
+    /// The service used by the application to make and use the device passkey.
+    var deviceAuthKeyService: DeviceAuthKeyService { get }
 }
 
 /// Protocol for an object that provides an `EventService`.
@@ -305,6 +315,13 @@ public protocol HasSendRepository {
     var sendRepository: SendRepository { get }
 }
 
+/// Protocol for an object that provides a `ServerCommunicationConfigAPIService`.
+///
+public protocol HasServerCommunicationConfigAPIService {
+    /// The service used to handle server communication configuration.
+    var serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService { get }
+}
+
 /// Protocol for an object that provides a `SettingsRepository`.
 ///
 protocol HasSettingsRepository {
@@ -401,4 +418,4 @@ protocol HasVaultTimeoutService {
 protocol HasWatchService {
     /// The service used by the application to connect to and communicate with the watch app.
     var watchService: WatchService { get }
-}
+} // swiftlint:disable:this file_length

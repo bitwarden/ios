@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Ogiltigt huvudlösenord. Försök igen.";
 "InvalidPIN" = "Ogiltig PIN-kod. Försök igen.";
 "Launch" = "Öppna";
+"LaunchBrowser" = "Starta webbläsare";
 "LogIn" = "Logga in";
 "LoginCredentials" = "Inloggningsuppgifter";
 "LogInNoun" = "Inloggning";
@@ -837,6 +838,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ContinueToPrivacyPolicy" = "Fortsätt till Integritetspolicy?";
 "ContinueToAppStore" = "Fortsätt till appbutiken?";
 "ContinueToDeviceSettings" = "Fortsätt till enhetsinställningar?";
+"ContinueWithoutSyncing" = "Fortsätt utan att synkronisera";
 "TwoStepLoginDescriptionLong" = "Gör ditt konto säkrare genom att konfigurera tvåstegsverifiering i Bitwardens webbapp.";
 "ChangeMasterPasswordDescriptionLong" = "Du kan ändra ditt huvudlösenord i Bitwardens webbapp.";
 "YouCanImportDataToYourVaultOnX" = "Du kan importera data till ditt valv på %1$@.";
@@ -1044,6 +1046,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "AutofillPasswords" = "Autofyll lösenord";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Ställ in autofyll på alla dina enheter för att logga in med ett enda tryck var som helst.";
 "GotIt" = "Jag fattar";
+"ClearSsoCookies" = "Rensa SSO-cookies";
 "GenerateCrash" = "Generera krasch";
 "GenerateErrorReport" = "Generera felrapport";
 "GenerateSdkErrorReport" = "Generera SDK-felrapport";
@@ -1240,7 +1243,9 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "Skip" = "Hoppa över";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Spara alla inloggningar och synkronisera verifieringskoder direkt med Authenticator-appen.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "Synkronisera med Bitwarden-appen";
+"SyncWithBrowser" = "Synkronisera med webbläsaren";
 "SyncWithTheBitwardenApp" = "Synkronisera med Bitwarden-appen";
 "TakeMeToTheAppSettings" = "Ta mig till appinställningarna";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Det angivna dataformatet stämmer inte överens med det förväntade. Kontrollera din fil och se till att rätt datatyper används.";
@@ -1283,6 +1288,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LeaveX" = "Lämna %1$@";
 "HowToManageMyVault" = "Hur man hanterar Mitt valv";
 "YouLeftTheOrganization" = "Du lämnade organisationen";
+"ItemTransferRequiresMainAppDescriptionLong" = "En organisation begär ägarskap av dina personliga objekt. Öppna Bitwardens app för att granska och slutföra denna begäran.";
 "ThisSettingIsManagedByYourOrganization" = "Den här inställningen hanteras av din organisation.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Din organisation har ställt in standardtidsgräns för sessionen till %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Din organisation har ställt in maximal tidsgräns för sessionen till %1$@.";
@@ -1316,3 +1322,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SpecificPeople" = "Specifika personer";
 "WhoCanView" = "Vem kan se";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"SsoCookiesCleared" = "SSO-cookies rensade";

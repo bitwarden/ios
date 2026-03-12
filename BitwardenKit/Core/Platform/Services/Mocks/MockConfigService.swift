@@ -7,6 +7,9 @@ import TestHelpers
 public class MockConfigService: ConfigService {
     // MARK: Properties
 
+    public var clearServerCommCookieValueCalled = false
+    public var clearServerCommCookieValueError: Error?
+    public var clearServerCommCookieValueHostname: String?
     public var configMocker = InvocationMockerWithThrowingResult<(forceRefresh: Bool, isPreAuth: Bool), ServerConfig?>()
     public var configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
     public var debugFeatureFlags = [DebugMenuFeatureFlag]()
@@ -24,8 +27,15 @@ public class MockConfigService: ConfigService {
 
     // MARK: Methods
 
-    public func configPublisher(
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
+    public func clearServerCommunicationCookieValue(hostname: String) async throws {
+        clearServerCommCookieValueCalled = true
+        clearServerCommCookieValueHostname = hostname
+        if let clearServerCommCookieValueError {
+            throw clearServerCommCookieValueError
+        }
+    }
+
+    public func configPublisher() async -> AsyncPublisher<AnyPublisher<MetaServerConfig?, Never>> {
         configSubject.eraseToAnyPublisher().values
     }
 

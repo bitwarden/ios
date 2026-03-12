@@ -94,6 +94,20 @@ extension DefaultAppModule: FlightRecorderModule {
     }
 }
 
+// MARK: - DefaultAppModule + GlobalModalModule
+
+extension DefaultAppModule: GlobalModalModule {
+    public func makeGlobalModalCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<GlobalModalRoute, Void> {
+        GlobalModalCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
+
 // MARK: - DefaultAppModule + NavigatorBuilderModule
 
 extension DefaultAppModule: NavigatorBuilderModule {
