@@ -198,12 +198,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             }
             cipherState.identityState.showSocialSecurityNumber.toggle()
             state.loadingState = .data(cipherState)
-//            if cipherState.identityState.showSocialSecurityNumber {
-//                Task {
-//                    await services.eventService.collect(
-//                    )
-//                }
-//            }
             return
         }
     }
