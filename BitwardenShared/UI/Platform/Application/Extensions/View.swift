@@ -175,7 +175,9 @@ private struct KeyboardDismissOnAppearView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
         view.backgroundColor = .clear
-        DispatchQueue.main.async {
+
+        /// Wait a bit so the animation ends and also until the keyboard is actually shown to be dismissed.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             view.window?.endEditing(true)
         }
         return view

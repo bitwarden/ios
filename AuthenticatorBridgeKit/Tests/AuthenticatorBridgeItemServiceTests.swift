@@ -157,6 +157,49 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertEqual(emptyResult.count, 0)
     }
 
+    /// Verify that `fetchAllForUserId` can be called concurrently from multiple tasks
+    /// without causing CoreData threading violations.
+    ///
+    func test_fetchAllForUserId_concurrentAccess() async throws {
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(expectedItems, forUserId: "userId")
+
+        try await withThrowingTaskGroup(of: [AuthenticatorBridgeItemDataView].self) { group in
+            for _ in 0 ..< 10 {
+                group.addTask {
+                    try await self.subject.fetchAllForUserId("userId")
+                }
+            }
+            for try await result in group {
+                XCTAssertEqual(result.sorted { $0.id < $1.id }, expectedItems)
+            }
+        }
+    }
+
+    /// Verify that concurrent `fetchAllForUserId` and `insertItems` calls do not cause
+    /// CoreData threading violations.
+    ///
+    func test_fetchAllForUserId_concurrentWithInserts() async throws {
+        let items = AuthenticatorBridgeItemDataView.fixtures()
+
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                try? await self.subject.insertItems(items, forUserId: "userA")
+            }
+            group.addTask {
+                try? await self.subject.insertItems(items, forUserId: "userB")
+            }
+            for _ in 0 ..< 5 {
+                group.addTask {
+                    _ = try? await self.subject.fetchAllForUserId("userA")
+                }
+            }
+        }
+
+        let result = try await subject.fetchAllForUserId("userA")
+        XCTAssertEqual(result.count, items.count)
+    }
+
     /// When no temporary item has been stored,  `fetchTemporaryItem()` returns `nil`
     ///
     func test_fetchTemporaryItem_emptyResult() async throws {
@@ -418,6 +461,24 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
 
         XCTAssertNotNil(itemsForWithinTimeoutUser)
         XCTAssertEqual(itemsForWithinTimeoutUser.count, withinTimeoutItems.count)
+    }
+
+    /// Verify that `sharedItemsPublisher()` can be called concurrently from multiple tasks
+    /// without causing CoreData threading violations in `checkForLogout`.
+    ///
+    func test_sharedItemsPublisher_concurrentCheckForLogout() async throws {
+        let items = AuthenticatorBridgeItemDataView.fixtures()
+        try await subject.insertItems(items, forUserId: "userId")
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0 ..< 5 {
+                group.addTask {
+                    let publisher = try await self.subject.sharedItemsPublisher()
+                    publisher.sink(receiveCompletion: { _ in }, receiveValue: { _ in }).cancel()
+                }
+            }
+            try await group.waitForAll()
+        }
     }
 
     /// `sharedItemsPublisher()` throws if checking for logout throws
