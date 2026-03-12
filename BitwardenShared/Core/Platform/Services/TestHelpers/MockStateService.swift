@@ -61,6 +61,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     var getAccountEncryptionKeysError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
+    var getActiveAccountIdError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
@@ -210,6 +211,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     }
 
     func getActiveAccountId() async throws -> String {
+        if let getActiveAccountIdError { throw getActiveAccountIdError }
         guard let activeAccount else { throw StateServiceError.noActiveAccount }
         return activeAccount.profile.userId
     }

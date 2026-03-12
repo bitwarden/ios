@@ -1272,6 +1272,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// After switching accounts, `connectToWatchPublisher()` should only emit for the new
+    /// active account and not the previous one.
+    func test_connectToWatchPublisher_accountSwitch_onlyEmitsForActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [ConnectToWatchValue]()
+        let publisher = await subject.connectToWatchPublisher()
+            .sink(receiveValue: { userId, shouldConnect in
+                publishedValues.append(ConnectToWatchValue(userId: userId, shouldConnect: shouldConnect))
+            })
+        defer { publisher.cancel() }
+
+        // Switch to account "2".
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        // Clear emissions from the switch so we isolate post-switch behavior.
+        publishedValues.removeAll()
+
+        // Toggle the setting for the now-active account "2".
+        try await subject.setConnectToWatch(true)
+
+        // Only account "2" should appear; account "1" must not re-emit.
+        XCTAssertEqual(publishedValues, [ConnectToWatchValue(userId: "2", shouldConnect: true)])
+    }
+
     /// `connectToWatchPublisher()` gets the initial stored value if a cached value doesn't exist.
     func test_connectToWatchPublisher_fetchesInitialValue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
