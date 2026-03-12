@@ -764,21 +764,26 @@ extension DefaultVaultRepository: VaultRepository {
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         await items.asyncMap { item in
-            guard case let .totp(name, model) = item.itemType,
-                  model.cipherListView.type.loginListView?.totp != nil,
-                  let vault = try? await clientService.vault(),
-                  let code = try? vault.generateTOTPCode(for: model.cipherListView, date: timeProvider.presentTime)
-            else {
-                errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+            do {
+                guard case let .totp(name, model) = item.itemType,
+                      model.cipherListView.type.loginListView?.totp != nil else {
+                    return item
+                }
+                let code = try await clientService.vault().generateTOTPCode(
+                    for: model.cipherListView,
+                    date: timeProvider.presentTime,
+                )
+
+                var updatedModel = model
+                updatedModel.totpCode = code
+                return VaultListItem(
+                    id: item.id,
+                    itemType: .totp(name: name, totpModel: updatedModel),
+                )
+            } catch {
+                errorReporter.log(error: error)
                 return item
             }
-            var updatedModel = model
-            updatedModel.totpCode = code
-            return .init(
-                id: item.id,
-                itemType: .totp(name: name, totpModel: updatedModel),
-            )
         }
         .sorted { $0.sortValue.localizedStandardCompare($1.sortValue) == .orderedAscending }
     }
