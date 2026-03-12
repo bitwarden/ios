@@ -66,7 +66,7 @@ public extension UIViewController {
         guard presentedViewController == nil || presentedViewController?.isBeingDismissed == false else {
             guard remainingAttempts > 0 else {
                 let presented = presentedViewController
-                // UIKit merely logs a warning when attempting to present, but it fails.
+                // UIKit merely logs a warning (and drops the completion on the floor) when `present()` fails.
                 // Unfortunately, since in an extension like this we don't have good access to our error reporter,
                 // we have to follow the same pattern.
                 Logger.application.warning(
