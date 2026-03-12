@@ -137,6 +137,18 @@ protocol SyncServiceDelegate: AnyObject {
 /// A default implementation of a `SyncService` which manages syncing vault data with the API.
 ///
 class DefaultSyncService: SyncService {
+    // MARK: - PeriodicSyncTimeResult
+
+    /// The result to use when checking whether sync should be done on periodic syncing.
+    enum PeriodicSyncTimeResult {
+        /// The flow should perform a sync.
+        case shouldSync
+        /// The flow should not perform a sync.
+        case shouldNotSync
+        /// The flow should perform further checks to see if sync should be done or not.
+        case undefined
+    }
+
     // MARK: Properties
 
     /// The services used by the application to make account related API requests.
@@ -156,6 +168,9 @@ class DefaultSyncService: SyncService {
 
     /// The service to get server-specified configuration.
     private let configService: ConfigService
+
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
 
     /// The service for managing the folders for the user.
     private let folderService: FolderService
@@ -204,6 +219,7 @@ class DefaultSyncService: SyncService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionService: The service for managing the collections for the user.
     ///   - configService: The service to get server-specified configuration.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - folderService: The service for managing the folders for the user.
     ///   - keyConnectorService: The service used by the application to manage Key Connector.
     ///   - organizationService: The service for managing the organizations for the user.
@@ -223,6 +239,7 @@ class DefaultSyncService: SyncService {
         clientService: ClientService,
         collectionService: CollectionService,
         configService: ConfigService,
+        flightRecorder: FlightRecorder,
         folderService: FolderService,
         keyConnectorService: KeyConnectorService,
         organizationService: OrganizationService,
@@ -241,6 +258,7 @@ class DefaultSyncService: SyncService {
         self.clientService = clientService
         self.collectionService = collectionService
         self.configService = configService
+        self.flightRecorder = flightRecorder
         self.folderService = folderService
         self.keyConnectorService = keyConnectorService
         self.organizationService = organizationService
@@ -300,8 +318,19 @@ class DefaultSyncService: SyncService {
             return true
         }
 
-        if isPeriodic, lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
-            return false
+        if isPeriodic {
+            let shouldSyncResult = try await shouldSyncBasedOnPeriodicSyncTime(
+                lastSyncTime: lastSyncTime,
+                userId: userId,
+            )
+            switch shouldSyncResult {
+            case .shouldSync:
+                return true
+            case .shouldNotSync:
+                return false
+            default:
+                break
+            }
         }
 
         guard !onlyCheckLocalData else {
@@ -321,11 +350,58 @@ class DefaultSyncService: SyncService {
                     timeProvider.presentTime,
                     userId: userId,
                 )
+                try await stateService.setLastSyncMonotonicTime(
+                    timeProvider.monotonicTime,
+                    userId: userId,
+                )
                 return false
             }
         } catch {
             return false
         }
+    }
+
+    /// Whether sync should be done based on periodic sync time conditions.
+    /// This checks minimum sync interval using monotonic time for tamper-resistance, if possible.
+    /// - Parameters:
+    ///   - lastSyncTime: The last sync wall-clock time.
+    ///   - userId: The user ID to check whether sync is needed.
+    /// - Returns: A `PeriodicSyncTimeResult` to determine whether sync should be done, or not, or further checks
+    /// are necessary to determine that.
+    private func shouldSyncBasedOnPeriodicSyncTime(
+        lastSyncTime: Date,
+        userId: String,
+    ) async throws -> PeriodicSyncTimeResult {
+        let lastSyncMonotonic = try await stateService.getLastSyncMonotonicTime(userId: userId)
+
+        // Migration fallback: use wall-clock if monotonic time not available
+        guard let lastSyncMonotonic else {
+            await flightRecorder.log("Checking needs sync with wall-clock time for userId: \(userId)")
+            if lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
+                return .shouldNotSync
+            }
+            return .undefined
+        }
+
+        await flightRecorder.log("Checking needs sync with monotonic time for userId: \(userId)")
+
+        let result = timeProvider.calculateTamperResistantElapsedTime(
+            lastMonotonicTime: lastSyncMonotonic,
+            lastWallClockTime: lastSyncTime,
+            divergenceThreshold: 15.0,
+        )
+
+        // Force sync if tampering detected (reboot or clock manipulation)
+        if result.tamperingDetected {
+            return .shouldSync
+        }
+
+        // Check if minimum interval has passed (use effective elapsed time)
+        if result.effectiveElapsed < Constants.minimumSyncInterval {
+            return .shouldNotSync
+        }
+
+        return .undefined
     }
 }
 
@@ -371,6 +447,7 @@ extension DefaultSyncService {
         try await settingsService.replaceEquivalentDomains(response.domains, userId: userId)
         try await policyService.replacePolicies(response.policies, userId: userId)
         try await stateService.setLastSyncTime(timeProvider.presentTime, userId: userId)
+        try await stateService.setLastSyncMonotonicTime(timeProvider.monotonicTime, userId: userId)
         try await checkVaultTimeoutPolicy()
         try await checkUserNeedsVaultMigration()
 

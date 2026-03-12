@@ -129,6 +129,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
     /// A service that manages account timeout between apps.
     private let sharedTimeoutService: SharedTimeoutService
 
@@ -153,6 +156,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
@@ -163,6 +167,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         clientService: ClientService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        flightRecorder: FlightRecorder,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         timeProvider: TimeProvider,
@@ -172,6 +177,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         self.clientService = clientService
         self.configService = configService
         self.errorReporter = errorReporter
+        self.flightRecorder = flightRecorder
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -189,12 +195,45 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             // On app restart, trigger timeout if this is actually an app restart
             return isAppRestart
         default:
-            // Otherwise, calculate a timeout.
-            guard let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
-            else { return true }
+            let lastActiveMonotonic = try await userSessionStateService.getLastActiveMonotonicTime(userId: userId)
+            let lastActiveTime = try await userSessionStateService.getLastActiveTime(userId: userId)
 
-            return timeProvider.presentTime.timeIntervalSince(lastActiveTime)
-                >= TimeInterval(vaultTimeout.seconds)
+            // We need both times to calculate session timeout. If any of the times is not present
+            // then treat it as the session has timed out.
+            guard let lastActiveMonotonic, let lastActiveTime else {
+                return true
+            }
+
+            // Use monotonic time for tamper-resistant timeout checking
+            await flightRecorder.log("Checking timeout with monotonic time for userId: \(userId)")
+            let result = timeProvider.calculateTamperResistantElapsedTime(
+                lastMonotonicTime: lastActiveMonotonic,
+                lastWallClockTime: lastActiveTime,
+                divergenceThreshold: 5.0,
+            )
+
+            // Force timeout if tampering detected (reboot or clock manipulation)
+            if result.tamperingDetected {
+                return true
+            }
+
+            // Check for the reboot-timing attack: an attacker who reboots the device and
+            // waits until the monotonic clock matches the stored value bypasses the isReboot
+            // flag. The boot epoch shifts dramatically across a reboot and catches this.
+            // Guard on isReboot: a legitimate reboot is already caught above via tamperingDetected.
+            let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
+            let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
+                - timeProvider.monotonicTime
+            if let storedBootEpoch, !result.isReboot {
+                let epochDrift = abs(currentBootEpoch - storedBootEpoch)
+                if epochDrift > 5.0 {
+                    return true
+                }
+            }
+
+            // Use monotonic elapsed time exclusively as the tamper-resistant timeout source
+            let timeoutSeconds = TimeInterval(vaultTimeout.seconds)
+            return result.effectiveElapsed >= timeoutSeconds
         }
     }
 
@@ -251,7 +290,11 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func setLastActiveTime(userId: String) async throws {
         let now = timeProvider.presentTime
+        let currentMonotonic = timeProvider.monotonicTime
+        let bootEpoch = now.timeIntervalSinceReferenceDate - currentMonotonic
         try await userSessionStateService.setLastActiveTime(now, userId: userId)
+        try await userSessionStateService.setLastActiveMonotonicTime(currentMonotonic, userId: userId)
+        try await userSessionStateService.setLastActiveBootEpoch(bootEpoch, userId: userId)
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
         try await updateSharedTimeout(
             lastActiveTime: now,
