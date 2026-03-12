@@ -49,19 +49,19 @@ public extension UIViewController {
     ///
     /// This method checks if a presentation is currently in progress and waits if necessary before
     /// presenting the view controller. If a view controller is already being presented and being
-    /// dismissed, it will retry after a short delay, up to a maximum of 10 attempts (~3 seconds).
+    /// dismissed, it will retry after a short delay, up to a maximum of 5 attempts (~1.5 seconds).
     ///
     /// - Parameters:
     ///   - viewController: The view controller to present.
     ///   - animated: Whether the transition should be animated.
-    ///   - remainingAttempts: The number of retry attempts remaining before giving up. Defaults to `10`.
+    ///   - remainingAttempts: The number of retry attempts remaining before giving up. Defaults to `5`.
     ///   - completion: A closure to call on completion. Note: if the retry limit is exceeded, the
     ///     presentation is dropped and this closure will not be called.
     ///
     internal func safePresent(
         _ viewController: UIViewController,
         animated: Bool,
-        remainingAttempts: Int = 10,
+        remainingAttempts: Int = 5,
         completion: (() -> Void)?,
     ) {
         let presentedViewControllerIsBeingDismissed = presentedViewController?.isBeingDismissed ?? false
