@@ -53,6 +53,7 @@ public extension UIViewController {
     /// - Parameters:
     ///   - viewController: The view controller to present.
     ///   - animated: Whether the transition should be animated.
+    ///   - remainingAttempts: The number of retry attempts remaining before giving up. Defaults to `10`.
     ///   - completion: A closure to call on completion.
     ///
     func safePresent(
