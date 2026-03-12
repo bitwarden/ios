@@ -11,6 +11,7 @@ protocol CipherEncryptionMediator { // sourcery: AutoMockable
     func encryptAndUpdateCipher(_ cipherView: CipherView) async throws -> Cipher
 
     /// Sets the delegate to use.
+    /// - Parameter delegate: The delegate to use.
     func setDelegate(_ delegate: CipherEncryptionMediatorDelegate)
 
     /// Checks if `cipherView` lacks a cipher key and if so tries to update it with the server
