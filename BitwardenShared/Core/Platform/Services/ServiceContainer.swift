@@ -66,6 +66,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used to change the user's KDF settings.
     let changeKdfService: ChangeKdfService
 
+    /// A helper to create cipher views with proper ownership based on policies.
+    let cipherOwnershipHelper: CipherOwnershipHelper
+
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
@@ -233,6 +236,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - changeKdfService: The service used to change the user's KDF settings.
+    ///   - cipherOwnershipHelper: A helper to create cipher views with proper ownership based on policies.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
@@ -302,6 +306,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         biometricsService: BiometricsService,
         cameraService: CameraService,
         changeKdfService: ChangeKdfService,
+        cipherOwnershipHelper: CipherOwnershipHelper,
         clientService: ClientService,
         configService: ConfigService,
         deviceAuthKeyService: DeviceAuthKeyService,
@@ -365,6 +370,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.biometricsService = biometricsService
         self.cameraService = cameraService
         self.changeKdfService = changeKdfService
+        self.cipherOwnershipHelper = cipherOwnershipHelper
         self.clientService = clientService
         self.configService = configService
         self.deviceAuthKeyService = deviceAuthKeyService
@@ -896,6 +902,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
         )
 
+        let cipherOwnershipHelper = DefaultCipherOwnershipHelper(
+            policyService: policyService,
+            timeProvider: timeProvider,
+            vaultRepository: vaultRepository,
+        )
+
         #if DEBUG
         let fido2CredentialStore = DebuggingFido2CredentialStoreService(
             fido2CredentialStore: Fido2CredentialStoreService(
@@ -1047,6 +1059,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),
             changeKdfService: changeKdfService,
+            cipherOwnershipHelper: cipherOwnershipHelper,
             clientService: clientService,
             configService: configService,
             deviceAuthKeyService: deviceAuthKeyService,
