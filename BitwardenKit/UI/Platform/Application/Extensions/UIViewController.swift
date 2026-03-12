@@ -58,8 +58,8 @@ public extension UIViewController {
     func safePresent(
         _ viewController: UIViewController,
         animated: Bool,
-        completion: (() -> Void)?,
         remainingAttempts: Int = 10,
+        completion: (() -> Void)?,
     ) {
         guard presentedViewController == nil || presentedViewController?.isBeingDismissed == false else {
             guard remainingAttempts > 0 else { return }
@@ -68,8 +68,8 @@ public extension UIViewController {
                 self?.safePresent(
                     viewController,
                     animated: animated,
-                    completion: completion,
                     remainingAttempts: remainingAttempts - 1,
+                    completion: completion,
                 )
             }
             return
