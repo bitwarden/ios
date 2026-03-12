@@ -59,7 +59,7 @@ public extension UIViewController {
         _ viewController: UIViewController,
         animated: Bool,
         completion: (() -> Void)?,
-        remainingAttempts: Int = 10
+        remainingAttempts: Int = 10,
     ) {
         guard presentedViewController == nil || presentedViewController?.isBeingDismissed == false else {
             guard remainingAttempts > 0 else { return }
@@ -69,7 +69,7 @@ public extension UIViewController {
                     viewController,
                     animated: animated,
                     completion: completion,
-                    remainingAttempts: remainingAttempts - 1
+                    remainingAttempts: remainingAttempts - 1,
                 )
             }
             return
