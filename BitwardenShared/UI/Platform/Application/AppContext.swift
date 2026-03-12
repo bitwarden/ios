@@ -10,9 +10,8 @@ public enum AppContext: Equatable {
     case mainApp
 }
 
-extension AppContext {
-    /// A safe string representation of the current app context.
-    var appContextName: String {
+extension AppContext: CustomStringConvertible {
+    public var description: String {
         switch self {
         case .appExtension:
             "App Extension"
