@@ -109,7 +109,7 @@ struct FlightRecorderLogsView: View {
                 SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
-            .accessibilityLabel(Localizations.more)
+            .accessibilityLabel(Localizations.moreOptions)
             .accessibilityIdentifier("FlightRecorderLogOptionsButton")
         }
         .accessibilityElement(children: .combine)

@@ -86,7 +86,7 @@ struct VaultListItemRowView: View {
                                 SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                                     .imageStyle(.rowIcon)
                             }
-                            .accessibilityLabel(Localizations.more)
+                            .accessibilityLabel(Localizations.moreOptions)
                             .accessibilityIdentifier("CipherOptionsButton")
                         }
 
