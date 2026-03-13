@@ -312,6 +312,7 @@ platform :ios do |options|
         "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden",
         "PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION" => "#{profile_prefix} Extension",
         "PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION" => "#{profile_prefix} Autofill",
+        "PROVISIONING_PROFILE_SPECIFIER_NOTIFICATION_EXTENSION" => "#{profile_prefix} Notification Extension",
         "PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION" => "#{profile_prefix} Share Extension",
         "PROVISIONING_PROFILE_SPECIFIER_WATCH_APP" => "#{profile_prefix} Bitwarden Watch App",
         "PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION" => "#{profile_prefix} Bitwarden Watch Widget Extension",
@@ -335,6 +336,8 @@ platform :ios do |options|
               <string>#{profile_prefix} Extension</string>
               <key>#{bundle_id}.autofill</key>
               <string>#{profile_prefix} Autofill</string>
+              <key>#{bundle_id}.notification</key>
+              <string>#{profile_prefix} Notification Extension</string>
               <key>#{bundle_id}.share-extension</key>
               <string>#{profile_prefix} Share Extension</string>
               <key>#{bundle_id}.watchkitapp</key>
