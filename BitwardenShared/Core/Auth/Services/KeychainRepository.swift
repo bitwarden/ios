@@ -597,15 +597,18 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         }
     }
 
-    func setDeviceAuthKey(
-        record: DeviceAuthKeyRecord,
+    func setDeviceAuthKeyMetadata(
         metadata: DeviceAuthKeyMetadata,
         userId: String,
     ) async throws {
-        // We want to set metadata last because that's what's used to determine if we're in a
-        // consistent state.
-        try await setValue(record, for: .deviceAuthKey(userId: userId))
         try await setValue(metadata, for: .deviceAuthKeyMetadata(userId: userId))
+    }
+
+    func setDeviceAuthKeyRecord(
+        record: DeviceAuthKeyRecord,
+        userId: String,
+    ) async throws {
+        try await setValue(record, for: .deviceAuthKey(userId: userId))
     }
 }
 

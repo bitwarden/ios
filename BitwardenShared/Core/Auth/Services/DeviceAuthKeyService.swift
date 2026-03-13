@@ -21,7 +21,7 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
         for request: GetAssertionRequest,
         recordIdentifier: String,
         userId: String?,
-    ) async throws -> GetAssertionResult?
+    ) async throws -> DeviceAuthKeyGetAssertionResult?
 
     /// Create device auth key with PRF encryption key.
     ///
@@ -36,7 +36,7 @@ protocol DeviceAuthKeyService { // sourcery: AutoMockable
         masterPasswordHash: String,
         overwrite: Bool,
         userId: String?,
-    ) async throws -> DeviceAuthKeyRecord
+    ) async throws
 
     /// Deletes the device auth key.
     ///
@@ -75,7 +75,7 @@ extension DeviceAuthKeyService {
     func assertDeviceAuthKey(
         for request: GetAssertionRequest,
         recordIdentifier: String,
-    ) async throws -> GetAssertionResult? {
+    ) async throws -> DeviceAuthKeyGetAssertionResult? {
         try await assertDeviceAuthKey(
             for: request,
             recordIdentifier: recordIdentifier,
@@ -94,7 +94,7 @@ extension DeviceAuthKeyService {
     func createDeviceAuthKey(
         masterPasswordHash: String,
         overwrite: Bool,
-    ) async throws -> DeviceAuthKeyRecord {
+    ) async throws {
         try await createDeviceAuthKey(
             masterPasswordHash: masterPasswordHash,
             overwrite: overwrite,
@@ -124,11 +124,19 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     /// The provider for the active account state.
     private let activeAccountStateProvider: ActiveAccountStateProvider
 
+    private let clientService: ClientService
+
     /// Repository for managing device auth keys in the keychain.
     private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
 
     /// A subject containing a userId and flag for the presence of the unlock passkey for logged in accounts.
     private let deviceAuthKeySubject = CurrentValueSubject<[String: Bool], Never>([:])
+
+    private let environmentService: EnvironmentService
+
+    private let stateService: StateService
+
+    private let systemDevice: SystemDevice
 
     // MARK: Initializers
 
@@ -140,10 +148,18 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
     ///
     init(
         activeAccountStateProvider: ActiveAccountStateProvider,
+        clientService: ClientService,
         deviceAuthKeychainRepository: DeviceAuthKeychainRepository,
+        environmentService: EnvironmentService,
+        stateService: StateService,
+        systemDevice: SystemDevice,
     ) {
         self.activeAccountStateProvider = activeAccountStateProvider
+        self.clientService = clientService
         self.deviceAuthKeychainRepository = deviceAuthKeychainRepository
+        self.environmentService = environmentService
+        self.stateService = stateService
+        self.systemDevice = systemDevice
     }
 
     // MARK: Functions
@@ -152,30 +168,57 @@ struct DefaultDeviceAuthKeyService: DeviceAuthKeyService {
         for request: GetAssertionRequest,
         recordIdentifier: String,
         userId: String?,
-    ) async throws -> GetAssertionResult? {
-        // TODO: PM-26177 to finish building out this stub
-        throw DeviceAuthKeyError.notImplemented
+    ) async throws -> DeviceAuthKeyGetAssertionResult? {
+        let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
+
+        let store = DefaultDeviceAuthKeyStore(
+            deviceAuthKeychainRepository: deviceAuthKeychainRepository,
+            userId: resolvedUserId
+        )
+        let authenticator = try await clientService.platform().fido2().deviceAuthKeyAuthenticator(
+            credentialStore: store
+        )
+        return try await authenticator.assertDeviceAuthKey(request: request)
     }
 
     func createDeviceAuthKey(
         masterPasswordHash: String,
         overwrite: Bool,
         userId: String?,
-    ) async throws -> DeviceAuthKeyRecord {
+    ) async throws {
         let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
+        let account = try await stateService.getAccount(userId: resolvedUserId)
+
+        let store = DefaultDeviceAuthKeyStore(
+            deviceAuthKeychainRepository: deviceAuthKeychainRepository,
+            userId: resolvedUserId
+        )
+        let authenticator = try await clientService.platform().fido2().deviceAuthKeyAuthenticator(
+            credentialStore: store
+        )
+        let secretVerificationRequest = SecretVerificationRequest(masterPassword: masterPasswordHash, otp: nil)
+        try await authenticator.createDeviceAuthKey(
+            clientName: "Bitwarden on \(systemDevice.modelIdentifier)",
+            webVaultUrl: environmentService.webVaultURL.absoluteString,
+            email: account.profile.email,
+            secretVerificationRequest: secretVerificationRequest,
+            kdf: account.kdf.sdkKdf,
+        )
 
         var curVal = deviceAuthKeySubject.value
         curVal[resolvedUserId] = true
         deviceAuthKeySubject.send(curVal)
-
-        // TODO: PM-26177 to finish building out this stub
-        throw DeviceAuthKeyError.notImplemented
     }
 
     func deleteDeviceAuthKey(
         userId: String?,
     ) async throws {
         let resolvedUserId = try await activeAccountStateProvider.userIdOrActive(userId)
+
+        var curVal = deviceAuthKeySubject.value
+        curVal[resolvedUserId] = false
+        deviceAuthKeySubject.send(curVal)
+
         try await deviceAuthKeychainRepository.deleteDeviceAuthKey(userId: resolvedUserId)
     }
 
@@ -215,4 +258,81 @@ enum DeviceAuthKeyError: Error {
 
     /// The requested functionality has not yet been implemented.
     case notImplemented
+}
+
+
+class DefaultDeviceAuthKeyStore: DeviceAuthKeyStore {
+
+    private let deviceAuthKeychainRepository: DeviceAuthKeychainRepository
+    private let userId: String
+
+    init(deviceAuthKeychainRepository: DeviceAuthKeychainRepository, userId: String) {
+        self.deviceAuthKeychainRepository = deviceAuthKeychainRepository
+        self.userId = userId
+    }
+
+    func createRecord(record: BitwardenSdk.DeviceAuthKeyRecord) async throws {
+        let ourRecord = BitwardenShared.DeviceAuthKeyRecord(
+            counter: record.counter ?? 0,
+            credentialId: record.credentialId,
+            hmacSecret: record.hmacSecret,
+            keyAlgorithm: record.keyAlg,
+            keyCurve: record.keyCurve,
+            keyValue: record.key,
+            rpId: record.rpId,
+            rpName: record.rpId,
+            userId: record.userId,
+        )
+        try await deviceAuthKeychainRepository.setDeviceAuthKeyRecord(record: ourRecord, userId: userId)
+    }
+
+    func createMetadata(metadata: BitwardenSdk.DeviceAuthKeyMetadata) async throws {
+        let ourMetadata = BitwardenShared.DeviceAuthKeyMetadata(
+            creationDate: metadata.creationDate,
+            credentialId: metadata.credentialId,
+            recordIdentifier: metadata.recordIdentifier,
+            rpId: metadata.rpId,
+            userDisplayName: metadata.userDisplayName,
+            userHandle: metadata.userHandle,
+            userName: metadata.userName,
+        )
+        try await deviceAuthKeychainRepository.setDeviceAuthKeyMetadata(metadata: ourMetadata, userId: userId)
+    }
+
+    func getMetadata() async throws -> BitwardenSdk.DeviceAuthKeyMetadata? {
+        guard let ourMetadata = try await deviceAuthKeychainRepository.getDeviceAuthKeyMetadata(userId: userId) else {
+            return nil
+        }
+        return BitwardenSdk.DeviceAuthKeyMetadata(
+            recordIdentifier: ourMetadata.recordIdentifier,
+            creationDate: ourMetadata.creationDate,
+            credentialId: ourMetadata.credentialId,
+            rpId: ourMetadata.rpId,
+            userName: ourMetadata.userName,
+            userHandle: ourMetadata.userHandle,
+            userDisplayName: ourMetadata.userName,
+        )
+    }
+
+    func getRecord() async throws -> BitwardenSdk.DeviceAuthKeyRecord? {
+        guard let ourRecord = try await deviceAuthKeychainRepository.getDeviceAuthKey(userId: userId) else {
+            return nil
+        }
+
+        return BitwardenSdk
+            .DeviceAuthKeyRecord(
+                credentialId: Data(base64Encoded: ourRecord.credentialId)!,
+                key: Data(base64Encoded: ourRecord.keyValue)!,
+                keyAlg: -7,
+                keyCurve: 1,
+                rpId: ourRecord.rpId,
+                userId: ourRecord.userId,
+                counter: UInt32(ourRecord.counter),
+                hmacSecret: ourRecord.hmacSecret,
+            )
+    }
+
+    func deleteRecordAndMetadata() async throws {
+        try await deviceAuthKeychainRepository.deleteDeviceAuthKey(userId: userId)
+    }
 }
