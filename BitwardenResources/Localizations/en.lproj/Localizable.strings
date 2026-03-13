@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Account already added";
 "SwitchToAlreadyAddedAccountConfirmation" = "Would you like to switch to it now?";
 "MasterPassword" = "Master password";
-"More" = "More";
+"MoreOptions" = "More options";
 "MyVault" = "My vault";
 "Authenticator" = "Authenticator";
 "Name" = "Name";
