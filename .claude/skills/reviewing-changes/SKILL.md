@@ -3,107 +3,68 @@ name: reviewing-changes
 description: Performs comprehensive code reviews for Bitwarden iOS projects, verifying architecture compliance, style guidelines, compilation safety, test coverage, and security requirements. Use when reviewing pull requests, checking commits, analyzing code changes, verifying Bitwarden coding standards, evaluating unidirectional data flow pattern, checking services container dependency injection usage, reviewing security implementations, or assessing test coverage. Automatically invoked by CI pipeline or manually for interactive code reviews.
 ---
 
-# Reviewing Changes
+# Reviewing Changes — Bitwarden iOS
 
 ## Instructions
 
-Follow this process to review code changes for Bitwarden iOS:
+Work systematically through each step before providing feedback. Each checklist loads only the relevant review strategy for the change type detected.
 
-### Step 1: Understand Context
+### Step 1: Retrieve Additional Details
 
-Start with high-level assessment of the change's purpose and approach. Read PR/commit descriptions and understand what problem is being solved.
+Fetch any additional context using available tools (JIRA MCP, GitHub API). If the PR title and description don't provide enough context, request:
+- A link to the JIRA ticket
+- A GitHub issue reference
+- More detail in the PR description
 
-### Step 2: Verify Compliance
+**iOS-specific metadata checks:**
+- Screenshots required for any `*View.swift` changes that affect visible UI — flag as ❓ if absent
+- If new `*Processor.swift` or `*Service.swift` is added with no test file, flag as ❓
 
-Systematically check each area against Bitwarden standards documented in `CLAUDE.md`:
+### Step 2: Detect Change Type
 
-1. **Architecture**: Follow patterns in `Docs/Architecture.md`
-   - Unidirectional data flow Coordinators + Processors (using SwiftUI)
-   - Dependency Injection using `ServiceContainer`
-   - Repository pattern and proper data flow
+**iOS-specific patterns:**
+- **Feature Addition**: New `*Coordinator.swift`, `*Processor.swift`, `*View.swift` (full file-set); new screen or flow
+- **Bug Fix**: Targeted changes to existing `*Processor.swift`, `*Service.swift`, or `*Repository.swift` files
+- **UI Change**: Changes only to `*View.swift` files; no business logic changes
+- **Refactoring**: Renamed/restructured files without new user-visible behavior
+- **Dependency Update**: Changes to `Mintfile`, `project-*.yml` version references, `Package.swift`
+- **Infrastructure**: Changes to `Scripts/`, `Configs/`, `.github/`, `fastlane/`
 
-2. **Style**: Adhere to [Code Style](https://contributing.bitwarden.com/contributing/code-style/swift)
-   - Naming conventions, code organization, formatting
-   - Swift/SwiftUI guidelines
+### Step 3: Load Appropriate Checklist
 
-3. **Compilation**: Analyze for potential build issues
-   - Import statements and dependencies
-   - Type safety and null safety
-   - API compatibility and deprecation warnings
-   - Resource/SDK references and requirements
+Based on detected type, read the relevant checklist file:
 
-4. **Testing**: Verify appropriate test coverage
-   - Unit tests for business logic and utility functions
-   - Snapshot/View inspector tests for user-facing features when applicable
-   - Test coverage for edge cases and error scenarios
+- **Dependency Update** → `checklists/dependency-update.md` (expedited review)
+- **Bug Fix** → `checklists/bug-fix.md` (focused: fix correctness + regression test)
+- **Feature Addition** → `checklists/feature-addition.md` (comprehensive: all areas)
+- **UI Change** → `checklists/ui-change.md` (UDF compliance + accessibility + snapshots)
+- **Refactoring** → Full architecture check: verify behavior-preserving via `reference/ios-architecture-patterns.md`
+- **Infrastructure** → Security review + deployment impact assessment
 
-5. **Security**: Given Bitwarden's security-focused nature
-   - Proper handling of sensitive data
-   - Secure storage practices (Keychain)
-   - Authentication and authorization patterns
-   - Data encryption and decryption flows
-   - Zero-knowledge architecture preservation
+The checklist provides: multi-pass review strategy, type-specific focus areas, what to check and what to skip.
 
-### Step 3: Document Findings
+### Step 4: Execute Review Following Checklist
 
-Identify specific violations with `file:line_number` references. Be precise about locations.
+Follow the checklist's review strategy, thinking through each pass systematically before writing feedback.
 
-### Step 4: Provide Recommendations
+### Step 5: Consult Reference Materials As Needed
 
-Give actionable recommendations for improvements. Explain why changes are needed and suggest specific solutions.
+Load reference files only when needed for specific questions:
 
-### Step 5: Flag Critical Issues
+- **Re-reviews (incremental)** → invoke `reviewing-incremental-changes` agent skill; scope to changed lines only, do not flag new issues in unchanged code
+- **Issue prioritization** → `reference/priority-framework.md` (Critical vs Important vs Suggested)
+- **Phrasing feedback** → `reference/feedback-psychology.md` (questions vs commands, I-statements)
+- **Architecture questions** → `reference/ios-architecture-patterns.md` + `Docs/Architecture.md`
+- **Security questions** → `reference/ios-security-patterns.md`
+- **Testing questions** → `reference/ios-testing-patterns.md`
+- **Style questions** → `reference/ios-style-patterns.md`
+- **Output format** → `examples/annotated-example.md`
 
-Highlight issues that must be addressed before merge. Distinguish between blockers and suggestions.
+## Core Principles
 
-### Step 6: Acknowledge Quality
-
-Note well-implemented patterns (briefly, without elaboration). Keep positive feedback concise.
-
-## Review Anti-Patterns (DO NOT)
-
-- Be nitpicky about linter-catchable style issues
-- Review without understanding context - ask for clarification first
-- Focus only on new code - check surrounding context for issues
-- Request changes outside the scope of this changeset
-
-## Examples
-
-### Good Review Format
-
-```markdown
-## Summary
-This PR adds biometric authentication to the login flow, implementing unidirectional data flow pattern with proper state management.
-
-## Critical Issues
-- `BitwardenShared/UI/Auth/Login/LoginView.swift:25` - No `scrollView` added, user can't scroll through the view.
-- `BitwardenShared/Core/Auth/Services/AuthService.swift:120` - You must not use `try!`, change it to `try` in a `do...catch` block or throwing function.
-
-## Suggested Improvements
-- Consider extracting biometric prompt logic to separate struct
-- Add missing tests for biometric failure scenarios
-- `BitwardenShared/UI/Auth/Login/LoginView.swift:43` - Consider using existing `BitwardenTextField` component
-
-## Good Practices
-- Proper comments documentation
-- Comprehensive unit test coverage
-- Clear separation of concerns
-
-## Action Items
-1. Add scroll view in `LoginView`
-2. Change `try!` to `try` in `AuthService`
-3. Consider adding tests for error flows
-```
-
-### What to Focus On
-
-**DO focus on:**
-- Architecture violations (incorrect patterns)
-- Security issues (data handling, encryption)
-- Missing tests for critical paths
-- Compilation risks (type safety, null safety)
-
-**DON'T focus on:**
-- Minor formatting (handled by linters)
-- Personal preferences without architectural basis
-- Issues outside the changeset scope
+- **Priority order**: Security → Correctness → Breaking Changes → Performance → Maintainability
+- **Appropriate depth**: Match review rigor to change complexity and risk. A dependency update doesn't need architecture review.
+- **Specific references**: Always use `file:line_number` format for precise locations
+- **Actionable feedback**: Say what to change and why — not just what's wrong
+- **Efficient reviews**: Use the change-type checklist, skip what's not relevant
+- **iOS patterns**: Validate UDF, Has* DI, store.binding, Sourcery mock conventions, StateProcessor subclass
