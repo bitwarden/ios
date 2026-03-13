@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -65,14 +66,30 @@ extension VaultClient: VaultClientService {
 
     func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
-        let response = try generateTotp(key: key, time: calculationDate)
-        return totpCodeModel(from: response, calculationDate: calculationDate)
+        do {
+            let response = try generateTotp(key: key, time: calculationDate)
+            return totpCodeModel(from: response, calculationDate: calculationDate)
+        } catch BitwardenSdk.TotpError.InvalidOtpauth {
+            throw TOTPKeyError.invalidOtpauth
+        } catch BitwardenSdk.TotpError.MissingSecret {
+            throw TOTPKeyError.missingSecret
+        } catch {
+            throw TOTPServiceError.unableToGenerateCode(error.localizedDescription)
+        }
     }
 
     func generateTOTPCode(for cipherListView: CipherListView, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
-        let response = try generateTotpCipherView(view: cipherListView, time: calculationDate)
-        return totpCodeModel(from: response, calculationDate: calculationDate)
+        do {
+            let response = try generateTotpCipherView(view: cipherListView, time: calculationDate)
+            return totpCodeModel(from: response, calculationDate: calculationDate)
+        } catch BitwardenSdk.BitwardenError.Totp(.InvalidOtpauth) {
+            throw TOTPKeyError.invalidOtpauth
+        } catch BitwardenSdk.BitwardenError.Totp(.MissingSecret) {
+            throw TOTPKeyError.missingSecret
+        } catch {
+            throw TOTPServiceError.unableToGenerateCode(error.localizedDescription)
+        }
     }
 
     func passwordHistory() -> PasswordHistoryClientProtocol {

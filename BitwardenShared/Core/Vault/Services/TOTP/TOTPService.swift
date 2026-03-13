@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -10,7 +11,7 @@ protocol TOTPService {
     /// Retrieves the TOTP configuration for a given key.
     ///
     /// - Parameter key: A string representing the TOTP key.
-    /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
+    /// - Throws: `TOTPKeyError.invalidKeyFormat` if the key format is invalid.
     /// - Returns: A `TOTPKeyModel` containing the configuration details.
     func getTOTPConfiguration(key: String?) throws -> TOTPKeyModel
 }
@@ -67,11 +68,11 @@ struct DefaultTOTPService: TOTPService {
     /// Retrieves the TOTP configuration for a given key.
     ///
     /// - Parameter key: A string representing the TOTP key.
-    /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
+    /// - Throws: `TOTPKeyError.invalidKeyFormat` if the key format is invalid.
     /// - Returns: A `TOTPKeyModel` containing the configuration details.
     func getTOTPConfiguration(key: String?) throws -> TOTPKeyModel {
         guard let key else {
-            throw TOTPServiceError.invalidKeyFormat
+            throw TOTPKeyError.invalidKeyFormat
         }
 
         return TOTPKeyModel(authenticatorKey: key)

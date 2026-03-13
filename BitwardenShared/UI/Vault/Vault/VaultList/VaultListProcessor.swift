@@ -102,8 +102,6 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
-        case .checkVaultMigration:
-            await checkVaultMigration()
         case .dismissArchiveOnboardingActionCard:
             state.shouldShowArchiveOnboardingActionCard = false
             await services.stateService.setArchiveOnboardingShown(true)
@@ -288,16 +286,6 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
-    }
-
-    /// Checks if the user needs to migrate their vault. The SyncService delegate handles navigation.
-    ///
-    private func checkVaultMigration() async {
-        do {
-            try await services.syncService.checkUserNeedsVaultMigration()
-        } catch {
-            services.errorReporter.log(error: error)
-        }
     }
 
     /// Checks available item types user can create.

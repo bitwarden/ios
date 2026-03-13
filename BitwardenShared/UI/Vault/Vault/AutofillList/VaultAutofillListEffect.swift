@@ -5,9 +5,6 @@ import BitwardenSdk
 /// Actions that can be processed by a `VaultAutofillListProcessor`.
 ///
 enum VaultAutofillListEffect: Equatable {
-    /// Check if the user needs to migrate their vault to my items.
-    case checkVaultMigration
-
     /// Triggered when `excludedCredentialFound` state changed.
     case excludedCredentialFoundChanged
 

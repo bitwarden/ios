@@ -15,16 +15,6 @@ protocol SyncService: AnyObject {
 
     // MARK: Methods
 
-    /// Checks if the user needs to migrate their personal vault items to an organization
-    /// and notifies the delegate if migration is needed.
-    ///
-    /// The user needs to migrate if:
-    /// - The feature flag is enabled
-    /// - The user is a member of an organization with the Personal Ownership policy enabled
-    /// - The user has one or more items in their personal vault (including deleted items)
-    ///
-    func checkUserNeedsVaultMigration() async throws
-
     /// Deletes the cipher specified in the notification data in local storage.
     ///
     /// - Parameter data: The notification data for the cipher delete action.
@@ -77,6 +67,17 @@ protocol SyncService: AnyObject {
     ///
     /// - Returns: A bool indicating if the user needs a sync or not.
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool
+
+    /// Checks if the user needs to migrate their personal vault items to an organization.
+    ///
+    /// The user needs to migrate if:
+    /// - The feature flag is enabled
+    /// - The user is a member of an organization with the Personal Ownership policy enabled
+    /// - The user has one or more items in their personal vault (including deleted items)
+    ///
+    /// - Returns: The organization ID if migration is needed, or `nil` if not.
+    ///
+    func organizationIdRequiringVaultMigration() async throws -> String?
 }
 
 extension SyncService {
@@ -254,16 +255,6 @@ class DefaultSyncService: SyncService {
         self.vaultTimeoutService = vaultTimeoutService
     }
 
-    func checkUserNeedsVaultMigration() async throws {
-        guard await configService.getFeatureFlag(.migrateMyVaultToMyItems) else { return }
-        guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
-        else { return }
-
-        guard try await cipherService.hasPersonalCiphers() else { return }
-
-        await delegate?.migrateVaultToMyItems(organizationId: organizationId)
-    }
-
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool {
         try await needsSync(
             forceSync: false,
@@ -273,7 +264,31 @@ class DefaultSyncService: SyncService {
         )
     }
 
+    func organizationIdRequiringVaultMigration() async throws -> String? {
+        guard await configService.getFeatureFlag(.migrateMyVaultToMyItems) else {
+            return nil
+        }
+        guard let organizationId = await policyService.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+        else {
+            return nil
+        }
+
+        guard try await cipherService.hasPersonalCiphers() else {
+            return nil
+        }
+
+        return organizationId
+    }
+
     // MARK: Private
+
+    /// Checks if the user needs to migrate their personal vault items to an organization
+    /// and notifies the delegate if migration is needed.
+    ///
+    private func checkUserNeedsVaultMigration() async throws {
+        guard let organizationId = try await organizationIdRequiringVaultMigration() else { return }
+        await delegate?.migrateVaultToMyItems(organizationId: organizationId)
+    }
 
     /// Determine if a full sync is necessary.
     ///

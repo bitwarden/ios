@@ -17,6 +17,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     typealias Services = HasAuthRepository
         & HasAutofillCredentialService
+        & HasCipherOwnershipHelper
         & HasClientService
         & HasConfigService
         & HasErrorReporter
@@ -24,6 +25,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
+        & HasPolicyService
         & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasSyncService
@@ -129,8 +131,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
-        case .checkVaultMigration:
-            await checkVaultMigration()
         case .excludedCredentialFoundChanged:
             if let cipherIdFound = state.excludedCredentialIdFound {
                 await updateExcludedCredentialSection(from: cipherIdFound)
@@ -241,15 +241,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
-    }
-
-    /// Checks if the user needs to migrate their vault. The SyncService delegate handles navigation.
-    private func checkVaultMigration() async {
-        do {
-            try await services.syncService.checkUserNeedsVaultMigration()
-        } catch {
-            services.errorReporter.log(error: error)
-        }
     }
 
     /// Fetches initial sync if necessary, checking if the user has synced before.
@@ -776,12 +767,15 @@ extension VaultAutofillListProcessor {
             return
         }
 
-        let newCipher = CipherView(
-            fido2CredentialNewView: fido2CredentialNewView,
-            timeProvider: services.timeProvider,
-        )
-
-        await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
+        do {
+            let newCipher = try await services.cipherOwnershipHelper.createCipherView(
+                from: fido2CredentialNewView,
+            )
+            await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
     }
 
     /// Checks user and executes `pickedCredentialForCreation` for the Fido2 flow.
