@@ -50,6 +50,13 @@ final class CrashlyticsErrorReporter: ErrorReporter {
         Crashlytics.crashlytics().record(error: error)
     }
 
+    func setAppContext(_ appContext: String) {
+        guard isEnabled else {
+            return
+        }
+        Crashlytics.crashlytics().setCustomValue(appContext, forKey: "AppContext")
+    }
+
     func setRegion(_ region: String, isPreAuth: Bool) {
         guard isEnabled else {
             return
