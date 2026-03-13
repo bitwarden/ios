@@ -2,6 +2,7 @@
 
 public class MockErrorReporter: ErrorReporter {
     public var additionalLoggers = [any BitwardenLogger]()
+    public var appContext: String?
     public var currentUserId: String?
     public var errors = [Error]()
     public var isEnabled = false
@@ -15,6 +16,10 @@ public class MockErrorReporter: ErrorReporter {
 
     public func log(error: Error) {
         errors.append(error)
+    }
+
+    public func setAppContext(_ appContext: String) {
+        self.appContext = appContext
     }
 
     public func setRegion(_ region: String, isPreAuth: Bool) {
