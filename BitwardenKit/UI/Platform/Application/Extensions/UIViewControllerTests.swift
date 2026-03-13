@@ -1,7 +1,60 @@
-import BitwardenKit
 import XCTest
 
+@testable import BitwardenKit
+
 class UIViewControllerTests: BitwardenTestCase {
+    // MARK: safePresent
+
+    /// `safePresent` presents the view controller immediately when nothing is currently presented.
+    func test_safePresent_presentsWhenNoPresentedViewController() {
+        let subject = TrackingViewController()
+        let viewController = UIViewController()
+        var completionCalled = false
+
+        subject.safePresent(viewController, animated: false, completion: { completionCalled = true })
+
+        XCTAssertEqual(subject.presentedViewControllers.count, 1)
+        XCTAssertTrue(subject.presentedViewControllers.first === viewController)
+        XCTAssertTrue(completionCalled)
+    }
+
+    /// `safePresent` defers presentation while a dismiss is in progress and retries until it succeeds.
+    func test_safePresent_retriesAndPresentsAfterDismissCompletes() {
+        let subject = TrackingViewController()
+        subject.mockPresentedViewController = BeingDismissedViewController()
+        let viewController = UIViewController()
+        var completionCalled = false
+
+        subject.safePresent(viewController, animated: false, completion: { completionCalled = true })
+
+        // Not yet presented — retry is pending.
+        XCTAssertTrue(subject.presentedViewControllers.isEmpty)
+
+        // Simulate the dismiss completing so the next retry can succeed.
+        subject.mockPresentedViewController = nil
+
+        waitFor { !subject.presentedViewControllers.isEmpty }
+
+        XCTAssertEqual(subject.presentedViewControllers.count, 1)
+        XCTAssertTrue(subject.presentedViewControllers.first === viewController)
+        XCTAssertTrue(completionCalled)
+    }
+
+    /// `safePresent` does not present when the retry limit is exhausted while a dismiss is in progress.
+    func test_safePresent_doesNotPresentWhenAttemptsExhausted() {
+        let subject = TrackingViewController()
+        subject.mockPresentedViewController = BeingDismissedViewController()
+        let viewController = UIViewController()
+        var completionCalled = false
+
+        subject.safePresent(viewController, animated: false, remainingAttempts: 0, completion: { completionCalled = true })
+
+        XCTAssertTrue(subject.presentedViewControllers.isEmpty)
+        XCTAssertFalse(completionCalled)
+    }
+
+    // MARK: topmostViewController
+
     /// `topmostViewController` returns the top view controller for a view controller.
     func test_topmostViewController_isViewController() {
         let subject = UIViewController()
@@ -78,5 +131,27 @@ class UIViewControllerTests: BitwardenTestCase {
 
         tabBarController.selectedIndex = 1
         XCTAssertEqual(subject.topmostViewController(), viewControllerB)
+    }
+}
+
+// MARK: - Test Helpers
+
+/// A `UIViewController` subclass that reports itself as always being dismissed, used to simulate
+/// a mid-dismissal state in `safePresent` tests.
+private class BeingDismissedViewController: UIViewController {
+    override var isBeingDismissed: Bool { true }
+}
+
+/// A `UIViewController` subclass that stubs `presentedViewController` and records calls to
+/// `present(_:animated:completion:)` without triggering real UIKit presentation.
+private class TrackingViewController: UIViewController {
+    var mockPresentedViewController: UIViewController?
+    var presentedViewControllers: [UIViewController] = []
+
+    override var presentedViewController: UIViewController? { mockPresentedViewController }
+
+    override func present(_ viewController: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
+        presentedViewControllers.append(viewController)
+        completion?()
     }
 }
