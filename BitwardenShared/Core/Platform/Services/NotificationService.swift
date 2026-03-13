@@ -266,6 +266,8 @@ class DefaultNotificationService: NotificationService {
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
                 break
+            case .policyChanged:
+                try await syncService.fetchSync(forceSync: false)
             }
         } catch {
             errorReporter.log(error: error)
@@ -349,7 +351,7 @@ class DefaultNotificationService: NotificationService {
         // Create an in-app banner notification to tell the user about the login request.
         let content = UNMutableNotificationContent()
         content.title = Localizations.logInRequested
-        content.body = Localizations.confimLogInAttempForX(loginSourceEmail)
+        content.body = Localizations.confirmLogInAttemptForX(loginSourceEmail)
         content.categoryIdentifier = "dismissableCategory"
         if let loginRequestData,
            let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
