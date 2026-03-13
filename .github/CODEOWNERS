@@ -21,6 +21,7 @@
 
 # Platform
 # Bitwarden @bitwarden/team-platform-dev
+# BitwardenNotificationExtension @bitwarden/team-platform-dev
 # BitwardenShareExtension @bitwarden/team-platform-dev
 # BitwardenShared/Core/Platform @bitwarden/team-platform-dev
 # BitwardenShared/UI/Platform @bitwarden/team-platform-dev

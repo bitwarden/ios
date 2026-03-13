@@ -12,6 +12,7 @@ on:
       - Bitwarden/**
       - BitwardenActionExtension/**
       - BitwardenAutoFillExtension/**
+      - BitwardenNotificationExtension/**
       - BitwardenShared/**
       - BitwardenShareExtension/**
       - BitwardenWatchApp/**
