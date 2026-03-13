@@ -409,6 +409,26 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` triggers a sync when a
+    /// policy changed notification is received.
+    func test_messageReceived_policyChanged() async throws {
+        // Set up the mock data.
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.policyChanged.rawValue,
+                "payload": "anything",
+            ],
+        ]
+
+        // Test.
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        // Confirm the results.
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` tells
     /// the delegate to show the switch account alert if it's a login request for a non-active account.
     @MainActor
