@@ -7,7 +7,7 @@ import Foundation
 ///
 public protocol ConfigService {
     /// A publisher that updates with a new value when a new server configuration is received.
-    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>>
+    func configPublisher() async -> AsyncPublisher<AnyPublisher<MetaServerConfig?, Never>>
 
     /// Retrieves the current configuration. This will return the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
@@ -89,6 +89,14 @@ public protocol ConfigService {
     /// Refreshes the list of debug feature flags by reloading their values from the settings store.
     ///
     func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag]
+
+    // MARK: Server communication cookie
+
+    /// Clears the SSO cookie value from the stored server communication config for the given hostname.
+    ///
+    /// - Parameter hostname: The hostname for which to clear the SSO cookie value.
+    ///
+    func clearServerCommunicationCookieValue(hostname: String) async throws
 }
 
 public extension ConfigService {
@@ -308,6 +316,12 @@ public class DefaultConfigService: ConfigService {
         return await getDebugFeatureFlags(flags)
     }
 
+    // MARK: Server communication cookie
+
+    public func clearServerCommunicationCookieValue(hostname: String) async throws {
+        try await stateService.clearServerCommunicationCookieValue(hostname: hostname)
+    }
+
     // MARK: Private
 
     /// Gets the server config in state depending on if the call is being done before authentication.
@@ -321,7 +335,7 @@ public class DefaultConfigService: ConfigService {
         return try? await stateService.getServerConfig()
     }
 
-    public func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
+    public func configPublisher() async -> AsyncPublisher<AnyPublisher<MetaServerConfig?, Never>> {
         configSubject.eraseToAnyPublisher().values
     }
 

@@ -442,13 +442,20 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
     /// Initializes a new `CipherView` based on a `Fido2CredentialNewView`
     /// - Parameters:
     ///   - fido2CredentialNewView: The `Fido2CredentialNewView` for the Fido2 creation flow
+    ///   - organizationId: The organization ID to assign to the cipher, if any.
+    ///   - collectionIds: The collection IDs to assign to the cipher.
     ///   - timeProvider: The time provider.
-    init(fido2CredentialNewView: Fido2CredentialNewView, timeProvider: TimeProvider) {
+    init(
+        fido2CredentialNewView: Fido2CredentialNewView,
+        organizationId: String? = nil,
+        collectionIds: [String] = [],
+        timeProvider: TimeProvider,
+    ) {
         self = CipherView(
             id: nil,
-            organizationId: nil,
+            organizationId: organizationId,
             folderId: nil,
-            collectionIds: [],
+            collectionIds: collectionIds,
             key: nil,
             name: fido2CredentialNewView.rpName ?? fido2CredentialNewView.rpId,
             notes: nil,

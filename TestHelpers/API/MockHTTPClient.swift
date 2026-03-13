@@ -3,6 +3,7 @@ import Networking
 
 /// An `HTTPClient` that can be used to return mocked responses.
 ///
+@MainActor
 public final class MockHTTPClient: HTTPClient {
     // MARK: Properties
 
@@ -39,7 +40,7 @@ public final class MockHTTPClient: HTTPClient {
     // MARK: Initializer
 
     /// Initializes a `MockHTTPClient`.
-    public init() {}
+    public nonisolated init() {}
 
     // MARK: Methods
 

@@ -16,6 +16,7 @@ class MockAppModule:
     FileSelectionModule,
     FlightRecorderModule,
     GeneratorModule,
+    GlobalModalModule,
     ImportCXFModule,
     ImportLoginsModule,
     LoginRequestModule,
@@ -42,6 +43,7 @@ class MockAppModule:
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
     var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var globalModalCoordinator = MockCoordinator<GlobalModalRoute, Void>()
     var importCXFCoordinator = MockCoordinator<ImportCXFRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
@@ -126,6 +128,10 @@ class MockAppModule:
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         generatorCoordinator.asAnyCoordinator()
+    }
+
+    func makeGlobalModalCoordinator(stackNavigator: StackNavigator) -> AnyCoordinator<GlobalModalRoute, Void> {
+        globalModalCoordinator.asAnyCoordinator()
     }
 
     func makeImportCXFCoordinator(

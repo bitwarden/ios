@@ -26,6 +26,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
     var clientService: MockClientService!
     var configService: MockConfigService!
     var credentialIdentityFactory: MockCredentialIdentityFactory!
+    var deviceAuthKeyService: MockDeviceAuthKeyService!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
@@ -33,6 +34,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
     var flightRecorder: MockFlightRecorder!
     var identityStore: MockCredentialIdentityStore!
+    var notificationCenterService: MockNotificationCenterService!
     var pasteboardService: MockPasteboardService!
     var stateService: MockStateService!
     var timeProvider: MockTimeProvider!
@@ -53,6 +55,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         clientService = MockClientService()
         configService = MockConfigService()
         credentialIdentityFactory = MockCredentialIdentityFactory()
+        deviceAuthKeyService = MockDeviceAuthKeyService()
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
@@ -60,6 +63,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
         flightRecorder = MockFlightRecorder()
         identityStore = MockCredentialIdentityStore()
+        notificationCenterService = MockNotificationCenterService()
         pasteboardService = MockPasteboardService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -72,12 +76,14 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             clientService: clientService,
             configService: configService,
             credentialIdentityFactory: credentialIdentityFactory,
+            deviceAuthKeyService: deviceAuthKeyService,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             flightRecorder: flightRecorder,
             identityStore: identityStore,
+            notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -95,6 +101,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         clientService = nil
         configService = nil
         credentialIdentityFactory = nil
+        deviceAuthKeyService = nil
         errorReporter = nil
         eventService = nil
         fido2UserInterfaceHelperDelegate = nil
@@ -102,6 +109,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
         fido2UserInterfaceHelper = nil
         flightRecorder = nil
         identityStore = nil
+        notificationCenterService = nil
         pasteboardService = nil
         stateService = nil
         timeProvider = nil

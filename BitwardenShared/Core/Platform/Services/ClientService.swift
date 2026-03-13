@@ -43,10 +43,13 @@ protocol ClientService {
 
     /// Returns a `PlatformClientService` for client platform tasks.
     ///
-    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Parameters:
+    ///   - userId: The user ID mapped to the client instance.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: A `PlatformClientService` for client platform tasks.
     ///
-    func platform(for userId: String?) async throws -> PlatformClientService
+    func platform(for userId: String?, isPreAuth: Bool) async throws -> PlatformClientService
 
     /// Removes the user's client from memory.
     ///
@@ -104,8 +107,10 @@ extension ClientService {
 
     /// Returns a `PlatformClientService` for client platform tasks.
     ///
-    func platform() async throws -> PlatformClientService {
-        try await platform(for: nil)
+    /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
+    ///     (when the user's ID doesn't yet exist).
+    func platform(isPreAuth: Bool = false) async throws -> PlatformClientService {
+        try await platform(for: nil, isPreAuth: isPreAuth)
     }
 
     /// Removes the active user's client from memory.
@@ -184,7 +189,7 @@ actor DefaultClientService: ClientService {
         self.stateService = stateService
 
         Task {
-            for try await result in try await configService.configPublisher() {
+            for await result in await configService.configPublisher() {
                 guard let result,
                       !result.isPreAuth,
                       let userId = result.userId else {
@@ -214,8 +219,8 @@ actor DefaultClientService: ClientService {
         try await client(for: userId, isPreAuth: isPreAuth).generators()
     }
 
-    func platform(for userId: String?) async throws -> PlatformClientService {
-        try await client(for: userId).platform()
+    func platform(for userId: String?, isPreAuth: Bool = false) async throws -> PlatformClientService {
+        try await client(for: userId, isPreAuth: isPreAuth).platform()
     }
 
     func removeClient(for userId: String?) async throws {

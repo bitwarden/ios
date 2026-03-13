@@ -5,6 +5,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
+@MainActor
 class ConfigAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -22,8 +23,8 @@ class ConfigAPIServiceTests: BitwardenTestCase {
         subject = APIService(client: client)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         client = nil
         stateService = nil

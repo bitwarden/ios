@@ -12,8 +12,11 @@ class MockClientService: ClientService {
     var mockGeneratorsIsPreAuth = false
     var mockGeneratorsUserId: String?
     var mockPlatform: MockPlatformClientService
+    var mockPlatformIsPreAuth = false
     var mockSends: MockSendClient
     var mockVault: MockVaultClientService
+    var platformCallCount = 0
+    var platformError: Error?
     var userClientArray = [String: BitwardenSdkClient]()
 
     init(
@@ -54,8 +57,13 @@ class MockClientService: ClientService {
         return mockGenerators
     }
 
-    func platform(for userId: String?) -> PlatformClientService {
-        mockPlatform
+    func platform(for userId: String?, isPreAuth: Bool) throws -> PlatformClientService {
+        platformCallCount += 1
+        if let platformError {
+            throw platformError
+        }
+        mockPlatformIsPreAuth = isPreAuth
+        return mockPlatform
     }
 
     func removeClient(for userId: String?) async throws {

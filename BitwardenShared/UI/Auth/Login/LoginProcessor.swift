@@ -156,7 +156,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             )
             state.isLoginWithDeviceVisible = isKnownDevice
         } catch {
-            await handleErrorResponse(error)
+            services.errorReporter.log(error: error)
         }
     }
 

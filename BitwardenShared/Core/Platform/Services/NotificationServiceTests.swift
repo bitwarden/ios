@@ -5,6 +5,7 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+@MainActor
 class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -55,8 +56,8 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.setDelegate(delegate)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         appSettingsStore = nil
         authService = nil

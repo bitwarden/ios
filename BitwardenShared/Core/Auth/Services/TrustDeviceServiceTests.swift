@@ -7,6 +7,7 @@ import XCTest
 
 // MARK: - AuthServiceTests
 
+@MainActor
 class TrustDeviceServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -42,8 +43,8 @@ class TrustDeviceServiceTests: BitwardenTestCase {
         stateService.activeAccount = .fixture()
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
         appIdService = nil
         authAPIService = nil
         client = nil

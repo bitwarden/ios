@@ -509,6 +509,15 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(flag.isEnabled)
     }
 
+    // MARK: Tests - Server communication cookie
+
+    /// `clearServerCommunicationCookieValue(hostname:)` delegates to the state service with the correct hostname.
+    func test_clearServerCommunicationCookieValue() async throws {
+        try await subject.clearServerCommunicationCookieValue(hostname: "example.com")
+
+        XCTAssertEqual(stateService.clearServerCommCookieValueHostname, "example.com")
+    }
+
     // MARK: Private
 
     /// Asserts the config publisher is publishing the right values.
@@ -523,8 +532,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         file: StaticString = #file,
         line: UInt = #line,
     ) async throws {
-        var publisher = try await subject.configPublisher().makeAsyncIterator()
-        let result = try await publisher.next()
+        var publisher = await subject.configPublisher().makeAsyncIterator()
+        let result = await publisher.next()
         let metaConfig = try XCTUnwrap(XCTUnwrap(result))
         XCTAssertEqual(metaConfig.isPreAuth, isPreAuth, file: file, line: line)
         XCTAssertEqual(metaConfig.userId, userId, file: file, line: line)

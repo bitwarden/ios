@@ -145,12 +145,32 @@ protocol AddEditItemState: Sendable {
     /// Selects the `.defaultUserCollection` if needed, mainly checking the organization policies apply.
     mutating func selectDefaultCollectionIfNeeded()
 
-    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`. This will
-    /// preserve any additional UI properties on the state.
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`,
+    /// optionally preserving a TOTP state that should take precedence over the cipher view.
+    /// All other login fields (password, username, URIs, etc.) are updated normally from the
+    /// cipher view.
+    ///
+    /// - Parameters:
+    ///   - cipherView: The updated `CipherView`.
+    ///   - preservingTOTPState: When non-nil, this TOTP state takes precedence over whatever
+    ///     value is derived from the cipher view. Pass `nil` to let the cipher view's TOTP value
+    ///     apply normally.
+    ///
+    mutating func update(
+        from cipherView: CipherView,
+        preservingTOTPState: LoginTOTPState?,
+    )
+}
+
+extension AddEditItemState {
+    /// Updates the `CipherView` fields of `CipherItemState` with an updated `CipherView`.
+    /// This will preserve any additional UI properties on the state.
     ///
     /// - Parameter cipherView: The updated `CipherView`.
     ///
-    mutating func update(from cipherView: CipherView)
+    mutating func update(from cipherView: CipherView) {
+        update(from: cipherView, preservingTOTPState: nil)
+    }
 }
 
 /// extension for `GuidedTourStepState` to provide states for learn new login guided tour.

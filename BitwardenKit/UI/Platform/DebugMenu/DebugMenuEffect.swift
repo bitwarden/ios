@@ -3,6 +3,9 @@
 /// Effects that can be processed by a `DebugMenuProcessor`.
 ///
 enum DebugMenuEffect: Equatable {
+    /// Clears the SSO server communication cookie value.
+    case clearSsoCookies
+
     /// Triggers a refresh of feature flags, clearing local settings and re-fetching from the remote source.
     case refreshFeatureFlags
 

@@ -133,6 +133,13 @@ public class AppProcessor {
                 await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
             }
         }
+
+        Task {
+            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard hostname != nil else { continue }
+                coordinator?.navigate(to: .syncWithBrowser)
+            }
+        }
     }
 
     // MARK: Methods
@@ -435,7 +442,8 @@ extension AppProcessor {
     private func checkIfLockedAndPerformNavigation(route: AppRoute) async {
         if let userId = try? await services.stateService.getActiveAccountId(),
            !services.vaultTimeoutService.isLocked(userId: userId),
-           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
+           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false,
+           await (try? services.syncService.organizationIdRequiringVaultMigration()) == nil {
             coordinator?.navigate(to: route)
         } else {
             await coordinator?.handleEvent(.setAuthCompletionRoute(route))

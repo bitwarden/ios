@@ -782,7 +782,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_didCompleteAutomaticCapture_failure() {
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
         appSettingsStore.defaultSaveOption = .saveHere
-        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        totpService.getTOTPConfigResult = .failure(TOTPKeyError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: "1234")
         waitFor(captureCoordinator.routes.last != nil)
@@ -1143,7 +1143,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `didCompleteManualCapture` failure
     @MainActor
     func test_didCompleteManualCapture_failure() {
-        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        totpService.getTOTPConfigResult = .failure(TOTPKeyError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteManualCapture(captureCoordinator.asAnyCoordinator(),
                                          key: "1234",

@@ -83,6 +83,14 @@ protocol CipherService {
     ///
     func fetchAllCiphers() async throws -> [Cipher]
 
+    /// Checks whether the current user has any personal ciphers (ciphers with no organization).
+    ///
+    /// This is more efficient than `fetchAllCiphers()` when you only need to check existence.
+    ///
+    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
+    ///
+    func hasPersonalCiphers() async throws -> Bool
+
     /// Attempts to synchronize a cipher with the server.
     ///
     /// This method fetches the updated cipher value from the server and updates the value in the
@@ -338,6 +346,11 @@ extension DefaultCipherService {
     func fetchAllCiphers() async throws -> [Cipher] {
         let userId = try await stateService.getActiveAccountId()
         return try await cipherDataStore.fetchAllCiphers(userId: userId)
+    }
+
+    func hasPersonalCiphers() async throws -> Bool {
+        let userId = try await stateService.getActiveAccountId()
+        return try await cipherDataStore.hasPersonalCiphers(userId: userId)
     }
 
     func syncCipherWithServer(withId id: String) async throws {

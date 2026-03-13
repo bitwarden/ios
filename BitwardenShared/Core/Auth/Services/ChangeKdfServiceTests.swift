@@ -78,7 +78,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
         XCTAssertFalse(needsUpdate)
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertEqual(syncService.fetchSyncForceSync, false)
+        XCTAssertEqual(syncService.fetchSyncForceSync, true)
     }
 
     /// `needsKdfUpdateToMinimums()` returns false and logs an error if one occurs.
@@ -147,7 +147,7 @@ class ChangeKdfServiceTests: BitwardenTestCase {
         let needsUpdate = await subject.needsKdfUpdateToMinimums()
         XCTAssertTrue(needsUpdate)
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertEqual(syncService.fetchSyncForceSync, false)
+        XCTAssertEqual(syncService.fetchSyncForceSync, true)
     }
 
     /// `updateKdfToMinimums(password:)` updates the user's KDF settings.

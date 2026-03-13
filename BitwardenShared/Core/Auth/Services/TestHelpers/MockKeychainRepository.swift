@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenSdk
 import Foundation
 
 @testable import BitwardenShared
@@ -22,12 +23,17 @@ class MockKeychainRepository: KeychainRepository {
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
     var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
+    var getServerCommunicationConfigResult: Result<BitwardenSdk.ServerCommunicationConfig?, Error> = .success(nil)
+    var getServerCommunicationConfigCalledHostname: String? // swiftlint:disable:this identifier_name
 
     var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
     var setAccessTokenResult: Result<Void, Error> = .success(())
     var setDeviceKeyResult: Result<Void, Error> = .success(())
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
     var setRefreshTokenResult: Result<Void, Error> = .success(())
+    var setServerCommunicationConfigResult: Result<Void, Error> = .success(())
+    var setServerCommunicationConfigCalledConfig: BitwardenSdk.ServerCommunicationConfig?
+    var setServerCommunicationConfigCalledHostname: String? // swiftlint:disable:this identifier_name
 
     // Track which userId was passed to get/set methods for testing
     var getAccessTokenUserId: String?
@@ -62,6 +68,12 @@ class MockKeychainRepository: KeychainRepository {
         mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 
+    func deleteServerCommunicationConfig(hostname: String) async throws {
+        try deleteResult.get()
+        let formattedKey = formattedKey(for: .serverCommunicationConfig(hostname: hostname))
+        mockStorage = mockStorage.filter { $0.key != formattedKey }
+    }
+
     func deleteUserAuthKey(for item: KeychainItem) async throws {
         try deleteResult.get()
         let formattedKey = formattedKey(for: item)
@@ -88,6 +100,11 @@ class MockKeychainRepository: KeychainRepository {
 
     func getPendingAdminLoginRequest(userId: String) async throws -> String? {
         try getPendingAdminLoginRequestResult.get()
+    }
+
+    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
+        getServerCommunicationConfigCalledHostname = hostname
+        return try getServerCommunicationConfigResult.get()
     }
 
     func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
@@ -137,6 +154,15 @@ class MockKeychainRepository: KeychainRepository {
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws {
         try setPendingAdminLoginRequestResult.get()
         mockStorage[formattedKey(for: .pendingAdminLoginRequest(userId: userId))] = value
+    }
+
+    func setServerCommunicationConfig(
+        _ config: BitwardenSdk.ServerCommunicationConfig?,
+        hostname: String,
+    ) async throws {
+        setServerCommunicationConfigCalledConfig = config
+        setServerCommunicationConfigCalledHostname = hostname
+        try setServerCommunicationConfigResult.get()
     }
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {

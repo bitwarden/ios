@@ -9,7 +9,11 @@ class TestResponseHandler: ResponseHandler {
         self.responseHandler = responseHandler
     }
 
-    func handle(_ response: inout HTTPResponse) async throws -> HTTPResponse {
+    func handle(
+        _ response: inout HTTPResponse,
+        for request: HTTPRequest,
+        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
+    ) async throws -> HTTPResponse {
         handledResponse = response
         responseHandler?(&response)
         return response

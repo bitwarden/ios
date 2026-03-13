@@ -154,6 +154,7 @@ targets:
         optional: true
     dependencies:
       - target: BitwardenKit
+      - package: BitwardenSdk
       - target: TestHelpers
   BitwardenKitTests:
     type: bundle.unit-test

@@ -125,13 +125,18 @@ public final class HTTPService: Sendable {
     ///     authentication error is encountered. If true, the token provider will be used to refresh
     ///     the token before attempting the network request again. If authentication fails a second
     ///     time this method will throw the authentication error.
+    ///   - shouldFollowRedirect: A flag indicating if response handlers should be given the
+    ///     opportunity to re-send this request when a redirect is encountered. If false, the
+    ///     `retryWith` closure passed to each `ResponseHandler` will be `nil`, preventing any
+    ///     handler from triggering a further redirect. This prevents infinite recursion when a
+    ///     redirect-following handler re-invokes `send`.
     /// - Returns: The http response received for the request.
-    ///
     ///
     public func send(
         _ httpRequest: HTTPRequest,
         validate: ((HTTPResponse) throws -> Void)? = nil,
         shouldRetryIfUnauthorized: Bool = false,
+        shouldFollowRedirect: Bool = true,
     ) async throws -> HTTPResponse {
         var httpRequest = httpRequest
         try await applyRequestHandlers(&httpRequest)
@@ -148,10 +153,28 @@ public final class HTTPService: Sendable {
             _ = try await tokenProvider.refreshToken()
 
             // Send the request again, but don't retry if still unauthorized to prevent a retry loop.
-            return try await send(httpRequest, validate: validate, shouldRetryIfUnauthorized: false)
+            return try await send(
+                httpRequest,
+                validate: validate,
+                shouldRetryIfUnauthorized: false,
+                shouldFollowRedirect: shouldFollowRedirect,
+            )
         }
+
         try validate?(httpResponse)
-        try await applyResponseHandlers(&httpResponse)
+
+        let retryWith: ((HTTPRequest) async throws -> HTTPResponse)? = shouldFollowRedirect
+            ? { newRequest in
+                try await self.send(
+                    newRequest,
+                    validate: validate,
+                    shouldRetryIfUnauthorized: shouldRetryIfUnauthorized,
+                    shouldFollowRedirect: false,
+                )
+            }
+            : nil
+
+        try await applyResponseHandlers(&httpResponse, for: httpRequest, retryWith: retryWith)
         return httpResponse
     }
 
@@ -196,11 +219,19 @@ public final class HTTPService: Sendable {
 
     /// Applies any response handlers to the response after it's been received.
     ///
-    /// - Parameter httpResponse: The response to apply response handlers to.
+    /// - Parameters:
+    ///   - httpResponse: The response to apply response handlers to.
+    ///   - request: The original request that produced the response.
+    ///   - retryWith: An optional closure that handlers can use to re-send a request through the
+    ///     full pipeline. `nil` when redirect-following is disabled for this call chain.
     ///
-    private func applyResponseHandlers(_ httpResponse: inout HTTPResponse) async throws {
+    private func applyResponseHandlers(
+        _ httpResponse: inout HTTPResponse,
+        for request: HTTPRequest,
+        retryWith: ((HTTPRequest) async throws -> HTTPResponse)?,
+    ) async throws {
         for handler in responseHandlers {
-            httpResponse = try await handler.handle(&httpResponse)
+            httpResponse = try await handler.handle(&httpResponse, for: request, retryWith: retryWith)
         }
     }
 }

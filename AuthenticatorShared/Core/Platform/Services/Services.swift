@@ -10,6 +10,7 @@ typealias Services = HasAppInfoService
     & HasCameraService
     & HasConfigService
     & HasCryptographyService
+    & HasEnvironmentService
     & HasErrorReportBuilder
     & HasErrorReporter
     & HasExportItemsService
@@ -18,6 +19,7 @@ typealias Services = HasAppInfoService
     & HasLanguageStateService
     & HasNotificationCenterService
     & HasPasteboardService
+    & HasServerCommunicationConfigClientSingleton
     & HasStateService
     & HasTOTPExpirationManagerFactory
     & HasTOTPService

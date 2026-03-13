@@ -27,7 +27,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Hlavní heslo musí obsahovat alespoň %#@characters@ znaků.</string>
+      <string>%#@MasterPasswordMustBeAtLeastCharactersLong@</string>
       <key>MasterPasswordMustBeAtLeastCharactersLong</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -174,7 +174,7 @@
     <key>XMinutes</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
+      <string>%#@Minutes@</string>
       <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
