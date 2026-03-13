@@ -113,7 +113,7 @@ Xcode version requirement: see `.xcode-version` file
 
 ## Testing
 
-**You MUST follow testing guidelines in `Docs/Testing.md`** (authoritative source for test structure, naming, templates, decision matrix, running tests, and simulator configuration). Snapshot tests are currently disabled — prefix function names with `disable`.
+Follow `Docs/Testing.md` (authoritative). See `testing-ios-code` skill for test-writing workflow. Snapshot tests are currently disabled — prefix function names with `disabletest_`.
 
 ## Code Style & Standards
 
