@@ -1,0 +1,5 @@
+#include "./Common-bwpm.xcconfig"
+#include? "./Local-bwpm.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID).notification
+PROVISIONING_PROFILE_SPECIFIER = $(PROVISIONING_PROFILE_SPECIFIER_NOTIFICATION_EXTENSION)
