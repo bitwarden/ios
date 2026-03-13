@@ -698,7 +698,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         } catch {
             await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
+            if case let ServerError.error(errorResponse: errorResponse) = error,
+               errorResponse.message.contains("Cipher was not encrypted for the current user") {
+                services.errorReporter.log(error: BitwardenError.generalError(
+                    type: "Save item failed",
+                    message: errorResponse.message,
+                    error: error,
+                ))
+            } else {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 

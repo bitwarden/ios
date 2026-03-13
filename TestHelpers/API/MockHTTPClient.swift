@@ -33,6 +33,10 @@ public final class MockHTTPClient: HTTPClient {
     /// A list of results that will be returned in order for future requests.
     public var results: [Result<HTTPResponse, Error>] = []
 
+    /// An optional callback that is invoked when a request is sent, useful for simulating
+    /// state changes during async operations in tests.
+    public var onRequest: ((HTTPRequest) -> Void)?
+
     // MARK: Initializer
 
     /// Initializes a `MockHTTPClient`.
@@ -61,6 +65,9 @@ public final class MockHTTPClient: HTTPClient {
     ///
     public func send(_ request: HTTPRequest) async throws -> HTTPResponse {
         requests.append(request)
+
+        // Invoke callback if provided (useful for simulating state changes during async operations)
+        onRequest?(request)
 
         guard !results.isEmpty else { throw MockHTTPClientError.noResultForRequest }
 

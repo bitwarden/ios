@@ -44,6 +44,7 @@ class APIService {
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - serverCommunicationConfigClientSingleton: The service to get the server communication client
     ///   used to break circular dependency.
@@ -55,6 +56,7 @@ class APIService {
         accountTokenProvider: AccountTokenProvider? = nil,
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
+        errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
         serverCommunicationConfigClientSingleton: @escaping () -> ServerCommunicationConfigClientSingleton?,
         stateService: StateService,
@@ -85,6 +87,8 @@ class APIService {
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
             httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
             tokenService: tokenService,
+            errorReporter: errorReporter,
+            stateService: stateService
         )
 
         apiService = httpServiceBuilder.makeService(

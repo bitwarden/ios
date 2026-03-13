@@ -9,6 +9,7 @@ extension APIService {
         accountTokenProvider: AccountTokenProvider? = nil,
         client: HTTPClient,
         environmentService: EnvironmentService = MockEnvironmentService(),
+        errorReporter: ErrorReporter = MockErrorReporter(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         // swiftlint:disable:next line_length
         serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
@@ -18,6 +19,7 @@ extension APIService {
             accountTokenProvider: accountTokenProvider,
             client: client,
             environmentService: environmentService,
+            errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             serverCommunicationConfigClientSingleton: { serverCommunicationConfigClientSingleton },
             stateService: stateService,
