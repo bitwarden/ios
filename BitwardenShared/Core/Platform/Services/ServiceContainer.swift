@@ -666,6 +666,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            policyService: policyService,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
