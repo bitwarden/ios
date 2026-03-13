@@ -309,3 +309,23 @@ mint run swiftgen config run --config swiftgen-pm.yml              # Generate as
 
 **Do not duplicate information from these files — reference them instead.**
 
+## Skills & Commands
+
+| Skill | Triggers |
+|-------|---------|
+| `refining-ios-requirements` | "refine requirements", "analyze ticket", "gap analysis" |
+| `planning-ios-implementation` | "plan implementation", "design approach", "architecture plan" |
+| `implementing-ios-code` | "implement", "write code", "add screen", "create feature" |
+| `testing-ios-code` | "write tests", "add test coverage", "unit test" |
+| `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
+| `perform-ios-preflight-checklist` | "preflight", "self review", "ready to commit" |
+| `committing-ios-changes` | "commit", "stage changes", "create commit" |
+| `creating-ios-pull-request` | "create PR", "open pull request", "submit PR" |
+| `labeling-ios-changes` | "label PR", "add labels", "categorize changes" |
+| `reviewing-changes` | "review", "code review", "check PR" |
+
+| Command | Usage |
+|---------|-------|
+| `/plan-ios-work <PM-XXXXX>` | Fetch ticket → refine requirements → create design doc |
+| `/work-on-ios <PM-XXXXX>` | Full workflow: plan → implement → test → verify → commit → PR |
+
