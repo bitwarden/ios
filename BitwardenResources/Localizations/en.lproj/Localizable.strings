@@ -686,6 +686,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Receive push notifications for new login requests";
 "NoThanks" = "No thanks";
 "ConfimLogInAttempForX" = "Confirm login attempt for %1$@";
+"ConfirmLogInAttemptForX" = "Confirm login attempt for %1$@";
 "AllNotifications" = "All notifications";
 "PasswordType" = "Password type";
 "WhatWouldYouLikeToGenerate" = "What would you like to generate?";
