@@ -1124,7 +1124,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         StepperField<GeneratorState>(
             accessibilityId: accessibilityId,
             keyPath: keyPath,
-            range: 0 ... 5,
+            range: 0 ... 9,
             title: Localizations.minNumbers,
             value: 1,
         )
