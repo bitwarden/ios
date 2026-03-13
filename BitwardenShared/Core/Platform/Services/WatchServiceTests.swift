@@ -8,10 +8,12 @@ import WatchConnectivity
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// swiftlint:disable file_length
+
 // MARK: - WatchServiceTests
 
 @MainActor
-struct WatchServiceTests {
+struct WatchServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherService: MockCipherService!
@@ -21,6 +23,7 @@ struct WatchServiceTests {
     var errorReporter: MockErrorReporter!
     var organizationService: MockOrganizationService!
     var stateService: MockStateService!
+    var vaultTimeoutService: MockVaultTimeoutService!
     var watchSession: MockWatchSession!
     var watchSessionFactory: MockWatchSessionFactory!
     var subject: DefaultWatchService!
@@ -35,6 +38,7 @@ struct WatchServiceTests {
         errorReporter = MockErrorReporter()
         organizationService = MockOrganizationService()
         stateService = MockStateService()
+        vaultTimeoutService = MockVaultTimeoutService()
 
         watchSession = MockWatchSession()
         watchSession.underlyingIsPaired = true
@@ -67,6 +71,7 @@ struct WatchServiceTests {
                 organizationService: organizationService,
                 stateService: stateService,
                 watchSessionFactory: watchSessionFactory,
+                vaultTimeoutService: vaultTimeoutService,
             )
         }
         watchSessionFactory.isSupportedClosure = nil
@@ -85,6 +90,7 @@ struct WatchServiceTests {
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
+            stateService.connectToWatchByUserId["1"] = true
             cipherService.ciphersSubject.send([.fixture()])
             stateService.connectToWatchSubject.send(("1", true))
         }
@@ -119,10 +125,63 @@ struct WatchServiceTests {
 
     // MARK: syncWithWatch Tests
 
+    /// `syncWithWatch()` logs an unexpected error from `getActiveAccountId` and falls
+    /// back to treating the user as logged out.
+    @Test
+    func syncWithWatch_getActiveAccountIdUnexpectedError_logsError() async throws {
+        stateService.activeAccount = nil
+        stateService.getActiveAccountIdError = BitwardenTestError.example
+        stateService.lastUserShouldConnectToWatch = true
+
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+            stateService.connectToWatchSubject.send((nil, false))
+        }
+
+        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        #expect(dto.state == .needLogin)
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+    }
+
+    /// `syncWithWatch()` falls back to `getLastUserShouldConnectToWatch` without logging
+    /// an error when `getConnectToWatch` throws `noActiveAccount`.
+    @Test
+    func syncWithWatch_getConnectToWatchNoActiveAccount_fallsBackSilently() async throws {
+        stateService.connectToWatchResult = .failure(StateServiceError.noActiveAccount)
+        stateService.lastUserShouldConnectToWatch = true
+
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+            stateService.connectToWatchSubject.send(("1", true))
+        }
+
+        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        #expect(dto.state == .need2FAItem)
+        #expect(errorReporter.errors.isEmpty)
+    }
+
+    /// `syncWithWatch()` falls back to `getLastUserShouldConnectToWatch` and logs an error
+    /// when `getConnectToWatch` throws an unexpected error.
+    @Test
+    func syncWithWatch_getConnectToWatchUnexpectedError_logsErrorAndFallsBack() async throws {
+        stateService.connectToWatchResult = .failure(BitwardenTestError.example)
+        stateService.lastUserShouldConnectToWatch = true
+
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+            stateService.connectToWatchSubject.send(("1", true))
+        }
+
+        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        #expect(dto.state == .need2FAItem)
+        #expect(errorReporter.errors as? [BitwardenTestError] == [.example])
+    }
+
     /// `syncWithWatch()` sends a `.needLogin` state when there is no active account.
     @Test
     func syncWithWatch_noActiveAccount_sendsNeedLogin() async throws {
         stateService.activeAccount = nil
+        stateService.lastUserShouldConnectToWatch = true
 
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
@@ -141,6 +200,7 @@ struct WatchServiceTests {
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
             // First, establish the session by syncing with shouldConnect = true.
+            stateService.connectToWatchByUserId["1"] = true
             stateService.connectToWatchSubject.send(("1", true))
         }
 
@@ -148,6 +208,7 @@ struct WatchServiceTests {
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
             // Now update with shouldConnect = false — the existing session will be used.
+            stateService.connectToWatchByUserId["1"] = false
             stateService.connectToWatchSubject.send(("1", false))
         }
 
@@ -165,6 +226,7 @@ struct WatchServiceTests {
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
+            stateService.connectToWatchByUserId["1"] = true
             stateService.connectToWatchSubject.send(("1", true))
         }
 
@@ -183,6 +245,7 @@ struct WatchServiceTests {
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
+            stateService.connectToWatchByUserId["1"] = true
             stateService.connectToWatchSubject.send(("1", true))
         }
 
@@ -197,6 +260,7 @@ struct WatchServiceTests {
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
+            stateService.connectToWatchByUserId["1"] = true
             stateService.connectToWatchSubject.send(("1", true))
         }
 
@@ -215,6 +279,7 @@ struct WatchServiceTests {
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
+            stateService.connectToWatchByUserId["1"] = true
             stateService.connectToWatchSubject.send(("1", true))
         }
 
@@ -240,6 +305,7 @@ struct WatchServiceTests {
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
+            stateService.connectToWatchByUserId["1"] = true
             stateService.connectToWatchSubject.send(("1", true))
         }
 
@@ -262,6 +328,64 @@ struct WatchServiceTests {
         #expect(dto.ciphers?.count == 2)
     }
 
+    /// `syncWithWatch()` does not sync ciphers when the vault is locked.
+    @Test
+    func syncWithWatch_vaultLocked_skipsCipherSync() async throws {
+        var decryptCallCount = 0
+        clientService.mockVault.clientCiphers.decryptResult = { _ in
+            decryptCallCount += 1
+            return .fixture(id: "cipher-1", login: .fixture(totp: "totp-secret"))
+        }
+
+        // Establish the session and confirm the decrypt path is reachable when unlocked.
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+
+            cipherService.ciphersSubject.send([.fixture()])
+            stateService.connectToWatchByUserId["1"] = true
+            stateService.connectToWatchSubject.send(("1", true))
+        }
+        let decryptCountAfterSetup = decryptCallCount
+        #expect(decryptCountAfterSetup > 0)
+
+        // Lock the vault and trigger another sync.
+        vaultTimeoutService.isClientLocked["1"] = true
+        stateService.connectToWatchSubject.send(("1", true))
+        try await Task.sleep(nanoseconds: 10_000_000)
+
+        // Confirm no additional decrypt attempts.
+        #expect(decryptCallCount == decryptCountAfterSetup)
+    }
+
+    /// `syncWithWatch()` syncs ciphers after the vault becomes unlocked.
+    @Test
+    func syncWithWatch_vaultUnlocked_syncsAfterUnlock() async throws {
+        clientService.mockVault.clientCiphers.decryptResult = { _ in
+            .fixture(id: "cipher-1", login: .fixture(totp: "totp-secret"))
+        }
+
+        // Start locked — no sync should occur.
+        vaultTimeoutService.isClientLocked["1"] = true
+        stateService.connectToWatchByUserId["1"] = true
+        stateService.connectToWatchSubject.send(("1", true))
+        try await Task.sleep(nanoseconds: 10_000_000)
+        #expect(watchSession.updateApplicationContextCallsCount == 0)
+
+        // Unlock the vault — the publisher emits, triggering a fresh sync.
+        await withContinuationTimeout { resume in
+            watchSession.updateApplicationContextClosure = { _ in resume() }
+
+            cipherService.ciphersSubject.send([.fixture()])
+            vaultTimeoutService.isClientLocked["1"] = false
+            vaultTimeoutService.vaultLockStatusSubject.send(
+                VaultLockStatus(isVaultLocked: false, userId: "1"),
+            )
+        }
+
+        let dto = try decodedDTO(from: watchSession.updateApplicationContextReceivedApplicationContext)
+        #expect(dto.state == .valid)
+    }
+
     // MARK: connectToWatchPublisher Tests
 
     /// When the publisher emits twice, only the latest sync task remains active.
@@ -270,6 +394,7 @@ struct WatchServiceTests {
         await withContinuationTimeout { resume in
             watchSession.updateApplicationContextClosure = { _ in resume() }
 
+            stateService.connectToWatchByUserId["1"] = true
             stateService.connectToWatchSubject.send(("1", true))
         }
 

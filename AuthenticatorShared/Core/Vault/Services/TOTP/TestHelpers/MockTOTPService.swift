@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 @testable import AuthenticatorShared
@@ -9,7 +10,7 @@ class MockTOTPService: TOTPService {
     var getTotpCodeConfig: TOTPKeyModel?
 
     var capturedKey: String?
-    var getTOTPConfigResult: Result<TOTPKeyModel, Error> = .failure(TOTPServiceError.invalidKeyFormat)
+    var getTOTPConfigResult: Result<TOTPKeyModel, Error> = .failure(TOTPKeyError.invalidKeyFormat)
 
     func getTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
         getTotpCodeConfig = key

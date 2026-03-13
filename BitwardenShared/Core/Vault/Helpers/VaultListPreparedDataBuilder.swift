@@ -415,31 +415,31 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
               cipherListView.type.loginListView?.totp != nil else {
             return nil
         }
-        guard let code = try? await clientService.vault().generateTOTPCode(
-            for: cipherListView,
-            date: timeProvider.presentTime,
-        ) else {
-            errorReporter.log(
-                error: TOTPServiceError
-                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)"),
+
+        do {
+            let code = try await clientService.vault().generateTOTPCode(
+                for: cipherListView,
+                date: timeProvider.presentTime,
             )
+
+            let userHasMasterPassword = await getUserHasMasterPassword()
+
+            let listModel = VaultListTOTP(
+                id: id,
+                cipherListView: cipherListView,
+                requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
+                totpCode: code,
+            )
+            return VaultListItem(
+                id: id,
+                itemType: .totp(
+                    name: cipherListView.name,
+                    totpModel: listModel,
+                ),
+            )
+        } catch {
+            errorReporter.log(error: error)
             return nil
         }
-
-        let userHasMasterPassword = await getUserHasMasterPassword()
-
-        let listModel = VaultListTOTP(
-            id: id,
-            cipherListView: cipherListView,
-            requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
-            totpCode: code,
-        )
-        return VaultListItem(
-            id: id,
-            itemType: .totp(
-                name: cipherListView.name,
-                totpModel: listModel,
-            ),
-        )
     }
 } // swiftlint:disable:this file_length

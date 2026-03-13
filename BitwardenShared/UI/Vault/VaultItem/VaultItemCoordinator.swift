@@ -21,6 +21,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasAPIService
+        & HasAppContextHelper
         & HasAuthRepository
         & HasConfigService
         & HasEnvironmentService
@@ -406,11 +407,17 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         organizationId: String,
         delegate: MigrateToMyItemsProcessorDelegate?,
     ) {
+        let isExtension = services.appContextHelper.appContext == .appExtension
         let processor = MigrateToMyItemsProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: asAnyCoordinator(),
             delegate: delegate,
             services: services,
-            state: MigrateToMyItemsState(organizationId: organizationId),
+            state: MigrateToMyItemsState(
+                isExtension: isExtension,
+                organizationId: organizationId,
+                page: isExtension ? .extensionPrompt : .transfer,
+            ),
         )
         let view = MigrateToMyItemsView(store: Store(processor: processor))
         stackNavigator?.replace(view)

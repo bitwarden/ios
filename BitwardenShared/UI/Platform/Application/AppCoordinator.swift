@@ -287,11 +287,14 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// - Parameter organizationId: The organization ID that requires the vault migration.
     ///
     private func showMigrateToMyItems(organizationId: String) {
-        // Make sure that the user is authenticated and not currently viewing the migrate to my items view.
-        // In the main app, childCoordinator is TabRoute. In extensions, it's VaultRoute.
+        // Make sure that the user is authenticated.
+        // In the main app, childCoordinator is TabRoute. In extensions, it's VaultRoute or SendItemRoute.
         guard childCoordinator is AnyCoordinator<TabRoute, Void>
-            || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
+                || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
+                || childCoordinator is AnyCoordinator<SendItemRoute, AuthAction>
         else { return }
+
+        // Make sure that the user is not currently viewing the migrate to my items view.
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
         guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
 
@@ -300,7 +303,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         navigationController.isModalInPresentation = true
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .migrateToMyItems(organizationId: organizationId), context: self)
+        coordinator.navigate(
+            to: .migrateToMyItems(organizationId: organizationId),
+            context: self,
+        )
 
         // Present the migrate to my items view.
         rootNavigator?.rootViewController?.topmostViewController().present(
@@ -318,6 +324,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
         let navigationController = module.makeNavigationController()
         navigationController.isModalInPresentation = true
+        navigationController.modalPresentationStyle = .fullScreen
         let globalModalCoordinator = module.makeGlobalModalCoordinator(stackNavigator: navigationController)
         globalModalCoordinator.start()
         globalModalCoordinator.navigate(to: .syncWithBrowser, context: self)
@@ -393,13 +400,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
         switch appContext {
         case .appExtension:
-            guard let appExtensionDelegate else {
+            // Navigate to vault first to set up the childCoordinator.
+            if let appExtensionDelegate, let route = appExtensionDelegate.authCompletionRoute {
+                navigate(to: route)
+            } else {
                 navigate(to: .vault(.autofillList))
-                return
             }
-
-            guard let route = appExtensionDelegate.authCompletionRoute else { return }
-            navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))
 
@@ -418,6 +424,21 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             if let authCompletionRoute {
                 navigate(to: authCompletionRoute)
                 self.authCompletionRoute = nil
+            }
+        }
+
+        // Check for pending vault migration after setting up the vault coordinator.
+        if appExtensionDelegate?.canAutofill != true {
+            Task {
+                do {
+                    if let organizationId = try await services.syncService.organizationIdRequiringVaultMigration() {
+                        await MainActor.run {
+                            navigate(to: .migrateToMyItems(organizationId: organizationId))
+                        }
+                    }
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
             }
         }
     }
