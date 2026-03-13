@@ -261,7 +261,8 @@ class DefaultNotificationService: NotificationService {
                     try await syncService.deleteSend(data: data)
                 }
             case .authRequest:
-                try await handleLoginRequest(notificationData, userId: userId)
+                let isAlertNotification = (message["aps"] as? [AnyHashable: Any])?["alert"] != nil
+                try await handleLoginRequest(notificationData, isAlertNotification: isAlertNotification, userId: userId)
             case .authRequestResponse:
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
@@ -330,9 +331,17 @@ class DefaultNotificationService: NotificationService {
     ///
     /// - Parameters:
     ///   - notificationData: The decoded payload from the push notification.
+    ///   - isAlertNotification: Whether the push notification is an alert (non-silent) notification.
+    ///     When `true`, the OS has already displayed the notification banner (enriched by the
+    ///     notification service extension), so creating a local notification is skipped to avoid
+    ///     showing the banner twice.
     ///   - userId: The user's id.
     ///
-    private func handleLoginRequest(_ notificationData: PushNotificationData, userId: String) async throws {
+    private func handleLoginRequest(
+        _ notificationData: PushNotificationData,
+        isAlertNotification: Bool,
+        userId: String,
+    ) async throws {
         let data: LoginRequestNotification = try notificationData.data()
 
         // Get the email of the account that the login request is coming from.
@@ -350,30 +359,35 @@ class DefaultNotificationService: NotificationService {
         // Save the notification data.
         await stateService.setLoginRequest(data)
 
-        // Assemble the data to add to the in-app banner notification.
-        let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
-            timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
-            userId: loginSourceAccount.profile.userId,
-        ))
+        // For silent (background) pushes, create a local notification banner since the OS won't
+        // display one. For alert pushes, the OS already displayed the banner via the notification
+        // service extension, so skip creating a duplicate.
+        if !isAlertNotification {
+            // Assemble the data to add to the in-app banner notification.
+            let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
+                timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
+                userId: loginSourceAccount.profile.userId,
+            ))
 
-        // Create an in-app banner notification to tell the user about the login request.
-        let content = UNMutableNotificationContent()
-        content.title = Localizations.logInRequested
-        content.body = Localizations.confirmLogInAttemptForX(loginSourceEmail)
-        content.categoryIdentifier = "dismissableCategory"
-        if let loginRequestData,
-           let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
-            content.userInfo = ["notificationData": loginRequestEncoded]
+            // Create an in-app banner notification to tell the user about the login request.
+            let content = UNMutableNotificationContent()
+            content.title = Localizations.logInRequested
+            content.body = Localizations.confimLogInAttempForX(loginSourceEmail)
+            content.categoryIdentifier = "dismissableCategory"
+            if let loginRequestData,
+               let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
+                content.userInfo = ["notificationData": loginRequestEncoded]
+            }
+            let category = UNNotificationCategory(
+                identifier: "dismissableCategory",
+                actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
+                intentIdentifiers: [],
+                options: [.customDismissAction],
+            )
+            UNUserNotificationCenter.current().setNotificationCategories([category])
+            let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
+            try await UNUserNotificationCenter.current().add(request)
         }
-        let category = UNNotificationCategory(
-            identifier: "dismissableCategory",
-            actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
-            intentIdentifiers: [],
-            options: [.customDismissAction],
-        )
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-        let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
-        try await UNUserNotificationCenter.current().add(request)
 
         if data.userId == userId {
             // If the request is for the existing account, show the login request view automatically.

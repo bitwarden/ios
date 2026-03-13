@@ -507,6 +507,57 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(delegate.showLoginRequestRequest, .fixture())
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` tells the delegate to show the
+    /// switch account alert for an alert (non-silent) login request for a non-active account, without
+    /// creating a duplicate local notification.
+    @MainActor
+    func test_messageReceived_loginRequest_differentAccount_alertNotification() async throws {
+        stateService.setIsAuthenticated()
+        stateService.accounts = [.fixture(), .fixture(profile: .fixture(userId: "differentUser"))]
+        appIDSettingsStore.appID = "10"
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+        let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "differentUser")
+        let notificationData = try JSONEncoder().encode(loginRequestNotification)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "aps": ["alert": ["title": "Log In Requested", "body": "Confirm login attempt"]],
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: notificationData, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertEqual(stateService.loginRequest, loginRequestNotification)
+        XCTAssertEqual(delegate.switchAccountsAccount, .fixture(profile: .fixture(userId: "differentUser")))
+        XCTAssertEqual(delegate.switchAccountsShowAlert, true)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` tells the delegate to show the
+    /// login request for an alert (non-silent) login request for the active account, without creating
+    /// a duplicate local notification.
+    @MainActor
+    func test_messageReceived_loginRequest_sameAccount_alertNotification() async throws {
+        stateService.setIsAuthenticated()
+        stateService.accounts = [.fixture()]
+        appIDSettingsStore.appID = "10"
+        authService.getPendingLoginRequestResult = .success([.fixture()])
+        let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "1")
+        let notificationData = try JSONEncoder().encode(loginRequestNotification)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "aps": ["alert": ["title": "Log In Requested", "body": "Confirm login attempt"]],
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: notificationData, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertEqual(stateService.loginRequest, loginRequestNotification)
+        XCTAssertEqual(delegate.showLoginRequestRequest, .fixture())
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will not route
     /// to the landing screen if the logged-out account was not the currently active account.
     @MainActor
