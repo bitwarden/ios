@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Wer kann das sehen";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Das Teilen mit bestimmten Personen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
 "SsoCookiesCleared" = "SSO-Cookies gelöscht";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Deine Anfrage wurde unterbrochen, weil die App erneut authentifiziert werden musste. Bitte versuche es erneut.";

@@ -20,7 +20,7 @@
 "Full sign-out from ${applicationName}" = "Úplně se odhlásit z ${applicationName}";
 "Erase all ${applicationName} sessions" = "Vymazat všechny relace ${applicationName}";
 "Exit every ${applicationName} account" = "Odejít z každého účtu ${applicationName}";
-"Open password generator using ${applicationName}" = "Otevřít generátor hesel, který používá ${applicationName}";
+"Open password generator using ${applicationName}" = "Otevřít generátor hesel pomocí ${applicationName}";
 "Launch ${applicationName} password creator" = "Spustit vytvoření hesel ${applicationName}";
 "Show the ${applicationName} generator" = "Zobrazit generátor ${applicationName}";
 "Access password maker in ${applicationName}" = "Přistoupit k tvůrci hesel v ${applicationName}";
@@ -29,7 +29,7 @@
 "Start ${applicationName} password builder" = "Spustit tvorbu hesla v ${applicationName}";
 "Open up the ${applicationName} generator" = "Otevřít generátor ${applicationName}";
 "Load the password creator in ${applicationName}" = "Načíst tvůrce hesel v ${applicationName}";
-"Take me to ${applicationName}'s generator" = "Přejít na generátor do ${applicationName}";
+"Take me to ${applicationName}'s generator" = "Přejít do generátoru ${applicationName}";
 "Begin generating passwords with ${applicationName}" = "Začít generovat hesla pomocí ${applicationName}";
 "Generate passphrase using ${applicationName}" = "Generovat heslovou frázi pomocí ${applicationName}";
 "Create a ${applicationName} passphrase" = "Vytvořit heslovou frázi ${applicationName}";
@@ -39,6 +39,6 @@
 "Generate a random ${applicationName} phrase" = "Vygenerovat náhodnou frázi v ${applicationName}";
 "${applicationName}, craft a passphrase" = "${applicationName}, vytvořit heslovou frázi";
 "Design a secure passphrase via ${applicationName}" = "Navrhnout bezpečnou heslovou frázi pomocí ${applicationName}";
-"Develop a ${applicationName} secret phrase" = "Vyvinout tajnou frázi pomocí ${applicationName}";
+"Develop a ${applicationName} secret phrase" = "Vytvořit tajnou frázi pomocí ${applicationName}";
 "Compose a new ${applicationName} passphrase" = "Vytvořit novou heslovou frázi v ${applicationName}";
 "${applicationName}, generate a strong passphrase" = "${applicationName}, vygenerovat silnou heslovou frázi";

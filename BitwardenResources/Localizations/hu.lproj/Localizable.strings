@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Ki láthatja";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
 "SsoCookiesCleared" = "Az SSO sütik törlésre kerültek.";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "A kérés megszakadt, mert az alkalmazásnak újra kellett azt hitelesíteni. Próbáljuk újra.";

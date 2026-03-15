@@ -249,7 +249,7 @@
 "CopyTotp" = "复制 TOTP";
 "CopyTotpAutomaticallyDescription" = "如果登录项目包含验证器密钥，当自动填充此登录时，TOTP 验证码将复制到剪贴板。";
 "CopyTotpAutomatically" = "自动复制 TOTP";
-"PremiumRequired" = "需要高级会员才能使用此功能。";
+"PremiumRequired" = "使用此功能需要高级会员资格。";
 "AttachementAdded" = "附件已添加";
 "AttachmentDeleted" = "附件已删除";
 "ChooseFile" = "选择文件";
@@ -994,7 +994,7 @@
 "SaveAndProtectYourData" = "保存和保护您的数据";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "密码库不仅保护您的密码。在这里可以安全地存储登录、ID、支付卡和笔记。";
 "SendSensitiveInformationSafely" = "安全地发送敏感信息";
-"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。";
+"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "在任何平台上与任何人安全地共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。";
 "NewLogin" = "新增登录";
 "NewCard" = "新增支付卡";
 "NewIdentity" = "新增身份";
@@ -1207,7 +1207,7 @@
 "DownloadTheBitwardenApp" = "下载 Bitwarden App";
 "EnsureItsValidJsonAndTryAgain" = "请确保它是有效的 JSON 文件然后重试。";
 "ExportItemsConfirmationTitle" = "确认项目导出";
-"ExportItemsWarning" = "此导出包含未加密格式的项目数据。 您不应通过不安全的渠道（例如电子邮件）存储或发送导出的文件。请在使用后立即删除。";
+"ExportItemsWarning" = "此导出包含未加密格式的项目数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。";
 "FileCouldNotBeProcessed" = "文件无法处理";
 "GetVerificationCodesForAllYourAccounts" = "获取使用两步验证的所有账户的验证码。";
 "Help" = "帮助";
@@ -1305,13 +1305,13 @@
 "ArchiveIsEmpty" = "归档为空";
 "ArchiveEmptyDescriptionLong" = "将您不希望在搜索结果和自动填充建议中看到，但将来可能需要的项目添加到您的归档中。";
 "ArchiveUnavailable" = "归档不可用";
-"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是一项高级版功能。您的当前方案不包含对此功能的访问权限。";
+"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "UpgradeToPremium" = "升级到高级版";
 "ThisItemIsArchived" = "此项目已归档。";
 "YourPremiumSubscriptionEnded" = "您的高级版订阅已结束";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "要重新获取归档内容的访问权限，请重启您的高级版订阅。如果您在重启前编辑了某个已归档项目的详细信息，它将被移回您的密码库中。";
 "RestartPremium" = "重启高级版";
-"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "此项目已归档。保存更改会将其恢复到您的密码库。";
+"ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "此项目已归档。保存更改会将其恢复到您的密码库中。";
 "SettingUpAutofill" = "正在设置自动填充…";
 "AddEmail" = "添加电子邮箱";
 "AnyoneWithPasswordSetByYou" = "拥有您设置的密码的任何人";
@@ -1320,5 +1320,6 @@
 "AfterSharingThisSendLinkDescriptionLong" = "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。";
 "SpecificPeople" = "指定人员";
 "WhoCanView" = "谁可以查看";
-"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "与指定人员共享是高级版功能。您当前的方案不包含对此功能的访问权限。";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "与指定人员共享是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "由于 App 需要重新验证身份，您的请求被中断。请重试。";
