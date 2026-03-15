@@ -1322,3 +1322,4 @@
 "WhoCanView" = "ใครสามารดูได้";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "การแชร์กับบุคคลที่ระบุเป็นฟีเจอร์พรีเมียม แผนปัจจุบันของคุณไม่สามารถใช้งานฟีเจอร์นี้ได้";
 "SsoCookiesCleared" = "ลบคุกกี้ SSO แล้ว";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";

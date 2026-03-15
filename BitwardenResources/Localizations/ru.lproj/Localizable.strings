@@ -1324,3 +1324,4 @@
 "WhoCanView" = "Кто может просматривать";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Совместное использование с конкретными пользователями является Премиум функцией. Она не входит в ваш текущий тарифный план.";
 "SsoCookiesCleared" = "Cookie SSO очищены";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запрос был прерван, поскольку приложению потребовалась повторная аутентификация. Повторите попытку.";

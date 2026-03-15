@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Wie kan weergeven";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Het delen met specifieke mensen is een Premium-functie. Toegang tot deze functie is niet inbegrepen in je huidige abonnement.";
 "SsoCookiesCleared" = "SSO-cookies gewist";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Je aanvraag werd onderbroken omdat de app opnieuw moet verifiëren. Probeer het opnieuw.";
