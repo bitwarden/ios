@@ -93,7 +93,12 @@ struct NotificationExtensionHelperTests {
         let result = await subject.processNotification(content: content)
 
         #expect(result.body == "Some other notification")
-        #expect(errorReporter.errors.isEmpty)
+        #expect(errorReporter.errors.count == 1)
+        let error = try #require(errorReporter.errors.first as? PushNotificationDataError)
+        guard case .missingDataDictionary = error else {
+            Issue.record("Expected missingDataDictionary, got \(error)")
+            return
+        }
     }
 
     /// `processNotification(content:)` returns the original content unchanged when the notification

@@ -63,9 +63,8 @@ public class DefaultNotificationExtensionHelper: NotificationExtensionHelper {
 
     public func processNotification(content: UNMutableNotificationContent) async -> UNMutableNotificationContent {
         do {
-            guard let notificationData = try decodePushNotificationData(from: content.userInfo),
-                  let type = notificationData.type
-            else {
+            let notificationData = try PushNotificationData(userInfo: content.userInfo)
+            guard let type = notificationData.type else {
                 return content
             }
 
@@ -82,18 +81,6 @@ public class DefaultNotificationExtensionHelper: NotificationExtensionHelper {
     }
 
     // MARK: Private
-
-    /// Decodes a `PushNotificationData` from a notification's `userInfo` dictionary.
-    ///
-    /// - Parameter userInfo: The notification's `userInfo` dictionary.
-    /// - Returns: The decoded `PushNotificationData`, or `nil` if the `"data"` key is absent.
-    /// - Throws: An error if JSON serialization or decoding fails.
-    ///
-    private func decodePushNotificationData(from userInfo: [AnyHashable: Any]) throws -> PushNotificationData? {
-        guard let messageContent = userInfo["data"] as? [AnyHashable: Any] else { return nil }
-        let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
-        return try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
-    }
 
     /// Handles an auth request notification, updating the body with the requesting user's email
     /// if found in the accounts store.
