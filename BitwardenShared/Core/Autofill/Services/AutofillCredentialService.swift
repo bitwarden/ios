@@ -86,12 +86,6 @@ protocol AutofillCredentialService: AnyObject {
 /// A default implementation of an `AutofillCredentialService`.
 ///
 class DefaultAutofillCredentialService {
-    // MARK: Computed properties
-
-    /// Whether the cipher changes publisher has been subscribed to. This is useful for tests.
-    var hasCipherChangesSubscription: Bool {
-        cipherChangesSubscriptionTask != nil && !(cipherChangesSubscriptionTask?.isCancelled ?? true)
-    }
 
     // MARK: Private Properties
 
@@ -131,6 +125,11 @@ class DefaultAutofillCredentialService {
 
     /// The service used by the application for recording temporary debug logs.
     private let flightRecorder: FlightRecorder
+
+    /// Whether the cipher changes publisher has been subscribed to. This is useful for tests.
+    /// This is `true` only after the publisher has been obtained and the `for try await` loop
+    /// is about to start iterating.
+    private(set) var hasCipherChangesSubscription: Bool = false
 
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
@@ -263,7 +262,9 @@ class DefaultAutofillCredentialService {
             }
 
             do {
-                for try await cipherChange in try await cipherService.cipherChangesPublisher().values {
+                let publisher = try await cipherService.cipherChangesPublisher()
+                hasCipherChangesSubscription = true
+                for try await cipherChange in publisher.values {
                     await flightRecorder.log(
                         "[AutofillCredentialService] Received cipher change \(cipherChange.debugDescription)",
                     )
