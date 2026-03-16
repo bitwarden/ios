@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Хто може переглядати";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Спільний доступ з певними користувачами є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
 "SsoCookiesCleared" = "SSO cookies cleared";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";

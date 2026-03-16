@@ -56,13 +56,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
         <key>few</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
         <key>many</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
         <key>other</key>
-        <string>Toto heslo bylo odhaleno %d krát při úniku dat.</string>
+        <string>Toto heslo bylo odhaleno %dkrát při úniku dat.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->

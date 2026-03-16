@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Kto może odczytać";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Udostępnianie użytkownikom jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
 "SsoCookiesCleared" = "Pliki cookies SSO zostały wyczyszczone";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Żądanie zostało przerwane, ponieważ aplikacja wymagała ponownego uwierzytelniania. Spróbuj ponownie.";
