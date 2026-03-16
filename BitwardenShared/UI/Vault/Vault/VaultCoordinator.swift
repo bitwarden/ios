@@ -476,7 +476,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         // In particular, this could be another Vault Item Selection screen, if the user is changing profiles.
         // If the `stackNavigator` isn't displaying anything, the `dismiss()` will be a no-op, and it will simply
         // present as expected.
-        stackNavigator?.dismiss() {
+        stackNavigator?.dismiss {
             self.stackNavigator?.present(VaultItemSelectionView(store: Store(processor: processor)))
         }
     }
