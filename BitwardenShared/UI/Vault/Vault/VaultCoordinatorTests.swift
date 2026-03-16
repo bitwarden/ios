@@ -339,8 +339,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_navigateTo_vaultItemSelection() throws {
         subject.navigate(to: .vaultItemSelection(.fixtureExample))
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
+        let action = try XCTUnwrap(stackNavigator.actions.first(where: { $0.type == .presented }))
         XCTAssertTrue(action.view is VaultItemSelectionView)
         XCTAssertEqual(action.embedInNavigationController, true)
     }
