@@ -13,6 +13,10 @@ public final class MockHTTPClient: HTTPClient {
     /// A list of download results that will be returned in order for future requests.
     public var downloadResults: [Result<URL, Error>] = []
 
+    /// A callback that is invoked when a request is received, before returning the result.
+    /// Useful for simulating state changes during async operations.
+    public var onRequest: ((HTTPRequest) -> Void)?
+
     /// A list of requests that have been received by the HTTP client.
     public var requests: [HTTPRequest] = []
 
@@ -32,10 +36,6 @@ public final class MockHTTPClient: HTTPClient {
 
     /// A list of results that will be returned in order for future requests.
     public var results: [Result<HTTPResponse, Error>] = []
-
-    /// An optional callback that is invoked when a request is sent, useful for simulating
-    /// state changes during async operations in tests.
-    public var onRequest: ((HTTPRequest) -> Void)?
 
     // MARK: Initializer
 

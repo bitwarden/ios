@@ -93,10 +93,10 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
             defer { self.refreshTask = nil }
 
             do {
-                // TODO: PM-33074 Remove logs after confirmation that the error doesn't happen anymore.
-                let userIdBefore = try await stateService.getActiveAccountId()
+                let expectedUserId = try await tokenService.getActiveAccountId()
 
-                let refreshToken = try await tokenService.getRefreshToken()
+                // Use captured userId for all operations
+                let refreshToken = try await tokenService.getRefreshToken(userId: expectedUserId)
                 let response = try await httpService.send(
                     IdentityTokenRefreshRequest(refreshToken: refreshToken),
                 )
@@ -106,13 +106,14 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
                     accessToken: response.accessToken,
                     refreshToken: response.refreshToken,
                     expirationDate: expirationDate,
+                    userId: expectedUserId,
                 )
 
                 do {
                     let userIdAfter = try await stateService.getActiveAccountId()
-                    if userIdBefore != userIdAfter {
+                    if expectedUserId != userIdAfter {
                         let error = AccountTokenProviderError(
-                            userIdBefore: userIdBefore,
+                            userIdBefore: expectedUserId,
                             userIdAfter: userIdAfter,
                         )
                         errorReporter.log(error: error)

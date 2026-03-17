@@ -181,9 +181,37 @@ class AccountTokenProviderTests: BitwardenTestCase {
         }
     }
 
+    /// `refreshToken()` captures userId once at the start and uses it throughout the refresh operation,
+    /// preventing race conditions when the active account changes during the HTTP request.
+    /// This ensures tokens from Account A are stored under Account A's keychain entry,
+    /// even if the active account switches to Account B during the async HTTP operation.
+    func test_refreshToken_accountSwitchDuringRequest_storesTokensForOriginalAccount() async throws {
+        // Setup: Account 1 is active
+        tokenService.activeAccountId = "1"
+        tokenService.refreshTokenByUserId["1"] = "REFRESH_1"
+
+        client.result = .httpSuccess(testData: .identityTokenRefresh)
+
+        // Simulate account switch during HTTP request
+        client.onRequest = { _ in
+            // Active account switches to Account 2 while HTTP request is in flight
+            self.tokenService.activeAccountId = "2"
+        }
+
+        let newAccessToken = try await subject.refreshToken()
+
+        // Verify: Tokens stored under Account 1 (original), NOT Account 2
+        XCTAssertEqual(newAccessToken, "ACCESS_TOKEN")
+        XCTAssertEqual(tokenService.setTokensCalledWithUserId, "1")
+        XCTAssertEqual(tokenService.getRefreshTokenCalledWithUserId, "1")
+        XCTAssertEqual(tokenService.accessTokenByUserId["1"], "ACCESS_TOKEN")
+        XCTAssertNil(tokenService.accessTokenByUserId["2"], "Access token should NOT be stored under Account 2")
+    }
+
     /// `refreshToken()` logs an error when the active account changes during the token refresh operation.
     func test_refreshToken_logsRaceCondition_whenUserIdChanges() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "user-1"))
+        tokenService.activeAccountId = "user-1"
         tokenService.accessToken = "🔑"
         tokenService.refreshToken = "🔒"
 
@@ -207,6 +235,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
     /// `refreshToken()` does not log an error when the active account remains the same.
     func test_refreshToken_doesNotLogError_whenUserIdStaysSame() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "user-1"))
+        tokenService.activeAccountId = "user-1"
         tokenService.accessToken = "🔑"
         tokenService.refreshToken = "🔒"
 
