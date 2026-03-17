@@ -242,8 +242,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             // If we're presenting a more complicated stack of view controllers (in particular, this could happen
             // if the user goes to the change profile sheet in the VaultItemSelection modal) then we only want to
             // dismiss the presented one, not the full stack.
-            if let stackNavigatorAsViewController = stackNavigator as? UIViewController,
-               let presentedViewController = stackNavigatorAsViewController.presentedViewController {
+            if let presentedViewController = stackNavigator?.rootViewController?.presentedViewController {
                 presentedViewController.dismiss(animated: UI.animated)
             } else {
                 stackNavigator?.dismiss()
