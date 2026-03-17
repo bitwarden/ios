@@ -48,7 +48,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Dieses Passwort wurde %d Mal in einem Datendiebstahl offengelegt.</string>
+        <string>Dieses Passwort wurde %d Mal in Datendiebstählen offengelegt.</string>
         <key>other</key>
         <string>Dieses Passwort wurde %d Mal in Datendiebstählen offengelegt.</string>
       </dict>

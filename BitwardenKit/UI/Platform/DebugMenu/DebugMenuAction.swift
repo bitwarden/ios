@@ -11,4 +11,6 @@ enum DebugMenuAction: Equatable {
     case generateErrorReport
     /// The generate SDK error report button was tapped.
     case generateSdkErrorReport
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }

@@ -34,6 +34,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultListProcessor!
+    var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
     var vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper!
     var vaultRepository: MockVaultRepository!
@@ -67,6 +68,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
 
         stateService = MockStateService()
+        syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
@@ -84,6 +86,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             reviewPromptService: reviewPromptService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             stateService: stateService,
+            syncService: syncService,
             timeProvider: timeProvider,
             vaultRepository: vaultRepository,
         )

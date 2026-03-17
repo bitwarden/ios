@@ -61,6 +61,16 @@ protocol CipherDataStore: AnyObject {
     ///
     func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never>
 
+    /// Checks whether the user has any personal ciphers (ciphers with no organization).
+    ///
+    /// This method uses batch fetching with early termination for efficiency,
+    /// avoiding the need to load all ciphers into memory.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the ciphers.
+    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
+    ///
+    func hasPersonalCiphers(userId: String) async throws -> Bool
+
     /// Replaces a list of `Cipher` objects for a user.
     ///
     /// - Parameters:
@@ -137,6 +147,37 @@ extension DataStore: CipherDataStore {
             .filter { $0.userId == userId }
             .map(\.change)
             .eraseToAnyPublisher()
+    }
+
+    func hasPersonalCiphers(userId: String) async throws -> Bool {
+        let batchSize = 50
+        var offset = 0
+
+        while true {
+            let found = try await backgroundContext.perform {
+                let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
+                fetchRequest.fetchLimit = batchSize
+                fetchRequest.fetchOffset = offset
+
+                let batch = try self.backgroundContext.fetch(fetchRequest)
+                if batch.isEmpty {
+                    return false as Bool?
+                }
+
+                for cipherData in batch {
+                    if let cipher = try? Cipher(cipherData: cipherData),
+                       cipher.organizationId == nil {
+                        return true as Bool?
+                    }
+                }
+                return nil
+            }
+
+            if let result = found {
+                return result
+            }
+            offset += batchSize
+        }
     }
 
     func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {

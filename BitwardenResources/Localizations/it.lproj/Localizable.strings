@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Password principale non valida. Riprova.";
 "InvalidPIN" = "PIN non valido. Riprova.";
 "Launch" = "Avvia";
+"LaunchBrowser" = "Avvia il browser";
 "LogIn" = "Accedi";
 "LoginCredentials" = "Credenziali di accesso";
 "LogInNoun" = "Login";
@@ -381,6 +382,10 @@
 "PasswordAutofill" = "Riempimento automatico delle password";
 "BitwardenAutofillAlert2" = "Il modo più semplice per aggiungere nuovi login alla tua cassaforte è usare l'estensione di Bitwarden. Scopri di più su come usare l'estensione di Bitwarden nelle impostazioni.";
 "InvalidEmail" = "Indirizzo email non valido.";
+"InvalidEmailAddresses" = "Indirizzo email non valido";
+"NoEmailAddressesEntered" = "Nessuna email inserita";
+"EnterAtLeastOneValidEmailToShareSend" = "Inserisci almeno un indirizzo email valido per condividere questo Send.";
+"OneOrMoreEmailAddressesIncorrect" = "Uno o più indirizzi email non sono corretti. Verificali e riprova.";
 "Cards" = "Carte";
 "Identities" = "Identità";
 "Logins" = "Login";
@@ -832,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Continuare alla privacy policy?";
 "ContinueToAppStore" = "Continuare sull'App Store?";
 "ContinueToDeviceSettings" = "Continuare alle Impostazioni del dispositivo?";
+"ContinueWithoutSyncing" = "Continua senza sincronizzare";
 "TwoStepLoginDescriptionLong" = "Rendi il tuo account più sicuro impostando la verifica in due passaggi sul sito web di Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Puoi modificare la tua password principale sul sito web di Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Puoi importare i dati nella tua cassaforte su %1$@.";
@@ -1039,6 +1045,7 @@
 "AutofillPasswords" = "Riempi automaticamente password";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Imposta il riempimento automatico su tutti i tuoi dispositivi per accedere con un solo tocco ovunque.";
 "GotIt" = "OK";
+"ClearSsoCookies" = "Pulisci i cookie SSO";
 "GenerateCrash" = "Genera resoconto crash";
 "GenerateErrorReport" = "Genera resoconto errori";
 "GenerateSdkErrorReport" = "Genera report di errore SDK";
@@ -1235,7 +1242,9 @@
 "Skip" = "Salta";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Memorizza tutti i login e sincronizza i codici di verifica direttamente con l'app Authenticator.";
+"SyncWithBrowserDescriptionLong" = "Per connetterti a %1$@, sincronizza il browser con questa app. All'avvio del browser, se richiesto, completa l'accesso.\nTorna qui dopo il completamento della sincronizzazionoe.";
 "SyncWithBitwardenApp" = "Sincronizza con l'app Bitwarden";
+"SyncWithBrowser" = "Sincronizza con il browser";
 "SyncWithTheBitwardenApp" = "Sincronizza con l'app Bitwarden";
 "TakeMeToTheAppSettings" = "Portami alle impostazioni dell'app";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Il formato dei dati fornito non corrisponde a quello atteso. Si prega di controllare il file e assicurarsi che i tipi di dati corretti siano utilizzati.";
@@ -1278,6 +1287,7 @@
 "LeaveX" = "Abbandona %1$@";
 "HowToManageMyVault" = "Come si gestisce la cassaforte?";
 "YouLeftTheOrganization" = "Hai lasciato l'organizzazione";
+"ItemTransferRequiresMainAppDescriptionLong" = "Un'organizzazione ha chiesto di acquisire la proprietà dei tuoi oggetti personali. Apri l'app principale di Bitwarden per accettare o negare il trasferimento.";
 "ThisSettingIsManagedByYourOrganization" = "Questa impostazione è gestita dalla tua organizzazione.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "La tua organizzazione ha impostato il timeout massimo per la sessione a %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "La tua organizzazione ha impostato il timeout massimo per la sessione a %1$@.";
@@ -1303,11 +1313,13 @@
 "RestartPremium" = "Riavvia Premium";
 "ThisItemIsArchivedSavingChangesWillRestoreItToYourVault" = "Questo elemento è archiviato. Salvare le modifiche lo ripristinerà nella tua cassaforte.";
 "SettingUpAutofill" = "Configurazione del riempimento automatico…";
-"AddEmail" = "Add email";
-"AnyoneWithPasswordSetByYou" = "Anyone with a password set by you";
-"AnyoneWithTheLink" = "Anyone with the link";
-"AnyoneWithThisLinkCanViewThisSend" = "Anyone with this link can view this Send.";
-"AfterSharingThisSendLinkDescriptionLong" = "After sharing this Send link, individuals will need to verify their email with a code to view this Send.";
-"SpecificPeople" = "Specific people";
-"WhoCanView" = "Who can view";
-"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"AddEmail" = "Aggiungi email";
+"AnyoneWithPasswordSetByYou" = "Chiunque abbia la password";
+"AnyoneWithTheLink" = "Chiunque abbia il link";
+"AnyoneWithThisLinkCanViewThisSend" = "Chiunque riceva il link può visualizzare il Send.";
+"AfterSharingThisSendLinkDescriptionLong" = "I destinatari dovranno verificare il loro indirizzo email con un codice per poter visualizzare il Send.";
+"SpecificPeople" = "Persone specifiche";
+"WhoCanView" = "Chi può visualizzare";
+"SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Condividere con persone specifiche è una funzionalità Premium, non disponibile per il tuo piano.";
+"SsoCookiesCleared" = "Cookie SSO eliminati";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";

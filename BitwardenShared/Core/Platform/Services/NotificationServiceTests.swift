@@ -5,6 +5,7 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+@MainActor
 class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -55,8 +56,8 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.setDelegate(delegate)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         appSettingsStore = nil
         authService = nil
@@ -405,6 +406,23 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
 
         // Confirm the results.
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` triggers a sync when a
+    /// policy changed notification is received.
+    func test_messageReceived_policyChanged() async throws {
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.policyChanged.rawValue,
+                "payload": "anything",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
         XCTAssertTrue(syncService.didFetchSync)
     }
 

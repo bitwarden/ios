@@ -538,7 +538,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpState = .none
-        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        totpService.getTOTPConfigResult = .failure(TOTPKeyError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
         var dismissAction: DismissAction?
@@ -1775,6 +1775,66 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `.streamCipherDetails` preserves the in-memory TOTP state
+    /// when a vault sync update arrives.
+    @MainActor
+    func test_perform_streamCipherDetails_TOTPState() async throws {
+        let totpKey = "JBSWY3DPEHPK3PXP"
+        subject.state = try XCTUnwrap(
+            CipherItemState(
+                existing: .fixture(id: "1", login: .fixture(totp: totpKey), type: .login),
+                hasPremium: false,
+            ),
+        )
+        subject.state.loginState.totpState = LoginTOTPState(totpKey)
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        let updatedCipher = CipherView.fixture(
+            id: "1",
+            login: .fixture(password: "updated-password", totp: nil),
+            name: "Updated Name",
+            type: .login,
+        )
+        vaultRepository.cipherDetailsSubject.send(updatedCipher)
+        try await waitForAsync { self.subject.state.name == "Updated Name" }
+
+        XCTAssertEqual(subject.state.loginState.totpState, LoginTOTPState(totpKey))
+    }
+
+    /// `perform(_:)` with `.streamCipherDetails` applies an incoming TOTP key from sync when the
+    /// current TOTP state is `.none`, ensuring a key added on another client is not discarded.
+    @MainActor
+    func test_perform_streamCipherDetails_TOTPState_notPreservedWhenNone() async throws {
+        subject.state = try XCTUnwrap(
+            CipherItemState(
+                existing: .fixture(id: "1", login: .fixture(totp: nil), type: .login),
+                hasPremium: false,
+            ),
+        )
+        XCTAssertEqual(subject.state.loginState.totpState, .none)
+
+        let task = Task {
+            await subject.perform(.streamCipherDetails)
+        }
+        defer { task.cancel() }
+
+        let newTotpKey = "JBSWY3DPEHPK3PXP"
+        let updatedCipher = CipherView.fixture(
+            id: "1",
+            login: .fixture(totp: newTotpKey),
+            name: "Updated Name",
+            type: .login,
+        )
+        vaultRepository.cipherDetailsSubject.send(updatedCipher)
+        try await waitForAsync { self.subject.state.name == "Updated Name" }
+
+        XCTAssertEqual(subject.state.loginState.totpState, LoginTOTPState(newTotpKey))
     }
 
     /// `perform(_:)` with `.unarchivePressed` calls the vault item action helper to unarchive the item.

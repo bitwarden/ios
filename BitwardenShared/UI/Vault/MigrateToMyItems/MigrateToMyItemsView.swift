@@ -24,6 +24,8 @@ struct MigrateToMyItemsView: View {
                 transferPage
             case .declineConfirmation:
                 declineConfirmationPage
+            case .extensionPrompt:
+                extensionPromptPage
             }
         }
         .transition(.opacity)
@@ -34,6 +36,10 @@ struct MigrateToMyItemsView: View {
                 if store.state.page == .declineConfirmation {
                     backToolbarButton {
                         store.send(.backTapped)
+                    }
+                } else if store.state.isExtension {
+                    closeToolbarButton {
+                        store.send(.closeTapped)
                     }
                 }
             }
@@ -111,6 +117,28 @@ struct MigrateToMyItemsView: View {
                 Text(Localizations.howToManageMyVault)
             }
             .buttonStyle(.bitwardenBorderless)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .frame(maxWidth: .infinity)
+        .scrollView()
+    }
+
+    /// The page shown in app extensions prompting the user to complete migration in the main app.
+    private var extensionPromptPage: some View {
+        VStack(spacing: 24) {
+            IllustratedMessageView(
+                image: Asset.Images.Illustrations.itemTransfer,
+                style: .mediumImage,
+                title: Localizations.itemTransfer,
+                message: Localizations.itemTransferRequiresMainAppDescriptionLong,
+            )
+
+            Button(Localizations.continueToBitwarden) {
+                openURL(ExternalLinksConstants.appDeepLink)
+                store.send(.continueToBitwardenTapped)
+            }
+            .buttonStyle(.primary())
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)

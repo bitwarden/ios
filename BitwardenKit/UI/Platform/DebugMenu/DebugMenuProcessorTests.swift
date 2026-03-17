@@ -1,5 +1,7 @@
 import BitwardenKitMocks
+import BitwardenResources
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenKit
@@ -9,7 +11,9 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
     var configService: MockConfigService!
     var coordinator: MockCoordinator<DebugMenuRoute, Void>!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
+    var serverCommunicationConfigClientSingleton: MockServerCommunicationConfigClientSingleton!
     var subject: DebugMenuProcessor!
 
     // MARK: Set Up & Tear Down
@@ -19,12 +23,16 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         configService = MockConfigService()
         coordinator = MockCoordinator<DebugMenuRoute, Void>()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        serverCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton()
         subject = DebugMenuProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 configService: configService,
+                environmentService: environmentService,
                 errorReporter: errorReporter,
+                serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             ),
             state: DebugMenuState(featureFlags: []),
         )
@@ -35,7 +43,9 @@ class DebugMenuProcessorTests: BitwardenTestCase {
 
         configService = nil
         coordinator = nil
+        environmentService = nil
         errorReporter = nil
+        serverCommunicationConfigClientSingleton = nil
         subject = nil
     }
 
@@ -63,6 +73,41 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         await subject.perform(.viewAppeared)
 
         XCTAssertTrue(subject.state.featureFlags.contains(flag))
+    }
+
+    /// `perform(.clearSsoCookies)` clears the SSO cookie and shows a success toast.
+    @MainActor
+    func test_perform_clearSsoCookies_success() async {
+        let resolvedHostname = "vault.resolved.example.com"
+        serverCommunicationConfigClientSingleton.resolveHostnameResult = resolvedHostname
+
+        await subject.perform(.clearSsoCookies)
+
+        XCTAssertEqual(
+            serverCommunicationConfigClientSingleton.resolveHostnameReceivedHostname,
+            environmentService.webVaultURL.host,
+        )
+        XCTAssertTrue(configService.clearServerCommCookieValueCalled)
+        XCTAssertEqual(configService.clearServerCommCookieValueHostname, resolvedHostname)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.ssoCookiesCleared)
+    }
+
+    /// `perform(.clearSsoCookies)` logs an error when the clear operation fails.
+    @MainActor
+    func test_perform_clearSsoCookies_error() async {
+        let resolvedHostname = "vault.resolved.example.com"
+        serverCommunicationConfigClientSingleton.resolveHostnameResult = resolvedHostname
+        configService.clearServerCommCookieValueError = BitwardenTestError.example
+
+        await subject.perform(.clearSsoCookies)
+
+        XCTAssertEqual(
+            serverCommunicationConfigClientSingleton.resolveHostnameReceivedHostname,
+            environmentService.webVaultURL.host,
+        )
+        XCTAssertTrue(configService.clearServerCommCookieValueCalled)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `perform(.refreshFeatureFlags)` refreshes the current feature flags.
@@ -118,5 +163,27 @@ class DebugMenuProcessorTests: BitwardenTestCase {
                 message: "Generated SDK error report from debug view.",
             )),
         )
+    }
+
+    // MARK: Tests - ToastShown Action
+
+    /// `receive()` with `.toastShown` updates the toast state.
+    @MainActor
+    func test_receive_toastShown() {
+        let toast = Toast(title: "Test Toast")
+
+        subject.receive(.toastShown(toast))
+
+        XCTAssertEqual(subject.state.toast?.title, "Test Toast")
+    }
+
+    /// `receive()` with `.toastShown(nil)` clears the toast state.
+    @MainActor
+    func test_receive_toastShown_nil() {
+        subject.state.toast = Toast(title: "Existing Toast")
+
+        subject.receive(.toastShown(nil))
+
+        XCTAssertNil(subject.state.toast)
     }
 }

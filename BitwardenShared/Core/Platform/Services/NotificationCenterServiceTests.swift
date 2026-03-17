@@ -73,4 +73,80 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
 
         await fulfillment(of: [expectation], timeout: 1)
     }
+
+    /// `isInForegroundPublisher` initially emits `false`.
+    @MainActor
+    func test_isInForegroundPublisher_initialValue() async throws {
+        let expectation = expectation(description: #function)
+        var received: Bool?
+        let task = Task {
+            for await value in subject.isInForegroundPublisher() {
+                received = value
+                expectation.fulfill()
+                break
+            }
+        }
+        await fulfillment(of: [expectation], timeout: 1)
+        task.cancel()
+        XCTAssertEqual(received, false)
+    }
+
+    /// `isInForegroundPublisher` emits `false` when the app enters the background.
+    @MainActor
+    func test_isInForegroundPublisher_didEnterBackground() async throws {
+        let receivedInitial = expectation(description: "receivedInitial")
+        let receivedBackground = expectation(description: "receivedBackground")
+        var received: Bool?
+
+        let task = Task {
+            var isFirst = true
+            for await value in subject.isInForegroundPublisher() {
+                if isFirst {
+                    isFirst = false
+                    receivedInitial.fulfill()
+                    continue
+                }
+                received = value
+                receivedBackground.fulfill()
+                break
+            }
+        }
+
+        await fulfillment(of: [receivedInitial], timeout: 1)
+        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        await fulfillment(of: [receivedBackground], timeout: 1)
+        task.cancel()
+
+        XCTAssertEqual(received, false)
+    }
+
+    /// `isInForegroundPublisher` emits `true` when the app returns to the foreground.
+    @MainActor
+    func test_isInForegroundPublisher_willEnterForeground() async throws {
+        let receivedInitial = expectation(description: "receivedInitial")
+        let receivedBackground = expectation(description: "receivedBackground")
+        let receivedForeground = expectation(description: "receivedForeground")
+        var received: Bool?
+
+        let task = Task {
+            var count = 0
+            for await value in subject.isInForegroundPublisher() {
+                count += 1
+                if count == 1 { receivedInitial.fulfill(); continue }
+                if count == 2 { receivedBackground.fulfill(); continue }
+                received = value
+                receivedForeground.fulfill()
+                break
+            }
+        }
+
+        await fulfillment(of: [receivedInitial], timeout: 1)
+        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+        await fulfillment(of: [receivedBackground], timeout: 1)
+        notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+        await fulfillment(of: [receivedForeground], timeout: 1)
+        task.cancel()
+
+        XCTAssertEqual(received, true)
+    }
 }

@@ -10,6 +10,7 @@ typealias Services = HasConfigService
     & HasFlightRecorder
     & HasLanguageStateService
     & HasTimeProvider
+    & HasServerCommunicationConfigClientSingleton
 
 /// A service container used for testing processors within `BitwardenKitTests`.
 ///
@@ -20,6 +21,7 @@ class ServiceContainer: Services {
     let errorReporter: ErrorReporter
     let flightRecorder: FlightRecorder
     let languageStateService: any LanguageStateService
+    let serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton
     let timeProvider: TimeProvider
 
     required init(
@@ -29,6 +31,7 @@ class ServiceContainer: Services {
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
         languageStateService: LanguageStateService,
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton,
         timeProvider: TimeProvider,
     ) {
         self.configService = configService
@@ -37,6 +40,7 @@ class ServiceContainer: Services {
         self.errorReporter = errorReporter
         self.flightRecorder = flightRecorder
         self.languageStateService = languageStateService
+        self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.timeProvider = timeProvider
     }
 }
@@ -49,6 +53,8 @@ extension ServiceContainer {
         errorReporter: ErrorReporter = MockErrorReporter(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         languageStateService: LanguageStateService = MockLanguageStateService(),
+        // swiftlint:disable:next line_length
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
     ) -> ServiceContainer {
         self.init(
@@ -58,6 +64,7 @@ extension ServiceContainer {
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             languageStateService: languageStateService,
+            serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             timeProvider: timeProvider,
         )
     }

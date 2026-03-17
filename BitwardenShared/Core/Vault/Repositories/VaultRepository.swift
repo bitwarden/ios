@@ -322,6 +322,9 @@ extension VaultRepository {
 class DefaultVaultRepository {
     // MARK: Properties
 
+    /// The mediator that helps with some cipher operations involving encryption.
+    private let cipherEncryptionMediator: CipherEncryptionMediator
+
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
 
@@ -375,6 +378,7 @@ class DefaultVaultRepository {
     /// Initialize a `DefaultVaultRepository`.
     ///
     /// - Parameters:
+    ///   - cipherEncryptionMediator: The mediator that helps with some cipher operations involving encryption.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionHelper: The helper functions for collections.
@@ -393,6 +397,7 @@ class DefaultVaultRepository {
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
+        cipherEncryptionMediator: CipherEncryptionMediator,
         cipherService: CipherService,
         clientService: ClientService,
         collectionHelper: CollectionHelper,
@@ -410,6 +415,7 @@ class DefaultVaultRepository {
         vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory,
         vaultTimeoutService: VaultTimeoutService,
     ) {
+        self.cipherEncryptionMediator = cipherEncryptionMediator
         self.cipherService = cipherService
         self.clientService = clientService
         self.collectionHelper = collectionHelper
@@ -426,29 +432,11 @@ class DefaultVaultRepository {
         self.timeProvider = timeProvider
         self.vaultListDirectorStrategyFactory = vaultListDirectorStrategyFactory
         self.vaultTimeoutService = vaultTimeoutService
+
+        self.cipherEncryptionMediator.setDelegate(self)
     }
 
     // MARK: Private
-
-    /// Encrypts the cipher. If the cipher was migrated by the SDK (e.g. added a cipher key), the
-    /// cipher will be updated locally and on the server.
-    ///
-    /// - Parameter cipherView: The cipher to encrypt.
-    /// - Returns: The encrypted cipher.
-    ///
-    private func encryptAndUpdateCipher(_ cipherView: CipherView) async throws -> Cipher {
-        let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
-
-        let didAddCipherKey = cipherView.key == nil && cipherEncryptionContext.cipher.key != nil
-        if didAddCipherKey {
-            try await cipherService.updateCipherWithServer(
-                cipherEncryptionContext.cipher,
-                encryptedFor: cipherEncryptionContext.encryptedFor,
-            )
-        }
-
-        return cipherEncryptionContext.cipher
-    }
 
     /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it
     /// can be shared to an organization.
@@ -508,8 +496,11 @@ extension DefaultVaultRepository: VaultRepository {
         guard let id = cipher.id else {
             throw CipherAPIServiceError.updateMissingId
         }
-        let archivedCipher = cipher.update(archivedDate: timeProvider.presentTime)
-        let encryptCipher = try await encryptAndUpdateCipher(archivedCipher)
+
+        let updatedCipher = try await cipherEncryptionMediator.updateCipherKeyIfNeeded(cipher)
+
+        let archivedCipher = updatedCipher.update(archivedDate: timeProvider.presentTime)
+        let encryptCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(archivedCipher)
         try await cipherService.archiveCipherWithServer(id: id, encryptCipher)
     }
 
@@ -522,7 +513,7 @@ extension DefaultVaultRepository: VaultRepository {
 
         for cipher in ciphers {
             // Ensure the cipher has a cipher key.
-            let encryptedCipher = try await encryptAndUpdateCipher(cipher)
+            let encryptedCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(cipher)
             var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
 
             // Migrate any attachments without an encryption key.
@@ -773,21 +764,26 @@ extension DefaultVaultRepository: VaultRepository {
 
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         await items.asyncMap { item in
-            guard case let .totp(name, model) = item.itemType,
-                  model.cipherListView.type.loginListView?.totp != nil,
-                  let vault = try? await clientService.vault(),
-                  let code = try? vault.generateTOTPCode(for: model.cipherListView, date: timeProvider.presentTime)
-            else {
-                errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+            do {
+                guard case let .totp(name, model) = item.itemType,
+                      model.cipherListView.type.loginListView?.totp != nil else {
+                    return item
+                }
+                let code = try await clientService.vault().generateTOTPCode(
+                    for: model.cipherListView,
+                    date: timeProvider.presentTime,
+                )
+
+                var updatedModel = model
+                updatedModel.totpCode = code
+                return VaultListItem(
+                    id: item.id,
+                    itemType: .totp(name: name, totpModel: updatedModel),
+                )
+            } catch {
+                errorReporter.log(error: error)
                 return item
             }
-            var updatedModel = model
-            updatedModel.totpCode = code
-            return .init(
-                id: item.id,
-                itemType: .totp(name: name, totpModel: updatedModel),
-            )
         }
         .sorted { $0.sortValue.localizedStandardCompare($1.sortValue) == .orderedAscending }
     }
@@ -801,7 +797,7 @@ extension DefaultVaultRepository: VaultRepository {
     func restoreCipher(_ cipher: BitwardenSdk.CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
         let restoredCipher = cipher.update(deletedDate: nil)
-        let encryptCipher = try await encryptAndUpdateCipher(restoredCipher)
+        let encryptCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(restoredCipher)
         try await cipherService.restoreCipherWithServer(id: id, encryptCipher)
     }
 
@@ -817,7 +813,7 @@ extension DefaultVaultRepository: VaultRepository {
         )
 
         // Encrypt the attachment.
-        let cipher = try await encryptAndUpdateCipher(cipherView)
+        let cipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(cipherView)
         let attachment = try await clientService.vault().attachments().encryptBuffer(
             cipher: cipher,
             attachment: attachmentView,
@@ -834,7 +830,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func shareCipher(_ cipherView: CipherView, newOrganizationId: String, newCollectionIds: [String]) async throws {
         // Ensure the cipher has a cipher key.
-        let encryptedCipher = try await encryptAndUpdateCipher(cipherView)
+        let encryptedCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(cipherView)
         var cipherView = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
 
         if let attachments = cipherView.attachments {
@@ -866,7 +862,7 @@ extension DefaultVaultRepository: VaultRepository {
     func softDeleteCipher(_ cipher: CipherView) async throws {
         guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
         let softDeletedCipher = cipher.update(deletedDate: timeProvider.presentTime)
-        let encryptedCipher = try await encryptAndUpdateCipher(softDeletedCipher)
+        let encryptedCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(softDeletedCipher)
         try await cipherService.softDeleteCipherWithServer(id: id, encryptedCipher)
     }
 
@@ -874,8 +870,11 @@ extension DefaultVaultRepository: VaultRepository {
         guard let id = cipher.id else {
             throw CipherAPIServiceError.updateMissingId
         }
-        let archivedCipher = cipher.update(archivedDate: nil)
-        let encryptCipher = try await encryptAndUpdateCipher(archivedCipher)
+
+        let updatedCipher = try await cipherEncryptionMediator.updateCipherKeyIfNeeded(cipher)
+
+        let unarchivedCipher = updatedCipher.update(archivedDate: nil)
+        let encryptCipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(unarchivedCipher)
         try await cipherService.unarchiveCipherWithServer(id: id, encryptCipher)
     }
 
@@ -898,7 +897,7 @@ extension DefaultVaultRepository: VaultRepository {
             return
         }
 
-        let cipher = try await encryptAndUpdateCipher(cipherView)
+        let cipher = try await cipherEncryptionMediator.encryptAndUpdateCipher(cipherView)
         try await cipherService.updateCipherCollectionsWithServer(cipher)
     }
 
@@ -1047,4 +1046,8 @@ extension DefaultVaultRepository: VaultRepository {
 
         return archiveItemsFF && !hasPremium
     }
-} // swiftlint:disable:this file_length
+}
+
+extension DefaultVaultRepository: CipherEncryptionMediatorDelegate {}
+
+// swiftlint:disable:this file_length

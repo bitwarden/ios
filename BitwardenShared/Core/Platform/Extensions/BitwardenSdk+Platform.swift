@@ -81,6 +81,14 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
         case bootstrap
     }
 
+    /// Returns the config for SSO Cookie vendor, `nil` if ``bootstrap`` is not the expected type.
+    var ssoCookieVendorConfig: SsoCookieVendorConfig? {
+        guard case let .ssoCookieVendor(ssoCookieVendorConfig) = bootstrap else {
+            return nil
+        }
+        return ssoCookieVendorConfig
+    }
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let bootstrap = try container.decode(BootstrapConfig.self, forKey: .bootstrap)
@@ -118,8 +126,8 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
     /// - Returns: A new `ServerCommunicationConfig` similar to this one
     /// with the cookie value updated from the parameter.
     func updateCookieValue(from config: ServerCommunicationConfig) -> ServerCommunicationConfig {
-        guard case let .ssoCookieVendor(fromSSOCookieConfig) = config.bootstrap,
-              case let .ssoCookieVendor(currentCookieConfig) = bootstrap else {
+        guard let fromSSOCookieConfig = config.ssoCookieVendorConfig,
+              let currentCookieConfig = ssoCookieVendorConfig else {
             return config
         }
 

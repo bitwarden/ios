@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Ongeldig hoofdwachtwoord. Probeer het opnieuw.";
 "InvalidPIN" = "Ongeldige PIN-code. Probeer het opnieuw.";
 "Launch" = "Starten";
+"LaunchBrowser" = "Browser starten";
 "LogIn" = "Inloggen";
 "LoginCredentials" = "Inloggegevens";
 "LogInNoun" = "Login";
@@ -381,6 +382,10 @@
 "PasswordAutofill" = "Wachtwoord automatisch invullen";
 "BitwardenAutofillAlert2" = "De eenvoudigste manier om nieuwe logins aan je kluis toe te voegen is door gebruik te maken van de Bitwarden Password AutoFill extensie. Leer meer over het gebruik van de Bitwarden Password AutoFill extensie via \"Instellingen\".";
 "InvalidEmail" = "Ongeldig e-mailadres.";
+"InvalidEmailAddresses" = "Ongeldige e-mailadressen";
+"NoEmailAddressesEntered" = "Geen e-mailadressen ingevoerd";
+"EnterAtLeastOneValidEmailToShareSend" = "Voer ten minste één geldig e-mailadres in om deze Send te delen.";
+"OneOrMoreEmailAddressesIncorrect" = "Een of meer e-mailadressen zijn onjuist. Controleer en probeer het opnieuw.";
 "Cards" = "Kaarten";
 "Identities" = "Identiteiten";
 "Logins" = "Logins";
@@ -832,6 +837,7 @@
 "ContinueToPrivacyPolicy" = "Doorgaan naar privacybeleid?";
 "ContinueToAppStore" = "Doorgaan naar de app store?";
 "ContinueToDeviceSettings" = "Doorgaan naar apparaatinstellingen?";
+"ContinueWithoutSyncing" = "Doorgaan zonder synchroniseren";
 "TwoStepLoginDescriptionLong" = "Maak je account veiliger met het instellen van tweestapsaanmelding in de Bitwarden-webapp.";
 "ChangeMasterPasswordDescriptionLong" = "Je kunt je hoofdwachtwoord wijzigen in de Bitwarden-webapp.";
 "YouCanImportDataToYourVaultOnX" = "Je kunt gegevens importeren in je kluis op %1$@.";
@@ -1039,6 +1045,7 @@
 "AutofillPasswords" = "Wachtwoorden automatisch invullen";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Stel automatisch invullen in op al je apparaten zodat je overal met enkele tik kunt inloggen.";
 "GotIt" = "Ik snap het";
+"ClearSsoCookies" = "SSO-cookies wissen";
 "GenerateCrash" = "Crash genereren";
 "GenerateErrorReport" = "Foutenrapport genereren";
 "GenerateSdkErrorReport" = "SDK-foutenrapport genereren";
@@ -1235,7 +1242,9 @@
 "Skip" = "Overslaan";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Sla al je logins op en synchroniseer verificatiecodes direct met de Authenticator app.";
+"SyncWithBrowserDescriptionLong" = "Om verbinding te maken met %1$@, synchroniseer je je standaardbrowser met de mobiele Bitwarden-app. Als je browser opent, voltooi je indien gevraagd je aanmelding.\nZodra de synchronisatie is voltooid, keer je terug naar deze app.";
 "SyncWithBitwardenApp" = "Synchroniseren met Bitwarden-app";
+"SyncWithBrowser" = "Synchroniseren met browser";
 "SyncWithTheBitwardenApp" = "Synchroniseren met de Bitwarden-app";
 "TakeMeToTheAppSettings" = "Breng me naar de app-instellingen";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Het verstrekte gegevensformaat komt niet overeen met wat wordt verwacht. Controleer je bestand en zorg ervoor dat de juiste gegevenstypen worden gebruikt.";
@@ -1278,6 +1287,7 @@
 "LeaveX" = "%1$@ verlaten";
 "HowToManageMyVault" = "Hoe Mijn kluis beheren";
 "YouLeftTheOrganization" = "Je hebt de organisatie verlaten";
+"ItemTransferRequiresMainAppDescriptionLong" = "Een organisatie vraagt om overdracht van je persoonlijke items. Open de hoofdapp van Bitwarden om dit verzoek te bekijken en te voltooien.";
 "ThisSettingIsManagedByYourOrganization" = "Deze instelling wordt beheerd door je organisatie.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Jouw organisatie heeft de standaard sessie time-out ingesteld op %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Je organisatie heeft de maximale sessie time-out ingesteld op %1$@.";
@@ -1311,3 +1321,5 @@
 "SpecificPeople" = "Specifieke mensen";
 "WhoCanView" = "Wie kan weergeven";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Het delen met specifieke mensen is een Premium-functie. Toegang tot deze functie is niet inbegrepen in je huidige abonnement.";
+"SsoCookiesCleared" = "SSO-cookies gewist";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Je aanvraag werd onderbroken omdat de app opnieuw moet verifiëren. Probeer het opnieuw.";

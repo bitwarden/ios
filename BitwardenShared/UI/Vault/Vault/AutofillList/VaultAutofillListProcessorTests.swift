@@ -24,6 +24,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
     var subject: VaultAutofillListProcessor!
+    var syncService: MockSyncService!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -45,6 +46,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
 
         stateService = MockStateService()
+        syncService = MockSyncService()
         vaultRepository = MockVaultRepository()
 
         subject = VaultAutofillListProcessor(
@@ -59,6 +61,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 pasteboardService: pasteboardService,
                 searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 stateService: stateService,
+                syncService: syncService,
                 vaultRepository: vaultRepository,
             ),
             state: VaultAutofillListState(),
@@ -80,6 +83,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         searchProcessorMediatorFactory = nil
         stateService = nil
         subject = nil
+        syncService = nil
         vaultRepository = nil
     }
 
