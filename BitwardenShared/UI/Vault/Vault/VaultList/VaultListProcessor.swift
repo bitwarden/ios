@@ -275,6 +275,9 @@ extension VaultListProcessor {
                 // Since the request has been handled, remove it from local storage.
                 await services.stateService.setLoginRequest(nil)
             }
+        } catch is PendingLoginRequestError {
+            // Login request no longer exists on the server (e.g., expired); clear it from state.
+            await services.stateService.setLoginRequest(nil)
         } catch {
             services.errorReporter.log(error: error)
         }

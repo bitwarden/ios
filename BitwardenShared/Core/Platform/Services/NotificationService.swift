@@ -78,7 +78,7 @@ protocol NotificationServiceDelegate: AnyObject {
 
 /// The default implementation of `NotificationService`.
 ///
-class DefaultNotificationService: NotificationService {
+class DefaultNotificationService: NotificationService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The delegate to handle login request actions originating from notifications.
@@ -264,7 +264,7 @@ class DefaultNotificationService: NotificationService {
                 // TODO: PM-33817 Remove isAlertNotification once all auth request pushes are
                 // alert-style and the silent push path is no longer needed.
                 let isAlertNotification = (message["aps"] as? [AnyHashable: Any])?["alert"] != nil
-                try await handleLoginRequest(notificationData, isAlertNotification: isAlertNotification, userId: userId)
+                try await handleLoginRequest(notificationData, isAlertNotification: isAlertNotification)
             case .authRequestResponse:
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
@@ -337,12 +337,10 @@ class DefaultNotificationService: NotificationService {
     ///     When `true`, the OS has already displayed the notification banner (enriched by the
     ///     notification service extension), so creating a local notification is skipped to avoid
     ///     showing the banner twice.
-    ///   - userId: The user's id.
     ///
     private func handleLoginRequest(
         _ notificationData: PushNotificationData,
         isAlertNotification: Bool,
-        userId: String,
     ) async throws {
         let data: LoginRequestNotification = try notificationData.data()
 
@@ -376,7 +374,7 @@ class DefaultNotificationService: NotificationService {
             // Create an in-app banner notification to tell the user about the login request.
             let content = UNMutableNotificationContent()
             content.title = Localizations.logInRequested
-            content.body = Localizations.confimLogInAttempForX(loginSourceEmail)
+            content.body = Localizations.confirmLogInAttemptForX(loginSourceEmail)
             content.categoryIdentifier = "dismissableCategory"
             if let loginRequestData,
                let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
@@ -393,15 +391,7 @@ class DefaultNotificationService: NotificationService {
             try await UNUserNotificationCenter.current().add(request)
         }
 
-        if data.userId == userId {
-            // If the request is for the existing account, show the login request view automatically.
-            guard let loginRequest = try await authService.getPendingLoginRequest(withId: data.id).first
-            else { return }
-            await delegate?.showLoginRequest(loginRequest)
-        } else {
-            // Otherwise, show an alert asking the user if they want to switch accounts.
-            await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: true)
-        }
+        try await showOrSwitchForLoginRequest(id: data.id, loginSourceAccount: loginSourceAccount, showAlert: true)
     }
 
     /// Attempt to decode the notification data as a response to a login notification banner.
@@ -468,23 +458,13 @@ class DefaultNotificationService: NotificationService {
     /// Handle a banner notification with login request data being tapped.
     private func handleNotificationTapped(_ loginRequestData: LoginRequestPushNotification) async {
         do {
-            // Get the user id of the source of the login request.
             let loginSourceAccount = try await stateService.getAccount(userId: loginRequestData.userId)
 
-            // Get the active account ID for comparison.
-            let activeAccountId = try await stateService.getActiveAccountId()
-
-            // If the notification banner was tapped but it's for a different account, switch
-            // to that account automatically.
-            if activeAccountId != loginSourceAccount.profile.userId {
-                await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: false)
-            } else {
-                // If the request is for the existing account, show the login request view automatically.
-                guard let id = loginRequestData.id,
-                      let loginRequest = try await authService.getPendingLoginRequest(withId: id).first
-                else { return }
-                await delegate?.showLoginRequest(loginRequest)
-            }
+            try await showOrSwitchForLoginRequest(
+                id: loginRequestData.id,
+                loginSourceAccount: loginSourceAccount,
+                showAlert: false,
+            )
         } catch StateServiceError.noAccounts {
             let userId = loginRequestData.userId
             await flightRecorder.log(
@@ -492,6 +472,36 @@ class DefaultNotificationService: NotificationService {
             )
         } catch {
             errorReporter.log(error: error)
+        }
+    }
+
+    /// Shows the login request if it belongs to the active account, or switches to the account
+    /// that owns it.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the login request.
+    ///   - loginSourceAccount: The account the login request belongs to.
+    ///   - showAlert: Whether to prompt the user before switching accounts (`true` when receiving
+    ///     a new push, `false` when the user has already tapped a notification banner).
+    ///
+    private func showOrSwitchForLoginRequest(
+        id: String?,
+        loginSourceAccount: Account,
+        showAlert: Bool,
+    ) async throws {
+        let activeAccountId = try await stateService.getActiveAccountId()
+        if activeAccountId == loginSourceAccount.profile.userId {
+            do {
+                guard let id,
+                      let loginRequest = try await authService.getPendingLoginRequest(withId: id).first
+                else { return }
+                await delegate?.showLoginRequest(loginRequest)
+            } catch is PendingLoginRequestError {
+                // Login request no longer exists on the server (e.g., expired); clear it from state.
+                await stateService.setLoginRequest(nil)
+            }
+        } else {
+            await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: showAlert)
         }
     }
 } // swiftlint:disable:this file_length
