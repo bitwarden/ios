@@ -261,6 +261,8 @@ class DefaultNotificationService: NotificationService {
                     try await syncService.deleteSend(data: data)
                 }
             case .authRequest:
+                // TODO: PM-33817 Remove isAlertNotification once all auth request pushes are
+                // alert-style and the silent push path is no longer needed.
                 let isAlertNotification = (message["aps"] as? [AnyHashable: Any])?["alert"] != nil
                 try await handleLoginRequest(notificationData, isAlertNotification: isAlertNotification, userId: userId)
             case .authRequestResponse:
@@ -362,6 +364,7 @@ class DefaultNotificationService: NotificationService {
         // For silent (background) pushes, create a local notification banner since the OS won't
         // display one. For alert pushes, the OS already displayed the banner via the notification
         // service extension, so skip creating a duplicate.
+        // TODO: PM-33817 Remove this block once all auth request pushes are alert-style.
         if !isAlertNotification {
             // Assemble the data to add to the in-app banner notification.
             let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
@@ -415,6 +418,9 @@ class DefaultNotificationService: NotificationService {
         notificationDismissed: Bool?,
         notificationTapped: Bool?,
     ) async -> Bool {
+        // TODO: PM-33817 Remove this branch (including handleNotificationDismissed and the
+        // notificationData userInfo key) once all auth request pushes are alert-style and locally
+        // created notification banners are no longer needed.
         if let content = message["notificationData"] as? String,
            let jsonData = content.data(using: .utf8),
            let loginRequestData = try? JSONDecoder.pascalOrSnakeCaseDecoder.decode(
