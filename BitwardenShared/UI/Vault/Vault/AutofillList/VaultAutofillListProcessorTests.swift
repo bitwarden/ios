@@ -95,25 +95,6 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(searchProcessorMediatorFactory.makeCalled)
     }
 
-    /// `perform(_:)` with `.checkVaultMigration` calls the sync service to check vault migration.
-    @MainActor
-    func test_perform_checkVaultMigration() async {
-        await subject.perform(.checkVaultMigration)
-
-        XCTAssertTrue(syncService.checkUserNeedsVaultMigrationCalled)
-    }
-
-    /// `perform(_:)` with `.checkVaultMigration` logs error when sync service throws.
-    @MainActor
-    func test_perform_checkVaultMigration_error() async {
-        syncService.checkUserNeedsVaultMigrationResult = .failure(BitwardenTestError.example)
-
-        await subject.perform(.checkVaultMigration)
-
-        XCTAssertTrue(syncService.checkUserNeedsVaultMigrationCalled)
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-    }
-
     /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
     @MainActor
     func test_isAutofillingFromList_falseNoFido2Delegate() async throws {

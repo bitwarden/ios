@@ -442,7 +442,8 @@ extension AppProcessor {
     private func checkIfLockedAndPerformNavigation(route: AppRoute) async {
         if let userId = try? await services.stateService.getActiveAccountId(),
            !services.vaultTimeoutService.isLocked(userId: userId),
-           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
+           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false,
+           await (try? services.syncService.organizationIdRequiringVaultMigration()) == nil {
             coordinator?.navigate(to: route)
         } else {
             await coordinator?.handleEvent(.setAuthCompletionRoute(route))
@@ -666,24 +667,6 @@ extension AppProcessor: SyncServiceDelegate {
 
     func migrateVaultToMyItems(organizationId: String) {
         coordinator?.hideLoadingOverlay()
-
-        // In app extensions, show a warning dialog instead of the migration screen.
-        // Users must complete the migration process in the main app.
-        if appExtensionDelegate?.isInAppExtension == true {
-            coordinator?.showAlert(
-                Alert(
-                    title: Localizations.itemTransfer,
-                    message: Localizations.itemTransferRequiresMainAppDescriptionLong,
-                    alertActions: [
-                        AlertAction(title: Localizations.ok, style: .cancel) { [weak self] _ in
-                            self?.appExtensionDelegate?.didCancel()
-                        },
-                    ],
-                ),
-            )
-            return
-        }
-
         coordinator?.navigate(to: .migrateToMyItems(organizationId: organizationId))
     }
 }

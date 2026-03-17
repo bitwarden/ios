@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Chi può visualizzare";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Condividere con persone specifiche è una funzionalità Premium, non disponibile per il tuo piano.";
 "SsoCookiesCleared" = "Cookie SSO eliminati";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";

@@ -394,9 +394,6 @@ struct VaultListView: View {
             await store.perform(.appeared)
         }
         .task {
-            await store.perform(.checkVaultMigration)
-        }
-        .task {
             await store.perform(.streamAccountSetupProgress)
         }
         .task {

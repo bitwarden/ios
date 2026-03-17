@@ -538,7 +538,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpState = .none
-        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        totpService.getTOTPConfigResult = .failure(TOTPKeyError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteCapture(captureCoordinator.asAnyCoordinator(), with: "1234")
         var dismissAction: DismissAction?

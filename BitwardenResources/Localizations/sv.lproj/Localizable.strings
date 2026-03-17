@@ -1323,3 +1323,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "WhoCanView" = "Vem kan se";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO-cookies rensade";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Din begäran avbröts eftersom appen behövde autentisera sig på nytt. Försök igen.";

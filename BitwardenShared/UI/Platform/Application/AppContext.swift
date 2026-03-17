@@ -9,3 +9,14 @@ public enum AppContext: Equatable {
     /// The main app is running.
     case mainApp
 }
+
+extension AppContext: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .appExtension:
+            "App Extension"
+        case .mainApp:
+            "Main App"
+        }
+    }
+}

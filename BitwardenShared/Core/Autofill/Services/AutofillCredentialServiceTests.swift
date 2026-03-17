@@ -1405,8 +1405,9 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         identityStore.replaceCredentialIdentitiesResult = .failure(BitwardenTestError.example)
 
         vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
-        waitFor(identityStore.replaceCredentialIdentitiesCalled)
+        waitFor(!errorReporter.errors.isEmpty)
 
+        XCTAssertTrue(identityStore.replaceCredentialIdentitiesCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 

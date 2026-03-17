@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Кой може да преглежда";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Споделянето с определени хора е платена функционалност. Текущият Ви план не включва достъп до нея.";
 "SsoCookiesCleared" = "Бисквитките за еднократното удостоверяване са изчистени";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Заявката беше прекъсната, тъй като приложението трябваше да се удостовери отново. Моля, опитайте пак.";

@@ -52,8 +52,8 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
         switch self {
         case .accessToken,
              .authenticatorVaultKey,
-             .deviceKey,
              .deviceAuthKeyMetadata,
+             .deviceKey,
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
@@ -72,9 +72,9 @@ enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     var protection: CFTypeRef {
         switch self {
         case .biometrics,
-             .deviceKey,
              .deviceAuthKey,
              .deviceAuthKeyMetadata,
+             .deviceKey,
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
