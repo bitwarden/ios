@@ -365,6 +365,7 @@ class DefaultNotificationService: NotificationService {
         if !isAlertNotification {
             // Assemble the data to add to the in-app banner notification.
             let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
+                id: data.id,
                 timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
                 userId: loginSourceAccount.profile.userId,
             ))
@@ -420,6 +421,7 @@ class DefaultNotificationService: NotificationService {
                LoginRequestPushNotification.self,
                from: jsonData,
            ) {
+            // Handle taps/dismissals of local notification banners created for silent auth request pushes.
             if notificationDismissed == true {
                 await handleNotificationDismissed()
                 return true
@@ -427,6 +429,25 @@ class DefaultNotificationService: NotificationService {
             if notificationTapped == true {
                 await handleNotificationTapped(loginRequestData)
                 return true
+            }
+        } else if notificationTapped == true {
+            // Handle taps of alert push notifications (sent directly by the backend, enriched by the
+            // notification service extension). These don't carry a `notificationData` key, so the
+            // push payload is decoded directly.
+            do {
+                guard let notificationData = try await decodePayload(message) else { return false }
+                let loginRequest: LoginRequestNotification = try notificationData.data()
+                await handleNotificationTapped(
+                    LoginRequestPushNotification(
+                        id: loginRequest.id,
+                        timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
+                        userId: loginRequest.userId,
+                    ),
+                )
+                return true
+            } catch {
+                errorReporter.log(error: error)
+                return false
             }
         }
         return false
@@ -451,6 +472,12 @@ class DefaultNotificationService: NotificationService {
             // to that account automatically.
             if activeAccountId != loginSourceAccount.profile.userId {
                 await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: false)
+            } else {
+                // If the request is for the existing account, show the login request view automatically.
+                guard let id = loginRequestData.id,
+                      let loginRequest = try await authService.getPendingLoginRequest(withId: id).first
+                else { return }
+                await delegate?.showLoginRequest(loginRequest)
             }
         } catch StateServiceError.noAccounts {
             let userId = loginRequestData.userId

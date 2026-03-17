@@ -732,6 +732,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Set up the mock data.
         stateService.loginRequest = LoginRequestNotification(id: "1", userId: "2")
         let loginRequest = LoginRequestPushNotification(
+            id: nil,
             timeoutInMinutes: 15,
             userId: "2",
         )
@@ -756,6 +757,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.loginRequest = LoginRequestNotification(id: "requestId", userId: "1")
         authService.getPendingLoginRequestResult = .success([.fixture(id: "requestId")])
         let loginRequest = LoginRequestPushNotification(
+            id: nil,
             timeoutInMinutes: 15,
             userId: Account.fixture().profile.userId,
         )
@@ -772,12 +774,61 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(delegate.switchAccountsShowAlert, false)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles taps on alert push
+    /// notifications by switching accounts silently, matching the local notification tap behavior.
+    @MainActor
+    func test_messageReceived_notificationTapped_alertNotification() async throws {
+        stateService.setIsAuthenticated()
+        stateService.accounts = [.fixture(), .fixture(profile: .fixture(userId: "differentUser"))]
+        stateService.activeAccount = .fixture()
+        appIDSettingsStore.appID = "10"
+        let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "differentUser")
+        let payload = try JSONEncoder().encode(loginRequestNotification)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "aps": ["alert": ["title": "Log In Requested", "body": "Confirm login attempt"]],
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: payload, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertEqual(delegate.switchAccountsAccount, .fixture(profile: .fixture(userId: "differentUser")))
+        XCTAssertEqual(delegate.switchAccountsShowAlert, false)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` shows the login request when
+    /// an alert push notification is tapped for the active account.
+    @MainActor
+    func test_messageReceived_notificationTapped_alertNotification_sameAccount() async throws {
+        stateService.setIsAuthenticated()
+        stateService.accounts = [.fixture()]
+        stateService.activeAccount = .fixture()
+        appIDSettingsStore.appID = "10"
+        authService.getPendingLoginRequestResult = .success([.fixture(id: "requestId")])
+        let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "1")
+        let payload = try JSONEncoder().encode(loginRequestNotification)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "aps": ["alert": ["title": "Log In Requested", "body": "Confirm login attempt"]],
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: payload, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertEqual(delegate.showLoginRequestRequest, .fixture(id: "requestId"))
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles errors.
     @MainActor
     func test_messageReceived_notificationTapped_error() async throws {
         stateService.accounts = [.fixture()]
         stateService.getActiveAccountIdError = BitwardenTestError.example
         let loginRequest = LoginRequestPushNotification(
+            id: nil,
             timeoutInMinutes: 15,
             userId: Account.fixture().profile.userId,
         )
@@ -796,6 +847,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_messageReceived_notificationTapped_error_accountNotFound() async throws {
         let loginRequest = LoginRequestPushNotification(
+            id: nil,
             timeoutInMinutes: 15,
             userId: Account.fixture().profile.userId,
         )
@@ -812,6 +864,28 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             flightRecorder.logMessages,
             ["[Notification] Notification tapped for login request but account (\(userId)) not found"],
         )
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` shows the login request when
+    /// a local notification banner is tapped for the active account.
+    @MainActor
+    func test_messageReceived_notificationTapped_sameAccount() async throws {
+        stateService.accounts = [.fixture()]
+        stateService.activeAccount = .fixture()
+        authService.getPendingLoginRequestResult = .success([.fixture(id: "requestId")])
+        let loginRequest = LoginRequestPushNotification(
+            id: "requestId",
+            timeoutInMinutes: 15,
+            userId: Account.fixture().profile.userId,
+        )
+        let testData = try JSONEncoder().encode(loginRequest)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "notificationData": String(data: testData, encoding: .utf8) ?? "",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertEqual(delegate.showLoginRequestRequest, .fixture(id: "requestId"))
     }
 }
 

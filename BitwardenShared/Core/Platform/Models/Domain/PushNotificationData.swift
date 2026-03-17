@@ -170,6 +170,9 @@ struct LoginRequestNotification: Codable, Equatable {
 
 /// The data structure of the information attached to the in-app foreground notification.
 struct LoginRequestPushNotification: Codable, Equatable {
+    /// The id of the login request.
+    let id: String?
+
     /// How long until the request times out.
     let timeoutInMinutes: Int
 
