@@ -1306,7 +1306,7 @@
 "ArchiveEmptyDescriptionLong" = "Preencha o seu arquivo com itens que não pretende ver nos resultados de pesquisa nem nas sugestões de preenchimento automático, mas que poderá precisar no futuro.";
 "ArchiveUnavailable" = "Arquivo indisponível";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "O arquivo de itens é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";
-"UpgradeToPremium" = "Atualizar para o Premium";
+"UpgradeToPremium" = "Atualize para o Premium";
 "ThisItemIsArchived" = "Este item está arquivado.";
 "YourPremiumSubscriptionEnded" = "A sua subscrição Premium terminou";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "Para recuperar o acesso ao seu arquivo, reinicie a sua subscrição Premium. Se editar os detalhes de um item arquivado antes de reiniciar, ele será movido de volta para o seu cofre.";
@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Quem pode ver";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Partilhar com pessoas específicas é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";
 "SsoCookiesCleared" = "Cookies de SSO limpos";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "O seu pedido foi interrompido porque a app precisou de voltar a autenticar. Por favor, tente novamente.";

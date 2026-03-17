@@ -24,4 +24,6 @@ enum NotificationType: Int, Codable {
 
     case authRequest = 15
     case authRequestResponse = 16
+
+    case policyChanged = 25
 }

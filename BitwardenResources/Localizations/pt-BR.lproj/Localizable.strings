@@ -1323,3 +1323,4 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "WhoCanView" = "Quem pode visualizar";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "O compartilhamento com pessoas específicas é um recurso do Premium. O seu plano atual não inclui acesso a este recurso.";
 "SsoCookiesCleared" = "SSO cookies cleared";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
