@@ -1,0 +1,165 @@
+"""
+delete_unused_strings
+
+Finds and removes string entries from a Localizable.strings file whose keys are
+never referenced in Swift source code. Keys are assumed to be accessed via
+``Localizations.X``, where ``X`` is the SwiftGen-generated identifier for the
+key (first character lowercased). Any comment block immediately preceding a
+removed entry (with no blank lines between them) is also removed.
+"""
+
+import os
+import re
+
+# Matches any `Localizations.identifier` reference in Swift source.
+_LOCALIZATIONS_RE = re.compile(r'Localizations\.([a-zA-Z_][a-zA-Z0-9_]*)')
+
+# Matches a complete key/value entry line.
+_ENTRY_RE = re.compile(
+    r'^\s*"(?P<key>(?:[^"\\]|\\.)*)"\s*=\s*"(?:[^"\\]|\\.)*"\s*;\s*$'
+)
+
+
+def find_used_keys(swift_sources: list[str]) -> set[str]:
+    """Scan Swift file contents for ``Localizations.X`` references.
+
+    Returns the set of corresponding ``.strings`` keys. The SwiftGen
+    identifier-to-key transform is the reverse of lowercasing the first
+    character: ``identifier[0].upper() + identifier[1:]``.
+
+    The internal helper ``Localizations.tr(...)`` is excluded.
+
+    Args:
+        swift_sources: A list of strings, each being the full text of a Swift
+            source file.
+
+    Returns:
+        A set of ``.strings`` keys that are referenced in the given sources.
+    """
+    result: set[str] = set()
+    for content in swift_sources:
+        for identifier in _LOCALIZATIONS_RE.findall(content):
+            if identifier == "tr":
+                continue
+            result.add(identifier[0].upper() + identifier[1:])
+    return result
+
+
+def delete_unused_content(
+    strings_content: str, used_keys: set[str]
+) -> tuple[str, list[str]]:
+    """Remove unused key entries from Localizable.strings content.
+
+    Processes content line by line. Any key not present in ``used_keys`` is
+    removed. Any comment block (``/* */`` or ``//``) immediately preceding a
+    removed entry — with no intervening blank lines — is also removed.
+
+    Args:
+        strings_content: The full text of the ``.strings`` file.
+        used_keys: The set of keys that are considered in-use and must be
+            preserved.
+
+    Returns:
+        A tuple of ``(new_content, removed_keys)`` where ``new_content`` is the
+        filtered file text and ``removed_keys`` is a list of keys that were
+        removed, in file order.
+    """
+    lines = strings_content.splitlines(keepends=True)
+    output: list[str] = []
+    # Lines buffered since the last blank line; these are candidate comments
+    # for the next entry. Flushed to output on a blank line or non-entry line.
+    pending: list[str] = []
+    removed: list[str] = []
+    in_block_comment = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        # --- Multi-line block comment continuation ---
+        if in_block_comment:
+            pending.append(line)
+            if "*/" in line:
+                in_block_comment = False
+            continue
+
+        # --- Blank line: break comment-entry association ---
+        if not stripped:
+            output.extend(pending)
+            pending = []
+            output.append(line)
+            continue
+
+        # --- Block comment start (does not end on the same line) ---
+        if stripped.startswith("/*") and "*/" not in stripped:
+            in_block_comment = True
+            pending.append(line)
+            continue
+
+        # --- Single-line comment (// or /* ... */ on one line) ---
+        if stripped.startswith("//") or (
+            stripped.startswith("/*") and stripped.endswith("*/")
+        ):
+            pending.append(line)
+            continue
+
+        # --- Key/value entry ---
+        m = _ENTRY_RE.match(line)
+        if m:
+            key = m.group("key")
+            if key in used_keys:
+                output.extend(pending)
+                output.append(line)
+            else:
+                removed.append(key)
+                # pending (the preceding comment) is discarded
+            pending = []
+            continue
+
+        # --- Anything else (should be rare in a well-formed .strings file) ---
+        output.extend(pending)
+        pending = []
+        output.append(line)
+
+    # Flush any trailing pending content (e.g. trailing comment with no entry after it)
+    output.extend(pending)
+
+    return "".join(output), removed
+
+
+def delete_unused(strings_path: str, swift_dirs: list[str]) -> list[str]:
+    """Remove unused entries from a Localizable.strings file in place.
+
+    Walks each directory in ``swift_dirs`` recursively for ``.swift`` files,
+    reads them, determines which keys are referenced, then removes any
+    unreferenced keys from the strings file.
+
+    Args:
+        strings_path: Path to the ``.strings`` file to process.
+        swift_dirs: List of directory paths to search recursively for Swift
+            source files.
+
+    Returns:
+        A list of keys that were removed, in file order. Returns an empty list
+        if no unused keys were found.
+    """
+    swift_sources: list[str] = []
+    for swift_dir in swift_dirs:
+        for dirpath, _, filenames in os.walk(swift_dir):
+            for filename in filenames:
+                if filename.endswith(".swift"):
+                    filepath = os.path.join(dirpath, filename)
+                    with open(filepath, encoding="utf-8") as f:
+                        swift_sources.append(f.read())
+
+    used_keys = find_used_keys(swift_sources)
+
+    with open(strings_path, encoding="utf-8") as f:
+        content = f.read()
+
+    new_content, removed = delete_unused_content(content, used_keys)
+
+    if removed:
+        with open(strings_path, "w", encoding="utf-8") as f:
+            f.write(new_content)
+
+    return removed
