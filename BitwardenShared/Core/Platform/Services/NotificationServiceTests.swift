@@ -426,6 +426,33 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs to the flight recorder
+    /// when a login request push notification is received for an account that doesn't exist.
+    @MainActor
+    func test_messageReceived_loginRequest_accountNotFound() async throws {
+        stateService.setIsAuthenticated()
+        appSettingsStore.appId = "10"
+        let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "unknownUser")
+        let notificationData = try JSONEncoder().encode(loginRequestNotification)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: notificationData, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            [
+                "[Notification] Received push notification, type: authRequest",
+                "[Notification] Received login request notification but account (unknownUser) not found",
+            ],
+        )
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` tells
     /// the delegate to show the switch account alert if it's a login request for a non-active account.
     @MainActor
@@ -696,7 +723,8 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles errors.
     @MainActor
     func test_messageReceived_notificationTapped_error() async throws {
-        // Set up the mock data.
+        stateService.accounts = [.fixture()]
+        stateService.getActiveAccountIdError = BitwardenTestError.example
         let loginRequest = LoginRequestPushNotification(
             timeoutInMinutes: 15,
             userId: Account.fixture().profile.userId,
@@ -706,11 +734,32 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             "notificationData": String(data: testData, encoding: .utf8) ?? "",
         ]
 
-        // Test.
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
 
-        // Confirm the results.
-        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noAccounts)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs the account not found
+    /// error to the flight recorder when a tapped notification references an unknown account.
+    @MainActor
+    func test_messageReceived_notificationTapped_error_accountNotFound() async throws {
+        let loginRequest = LoginRequestPushNotification(
+            timeoutInMinutes: 15,
+            userId: Account.fixture().profile.userId,
+        )
+        let testData = try JSONEncoder().encode(loginRequest)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "notificationData": String(data: testData, encoding: .utf8) ?? "",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        let userId = Account.fixture().profile.userId
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertEqual(
+            flightRecorder.logMessages,
+            ["[Notification] Notification tapped for login request but account (\(userId)) not found"],
+        )
     }
 }
 
