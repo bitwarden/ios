@@ -11,8 +11,9 @@ removed entry (with no blank lines between them) is also removed.
 import os
 import re
 
-# Matches any `Localizations.identifier` reference in Swift source.
-_LOCALIZATIONS_RE = re.compile(r'Localizations\.([a-zA-Z_][a-zA-Z0-9_]*)')
+# Matches any `Localizations.identifier` reference in Swift source, including
+# cases where the identifier is on the next line (e.g. `Localizations\n    .foo`).
+_LOCALIZATIONS_RE = re.compile(r'Localizations\s*\.([a-zA-Z_][a-zA-Z0-9_]*)')
 
 # Matches any character that is not valid in a Swift identifier.
 _NON_IDENTIFIER_RE = re.compile(r'[^a-zA-Z0-9_]')

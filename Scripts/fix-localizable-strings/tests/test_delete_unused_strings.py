@@ -38,6 +38,12 @@ class TestFindUsedKeysBasic(unittest.TestCase):
         result = find_used_keys(["let x = 42\nprint(x)"])
         self.assertEqual(result, set())
 
+    def test_identifier_on_next_line_is_matched(self):
+        # SwiftUI sometimes splits long chains: `Localizations\n    .identifier`
+        source = "message: Localizations\n    .shareFilesAndData,"
+        result = find_used_keys([source])
+        self.assertEqual(result, {"sharefilesanddata"})
+
 
 class TestFindUsedKeysFiltering(unittest.TestCase):
     """The `tr` identifier must be excluded; other enum prefixes must not match."""
