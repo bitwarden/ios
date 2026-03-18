@@ -354,8 +354,12 @@ class DefaultAutofillCredentialService {
 
             if #available(iOS 17, *) {
                 var identities = [ASCredentialIdentity]()
+                let accountHasPremium = await stateService.doesActiveAccountHavePremium()
                 for cipher in decryptedCiphers {
-                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: cipher)
+                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(
+                        from: cipher,
+                        accountHasPremium: accountHasPremium,
+                    )
                     identities.append(contentsOf: newIdentities)
                 }
 
@@ -639,7 +643,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         var identities = [ASCredentialIdentity]()
         let decryptedCipher = try await clientService.vault().ciphers().decrypt(cipher: cipher)
 
-        let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: decryptedCipher)
+        let accountHasPremium = await stateService.doesActiveAccountHavePremium()
+        let newIdentities = await credentialIdentityFactory.createCredentialIdentities(
+            from: decryptedCipher,
+            accountHasPremium: accountHasPremium,
+        )
         identities.append(contentsOf: newIdentities)
 
         let fido2Identities = try await clientService.platform().fido2()

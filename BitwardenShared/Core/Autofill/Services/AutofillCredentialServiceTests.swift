@@ -1049,6 +1049,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
         waitFor(identityStore.replaceCredentialIdentitiesIdentities != nil)
 
+        XCTAssertTrue(stateService.doesActiveAccountHavePremiumCalled)
         XCTAssertEqual(
             identityStore.replaceCredentialIdentitiesIdentities,
             [
