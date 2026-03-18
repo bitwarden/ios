@@ -11,7 +11,7 @@ from delete_unused_strings import delete_unused, delete_unused_content, find_use
 
 
 class TestFindUsedKeysBasic(unittest.TestCase):
-    """Basic key extraction from Swift source content."""
+    """Basic identifier extraction from Swift source content."""
 
     def test_empty_source_returns_empty_set(self):
         result = find_used_keys([""])
@@ -21,13 +21,18 @@ class TestFindUsedKeysBasic(unittest.TestCase):
         result = find_used_keys([])
         self.assertEqual(result, set())
 
-    def test_simple_lowercase_identifier(self):
+    def test_simple_identifier_returned_lowercase(self):
         result = find_used_keys(["Localizations.about"])
-        self.assertEqual(result, {"About"})
+        self.assertEqual(result, {"about"})
 
-    def test_camel_case_identifier_only_first_char_capitalized(self):
+    def test_camel_case_identifier_returned_lowercase(self):
         result = find_used_keys(["Localizations.valueHasBeenCopied"])
-        self.assertEqual(result, {"ValueHasBeenCopied"})
+        self.assertEqual(result, {"valuehasbeencopied"})
+
+    def test_all_caps_identifier_returned_lowercase(self):
+        # "OK" in the strings file becomes Localizations.ok in Swift.
+        result = find_used_keys(["Localizations.ok"])
+        self.assertEqual(result, {"ok"})
 
     def test_no_localizations_reference_returns_empty_set(self):
         result = find_used_keys(["let x = 42\nprint(x)"])
@@ -44,7 +49,7 @@ class TestFindUsedKeysFiltering(unittest.TestCase):
     def test_tr_and_real_identifier_together(self):
         source = 'let x = Localizations.tr("key")\nlet label = Localizations.about'
         result = find_used_keys([source])
-        self.assertEqual(result, {"About"})
+        self.assertEqual(result, {"about"})
 
     def test_other_enum_prefix_does_not_match(self):
         result = find_used_keys(["OtherEnum.about"])
@@ -57,24 +62,24 @@ class TestFindUsedKeysParameterizedCalls(unittest.TestCase):
     def test_nested_call_captures_both_identifiers(self):
         source = "Localizations.valueHasBeenCopied(Localizations.password)"
         result = find_used_keys([source])
-        self.assertEqual(result, {"ValueHasBeenCopied", "Password"})
+        self.assertEqual(result, {"valuehasbeencopied", "password"})
 
     def test_multiple_identifiers_on_same_line(self):
         source = "let a = Localizations.alpha; let b = Localizations.beta"
         result = find_used_keys([source])
-        self.assertEqual(result, {"Alpha", "Beta"})
+        self.assertEqual(result, {"alpha", "beta"})
 
 
 class TestFindUsedKeysMultipleFiles(unittest.TestCase):
-    """Keys are unioned across all provided file contents."""
+    """Identifiers are unioned across all provided file contents."""
 
     def test_union_across_two_files(self):
         result = find_used_keys(["Localizations.alpha", "Localizations.beta"])
-        self.assertEqual(result, {"Alpha", "Beta"})
+        self.assertEqual(result, {"alpha", "beta"})
 
     def test_same_key_in_both_files_appears_once(self):
         result = find_used_keys(["Localizations.about", "Localizations.about"])
-        self.assertEqual(result, {"About"})
+        self.assertEqual(result, {"about"})
 
 
 class TestDeleteUnusedContent(unittest.TestCase):
@@ -90,9 +95,21 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '"About" = "About";\n'
             '"Cancel" = "Cancel";\n'
         )
-        result, removed = delete_unused_content(content, {"About", "Cancel"})
+        result, removed = delete_unused_content(content, {"about", "cancel"})
         self.assertEqual(result, content)
         self.assertEqual(removed, [])
+
+    def test_all_caps_key_matched_case_insensitively(self):
+        # "OK" in the strings file is accessed as Localizations.ok in Swift,
+        # so find_used_keys returns "ok". The lookup must match "OK" to "ok".
+        content = (
+            '"OK" = "OK";\n'
+            '"UnusedKey" = "Unused";\n'
+        )
+        expected = '"OK" = "OK";\n'
+        result, removed = delete_unused_content(content, {"ok"})
+        self.assertEqual(result, expected)
+        self.assertEqual(removed, ["UnusedKey"])
 
     def test_unused_key_removed_sentinel_preserved(self):
         content = (
@@ -104,7 +121,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '"About" = "About";\n'
             '"Cancel" = "Cancel";\n'
         )
-        result, removed = delete_unused_content(content, {"About", "Cancel"})
+        result, removed = delete_unused_content(content, {"about", "cancel"})
         self.assertEqual(result, expected)
         self.assertEqual(removed, ["UnusedKey"])
 
@@ -119,7 +136,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '"About" = "About";\n'
             '"Cancel" = "Cancel";\n'
         )
-        result, removed = delete_unused_content(content, {"About", "Cancel"})
+        result, removed = delete_unused_content(content, {"about", "cancel"})
         self.assertEqual(result, expected)
         self.assertEqual(removed, ["UnusedKey"])
 
@@ -134,7 +151,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '"About" = "About";\n'
             '"Cancel" = "Cancel";\n'
         )
-        result, removed = delete_unused_content(content, {"About", "Cancel"})
+        result, removed = delete_unused_content(content, {"about", "cancel"})
         self.assertEqual(result, expected)
         self.assertEqual(removed, ["UnusedKey"])
 
@@ -150,7 +167,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '"About" = "About";\n'
             '"Cancel" = "Cancel";\n'
         )
-        result, removed = delete_unused_content(content, {"About", "Cancel"})
+        result, removed = delete_unused_content(content, {"about", "cancel"})
         self.assertEqual(result, expected)
         self.assertEqual(removed, ["UnusedKey"])
 
@@ -164,7 +181,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '/* Section header */\n'
             '"About" = "About";\n'
         )
-        result, removed = delete_unused_content(content, {"About"})
+        result, removed = delete_unused_content(content, {"about"})
         self.assertEqual(result, expected)
         self.assertEqual(removed, ["UnusedKey"])
 
@@ -182,7 +199,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '\n'
             '"Cancel" = "Cancel";\n'
         )
-        result, removed = delete_unused_content(content, {"About", "Cancel"})
+        result, removed = delete_unused_content(content, {"about", "cancel"})
         self.assertEqual(result, expected)
         self.assertEqual(removed, ["UnusedKey"])
 
@@ -192,7 +209,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '\n'
             '"Cancel" = "Cancel";\n'
         )
-        result, removed = delete_unused_content(content, {"About", "Cancel"})
+        result, removed = delete_unused_content(content, {"about", "cancel"})
         self.assertEqual(result, content)
         self.assertEqual(removed, [])
 
@@ -204,7 +221,7 @@ class TestDeleteUnusedContent(unittest.TestCase):
             '"UnusedBeta" = "B";\n'
             '"Done" = "Done";\n'
         )
-        _, removed = delete_unused_content(content, {"About", "Cancel", "Done"})
+        _, removed = delete_unused_content(content, {"about", "cancel", "done"})
         self.assertEqual(removed, ["UnusedAlpha", "UnusedBeta"])
 
 
@@ -276,6 +293,12 @@ class TestDeleteUnusedFileIO(unittest.TestCase):
     def test_returns_empty_list_when_all_keys_used(self):
         strings_path = self._write_strings('"About" = "About";\n')
         swift_dir = self._make_swift_dir({"View.swift": "Localizations.about"})
+        removed = delete_unused(strings_path, [swift_dir])
+        self.assertEqual(removed, [])
+
+    def test_all_caps_key_preserved_when_referenced(self):
+        strings_path = self._write_strings('"OK" = "OK";\n')
+        swift_dir = self._make_swift_dir({"View.swift": "Localizations.ok"})
         removed = delete_unused(strings_path, [swift_dir])
         self.assertEqual(removed, [])
 

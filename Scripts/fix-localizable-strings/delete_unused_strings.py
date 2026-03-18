@@ -23,9 +23,11 @@ _ENTRY_RE = re.compile(
 def find_used_keys(swift_sources: list[str]) -> set[str]:
     """Scan Swift file contents for ``Localizations.X`` references.
 
-    Returns the set of corresponding ``.strings`` keys. The SwiftGen
-    identifier-to-key transform is the reverse of lowercasing the first
-    character: ``identifier[0].upper() + identifier[1:]``.
+    Returns a set of identifiers found in the sources, converted to lowercase
+    for comparison with the keys from the strings file. While this does mean
+    that keys differing only in case (e.g. ``"OK"`` vs. ``"Ok"``) will be
+    treated as the same key, in practice we're not likely to have keys that
+    only differ by case.
 
     The internal helper ``Localizations.tr(...)`` is excluded.
 
@@ -34,14 +36,15 @@ def find_used_keys(swift_sources: list[str]) -> set[str]:
             source file.
 
     Returns:
-        A set of ``.strings`` keys that are referenced in the given sources.
+        A set of lowercased identifiers referenced in the given sources,
+        e.g. ``{"about", "ok", "valuehasbeencopied"}``.
     """
     result: set[str] = set()
     for content in swift_sources:
         for identifier in _LOCALIZATIONS_RE.findall(content):
             if identifier == "tr":
                 continue
-            result.add(identifier[0].upper() + identifier[1:])
+            result.add(identifier.lower())
     return result
 
 
@@ -56,8 +59,9 @@ def delete_unused_content(
 
     Args:
         strings_content: The full text of the ``.strings`` file.
-        used_keys: The set of keys that are considered in-use and must be
-            preserved.
+        used_keys: The set of lowercased identifiers (as returned by
+            ``find_used_keys``) that are considered in-use. Each key from the
+            strings file is lowercased before lookup to match.
 
     Returns:
         A tuple of ``(new_content, removed_keys)`` where ``new_content`` is the
@@ -106,7 +110,7 @@ def delete_unused_content(
         m = _ENTRY_RE.match(line)
         if m:
             key = m.group("key")
-            if key in used_keys:
+            if key.lower() in used_keys:
                 output.extend(pending)
                 output.append(line)
             else:
