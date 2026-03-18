@@ -920,6 +920,47 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
     }
 
     /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// succeeds when the user is authorized to use TOTP.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_totpAuthorized() async throws {
+        cipherService.fetchCipherResult = .success(
+            .fixture(login: .fixture(totp: "totpKey")),
+        )
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+        clientService.mockVault.generateTOTPCodeResult = .success("123456")
+        totpService.isTotpAuthorizedResult = true
+
+        let credential = try await subject.provideOTPCredential(
+            for: "1",
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+            repromptPasswordValidated: false,
+        )
+
+        XCTAssertEqual(credential.code, "123456")
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
+    /// throws an error if the user is not authorized to use TOTP.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_totpNotAuthorized() async {
+        cipherService.fetchCipherResult = .success(
+            .fixture(login: .fixture(totp: "totpKey")),
+        )
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = false
+        totpService.isTotpAuthorizedResult = false
+
+        await assertAsyncThrows(error: ASExtensionError(.credentialIdentityNotFound)) {
+            _ = try await subject.provideOTPCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false,
+            )
+        }
+    }
+
+    /// `provideOTPCredential(for:autofillCredentialServiceDelegate:repromptPasswordValidated:)`
     /// throws an error if the user's vault is locked.
     @available(iOS 18.0, *)
     func test_provideOTPCredential_vaultLocked() async {

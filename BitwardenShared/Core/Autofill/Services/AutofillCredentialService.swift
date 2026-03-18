@@ -86,7 +86,6 @@ protocol AutofillCredentialService: AnyObject {
 /// A default implementation of an `AutofillCredentialService`.
 ///
 class DefaultAutofillCredentialService {
-
     // MARK: Private Properties
 
     /// Helper to know about the app context.
@@ -339,7 +338,7 @@ class DefaultAutofillCredentialService {
     ///
     /// - Parameter userId: The ID of the user whose ciphers and device auth key should be added to the identity store.
     ///
-    private func replaceAllIdentities(userId: String) async { // swiftlint:disable:this function_body_length
+    private func replaceAllIdentities(userId: String) async {
         guard await identityStore.state().isEnabled else { return }
 
         do {
@@ -580,6 +579,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
         guard cipher.reprompt == .none || repromptPasswordValidated else {
             throw ASExtensionError(.userInteractionRequired)
+        }
+
+        guard await totpService.isTotpAuthorized(for: cipher) else {
+            throw ASExtensionError(.credentialIdentityNotFound)
         }
 
         guard let vault = try? await clientService.vault(),
