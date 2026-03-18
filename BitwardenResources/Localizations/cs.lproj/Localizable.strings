@@ -73,7 +73,7 @@
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Budete jen muset nastavit Authenticator pro přihlášení, která vyžadují dvoufaktorové ověření s kódem. Klíč průběžně generuje šestimístné kódy, které můžete použít pro přihlášení.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Použijte generátor k vytvoření bezpečných hesel, heslových frází a uživatelských jmen.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Heslové fráze jsou často jednodušší pro zapamatování a zápis než náhodná hesla. Jsou užitečné pro přihlášení do účtů, kde není automatické vyplňování k dispozici (např. streamovací služba ve Vašem televizoru).";
-"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Jedinečná uživatelská jména přidávají další bezpečnostní vrstvu a mohou pomoci hackerům v hledání účtů.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Jedinečná uživatelská jména přidávají další bezpečnostní vrstvu a mohou hackerům ztížit hledání účtů.";
 "UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Použijte tyto volby k úpravě hesla, abyste splnili požadavky webových stránek Vašeho účtu.";
 "AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "Po uložení nového hesla do Bitwardenu ho nezapomeňte aktualizovat na stránkách Vašeho účtu.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Pro přístup k tomuto účtu musíte přidat webovou adresu pro automatické vyplnění.";
@@ -269,7 +269,7 @@
 "EnvironmentSaved" = "URL vlastního prostředí byly uloženy.";
 "FormattedIncorrectly" = "%1$@ nemá správný formát.";
 "IdentityUrl" = "URL serveru identity";
-"SelfHostedEnvironment" = "Vlastní hostované prostředí";
+"SelfHostedEnvironment" = "Prostředí vlastního serveru";
 "SelfHostedEnvironmentFooter" = "Zadejte základní URL vlastní hostované aplikace Bitwarden.";
 "ServerUrl" = "URL serveru";
 "WebVaultUrl" = "URL serveru webového trezoru";
@@ -292,7 +292,7 @@
 "CardholderName" = "Jméno držitele karty";
 "CityTown" = "Město";
 "Company" = "Společnost";
-"Country" = "Stát";
+"Country" = "Země";
 "December" = "prosinec";
 "Dr" = "Dr.";
 "ExpirationMonth" = "Měsíc expirace";
@@ -393,7 +393,7 @@
 "AllItems" = "Všechny položky";
 "CheckingPassword" = "Kontrolování hesla...";
 "CheckPassword" = "Zkontrolujte, zda nedošlo k úniku hesla.";
-"PasswordSafe" = " V žádném ze známých případů nedošlo k úniku tohoto hesla. Mělo by být bezpečné používat jej i nadále.";
+"PasswordSafe" = "V žádném ze známých případů nedošlo k úniku tohoto hesla. Mělo by být bezpečné používat jej i nadále.";
 "IdentityName" = "Název identity";
 "Value" = "Hodnota";
 "PasswordHistory" = "Historie hesel";
@@ -557,7 +557,7 @@
 "TextTypeIsNotSelected" = "Není vybrán typ textu, klepněte pro výběr.";
 "DeletionDate" = "Datum smazání";
 "DeletionTime" = "Čas smazání";
-"DeletionDateInfo" = "Tento Send bude trvale smazán v určený datum a čas.";
+"DeletionDateInfo" = "Tento Send bude trvale smazán v určený den a čas.";
 "PendingDelete" = "Čeká na smazání";
 "ExpirationTime" = "Čas vypršení platnosti";
 "Expired" = "Vypršela platnost";
@@ -767,7 +767,7 @@
 "ThereAreNoSSHKeysInYourVault" = "Žádné SSH klíče ve Vašem trezoru";
 "US" = "US";
 "EU" = "EU";
-"SelfHosted" = "Vlastní hosting";
+"SelfHosted" = "Vlastní server";
 "DataRegion" = "Datový region";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.";
@@ -784,7 +784,7 @@
 "Application" = "Aplikace";
 "YouCannotEditPasskeyApplicationBecauseItWouldInvalidateThePasskey" = "Nemůžete upravovat aplikaci pro přístupové klíče, protože by to zneplatnilo přístupový klíč";
 "PasskeyWillNotBeCopied" = "Přístupový klíč nebude zkopírován";
-"ThePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem" = "Přístupový klíč nebude zkopírován do duplikované položky. Chete pokračovat v duplikování této položky?";
+"ThePasskeyWillNotBeCopiedToTheClonedItemDoYouWantToContinueCloningThisItem" = "Přístupový klíč nebude zkopírován do duplikované položky. Chcete pokračovat v duplikování této položky?";
 "CopyApplication" = "Kopírovat aplikaci";
 "AvailableForTwoStepLogin" = "Dostupné pro dvoufázové přihlášení";
 "MasterPasswordRePromptHelp" = "Nápověda pro znovuzeptání se na hlavní heslo";
@@ -918,7 +918,7 @@
 "ExploreTheGenerator" = "Prozkoumat generátor";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Další informace o generování bezpečných přihlašovacích údajů pomocí prohlídky s průvodcem.";
 "ExportVaultFilePwProtectInfo" = "Tento soubor exportu bude chráněn heslem a k dešifrování bude vyžadovat heslo souboru.";
-"IntroCarouselPage1Title" = "Bezpečnost, nadevše";
+"IntroCarouselPage1Title" = "Bezpečnost především";
 "IntroCarouselPage1Message" = "Uložte si přihlašovací údaje, karty a identity do zabezpečeného trezoru. Bitwarden používá šifrování end-to-end s nulovou znalostí, aby ochránil to, co je pro Vás důležité.";
 "IntroCarouselPage2Title" = "Rychlé a snadné přihlášení";
 "IntroCarouselPage2Message" = "Nastavte biometrické odemknutí a automatické vyplňování pro přihlášení k Vašim účtům bez zadání jediného písmene.";
@@ -1085,7 +1085,7 @@
 "ExportVaultToAFile" = "Exportovat trezor do souboru";
 "ExportVaultToAnotherApp" = "Exportovat trezor do jiné aplikace";
 "ExportItems" = "Exportovat položky";
-"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportovat hesla, hesla, kreditní karty a veškeré osobní údaje o identitě.";
+"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportovat hesla, přístupové klíče, platební karty a veškeré osobní údaje o identitě.";
 "RetryExport" = "Opakovat export";
 "ExportFailed" = "Export se nezdařil";
 "ThereHasBeenAnIssueExportingItems" = "Došlo k problému při exportu položek.";
@@ -1148,7 +1148,7 @@
 "LogOutAllAccounts" = "Odhlásit všechny účty";
 "AllAccountsHaveBeenLoggedOut" = "Všechny účty byly odhlášeny";
 "AnErrorOccurredWhileTryingToLogOutAllAccounts" = "Vyskytla se chyba při pokusu o odhlášení všech účtů";
-"SelfHostServerURL" = "Adresa URL serveru vlastního hostování";
+"SelfHostServerURL" = "Adresa URL vlastního serveru";
 "OpenGenerator" = "Otevřít generátor";
 "OpenPasswordGenerator" = "Otevřít generátor hesel";
 "GeneratePassphrase" = "Vygenerovat heslovou frázi";
@@ -1288,7 +1288,7 @@
 "HowToManageMyVault" = "Jak spravovat můj trezor";
 "YouLeftTheOrganization" = "Opustili jste organizaci";
 "ItemTransferRequiresMainAppDescriptionLong" = "Organizace požaduje vlastnictví Vašich osobních položek. Otevřete hlavní aplikaci Bitwarden pro kontrolu a dokončení tohoto požadavku.";
-"ThisSettingIsManagedByYourOrganization" = "Tato nastavení je spravováno Vaší organizací.";
+"ThisSettingIsManagedByYourOrganization" = "Toto nastavení je spravováno Vaší organizací.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaše organizace nastavila výchozí časový limit relace na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaše organizace nastavila maximální časový limit relace na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Vaše organizace nastavila maximální časový limit relace na %1$@ a %2$@.";
@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Kdo může zobrazit";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sdílení s vybranými lidmi je prémiová funkce. Váš aktuální plán nezahrnuje přístup k této funkci.";
 "SsoCookiesCleared" = "Cookies SSO vymazány";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Váš požadavek byl přerušen, protože aplikace musí být znovu ověřena. Zkuste to znovu.";

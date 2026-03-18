@@ -1045,7 +1045,7 @@
 "AutofillPasswords" = "自動填入密碼";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "在您所有裝置上設定一鍵自動填入登入";
 "GotIt" = "知道了";
-"ClearSsoCookies" = "Clear SSO cookies";
+"ClearSsoCookies" = "SSO Cookie 已清除";
 "GenerateCrash" = "產生當機報告";
 "GenerateErrorReport" = "產生錯誤報告";
 "GenerateSdkErrorReport" = "產生 SDK 錯誤報告";
@@ -1242,7 +1242,7 @@
 "Skip" = "略過";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "將您所有的登入資料儲存並與驗證碼直接同步至驗證器應用程式。";
-"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
+"SyncWithBrowserDescriptionLong" = "若要連線至 %1$@，請將您的預設瀏覽器與 Bitwarden 行動應用程式同步。瀏覽器開啟後，如有提示請完成登入。同步完成後，您將返回此應用程式。";
 "SyncWithBitwardenApp" = "與 Bitwarden 應用程式同步";
 "SyncWithBrowser" = "與瀏覽器同步";
 "SyncWithTheBitwardenApp" = "與 Bitwarden 應用程式同步";
@@ -1288,7 +1288,7 @@
 "LeaveX" = "離開 %1$@";
 "HowToManageMyVault" = "如何管理我的密碼庫";
 "YouLeftTheOrganization" = "您已離開組織";
-"ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
+"ItemTransferRequiresMainAppDescriptionLong" = "有組織正在請求取得您個人項目的擁有權。請開啟主要的 Bitwarden 應用程式以檢視並完成此請求。";
 "ThisSettingIsManagedByYourOrganization" = "此設定由您的組織管理。";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "您的組織已將預設工作階段逾時設定為 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的組織已將最長工作階段逾時設為 %1$@。";
@@ -1322,4 +1322,5 @@
 "SpecificPeople" = "特定人員";
 "WhoCanView" = "誰可以檢視";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "與特定人員分享為 Premium 功能。您目前的方案不包含此功能的使用權限。";
-"SsoCookiesCleared" = "SSO cookies cleared";
+"SsoCookiesCleared" = "SSO Cookie 已清除";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";

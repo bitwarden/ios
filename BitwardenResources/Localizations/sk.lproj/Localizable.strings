@@ -1301,7 +1301,7 @@
 "SendingToArchive" = "Odosiela sa do archívu…";
 "MovingItemToVault" = "Položka sa presúva do trezoru";
 "OrganizationNotFound" = "Organizácia sa nenašla.";
-"ItemsTransferred" = "Items transferred";
+"ItemsTransferred" = "Položky boli prenesené";
 "ArchiveIsEmpty" = "Archív je prázdny";
 "ArchiveEmptyDescriptionLong" = "Naplňte svoj archív položkami, ktoré nechcete vidieť vo výsledkoch vyhľadávania a automatických návrhoch, ale ktoré budete možno niekedy potrebovať.";
 "ArchiveUnavailable" = "Archív je nedostupný";
@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Kto môže zobraziť";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Zdieľanie s konkrétnymi osobami je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
 "SsoCookiesCleared" = "Cookies SSO vymazané";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Vaša žiadosť bola prerušená, pretože aplikácia musela znovu overiť vašu identitu. Skúste to znova.";

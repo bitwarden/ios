@@ -1322,3 +1322,4 @@
 "WhoCanView" = "Siapa yang dapat melihat";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Berbagi dengan orang tertentu adalah fitur Premium. Paket Anda saat ini tidak termasuk akses ke fitur ini.";
 "SsoCookiesCleared" = "SSO cookies cleared";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
