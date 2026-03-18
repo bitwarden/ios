@@ -11,17 +11,14 @@ removed entry (with no blank lines between them) is also removed.
 import os
 import re
 
+from strings_file_utils import filter_entries
+
 # Matches any `Localizations.identifier` reference in Swift source, including
 # cases where the identifier is on the next line (e.g. `Localizations\n    .foo`).
 _LOCALIZATIONS_RE = re.compile(r'Localizations\s*\.([a-zA-Z_][a-zA-Z0-9_]*)')
 
 # Matches any character that is not valid in a Swift identifier.
 _NON_IDENTIFIER_RE = re.compile(r'[^a-zA-Z0-9_]')
-
-# Matches a complete key/value entry line.
-_ENTRY_RE = re.compile(
-    r'^\s*"(?P<key>(?:[^"\\]|\\.)*)"\s*=\s*"(?:[^"\\]|\\.)*"\s*;\s*$'
-)
 
 
 def _normalize_key(key: str) -> str:
@@ -90,66 +87,7 @@ def delete_unused_content(
         filtered file text and ``removed_keys`` is a list of keys that were
         removed, in file order.
     """
-    lines = strings_content.splitlines(keepends=True)
-    output: list[str] = []
-    # Lines buffered since the last blank line; these are candidate comments
-    # for the next entry. Flushed to output on a blank line or non-entry line.
-    pending: list[str] = []
-    removed: list[str] = []
-    in_block_comment = False
-
-    for line in lines:
-        stripped = line.strip()
-
-        # --- Multi-line block comment continuation ---
-        if in_block_comment:
-            pending.append(line)
-            if "*/" in line:
-                in_block_comment = False
-            continue
-
-        # --- Blank line: break comment-entry association ---
-        if not stripped:
-            output.extend(pending)
-            pending = []
-            output.append(line)
-            continue
-
-        # --- Block comment start (does not end on the same line) ---
-        if stripped.startswith("/*") and "*/" not in stripped:
-            in_block_comment = True
-            pending.append(line)
-            continue
-
-        # --- Single-line comment (// or /* ... */ on one line) ---
-        if stripped.startswith("//") or (
-            stripped.startswith("/*") and stripped.endswith("*/")
-        ):
-            pending.append(line)
-            continue
-
-        # --- Key/value entry ---
-        m = _ENTRY_RE.match(line)
-        if m:
-            key = m.group("key")
-            if _normalize_key(key) in used_keys:
-                output.extend(pending)
-                output.append(line)
-            else:
-                removed.append(key)
-                # pending (the preceding comment) is discarded
-            pending = []
-            continue
-
-        # --- Anything else (should be rare in a well-formed .strings file) ---
-        output.extend(pending)
-        pending = []
-        output.append(line)
-
-    # Flush any trailing pending content (e.g. trailing comment with no entry after it)
-    output.extend(pending)
-
-    return "".join(output), removed
+    return filter_entries(strings_content, lambda key: _normalize_key(key) in used_keys)
 
 
 def delete_unused(strings_path: str, swift_dirs: list[str]) -> list[str]:

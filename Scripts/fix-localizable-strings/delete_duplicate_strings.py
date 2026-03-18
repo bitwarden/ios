@@ -7,12 +7,7 @@ preceding a removed duplicate (with no blank lines between them) is also
 removed.
 """
 
-import re
-
-# Matches a complete key/value entry line.
-_ENTRY_RE = re.compile(
-    r'^\s*"(?P<key>(?:[^"\\]|\\.)*)"\s*=\s*"(?:[^"\\]|\\.)*"\s*;\s*$'
-)
+from strings_file_utils import filter_entries
 
 
 def deduplicate(content: str) -> tuple[str, list[str]]:
@@ -31,68 +26,15 @@ def deduplicate(content: str) -> tuple[str, list[str]]:
         deduplicated file text and ``removed_keys`` is a list of keys that were
         removed, in the order they were encountered.
     """
-    lines = content.splitlines(keepends=True)
-    output: list[str] = []
-    # Lines buffered since the last blank line; these are candidate comments
-    # for the next entry. Flushed to output on a blank line or non-entry line.
-    pending: list[str] = []
     seen: set[str] = set()
-    removed: list[str] = []
-    in_block_comment = False
 
-    for line in lines:
-        stripped = line.strip()
+    def should_keep(key: str) -> bool:
+        if key in seen:
+            return False
+        seen.add(key)
+        return True
 
-        # --- Multi-line block comment continuation ---
-        if in_block_comment:
-            pending.append(line)
-            if "*/" in line:
-                in_block_comment = False
-            continue
-
-        # --- Blank line: break comment-entry association ---
-        if not stripped:
-            output.extend(pending)
-            pending = []
-            output.append(line)
-            continue
-
-        # --- Block comment start (does not end on the same line) ---
-        if stripped.startswith("/*") and "*/" not in stripped:
-            in_block_comment = True
-            pending.append(line)
-            continue
-
-        # --- Single-line comment (// or /* ... */ on one line) ---
-        if stripped.startswith("//") or (
-            stripped.startswith("/*") and stripped.endswith("*/")
-        ):
-            pending.append(line)
-            continue
-
-        # --- Key/value entry ---
-        m = _ENTRY_RE.match(line)
-        if m:
-            key = m.group("key")
-            if key not in seen:
-                seen.add(key)
-                output.extend(pending)
-                output.append(line)
-            else:
-                removed.append(key)
-                # pending (the preceding comment) is discarded
-            pending = []
-            continue
-
-        # --- Anything else (should be rare in a well-formed .strings file) ---
-        output.extend(pending)
-        pending = []
-        output.append(line)
-
-    # Flush any trailing pending content (e.g. trailing comment with no entry after it)
-    output.extend(pending)
-
-    return "".join(output), removed
+    return filter_entries(content, should_keep)
 
 
 def delete_duplicates(strings_path: str) -> list[str]:
