@@ -14,10 +14,31 @@ import re
 # Matches any `Localizations.identifier` reference in Swift source.
 _LOCALIZATIONS_RE = re.compile(r'Localizations\.([a-zA-Z_][a-zA-Z0-9_]*)')
 
+# Matches any character that is not valid in a Swift identifier.
+_NON_IDENTIFIER_RE = re.compile(r'[^a-zA-Z0-9_]')
+
 # Matches a complete key/value entry line.
 _ENTRY_RE = re.compile(
     r'^\s*"(?P<key>(?:[^"\\]|\\.)*)"\s*=\s*"(?:[^"\\]|\\.)*"\s*;\s*$'
 )
+
+
+def _normalize_key(key: str) -> str:
+    """Normalize a ``.strings`` key for comparison against a SwiftGen identifier.
+
+    SwiftGen strips characters that are not valid in Swift identifiers when
+    generating property names (e.g. ``"NeedSomeInspiration?"`` becomes
+    ``needSomeInspiration``). This function applies the same stripping and then
+    lowercases the result, matching the treatment applied to identifiers found
+    in Swift source via ``find_used_keys``.
+
+    Args:
+        key: A raw ``.strings`` key, possibly containing trailing punctuation.
+
+    Returns:
+        The normalized, lowercased key suitable for comparison.
+    """
+    return _NON_IDENTIFIER_RE.sub('', key).lower()
 
 
 def find_used_keys(swift_sources: list[str]) -> set[str]:
@@ -110,7 +131,7 @@ def delete_unused_content(
         m = _ENTRY_RE.match(line)
         if m:
             key = m.group("key")
-            if key.lower() in used_keys:
+            if _normalize_key(key) in used_keys:
                 output.extend(pending)
                 output.append(line)
             else:

@@ -111,6 +111,18 @@ class TestDeleteUnusedContent(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertEqual(removed, ["UnusedKey"])
 
+    def test_key_with_trailing_punctuation_matched(self):
+        # SwiftGen strips non-identifier characters: "NeedSomeInspiration?"
+        # becomes Localizations.needSomeInspiration in Swift.
+        content = (
+            '"NeedSomeInspiration?" = "Need some inspiration?";\n'
+            '"UnusedKey" = "Unused";\n'
+        )
+        expected = '"NeedSomeInspiration?" = "Need some inspiration?";\n'
+        result, removed = delete_unused_content(content, {"needsomeinspiration"})
+        self.assertEqual(result, expected)
+        self.assertEqual(removed, ["UnusedKey"])
+
     def test_unused_key_removed_sentinel_preserved(self):
         content = (
             '"About" = "About";\n'
