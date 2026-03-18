@@ -56,6 +56,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
+    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
@@ -183,6 +184,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func pinProtectedUserKeyEnvelope(userId: String) -> String? {
         pinProtectedUserKeyEnvelope[userId]
+    }
+
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool {
+        premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
@@ -315,6 +320,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         pinProtectedUserKeyEnvelope[userId] = key
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
+        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
