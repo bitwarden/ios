@@ -108,7 +108,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
                 return
             }
 
-            let hostname = await  services.serverCommunicationConfigClientSingleton.resolveHostname(
+            let hostname = await services.serverCommunicationConfigClientSingleton.resolveHostname(
                 hostname: webVaultURLHost,
             )
 

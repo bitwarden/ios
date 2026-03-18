@@ -42,6 +42,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
 
+    /// The proxy to call ``ASSettingsHelper`` functions.
+    let asSettingsHelperProxy: ASSettingsHelperProxy
+
     /// The repository used by the application to manage auth data for the UI layer.
     let authRepository: AuthRepository
 
@@ -226,6 +229,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///     it's running on.
     ///   - application: The application instance.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
+    ///   - asSettingsHelperProxy: The proxy to call ``ASSettingsHelper`` functions.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
     ///   - authenticatorSyncService: The service used by the application to sync TOTP codes with the Authenticator app.
@@ -298,6 +302,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         appInfoService: AppInfoService,
         application: Application?,
         appSettingsStore: AppSettingsStore,
+        asSettingsHelperProxy: ASSettingsHelperProxy,
         authRepository: AuthRepository,
         authService: AuthService,
         authenticatorSyncService: AuthenticatorSyncService,
@@ -362,6 +367,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.appInfoService = appInfoService
         self.application = application
         self.appSettingsStore = appSettingsStore
+        self.asSettingsHelperProxy = asSettingsHelperProxy
         self.authRepository = authRepository
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
@@ -476,6 +482,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             userSessionKeychainRepository: keychainRepository,
+        )
+
+        let asSettingsHelperProxy = DefaultASSettingsHelperProxy(
+            stateService: stateService,
+            timeProvider: timeProvider,
         )
 
         let flightRecorder = DefaultFlightRecorder(
@@ -1054,6 +1065,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appInfoService: appInfoService,
             application: application,
             appSettingsStore: appSettingsStore,
+            asSettingsHelperProxy: asSettingsHelperProxy,
             authRepository: authRepository,
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,

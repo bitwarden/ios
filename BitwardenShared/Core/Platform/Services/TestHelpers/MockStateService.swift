@@ -63,6 +63,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
     var getActiveAccountIdError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var lastRequestToTurnOnCredentialProvider: Date?
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
@@ -304,6 +305,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
 
     func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
         learnNewLoginActionCardStatus
+    }
+
+    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
+        lastRequestToTurnOnCredentialProvider
     }
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
@@ -611,6 +616,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         learnNewLoginActionCardStatus = status
+    }
+
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
+        lastRequestToTurnOnCredentialProvider = date
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {

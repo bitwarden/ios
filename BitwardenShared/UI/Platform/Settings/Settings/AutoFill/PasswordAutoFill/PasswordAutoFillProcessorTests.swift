@@ -1,19 +1,33 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import Foundation
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// MARK: - MockPasswordAutoFillProcessorDelegate
+
+class MockPasswordAutoFillProcessorDelegate: PasswordAutoFillProcessorDelegate {
+    var didEnableAutofillCalled = false
+
+    func didEnableAutofill() {
+        didEnableAutofillCalled = true
+    }
+}
+
 // MARK: - PasswordAutoFillProcessorTests
 
 class PasswordAutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var asSettingsHelperProxy: MockASSettingsHelperProxy!
     var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>!
+    var delegate: MockPasswordAutoFillProcessorDelegate!
     var errorReporter: MockErrorReporter!
     var notificationCenterService: MockNotificationCenterService!
     var stateService: MockStateService!
@@ -24,15 +38,19 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        asSettingsHelperProxy = MockASSettingsHelperProxy()
         autofillCredentialService = MockAutofillCredentialService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
+        delegate = MockPasswordAutoFillProcessorDelegate()
         errorReporter = MockErrorReporter()
         notificationCenterService = MockNotificationCenterService()
         stateService = MockStateService()
         subject = PasswordAutoFillProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: ServiceContainer.withMocks(
+                asSettingsHelperProxy: asSettingsHelperProxy,
                 autofillCredentialService: autofillCredentialService,
                 configService: configService,
                 errorReporter: errorReporter,
@@ -46,9 +64,11 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        asSettingsHelperProxy = nil
         autofillCredentialService = nil
         configService = nil
         coordinator = nil
+        delegate = nil
         errorReporter = nil
         notificationCenterService = nil
         stateService = nil
@@ -113,6 +133,24 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.events.isEmpty)
         XCTAssertEqual(coordinator.routes, [.dismiss])
         XCTAssertTrue(stateService.setAccountSetupAutofillCalled)
+        XCTAssertTrue(delegate.didEnableAutofillCalled)
+    }
+
+    /// `perform(_:)` with `.checkAutofillOnForeground` calls the delegate when autofill is successfully enabled.
+    @MainActor
+    func test_perform_checkAutofillOnForeground_callsDelegate() {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.checkAutofillOnForeground)
+        }
+        defer { task.cancel() }
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        waitFor(delegate.didEnableAutofillCalled)
+
+        XCTAssertTrue(delegate.didEnableAutofillCalled)
     }
 
     /// `perform(_:)` with `.checkAutofillOnForeground` logs an error is setAccountSetupAutofill fails
@@ -133,6 +171,72 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
         XCTAssertTrue(stateService.setAccountSetupAutofillCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertFalse(delegate.didEnableAutofillCalled)
+    }
+
+    /// `perform(_:)` with `.continueTapped` opens the verification code settings on iOS 17.
+    @MainActor
+    func test_perform_continueTapped_iOS17() async {
+        guard #available(iOS 17, *) else { return }
+        guard #unavailable(iOS 18) else { return }
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(asSettingsHelperProxy.openVerificationCodeAppSettingsCalled)
+    }
+
+    /// `perform(_:)` with `.continueTapped` sets a URL for older iOS versions.
+    @MainActor
+    func test_perform_continueTapped_preIOS17() async {
+        guard #unavailable(iOS 17) else { return }
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordOptions)
+    }
+
+    /// `perform(_:)` with `.continueTapped` on iOS 18 and `.cantRequest` opens the app settings.
+    @MainActor
+    func test_perform_continueTapped_iOS18_cantRequest() async {
+        guard #available(iOS 18, *) else { return }
+
+        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .cantRequest
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(asSettingsHelperProxy.openVerificationCodeAppSettingsCalled)
+    }
+
+    /// `perform(_:)` with `.continueTapped` on iOS 18 and credential provider turned on checks
+    /// autofill completion and calls the delegate.
+    @MainActor
+    func test_perform_continueTapped_iOS18_credentialProviderOn() async {
+        guard #available(iOS 18, *) else { return }
+
+        stateService.activeAccount = .fixture()
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .requestResult(true)
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertTrue(delegate.didEnableAutofillCalled)
+        XCTAssertEqual(stateService.accountSetupAutofill["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.continueTapped` on iOS 18 and credential provider turned off sets
+    /// setup to `.setUpLater` and navigates on completion.
+    @MainActor
+    func test_perform_continueTapped_iOS18_credentialProviderOff() async {
+        guard #available(iOS 18, *) else { return }
+
+        stateService.activeAccount = .fixture()
+        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .requestResult(false)
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertFalse(delegate.didEnableAutofillCalled)
+        XCTAssertEqual(stateService.accountSetupAutofill["1"], .setUpLater)
+        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
     }
 
     /// `perform(_:)` with `.turnAutoFillOnLaterButtonTapped` logs an error
@@ -149,5 +253,13 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.confirm)
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 }

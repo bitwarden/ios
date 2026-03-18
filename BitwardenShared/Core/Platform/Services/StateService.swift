@@ -224,6 +224,11 @@ protocol StateService: AnyObject {
     ///
     func getIntroCarouselShown() async -> Bool
 
+    /// Gets the time of the last request to turn on credential provider.
+    ///
+    /// - Returns: The last time a request to turn on credential provider was done.
+    func getLastRequestToTurnOnCredentialProvider() async -> Date?
+
     /// Gets the time of the last sync for a user.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -589,6 +594,20 @@ protocol StateService: AnyObject {
     ///
     func setIntroCarouselShown(_ shown: Bool) async
 
+    /// Sets the time of the last request to turn on credential provider.
+    ///
+    /// - Parameter date: The time of the last request to turn on credential provider.
+    ///
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async
+
+    /// Sets the time of the last sync for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The time of the last sync.
+    ///   - userId: The user ID associated with the last sync time.
+    ///
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
     /// Sets the status of Learn generator Action Card.
     ///
     /// - Parameter status: The status of Learn generator Action Card.
@@ -600,14 +619,6 @@ protocol StateService: AnyObject {
     /// - Parameter status: The status of Learn New Login Action Card.
     ///
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async
-
-    /// Sets the time of the last sync for a user ID.
-    ///
-    /// - Parameters:
-    ///   - date: The time of the last sync.
-    ///   - userId: The user ID associated with the last sync time.
-    ///
-    func setLastSyncTime(_ date: Date?, userId: String?) async throws
 
     /// Set pending login request data from a push notification.
     ///
@@ -985,7 +996,6 @@ extension StateService {
 
     /// Gets the time of the last sync for a user.
     ///
-    /// - Parameter userId: The user ID associated with the last sync time.
     /// - Returns: The user's last sync time.
     ///
     func getLastSyncTime() async throws -> Date? {
@@ -1638,6 +1648,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.introCarouselShown
     }
 
+    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
+        appSettingsStore.lastRequestToTurnOnCredentialProvider()
+    }
+
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastSyncTime(userId: userId)
@@ -1985,6 +1999,10 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         appSettingsStore.learnNewLoginActionCardStatus = status
+    }
+
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
+        appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {

@@ -102,6 +102,6 @@ class AutoFillViewTests: BitwardenTestCase {
 
         let button = try actionCard.find(asyncButton: Localizations.getStarted)
         try await button.tap()
-        XCTAssertEqual(processor.dispatchedActions, [.showSetUpAutofill])
+        XCTAssertEqual(processor.effects, [.setUpAutofill])
     }
 }
