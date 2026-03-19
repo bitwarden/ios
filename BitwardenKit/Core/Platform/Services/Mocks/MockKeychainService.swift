@@ -131,6 +131,18 @@ public extension MockKeychainService {
     /// Configures `searchResult` to return a dictionary containing string data.
     ///
     /// This is a convenience method for setting up common test scenarios where you want
+    /// the keychain search to return string data. The data is stored in a dictionary
+    /// with the `kSecValueData` key.
+    ///
+    /// - Parameter string: The string to return from search operations.
+    func setSearchResultData(_ data: Data) {
+        let dictionary = [kSecValueData as String: data]
+        searchResult = .success(dictionary as AnyObject)
+    }
+
+    /// Configures `searchResult` to return a dictionary containing string data.
+    ///
+    /// This is a convenience method for setting up common test scenarios where you want
     /// the keychain search to return string data. The string is converted to `Data` and
     /// stored in a dictionary with the `kSecValueData` key.
     ///

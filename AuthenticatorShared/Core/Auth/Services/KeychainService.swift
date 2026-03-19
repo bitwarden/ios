@@ -61,7 +61,3 @@ class DefaultKeychainService: KeychainService {
         }
     }
 }
-
-// MARK: - SharedKeychainService
-
-extension DefaultKeychainService: SharedKeychainService {}
