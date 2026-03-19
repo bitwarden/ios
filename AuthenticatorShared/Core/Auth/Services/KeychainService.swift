@@ -2,82 +2,19 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import Foundation
 
-// MARK: - KeychainService
-
-/// A Service to provide a wrapper around the device Keychain.
-///
-protocol KeychainService: AnyObject {
-    /// Creates an access control for a given set of flags.
-    ///
-    /// - Parameter flags: The `SecAccessControlCreateFlags` for the access control.
-    /// - Returns: The SecAccessControl.
-    ///
-    func accessControl(
-        for flags: SecAccessControlCreateFlags,
-    ) throws -> SecAccessControl
-
-    /// Adds a set of attributes.
-    ///
-    /// - Parameter attributes: Attributes to add.
-    ///
-    func add(attributes: CFDictionary) throws
-
-    /// Attempts a deletion based on a query.
-    ///
-    /// - Parameter query: Query for the delete.
-    ///
-    func delete(query: CFDictionary) throws
-
-    /// Searches for a query.
-    ///
-    /// - Parameter query: Query for the delete.
-    /// - Returns: The search results.
-    ///
-    func search(query: CFDictionary) throws -> AnyObject?
-
-    /// Updates an existing keychain item.
-    ///
-    /// - Parameters:
-    ///   - query: Query to identify the item to update.
-    ///   - attributes: New attributes to set.
-    ///
-    func update(query: CFDictionary, attributes: CFDictionary) throws
-}
-
-// MARK: - KeychainServiceError
-
-enum KeychainServiceError: Error, Equatable {
-    /// When creating an accessControl fails.
-    ///
-    /// - Parameter CFError: The potential system error.
-    ///
-    case accessControlFailed(CFError?)
-
-    /// When a `KeychainService` is unable to locate an auth key for a given storage key.
-    ///
-    /// - Parameter KeychainItem: The potential storage key for the auth key.
-    ///
-    case keyNotFound(KeychainItem)
-
-    /// A passthrough for OSService Error cases.
-    ///
-    /// - Parameter OSStatus: The `OSStatus` returned from a keychain operation.
-    ///
-    case osStatusError(OSStatus)
-}
-
 // MARK: - DefaultKeychainService
 
 class DefaultKeychainService: KeychainService {
     // MARK: Methods
 
     func accessControl(
+        protection: CFTypeRef,
         for flags: SecAccessControlCreateFlags,
     ) throws -> SecAccessControl {
         var error: Unmanaged<CFError>?
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
-            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            protection,
             flags,
             &error,
         )

@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - KeychainItem
 
-enum KeychainItem: Equatable {
+enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
@@ -198,6 +198,7 @@ class DefaultKeychainRepository: KeychainRepository {
     ///
     func setValue(_ value: String, for item: KeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
+            protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
             for: item.protection ?? [],
         )
         let baseQuery = await keychainQueryValues(for: item)
