@@ -178,12 +178,8 @@ Configured in `project-pm.yml`:
 - ✅ Use `coordinator.showErrorAlert(error:)` for consistent error presentation
 - ✅ Use `store.binding(get:send:)` for SwiftUI bindings backed by store state
 - ✅ Mark protocols with `// sourcery: AutoMockable` for mock generation
-- ✅ Co-locate test files with implementation files
 - ✅ Use `ServiceContainer.withMocks()` in tests
-- ✅ Write snapshot tests in light, dark, AND large dynamic type modes
-- ✅ Use `guard` clauses for early returns
-- ✅ Prefer value types (structs/enums) over reference types where appropriate
-- ✅ Use existing UI components from `BitwardenKit/UI/` before creating new ones
+- ✅ Write snapshot tests in light, dark, AND large dynamic type modes (prefix disabled tests with `disable`)
 
 ### DON'T
 
@@ -192,12 +188,8 @@ Configured in `project-pm.yml`:
 - ❌ Add new top-level subdirectories to `Core/` or `UI/` — use existing: `Auth/`, `Autofill/`, `Platform/`, `Tools/`, `Vault/`
 - ❌ Store sensitive data in UserDefaults or CoreData — use iOS Keychain via `KeychainRepository`
 - ❌ Log or persist unencrypted vault data — zero-knowledge architecture must be preserved
-- ❌ Skip input validation — use `InputValidator` utilities
 - ❌ Use `any` type for protocol-based dependencies — use generics or `Has*` composition
 - ❌ Create TODO comments without JIRA tickets — SwiftLint enforces `todo_without_jira`
-- ❌ Skip DocC documentation on new public types/methods
-- ❌ Use real services/network calls in tests — always use mocks
-- ❌ Hardcode credentials or API keys
 
 ## Deployment
 
