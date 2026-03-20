@@ -148,8 +148,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         }
 
         do {
-            let isOS = try await services.asSettingsMediator.requestToTurnOnCredentialProviderExtension()
-            guard isOS else { return }
+            let isOn = try await services.asSettingsMediator.requestToTurnOnCredentialProviderExtension()
+            guard isOn else { return }
 
             await dismissSetUpAutofillActionCard()
             state.toast = Toast(title: Localizations.autofillEnabled)
