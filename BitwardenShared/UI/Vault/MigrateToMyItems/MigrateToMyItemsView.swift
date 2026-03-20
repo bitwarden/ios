@@ -71,6 +71,8 @@ struct MigrateToMyItemsView: View {
                 .styleGuide(.body, weight: .semibold)
                 .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
                 .tint(SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor)
+                // we need this moved up a bit to look like it's continuing
+                // from the previous "message" paragraph without much space between them.
                 .padding(.top, -8)
             }
 
@@ -115,6 +117,8 @@ struct MigrateToMyItemsView: View {
                         .styleGuide(.body)
                         .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
                 }
+                // we need this moved up a bit to look like it's continuing
+                // from the previous "message" paragraph without much space between them.
                 .padding(.top, -8)
             }
 
