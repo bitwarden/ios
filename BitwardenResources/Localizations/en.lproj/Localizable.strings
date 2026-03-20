@@ -1286,7 +1286,6 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Leave %1$@";
-"HowToManageMyVault" = "How to manage My vault";
 "YouLeftTheOrganization" = "You left the organization";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
@@ -1326,3 +1325,4 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AcceptTransfer" = "Accept transfer";
