@@ -22,7 +22,8 @@ protocol ASSettingsMediator { // sourcery: AutoMockable
     /// Call this method from your containing app to request to turn on a contained Credential Provider Extension.
     /// If the extension is not currently enabled, a prompt will be shown to allow it to be turned on.
     ///
-    /// Throws: ``ASSettingsMediatorError/cantRequest`` if the required wait time has not elapsed since the last request.
+    /// Throws: ``ASSettingsMediatorError/cantRequest`` if the required wait time has
+    /// not elapsed since the last request.
     /// Returns: whether the credential provider is enabled.
     @available(iOS 18.0, *)
     func requestToTurnOnCredentialProviderExtension() async throws -> Bool

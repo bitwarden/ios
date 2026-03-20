@@ -121,6 +121,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     func test_perform_checkAutofillOnForeground_autofillEnabled_settings() {
         autofillCredentialService.isAutofillCredentialsEnabled = true
         subject.state.mode = .settings
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let task = Task {
             await subject.perform(.checkAutofillOnForeground)
