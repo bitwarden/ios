@@ -129,10 +129,6 @@ final class MigrateToMyItemsProcessor: StateProcessor<
         do {
             try await services.authRepository.revokeSelfFromOrganization(organizationId: state.organizationId)
             coordinator.hideLoadingOverlay()
-            await services.eventService.collect(
-                eventType: .organizationItemOrganizationDeclined,
-                organizationId: state.organizationId,
-            )
             delegate?.didLeaveOrganization()
         } catch {
             coordinator.hideLoadingOverlay()

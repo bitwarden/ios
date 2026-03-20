@@ -48,5 +48,4 @@ public enum EventType: Int, Codable, Sendable {
     case organizationClientExportedVault = 1602
 
     case organizationItemOrganizationAccepted = 1618
-    case organizationItemOrganizationDeclined = 1619
 }
