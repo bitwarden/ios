@@ -10,7 +10,7 @@ import XCTest
 class AutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var asSettingsHelperProxy: MockASSettingsHelperProxy!
+    var asSettingsMediator: MockASSettingsMediator!
     var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
@@ -24,7 +24,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        asSettingsHelperProxy = MockASSettingsHelperProxy()
+        asSettingsMediator = MockASSettingsMediator()
         autofillCredentialService = MockAutofillCredentialService()
         configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
@@ -35,7 +35,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
         subject = AutoFillProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                asSettingsHelperProxy: asSettingsHelperProxy,
+                asSettingsMediator: asSettingsMediator,
                 autofillCredentialService: autofillCredentialService,
                 configService: configService,
                 errorReporter: errorReporter,
@@ -49,7 +49,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        asSettingsHelperProxy = nil
+        asSettingsMediator = nil
         autofillCredentialService = nil
         configService = nil
         coordinator = nil
@@ -130,7 +130,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     func test_perform_setUpAutofill_cantRequest() async {
         guard #available(iOS 18, *) else { return }
 
-        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .cantRequest
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionThrowableError = ASSettingsMediatorError.cantRequest
 
         await subject.perform(.setUpAutofill)
 
@@ -145,7 +145,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
         guard #available(iOS 18, *) else { return }
 
         stateService.activeAccount = .fixture()
-        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .requestResult(true)
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionReturnValue = true
 
         await subject.perform(.setUpAutofill)
 
@@ -158,7 +158,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     func test_perform_setUpAutofill_credentialProviderOff() async {
         guard #available(iOS 18, *) else { return }
 
-        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .requestResult(false)
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionReturnValue = false
 
         await subject.perform(.setUpAutofill)
 

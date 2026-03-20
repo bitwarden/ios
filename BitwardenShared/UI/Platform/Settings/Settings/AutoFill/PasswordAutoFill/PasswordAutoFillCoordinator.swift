@@ -19,7 +19,7 @@ protocol PasswordAutoFillCoordinatorDelegate: AnyObject {
 class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasASSettingsHelperProxy
+    typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
         & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices

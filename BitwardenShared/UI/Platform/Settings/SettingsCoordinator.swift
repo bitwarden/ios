@@ -62,7 +62,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & PasswordAutoFillModule
         & SelectLanguageModule
 
-    typealias Services = HasASSettingsHelperProxy
+    typealias Services = HasASSettingsMediator
         & HasAccountAPIService
         & HasAppInfoService
         & HasAuthRepository

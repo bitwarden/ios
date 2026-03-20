@@ -23,7 +23,7 @@ class MockPasswordAutoFillProcessorDelegate: PasswordAutoFillProcessorDelegate {
 class PasswordAutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var asSettingsHelperProxy: MockASSettingsHelperProxy!
+    var asSettingsMediator: MockASSettingsMediator!
     var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>!
@@ -38,7 +38,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        asSettingsHelperProxy = MockASSettingsHelperProxy()
+        asSettingsMediator = MockASSettingsMediator()
         autofillCredentialService = MockAutofillCredentialService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
@@ -50,7 +50,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
-                asSettingsHelperProxy: asSettingsHelperProxy,
+                asSettingsMediator: asSettingsMediator,
                 autofillCredentialService: autofillCredentialService,
                 configService: configService,
                 errorReporter: errorReporter,
@@ -64,7 +64,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        asSettingsHelperProxy = nil
+        asSettingsMediator = nil
         autofillCredentialService = nil
         configService = nil
         coordinator = nil
@@ -182,7 +182,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
 
         await subject.perform(.continueTapped)
 
-        XCTAssertTrue(asSettingsHelperProxy.openVerificationCodeAppSettingsCalled)
+        XCTAssertTrue(asSettingsMediator.openVerificationCodeAppSettingsCalled)
     }
 
     /// `perform(_:)` with `.continueTapped` sets a URL for older iOS versions.
@@ -200,11 +200,11 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     func test_perform_continueTapped_iOS18_cantRequest() async {
         guard #available(iOS 18, *) else { return }
 
-        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .cantRequest
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionThrowableError = ASSettingsMediatorError.cantRequest
 
         await subject.perform(.continueTapped)
 
-        XCTAssertTrue(asSettingsHelperProxy.openVerificationCodeAppSettingsCalled)
+        XCTAssertTrue(asSettingsMediator.openVerificationCodeAppSettingsCalled)
     }
 
     /// `perform(_:)` with `.continueTapped` on iOS 18 and credential provider turned on checks
@@ -215,7 +215,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
 
         stateService.activeAccount = .fixture()
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .requestResult(true)
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionReturnValue = true
 
         await subject.perform(.continueTapped)
 
@@ -230,7 +230,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
         guard #available(iOS 18, *) else { return }
 
         stateService.activeAccount = .fixture()
-        asSettingsHelperProxy.requestToTurnOnCredentialProviderExtensionReturnValue = .requestResult(false)
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionReturnValue = false
 
         await subject.perform(.continueTapped)
 

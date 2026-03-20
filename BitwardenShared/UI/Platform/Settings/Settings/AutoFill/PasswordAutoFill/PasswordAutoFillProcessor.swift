@@ -13,7 +13,7 @@ final class PasswordAutoFillProcessor: StateProcessor<
     // MARK: Types
 
     /// The services used by this processor.
-    typealias Services = HasASSettingsHelperProxy
+    typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
         & HasConfigService
         & HasErrorReporter
@@ -82,13 +82,9 @@ final class PasswordAutoFillProcessor: StateProcessor<
     /// Attempts to turn on credential provider for autofill or navigate to the OS specific settings.
     private func attemptToTurnOnCredentialProvider() async {
         if #available(iOS 18, *) {
-            let result = await services.asSettingsHelperProxy.requestToTurnOnCredentialProviderExtension()
-
-            switch result {
-            case .cantRequest:
-                try? await services.asSettingsHelperProxy.openVerificationCodeAppSettings()
-            case let .requestResult(isCredentialProviderOn):
-                guard isCredentialProviderOn else {
+            do {
+                let isOn = try await services.asSettingsMediator.requestToTurnOnCredentialProviderExtension()
+                guard isOn else {
                     do {
                         try await services.stateService.setAccountSetupAutofill(.setUpLater)
                     } catch {
@@ -97,11 +93,15 @@ final class PasswordAutoFillProcessor: StateProcessor<
                     await navigateOnCompletion()
                     return
                 }
+            } catch ASSettingsMediatorError.cantRequest {
+                try? await services.asSettingsMediator.openVerificationCodeAppSettings()
+            } catch {
+                services.errorReporter.log(error: error)
             }
 
             await checkAutofillCompletion()
         } else if #available(iOS 17, *) {
-            try? await services.asSettingsHelperProxy.openVerificationCodeAppSettings()
+            try? await services.asSettingsMediator.openVerificationCodeAppSettings()
         } else {
             state.url = ExternalLinksConstants.passwordOptions
         }

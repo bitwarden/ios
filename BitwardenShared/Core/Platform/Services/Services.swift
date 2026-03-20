@@ -4,7 +4,7 @@ import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
-    & HasASSettingsHelperProxy
+    & HasASSettingsMediator
     & HasAccountAPIService
     & HasAppContextHelper
     & HasAppIdService
@@ -116,11 +116,11 @@ protocol HasAuthAPIService {
     var authAPIService: AuthAPIService { get }
 }
 
-/// Protocol for an object that provides an `ASSettingsHelperProxy`.
+/// Protocol for an object that provides an `ASSettingsMediator`.
 ///
-protocol HasASSettingsHelperProxy {
-    /// The proxy to call ``ASSettingsHelper`` functions.
-    var asSettingsHelperProxy: ASSettingsHelperProxy { get }
+protocol HasASSettingsMediator {
+    /// The mediator to call ``ASSettingsHelper`` functions with additional business logic.
+    var asSettingsMediator: ASSettingsMediator { get }
 }
 
 /// Protocol for an object that provides an `AuthRepository`.

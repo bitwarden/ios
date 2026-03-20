@@ -8,7 +8,7 @@ import BitwardenResources
 final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, AutoFillEffect> {
     // MARK: Types
 
-    typealias Services = HasASSettingsHelperProxy
+    typealias Services = HasASSettingsMediator
         & HasAutofillCredentialService
         & HasConfigService
         & HasErrorReporter
@@ -147,16 +147,16 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             return
         }
 
-        let result = await services.asSettingsHelperProxy.requestToTurnOnCredentialProviderExtension()
-
-        switch result {
-        case .cantRequest:
-            coordinator.navigate(to: .passwordAutoFill, context: self)
-        case let .requestResult(isCredentialProviderOn):
-            guard isCredentialProviderOn else { return }
+        do {
+            let isOS = try await services.asSettingsMediator.requestToTurnOnCredentialProviderExtension()
+            guard isOS else { return }
 
             await dismissSetUpAutofillActionCard()
             state.toast = Toast(title: Localizations.autofillEnabled)
+        } catch ASSettingsMediatorError.cantRequest {
+            coordinator.navigate(to: .passwordAutoFill, context: self)
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 
@@ -212,20 +212,5 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         coordinator.showAlert(.learnMoreAdvancedMatchingDetection(defaultUriMatchTypeName) {
             self.state.url = ExternalLinksConstants.uriMatchDetections
         })
-    }
-}
-
-// MARK: - PasswordAutoFillProcessorDelegate
-
-/// A delegate to notify when autofill was successfully enabled from the password autofill screen.
-///
-protocol PasswordAutoFillProcessorDelegate: AnyObject {
-    /// Called when autofill was successfully enabled.
-    func didEnableAutofill()
-}
-
-extension AutoFillProcessor: PasswordAutoFillProcessorDelegate {
-    func didEnableAutofill() {
-        state.toast = Toast(title: Localizations.autofillEnabled)
     }
 }
