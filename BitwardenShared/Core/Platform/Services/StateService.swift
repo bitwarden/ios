@@ -292,7 +292,7 @@ protocol StateService: AnyObject {
     ///   Defaults to the active account if `nil`.
     /// - Returns: Whether the premium upgrade banner has been dismissed.
     ///
-    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
+    func getPremiumUpgradeBannerDismissed(userId: String? = nil) async throws -> Bool
 
     /// Gets the environment URLs for a given email during account creation.
     ///
