@@ -36,8 +36,8 @@ class DefaultASSettingsMediator: ASSettingsMediator {
     /// The proxy used to make ``ASSettingsHelper`` calls.
     private let asSettingsHelperProxy: ASSettingsHelperProxy
 
-    /// The service used to get and set per-user state.
-    private let stateService: StateService
+    /// The service used to get and set state around autofill.
+    private let stateService: AutofillStateService
 
     /// The provider used to get the current time.
     private let timeProvider: TimeProvider
@@ -48,11 +48,11 @@ class DefaultASSettingsMediator: ASSettingsMediator {
     ///
     /// - Parameters:
     ///   - asSettingsHelperProxy: The proxy used to make ``ASSettingsHelper`` calls.
-    ///   - stateService: The service used to get and set per-user state.
+    ///   - stateService: The service used to get and set state around autofill.
     ///   - timeProvider: The provider used to get the current time.
     init(
         asSettingsHelperProxy: ASSettingsHelperProxy,
-        stateService: StateService,
+        stateService: AutofillStateService,
         timeProvider: TimeProvider
     ) {
         self.asSettingsHelperProxy = asSettingsHelperProxy
