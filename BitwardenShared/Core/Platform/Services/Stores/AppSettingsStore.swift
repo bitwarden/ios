@@ -1307,3 +1307,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .shouldTrustDevice(userId: userId))
     }
 }
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appId) }
+        set { store(newValue, for: .appId) }
+    }
+}
