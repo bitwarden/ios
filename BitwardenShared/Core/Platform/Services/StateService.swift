@@ -292,7 +292,7 @@ protocol StateService: AnyObject {
     ///   Defaults to the active account if `nil`.
     /// - Returns: Whether the premium upgrade banner has been dismissed.
     ///
-    func getPremiumUpgradeBannerDismissed(userId: String? = nil) async throws -> Bool
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
     /// Gets the environment URLs for a given email during account creation.
     ///
@@ -1033,6 +1033,14 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
+    /// Gets whether the premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
+        try await getPremiumUpgradeBannerDismissed(userId: nil)
+    }
+
     /// Gets whether Siri & Shortcuts access is enabled for the active account.
     /// - Returns: Whether Siri & Shortcuts access is enabled.
     func getSiriAndShortcutsAccess() async throws -> Bool {
@@ -1279,6 +1287,14 @@ extension StateService {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?) async throws {
         try await setPasswordGenerationOptions(options, userId: nil)
+    }
+
+    /// Sets whether the premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Parameter dismissed: Whether the premium upgrade banner has been dismissed.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
+        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
     }
 
     /// Sets the app rehydration state for the active account.
