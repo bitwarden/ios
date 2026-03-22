@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "이미 추가된 계정입니다.";
 "SwitchToAlreadyAddedAccountConfirmation" = "해당 계정으로 전환할까요?";
 "MasterPassword" = "마스터 비밀번호";
-"More" = "자세히";
+"MoreOptions" = "More options";
 "MyVault" = "내 보관함";
 "Authenticator" = "인증기";
 "Name" = "이름";
@@ -102,7 +102,7 @@
 "BitwardenAppExtensionDescription" = "Safari 및 다른 앱에서 Bitwarden을 사용하여 로그인을 자동 완성하십시오.";
 "BitwardenAutofillService" = "Bitwarden 자동 완성 서비스";
 "BitwardenAutofillAccessibilityServiceDescription" = "자동 완성 서비스를 사용하려면 Bitwarden 접근성 서비스를 사용 설정하십시오.";
-"ChangeEmailAddress" = "이메일 주소 변경ㅂ";
+"ChangeEmailAddress" = "이메일 주소 변경";
 "ChangeEmailConfirmation" = "bitwarden.com 웹 보관함에서 이메일 주소를 바꿀 수 있습니다. 지금 웹 사이트를 방문하시겠습니까?";
 "ChangeMasterPassword" = "마스터 비밀번호 변경";
 "Close" = "닫기";
@@ -208,6 +208,7 @@
 "Status" = "상태";
 "BitwardenAutofillServiceAlert2" = "보관함에 새 로그인을 추가하는 가장 쉬운 방법은 Bitwarden 자동 완성 서비스를 사용하는 것입니다. \"설정\" 화면으로 이동하여 Bitwarden 자동 완성 서비스에 대해 더 자세히 알아보세요.";
 "Autofill" = "자동 완성";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "이 항목을 보거나 자동 완성하시겠습니까?";
 "BitwardenAutofillServiceMatchConfirm" = "정말 이 항목을 자동 완성하시겠습니까? \"%1$@\"에 완벽히 일치하는 항목이 아닙니다.";
 "MatchingItems" = "일치하는 항목";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "새 로그인 요청 푸시 알림 받기";
 "NoThanks" = "아니요, 괜찮습니다";
 "ConfimLogInAttempForX" = "%1$@(으)로의 로그인 시도 확인";
+"ConfirmLogInAttemptForX" = "%1$@(으)로의 로그인 시도 확인";
 "AllNotifications" = "모든 알림";
 "PasswordType" = "비밀번호 유형";
 "WhatWouldYouLikeToGenerate" = "무엇을 생성하실 건가요?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "%1$@ 떠나기";
-"HowToManageMyVault" = "내 보관함을 관리하는 법";
 "YouLeftTheOrganization" = "조직을 떠났습니다";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Your organization has set the default session timeout to never.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Your organization has set the default session timeout to on app restart.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
 "HiddenItems" = "숨긴 항목";
 "Archive" = "Archive";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

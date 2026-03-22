@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Conta já adicionada";
 "SwitchToAlreadyAddedAccountConfirmation" = "Gostaria de alterar para a adicionada agora?";
 "MasterPassword" = "Palavra-passe mestra";
-"More" = "Mais";
+"MoreOptions" = "Mais opções";
 "MyVault" = "O meu cofre";
 "Authenticator" = "Autenticador";
 "Name" = "Nome";
@@ -208,6 +208,7 @@
 "Status" = "Estado";
 "BitwardenAutofillServiceAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é a partir do Serviço de preenchimento automático do Bitwarden. Saiba mais sobre como utilizar o Serviço de preenchimento automático do Bitwarden ao navegar até ao ecrã “Definições”.";
 "Autofill" = "Preenchimento automático";
+"AutofillEnabled" = "Preenchimento automático ativado";
 "AutofillOrView" = "Pretende preencher automaticamente ou ver este item?";
 "BitwardenAutofillServiceMatchConfirm" = "Tem a certeza de que pretende preencher automaticamente este item? Não é uma correspondência completa para “%1$@”.";
 "MatchingItems" = "Itens correspondentes";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Receber notificações push de novos pedidos de início de sessão";
 "NoThanks" = "Não, obrigado";
 "ConfimLogInAttempForX" = "Confirmar tentativa de início de sessão de %1$@";
+"ConfirmLogInAttemptForX" = "Confirmar tentativa de início de sessão de %1$@";
 "AllNotifications" = "Todas as notificações";
 "PasswordType" = "Tipo de palavra-passe";
 "WhatWouldYouLikeToGenerate" = "O que é que gostaria de gerar?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Ao recusar, os seus itens pessoais permanecerão na sua conta, mas perderá o acesso aos itens partilhados e às funcionalidades da organização.";
 "ContactYourAdminToRegainAccess" = "Entre em contacto com o seu administrador para recuperar o acesso.";
 "LeaveX" = "Sair de %1$@";
-"HowToManageMyVault" = "Como gerir o meu cofre";
 "YouLeftTheOrganization" = "Saiu da organização";
 "ItemTransferRequiresMainAppDescriptionLong" = "Uma organização está a solicitar a titularidade dos seus itens pessoais. Abra a app principal do Bitwarden para rever e concluir este pedido.";
 "ThisSettingIsManagedByYourOrganization" = "Esta configuração é gerida pela sua organização.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A sua organização definiu o tempo limite predefinido da sessão como %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A sua organização definiu o tempo limite máximo da sessão para %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "A sua organização definiu o tempo limite predefinido da sessão como nunca.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "A sua organização definiu o tempo limite predefinido da sessão para ao reiniciar a app.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A sua organização definiu o tempo limite máximo da sessão para %1$@ e %2$@.";
 "HiddenItems" = "Itens ocultos";
 "Archive" = "Arquivo";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Partilhar com pessoas específicas é uma funcionalidade Premium. O seu plano atual não inclui acesso a esta funcionalidade.";
 "SsoCookiesCleared" = "Cookies de SSO limpos";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "O seu pedido foi interrompido porque a app precisou de voltar a autenticar. Por favor, tente novamente.";
+"AutofillWithBitwardenDescriptionLong" = "O Bitwarden pode sugerir as suas palavras-passe e outras credenciais quando inicia sessão em apps e sites.";
+"LearnMoreAboutAutofill" = "Saiba mais sobre o preenchimento automático";
+"TurnOnNow" = "Ativar agora";
+"AcceptTransfer" = "Aceitar transferência";

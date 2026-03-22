@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Konts jau ir pievienots";
 "SwitchToAlreadyAddedAccountConfirmation" = "Vai pārslēgties uz to?";
 "MasterPassword" = "Galvenā parole";
-"More" = "Vairāk";
+"MoreOptions" = "More options";
 "MyVault" = "Mana glabātava";
 "Authenticator" = "Autentificētājs";
 "Name" = "Nosaukums";
@@ -208,6 +208,7 @@
 "Status" = "Stāvoklis";
 "BitwardenAutofillServiceAlert2" = "Vieglākais veids, kā glabātavā pievienot jaunus pieteikšanās vienumus, ir ar Bitwarden automātiskās aizpildes pakalpojumu. Vairāk par Bitwarden automātisko aizpildi var uzzināt iestatījumu skatā.";
 "Autofill" = "Automātiskā aizpilde";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Automātiski aizpildīt vai apskatīt šo vienumu?";
 "BitwardenAutofillServiceMatchConfirm" = "Vai tiešām automātiski aizpildīt ar šo vienumu? Tam nav pilnīgas saderības ar \"%1$@\".";
 "MatchingItems" = "Atbilstošie vienumi";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Saņemt uznirstošos paziņojumus par jauniem pieteikšanās pieprasījumiem";
 "NoThanks" = "Nē, paldies!";
 "ConfimLogInAttempForX" = "Apstiprināt %1$@ pieteikšanās mēģinājumu";
+"ConfirmLogInAttemptForX" = "Apstiprināt %1$@ pieteikšanās mēģinājumu";
 "AllNotifications" = "Visi paziņojumi";
 "PasswordType" = "Paroles veids";
 "WhatWouldYouLikeToGenerate" = "Ko ir nepieciešams izveidot?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Pēc noraidīšanas personīgie vienumi paliks Tavā kontā, bet Tu zaudēsi piekļvuvi kopīgotajiem vienumiem un apvienību iespējām.";
 "ContactYourAdminToRegainAccess" = "Jāsazinās ar savu pārvaldītāju, lai atgūtu piekļuvi.";
 "LeaveX" = "Pamest %1$@";
-"HowToManageMyVault" = "Kā pārvaldīt savu glabātavu";
 "YouLeftTheOrganization" = "Tu pameti apvienību";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Šo iestatījumu pārvalda apvienība.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Apvienība ir iestatījusi noklusējuma sesijas noildzi uz %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz “nekad”.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi līdz lietotnes atkārtotai palaišanai.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Apvienība ir iestatījusi lielāko pieļaujamo sesijas noildzi uz %1$@ un %2$@.";
 "HiddenItems" = "Paslēptie vienumi";
 "Archive" = "Arhīvs";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

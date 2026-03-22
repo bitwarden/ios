@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Налог је већ додат";
 "SwitchToAlreadyAddedAccountConfirmation" = "Да ли желите да га отворите сада?";
 "MasterPassword" = "Главна Лозинка";
-"More" = "Више";
+"MoreOptions" = "More options";
 "MyVault" = "Мој Сеф";
 "Authenticator" = "Аутентификатор";
 "Name" = "Име";
@@ -208,6 +208,7 @@
 "Status" = "Статус";
 "BitwardenAutofillServiceAlert2" = "Најлакши начин за додавање нових пријава у свој сеф је из сервиса ауто-попуњавања Bitwarden-а. Сазнајте више о коришћењу сервиса ауто-попуњавања Bitwarden-а преко екрана „Подешавања“.";
 "Autofill" = "Аутоматско попуњавање";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Да ли желиш да аутоматски попуниш или само да погледаш ову ставку?";
 "BitwardenAutofillServiceMatchConfirm" = "Да ли сте сигурни да желите да ауто-попуните ову ставку? Није потпуно подударање за „%1$@“.";
 "MatchingItems" = "Ставке које се подударају";
@@ -687,6 +688,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Примајте обавештења за нове захтеве за пријаву";
 "NoThanks" = "Не, хвала";
 "ConfimLogInAttempForX" = "Потврдити пријаву за %1$@";
+"ConfirmLogInAttemptForX" = "Потврдити пријаву за %1$@";
 "AllNotifications" = "Сва обавештења";
 "PasswordType" = "Тип лозинке";
 "WhatWouldYouLikeToGenerate" = "Шта желите да генеришете?";
@@ -1282,16 +1284,17 @@
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
 "DeclineAndLeave" = "Decline and leave";
 "WhyAmISeeingThis" = "Why am I seeing this?";
-"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"AreYouSureYouWantToLeave" = "Јесте ли сигурни да желите да напустите “[%1$s]”?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Напустити %1$@";
-"HowToManageMyVault" = "Како да управљам својим сефом";
 "YouLeftTheOrganization" = "Напустили сте организацију";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Овим подешавањем управља ваша организација.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша организација је поставила подразумевано временско ограничење сесије на %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организација је поставила максимално временско ограничење сесије на %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Ваша организација је поставила подразумевано временско ограничење сесије на никада.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Ваша организација је подесила подразумевано временско ограничење сесије на поновно покретање апликације.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организација је подесила максимално временско ограничење сесије на %1$@ и %2$@.";
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
@@ -1324,3 +1327,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

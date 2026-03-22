@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Аккаунт уже добавлен";
 "SwitchToAlreadyAddedAccountConfirmation" = "Хотите переключиться на него?";
 "MasterPassword" = "Мастер-пароль";
-"More" = "Еще";
+"MoreOptions" = "Больше опций";
 "MyVault" = "Хранилище";
 "Authenticator" = "Аутентификатор";
 "Name" = "Название";
@@ -208,6 +208,7 @@
 "Status" = "Статус";
 "BitwardenAutofillServiceAlert2" = "Самый простой способ добавить новые логины в ваше хранилище – это служба автозаполнения Bitwarden. Дополнительные сведения об использовании службы автозаполнения Bitwarden в разделе “Настройки”.";
 "Autofill" = "Автозаполнение";
+"AutofillEnabled" = "Автозаполнение включено";
 "AutofillOrView" = "Выполнить автозаполнение или просмотреть этот элемент?";
 "BitwardenAutofillServiceMatchConfirm" = "Вы действительно хотите использовать этот элемент? Это неточное соответствие для “%1$@”.";
 "MatchingItems" = "Соответствующие элементы";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Получайть push-уведомления о новых запросах на вход";
 "NoThanks" = "Нет, спасибо";
 "ConfimLogInAttempForX" = "Подтвердите попытку входа для %1$@";
+"ConfirmLogInAttemptForX" = "Подтвердите попытку входа для %1$@";
 "AllNotifications" = "Все уведомления";
 "PasswordType" = "Тип пароля";
 "WhatWouldYouLikeToGenerate" = "Что вы хотите сгенерировать?";
@@ -1287,12 +1289,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации.";
 "ContactYourAdminToRegainAccess" = "Свяжитесь с вашим администратором для восстановления доступа.";
 "LeaveX" = "Покинуть %1$@";
-"HowToManageMyVault" = "Как управлять моим хранилищем";
 "YouLeftTheOrganization" = "Вы покинули организацию";
 "ItemTransferRequiresMainAppDescriptionLong" = "Организация запрашивает право собственности на ваши личные элементы. Откройте основное приложение Bitwarden, чтобы просмотреть и выполнить этот запрос.";
 "ThisSettingIsManagedByYourOrganization" = "Эта настройка управляется вашей организацией.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша организация установила тайм-аут сессии по умолчанию равным %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организация установила максимальный тайм-аут сессии равным %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Ваша организация не установила тайм-аут сессии по умолчанию.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Ваша организация установила тайм-аут сессии по умолчанию при перезапуске приложения.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организация установила максимальный тайм-аут сессии %1$@ и %2$@.";
 "HiddenItems" = "Скрытые элементы";
 "Archive" = "Архив";
@@ -1325,3 +1328,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Совместное использование с конкретными пользователями является Премиум функцией. Она не входит в ваш текущий тарифный план.";
 "SsoCookiesCleared" = "Cookie SSO очищены";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запрос был прерван, поскольку приложению потребовалась повторная аутентификация. Повторите попытку.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden может предлагать ваши пароли и другие учетные данные при авторизации в приложениях и на сайтах.";
+"LearnMoreAboutAutofill" = "Узнать больше об автозаполнении";
+"TurnOnNow" = "Включить сейчас";
+"AcceptTransfer" = "Принять передачу";
