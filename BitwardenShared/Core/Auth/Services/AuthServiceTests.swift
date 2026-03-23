@@ -63,7 +63,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         subject = DefaultAuthService(
             accountAPIService: accountAPIService,
-            appIdService: AppIdService(appSettingStore: appSettingsStore),
+            appIDService: AppIDService(appIDSettingsStore: appSettingsStore),
             authAPIService: authAPIService,
             clientService: clientService,
             configService: configService,

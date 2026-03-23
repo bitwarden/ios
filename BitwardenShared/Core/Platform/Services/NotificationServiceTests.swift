@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
@@ -42,7 +43,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         syncService = MockSyncService()
 
         subject = DefaultNotificationService(
-            appIdService: AppIdService(appSettingStore: appSettingsStore),
+            appIDService: AppIDService(appIDSettingsStore: appSettingsStore),
             authRepository: authRepository,
             authService: authService,
             configService: configService,

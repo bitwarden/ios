@@ -10,7 +10,7 @@ public actor AppIDService {
 
     // MARK: Initialization
 
-    /// Initialize an `AppIdService`.
+    /// Initialize an `AppIDService`.
     ///
     /// - Parameter appSettingStore: The app settings store used to persist app values.
     ///

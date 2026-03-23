@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -11,7 +12,7 @@ import XCTest
 class TrustDeviceServiceTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appIdService: AppIdService!
+    var appIDService: AppIDService!
     var appSettingsStore: MockAppSettingsStore!
     var authAPIService: AuthAPIService!
     var clientService: MockClientService!
@@ -27,14 +28,14 @@ class TrustDeviceServiceTests: BitwardenTestCase {
 
         client = MockHTTPClient()
         appSettingsStore = MockAppSettingsStore()
-        appIdService = AppIdService(appSettingStore: appSettingsStore)
+        appIDService = AppIDService(appIDSettingsStore: appSettingsStore)
         authAPIService = APIService(client: client)
         clientService = MockClientService()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
 
         subject = DefaultTrustDeviceService(
-            appIdService: appIdService,
+            appIDService: appIDService,
             authAPIService: authAPIService,
             clientService: clientService,
             keychainRepository: keychainRepository,
@@ -45,7 +46,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
 
     override func tearDown() async throws {
         try await super.tearDown()
-        appIdService = nil
+        appIDService = nil
         authAPIService = nil
         client = nil
         clientService = nil

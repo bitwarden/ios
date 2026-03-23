@@ -96,7 +96,7 @@ extension ServiceContainer {
                 environmentService: environmentService,
             ),
             appContextHelper: appContextHelper,
-            appIdService: AppIdService(appSettingStore: appIDSettingsStore),
+            appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             appInfoService: appInfoService,
             application: application,
             appSettingsStore: appSettingsStore,

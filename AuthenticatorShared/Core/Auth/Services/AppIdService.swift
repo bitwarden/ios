@@ -2,7 +2,7 @@ import Foundation
 
 /// A service that manages getting and creating the app's ID.
 ///
-actor AppIdService {
+actor AppIDService {
     // MARK: Properties
 
     /// The app settings store used to persist app values.
@@ -10,7 +10,7 @@ actor AppIdService {
 
     // MARK: Initialization
 
-    /// Initialize an `AppIdService`.
+    /// Initialize an `AppIDService`.
     ///
     /// - Parameter appSettingStore: The app settings store used to persist app values.
     ///
@@ -24,7 +24,7 @@ actor AppIdService {
     ///
     /// - Returns: The app's ID.
     ///
-    func getOrCreateAppId() -> String {
+    func getOrCreateAppID() -> String {
         if let appId = appSettingStore.appId {
             return appId
         } else {

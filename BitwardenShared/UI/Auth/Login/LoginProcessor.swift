@@ -11,7 +11,7 @@ import Foundation
 class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Types
 
-    typealias Services = HasAppIdService
+    typealias Services = HasAppIDService
         & HasAuthRepository
         & HasAuthService
         & HasConfigService
@@ -149,7 +149,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         }
 
         do {
-            let deviceIdentifier = await services.appIdService.getOrCreateAppId()
+            let deviceIdentifier = await services.appIDService.getOrCreateAppID()
             let isKnownDevice = try await services.deviceAPIService.knownDevice(
                 email: state.username,
                 deviceIdentifier: deviceIdentifier,

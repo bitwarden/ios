@@ -22,8 +22,8 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
         appSettingsStore = MockAppSettingsStore()
         keychainService = MockKeychainService()
         subject = DefaultKeychainRepository(
-            appIdService: AppIdService(
-                appSettingStore: appSettingsStore,
+            appIDService: AppIDService(
+                appIDSettingsStore: appSettingsStore,
             ),
             keychainService: keychainService,
         )

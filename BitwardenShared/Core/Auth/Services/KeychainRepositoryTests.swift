@@ -23,8 +23,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         appSettingsStore = MockAppSettingsStore()
         keychainService = MockKeychainService()
         subject = DefaultKeychainRepository(
-            appIdService: AppIdService(
-                appSettingStore: appSettingsStore,
+            appIDService: AppIDService(
+                appIDSettingsStore: appSettingsStore,
             ),
             keychainService: keychainService,
         )
