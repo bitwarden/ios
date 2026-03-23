@@ -426,3 +426,14 @@ extension MockAppSettingsStore {
         biometricAuthenticationEnabled[userId] = isEnabled
     }
 }
+
+extension MockAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get {
+            appId
+        }
+        set(newValue) {
+            appId = newValue
+        }
+    }
+}

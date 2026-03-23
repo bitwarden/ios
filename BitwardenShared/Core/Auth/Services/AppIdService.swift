@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// A service that manages getting and creating the app's ID.
@@ -6,7 +7,7 @@ actor AppIdService {
     // MARK: Properties
 
     /// The app settings store used to persist app values.
-    let appSettingStore: AppSettingsStore
+    let appSettingStore: AppIDSettingsStore
 
     // MARK: Initialization
 
@@ -14,7 +15,7 @@ actor AppIdService {
     ///
     /// - Parameter appSettingStore: The app settings store used to persist app values.
     ///
-    init(appSettingStore: AppSettingsStore) {
+    init(appSettingStore: AppIDSettingsStore) {
         self.appSettingStore = appSettingStore
     }
 
@@ -25,12 +26,12 @@ actor AppIdService {
     /// - Returns: The app's ID.
     ///
     func getOrCreateAppId() -> String {
-        if let appId = appSettingStore.appId {
-            return appId
+        if let appID = appSettingStore.appID {
+            return appID
         } else {
-            let appId = UUID().uuidString
-            appSettingStore.appId = appId
-            return appId
+            let appID = UUID().uuidString
+            appSettingStore.appID = appID
+            return appID
         }
     }
 }
