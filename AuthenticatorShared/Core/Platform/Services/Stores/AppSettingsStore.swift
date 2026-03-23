@@ -482,6 +482,15 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     }
 }
 
+// MARK: AppIDSettings
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appId) }
+        set { store(newValue, for: .appId) }
+    }
+}
+
 /// An enumeration of possible item list cards.
 ///
 enum ItemListCard: String {
