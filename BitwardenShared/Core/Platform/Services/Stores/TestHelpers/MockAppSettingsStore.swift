@@ -426,4 +426,3 @@ extension MockAppSettingsStore {
         biometricAuthenticationEnabled[userId] = isEnabled
     }
 }
-
