@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Račun već postoji";
 "SwitchToAlreadyAddedAccountConfirmation" = "Želiš li se sada prebaciti na njega?";
 "MasterPassword" = "Glavna lozinka";
-"More" = "Više";
+"MoreOptions" = "More options";
 "MyVault" = "Moj trezor";
 "Authenticator" = "Autentikator";
 "Name" = "Naziv";
@@ -208,6 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Najlakši način za dodavanje novih prijava u tvoj trezor je Bitwarden uslugom auto-ispune. Saznaj više o korištenju usluge auto-ispune u Postavkama.";
 "Autofill" = "Auto-ispuna";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Želiš li auto-ispuniti ili pogledati ovu stavku?";
 "BitwardenAutofillServiceMatchConfirm" = "Sigurno želiš auto-ispuniti ovu stavku? Ne podudara se u potpunosti s „%1$@”.";
 "MatchingItems" = "Podudarajuće stavke";
@@ -687,6 +688,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Primanje push obavijesti o novim zahtjevima za prijavu";
 "NoThanks" = "Ne hvala";
 "ConfimLogInAttempForX" = "Potvrdi pokušaj prijave za %1$@";
+"ConfirmLogInAttemptForX" = "Potvrdi pokušaj prijave za %1$@";
 "AllNotifications" = "Sve obavijesti";
 "PasswordType" = "Tip lozinke";
 "WhatWouldYouLikeToGenerate" = "Što želiš generirati?";
@@ -1286,12 +1288,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Napusti %1$@";
-"HowToManageMyVault" = "How to manage My vault";
 "YouLeftTheOrganization" = "You left the organization";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Ovom postavkom upravlja tvoja organizacija.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Tvoja organizacaija je postavila zadani istek sesije na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Tvoja organizacaija je postavila zadani istek sesije na %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Tvoja organizacaija je postavila zadani istek sesije na nikada.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Tvoja organizacaija je postavila zadani istek sesije na ponovno pokretanje aplikacije.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Tvoja organizacaija je postavila zadani istek sesije na %1$@ i %2$@.";
 "HiddenItems" = "Skrivene stavke";
 "Archive" = "Arhiva";
@@ -1324,3 +1327,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

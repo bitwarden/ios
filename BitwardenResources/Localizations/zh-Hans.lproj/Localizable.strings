@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "账户已添加";
 "SwitchToAlreadyAddedAccountConfirmation" = "您想现在就切换过去吗？";
 "MasterPassword" = "主密码";
-"More" = "更多";
+"MoreOptions" = "更多选项";
 "MyVault" = "我的密码库";
 "Authenticator" = "身份验证器";
 "Name" = "名称";
@@ -208,6 +208,7 @@
 "Status" = "状态";
 "BitwardenAutofillServiceAlert2" = "向您的密码库中添加新登录项目的最简单方法，就是通过 Bitwarden 自动填充服务。转到「设置」界面进一步了解 Bitwarden 自动填充服务的使用。";
 "Autofill" = "自动填充";
+"AutofillEnabled" = "自动填充已启用";
 "AutofillOrView" = "您想自动填充还是查看此项目？";
 "BitwardenAutofillServiceMatchConfirm" = "确定要自动填充此项目吗？它与「%1$@」并不完全匹配。";
 "MatchingItems" = "匹配项目";
@@ -221,7 +222,7 @@
 "AuthenticatorAppTitle" = "验证器 App";
 "EnterVerificationCodeApp" = "请输入您的验证器 App 中的 6 位数验证码。";
 "EnterVerificationCodeEmail" = "请输入发送到 %1$@ 的 6 位数验证码。";
-"LoginUnavailable" = "登录不可用";
+"LoginUnavailable" = "登录功能不可用";
 "NoTwoStepAvailable" = "此账户已设置两步登录，但此设备不支持任何已配置的两步提供程序。请使用受支持的设备和/或添加其他跨设备支持更好的提供程序（例如验证器 App）。";
 "RecoveryCodeTitle" = "恢复代码";
 "RememberMe" = "记住我";
@@ -249,7 +250,7 @@
 "CopyTotp" = "复制 TOTP";
 "CopyTotpAutomaticallyDescription" = "如果登录项目包含验证器密钥，当自动填充此登录时，TOTP 验证码将复制到剪贴板。";
 "CopyTotpAutomatically" = "自动复制 TOTP";
-"PremiumRequired" = "使用此功能需要高级会员资格。";
+"PremiumRequired" = "需要高级版成员才能使用此功能。";
 "AttachementAdded" = "附件已添加";
 "AttachmentDeleted" = "附件已删除";
 "ChooseFile" = "选择文件";
@@ -537,7 +538,7 @@
 "AccessibilityDescription" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。设置后，选中登录字段时将显示一个弹出窗口。";
 "AccessibilityDescription2" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。（需同时启用 Draw-Over）";
 "AccessibilityDescription3" = "使用 Bitwarden 无障碍服务来使用自动填充快速操作磁贴，和/或使用 Draw-Over（若已启用）来显示弹出窗口。";
-"AccessibilityDescription4" = "要求使用自动填充快速操作磁贴，或通过使用 Draw-Over （若已开启）来增强自动填充服务。";
+"AccessibilityDescription4" = "要求使用自动填充快速操作磁贴，或通过使用 Draw-Over （若已启用）来增强自动填充服务。";
 "DrawOver" = "使用 Draw-Over";
 "DrawOverDescription" = "允许 Bitwarden 无障碍服务在登录字段选中时显示弹出窗口。";
 "DrawOverDescription2" = "启用后，当登录字段被选中时，Bitwarden 无障碍服务将显示一个弹出窗口以协助自动填充您的登录信息。";
@@ -588,7 +589,7 @@
 "AboutSend" = "关于 Send";
 "HideEmail" = "对接收者隐藏我的电子邮箱地址";
 "SendOptionsPolicyInEffect" = "一个或多个组织策略正在影响您的 Send 设置。";
-"SendFilePremiumRequired" = "免费账户仅限于共享文本。要使用文件 Send，需要高级会员。";
+"SendFilePremiumRequired" = "免费账户仅限于共享文本。需要高级版成员才能使用文件 Send。";
 "SendFileEmailVerificationRequired" = "您必须验证电子邮箱以使用文件 Send。您可以在网页版密码库中验证您的电子邮箱。";
 "PasswordPrompt" = "主密码重新提示";
 "PasswordConfirmation" = "确认主密码";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "接收新登录请求的推送通知";
 "NoThanks" = "不了，谢谢";
 "ConfimLogInAttempForX" = "确认 %1$@ 的登录尝试";
+"ConfirmLogInAttemptForX" = "确认 %1$@ 的登录尝试";
 "AllNotifications" = "所有通知";
 "PasswordType" = "密码类型";
 "WhatWouldYouLikeToGenerate" = "您想要生成什么？";
@@ -994,7 +996,7 @@
 "SaveAndProtectYourData" = "保存和保护您的数据";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "密码库不仅保护您的密码。在这里可以安全地存储登录、ID、支付卡和笔记。";
 "SendSensitiveInformationSafely" = "安全地发送敏感信息";
-"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "在任何平台上与任何人安全地共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。";
+"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。";
 "NewLogin" = "新增登录";
 "NewCard" = "新增支付卡";
 "NewIdentity" = "新增身份";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "拒绝后，您的个人项目将保留在您的账户中，但您将失去对共享项目和组织功能的访问权限。";
 "ContactYourAdminToRegainAccess" = "联系您的管理员以重新获取访问权限。";
 "LeaveX" = "退出 %1$@";
-"HowToManageMyVault" = "如何管理我的密码库";
 "YouLeftTheOrganization" = "您已退出该组织";
 "ItemTransferRequiresMainAppDescriptionLong" = "某个组织正在请求您的个人项目的所有权。打开主 Bitwarden App 以审查并完成此请求。";
 "ThisSettingIsManagedByYourOrganization" = "此设置由您的组织管理。";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "您的组织已将默认会话超时设置为 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的组织已将最大会话超时设置为 %1$@ 。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "您的组织已将默认会话超时设置为「从不」。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "您的组织已将默认会话超时设置为「App 重启时」。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "您的组织已将最大会话超时设置为 %1$@ 小时 %2$@ 分钟。";
 "HiddenItems" = "隐藏的项目";
 "Archive" = "归档";
@@ -1304,7 +1307,7 @@
 "ItemsTransferred" = "项目已转移";
 "ArchiveIsEmpty" = "归档为空";
 "ArchiveEmptyDescriptionLong" = "将您不希望在搜索结果和自动填充建议中看到，但将来可能需要的项目添加到您的归档中。";
-"ArchiveUnavailable" = "归档不可用";
+"ArchiveUnavailable" = "归档功能不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "UpgradeToPremium" = "升级到高级版";
 "ThisItemIsArchived" = "此项目已归档。";
@@ -1315,11 +1318,15 @@
 "SettingUpAutofill" = "正在设置自动填充…";
 "AddEmail" = "添加电子邮箱";
 "AnyoneWithPasswordSetByYou" = "拥有您设置的密码的任何人";
-"AnyoneWithTheLink" = "拥有此链接的任何人";
+"AnyoneWithTheLink" = "拥有链接的任何人";
 "AnyoneWithThisLinkCanViewThisSend" = "拥有此链接的任何人都可以查看此 Send。";
 "AfterSharingThisSendLinkDescriptionLong" = "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。";
-"SpecificPeople" = "指定人员";
+"SpecificPeople" = "指定的人员";
 "WhoCanView" = "谁可以查看";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "与指定人员共享是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "由于 App 需要重新验证身份，您的请求被中断。请重试。";
+"AutofillWithBitwardenDescriptionLong" = "当您登录到 App 和网站时，Bitwarden 可以建议要使用的密码和其他凭据。";
+"LearnMoreAboutAutofill" = "进一步了解自动填充";
+"TurnOnNow" = "立即启用";
+"AcceptTransfer" = "接受转移";

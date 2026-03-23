@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Hesab artıq əlavə edildi";
 "SwitchToAlreadyAddedAccountConfirmation" = "Buna indi keçmək istəyirsiniz?";
 "MasterPassword" = "Ana parol";
-"More" = "Daha çox";
+"MoreOptions" = "Daha çox seçim";
 "MyVault" = "Seyfim";
 "Authenticator" = "Kimlik doğrulayıcı";
 "Name" = "Ad";
@@ -208,6 +208,7 @@
 "Status" = "Vəziyyət";
 "BitwardenAutofillServiceAlert2" = "Seyfinizə yeni bir giriş əlavə etməyin ən asan yolu, Bitwarden Avto-doldurma Xidmətidir. Bitwarden Avto-doldurma Xidmətini istifadə etməklə bağlı daha ətraflı məlumat üçün \"Ayarlar\" ekranına gedin.";
 "Autofill" = "Avto-doldur";
+"AutofillEnabled" = "Avto-doldurma fəaldır";
 "AutofillOrView" = "Avto-doldurmaq və ya bu elementə baxmaq istəyirsiniz?";
 "BitwardenAutofillServiceMatchConfirm" = "Bu elementi avto-doldurmaq istədiyinizə əminsiniz? \"%1$@\" ilə tam uyuşmur.";
 "MatchingItems" = "Uyuşan elementlər";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Yeni giriş tələbləri üçün ani bildirişlər alın";
 "NoThanks" = "Xeyr təşəkkürlər";
 "ConfimLogInAttempForX" = "%1$@ üçün giriş cəhdini təsdiqlə";
+"ConfirmLogInAttemptForX" = "%1$@ üçün giriş cəhdini təsdiqlə";
 "AllNotifications" = "Bütün bildirişlər";
 "PasswordType" = "Parol növü";
 "WhatWouldYouLikeToGenerate" = "Nə yaratmaq istəyirsiniz?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Rədd cavabı versəniz, fərdi elementləriniz hesabınızda qalacaq, paylaşılan elementlərə və təşkilat özəlliklərinə erişimi itirəcəksiniz.";
 "ContactYourAdminToRegainAccess" = "Erişimi təkrar qazanmaq üçün admininizlə əlaqə saxlayın.";
 "LeaveX" = "%1$@ - tərk et";
-"HowToManageMyVault" = "Seyfimi necə idarə edim";
 "YouLeftTheOrganization" = "Təşkilatı tərk etmisiniz";
 "ItemTransferRequiresMainAppDescriptionLong" = "Bir təşkilat, fərdi elementinizin sahibliyini tələb edir. Bu tələbi incələmək və tamamlamaq üçün əsas Bitwarden tətbiqini açın.";
 "ThisSettingIsManagedByYourOrganization" = "Bu ayar, təşkilatınız tərəfindən idarə olunur.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Təşkilatınız, seansın ilkin bitmə vaxtını %1$@ olaraq təyin etdi.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ olaraq təyin etdi.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Təşkilatınız, seansın ilkin bitmə vaxtını heç vaxt olaraq təyin etdi.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Təşkilatınız, seansın ilkin bitmə vaxtını tətbiq başladılanda olaraq təyin etdi.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Təşkilatınız, seansın maksimum bitmə vaxtını %1$@ %2$@ olaraq təyin etdi.";
 "HiddenItems" = "Gizli elementlər";
 "Archive" = "Arxiv";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Xüsusi insanlarla paylaşım, Premium bir özəllikdir. Hazırkı planınızda bu özəlliyə erişim yoxdur.";
 "SsoCookiesCleared" = "SSO çərəzləri təmizləndi";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Sorğunuz yarımçıq dayandırıldı, çünki tətbiq yenidən kimlik doğrulaması etməlidir. Lütfən yenidən sınayın.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden, tətbiqlərdə və veb saytlarda hesabınıza daxil olduğunuz zaman parollarınızı və kimlik məlumatlarınızı təklif edə bilər.";
+"LearnMoreAboutAutofill" = "Avto-doldurma barədə daha ətraflı";
+"TurnOnNow" = "İndi işə sal";
+"AcceptTransfer" = "Accept transfer";

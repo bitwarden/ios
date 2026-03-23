@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Kontot har redan lagts till";
 "SwitchToAlreadyAddedAccountConfirmation" = "Vill du byta till det nu?";
 "MasterPassword" = "Huvudlösenord";
-"More" = "Mer";
+"MoreOptions" = "Fler alternativ";
 "MyVault" = "Mitt valv";
 "Authenticator" = "Autentiserare";
 "Name" = "Namn";
@@ -208,6 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Det enklaste sättet att lägga till nya inloggningar i ditt valv är från Bitwarden Autofill Service. Läs mer om hur du använder Bitwarden Autofill Service genom att navigera till skärmen \"Inställningar\".";
 "Autofill" = "Autofyll";
+"AutofillEnabled" = "Autofyll aktiverat";
 "AutofillOrView" = "Vill du autofylla eller visa den här artikeln?";
 "BitwardenAutofillServiceMatchConfirm" = "Är du säker på att du vill automatiskt fylla i den här inloggningen? Det är inte en fullständig träff för \"%1$@\".";
 "MatchingItems" = "Matchande objekt";
@@ -687,6 +688,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ReceivePushNotificationsForNewLoginRequests" = "Få push-meddelanden för nya inloggningsförfrågningar";
 "NoThanks" = "Nej tack";
 "ConfimLogInAttempForX" = "Bekräfta inloggningsförsök för %1$@";
+"ConfirmLogInAttemptForX" = "Bekräfta inloggningsförsök för %1$@";
 "AllNotifications" = "Alla aviseringar";
 "PasswordType" = "Lösenordstyp";
 "WhatWouldYouLikeToGenerate" = "Vad skulle du vilja generera?";
@@ -1286,12 +1288,13 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Genom att avböja kommer dina personliga objekt att stanna på ditt konto, men du kommer att förlora åtkomst till delade objekt och organisationsfunktioner.";
 "ContactYourAdminToRegainAccess" = "Kontakta administratören för att återfå åtkomst.";
 "LeaveX" = "Lämna %1$@";
-"HowToManageMyVault" = "Hur man hanterar Mitt valv";
 "YouLeftTheOrganization" = "Du lämnade organisationen";
 "ItemTransferRequiresMainAppDescriptionLong" = "En organisation begär ägarskap av dina personliga objekt. Öppna Bitwardens app för att granska och slutföra denna begäran.";
 "ThisSettingIsManagedByYourOrganization" = "Den här inställningen hanteras av din organisation.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Din organisation har ställt in standardtidsgräns för sessionen till %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Din organisation har ställt in maximal tidsgräns för sessionen till %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Din organisation har ställt in standardtidsgräns för sessionen till aldrig.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Din organisation har ställt in standardtidsgräns för sessionen till vid omstart av appen.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Din organisation har ställt in maximal tidsgräns för sessionen till %1$@ och %2$@.";
 "HiddenItems" = "Dolda objekt";
 "Archive" = "Arkiv";
@@ -1324,3 +1327,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO-cookies rensade";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Din begäran avbröts eftersom appen behövde autentisera sig på nytt. Försök igen.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden kan föreslå dina lösenord och andra uppgifter när du loggar in på appar och webbplatser.";
+"LearnMoreAboutAutofill" = "Läs mer om autofyll";
+"TurnOnNow" = "Aktivera nu";
+"AcceptTransfer" = "Godkänn överföring";
