@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "A fiók már hozzáadásra került.";
 "SwitchToAlreadyAddedAccountConfirmation" = "Szeretnénk most átkapcsolni erre?";
 "MasterPassword" = "Mesterjelszó";
-"More" = "Továbbiak";
+"MoreOptions" = "További opciók";
 "MyVault" = "Saját széf";
 "Authenticator" = "Hitelesítő";
 "Name" = "Név";
@@ -208,6 +208,7 @@
 "Status" = "Állapot";
 "BitwardenAutofillServiceAlert2" = "A legeszerűbben a Bitwarden Automata-kitöltő Szolgáltatással tud belépést hozzáadni széfjéhez. A Beállításokben többet tudhat meg a Bitwarden Automat-kitöltő szolgáltatásról.";
 "Autofill" = "Automata-kitöltő";
+"AutofillEnabled" = "Automatikus kitöltés engedélyezve";
 "AutofillOrView" = "Automatikusan ki akarja tölteni, vagy meg akarja tekinteni az elemet?";
 "BitwardenAutofillServiceMatchConfirm" = "Biztos, hogy automatikusan kitöltésre kerüljön ez az elem? Nem teljesen egyezik: %1$@.";
 "MatchingItems" = "Megegyező elemek";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Leküldéses értesítések fogadása az új bejelentkezési kérésekhez";
 "NoThanks" = "Nem, köszönöm";
 "ConfimLogInAttempForX" = "Bejelentkezési kísérlet megerősítése: %1$@";
+"ConfirmLogInAttemptForX" = "Bejelentkezési kísérlet megerősítése: %1$@";
 "AllNotifications" = "Összes értesítés";
 "PasswordType" = "Jelszótípus";
 "WhatWouldYouLikeToGenerate" = "Mit szeretnénk generálni?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Az elutasítással a személyes elemek a fiókban maradnak, de elveszítjük hozzáférést a megosztott elemekhez és a szervezeti funkciókhoz.";
 "ContactYourAdminToRegainAccess" = "Lépjünk kapcsolatba az adminisztrátorral a hozzáférés visszaszerzéséért.";
 "LeaveX" = "%1$@ elhagyása";
-"HowToManageMyVault" = "Hogyan kezeljük a saját széfet";
 "YouLeftTheOrganization" = "Megtörtént a szervezet elhagyása.";
 "ItemTransferRequiresMainAppDescriptionLong" = "Egy szervezet a személyes elemek tulajdonjogát kéri. Nyissuk meg a fő Bitwarden alkalmazást a kérés áttekintéséhez és befejezéséhez.";
 "ThisSettingIsManagedByYourOrganization" = "Ezt a beállítást a szervezet lezeli.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "A szervezet a maximális munkamenet időkifutást %1$@ értékre állította.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "A szervezet a maximális munkamenet időkifutást soha értékre állította.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "A szervezet a maximális munkamenet időkifutást alkalmazás újraindítás értékre állította.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "A szervezet a maximális munkamenet időkifutást %1$@ és %2$@ értékre állította.";
 "HiddenItems" = "Rejtett elemek";
 "Archive" = "Archívum";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
 "SsoCookiesCleared" = "Az SSO sütik törlésre kerültek.";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "A kérés megszakadt, mert az alkalmazásnak újra kellett azt hitelesíteni. Próbáljuk újra.";
+"AutofillWithBitwardenDescriptionLong" = "A Bitwarden javasolhat jelszavakat és egyéb hitelesítő adatokat az alkalmazásokba és webhelyekre bejelentkezéskor.";
+"LearnMoreAboutAutofill" = "További információ az automatikus kitöltésről";
+"TurnOnNow" = "Bekapcsolás most";
+"AcceptTransfer" = "Átvitel elfogadása";

@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Account già aggiunto";
 "SwitchToAlreadyAddedAccountConfirmation" = "Vuoi cambiarlo ora?";
 "MasterPassword" = "Password principale";
-"More" = "Altro";
+"MoreOptions" = "Altre opzioni";
 "MyVault" = "La mia cassaforte";
 "Authenticator" = "Autenticatore";
 "Name" = "Nome";
@@ -208,6 +208,7 @@
 "Status" = "Stato";
 "BitwardenAutofillServiceAlert2" = "Il modo più semplice per aggiungere nuove credenziali di accesso alla tua cassaforte è usare il servizio di riempimento automatico Bitwarden. Scopri di più su come usarlo nelle impostazioni.";
 "Autofill" = "Riempimento automatico";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Vuoi riempire automaticamente o vedere questo elemento?";
 "BitwardenAutofillServiceMatchConfirm" = "Sei sicuro di voler riempire automaticamente questo elemento? Non è una corrispondenza esatta per \"%1$@\".";
 "MatchingItems" = "Elementi corrispondenti";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Ricevi notifiche push per nuove richieste di accesso";
 "NoThanks" = "No grazie";
 "ConfimLogInAttempForX" = "Conferma il tentativo di accesso di %1$@";
+"ConfirmLogInAttemptForX" = "Conferma il tentativo di accesso di %1$@";
 "AllNotifications" = "Tutte le notifiche";
 "PasswordType" = "Tipo di password";
 "WhatWouldYouLikeToGenerate" = "Cosa vuoi generare?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Se rifiuti, tutti gli elementi esistenti resteranno nel tuo account, ma perderai l'accesso agli oggetti condivisi e alle funzioni organizzative.";
 "ContactYourAdminToRegainAccess" = "Contatta il tuo amministratore per recuperare l'accesso.";
 "LeaveX" = "Abbandona %1$@";
-"HowToManageMyVault" = "Come si gestisce la cassaforte?";
 "YouLeftTheOrganization" = "Hai lasciato l'organizzazione";
 "ItemTransferRequiresMainAppDescriptionLong" = "Un'organizzazione ha chiesto di acquisire la proprietà dei tuoi oggetti personali. Apri l'app principale di Bitwarden per accettare o negare il trasferimento.";
 "ThisSettingIsManagedByYourOrganization" = "Questa impostazione è gestita dalla tua organizzazione.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "La tua organizzazione ha impostato il timeout massimo per la sessione a %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "La tua organizzazione ha impostato il timeout massimo per la sessione a %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "La tua organizzazione ha disabilitato il timeout di sessione.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "La tua organizzazione ha stabilito il timeout di sessione al riavvio dell'app.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "La tua organizzazione ha impostato %1$@ e %2$@ come durata massima della sessione.";
 "HiddenItems" = "Elementi nascosti";
 "Archive" = "Archivio";
@@ -1322,4 +1325,8 @@
 "WhoCanView" = "Chi può visualizzare";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Condividere con persone specifiche è una funzionalità Premium, non disponibile per il tuo piano.";
 "SsoCookiesCleared" = "Cookie SSO eliminati";
-"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Richiesta interrotta: è necessaria una nuova autenticazione.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";
