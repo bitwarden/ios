@@ -208,6 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
 "Autofill" = "Autofill";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Do you want to autofill or view this item?";
 "BitwardenAutofillServiceMatchConfirm" = "Are you sure you want to autofill this item? It is not a complete match for “%1$@”.";
 "MatchingItems" = "Matching items";
@@ -1325,4 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
 "AcceptTransfer" = "Accept transfer";

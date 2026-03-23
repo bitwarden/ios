@@ -19,7 +19,8 @@ protocol PasswordAutoFillCoordinatorDelegate: AnyObject {
 class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasAutofillCredentialService
+    typealias Services = HasASSettingsMediator
+        & HasAutofillCredentialService
         & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
@@ -70,7 +71,7 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
         case .dismiss:
             stackNavigator?.pop()
         case let .passwordAutofill(mode):
-            showPasswordAutoFill(mode: mode)
+            showPasswordAutoFill(mode: mode, delegate: context as? PasswordAutoFillProcessorDelegate)
         }
     }
 
@@ -80,9 +81,10 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     /// Shows the password auto-fill screen.
     ///
-    private func showPasswordAutoFill(mode: PasswordAutoFillState.Mode) {
+    private func showPasswordAutoFill(mode: PasswordAutoFillState.Mode, delegate: PasswordAutoFillProcessorDelegate?) {
         let processor = PasswordAutoFillProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: delegate,
             services: services,
             state: PasswordAutoFillState(mode: mode),
         )

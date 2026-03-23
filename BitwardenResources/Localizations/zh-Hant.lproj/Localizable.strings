@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "已新增帳戶";
 "SwitchToAlreadyAddedAccountConfirmation" = "您想現在就切換過去嗎？";
 "MasterPassword" = "主密碼";
-"More" = "更多";
+"MoreOptions" = "更多選項";
 "MyVault" = "我的密碼庫";
 "Authenticator" = "驗證器";
 "Name" = "名稱";
@@ -208,6 +208,7 @@
 "Status" = "狀態";
 "BitwardenAutofillServiceAlert2" = "Bitwarden 自動填入服務是新增登入資料的最簡單方法。請至「設定」頁面深入了解使用 Bitwarden 自動填入服務的方法 。";
 "Autofill" = "自動填入";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "您想自動填入還是檢視此項目？";
 "BitwardenAutofillServiceMatchConfirm" = "您確定要自動填入此項目嗎？它與「%1$@」不完全一致。";
 "MatchingItems" = "相符的項目";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "接收新的登入要求的推播通知";
 "NoThanks" = "不用了，謝謝";
 "ConfimLogInAttempForX" = "確認 %1$@ 的登入嘗試";
+"ConfirmLogInAttemptForX" = "確認 %1$@ 的登入嘗試";
 "AllNotifications" = "所有通知";
 "PasswordType" = "密碼類型";
 "WhatWouldYouLikeToGenerate" = "您想要產生什麼？";
@@ -1286,12 +1288,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "若選擇拒絕，您的個人項目將保留在帳號中，但您將失去對共用項目與組織功能的存取權。";
 "ContactYourAdminToRegainAccess" = "請聯絡您的管理員以重新取得存取權限。";
 "LeaveX" = "離開 %1$@";
-"HowToManageMyVault" = "如何管理我的密碼庫";
 "YouLeftTheOrganization" = "您已離開組織";
 "ItemTransferRequiresMainAppDescriptionLong" = "有組織正在請求取得您個人項目的擁有權。請開啟主要的 Bitwarden 應用程式以檢視並完成此請求。";
 "ThisSettingIsManagedByYourOrganization" = "此設定由您的組織管理。";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "您的組織已將預設工作階段逾時設定為 %1$@。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "您的組織已將最長工作階段逾時設為 %1$@。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "您的組織已將最長工作階段逾時設為「永不」。";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "您的組織已將最長工作階段逾時設為「應用程式重啟時」。";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "您的組織已將最長工作階段逾時設為 %1$@ 和 %2$@。";
 "HiddenItems" = "隱藏項目";
 "Archive" = "封存";
@@ -1323,4 +1326,8 @@
 "WhoCanView" = "誰可以檢視";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "與特定人員分享為 Premium 功能。您目前的方案不包含此功能的使用權限。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
-"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "您的請求已中斷，因為應用程式需要重新驗證。請再試一次。";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

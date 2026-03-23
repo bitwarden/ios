@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "アカウントは追加済みです";
 "SwitchToAlreadyAddedAccountConfirmation" = "今すぐ切り替えますか？";
 "MasterPassword" = "マスターパスワード";
-"More" = "詳細";
+"MoreOptions" = "その他のオプション";
 "MyVault" = "保管庫";
 "Authenticator" = "認証システム";
 "Name" = "名前";
@@ -208,6 +208,7 @@
 "Status" = "状態";
 "BitwardenAutofillServiceAlert2" = "ログイン情報を保管庫に追加する一番簡単な方法は Bitwarden の自動入力機能を使うことです。詳しくは「設定」画面に進んでください。";
 "Autofill" = "自動入力";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "このアイテムを自動入力するか表示しますか？";
 "BitwardenAutofillServiceMatchConfirm" = "このアイテムを自動入力しますか? 「%1$@」とは完全には一致していません。";
 "MatchingItems" = "一致するアイテム";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "新しいログインリクエストのプッシュ通知を受け取ります";
 "NoThanks" = "いいえ";
 "ConfimLogInAttempForX" = "%1$@ のログイン試行を承認";
+"ConfirmLogInAttemptForX" = "%1$@ のログイン試行を承認";
 "AllNotifications" = "すべての通知";
 "PasswordType" = "パスワードの種類";
 "WhatWouldYouLikeToGenerate" = "何を生成しますか？";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Leave %1$@";
-"HowToManageMyVault" = "How to manage My vault";
 "YouLeftTheOrganization" = "You left the organization";
 "ItemTransferRequiresMainAppDescriptionLong" = "組織が個人アイテムの所有権を要求しています。Bitwarden アプリでこのリクエストを確認し完了してください。";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Your organization has set the default session timeout to never.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Your organization has set the default session timeout to on app restart.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "アプリを再認証する必要があるため、リクエストが中断されました。もう一度やり直してください。";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "転送を承認する";

@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Účet byl již přidán";
 "SwitchToAlreadyAddedAccountConfirmation" = "Chcete se na něj nyní přepnout?";
 "MasterPassword" = "Hlavní heslo";
-"More" = "Více";
+"MoreOptions" = "Více voleb";
 "MyVault" = "Můj trezor";
 "Authenticator" = "Ověřovací aplikace";
 "Name" = "Název";
@@ -208,6 +208,7 @@
 "Status" = "Stav";
 "BitwardenAutofillServiceAlert2" = "Nejjednodušší způsob, jak přidat nové přihlašovací údaje do Vašeho trezoru, je služba automatického vyplňování Bitwarden. Další informace o použití této služby naleznete na obrazovce \"Nastavení\".";
 "Autofill" = "Automatické vyplňování";
+"AutofillEnabled" = "Automatické vyplňování povoleno";
 "AutofillOrView" = "Chcete automaticky vyplnit nebo zobrazit tyto přihlašovací údaje?";
 "BitwardenAutofillServiceMatchConfirm" = "Opravdu chcete tyto přihlašovací údaje automaticky vyplnit? Nejsou úplně shodné s \"%1$@\".";
 "MatchingItems" = "Odpovídající položky";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Dostávat oznámení ohledně nových žádostí o přihlášení";
 "NoThanks" = "Ne, děkuji";
 "ConfimLogInAttempForX" = "Potvrdit pokus o přihlášení pro %1$@";
+"ConfirmLogInAttemptForX" = "Potvrdit pokus o přihlášení pro %1$@";
 "AllNotifications" = "Všechna oznámení";
 "PasswordType" = "Typ hesla";
 "WhatWouldYouLikeToGenerate" = "Co chcete vygenerovat?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Odmítnutím zůstanou Vaše osobní položky ve Vašem účtu, ale ztratíte přístup ke sdíleným položkám a funkcím organizace.";
 "ContactYourAdminToRegainAccess" = "Obraťte se na svého správce, abyste znovu získali přístup.";
 "LeaveX" = "Opustit %1$@";
-"HowToManageMyVault" = "Jak spravovat můj trezor";
 "YouLeftTheOrganization" = "Opustili jste organizaci";
 "ItemTransferRequiresMainAppDescriptionLong" = "Organizace požaduje vlastnictví Vašich osobních položek. Otevřete hlavní aplikaci Bitwarden pro kontrolu a dokončení tohoto požadavku.";
 "ThisSettingIsManagedByYourOrganization" = "Toto nastavení je spravováno Vaší organizací.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaše organizace nastavila výchozí časový limit relace na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaše organizace nastavila maximální časový limit relace na %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Vaše organizace nastavila výchozí časový limit relace na Nikdy.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Vaše organizace nastavila výchozí časový limit relace na Restart aplikace.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Vaše organizace nastavila maximální časový limit relace na %1$@ a %2$@.";
 "HiddenItems" = "Skryté položky";
 "Archive" = "Archiv";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sdílení s vybranými lidmi je prémiová funkce. Váš aktuální plán nezahrnuje přístup k této funkci.";
 "SsoCookiesCleared" = "Cookies SSO vymazány";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Váš požadavek byl přerušen, protože aplikace musí být znovu ověřena. Zkuste to znovu.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden může při přihlášení k aplikacím a webovým stránkám navrhnout Vaše hesla a další přihlašovací údaje.";
+"LearnMoreAboutAutofill" = "Více informací o automatickém vyplňování";
+"TurnOnNow" = "Zapnout nyní";
+"AcceptTransfer" = "Přijmout převod";

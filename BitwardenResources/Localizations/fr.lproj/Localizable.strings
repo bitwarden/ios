@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Compte déjà ajouté";
 "SwitchToAlreadyAddedAccountConfirmation" = "Souhaitez-vous y passer maintenant ?";
 "MasterPassword" = "Mot de passe principal";
-"More" = "Plus";
+"MoreOptions" = "More options";
 "MyVault" = "Mon coffre";
 "Authenticator" = "Authentificateur";
 "Name" = "Nom";
@@ -208,6 +208,7 @@
 "Status" = "État";
 "BitwardenAutofillServiceAlert2" = "Le moyen le plus simple d'ajouter de nouveaux identifiants à votre coffre est d'utiliser le service de saisie automatique Bitwarden. Pour en savoir davantage sur l'utilisation du service de saisie automatique Bitwarden, naviguez jusqu'à l'écran \"Paramètres\".";
 "Autofill" = "Saisie automatique";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Voulez-vous saisir automatiquement ou afficher cet élément ?";
 "BitwardenAutofillServiceMatchConfirm" = "Êtes-vous sûr de vouloir saisir automatiquement cet élément ? Ce n'est pas une correspondance complète pour \"%1$@\".";
 "MatchingItems" = "Éléments correspondants";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Recevoir des notifications push pour les nouvelles demandes de connexion";
 "NoThanks" = "Non merci";
 "ConfimLogInAttempForX" = "Confirmer la tentative de connexion pour %1$@";
+"ConfirmLogInAttemptForX" = "Confirmer la tentative de connexion pour %1$@";
 "AllNotifications" = "Toutes les notifications";
 "PasswordType" = "Type de mot de passe";
 "WhatWouldYouLikeToGenerate" = "Que souhaitez-vous générer ?";
@@ -1281,16 +1283,17 @@
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
 "DeclineAndLeave" = "Decline and leave";
 "WhyAmISeeingThis" = "Why am I seeing this?";
-"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"AreYouSureYouWantToLeave" = "Êtes-vous sûr de vouloir quitter [%1$s]?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Quitter %1$@";
-"HowToManageMyVault" = "Comment gérer mon coffre ?";
 "YouLeftTheOrganization" = "Vous avez quitté l'organisation";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Ce paramètre est géré par votre organisation.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Votre organisation a fixé le délai d'expiration de session à %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Votre organisation a défini le délai d'expiration de session par défaut à jamais.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Votre organisation a défini le délai d'expiration de session par défaut au redémarrage de l'application.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Votre organisation a fixé le délai d'expiration maximum de session à %1$@ et %2$@.";
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Účet je už pridaný";
 "SwitchToAlreadyAddedAccountConfirmation" = "Chceli by ste naň prejsť teraz?";
 "MasterPassword" = "Hlavné heslo";
-"More" = "Viac";
+"MoreOptions" = "Ďalšie možnosti";
 "MyVault" = "Môj trezor";
 "Authenticator" = "Authenticator";
 "Name" = "Meno";
@@ -208,6 +208,7 @@
 "Status" = "Stav";
 "BitwardenAutofillServiceAlert2" = "Najjednoduchší spôsob, ako pridať nové prihlasovacie údaje do vášho trezora, je prostredníctvom služby automatického vypĺňania Bitwardenu. Ďalšie informácie o používaní automatického vypĺňania Bitwardenu získate prechodom do obrazovky Nastavení.";
 "Autofill" = "Automatické vypĺňanie";
+"AutofillEnabled" = "Automatické vypĺňanie je zapnuté";
 "AutofillOrView" = "Chcete automaticky vyplniť alebo zobraziť tieto prihlasovacie údaje?";
 "BitwardenAutofillServiceMatchConfirm" = "Naozaj chcete automaticky vyplniť toto prihlásenie? Nie je to úplná zhoda pre %1$@.";
 "MatchingItems" = "Zodpovedajúce položky";
@@ -590,7 +591,7 @@
 "SendOptionsPolicyInEffect" = "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send.";
 "SendFilePremiumRequired" = "Bezplatné účty sú obmedzené len na zdieľanie textu. Na odosielanie súborov cez Send sa vyžaduje prémiové členstvo.";
 "SendFileEmailVerificationRequired" = "Na odosielanie súborov cez Send musíte overiť svoj e-mail.";
-"PasswordPrompt" = "Znova zadajte hlavné heslo";
+"PasswordPrompt" = "Znova vyzvať na zadanie hlavného hesla";
 "PasswordConfirmation" = "Potvrdenie hlavného hesla";
 "PasswordConfirmationDesc" = "Táto akcia je chránená. Ak chcete pokračovať, znova zadajte hlavné heslo a overte svoju totožnosť.";
 "CaptchaRequired" = "Vyžaduje sa CAPTCHA";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Prijímať push notifikácie o nových požiadavkách na prihlásenie";
 "NoThanks" = "Nie, ďakujem";
 "ConfimLogInAttempForX" = "Potvrdiť pokus o prihlásenie pre %1$@";
+"ConfirmLogInAttemptForX" = "Potvrdiť pokus o prihlásenie pre %1$@";
 "AllNotifications" = "Všetky upozornenia";
 "PasswordType" = "Typ hesla";
 "WhatWouldYouLikeToGenerate" = "Čo by ste chceli vygenerovať?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Ak odmietnete, vaše osobné položky zostanú vo vašom účte, ale stratíte prístup k zdieľaným položkám a funkciám organizácie.";
 "ContactYourAdminToRegainAccess" = "Ak chcete obnoviť prístup, obráťte sa na správcu.";
 "LeaveX" = "Opustiť %1$@";
-"HowToManageMyVault" = "Ako spravovať môj trezor";
 "YouLeftTheOrganization" = "Opustili ste organizáciu";
 "ItemTransferRequiresMainAppDescriptionLong" = "Organizácia žiada o vlastníctvo vašich osobných položiek. Otvorte hlavnú aplikáciu Bitwarden, aby ste túto žiadosť skontrolovali a dokončili.";
 "ThisSettingIsManagedByYourOrganization" = "Toto nastavenie spravuje vaša organizácia.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaša organizácia nastavila predvolený časový limit relácie na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Vaša organizácia nastavila predvolený časový limit relácie na [%1$s].";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Vaša organizácia nastavila predvolený časový limit relácie na reštart aplikácie.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@ a %2$@.";
 "HiddenItems" = "Skryté položky";
 "Archive" = "Archív";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Zdieľanie s konkrétnymi osobami je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
 "SsoCookiesCleared" = "Cookies SSO vymazané";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Vaša žiadosť bola prerušená, pretože aplikácia musela znovu overiť vašu identitu. Skúste to znova.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden vám môže navrhovať heslá a ďalšie prihlasovacie údaje pri prihlasovaní do aplikácií a na webové stránky.";
+"LearnMoreAboutAutofill" = "Viac informácií o automatickom vypĺňaní";
+"TurnOnNow" = "Zapnúť teraz";
+"AcceptTransfer" = "Prijať prenos";
