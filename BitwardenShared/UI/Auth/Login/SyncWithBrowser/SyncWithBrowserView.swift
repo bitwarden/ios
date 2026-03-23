@@ -40,13 +40,6 @@ struct SyncWithBrowserView: View {
                 }
                 .buttonStyle(.secondary())
             }
-
-            Button {
-                openURL(ExternalLinksConstants.aboutOrganizations)
-            } label: {
-                Text(Localizations.whyAmISeeingThis)
-            }
-            .buttonStyle(.bitwardenBorderless)
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)

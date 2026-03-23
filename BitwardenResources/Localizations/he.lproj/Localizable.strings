@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "החשבון כבר קיים";
 "SwitchToAlreadyAddedAccountConfirmation" = "האם תרצה לעבור לחשבון כעת?";
 "MasterPassword" = "סיסמה ראשית";
-"More" = "הגדרות נוספות";
+"MoreOptions" = "More options";
 "MyVault" = "הכספת שלי";
 "Authenticator" = "מאמת";
 "Name" = "שם";
@@ -208,6 +208,7 @@
 "Status" = "סטטוס";
 "BitwardenAutofillServiceAlert2" = "הדרך הקלה ביותר להוסיף כניסות חדשות לכספת שלך היא דרך שירות המילוי האוטומטי של Bitwarden. למד עוד אודות השימוש בשירות המילוי האוטומטי של Bitwarden על ידי ניווט למסך ה\"הגדרות\".";
 "Autofill" = "מילוי אוטומטי";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "האם ברצונך למלא אוטומטית או להציג פריט זה?";
 "BitwardenAutofillServiceMatchConfirm" = "האם אתה בטוח שברצונך למלא אוטומטית פריט זה? הוא לא התאמה מלאה עבור \"%1$@\".";
 "MatchingItems" = "פריטים תואמים";
@@ -688,6 +689,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "קבל התראות בדחיפה עבור בקשות כניסה חדשות";
 "NoThanks" = "לא תודה";
 "ConfimLogInAttempForX" = "אשר ניסיון כניסה עבור %1$@";
+"ConfirmLogInAttemptForX" = "אשר ניסיון כניסה עבור %1$@";
 "AllNotifications" = "כל ההתראות";
 "PasswordType" = "סוג סיסמה";
 "WhatWouldYouLikeToGenerate" = "מה ברצונך ליצור?";
@@ -1283,16 +1285,17 @@
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ מחייב שכל הפריטים יהיו בבעלות של הארגון לאבטחה ולתאימות. ליחצו על \"אישור\" להעברת הבעלות על הפריטים שלך.";
 "DeclineAndLeave" = "סירוב ועזיבה";
 "WhyAmISeeingThis" = "למה אני רואה זאת?";
-"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"AreYouSureYouWantToLeave" = "האם אתם בטוחים שברצונכם לעזוב את [%1$s]?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "עזיבת %1$@";
-"HowToManageMyVault" = "איך לנהל את הכספת שלי";
 "YouLeftTheOrganization" = "עזבת את הארגון";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "הגדרה זו מנוהלת על ידי הארגון שלך.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "הארגון שלך הגדיר את פסק הזמן המרבי להפעלה ל־%1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "הארגון שלך הגדיר את פסק הזמן להפעלה ברירת המחדל ל'לעולם לא'.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "הארגון שלך הגדיר את פסק הזמן להפעלה ברירת המחדל ל'בהפעלת היישום מחדש'.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "הארגון שלך הגדיר את פסק הזמן המרבי להפעלה ל־%1$@ ו־%2$@.";
 "HiddenItems" = "פריטים מוסתרים";
 "Archive" = "ארכיב";
@@ -1325,3 +1328,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

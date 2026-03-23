@@ -12,7 +12,7 @@ public final class MockServerCommunicationConfigClient: ServerCommunicationConfi
     public var cookiesResult: [BitwardenSdk.AcquiredCookie] = []
 
     public var getConfigCallsCount = 0
-    public  var getConfigResult: Result<ServerCommunicationConfig, Error> = .success(
+    public var getConfigResult: Result<ServerCommunicationConfig, Error> = .success(
         ServerCommunicationConfig(
             bootstrap: .direct,
         ),

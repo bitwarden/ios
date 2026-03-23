@@ -38,4 +38,25 @@ struct PasswordAutoFillState: Equatable {
             Localizations.passwordAutofill
         }
     }
+
+    /// The title to display.
+    var title: String {
+        if #available(iOS 18, *) {
+            Localizations.autofillWithBitwarden
+        } else {
+            Localizations.turnOnAutoFill
+        }
+    }
+
+    /// The subtitle to display.
+    var subtitle: String {
+        if #available(iOS 18, *) {
+            Localizations.autofillWithBitwardenDescriptionLong
+        } else {
+            Localizations.useAutoFillToLogIntoYourAccountsWithASingleTap
+        }
+    }
+
+    /// The url to open in the device's web browser.
+    var url: URL?
 }

@@ -335,12 +335,20 @@ class DefaultNotificationService: NotificationService {
     private func handleLoginRequest(_ notificationData: PushNotificationData, userId: String) async throws {
         let data: LoginRequestNotification = try notificationData.data()
 
+        // Get the email of the account that the login request is coming from.
+        let loginSourceAccount: Account
+        do {
+            loginSourceAccount = try await stateService.getAccount(userId: data.userId)
+        } catch StateServiceError.noAccounts {
+            await flightRecorder.log(
+                "[Notification] Received login request notification but account (\(data.userId)) not found",
+            )
+            return
+        }
+        let loginSourceEmail = loginSourceAccount.profile.email
+
         // Save the notification data.
         await stateService.setLoginRequest(data)
-
-        // Get the email of the account that the login request is coming from.
-        let loginSourceAccount = try await stateService.getAccount(userId: data.userId)
-        let loginSourceEmail = loginSourceAccount.profile.email
 
         // Assemble the data to add to the in-app banner notification.
         let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
@@ -422,14 +430,19 @@ class DefaultNotificationService: NotificationService {
             // Get the user id of the source of the login request.
             let loginSourceAccount = try await stateService.getAccount(userId: loginRequestData.userId)
 
-            // Get the active account for comparison.
-            let activeAccount = try await stateService.getActiveAccount()
+            // Get the active account ID for comparison.
+            let activeAccountId = try await stateService.getActiveAccountId()
 
             // If the notification banner was tapped but it's for a different account, switch
             // to that account automatically.
-            if activeAccount.profile.userId != loginSourceAccount.profile.userId {
+            if activeAccountId != loginSourceAccount.profile.userId {
                 await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: false)
             }
+        } catch StateServiceError.noAccounts {
+            let userId = loginRequestData.userId
+            await flightRecorder.log(
+                "[Notification] Notification tapped for login request but account (\(userId)) not found",
+            )
         } catch {
             errorReporter.log(error: error)
         }

@@ -638,6 +638,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:lastUserShouldConnectToWatch"))
     }
 
+    /// `lastRequestToTurnOnCredentialProvider()` returns `nil` if there isn't a previously stored value.
+    func test_lastRequestToTurnOnCredentialProvider_isInitiallyNil() {
+        XCTAssertNil(subject.lastRequestToTurnOnCredentialProvider())
+    }
+
+    /// `lastRequestToTurnOnCredentialProvider()` can be used to get and set the persisted value in user defaults.
+    func test_lastRequestToTurnOnCredentialProvider_withValue() {
+        let date = Date(year: 2024, month: 6, day: 15)
+        subject.setLastRequestToTurnOnCredentialProvider(date)
+
+        XCTAssertEqual(subject.lastRequestToTurnOnCredentialProvider(), date)
+        XCTAssertEqual(
+            userDefaults.double(forKey: "bwPreferencesStorage:lastRequestToTurnOnCredentialProvider"),
+            date.timeIntervalSince1970,
+        )
+
+        subject.setLastRequestToTurnOnCredentialProvider(nil)
+        XCTAssertNil(subject.lastRequestToTurnOnCredentialProvider())
+    }
+
     /// `lastSyncTime(userId:)` returns `nil` if there isn't a previously stored value.
     func test_lastSyncTime_isInitiallyNil() {
         XCTAssertNil(subject.lastSyncTime(userId: "-1"))
