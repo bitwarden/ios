@@ -12,7 +12,7 @@ public actor AppIDService {
 
     /// Initialize an `AppIDService`.
     ///
-    /// - Parameter appSettingStore: The app settings store used to persist app values.
+    /// - Parameter appIDSettingsStore: The app settings store used to persist app values.
     ///
     public init(appIDSettingsStore: AppIDSettingsStore) {
         self.appIDSettingsStore = appIDSettingsStore
