@@ -284,7 +284,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
-        case appId
+        case appID
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
@@ -306,7 +306,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
             let key = switch self {
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -478,8 +478,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
 extension DefaultAppSettingsStore: AppIDSettingsStore {
     var appID: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }
 
