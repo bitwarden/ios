@@ -10,9 +10,6 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -348,11 +345,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             }
             return "bwaPreferencesStorage:\(key)"
         }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {

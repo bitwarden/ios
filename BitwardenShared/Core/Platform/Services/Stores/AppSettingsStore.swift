@@ -13,9 +13,6 @@ protocol AppSettingsStore: AnyObject {
     /// Whether the autofill info prompt has been shown.
     var addSitePromptShown: Bool { get set }
 
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -905,11 +902,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var addSitePromptShown: Bool {
         get { fetch(for: .addSitePromptShown) }
         set { store(newValue, for: .addSitePromptShown) }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {
