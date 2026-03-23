@@ -1300,7 +1300,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     }
 }
 
-// MARK: AppIDSettings
+// MARK: AppIDSettingsStore
 
 extension DefaultAppSettingsStore: AppIDSettingsStore {
     var appID: String? {
