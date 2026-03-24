@@ -398,7 +398,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password field is empty.
     @MainActor
     func test_perform_completeRegistration_emptyPassword() async {
-        subject.state = .fixture(passwordText: "", retypePasswordText: "")
+        subject.state = .fixture(passwordHintText: "hint", passwordText: "", retypePasswordText: "")
 
         client.result = .httpSuccess(testData: .registerFinishRequest)
 

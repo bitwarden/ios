@@ -34,6 +34,9 @@ enum CompleteRegistrationError: Error {
 
     /// The environment urls to complete the registration are empty
     case preAuthUrlsEmpty
+
+    /// The password and password hint match
+    case passwordAndHintMatch
 }
 
 // MARK: - CompleteRegistrationProcessor
@@ -158,6 +161,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     /// - is exposed and strong
     /// - is unexposed and weak
     /// - is unchecked against breaches and weak
+    /// - is the same as the password hint
     ///
     private func checkPasswordAndCompleteRegistration() async {
         if state.isCheckDataBreachesToggleOn {
@@ -167,6 +171,10 @@ class CompleteRegistrationProcessor: StateProcessor<
                 coordinator.showAlert(.passwordStrengthAlert(.weak) {
                     await self.completeRegistration()
                 })
+                return
+            }
+            guard !state.doesMasterPasswordMatchHint else {
+                coordinator.showAlert(.masterPasswordAndHintMatchAlert())
                 return
             }
             await completeRegistration()
@@ -221,6 +229,10 @@ class CompleteRegistrationProcessor: StateProcessor<
 
             guard state.passwordText == state.retypePasswordText else {
                 throw CompleteRegistrationError.passwordsDontMatch
+            }
+
+            guard !state.doesMasterPasswordMatchHint else {
+                throw CompleteRegistrationError.passwordAndHintMatch
             }
 
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
@@ -293,6 +305,8 @@ class CompleteRegistrationProcessor: StateProcessor<
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded,
             ))
+        case .passwordAndHintMatch:
+            coordinator.showAlert(.passwordMatchesHint)
         }
     }
 

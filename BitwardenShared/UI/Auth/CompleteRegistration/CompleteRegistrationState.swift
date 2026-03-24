@@ -36,6 +36,10 @@ struct CompleteRegistrationState: Equatable, Sendable {
         return passwordStrengthScore < 3
     }
 
+    var doesMasterPasswordMatchHint: Bool {
+        passwordText == passwordHintText
+    }
+
     /// The text in the password hint text field.
     var passwordHintText: String = ""
 
