@@ -97,7 +97,7 @@ jobs:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
+        uses: ruby/setup-ruby@c984c1a20bb35a1cbda04477c816cea024418be9 # v1.294.0
         with:
           bundler-cache: true
 
@@ -214,7 +214,7 @@ jobs:
 
       - name: Upload to codecov.io
         id: upload-to-codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         continue-on-error: true
         with:
           files: coverage.xml
