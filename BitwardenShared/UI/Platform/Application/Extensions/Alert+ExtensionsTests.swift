@@ -74,4 +74,19 @@ class AlertExtensionsTests: BitwardenTestCase {
 
         XCTAssertTrue(okAction.isEnabled)
     }
+
+    /// `passwordMatchesHint` builds an `Alert` with the password and hint must not match message.
+    func test_passwordMatchesHint() {
+        let subject = Alert.passwordMatchesHint
+
+        XCTAssertEqual(subject.title, Localizations.warning)
+        XCTAssertEqual(subject.message, Localizations.masterPasswordAndHintMustNotMatch)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 1)
+
+        let action = subject.alertActions[0]
+        XCTAssertEqual(action.title, Localizations.ok)
+        XCTAssertEqual(action.style, .default)
+        XCTAssertNil(action.handler)
+    }
 }

@@ -247,6 +247,20 @@ extension Alert {
         )
     }
 
+    /// An alert to show when the user's Master Password Hint matches their Master Password
+    ///
+    /// - Returns: An alert that is displayed to confirm the user wants to leave the organization.
+    ///
+    static func masterPasswordAndHintMatchAlert() -> Alert {
+        Alert(
+            title: Localizations.warning,
+            message: Localizations.masterPasswordAndHintMustNotMatch,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ],
+        )
+    }
+
     /// Returns an alert notifying the user that their master password is invalid.
     ///
     /// - Returns: An alert notifying the user that their master password is invalid.
