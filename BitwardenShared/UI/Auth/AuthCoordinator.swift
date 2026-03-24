@@ -45,7 +45,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
     typealias Services = HasAccountAPIService
-        & HasAppIdService
+        & HasAppIDService
         & HasAppSettingsStore
         & HasApplication
         & HasAuthAPIService

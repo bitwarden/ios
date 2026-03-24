@@ -6,7 +6,7 @@ import Foundation
 struct PushNotificationData: Codable {
     // MARK: Properties
 
-    /// The context Id, which should match the app id.
+    /// The context Id, which should match the app ID.
     let contextId: String?
 
     /// The payload of the push notification.

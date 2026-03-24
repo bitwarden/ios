@@ -7,7 +7,7 @@ typealias Services = HasAPIService
     & HasASSettingsMediator
     & HasAccountAPIService
     & HasAppContextHelper
-    & HasAppIdService
+    & HasAppIDService
     & HasAppInfoService
     & HasAppSettingsStore
     & HasApplication
@@ -88,11 +88,11 @@ protocol HasAppContextHelper {
     var appContextHelper: AppContextHelper { get }
 }
 
-/// Protocol for an object that provides an `AppIdService`.
+/// Protocol for an object that provides an `AppIDService`.
 ///
-protocol HasAppIdService {
+protocol HasAppIDService {
     /// The service used by the application to manage the app's ID.
-    var appIdService: AppIdService { get }
+    var appIDService: AppIDService { get }
 }
 
 /// Protocol for an object that provides an `AppSettingsStore`.

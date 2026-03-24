@@ -10,7 +10,7 @@ struct AnswerLoginRequestRequestModel: JSONRequestBody, Equatable {
 
     // MARK: Properties
 
-    /// The app id.
+    /// The app ID.
     let deviceIdentifier: String
 
     /// The encrypted key associated with the request.

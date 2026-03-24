@@ -337,10 +337,17 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
     }
 
     func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
-        if await shouldIncludeTOTP(cipher: cipher) {
-            preparedData.totpItemsCount += 1
-        }
+        guard await shouldIncludeTOTP(cipher: cipher) else { return self }
 
+        // Ensure the TOTP key is valid by generating a TOTP code. The count shouldn't be
+        // incremented for invalid keys since they are filtered out from the list.
+        let isValidKey = await (try? clientService.vault().generateTOTPCode(
+            for: cipher,
+            date: timeProvider.presentTime,
+        )) != nil
+        guard isValidKey else { return self }
+
+        preparedData.totpItemsCount += 1
         return self
     }
 

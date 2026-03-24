@@ -173,23 +173,23 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:addSitePromptShown"))
     }
 
-    /// `appId` returns `nil` if there isn't a previously stored value.
-    func test_appId_isInitiallyNil() {
-        XCTAssertNil(subject.appId)
+    /// `appID` returns `nil` if there isn't a previously stored value.
+    func test_appID_isInitiallyNil() {
+        XCTAssertNil(subject.appID)
     }
 
-    /// `appId` can be used to get and set the persisted value in user defaults.
-    func test_appId_withValue() {
-        subject.appId = "📱"
-        XCTAssertEqual(subject.appId, "📱")
+    /// `appID` can be used to get and set the persisted value in user defaults.
+    func test_appID_withValue() {
+        subject.appID = "📱"
+        XCTAssertEqual(subject.appID, "📱")
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:appId"), "📱")
 
-        subject.appId = "☎️"
-        XCTAssertEqual(subject.appId, "☎️")
+        subject.appID = "☎️"
+        XCTAssertEqual(subject.appID, "☎️")
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:appId"), "☎️")
 
-        subject.appId = nil
-        XCTAssertNil(subject.appId)
+        subject.appID = nil
+        XCTAssertNil(subject.appID)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appId"))
     }
 

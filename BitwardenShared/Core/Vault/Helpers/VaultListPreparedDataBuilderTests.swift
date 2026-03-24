@@ -392,6 +392,18 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         XCTAssertEqual(preparedData.totpItemsCount, 0)
     }
 
+    /// `incrementTOTPCount(cipher:)` does not increment the TOTP items count when the TOTP key
+    /// is present but invalid (code generation fails).
+    func test_incrementTOTPCount_doesNotIncrementWhenTOTPCodeIsInvalid() async {
+        let cipher = CipherListView.fixture(type: .login(.fixture(totp: "otpauth://totp")))
+        stateService.doesActiveAccountHavePremiumResult = true
+        clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
+
+        let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
+
+        XCTAssertEqual(preparedData.totpItemsCount, 0)
+    }
+
     /// `incrementTOTPCount(cipher:)` increments the TOTP items count when cipher is in an organization
     ///  with TOTP enabled.
     func test_incrementTOTPCount_incrementsWhenOrgHasTotpEnabled() async {

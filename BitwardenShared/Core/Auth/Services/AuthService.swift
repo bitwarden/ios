@@ -252,7 +252,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     private let accountAPIService: AccountAPIService
 
     /// The service used by the application to manage the app's ID.
-    private let appIdService: AppIdService
+    private let appIDService: AppIDService
 
     /// The API service used to make calls related to the auth process.
     private let authAPIService: AuthAPIService
@@ -320,7 +320,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///
     /// - Parameters:
     ///   - accountAPIService: The API service used to make calls related to the account process.
-    ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - authAPIService: The API service used to make calls related to the auth process.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
@@ -336,7 +336,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///
     init(
         accountAPIService: AccountAPIService,
-        appIdService: AppIdService,
+        appIDService: AppIDService,
         authAPIService: AuthAPIService,
         clientService: ClientService,
         configService: ConfigService,
@@ -350,7 +350,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         trustDeviceService: TrustDeviceService,
     ) {
         self.accountAPIService = accountAPIService
-        self.appIdService = appIdService
+        self.appIDService = appIDService
         self.authAPIService = authAPIService
         self.clientService = clientService
         self.configService = configService
@@ -367,7 +367,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     // MARK: Methods
 
     func answerLoginRequest(_ loginRequest: LoginRequest, approve: Bool) async throws {
-        let appID = await appIdService.getOrCreateAppId()
+        let appID = await appIDService.getOrCreateAppID()
 
         // Encrypt the login request's public key.
         let publicKey = loginRequest.publicKey
@@ -511,7 +511,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         // Get the app's id.
-        let appId = await appIdService.getOrCreateAppId()
+        let appId = await appIDService.getOrCreateAppID()
 
         // Initiate the login request and cache the result.
         let loginWithDeviceData = try await clientService.auth(isPreAuth: true).newAuthRequest(email: email)
@@ -844,7 +844,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         request: IdentityTokenRequestModel? = nil,
     ) async throws -> IdentityTokenResponseModel {
         // Get the app's id.
-        let appID = await appIdService.getOrCreateAppId()
+        let appID = await appIDService.getOrCreateAppID()
 
         var request = request
         if let authenticationMethod {

@@ -31,7 +31,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let appContextHelper: AppContextHelper
 
     /// The service used by the application to manage the app's ID.
-    let appIdService: AppIdService
+    let appIDService: AppIDService
 
     /// The service used by the application to get info about the app and device it's running on.
     public let appInfoService: AppInfoService
@@ -224,7 +224,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
     ///   - appContextHelper: The helper used to know app context.
-    ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - appInfoService: The service used by the application to get info about the app and device
     ///     it's running on.
     ///   - application: The application instance.
@@ -298,7 +298,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     init( // swiftlint:disable:this function_body_length
         apiService: APIService,
         appContextHelper: AppContextHelper,
-        appIdService: AppIdService,
+        appIDService: AppIDService,
         appInfoService: AppInfoService,
         application: Application?,
         appSettingsStore: AppSettingsStore,
@@ -363,7 +363,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ) {
         self.apiService = apiService
         self.appContextHelper = appContextHelper
-        self.appIdService = appIdService
+        self.appIDService = appIDService
         self.appInfoService = appInfoService
         self.application = application
         self.appSettingsStore = appSettingsStore
@@ -449,7 +449,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
-        let appIdService = AppIdService(appSettingStore: appSettingsStore)
+        let appIDService = AppIDService(appIDSettingsStore: appSettingsStore)
 
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after configService is created.
@@ -469,7 +469,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let keychainService = DefaultKeychainService()
 
         let keychainRepository = DefaultKeychainRepository(
-            appIdService: appIdService,
+            appIDService: appIDService,
             keychainService: keychainService,
         )
         let timeProvider = CurrentTime()
@@ -723,7 +723,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let trustDeviceService = DefaultTrustDeviceService(
-            appIdService: appIdService,
+            appIDService: appIDService,
             authAPIService: apiService,
             clientService: clientService,
             keychainRepository: keychainRepository,
@@ -745,7 +745,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let authService = DefaultAuthService(
             accountAPIService: apiService,
-            appIdService: appIdService,
+            appIDService: appIDService,
             authAPIService: apiService,
             clientService: clientService,
             configService: configService,
@@ -807,7 +807,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let notificationService = DefaultNotificationService(
-            appIdService: appIdService,
+            appIDService: appIDService,
             authRepository: authRepository,
             authService: authService,
             configService: configService,
@@ -1064,7 +1064,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.init(
             apiService: apiService,
             appContextHelper: appContextHelper,
-            appIdService: appIdService,
+            appIDService: appIDService,
             appInfoService: appInfoService,
             application: application,
             appSettingsStore: appSettingsStore,

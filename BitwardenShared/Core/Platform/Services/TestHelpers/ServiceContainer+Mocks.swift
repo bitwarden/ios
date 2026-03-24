@@ -14,6 +14,7 @@ extension ServiceContainer {
     static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
         appContextHelper: AppContextHelper = MockAppContextHelper(),
+        appIDSettingsStore: AppIDSettingsStore = MockAppIDSettingsStore(),
         appInfoService: AppInfoService = MockAppInfoService(),
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         asSettingsMediator: ASSettingsMediator = MockASSettingsMediator(),
@@ -95,7 +96,7 @@ extension ServiceContainer {
                 environmentService: environmentService,
             ),
             appContextHelper: appContextHelper,
-            appIdService: AppIdService(appSettingStore: appSettingsStore),
+            appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             appInfoService: appInfoService,
             application: application,
             appSettingsStore: appSettingsStore,

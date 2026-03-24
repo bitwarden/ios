@@ -38,7 +38,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload sources
-        uses: crowdin/github-action@0749939f635900a2521aa6aac7a3766642b2dc71 # v2.11.0
+        uses: crowdin/github-action@ce33ce793a5cbc401d9cd748716e03fc90c001f1 # v2.15.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

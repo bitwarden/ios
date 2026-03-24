@@ -11,7 +11,7 @@ import XCTest
 final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var keychainService: MockKeychainService!
     var subject: DefaultKeychainRepository!
 
@@ -20,11 +20,11 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
+        appIDSettingsStore = MockAppIDSettingsStore()
         keychainService = MockKeychainService()
         subject = DefaultKeychainRepository(
-            appIdService: AppIdService(
-                appSettingStore: appSettingsStore,
+            appIDService: AppIDService(
+                appIDSettingsStore: appIDSettingsStore,
             ),
             keychainService: keychainService,
         )
@@ -33,7 +33,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        appSettingsStore = nil
+        appIDSettingsStore = nil
         keychainService = nil
         subject = nil
     }
