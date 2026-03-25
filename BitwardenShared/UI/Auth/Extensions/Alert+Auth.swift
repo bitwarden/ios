@@ -253,10 +253,10 @@ extension Alert {
     ///
     static func masterPasswordAndHintMatchAlert() -> Alert {
         Alert(
-            title: Localizations.warning,
-            message: Localizations.masterPasswordAndHintMustNotMatch,
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.yourPasswordAndHintCannotBeTheSame,
             alertActions: [
-                AlertAction(title: Localizations.ok, style: .default),
+                AlertAction(title: Localizations.continue, style: .default),
             ],
         )
     }
