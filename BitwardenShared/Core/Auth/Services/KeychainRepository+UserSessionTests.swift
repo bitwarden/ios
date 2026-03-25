@@ -52,7 +52,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     /// `getLastActiveTime(userId:)` throws an error if one occurs.
     ///
     func test_getLastActiveTime_error() async {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.lastActiveTime(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.lastActiveTime(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getLastActiveTime(userId: "1")
@@ -112,7 +112,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     /// `getUnsuccessfulUnlockAttempts(userId:)` throws an error if one occurs.
     ///
     func test_getUnsuccessfulUnlockAttempts_error() async {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.unsuccessfulUnlockAttempts(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
@@ -155,7 +155,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     /// `getVaultTimeout(userId:)` throws an error if one occurs.
     ///
     func test_getVaultTimeout_error() async {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.vaultTimeout(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.vaultTimeout(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getVaultTimeout(userId: "1")

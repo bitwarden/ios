@@ -44,7 +44,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
     /// `deleteServerCommunicationConfig(hostname:)` deletes the keychain item with the correct query.
     func test_deleteServerCommunicationConfig() async throws {
         let hostname = "example.com"
-        let item = KeychainItem.serverCommunicationConfig(hostname: hostname)
+        let item = BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname)
         keychainService.deleteResult = .success(())
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
@@ -68,7 +68,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
     /// `getServerCommunicationConfig(hostname:)` returns `nil` when the key is not found.
     func test_getServerCommunicationConfig_notFound_keyNotFound() async throws {
         keychainService.searchResult = .failure(
-            KeychainServiceError.keyNotFound(KeychainItem.serverCommunicationConfig(hostname: "example.com")),
+            KeychainServiceError.keyNotFound(BitwardenKeychainItem.serverCommunicationConfig(hostname: "example.com")),
         )
 
         let result = try await subject.getServerCommunicationConfig(hostname: "example.com")
@@ -87,7 +87,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
 
     /// `setServerCommunicationConfig(_:hostname:)` stores the config as JSON in the keychain.
     func test_setServerCommunicationConfig_withConfig() async throws {
-        let item = KeychainItem.serverCommunicationConfig(hostname: "example.com")
+        let item = BitwardenKeychainItem.serverCommunicationConfig(hostname: "example.com")
         keychainService.accessControlResult = .success(
             SecAccessControlCreateWithFlags(
                 nil,
@@ -110,7 +110,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
     /// `setServerCommunicationConfig(_:hostname:)` deletes the keychain item when config is `nil`.
     func test_setServerCommunicationConfig_nilConfig() async throws {
         let hostname = "example.com"
-        let item = KeychainItem.serverCommunicationConfig(hostname: hostname)
+        let item = BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname)
         keychainService.deleteResult = .success(())
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
@@ -121,7 +121,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
 
     /// `unformattedKey` generates the expected unformatted key for server communication config.
     func test_unformattedKey_serverCommunicationConfig() {
-        let item = KeychainItem.serverCommunicationConfig(hostname: "example.com")
+        let item = BitwardenKeychainItem.serverCommunicationConfig(hostname: "example.com")
         XCTAssertEqual(item.unformattedKey, "serverCommunicationConfig_example.com")
     }
 }

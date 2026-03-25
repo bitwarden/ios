@@ -1681,7 +1681,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.neverLock(
+                for: BitwardenKeychainItem.neverLock(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1703,7 +1703,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             keychainService.mockStorage,
             [
                 keychainService.formattedKey(
-                    for: KeychainItem.neverLock(userId: active.profile.userId),
+                    for: BitwardenKeychainItem.neverLock(userId: active.profile.userId),
                 ):
                     "pasta",
             ],
@@ -1715,7 +1715,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let active = Account.fixture()
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.neverLock(
+                for: BitwardenKeychainItem.neverLock(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1741,7 +1741,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = active
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.neverLock(
+                for: BitwardenKeychainItem.neverLock(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1769,7 +1769,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = active
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.deviceKey(
+                for: BitwardenKeychainItem.deviceKey(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1797,7 +1797,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = active
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.deviceKey(
+                for: BitwardenKeychainItem.deviceKey(
                     userId: active.profile.userId,
                 ),
             ):

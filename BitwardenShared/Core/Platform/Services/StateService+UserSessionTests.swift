@@ -88,7 +88,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
 
     /// `getUnsuccessfulUnlockAttempts(userId:)` returns `0` if no value is stored.
     func test_getUnsuccessfulUnlockAttempts_default() async throws {
-        let item = KeychainItem.unsuccessfulUnlockAttempts(userId: "1")
+        let item = BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1")
         let error = KeychainServiceError.keyNotFound(item)
         userSessionKeychainRepository.getUnsuccessfulUnlockAttemptsThrowableError = error
 
@@ -127,7 +127,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
 
     /// `.getVaultTimeout(userId:)` gets the default vault timeout for the user if a value isn't set.
     func test_getVaultTimeout_default() async throws {
-        let item = KeychainItem.vaultTimeout(userId: "1")
+        let item = BitwardenKeychainItem.vaultTimeout(userId: "1")
         userSessionKeychainRepository.getVaultTimeoutThrowableError = KeychainServiceError.keyNotFound(item)
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -138,7 +138,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
 
     /// `.getVaultTimeout(userId:)` gets the user's vault timeout when it's set to never lock.
     func test_getVaultTimeout_neverLock() async throws {
-        let item = KeychainItem.vaultTimeout(userId: "1")
+        let item = BitwardenKeychainItem.vaultTimeout(userId: "1")
         userSessionKeychainRepository.getVaultTimeoutThrowableError = KeychainServiceError.keyNotFound(item)
         keychainRepository.mockStorage[keychainRepository.formattedKey(for: .neverLock(userId: "1"))] = "NEVER_LOCK_KEY"
 
