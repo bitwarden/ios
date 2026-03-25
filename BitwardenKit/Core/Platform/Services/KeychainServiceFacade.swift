@@ -5,6 +5,13 @@ import Foundation
 /// A façade layer for ``KeychainService`` that provides higher-level get, set, and delete options.
 ///
 public protocol KeychainServiceFacade { // sourcery: AutoMockable
+    /// Deletes the value in the keychain for the given item.
+    ///
+    /// - Parameters:
+    ///   - item: The keychain item to delete the associated value
+    ///
+    func deleteValue(for item: any KeychainItem) async throws
+
     /// Gets the string value associated with the keychain item from the keychain.
     ///
     /// - Parameter item: The keychain item used to fetch the associated value.
@@ -121,6 +128,12 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     }
 
     // MARK: Methods
+
+    public func deleteValue(for item: any KeychainItem) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: item),
+        )
+    }
 
     public func getValue(for item: any KeychainItem) async throws -> String {
         let foundItem = try await keychainService.search(

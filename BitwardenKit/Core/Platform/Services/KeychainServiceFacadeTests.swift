@@ -202,6 +202,31 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         XCTAssertTrue(keychainService.addCalls.isEmpty)
     }
 
+    // MARK: Tests - deleteValue(for:)
+
+    /// `deleteValue(for:)` deletes the item using the correct base query.
+    ///
+    func test_deleteValue_success() async throws {
+        let item = makeItem()
+        keychainService.deleteResult = .success(())
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.deleteValue(for: item)
+
+        XCTAssertEqual(keychainService.deleteQueries, [expectedQuery])
+    }
+
+    /// `deleteValue(for:)` rethrows errors from the keychain service.
+    ///
+    func test_deleteValue_rethrows() async {
+        let item = makeItem()
+        keychainService.deleteResult = .failure(.osStatusError(errSecItemNotFound))
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecItemNotFound)) {
+            try await subject.deleteValue(for: item)
+        }
+    }
+
     // MARK: Tests - setValue(_:for:) Codable overload
 
     /// `setValue(_:for:)` JSON-encodes a `Codable` value and stores the resulting string.
