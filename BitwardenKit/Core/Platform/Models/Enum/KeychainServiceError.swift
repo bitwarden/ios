@@ -1,13 +1,5 @@
 import Foundation
 
-// MARK: - KeychainStorageKeyPossessing
-
-/// A protocol for an object that can provide a keychain storage key.
-public protocol KeychainItem: Equatable { // sourcery: AutoMockable
-    /// A keychain storage key that can be used for this object.
-    var unformattedKey: String { get }
-}
-
 // MARK: - KeychainServiceError
 
 /// An error that can be thrown from a keychain service indicating an issue when

@@ -12,6 +12,10 @@ public enum SharedKeychainItem: Equatable, Hashable, Sendable, KeychainItem {
     /// A date at which a BWPM account automatically logs out.
     case accountAutoLogout(userId: String)
 
+    public var accessControlFlags: SecAccessControlCreateFlags? { nil }
+
+    public var protection: CFTypeRef { kSecAttrAccessibleWhenUnlockedThisDeviceOnly }
+
     /// The storage key for this keychain item.
     ///
     public var unformattedKey: String {

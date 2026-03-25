@@ -13,7 +13,7 @@ enum AuthenticatorKeychainItem: Equatable, KeychainItem {
     /// The `SecAccessControlCreateFlags` protection level for this keychain item.
     /// If `nil`, no extra protection is applied.
     ///
-    var protection: SecAccessControlCreateFlags? {
+    var accessControlFlags: SecAccessControlCreateFlags? {
         switch self {
         case .biometrics:
             .userPresence
@@ -21,6 +21,8 @@ enum AuthenticatorKeychainItem: Equatable, KeychainItem {
             nil
         }
     }
+
+    var protection: CFTypeRef { kSecAttrAccessibleWhenUnlockedThisDeviceOnly }
 
     /// The storage key for this keychain item.
     ///
@@ -199,7 +201,7 @@ class DefaultKeychainRepository: KeychainRepository {
     func setValue(_ value: String, for item: AuthenticatorKeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
             protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            for: item.protection ?? [],
+            for: item.accessControlFlags ?? [],
         )
         let baseQuery = await keychainQueryValues(for: item)
         let updateAttributes: CFDictionary = [
