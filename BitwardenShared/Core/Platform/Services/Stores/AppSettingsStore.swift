@@ -13,9 +13,6 @@ protocol AppSettingsStore: AnyObject {
     /// Whether the autofill info prompt has been shown.
     var addSitePromptShown: Bool { get set }
 
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -204,6 +201,12 @@ protocol AppSettingsStore: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
     func isBiometricAuthenticationEnabled(userId: String) -> Bool
+
+    /// Gets the time of the last request to turn on credential provider.
+    ///
+    /// - Returns: The time of the last request to turn on credential provider.
+    ///
+    func lastRequestToTurnOnCredentialProvider() -> Date?
 
     /// Gets the time of the last sync for the user ID.
     ///
@@ -413,6 +416,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - hasBeenPerformed: Whether a sync has been performed after login.
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
+
+    /// Sets the time of the last request to turn on credential provider for the user ID.
+    ///
+    /// - Parameter date: The time of the last request to turn on credential provider.
+    ///
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?)
 
     /// Sets the time of the last sync for the user ID.
     ///
@@ -721,7 +730,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case allowUniversalClipboard(userId: String)
-        case appId
+        case appID
         case appLocale
         case appRehydrationState(userId: String)
         case appTheme
@@ -741,6 +750,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
+        case lastRequestToTurnOnCredentialProvider
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
         case learnGeneratorActionCardStatus
@@ -788,7 +798,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "syncOnRefresh_\(userId)"
             case let .allowUniversalClipboard(userId):
                 "allowUniversalClipboard_\(userId)"
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -828,6 +838,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "introCarouselShown"
             case .learnNewLoginActionCardStatus:
                 "learnNewLoginActionCardStatus"
+            case .lastRequestToTurnOnCredentialProvider:
+                "lastRequestToTurnOnCredentialProvider"
             case let .lastSync(userId):
                 "lastSync_\(userId)"
             case .learnGeneratorActionCardStatus:
@@ -890,11 +902,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var addSitePromptShown: Bool {
         get { fetch(for: .addSitePromptShown) }
         set { store(newValue, for: .addSitePromptShown) }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {
@@ -1074,6 +1081,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
 
+    func lastRequestToTurnOnCredentialProvider() -> Date? {
+        fetch(for: .lastRequestToTurnOnCredentialProvider).map { Date(timeIntervalSince1970: $0) }
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -1188,6 +1199,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) {
+        store(date?.timeIntervalSince1970, for: .lastRequestToTurnOnCredentialProvider)
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
@@ -1282,5 +1297,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func shouldTrustDevice(userId: String) -> Bool? {
         fetch(for: .shouldTrustDevice(userId: userId))
+    }
+}
+
+// MARK: AppIDSettingsStore
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }

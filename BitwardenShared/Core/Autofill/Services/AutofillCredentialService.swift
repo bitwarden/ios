@@ -86,7 +86,6 @@ protocol AutofillCredentialService: AnyObject {
 /// A default implementation of an `AutofillCredentialService`.
 ///
 class DefaultAutofillCredentialService {
-
     // MARK: Private Properties
 
     /// Helper to know about the app context.
@@ -339,7 +338,7 @@ class DefaultAutofillCredentialService {
     ///
     /// - Parameter userId: The ID of the user whose ciphers and device auth key should be added to the identity store.
     ///
-    private func replaceAllIdentities(userId: String) async { // swiftlint:disable:this function_body_length
+    private func replaceAllIdentities(userId: String) async {
         guard await identityStore.state().isEnabled else { return }
 
         do {
@@ -355,8 +354,12 @@ class DefaultAutofillCredentialService {
 
             if #available(iOS 17, *) {
                 var identities = [ASCredentialIdentity]()
+                let accountHasPremium = await stateService.doesActiveAccountHavePremium()
                 for cipher in decryptedCiphers {
-                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: cipher)
+                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(
+                        from: cipher,
+                        accountHasPremium: accountHasPremium,
+                    )
                     identities.append(contentsOf: newIdentities)
                 }
 
@@ -582,6 +585,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw ASExtensionError(.userInteractionRequired)
         }
 
+        guard await totpService.isTotpAuthorized(for: cipher) else {
+            throw ASExtensionError(.credentialIdentityNotFound)
+        }
+
         guard let vault = try? await clientService.vault(),
               let code = try? vault.generateTOTPCode(for: totpKey, date: timeProvider.presentTime) else {
             throw ASExtensionError(.credentialIdentityNotFound)
@@ -636,7 +643,11 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         var identities = [ASCredentialIdentity]()
         let decryptedCipher = try await clientService.vault().ciphers().decrypt(cipher: cipher)
 
-        let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: decryptedCipher)
+        let accountHasPremium = await stateService.doesActiveAccountHavePremium()
+        let newIdentities = await credentialIdentityFactory.createCredentialIdentities(
+            from: decryptedCipher,
+            accountHasPremium: accountHasPremium,
+        )
         identities.append(contentsOf: newIdentities)
 
         let fido2Identities = try await clientService.platform().fido2()

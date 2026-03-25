@@ -120,7 +120,7 @@ class AutofillHelper {
             guard appExtensionDelegate?.canAutofill ?? false,
                   let username = cipherView.login?.username, !username.isEmpty,
                   let password = cipherView.login?.password, !password.isEmpty else {
-                handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
+                await handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
                 return
             }
 
@@ -154,7 +154,7 @@ class AutofillHelper {
     ///   - cipherView: The `CipherView` to use for autofill.
     ///   - showToast: A closure that when called will display a toast to the user.
     ///
-    private func handleMissingValueForAutofill(cipherView: CipherView, showToast: @escaping (String) -> Void) {
+    private func handleMissingValueForAutofill(cipherView: CipherView, showToast: @escaping (String) -> Void) async {
         guard let login = cipherView.login,
               !login.username.isEmptyOrNil ||
               !login.password.isEmptyOrNil ||
@@ -180,22 +180,26 @@ class AutofillHelper {
             }))
         }
 
-        if let totp = login.totp, !totp.isEmpty {
-            alert.add(AlertAction(title: Localizations.copyTotp, style: .default) { _ in
-                do {
-                    let key = TOTPKeyModel(authenticatorKey: totp)
-                    let response = try await self.services.vaultRepository.refreshTOTPCode(for: key)
-                    if let code = response.codeModel?.code {
-                        self.services.pasteboardService.copy(code)
-                        showToast(Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
-                    } else {
+        do {
+            if let totp = try await services.vaultRepository.getTOTPKeyIfAllowedToCopy(cipher: cipherView) {
+                alert.add(AlertAction(title: Localizations.copyTotp, style: .default) { _ in
+                    do {
+                        let key = TOTPKeyModel(authenticatorKey: totp)
+                        let response = try await self.services.vaultRepository.refreshTOTPCode(for: key)
+                        if let code = response.codeModel?.code {
+                            self.services.pasteboardService.copy(code)
+                            showToast(Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
+                        } else {
+                            self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                        }
+                    } catch {
                         self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                        self.services.errorReporter.log(error: error)
                     }
-                } catch {
-                    self.coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-                    self.services.errorReporter.log(error: error)
-                }
-            })
+                })
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
 
         alert.add(AlertAction(title: Localizations.cancel, style: .cancel))

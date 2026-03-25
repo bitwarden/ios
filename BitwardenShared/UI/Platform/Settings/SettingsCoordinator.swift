@@ -62,7 +62,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & PasswordAutoFillModule
         & SelectLanguageModule
 
-    typealias Services = HasAccountAPIService
+    typealias Services = HasASSettingsMediator
+        & HasAccountAPIService
         & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
@@ -187,7 +188,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .other:
             showOtherScreen()
         case .passwordAutoFill:
-            showPasswordAutoFill()
+            showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
             showPendingLoginRequests()
         case let .selectLanguage(currentLanguage: currentLanguage):
@@ -459,14 +460,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the password auto-fill screen.
     ///
-    private func showPasswordAutoFill() {
+    private func showPasswordAutoFill(delegate: PasswordAutoFillProcessorDelegate?) {
         guard let stackNavigator else { return }
         let coordinator = module.makePasswordAutoFillCoordinator(
             delegate: nil,
             stackNavigator: stackNavigator,
         )
         coordinator.start()
-        coordinator.navigate(to: .passwordAutofill(mode: .settings))
+        coordinator.navigate(to: .passwordAutofill(mode: .settings), context: delegate)
     }
 
     /// Shows the pending login requests screen.

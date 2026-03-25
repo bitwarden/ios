@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - KeychainItem
 
-enum KeychainItem: Equatable {
+enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
@@ -77,7 +77,7 @@ protocol KeychainRepository: AnyObject {
 
 extension KeychainRepository {
     /// The format for storing the `unformattedKey` of a `KeychainItem`.
-    /// The first value should be a unique appID from the `appIdService`.
+    /// The first value should be a unique appID from the `appIDService`.
     /// The second value is the `unformattedKey`
     ///
     /// Example: `bwKeyChainStorage:1234567890:biometric_key_98765`
@@ -92,7 +92,7 @@ class DefaultKeychainRepository: KeychainRepository {
 
     /// A service used to provide unique app ids.
     ///
-    let appIdService: AppIdService
+    let appIDService: AppIDService
 
     /// An identifier for this application and extensions.
     ///   ie: "LTZ2PFU5D6.com.8bit.bitwarden"
@@ -115,10 +115,10 @@ class DefaultKeychainRepository: KeychainRepository {
     // MARK: Initialization
 
     init(
-        appIdService: AppIdService,
+        appIDService: AppIDService,
         keychainService: KeychainService,
     ) {
-        self.appIdService = appIdService
+        self.appIDService = appIDService
         self.keychainService = keychainService
     }
 
@@ -130,7 +130,7 @@ class DefaultKeychainRepository: KeychainRepository {
     /// - Returns: A formatted storage key.
     ///
     func formattedKey(for item: KeychainItem) async -> String {
-        let appId = await appIdService.getOrCreateAppId()
+        let appId = await appIDService.getOrCreateAppID()
         return String(format: storageKeyFormat, appId, item.unformattedKey)
     }
 
@@ -198,6 +198,7 @@ class DefaultKeychainRepository: KeychainRepository {
     ///
     func setValue(_ value: String, for item: KeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
+            protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
             for: item.protection ?? [],
         )
         let baseQuery = await keychainQueryValues(for: item)

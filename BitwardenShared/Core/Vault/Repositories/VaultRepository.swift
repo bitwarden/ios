@@ -698,7 +698,7 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {
-        guard let totp = cipher.login?.totp else {
+        guard let totp = cipher.login?.totp, !totp.isEmpty else {
             return nil
         }
 

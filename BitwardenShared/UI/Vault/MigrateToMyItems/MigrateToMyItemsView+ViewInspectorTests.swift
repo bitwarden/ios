@@ -38,7 +38,7 @@ class MigrateToMyItemsViewTests: BitwardenTestCase {
     /// Tapping the accept button dispatches the `.acceptTransferTapped` effect.
     @MainActor
     func test_acceptButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.accept)
+        let button = try subject.inspect().find(asyncButton: Localizations.acceptTransfer)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .acceptTransferTapped)
     }

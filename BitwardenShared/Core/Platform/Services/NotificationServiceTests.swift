@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
@@ -9,7 +10,7 @@ import XCTest
 class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var refreshableApiService: MockRefreshableAPIService!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
@@ -28,7 +29,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
+        appIDSettingsStore = MockAppIDSettingsStore()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
@@ -42,7 +43,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         syncService = MockSyncService()
 
         subject = DefaultNotificationService(
-            appIdService: AppIdService(appSettingStore: appSettingsStore),
+            appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             authRepository: authRepository,
             authService: authService,
             configService: configService,
@@ -59,7 +60,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func tearDown() async throws {
         try await super.tearDown()
 
-        appSettingsStore = nil
+        appIDSettingsStore = nil
         authService = nil
         client = nil
         configService = nil
@@ -80,7 +81,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Set up the mock data.
         let tokenData = try XCTUnwrap("Hi there :3".data(using: .utf8))
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         client.result = .httpSuccess(testData: .emptyResponse)
 
         // Test.
@@ -96,7 +97,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Set up the mock data.
         let tokenData = try XCTUnwrap("Hi there :3".data(using: .utf8))
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         client.result = .httpFailure(BitwardenTestError.example)
 
         // Test.
@@ -110,7 +111,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_errors() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": "malformed",
@@ -129,7 +130,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_nil() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         // swiftlint:disable line_length
         let message: [AnyHashable: Any] = [
             "data": [
@@ -151,7 +152,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncCipherCreate() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncCipherCreate.rawValue,
@@ -171,7 +172,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncCipherUpdate() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncCipherUpdate.rawValue,
@@ -191,7 +192,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncFolderCreate() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncFolderCreate.rawValue,
@@ -211,7 +212,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncFolderUpdate() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncFolderUpdate.rawValue,
@@ -231,7 +232,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncCipherDelete() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncCipherDelete.rawValue,
@@ -251,7 +252,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncLoginDelete() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncLoginDelete.rawValue,
@@ -271,7 +272,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncFolderDelete() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncFolderDelete.rawValue,
@@ -291,7 +292,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncSendCreate() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncSendCreate.rawValue,
@@ -311,7 +312,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncSendUpdate() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncSendUpdate.rawValue,
@@ -331,7 +332,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncSendDelete() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncSendDelete.rawValue,
@@ -351,7 +352,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncOrgKeys() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncOrgKeys.rawValue,
@@ -372,7 +373,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_syncOrgKeysRefreshThrows() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncOrgKeys.rawValue,
@@ -394,7 +395,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_messageReceived_fetchSync() async throws {
         // Set up the mock data.
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncVault.rawValue,
@@ -413,7 +414,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// policy changed notification is received.
     func test_messageReceived_policyChanged() async throws {
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.policyChanged.rawValue,
@@ -431,7 +432,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_messageReceived_loginRequest_accountNotFound() async throws {
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "unknownUser")
         let notificationData = try JSONEncoder().encode(loginRequestNotification)
         nonisolated(unsafe) let message: [AnyHashable: Any] = [
@@ -460,7 +461,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Set up the mock data.
         stateService.setIsAuthenticated()
         stateService.accounts = [.fixture(), .fixture(profile: .fixture(userId: "differentUser"))]
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         authService.getPendingLoginRequestResult = .success([.fixture()])
         let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "differentUser")
         let notificationData = try JSONEncoder().encode(loginRequestNotification)
@@ -487,7 +488,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         // Set up the mock data.
         stateService.setIsAuthenticated()
         stateService.accounts = [.fixture()]
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         authService.getPendingLoginRequestResult = .success([.fixture()])
         let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "1")
         let notificationData = try JSONEncoder().encode(loginRequestNotification)
@@ -611,7 +612,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_messageReceived_logsTypeToFlightRecorder() async throws {
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncCipherUpdate.rawValue,
@@ -632,7 +633,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_messageReceived_logsUserIdMismatchToFlightRecorder() async throws {
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncCipherUpdate.rawValue,
@@ -656,7 +657,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// to the error reporter when the notification payload is malformed.
     func test_messageReceived_malformedPayload_reportsPushNotificationDataError() async throws {
         stateService.setIsAuthenticated()
-        appSettingsStore.appId = "10"
+        appIDSettingsStore.appID = "10"
         let message: [AnyHashable: Any] = [
             "data": [
                 "type": NotificationType.syncCipherUpdate.rawValue,

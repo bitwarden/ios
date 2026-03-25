@@ -850,6 +850,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
     }
 
+    /// `getLastRequestToTurnOnCredentialProvider()` returns the date of the last request
+    /// to turn on the credential provider.
+    func test_getLastRequestToTurnOnCredentialProvider() async {
+        var result = await subject.getLastRequestToTurnOnCredentialProvider()
+        XCTAssertNil(result)
+
+        let date = Date(year: 2024, month: 6, day: 15)
+        appSettingsStore.lastRequestToTurnOnCredentialProviderDate = date
+        result = await subject.getLastRequestToTurnOnCredentialProvider()
+        XCTAssertEqual(result, date)
+    }
+
     /// `getLastSyncTime(userId:)` gets the user's last sync time.
     func test_getLastSyncTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1968,6 +1980,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
     }
 
+    /// `setLastRequestToTurnOnCredentialProvider(_:)` stores the date in the app settings store.
+    func test_setLastRequestToTurnOnCredentialProvider() async {
+        let date = Date(year: 2024, month: 6, day: 15)
+        await subject.setLastRequestToTurnOnCredentialProvider(date)
+        XCTAssertEqual(appSettingsStore.lastRequestToTurnOnCredentialProviderDate, date)
+
+        await subject.setLastRequestToTurnOnCredentialProvider(nil)
+        XCTAssertNil(appSettingsStore.lastRequestToTurnOnCredentialProviderDate)
+    }
+
     /// `setDefaultUriMatchType(_:userId:)` sets the default URI match type value for a user.
     func test_setDefaultUriMatchType() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -2062,18 +2084,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `setAccountMasterPasswordUnlock(_:)` sets the master password unlock data for the user account.
     func test_setAccountMasterPasswordUnlock() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-        await subject.addAccount(
-            .fixture(
-                profile: .fixture(
-                    userDecryptionOptions: UserDecryptionOptions(
-                        hasMasterPassword: true,
-                        keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
-                        trustedDeviceOption: nil,
-                    ),
-                    userId: "2",
+        await subject.addAccount(.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
+                    trustedDeviceOption: nil,
                 ),
+                userId: "2",
             ),
-        )
+        ))
 
         let masterPasswordUnlockUser1 = MasterPasswordUnlockResponseModel(
             kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),

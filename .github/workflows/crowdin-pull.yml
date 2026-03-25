@@ -45,7 +45,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
         id: app-token
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
@@ -54,7 +54,7 @@ jobs:
           permission-pull-requests: write # for creating pull requests
 
       - name: Download translations
-        uses: crowdin/github-action@0749939f635900a2521aa6aac7a3766642b2dc71 # v2.11.0
+        uses: crowdin/github-action@ce33ce793a5cbc401d9cd748716e03fc90c001f1 # v2.15.2
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}

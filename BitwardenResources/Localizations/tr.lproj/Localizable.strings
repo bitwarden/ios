@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Hesap zaten eklenmiş";
 "SwitchToAlreadyAddedAccountConfirmation" = "Bu hesaba geçmek ister misiniz?";
 "MasterPassword" = "Ana parola";
-"More" = "Daha fazla";
+"MoreOptions" = "Diğer seçenekler";
 "MyVault" = "Kasam";
 "Authenticator" = "Kimlik doğrulayıcı";
 "Name" = "Ad";
@@ -208,6 +208,7 @@
 "Status" = "Durum";
 "BitwardenAutofillServiceAlert2" = "Kasanıza yeni hesaplar eklemenin en kolay yolu Bitwarden Otomatik Doldurma Hizmeti’dir. Bu özellik hakkında daha fazla bilgi almak için “Ayarlar” ekranına gidin.";
 "Autofill" = "Otomatik doldur";
+"AutofillEnabled" = "Otomatik doldurma etkin";
 "AutofillOrView" = "Bu kaydı otomatik doldurmak veya görüntülemek ister misiniz?";
 "BitwardenAutofillServiceMatchConfirm" = "Bu kaydı otomatik doldurmak istediğinizden emin misiniz? “%1$@” ile tam olarak eşleşmiyor.";
 "MatchingItems" = "Eşleşen hesaplar";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Yeni giriş istekleri için bildirim al";
 "NoThanks" = "Gerek yok";
 "ConfimLogInAttempForX" = "%1$@ girişini onayla";
+"ConfirmLogInAttemptForX" = "%1$@ girişini onayla";
 "AllNotifications" = "Tüm bildirimler";
 "PasswordType" = "Parola türü";
 "WhatWouldYouLikeToGenerate" = "Ne oluşturmak istersiniz?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Reddederseniz kişisel kayıtlarınız hesabınızda kalır, ancak paylaşılan kayıtlara ve kuruluş özelliklerine erişiminizi kaybedersiniz.";
 "ContactYourAdminToRegainAccess" = "Erişiminizi yeniden kazanmak için yöneticinizle iletişime geçin.";
 "LeaveX" = "%1$@ kuruluşundan ayrıl";
-"HowToManageMyVault" = "Kasamı nasıl yönetebilirim";
 "YouLeftTheOrganization" = "Kuruluştan ayrıldınız";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Bu ayar kuruluşunuz tarafından yönetiliyor.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Kuruluşunuz varsayılan oturum zaman aşımını %1$@ olarak ayarladı.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Kuruluşunuz maksimum oturum zaman aşımını %1$@ olarak ayarladı.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Kuruluşunuz varsayılan oturum zaman aşımını \"Asla\" olarak ayarladı.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Kuruluşunuz varsayılan oturum zaman aşımını \"Uygulama yeniden başlatıldığında\" olarak ayarladı.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Kuruluşunuz maksimum oturum zaman aşımını %1$@ ve %2$@ olarak ayarladı.";
 "HiddenItems" = "Gizli öğeler";
 "Archive" = "Arşiv";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO çerezleri temizlendi";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Otomatik doldurma hakkında bilgi alın";
+"TurnOnNow" = "Şimdi etkinleştir";
+"AcceptTransfer" = "Aktarımı kabul et";

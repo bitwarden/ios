@@ -12,7 +12,7 @@ import XCTest
 class PasswordAutoFillViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<PasswordAutoFillState, Void, PasswordAutoFillEffect>!
+    var processor: MockProcessor<PasswordAutoFillState, PasswordAutoFillAction, PasswordAutoFillEffect>!
     var subject: PasswordAutoFillView!
 
     // MARK: Setup & Teardown

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
@@ -11,7 +12,7 @@ import XCTest
 final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var keychainService: MockKeychainService!
     var subject: DefaultKeychainRepository!
 
@@ -20,11 +21,11 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
+        appIDSettingsStore = MockAppIDSettingsStore()
         keychainService = MockKeychainService()
         subject = DefaultKeychainRepository(
-            appIdService: AppIdService(
-                appSettingStore: appSettingsStore,
+            appIDService: AppIDService(
+                appIDSettingsStore: appIDSettingsStore,
             ),
             keychainService: keychainService,
         )
@@ -33,7 +34,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     override func tearDown() {
         super.tearDown()
 
-        appSettingsStore = nil
+        appIDSettingsStore = nil
         keychainService = nil
         subject = nil
     }
@@ -163,9 +164,9 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_formattedKey_biometrics() async {
         let item = KeychainItem.biometrics(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
-        let expectedKey = String(format: subject.storageKeyFormat, "testAppId", item.unformattedKey)
+        let expectedKey = String(format: subject.storageKeyFormat, "testAppID", item.unformattedKey)
 
         XCTAssertEqual(
             formattedKey,
@@ -177,9 +178,9 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_formattedKey_neverLock() async {
         let item = KeychainItem.neverLock(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
-        let expectedKey = String(format: subject.storageKeyFormat, "testAppId", item.unformattedKey)
+        let expectedKey = String(format: subject.storageKeyFormat, "testAppID", item.unformattedKey)
 
         XCTAssertEqual(
             formattedKey,
@@ -350,7 +351,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_keychainQueryValues_biometrics() async {
         let item = KeychainItem.biometrics(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
         let queryValues = await subject.keychainQueryValues(for: item)
         let expectedResult = [
@@ -370,7 +371,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_keychainQueryValues_neverLock() async {
         let item = KeychainItem.neverLock(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
         let queryValues = await subject.keychainQueryValues(for: item)
         let expectedResult = [

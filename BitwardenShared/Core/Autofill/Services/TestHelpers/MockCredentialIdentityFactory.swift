@@ -11,7 +11,10 @@ class MockCredentialIdentityFactory: CredentialIdentityFactory {
     var tryCreatePasswordCredentialIdentityResult: ASPasswordCredentialIdentity?
 
     @available(iOS 17.0, *)
-    func createCredentialIdentities(from cipher: BitwardenSdk.CipherView) async -> [any ASCredentialIdentity] {
+    func createCredentialIdentities(
+        from cipher: BitwardenSdk.CipherView,
+        accountHasPremium: Bool,
+    ) async -> [any ASCredentialIdentity] {
         do {
             return try createCredentialIdentitiesMocker.invoke(param: cipher)
                 .compactMap(\.asCredentialIdentity)

@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Ο λογαριασμός έχει ήδη προστεθεί";
 "SwitchToAlreadyAddedAccountConfirmation" = "Θα θέλατε να το αλλάξετε τώρα?";
 "MasterPassword" = "Κύριος κωδικός";
-"More" = "Περισσότερα";
+"MoreOptions" = "More options";
 "MyVault" = "Η κρύπτη μου";
 "Authenticator" = "Εφαρμογή Επαλήθευσης";
 "Name" = "Όνομα";
@@ -208,6 +208,7 @@
 "Status" = "Κατάσταση";
 "BitwardenAutofillServiceAlert2" = "Ο ευκολότερος τρόπος για να προσθέσετε νέες συνδέσεις στο vault σας, είναι με την υπηρεσία αυτόματης συμπλήρωσης του Bitwarden. Μάθετε περισσότερα σχετικά με τη χρήση της, μεταβαίνοντας στις \"Ρυθμίσεις\".";
 "Autofill" = "Αυτόματη συμπλήρωση";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Θέλετε αυτόματη συμπλήρωση ή να δείτε αυτό το στοιχείο;";
 "BitwardenAutofillServiceMatchConfirm" = "Είστε βέβαιοι για την αυτόματη συμπλήρωση αυτού του στοιχείου; Δεν υπάρχει πλήρης αντιστοιχία για \"%1$@\".";
 "MatchingItems" = "Αντίστοιχα στοιχεία";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Λάβετε ειδοποιήσεις push για νέα αιτήματα σύνδεσης";
 "NoThanks" = "Όχι ευχαριστώ";
 "ConfimLogInAttempForX" = "Επιβεβαίωση προσπάθειας σύνδεσης για %1$@";
+"ConfirmLogInAttemptForX" = "Επιβεβαίωση προσπάθειας σύνδεσης για %1$@";
 "AllNotifications" = "Όλες οι ειδοποιήσεις";
 "PasswordType" = "Τύπος Κωδικού";
 "WhatWouldYouLikeToGenerate" = "Τι θα θέλατε να δημιουργήσετε;";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Leave %1$@";
-"HowToManageMyVault" = "How to manage My vault";
 "YouLeftTheOrganization" = "You left the organization";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "This setting is managed by your organization.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Your organization has set the maximum session timeout to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Your organization has set the default session timeout to never.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Your organization has set the default session timeout to on app restart.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
 "HiddenItems" = "Hidden items";
 "Archive" = "Archive";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";
