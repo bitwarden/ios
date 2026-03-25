@@ -202,6 +202,35 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         XCTAssertTrue(keychainService.addCalls.isEmpty)
     }
 
+    // MARK: Tests - setValue(_:for:) Codable overload
+
+    /// `setValue(_:for:)` JSON-encodes a `Codable` value and stores the resulting string.
+    ///
+    func test_setValue_codable_success() async throws {
+        let item = makeItem()
+        keychainService.accessControlResult = .success(makeAccessControl())
+        keychainService.updateResult = .success(())
+
+        try await subject.setValue(42, for: item)
+
+        let expectedData = try JSONEncoder.defaultEncoder.encode(42)
+        let storedData = (keychainService.updateAttributes as? [String: Any])?[kSecValueData as String] as? Data
+        XCTAssertEqual(storedData, expectedData)
+    }
+
+    /// `setValue(_:for:)` rethrows when JSON encoding fails.
+    ///
+    func test_setValue_codable_encodingError_throws() async {
+        let item = makeItem()
+        keychainService.accessControlResult = .success(makeAccessControl())
+
+        await assertAsyncThrows {
+            try await subject.setValue(Double.nan, for: item)
+        }
+        XCTAssertNil(keychainService.updateQuery)
+        XCTAssertTrue(keychainService.addCalls.isEmpty)
+    }
+
     // MARK: Private Helpers
 
     private func makeItem(unformattedKey: String = "test_key") -> MockKeychainItem {

@@ -11,6 +11,14 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
     /// - Returns: The fetched value associated with the keychain item.
     ///
     func getValue(for item: any KeychainItem) async throws -> String
+
+    /// Sets a value associated with a keychain item in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The value associated with the keychain item to set.
+    ///   - item: The keychain item used to set the associated value.
+    ///
+    func setValue(_ value: String, for item: any KeychainItem) async throws
 }
 
 public extension KeychainServiceFacade {
@@ -27,6 +35,20 @@ public extension KeychainServiceFacade {
         }
 
         return try JSONDecoder.defaultDecoder.decode(T.self, from: jsonData)
+    }
+
+    /// Sets a value associated with a keychain item in the keychain.
+    ///
+    /// - Parameters:
+    ///   - value: The value associated with the keychain item to set.
+    ///   - item: The keychain item used to set the associated value.
+    ///
+    func setValue<T: Codable>(_ value: T, for item: any KeychainItem) async throws  {
+        let jsonData = try JSONEncoder.defaultEncoder.encode(value)
+        guard let jsonString = String(data: jsonData, encoding: .utf8) else {
+            throw BitwardenError.dataError("JSON data is not valid.")
+        }
+        try await setValue(jsonString, for: item)
     }
 }
 
