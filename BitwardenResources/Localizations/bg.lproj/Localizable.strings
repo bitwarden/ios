@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Регистрацията вече е добавена";
 "SwitchToAlreadyAddedAccountConfirmation" = "Искате ли да превключите към нея сега?";
 "MasterPassword" = "Главна парола";
-"More" = "Още";
+"MoreOptions" = "Още настройки";
 "MyVault" = "Моят трезор";
 "Authenticator" = "Удостоверител";
 "Name" = "Име";
@@ -208,6 +208,7 @@
 "Status" = "Състояние";
 "BitwardenAutofillServiceAlert2" = "Най-лесният начин да добавяте нови записи към трезора си е с услугата за автоматично дописване на Битуорден. Може да научите повече как да я ползвате от екрана за настройки.";
 "Autofill" = "Автоматично попълване";
+"AutofillEnabled" = "Автоматичното попълване е включено";
 "AutofillOrView" = "Искате да разгледате записа или да го ползвате за автоматично попълване?";
 "BitwardenAutofillServiceMatchConfirm" = "Сигурни ли сте, че искате да допишете с този запис? Той не е точно съвпадение за „%1$@“.";
 "MatchingItems" = "Съвпадащи записи";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Получаване на известия при нови заявки за вписване";
 "NoThanks" = "Не, благодаря";
 "ConfimLogInAttempForX" = "Потвърждаване на заявката за вписване за %1$@";
+"ConfirmLogInAttemptForX" = "Потвърждаване на заявката за вписване за %1$@";
 "AllNotifications" = "Всички известия";
 "PasswordType" = "Тип парола";
 "WhatWouldYouLikeToGenerate" = "Какво бихте искали да генерирате?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Ако откажете, Вашите собствени елементи ще останат в акаунта Ви, но ще загубите достъп до споделените елементи и функционалностите на организацията.";
 "ContactYourAdminToRegainAccess" = "Свържете се с администратор, за да получите достъп отново.";
 "LeaveX" = "Напускане на %1$@";
-"HowToManageMyVault" = "Как да управлявам трезора си";
 "YouLeftTheOrganization" = "Напуснахте организацията";
 "ItemTransferRequiresMainAppDescriptionLong" = "Организация иска да поеме собствеността върху Вашите лични данни. Отворете основното приложение на Битуорден, за да прегледате и завършите процедурата.";
 "ThisSettingIsManagedByYourOrganization" = "Тази настройка се управлява от организацията Ви.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Организацията Ви е настроила стандартното разрешено време за достъп да бъде %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Организацията Ви е настроила максималното разрешено време за достъп на %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Организацията Ви е настроила стандартното разрешено време за достъп да бъде безкрайно.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Организацията Ви е настроила стандартното разрешено време за достъп да бъде до рестартиране на приложението.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Организацията Ви е настроила максималното разрешено време за достъп на %1$@ и %2$@.";
 "HiddenItems" = "Скрити елементи";
 "Archive" = "Архив";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Споделянето с определени хора е платена функционалност. Текущият Ви план не включва достъп до нея.";
 "SsoCookiesCleared" = "Бисквитките за еднократното удостоверяване са изчистени";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Заявката беше прекъсната, тъй като приложението трябваше да се удостовери отново. Моля, опитайте пак.";
+"AutofillWithBitwardenDescriptionLong" = "Битуорден може да предлага пароли и други данни за удостоверяване, когато се вписвате в приложения и уеб сайтове.";
+"LearnMoreAboutAutofill" = "Научете повече относно автоматичното попълване";
+"TurnOnNow" = "Включване сега";
+"AcceptTransfer" = "Приемане на прехвърлянето";

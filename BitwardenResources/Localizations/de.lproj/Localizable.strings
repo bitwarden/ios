@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Konto bereits hinzugefügt";
 "SwitchToAlreadyAddedAccountConfirmation" = "Möchtest du jetzt dazu wechseln?";
 "MasterPassword" = "Master-Passwort";
-"More" = "Mehr";
+"MoreOptions" = "Weitere Optionen";
 "MyVault" = "Mein Tresor";
 "Authenticator" = "Authenticator";
 "Name" = "Name";
@@ -208,6 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Die einfachste Möglichkeit, neue Zugangsdaten zu deinem Tresor hinzuzufügen, ist der Bitwarden Auto-Ausfüllen Dienst. Erfahre mehr über den Bitwarden Auto-Ausfüllen Dienst, indem du zu \"Einstellungen\" wechselst.";
 "Autofill" = "Automatisches Ausfüllen";
+"AutofillEnabled" = "Auto-Ausfüllen aktiviert";
 "AutofillOrView" = "Möchtest du diese Zugangsdaten automatisch ausfüllen oder ansehen?";
 "BitwardenAutofillServiceMatchConfirm" = "Bist du sicher, dass du diesen Eintrag automatisch ausfüllen möchtest? Er stimmt nicht komplett mit \"%1$@\" überein.";
 "MatchingItems" = "Passende Einträge";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Push-Benachrichtigungen für neue Anmeldeanfragen erhalten";
 "NoThanks" = "Nein danke";
 "ConfimLogInAttempForX" = "Anmeldeversuch für %1$@ bestätigen";
+"ConfirmLogInAttemptForX" = "Anmeldeversuch für %1$@ bestätigen";
 "AllNotifications" = "Alle Benachrichtigungen";
 "PasswordType" = "Passworttyp";
 "WhatWouldYouLikeToGenerate" = "Was möchtest du generieren?";
@@ -1285,12 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Wenn du ablehnst, bleiben deine persönlichen Einträge in deinem Konto erhalten, aber du wirst den Zugriff auf geteilte Einträge und Organisationsfunktionen verlieren.";
 "ContactYourAdminToRegainAccess" = "Kontaktiere deinen Administrator, um wieder Zugriff zu erhalten.";
 "LeaveX" = "%1$@ verlassen";
-"HowToManageMyVault" = "So verwaltest du deinen Tresor";
 "YouLeftTheOrganization" = "Du hast die Organisation verlassen";
 "ItemTransferRequiresMainAppDescriptionLong" = "Eine Organisation möchte die Besitzrechte an deinen persönlichen Einträgen übernehmen. Öffne die Bitwarden-App, um diese Anfrage zu überprüfen und abzuschließen.";
 "ThisSettingIsManagedByYourOrganization" = "Diese Einstellung wird von deiner Organisation verwaltet.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Deine Organisation hat das Standard-Sitzungs-Timeout auf %1$@ gesetzt.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ gesetzt.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Deine Organisation hat das Standard Sitzungs-Timeout auf \"Nie\" gesetzt.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Deine Organisation hat das Standard Sitzungs-Timeout auf \"Beim Neustart der App\" gesetzt.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ und %2$@ gesetzt.";
 "HiddenItems" = "Versteckte Einträge";
 "Archive" = "Archiv";
@@ -1323,3 +1326,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Das Teilen mit bestimmten Personen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
 "SsoCookiesCleared" = "SSO-Cookies gelöscht";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Deine Anfrage wurde unterbrochen, weil die App erneut authentifiziert werden musste. Bitte versuche es erneut.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden kann dir deine Passwörter und andere Zugangsdaten vorschlagen, wenn du dich bei Apps und Websites anmeldest.";
+"LearnMoreAboutAutofill" = "Erfahre mehr über Auto-Ausfüllen";
+"TurnOnNow" = "Jetzt einschalten";
+"AcceptTransfer" = "Übertragung annehmen";

@@ -85,7 +85,7 @@ class DefaultNotificationService: NotificationService {
     private weak var delegate: NotificationServiceDelegate?
 
     /// The service used by the application to manage the app's ID.
-    private let appIdService: AppIdService
+    private let appIDService: AppIDService
 
     /// The repository used by the application to manage auth data for the UI layer.
     private let authRepository: AuthRepository
@@ -119,7 +119,7 @@ class DefaultNotificationService: NotificationService {
     /// Initializes the `DefaultNotificationService`.
     ///
     /// - Parameters:
-    ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
     ///   - configService: The service to get server-specified configuration.
@@ -130,7 +130,7 @@ class DefaultNotificationService: NotificationService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     init(
-        appIdService: AppIdService,
+        appIDService: AppIDService,
         authRepository: AuthRepository,
         authService: AuthService,
         configService: ConfigService,
@@ -141,7 +141,7 @@ class DefaultNotificationService: NotificationService {
         stateService: StateService,
         syncService: SyncService,
     ) {
-        self.appIdService = appIdService
+        self.appIDService = appIDService
         self.authRepository = authRepository
         self.authService = authService
         self.configService = configService
@@ -165,7 +165,7 @@ class DefaultNotificationService: NotificationService {
             guard try await stateService.isAuthenticated() else { return }
 
             // Get the app ID.
-            let appId = await appIdService.getOrCreateAppId()
+            let appId = await appIDService.getOrCreateAppID()
 
             // Decode and save the push notification token.
             let token = tokenData.map { String(format: "%02.2hhx", $0) }.joined()
@@ -319,7 +319,7 @@ class DefaultNotificationService: NotificationService {
         let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
 
         // Verify that the payload is not empty and that the context is correct.
-        let appId = await appIdService.getOrCreateAppId()
+        let appId = await appIDService.getOrCreateAppID()
         guard notificationData.payload?.isEmpty == false,
               notificationData.contextId != appId
         else { return nil }

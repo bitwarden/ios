@@ -46,7 +46,7 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
 
     /// `getAuthenticatorKey()` throws an error if the key is not in storage.
     func test_getAuthenticatorKey_nil() async throws {
-        await assertAsyncThrows(error: SharedKeychainServiceError.keyNotFound(.authenticatorKey)) {
+        await assertAsyncThrows(error: KeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)) {
             _ = try await subject.getAuthenticatorKey()
         }
     }

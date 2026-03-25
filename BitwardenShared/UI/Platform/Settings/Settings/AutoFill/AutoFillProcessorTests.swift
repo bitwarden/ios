@@ -10,6 +10,8 @@ import XCTest
 class AutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var asSettingsMediator: MockASSettingsMediator!
+    var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
@@ -22,6 +24,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        asSettingsMediator = MockASSettingsMediator()
+        autofillCredentialService = MockAutofillCredentialService()
         configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
@@ -31,6 +35,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
         subject = AutoFillProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                asSettingsMediator: asSettingsMediator,
+                autofillCredentialService: autofillCredentialService,
                 configService: configService,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
@@ -43,6 +49,8 @@ class AutoFillProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        asSettingsMediator = nil
+        autofillCredentialService = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
@@ -78,17 +86,21 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.fetchSettingValues` fetches the setting values to display and updates the state.
     @MainActor
     func test_perform_fetchSettingValues() async {
+        autofillCredentialService.isAutofillCredentialsEnabled = false
         settingsRepository.getDefaultUriMatchTypeResult = .exact
         settingsRepository.getDisableAutoTotpCopyResult = .success(false)
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .exact)
         XCTAssertTrue(subject.state.isCopyTOTPToggleOn)
+        XCTAssertTrue(subject.state.shouldShowPasswordAutofill)
 
+        autofillCredentialService.isAutofillCredentialsEnabled = true
         settingsRepository.getDefaultUriMatchTypeResult = .regularExpression
         settingsRepository.getDisableAutoTotpCopyResult = .success(true)
         await subject.perform(.fetchSettingValues)
         XCTAssertEqual(subject.state.defaultUriMatchType, .regularExpression)
         XCTAssertFalse(subject.state.isCopyTOTPToggleOn)
+        XCTAssertFalse(subject.state.shouldShowPasswordAutofill)
     }
 
     /// `perform(_:)` with `.fetchSettingValues` logs an error and shows an alert if fetching the values fails.
@@ -100,6 +112,58 @@ class AutoFillProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noActiveAccount)
+    }
+
+    /// `perform(_:)` with `.setUpAutofill` navigates to password autofill on pre-iOS 18 devices.
+    @MainActor
+    func test_perform_setUpAutofill_preIOS18() async {
+        guard #unavailable(iOS 18) else { return }
+
+        await subject.perform(.setUpAutofill)
+
+        XCTAssertEqual(coordinator.routes.last, .passwordAutoFill)
+    }
+
+    /// `perform(_:)` with `.setUpAutofill` and `.cantRequest` navigates to password autofill
+    /// with the processor as the context delegate.
+    @MainActor
+    func test_perform_setUpAutofill_cantRequest() async {
+        guard #available(iOS 18, *) else { return }
+
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionThrowableError = ASSettingsMediatorError.cantRequest
+
+        await subject.perform(.setUpAutofill)
+
+        XCTAssertEqual(coordinator.routes.last, .passwordAutoFill)
+        XCTAssertIdentical(coordinator.contexts.last as AnyObject, subject)
+    }
+
+    /// `perform(_:)` with `.setUpAutofill` and the credential provider turned on dismisses the
+    /// action card and shows a toast.
+    @MainActor
+    func test_perform_setUpAutofill_credentialProviderOn() async {
+        guard #available(iOS 18, *) else { return }
+
+        stateService.activeAccount = .fixture()
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionReturnValue = true
+
+        await subject.perform(.setUpAutofill)
+
+        XCTAssertEqual(stateService.accountSetupAutofill["1"], .complete)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.autofillEnabled))
+    }
+
+    /// `perform(_:)` with `.setUpAutofill` and the credential provider turned off does nothing.
+    @MainActor
+    func test_perform_setUpAutofill_credentialProviderOff() async {
+        guard #available(iOS 18, *) else { return }
+
+        asSettingsMediator.requestToTurnOnCredentialProviderExtensionReturnValue = false
+
+        await subject.perform(.setUpAutofill)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
@@ -143,20 +207,31 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertEqual(settingsRepository.updateDefaultUriMatchTypeValue, .host)
     }
 
-    /// `.receive(_:)` with `.passwordAutoFillTapped` navigates to the password autofill view.
+    /// `receive(_:)` with `.learnMoreAboutAutofillTapped` sets the URL for the autofill help page.
+    @MainActor
+    func test_receive_learnMoreAboutAutofillTapped() {
+        subject.receive(.learnMoreAboutAutofillTapped)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.autofillHelp)
+    }
+
+    /// `.receive(_:)` with `.passwordAutoFillTapped` navigates to the password autofill view
+    /// with the processor as the context delegate.
     @MainActor
     func test_receive_passwordAutoFillTapped() {
         subject.receive(.passwordAutoFillTapped)
         XCTAssertEqual(coordinator.routes.last, .passwordAutoFill)
+        XCTAssertIdentical(coordinator.contexts.last as AnyObject, subject)
     }
 
-    /// `receive(_:)` with `showSetUpAutofill(:)` has the coordinator navigate to the password
-    /// autofill screen.
+    /// `receive(_:)` with `.toastShown` sets the toast on the state.
     @MainActor
-    func test_receive_showSetUpAutofill() throws {
-        subject.receive(.showSetUpAutofill)
+    func test_receive_toastShown() {
+        let toast = Toast(title: Localizations.autofillEnabled)
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
 
-        XCTAssertEqual(coordinator.routes, [.passwordAutoFill])
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `.receive(_:)` with  `.toggleCopyTOTPToggle` updates the state.
@@ -168,6 +243,13 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.isCopyTOTPToggleOn)
         waitFor(settingsRepository.updateDisableAutoTotpCopyValue == false)
         try XCTAssertFalse(XCTUnwrap(settingsRepository.updateDisableAutoTotpCopyValue))
+    }
+
+    /// `didEnableAutofill()` sets the "Autofill enabled" toast on the state.
+    @MainActor
+    func test_didEnableAutofill() {
+        subject.didEnableAutofill()
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.autofillEnabled))
     }
 
     /// Updating the default URI match type value logs an error and shows an alert if it fails.
@@ -347,4 +429,4 @@ class AutoFillProcessorTests: BitwardenTestCase {
         subject.receive(.clearUrl)
         XCTAssertNil(subject.state.url)
     }
-}
+} // swiftlint:disable:this file_length

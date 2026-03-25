@@ -194,7 +194,7 @@ public class ServiceContainer: Services {
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
 
-        let appIdService = AppIdService(appSettingStore: appSettingsStore)
+        let appIDService = AppIDService(appIDSettingsStore: appSettingsStore)
 
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after configService is created.
@@ -216,7 +216,7 @@ public class ServiceContainer: Services {
         let timeProvider = CurrentTime()
 
         let keychainRepository = DefaultKeychainRepository(
-            appIdService: appIdService,
+            appIDService: appIDService,
             keychainService: keychainService,
         )
 

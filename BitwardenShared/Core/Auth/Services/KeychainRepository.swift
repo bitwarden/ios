@@ -253,7 +253,7 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
 
 extension KeychainRepository {
     /// The format for storing a `KeychainItem`'s `unformattedKey`.
-    ///  The first value should be a unique appID from the `appIdService`.
+    ///  The first value should be a unique appID from the `appIDService`.
     ///  The second value is the `unformattedKey`
     ///
     ///  example: `bwKeyChainStorage:1234567890:biometric_key_98765`
@@ -268,7 +268,7 @@ class DefaultKeychainRepository: KeychainRepository {
 
     /// A service used to provide unique app ids.
     ///
-    let appIdService: AppIdService
+    let appIDService: AppIDService
 
     /// An identifier for the keychain service used by the application and extensions.
     ///
@@ -293,10 +293,10 @@ class DefaultKeychainRepository: KeychainRepository {
     // MARK: Initialization
 
     init(
-        appIdService: AppIdService,
+        appIDService: AppIDService,
         keychainService: KeychainService,
     ) {
-        self.appIdService = appIdService
+        self.appIDService = appIDService
         self.keychainService = keychainService
     }
 
@@ -308,7 +308,7 @@ class DefaultKeychainRepository: KeychainRepository {
     /// - Returns: A formatted storage key.
     ///
     func formattedKey(for item: KeychainItem) async -> String {
-        let appId = await appIdService.getOrCreateAppId()
+        let appId = await appIDService.getOrCreateAppID()
         return String(format: storageKeyFormat, appId, item.unformattedKey)
     }
 

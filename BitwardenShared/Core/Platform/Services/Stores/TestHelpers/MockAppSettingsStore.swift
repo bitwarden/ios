@@ -49,6 +49,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var featureFlags = [String: Bool]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
+    var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
     var lastSyncTimeByUserId = [String: Date]()
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
@@ -150,6 +151,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func lastActiveTime(userId: String) -> Date? {
         lastActiveTime[userId]
+    }
+
+    func lastRequestToTurnOnCredentialProvider() -> Date? {
+        lastRequestToTurnOnCredentialProviderDate
     }
 
     func lastSyncTime(userId: String) -> Date? {
@@ -283,6 +288,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setLastActiveTime(_ date: Date?, userId: String) {
         lastActiveTime[userId] = date
+    }
+
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) {
+        lastRequestToTurnOnCredentialProviderDate = date
     }
 
     func setLastSyncTime(_ date: Date?, userId: String) {
