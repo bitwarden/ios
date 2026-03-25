@@ -116,4 +116,102 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
             let _: Int = try await subject.getValue(for: item)
         }
     }
+
+    // MARK: Tests - setValue(_:for:)
+
+    /// `setValue(_:for:)` updates the existing item when the update succeeds without calling `add`.
+    ///
+    func test_setValue_updatesExistingItem() async throws {
+        let item = makeItem()
+        keychainService.accessControlResult = .success(makeAccessControl())
+        keychainService.updateResult = .success(())
+
+        try await subject.setValue("new-value", for: item)
+
+        XCTAssertNotNil(keychainService.updateQuery)
+        XCTAssertTrue(keychainService.addCalls.isEmpty)
+        let storedData = (keychainService.updateAttributes as? [String: Any])?[kSecValueData as String] as? Data
+        XCTAssertEqual(storedData, Data("new-value".utf8))
+    }
+
+    /// `setValue(_:for:)` falls through to `add` when the update returns `errSecItemNotFound`.
+    ///
+    func test_setValue_addsNewItem_whenNotFound() async throws {
+        let item = makeItem()
+        keychainService.accessControlResult = .success(makeAccessControl())
+        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
+        keychainService.addResult = .success(())
+
+        try await subject.setValue("new-value", for: item)
+
+        XCTAssertEqual(keychainService.addCalls.count, 1)
+        let storedData = (keychainService.addCalls.first as? [String: Any])?[kSecValueData as String] as? Data
+        XCTAssertEqual(storedData, Data("new-value".utf8))
+    }
+
+    /// `setValue(_:for:)` passes the item's `protection` and `accessControlFlags` to the access control call.
+    ///
+    func test_setValue_usesItemProtectionAndFlags() async throws {
+        let item = makeItem()
+        item.accessControlFlags = .biometryCurrentSet
+        keychainService.accessControlResult = .success(makeAccessControl())
+        keychainService.updateResult = .success(())
+
+        try await subject.setValue("value", for: item)
+
+        XCTAssertEqual(keychainService.accessControlFlags, .biometryCurrentSet)
+        XCTAssertTrue(CFEqual(keychainService.accessControlProtection, kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+    }
+
+    /// `setValue(_:for:)` rethrows when the update fails with an error other than `errSecItemNotFound`.
+    ///
+    func test_setValue_rethrows_whenUpdateFailsWithOtherError() async {
+        let item = makeItem()
+        keychainService.accessControlResult = .success(makeAccessControl())
+        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecInteractionNotAllowed))
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecInteractionNotAllowed)) {
+            try await subject.setValue("value", for: item)
+        }
+        XCTAssertTrue(keychainService.addCalls.isEmpty)
+    }
+
+    /// `setValue(_:for:)` rethrows when the add fails after a `errSecItemNotFound` update error.
+    ///
+    func test_setValue_rethrows_whenAddFails() async {
+        let item = makeItem()
+        keychainService.accessControlResult = .success(makeAccessControl())
+        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
+        keychainService.addResult = .failure(.osStatusError(errSecDuplicateItem))
+
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecDuplicateItem)) {
+            try await subject.setValue("value", for: item)
+        }
+    }
+
+    /// `setValue(_:for:)` rethrows when creating the access control fails, without calling update or add.
+    ///
+    func test_setValue_rethrows_whenAccessControlFails() async {
+        let item = makeItem()
+        keychainService.accessControlResult = .failure(.accessControlFailed(nil))
+
+        await assertAsyncThrows(error: KeychainServiceError.accessControlFailed(nil)) {
+            try await subject.setValue("value", for: item)
+        }
+        XCTAssertNil(keychainService.updateQuery)
+        XCTAssertTrue(keychainService.addCalls.isEmpty)
+    }
+
+    // MARK: Private Helpers
+
+    private func makeItem(unformattedKey: String = "test_key") -> MockKeychainItem {
+        let item = MockKeychainItem(unformattedKey: unformattedKey)
+        item.protection = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        return item
+    }
+
+    private func makeAccessControl() -> SecAccessControl {
+        var error: Unmanaged<CFError>?
+        return SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, [], &error)!
+    }
 }

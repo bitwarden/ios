@@ -124,6 +124,33 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
         throw KeychainServiceError.keyNotFound(item)
     }
 
+    public func setValue(_ value: String, for item: any KeychainItem) async throws {
+        let accessControl = try keychainService.accessControl(
+            protection: item.protection,
+            for: item.accessControlFlags ?? [],
+        )
+        let baseQuery = await keychainQueryValues(for: item)
+        let updateAttributes: CFDictionary = [
+            kSecAttrAccessControl: accessControl as Any,
+            kSecValueData: Data(value.utf8),
+        ] as CFDictionary
+
+        do {
+            // Try to update first - if item exists, this avoids delete-then-add race condition
+            try keychainService.update(query: baseQuery, attributes: updateAttributes)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            // Item doesn't exist, so add it
+            let addAttributes = await keychainQueryValues(
+                for: item,
+                adding: [
+                    kSecAttrAccessControl: accessControl as Any,
+                    kSecValueData: Data(value.utf8),
+                ],
+            )
+            try keychainService.add(attributes: addAttributes)
+        }
+    }
+
     // MARK: Private Methods
 
     /// Generates a formatted storage key for a keychain item.
