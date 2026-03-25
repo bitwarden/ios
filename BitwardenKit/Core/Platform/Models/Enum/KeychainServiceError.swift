@@ -3,7 +3,7 @@ import Foundation
 // MARK: - KeychainStorageKeyPossessing
 
 /// A protocol for an object that can provide a keychain storage key.
-public protocol KeychainStorageKeyPossessing: Equatable { // sourcery: AutoMockable
+public protocol KeychainItem: Equatable { // sourcery: AutoMockable
     /// A keychain storage key that can be used for this object.
     var unformattedKey: String { get }
 }
@@ -26,7 +26,7 @@ public enum KeychainServiceError: Error, Equatable, CustomNSError {
     /// - Parameters:
     ///   - KeychainStorageKeyPossessing: The storage key for the value.
     ///
-    case keyNotFound(any KeychainStorageKeyPossessing)
+    case keyNotFound(any KeychainItem)
 
     /// A passthrough for OSService Error cases.
     ///

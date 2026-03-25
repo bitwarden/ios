@@ -3,7 +3,7 @@ import Foundation
 
 // MARK: - KeychainItem
 
-enum AuthenticatorKeychainItem: Equatable, KeychainStorageKeyPossessing {
+enum AuthenticatorKeychainItem: Equatable, KeychainItem {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 

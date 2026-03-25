@@ -1,14 +1,14 @@
 import BitwardenKit
 
-extension MockKeychainStorageKeyPossessing: Equatable {
+extension MockKeychainItem: Equatable {
     public convenience init(unformattedKey: String) {
         self.init()
         self.unformattedKey = unformattedKey
     }
 
     public static func == (
-        lhs: MockKeychainStorageKeyPossessing,
-        rhs: MockKeychainStorageKeyPossessing,
+        lhs: MockKeychainItem,
+        rhs: MockKeychainItem,
     ) -> Bool {
         lhs.unformattedKey == rhs.unformattedKey
     }

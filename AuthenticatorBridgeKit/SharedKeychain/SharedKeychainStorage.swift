@@ -5,7 +5,7 @@ import Foundation
 
 /// Enumeration of support Keychain Items that can be placed in the `SharedKeychainRepository`
 ///
-public enum SharedKeychainItem: Equatable, Hashable, Sendable, KeychainStorageKeyPossessing {
+public enum SharedKeychainItem: Equatable, Hashable, Sendable, KeychainItem {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
