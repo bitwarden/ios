@@ -65,6 +65,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     typealias Services = HasASSettingsMediator
         & HasAccountAPIService
+        & HasAppIDService
         & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
@@ -72,6 +73,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasBillingService
         & HasBiometricsRepository
         & HasConfigService
+        & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
@@ -170,6 +172,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAutoFill()
         case .deleteAccount:
             showDeleteAccount()
+        case .deviceManagement:
+            showDeviceManagement()
         case .dismiss:
             stackNavigator?.dismiss()
         case .exportVault:
@@ -347,6 +351,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             state: DeleteAccountState(),
         )
         stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
+    }
+
+    /// Shows the device management screen.
+    ///
+    private func showDeviceManagement() {
+        let processor = DeviceManagementProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: DeviceManagementState(),
+        )
+        stackNavigator?.present(DeviceManagementView(store: Store(processor: processor)))
     }
 
     /// Shows the export vault screen.
