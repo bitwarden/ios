@@ -14,7 +14,7 @@ public enum SharedKeychainItem: Equatable, Hashable, Sendable, KeychainItem {
 
     public var accessControlFlags: SecAccessControlCreateFlags? { nil }
 
-    public var protection: CFTypeRef { kSecAttrAccessibleWhenUnlockedThisDeviceOnly }
+    public var protection: CFTypeRef { kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly }
 
     /// The storage key for this keychain item.
     ///
