@@ -524,6 +524,39 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     )
                 }
             }
+        case .scanCardButtonTapped:
+            state.cardItemState.isCardScannerPresented = true
+        case .cardScannerDismissed:
+            state.cardItemState.isCardScannerPresented = false
+        case let .cardScanned(data):
+            state.cardItemState.isCardScannerPresented = false
+            if let number = data.cardNumber {
+                state.cardItemState.cardNumber = number
+                state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
+            }
+            switch data.cardholderNameCandidates.count {
+            case 0:
+                break
+            case 1:
+                state.cardItemState.cardholderName = data.cardholderNameCandidates[0]
+            default:
+                state.cardItemState.cardholderNameCandidates = data.cardholderNameCandidates
+                state.cardItemState.isCardholderNamePickerPresented = true
+            }
+            if let month = data.expirationMonth,
+               let cardMonth = CardComponent.Month(rawValue: month) {
+                state.cardItemState.expirationMonth = .custom(cardMonth)
+            }
+            if let year = data.expirationYear {
+                state.cardItemState.expirationYear = year
+            }
+        case let .cardholderNameCandidateSelected(name):
+            state.cardItemState.cardholderName = name
+            state.cardItemState.cardholderNameCandidates = []
+            state.cardItemState.isCardholderNamePickerPresented = false
+        case .cardholderNamePickerDismissed:
+            state.cardItemState.cardholderNameCandidates = []
+            state.cardItemState.isCardholderNamePickerPresented = false
         }
     }
 

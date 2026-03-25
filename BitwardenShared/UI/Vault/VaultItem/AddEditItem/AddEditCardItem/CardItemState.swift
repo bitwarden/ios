@@ -37,6 +37,15 @@ struct CardItemState: Equatable {
 
     /// The visibility of the card number.
     var isNumberVisible: Bool = false
+
+    /// Whether the card scanner sheet is currently presented.
+    var isCardScannerPresented: Bool = false
+
+    /// Cardholder name candidates populated when the scanner finds more than one possible name.
+    var cardholderNameCandidates: [String] = []
+
+    /// Whether the cardholder name picker sheet is currently presented.
+    var isCardholderNamePickerPresented: Bool = false
 }
 
 extension CardItemState {
