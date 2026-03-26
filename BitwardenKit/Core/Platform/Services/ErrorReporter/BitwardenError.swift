@@ -5,7 +5,7 @@ import Foundation
 /// Each type of error should have a unique `code`. Non-fatal errors in Crashlytics are grouped by
 /// the `domain` and `code`.
 ///
-enum BitwardenError {
+public enum BitwardenError {
     // MARK: Types
 
     /// An error code for the error.
@@ -30,7 +30,7 @@ enum BitwardenError {
     ///
     /// - Parameter message: A message describing the error that occurred.
     ///
-    static func dataError(_ message: String) -> NSError {
+    public static func dataError(_ message: String) -> NSError {
         NSError(
             domain: "Data Error",
             code: Code.dataError.rawValue,
@@ -47,7 +47,7 @@ enum BitwardenError {
     ///   - message: A message describing the error that occurred.
     ///   - error: An optional underlying error that caused the error.
     ///
-    static func generalError(type: String, message: String, error: Error? = nil) -> NSError {
+    public static func generalError(type: String, message: String, error: Error? = nil) -> NSError {
         var userInfo: [String: Any] = ["ErrorMessage": message]
         if let error {
             userInfo[NSUnderlyingErrorKey] = error
@@ -63,7 +63,7 @@ enum BitwardenError {
     ///
     /// - Parameter error: The underlying error that caused the logout error.
     ///
-    static func generatorOptionsError(error: Error) -> NSError {
+    public static func generatorOptionsError(error: Error) -> NSError {
         NSError(
             domain: "Generator Options Persisting Error",
             code: Code.generatorOptionsError.rawValue,
@@ -77,7 +77,7 @@ enum BitwardenError {
     ///
     /// - Parameter error: The underlying error that caused the logout error.
     ///
-    static func logoutError(error: Error) -> NSError {
+    public static func logoutError(error: Error) -> NSError {
         NSError(
             domain: "Logout Error",
             code: Code.logoutError.rawValue,

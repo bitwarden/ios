@@ -257,6 +257,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
 
+    /// Whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool
+
     /// Gets the environment URLs used to start the account creation flow.
     ///
     /// - Parameters:
@@ -478,6 +485,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
+
+    /// Sets whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
 
     /// Sets the environment URLs used to start the account creation flow.
     ///
@@ -766,6 +781,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
+        case premiumUpgradeBannerDismissed(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -870,6 +886,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 "preAuthServerConfig"
+            case let .premiumUpgradeBannerDismissed(userId):
+                "premiumUpgradeBannerDismissed_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -1117,6 +1135,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
     }
 
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool {
+        fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
+    }
+
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
             for: .accountCreationEnvironmentURLs(email: email),
@@ -1229,6 +1251,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
+        store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

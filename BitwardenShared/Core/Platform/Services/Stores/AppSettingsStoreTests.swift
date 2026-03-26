@@ -1020,6 +1020,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `premiumUpgradeBannerDismissed(userId:)` returns `false` if there isn't a previously stored value.
+    func test_premiumUpgradeBannerDismissed_isInitiallyFalse() {
+        XCTAssertFalse(subject.premiumUpgradeBannerDismissed(userId: "1"))
+    }
+
+    /// `premiumUpgradeBannerDismissed(userId:)` can be used to get and set the persisted value in user defaults.
+    func test_premiumUpgradeBannerDismissed_withValue() {
+        subject.setPremiumUpgradeBannerDismissed(true, userId: "1")
+        XCTAssertTrue(subject.premiumUpgradeBannerDismissed(userId: "1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeBannerDismissed_1"))
+
+        subject.setPremiumUpgradeBannerDismissed(false, userId: "1")
+        XCTAssertFalse(subject.premiumUpgradeBannerDismissed(userId: "1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:premiumUpgradeBannerDismissed_1"))
+    }
+
     /// `serverConfig(:)` is initially `nil`
     func test_serverConfig_isInitiallyNil() {
         XCTAssertNil(subject.serverConfig(userId: "1"))

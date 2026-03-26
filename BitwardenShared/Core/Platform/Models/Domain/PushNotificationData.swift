@@ -168,8 +168,14 @@ struct LoginRequestNotification: Codable, Equatable {
 
 // MARK: - LoginRequestPushNotification
 
+// TODO: PM-33817 - Remove `LoginRequestPushNotification` once the server fully switches to alert-style
+// push notifications and local notification banners are no longer created for auth requests.
+
 /// The data structure of the information attached to the in-app foreground notification.
 struct LoginRequestPushNotification: Codable, Equatable {
+    /// The id of the login request.
+    let id: String?
+
     /// How long until the request times out.
     let timeoutInMinutes: Int
 

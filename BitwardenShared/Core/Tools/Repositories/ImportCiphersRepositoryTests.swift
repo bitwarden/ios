@@ -1,5 +1,6 @@
 #if SUPPORTS_CXP
 import AuthenticationServices
+import BitwardenKit
 import TestHelpers
 import XCTest
 

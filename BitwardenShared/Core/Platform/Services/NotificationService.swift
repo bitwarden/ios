@@ -261,7 +261,10 @@ class DefaultNotificationService: NotificationService {
                     try await syncService.deleteSend(data: data)
                 }
             case .authRequest:
-                try await handleLoginRequest(notificationData, userId: userId)
+                // TODO: PM-33817 Remove isAlertNotification once all auth request pushes are
+                // alert-style and the silent push path is no longer needed.
+                let isAlertNotification = (message["aps"] as? [AnyHashable: Any])?["alert"] != nil
+                try await handleLoginRequest(notificationData, isAlertNotification: isAlertNotification, userId: userId)
             case .authRequestResponse:
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
@@ -330,9 +333,17 @@ class DefaultNotificationService: NotificationService {
     ///
     /// - Parameters:
     ///   - notificationData: The decoded payload from the push notification.
+    ///   - isAlertNotification: Whether the push notification is an alert (non-silent) notification.
+    ///     When `true`, the OS has already displayed the notification banner (enriched by the
+    ///     notification service extension), so creating a local notification is skipped to avoid
+    ///     showing the banner twice.
     ///   - userId: The user's id.
     ///
-    private func handleLoginRequest(_ notificationData: PushNotificationData, userId: String) async throws {
+    private func handleLoginRequest(
+        _ notificationData: PushNotificationData,
+        isAlertNotification: Bool,
+        userId: String,
+    ) async throws {
         let data: LoginRequestNotification = try notificationData.data()
 
         // Get the email of the account that the login request is coming from.
@@ -350,30 +361,37 @@ class DefaultNotificationService: NotificationService {
         // Save the notification data.
         await stateService.setLoginRequest(data)
 
-        // Assemble the data to add to the in-app banner notification.
-        let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
-            timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
-            userId: loginSourceAccount.profile.userId,
-        ))
+        // For silent (background) pushes, create a local notification banner since the OS won't
+        // display one. For alert pushes, the OS already displayed the banner via the notification
+        // service extension, so skip creating a duplicate.
+        // TODO: PM-33817 Remove this block once all auth request pushes are alert-style.
+        if !isAlertNotification {
+            // Assemble the data to add to the in-app banner notification.
+            let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
+                id: data.id,
+                timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
+                userId: loginSourceAccount.profile.userId,
+            ))
 
-        // Create an in-app banner notification to tell the user about the login request.
-        let content = UNMutableNotificationContent()
-        content.title = Localizations.logInRequested
-        content.body = Localizations.confirmLogInAttemptForX(loginSourceEmail)
-        content.categoryIdentifier = "dismissableCategory"
-        if let loginRequestData,
-           let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
-            content.userInfo = ["notificationData": loginRequestEncoded]
+            // Create an in-app banner notification to tell the user about the login request.
+            let content = UNMutableNotificationContent()
+            content.title = Localizations.logInRequested
+            content.body = Localizations.confimLogInAttempForX(loginSourceEmail)
+            content.categoryIdentifier = "dismissableCategory"
+            if let loginRequestData,
+               let loginRequestEncoded = String(data: loginRequestData, encoding: .utf8) {
+                content.userInfo = ["notificationData": loginRequestEncoded]
+            }
+            let category = UNNotificationCategory(
+                identifier: "dismissableCategory",
+                actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
+                intentIdentifiers: [],
+                options: [.customDismissAction],
+            )
+            UNUserNotificationCenter.current().setNotificationCategories([category])
+            let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
+            try await UNUserNotificationCenter.current().add(request)
         }
-        let category = UNNotificationCategory(
-            identifier: "dismissableCategory",
-            actions: [.init(identifier: "Clear", title: Localizations.clear, options: [.foreground])],
-            intentIdentifiers: [],
-            options: [.customDismissAction],
-        )
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-        let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
-        try await UNUserNotificationCenter.current().add(request)
 
         if data.userId == userId {
             // If the request is for the existing account, show the login request view automatically.
@@ -400,12 +418,16 @@ class DefaultNotificationService: NotificationService {
         notificationDismissed: Bool?,
         notificationTapped: Bool?,
     ) async -> Bool {
+        // TODO: PM-33817 Remove this branch (including handleNotificationDismissed and the
+        // notificationData userInfo key) once all auth request pushes are alert-style and locally
+        // created notification banners are no longer needed.
         if let content = message["notificationData"] as? String,
            let jsonData = content.data(using: .utf8),
            let loginRequestData = try? JSONDecoder.pascalOrSnakeCaseDecoder.decode(
                LoginRequestPushNotification.self,
                from: jsonData,
            ) {
+            // Handle taps/dismissals of local notification banners created for silent auth request pushes.
             if notificationDismissed == true {
                 await handleNotificationDismissed()
                 return true
@@ -413,6 +435,25 @@ class DefaultNotificationService: NotificationService {
             if notificationTapped == true {
                 await handleNotificationTapped(loginRequestData)
                 return true
+            }
+        } else if notificationTapped == true {
+            // Handle taps of alert push notifications (sent directly by the backend, enriched by the
+            // notification service extension). These don't carry a `notificationData` key, so the
+            // push payload is decoded directly.
+            do {
+                guard let notificationData = try await decodePayload(message) else { return false }
+                let loginRequest: LoginRequestNotification = try notificationData.data()
+                await handleNotificationTapped(
+                    LoginRequestPushNotification(
+                        id: loginRequest.id,
+                        timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
+                        userId: loginRequest.userId,
+                    ),
+                )
+                return true
+            } catch {
+                errorReporter.log(error: error)
+                return false
             }
         }
         return false
@@ -437,6 +478,12 @@ class DefaultNotificationService: NotificationService {
             // to that account automatically.
             if activeAccountId != loginSourceAccount.profile.userId {
                 await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: false)
+            } else {
+                // If the request is for the existing account, show the login request view automatically.
+                guard let id = loginRequestData.id,
+                      let loginRequest = try await authService.getPendingLoginRequest(withId: id).first
+                else { return }
+                await delegate?.showLoginRequest(loginRequest)
             }
         } catch StateServiceError.noAccounts {
             let userId = loginRequestData.userId
