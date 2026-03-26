@@ -3,7 +3,7 @@
 /// Parsed card details extracted from a camera scan.
 ///
 struct ScannedCardData: Equatable, Sendable {
-    /// The card number (digits only, 15–19 characters).
+    /// The card number (digits only, 13–19 characters).
     var cardNumber: String?
 
     /// All cardholder name candidates extracted from the scan.

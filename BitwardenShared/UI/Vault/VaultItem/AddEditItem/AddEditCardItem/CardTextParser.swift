@@ -33,9 +33,9 @@ enum CardTextParser {
         "ICON",
     ]
 
-    /// Regex that matches a payment card number: 15–19 digit groups optionally separated by spaces or dashes.
+    /// Regex that matches a payment card number: 13–19 digit groups optionally separated by spaces or dashes.
     private static let cardNumberRegex = try? NSRegularExpression(
-        pattern: #"(?<!\d)(\d[ \-]?){14,18}\d(?!\d)"#,
+        pattern: #"(?<!\d)(\d[ \-]?){12,18}\d(?!\d)"#,
     )
 
     /// Regex that matches an expiry date in MM/YY or MM/YYYY format.
@@ -130,7 +130,7 @@ enum CardTextParser {
         let matchRange = Range(match.range, in: line)!
         let raw = String(line[matchRange])
         let digits = raw.filter(\.isNumber)
-        guard digits.count >= 15, digits.count <= 19 else { return nil }
+        guard digits.count >= 13, digits.count <= 19 else { return nil }
         // Reject sequences that look like dates or years (e.g. 8-digit numbers that match no Luhn prefix)
         guard !looksLikeDateOrYear(digits) else { return nil }
         return digits
