@@ -409,6 +409,27 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
+    /// `perform(_:)` with `.completeRegistration` presents an alert when the password matches the hint.
+    @MainActor
+    func test_perform_completeRegistration_passwordMatchesHint() async {
+        subject.state = .fixture(
+            passwordHintText: "123456789012 ",
+            passwordText: "123456789012",
+            retypePasswordText: "123456789012",
+        )
+
+        client.result = .httpSuccess(testData: .registerFinishRequest)
+
+        await subject.perform(.completeRegistration)
+
+        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.yourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint,
+        ))
+    }
+
     /// `perform(_:)` with `.completeRegistration` presents an alert when the password hint is too long.
     @MainActor
     func test_perform_completeRegistration_hintTooLong() async {

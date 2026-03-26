@@ -23,6 +23,9 @@ protocol MasterPasswordUpdateDelegate: AnyObject {
 /// Enumeration of errors that may occur when completing registration for an account.
 ///
 enum CompleteRegistrationError: Error {
+    /// The password and password hint match
+    case passwordAndHintMatch
+
     /// The password confirmation is not correct.
     case passwordsDontMatch
 
@@ -34,9 +37,6 @@ enum CompleteRegistrationError: Error {
 
     /// The environment urls to complete the registration are empty
     case preAuthUrlsEmpty
-
-    /// The password and password hint match
-    case passwordAndHintMatch
 }
 
 // MARK: - CompleteRegistrationProcessor
@@ -290,6 +290,11 @@ class CompleteRegistrationProcessor: StateProcessor<
     ///
     private func showCompleteRegistrationErrorAlert(_ error: CompleteRegistrationError) {
         switch error {
+        case .passwordAndHintMatch:
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.yourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint,
+            ))
         case .passwordsDontMatch:
             coordinator.showAlert(.passwordsDontMatch)
         case .passwordEmpty:
@@ -301,8 +306,6 @@ class CompleteRegistrationProcessor: StateProcessor<
                 title: Localizations.anErrorHasOccurred,
                 message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded,
             ))
-        case .passwordAndHintMatch:
-            coordinator.showAlert(.passwordMatchesHint)
         }
     }
 

@@ -66,18 +66,6 @@ extension Alert {
         )
     }
 
-    /// An alert to show when the password matches the password hint.
-    ///
-    static var passwordMatchesHint: Alert {
-        Alert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.yourPasswordAndHintCannotBeTheSame,
-            alertActions: [
-                AlertAction(title: Localizations.continue, style: .default),
-            ],
-        )
-    }
-
     /// A confirmation alert that allows the user to confirm or cancel the action that was
     /// triggered.
     ///

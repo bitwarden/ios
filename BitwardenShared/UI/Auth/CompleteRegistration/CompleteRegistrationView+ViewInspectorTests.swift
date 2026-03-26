@@ -66,25 +66,6 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .passwordHintTextChanged("text"))
     }
 
-    /// Tapping continue when password and hint are the same triggers the `.passwordMatchesHint` Alert.
-    @MainActor
-    func test_password_matches_hint() throws {
-        processor.state.passwordText = "123456789101112"
-        processor.state.retypePasswordText = "123456789101112"
-        processor.state.passwordHintText = "123456789101112"
-
-        // Tapping Continue
-        let button = try subject.inspect().find(button: Localizations.continue)
-        try button.tap()
-
-        waitFor(!processor.effects.isEmpty)
-        XCTAssertEqual(processor.effects.last, .completeRegistration)
-
-        // Checking Alert
-        let alert = Alert.passwordMatchesHint
-        XCTAssertEqual(alert.message, Localizations.yourPasswordAndHintCannotBeTheSame)
-    }
-
     /// Updating the text field dispatches the `.passwordTextChanged()` action.
     @MainActor
     func test_masterPasswordField_updateValue() throws {
