@@ -1,6 +1,7 @@
-import BitwardenKit
 import BitwardenKitMocks
 import XCTest
+
+@testable import BitwardenKit
 
 // MARK: - KeychainServiceFacadeTests
 
@@ -20,12 +21,12 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         appIDSettingsStore.appID = "test-app-ID"
         keychainService = MockKeychainService()
         subject = DefaultKeychainServiceFacade(
-            namespacing: .appScoped(
-                appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
-                appSecAttrService: "test-service"
-            ),
             appSecAttrAccessGroup: "test-access-group",
             keychainService: keychainService,
+            namespacing: .appScoped(
+                appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
+                appSecAttrService: "test-service",
+            ),
             storageKeyPrefix: "test-prefix",
         )
     }
@@ -288,9 +289,9 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
 
     private func makeSharedSubject() -> DefaultKeychainServiceFacade {
         DefaultKeychainServiceFacade(
-            namespacing: .shared,
             appSecAttrAccessGroup: "test-access-group",
             keychainService: keychainService,
+            namespacing: .shared,
             storageKeyPrefix: "test-prefix",
         )
     }
