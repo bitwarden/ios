@@ -37,7 +37,7 @@ struct CompleteRegistrationState: Equatable, Sendable {
     }
 
     var doesMasterPasswordMatchHint: Bool {
-        passwordText == passwordHintText
+        passwordText == passwordHintText || passwordText == passwordHintText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// The text in the password hint text field.
