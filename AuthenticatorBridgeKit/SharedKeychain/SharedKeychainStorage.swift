@@ -5,12 +5,16 @@ import Foundation
 
 /// Enumeration of support Keychain Items that can be placed in the `SharedKeychainRepository`
 ///
-public enum SharedKeychainItem: Equatable, Hashable, Sendable, KeychainStorageKeyPossessing {
+public enum SharedKeychainItem: Equatable, Hashable, Sendable, KeychainItem {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
     /// A date at which a BWPM account automatically logs out.
     case accountAutoLogout(userId: String)
+
+    public var accessControlFlags: SecAccessControlCreateFlags? { nil }
+
+    public var protection: CFTypeRef { kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly }
 
     /// The storage key for this keychain item.
     ///

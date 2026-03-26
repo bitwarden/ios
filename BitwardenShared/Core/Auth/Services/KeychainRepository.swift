@@ -5,7 +5,7 @@ import Foundation
 // MARK: - KeychainItem
 
 // swiftlint:disable file_length
-enum KeychainItem: Equatable, KeychainStorageKeyPossessing {
+enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
 
@@ -158,7 +158,7 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     ///
     /// - Parameter item: The KeychainItem to be deleted.
     ///
-    func deleteUserAuthKey(for item: KeychainItem) async throws
+    func deleteUserAuthKey(for item: BitwardenKeychainItem) async throws
 
     /// Gets the stored access token for a user from the keychain.
     ///
@@ -200,7 +200,7 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     /// - Parameter item: The storage key of the user auth key.
     /// - Returns: A string representing the user auth key.
     ///
-    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String
+    func getUserAuthKeyValue(for item: BitwardenKeychainItem) async throws -> String
 
     /// Stores the access token for a user in the keychain.
     ///
@@ -248,7 +248,7 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     ///    - item: The storage key for this auth key.
     ///    - value: A `String` representing the user auth key.
     ///
-    func setUserAuthKey(for item: KeychainItem, value: String) async throws
+    func setUserAuthKey(for item: BitwardenKeychainItem, value: String) async throws
 }
 
 extension KeychainRepository {
@@ -307,7 +307,7 @@ class DefaultKeychainRepository: KeychainRepository {
     /// - Parameter item: The keychain item that needs a formatted key.
     /// - Returns: A formatted storage key.
     ///
-    func formattedKey(for item: KeychainItem) async -> String {
+    func formattedKey(for item: BitwardenKeychainItem) async -> String {
         let appId = await appIDService.getOrCreateAppID()
         return String(format: storageKeyFormat, appId, item.unformattedKey)
     }
@@ -317,7 +317,7 @@ class DefaultKeychainRepository: KeychainRepository {
     /// - Parameter item: The keychain item used to fetch the associated value.
     /// - Returns: The fetched value associated with the keychain item.
     ///
-    func getValue(for item: KeychainItem) async throws -> String {
+    func getValue(for item: BitwardenKeychainItem) async throws -> String {
         let foundItem = try await keychainService.search(
             query: keychainQueryValues(
                 for: item,
@@ -346,7 +346,7 @@ class DefaultKeychainRepository: KeychainRepository {
     /// - Parameter item: The keychain item used to fetch the associated value.
     /// - Returns: The fetched value associated with the keychain item.
     ///
-    func getValue<T: Codable>(for item: KeychainItem) async throws -> T {
+    func getValue<T: Codable>(for item: BitwardenKeychainItem) async throws -> T {
         let string = try await getValue(for: item)
 
         guard let jsonData = string.data(using: .utf8) else {
@@ -361,7 +361,7 @@ class DefaultKeychainRepository: KeychainRepository {
     /// - Parameter item: The `KeychainItem` to be queried.
     ///
     func keychainQueryValues(
-        for item: KeychainItem,
+        for item: BitwardenKeychainItem,
         adding additionalPairs: [CFString: Any] = [:],
     ) async -> CFDictionary {
         // Prepare a formatted `kSecAttrAccount` value.
@@ -389,7 +389,7 @@ class DefaultKeychainRepository: KeychainRepository {
     ///   - value: The value associated with the keychain item to set.
     ///   - item: The keychain item used to set the associated value.
     ///
-    func setValue(_ value: String, for item: KeychainItem) async throws {
+    func setValue(_ value: String, for item: BitwardenKeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
             protection: item.protection,
             for: item.accessControlFlags ?? [],
@@ -422,7 +422,7 @@ class DefaultKeychainRepository: KeychainRepository {
     ///   - value: The value associated with the keychain item to set.
     ///   - item: The keychain item used to set the associated value.
     ///
-    func setValue<T: Codable>(_ value: T, for item: KeychainItem) async throws {
+    func setValue<T: Codable>(_ value: T, for item: BitwardenKeychainItem) async throws {
         let jsonData = try JSONEncoder.defaultEncoder.encode(value)
         guard let jsonString = String(data: jsonData, encoding: .utf8) else {
             throw BitwardenError.dataError("JSON data is not valid.")
@@ -452,7 +452,7 @@ extension DefaultKeychainRepository {
     }
 
     func deleteItems(for userId: String) async throws {
-        let keychainItems: [KeychainItem] = [
+        let keychainItems: [BitwardenKeychainItem] = [
             .accessToken(userId: userId),
             .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
@@ -471,7 +471,7 @@ extension DefaultKeychainRepository {
         }
     }
 
-    func deleteUserAuthKey(for item: KeychainItem) async throws {
+    func deleteUserAuthKey(for item: BitwardenKeychainItem) async throws {
         try await keychainService.delete(
             query: keychainQueryValues(for: item),
         )
@@ -519,7 +519,7 @@ extension DefaultKeychainRepository {
         }
     }
 
-    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
+    func getUserAuthKeyValue(for item: BitwardenKeychainItem) async throws -> String {
         try await getValue(for: item)
     }
 
@@ -543,7 +543,7 @@ extension DefaultKeychainRepository {
         try await setValue(value, for: .pendingAdminLoginRequest(userId: userId))
     }
 
-    func setUserAuthKey(for item: KeychainItem, value: String) async throws {
+    func setUserAuthKey(for item: BitwardenKeychainItem, value: String) async throws {
         try await setValue(value, for: item)
     }
 }
@@ -552,17 +552,17 @@ extension DefaultKeychainRepository {
 
 extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func deleteUserBiometricAuthKey(userId: String) async throws {
-        let key = KeychainItem.biometrics(userId: userId)
+        let key = BitwardenKeychainItem.biometrics(userId: userId)
         try await deleteUserAuthKey(for: key)
     }
 
     func getUserBiometricAuthKey(userId: String) async throws -> String {
-        let key = KeychainItem.biometrics(userId: userId)
+        let key = BitwardenKeychainItem.biometrics(userId: userId)
         return try await getUserAuthKeyValue(for: key)
     }
 
     func setUserBiometricAuthKey(userId: String, value: String) async throws {
-        let key = KeychainItem.biometrics(userId: userId)
+        let key = BitwardenKeychainItem.biometrics(userId: userId)
         try await setUserAuthKey(for: key, value: value)
     }
 }
