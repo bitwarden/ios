@@ -200,7 +200,7 @@ class DefaultKeychainRepository: KeychainRepository {
     ///
     func setValue(_ value: String, for item: AuthenticatorKeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
-            protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            protection: item.protection,
             for: item.accessControlFlags ?? [],
         )
         let baseQuery = await keychainQueryValues(for: item)
