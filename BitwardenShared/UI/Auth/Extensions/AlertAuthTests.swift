@@ -187,16 +187,6 @@ class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
     }
 
-    /// `masterPasswordAndHintMatchAlert()` returns an alert notifying the user that their master password & hint match.
-    func test_masterPasswordAndHintMatchAlert() {
-        let subject = Alert.masterPasswordAndHintMatchAlert()
-
-        XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
-        XCTAssertEqual(subject.message, Localizations.yourPasswordAndHintCannotBeTheSame)
-        XCTAssertEqual(subject.alertActions.count, 1)
-        XCTAssertEqual(subject.alertActions[0].title, Localizations.continue)
-    }
-
     /// `masterPasswordInvalid()` returns an alert notifying the user that their master password is invalid.
     func test_masterPasswordInvalid() {
         let subject = Alert.masterPasswordInvalid()

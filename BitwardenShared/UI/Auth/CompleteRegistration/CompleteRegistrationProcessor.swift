@@ -173,10 +173,6 @@ class CompleteRegistrationProcessor: StateProcessor<
                 })
                 return
             }
-            guard !state.doesMasterPasswordMatchHint else {
-                coordinator.showAlert(.masterPasswordAndHintMatchAlert())
-                return
-            }
             await completeRegistration()
         }
     }
