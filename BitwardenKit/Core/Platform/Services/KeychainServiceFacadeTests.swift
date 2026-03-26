@@ -59,7 +59,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         keychainService.searchResult = .success(nil)
 
         await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
-            try await subject.getValue(for: item)
+            _ = try await subject.getValue(for: item)
         }
     }
 
@@ -70,7 +70,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         keychainService.setSearchResultData(string: "")
 
         await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
-            try await subject.getValue(for: item)
+            _ = try await subject.getValue(for: item)
         }
     }
 
@@ -81,7 +81,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         keychainService.searchResult = .failure(.osStatusError(errSecItemNotFound))
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecItemNotFound)) {
-            try await subject.getValue(for: item)
+            _ = try await subject.getValue(for: item)
         }
     }
 
@@ -120,7 +120,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         }
     }
 
-    // MARK: Tests - setValue(_:for:)
+    // MARK: Tests - setValue(_: String, for:)
 
     /// `setValue(_:for:)` updates the existing item when the update succeeds without calling `add`.
     ///
@@ -230,7 +230,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         }
     }
 
-    // MARK: Tests - setValue(_:for:) Codable overload
+    // MARK: Tests - setValue(_: T: Codable, for:)
 
     /// `setValue(_:for:)` JSON-encodes a `Codable` value and stores the resulting string.
     ///
@@ -259,11 +259,11 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         XCTAssertTrue(keychainService.addCalls.isEmpty)
     }
 
-    // MARK: Tests - nil appIDService / appSecAttrService (shared keychain configuration)
+    // MARK: Tests - shared namespacing configuration
 
-    /// When `appIDService` is `nil`, `keychainQueryValues` uses the bare `unformattedKey` for `kSecAttrAccount`.
+    /// With `.shared` namespacing, `keychainQueryValues` uses the bare `unformattedKey` for `kSecAttrAccount`.
     ///
-    func test_keychainQueryValues_nilAppIDService_usesBareKey() async {
+    func test_keychainQueryValues_sharedNamespacing_usesBareKey() async {
         let item = makeItem(unformattedKey: "shared_key")
         let sharedSubject = makeSharedSubject()
 
@@ -273,9 +273,9 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         XCTAssertEqual(dict?[kSecAttrAccount as String] as? String, "shared_key")
     }
 
-    /// When `appSecAttrService` is `nil`, `keychainQueryValues` omits `kSecAttrService` from the query.
+    /// With `.shared` namespacing, `keychainQueryValues` omits `kSecAttrService` from the query.
     ///
-    func test_keychainQueryValues_nilAppSecAttrService_omitsService() async {
+    func test_keychainQueryValues_sharedNamespacing_omitsService() async {
         let item = makeItem()
         let sharedSubject = makeSharedSubject()
 
