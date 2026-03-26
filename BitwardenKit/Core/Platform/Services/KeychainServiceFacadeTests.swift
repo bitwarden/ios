@@ -256,7 +256,43 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         XCTAssertTrue(keychainService.addCalls.isEmpty)
     }
 
+    // MARK: Tests - nil appIDService / appSecAttrService (shared keychain configuration)
+
+    /// When `appIDService` is `nil`, `keychainQueryValues` uses the bare `unformattedKey` for `kSecAttrAccount`.
+    ///
+    func test_keychainQueryValues_nilAppIDService_usesBareKey() async {
+        let item = makeItem(unformattedKey: "shared_key")
+        let sharedSubject = makeSharedSubject()
+
+        let query = await sharedSubject.keychainQueryValues(for: item)
+
+        let dict = query as? [String: Any]
+        XCTAssertEqual(dict?[kSecAttrAccount as String] as? String, "shared_key")
+    }
+
+    /// When `appSecAttrService` is `nil`, `keychainQueryValues` omits `kSecAttrService` from the query.
+    ///
+    func test_keychainQueryValues_nilAppSecAttrService_omitsService() async {
+        let item = makeItem()
+        let sharedSubject = makeSharedSubject()
+
+        let query = await sharedSubject.keychainQueryValues(for: item)
+
+        let dict = query as? [String: Any]
+        XCTAssertNil(dict?[kSecAttrService as String])
+    }
+
     // MARK: Private Helpers
+
+    private func makeSharedSubject() -> DefaultKeychainServiceFacade {
+        DefaultKeychainServiceFacade(
+            appIDService: nil,
+            appSecAttrAccessGroup: "test-access-group",
+            appSecAttrService: nil,
+            keychainService: keychainService,
+            storageKeyPrefix: "test-prefix",
+        )
+    }
 
     private func makeItem(unformattedKey: String = "test_key") -> MockKeychainItem {
         let item = MockKeychainItem(unformattedKey: unformattedKey)

@@ -67,18 +67,20 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     // MARK: Properties
 
     /// A service used to provide the app ID.
+    /// If this is nil, then we are working with the shared keychain.
     ///
-    let appIDService: AppIDService
+    let appIDService: AppIDService?
 
     /// An identifier for the keychain service used by the application and extensions.
+    /// This is nil in the shared keychain.
     ///
-    /// Example: "com.8bit.bitwarden".
+    /// Example: `com.8bit.bitwarden`.
     ///
-    var appSecAttrService: String
+    var appSecAttrService: String?
 
     /// An identifier for the keychain access group used by the application group and extensions.
     ///
-    /// Example: "LTZ2PFU5D6.com.8bit.bitwarden"
+    /// Example: `LTZ2PFU5D6.com.8bit.bitwarden`
     ///
     var appSecAttrAccessGroup: String
 
@@ -95,6 +97,7 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     /// The format string used to generate a storage key for storing a keychain item.
     /// The first value should be the app ID from the `appIDService`.
     /// The second value should be the item's `unformattedKey`.
+    /// For historical reasons, this is unused in the shared keychain.
     ///
     /// example: `bwKeyChainStorage:1234567890:biometric_key_98765`
     ///
@@ -105,18 +108,20 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     /// Creates a new instance of the keychain service façade.
     ///
     /// - Parameters:
-    ///   - appIDService: A service used to provide the app ID.
+    ///   - appIDService: A service used to provide the app ID. If this is nil,
+    ///                   then we are working with the shared keychain.
     ///   - appSecAttrAccessGroup: An identifier for the keychain access group used by the application
     ///                            group and extensions (e.g., "LTZ2PFU5D6.com.8bit.bitwarden").
     ///   - appSecAttrService: An identifier for the keychain service used by the application and
     ///                        extensions (e.g., "com.8bit.bitwarden").
+    ///                        This should be nil for the shared keychain.
     ///   - keychainService: The keychain service used by the repository.
     ///   - storageKeyPrefix: A prefix used for storage keys to namespace keychain items.
     ///
     public init(
-        appIDService: AppIDService,
+        appIDService: AppIDService?,
         appSecAttrAccessGroup: String,
-        appSecAttrService: String,
+        appSecAttrService: String?,
         keychainService: KeychainService,
         storageKeyPrefix: String,
     ) {
@@ -194,6 +199,11 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     /// - Returns: A formatted storage key.
     ///
     func formattedKey(for item: any KeychainItem) async -> String {
+        // If we don't have an App ID Service, that means we're working with the shared keychain,
+        // and for historical reasons, shared-keychain items are just the plain unformatted key.
+        guard let appIDService else {
+            return item.unformattedKey
+        }
         let appId = await appIDService.getOrCreateAppID()
         return String(format: storageKeyFormat, appId, item.unformattedKey)
     }
@@ -215,9 +225,13 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
         var result: [CFString: Any] = [
             kSecAttrAccount: formattedSecAttrAccount,
             kSecAttrAccessGroup: appSecAttrAccessGroup,
-            kSecAttrService: appSecAttrService,
             kSecClass: kSecClassGenericPassword,
         ]
+
+        // For historical reasons, shared-keychain items don't have a kSecAttrService.
+        if let appSecAttrService {
+            result[kSecAttrService] = appSecAttrService
+        }
 
         // Add the additional key value pairs.
         additionalPairs.forEach { key, value in
