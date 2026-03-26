@@ -52,11 +52,14 @@ enum CardTextParser {
     static func parse(lines: [String]) -> ScannedCardData {
         var result = ScannedCardData()
 
-        print("[CardTextParser] Parsing \(lines.count) lines: \(lines)")
+        print("\n[CardTextParser] Parsing \(lines.count) lines: \(lines)")
 
         // Flatten embedded newlines: OCR transcripts can contain \n within a single
         // recognized region. Split here so all downstream logic works on single-line strings.
-        let flatLines = lines.flatMap { $0.components(separatedBy: "\n") }
+        // Empty or whitespace-only lines are discarded immediately — they carry no useful data.
+        let flatLines = lines
+            .flatMap { $0.components(separatedBy: "\n") }
+            .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
 
         // Card number: try each line as-is first. Merging digit-fragment lines is deferred
         // until needed because an adjacent CVV line (e.g. Amex's 4-digit CID) could otherwise

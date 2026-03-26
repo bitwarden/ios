@@ -9,6 +9,9 @@ protocol AddEditCardItemState: Equatable, Sendable {
     /// The name of the card holder.
     var cardholderName: String { get set }
 
+    /// Cardholder name candidates when the scanner found more than one possible name.
+    var cardholderNameCandidates: [String] { get set }
+
     /// The number of the card.
     var cardNumber: String { get set }
 

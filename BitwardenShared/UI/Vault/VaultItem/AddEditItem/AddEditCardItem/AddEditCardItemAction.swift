@@ -6,8 +6,14 @@ enum AddEditCardItemAction: Equatable, Sendable {
     /// The brand of the card changed.
     case brandChanged(DefaultableType<CardComponent.Brand>)
 
+    /// The user selected a cardholder name from the disambiguation picker.
+    case cardholderNameCandidateSelected(String)
+
     /// The name of the card holder changed.
     case cardholderNameChanged(String)
+
+    /// The cardholder name picker was dismissed without selecting a name.
+    case cardholderNamePickerDismissed
 
     /// The number of the card changed.
     case cardNumberChanged(String)
@@ -35,19 +41,4 @@ enum AddEditCardItemAction: Equatable, Sendable {
 
     /// Toggle for number visibility changed.
     case toggleNumberVisibilityChanged(Bool)
-
-    /// The user tapped the Scan Card button.
-    case scanCardButtonTapped
-
-    /// The card scanner sheet was dismissed without completing a scan.
-    case cardScannerDismissed
-
-    /// The camera scanner returned parsed card data.
-    case cardScanned(ScannedCardData)
-
-    /// The user selected a cardholder name from the disambiguation picker.
-    case cardholderNameCandidateSelected(String)
-
-    /// The cardholder name picker was dismissed without selecting a name.
-    case cardholderNamePickerDismissed
 }
