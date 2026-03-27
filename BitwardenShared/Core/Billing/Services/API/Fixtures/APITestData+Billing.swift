@@ -12,6 +12,10 @@ public extension APITestData {
     }
     """.utf8))
 
+    // MARK: Plans
+
+    static let plansResponse = loadFromJsonBundle(resource: "plansResponse")
+
     // MARK: Portal URL
 
     static let portalUrl = APITestData(data: Data("""
