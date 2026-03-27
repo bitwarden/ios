@@ -2,7 +2,7 @@ import Networking
 
 // MARK: - GetPortalUrlRequest
 
-/// A networking request to create a Stripe customer portal session for managing
+/// A networking request to create a customer portal session for managing
 /// the premium subscription.
 ///
 struct GetPortalUrlRequest: Request {

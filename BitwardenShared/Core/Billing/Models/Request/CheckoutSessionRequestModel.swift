@@ -2,7 +2,7 @@ import Networking
 
 // MARK: - CheckoutSessionRequestModel
 
-/// API request model for creating a Stripe checkout session for premium upgrade.
+/// API request model for creating a checkout session for premium upgrade.
 ///
 struct CheckoutSessionRequestModel: JSONRequestBody {
     // MARK: Properties

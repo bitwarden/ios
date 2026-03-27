@@ -8,6 +8,6 @@ import Networking
 struct CheckoutSessionResponseModel: JSONResponse, Equatable {
     // MARK: Properties
 
-    /// The Stripe checkout URL for premium upgrade.
+    /// The checkout URL for premium upgrade.
     let checkoutSessionUrl: URL
 }

@@ -3,13 +3,13 @@
 /// A protocol for an API service used to make billing requests.
 ///
 protocol BillingAPIService { // sourcery: AutoMockable
-    /// Creates a Stripe checkout session for premium upgrade.
+    /// Creates a checkout session for premium upgrade.
     ///
     /// - Returns: A `CheckoutSessionResponseModel` containing the checkout URL.
     ///
     func createCheckoutSession() async throws -> CheckoutSessionResponseModel
 
-    /// Creates a Stripe customer portal session for managing the premium subscription.
+    /// Creates a customer portal session for managing the premium subscription.
     ///
     /// - Returns: A `PortalUrlResponseModel` containing the portal URL.
     ///
