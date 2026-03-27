@@ -13,7 +13,7 @@ class CompleteRegistrationStateTests: BitwardenTestCase {
         subject.retypePasswordText = "12345678901"
         subject.passwordHintText = "12345678901"
 
-        XCTAssertFalse(subject.continueButtonEnabled)
+        XCTAssertFalse(subject.doesMasterPasswordMatchHint)
     }
 
     func test_doesMasterPasswordMatchHint_whenWhitespaceDifference_returnsFalse() {
@@ -26,7 +26,7 @@ class CompleteRegistrationStateTests: BitwardenTestCase {
         subject.retypePasswordText = "12345678901"
         subject.passwordHintText = "12345678901 "
 
-        XCTAssertFalse(subject.continueButtonEnabled)
+        XCTAssertFalse(subject.doesMasterPasswordMatchHint)
     }
 
     func test_doesMasterPasswordMatchHint_whenValidHint_returnsTrue() {
@@ -39,7 +39,7 @@ class CompleteRegistrationStateTests: BitwardenTestCase {
         subject.retypePasswordText = "12345678901"
         subject.passwordHintText = "hint"
 
-        XCTAssertFalse(subject.continueButtonEnabled)
+        XCTAssertFalse(subject.doesMasterPasswordMatchHint)
     }
 
     func test_isContinueButtonEnabled_whenPasswordEmpty_returnsFalse() {
