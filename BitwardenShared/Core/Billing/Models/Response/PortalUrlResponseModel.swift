@@ -1,3 +1,4 @@
+import Foundation
 import Networking
 
 // MARK: - PortalUrlResponseModel
@@ -8,5 +9,5 @@ struct PortalUrlResponseModel: JSONResponse, Equatable {
     // MARK: Properties
 
     /// The Stripe customer portal URL.
-    let url: String
+    let url: URL
 }
