@@ -528,7 +528,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.isCardScannerPresented = true
         case .cardScannerDismissed:
             state.cardItemState.isCardScannerPresented = false
-        case let .cardScanned(data):
+        case let .cardScannerLinesUpdated(lines):
+            let data = services.cardTextParser.parseCard(lines: lines)
+            guard data.cardNumber != nil,
+                  data.expirationMonth != nil,
+                  !data.cardholderNameCandidates.isEmpty else { 
+                    break 
+            }
             state.cardItemState.isCardScannerPresented = false
             if let number = data.cardNumber {
                 state.cardItemState.cardNumber = number
