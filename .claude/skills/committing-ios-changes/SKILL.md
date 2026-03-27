@@ -17,7 +17,7 @@ If not done: invoke `perform-ios-preflight-checklist` first.
 ```
 
 - **Ticket**: `[PM-XXXXX]` or `[BWA-XXX]` — required
-- **Type**: one of `feat`, `fix`, `bug`, `chore`, `refactor`, `test`, `docs`
+- **Type**: one of `feat`, `fix`, `bug`, `chore`, `refactor`, `test`, `docs`, `llm`
 - **Description**: imperative mood, lowercase after colon, no period at end
 - PR number is appended automatically by GitHub on merge: `(#2399)`
 
@@ -32,6 +32,7 @@ If not done: invoke `perform-ios-preflight-checklist` first.
 | `refactor` | Code restructuring without behavior change |
 | `test` | Adding or updating tests only |
 | `docs` | Documentation only |
+| `llm` | LLM-related changes (CLAUDE.md, skills, prompts) |
 
 ### Examples from git log
 ```

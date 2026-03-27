@@ -16,9 +16,10 @@ Apply labels to categorize the change type and affected app(s).
 | `fix` / `bug` | `t:bug` |
 | `chore` / `refactor` / `test` | `t:tech-debt` |
 | `docs` | `t:docs` |
+| `llm` — LLM config, skills, prompts | `t:llm` |
 | CI/workflow changes | `t:ci` |
 | Dependency updates | `t:deps` |
-| LLM-generated / misc | `t:misc` |
+| Misc | `t:misc` |
 | Breaking change (add alongside type label) | `t:breaking-change` |
 
 ## App Context Label (pick one or both)
