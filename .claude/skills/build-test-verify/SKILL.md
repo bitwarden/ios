@@ -31,9 +31,10 @@ Or run all at once via `./Scripts/bootstrap.sh`.
 ## Building
 
 ```bash
-./Scripts/build.sh project-pm.yml Bitwarden Simulator      # PM for simulator
-./Scripts/build.sh project-bwa.yml Authenticator Simulator  # Authenticator for simulator
-./Scripts/build.sh project-pm.yml Bitwarden Device          # PM for device
+./Scripts/build.sh project-pm.yml Bitwarden Simulator       # PM for simulator
+./Scripts/build.sh project-bwa.yml Authenticator Simulator   # Authenticator for simulator
+./Scripts/build.sh project-bwth.yml TestHarness Simulator    # Test Harness for simulator
+./Scripts/build.sh project-pm.yml Bitwarden Device           # PM for device
 ```
 
 ## Running Tests
@@ -50,14 +51,7 @@ Simulator must match `.test-simulator-device-name` and `.test-simulator-ios-vers
 
 CI runs all `-Default` test plans on PRs to `main`, commits to `main`, and release branches. Test execution order is randomized (`randomExecutionOrder: true`).
 
-**Re-record snapshot tests** (when visual changes are intentional):
-```bash
-RECORD_MODE=1 xcodebuild test \
-  -workspace Bitwarden.xcworkspace \
-  -scheme Bitwarden \
-  -testPlan Bitwarden-Snapshot \
-  -destination 'platform=iOS Simulator,name=iPhone 16'
-```
+**Snapshot tests are currently disabled.** Do not run or re-record them. If you encounter a snapshot test, prefix the function name with `disable` (e.g., `disabletest_snapshot_defaultState`).
 
 ## Lint, Format, Spell Check
 
@@ -81,7 +75,10 @@ mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
 mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
 
 # Asset/localization code generation
-mint run swiftgen config run --config swiftgen-pm.yml
+mint run swiftgen config run --config swiftgen-bwr.yml   # BitwardenResources (most common)
+mint run swiftgen config run --config swiftgen-pm.yml    # Password Manager
+mint run swiftgen config run --config swiftgen-bwa.yml   # Authenticator
+mint run swiftgen config run --config swiftgen-bwth.yml  # Test Harness
 ```
 
 ## Tooling Reference
@@ -94,6 +91,7 @@ mint run swiftgen config run --config swiftgen-pm.yml
 | SwiftFormat | `.swiftformat` | Code formatting |
 | Sourcery | `*/Sourcery/sourcery.yml` | Mock generation (`AutoMockable`) |
 | SwiftGen | `swiftgen-*.yml` | Asset/localization code generation |
+| typos | project config | Spell checking |
 | Fastlane | `fastlane/Fastfile` | CI/CD automation |
 
 ## Common Failures
@@ -102,7 +100,7 @@ mint run swiftgen config run --config swiftgen-pm.yml
 |---------|-------|-----|
 | `.xcodeproj` not found | Files are gitignored | Run `./Scripts/bootstrap.sh` |
 | `MockXxx` not found | Sourcery not run | Add `// sourcery: AutoMockable`, run Sourcery or build |
-| Snapshot test fails | Simulator mismatch or intentional change | Check `.test-simulator-*` files; re-record if change is intentional |
+| Snapshot test runs | Snapshots are currently disabled | Prefix function name with `disable` (e.g., `disabletest_snapshot_defaultState`) |
 | Extension crash on unlock | Argon2id KDF > 64 MB | Check `maxArgon2IdMemoryBeforeExtensionCrashing` in `Constants.swift` |
 | SwiftLint TODO warning | Missing JIRA ticket | `// TODO: PM-12345 - description` |
 
