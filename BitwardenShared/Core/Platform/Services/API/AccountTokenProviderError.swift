@@ -18,7 +18,7 @@ struct AccountTokenProviderError: Error, CustomStringConvertible {
     var description: String {
         """
         Token refresh race condition detected: Active account changed from '\(userIdBefore)' to '\(userIdAfter)' \
-        during token refresh operation. Tokens may have been stored under wrong account.
+        during token refresh operation. Tokens were not stored.
         """
     }
 }

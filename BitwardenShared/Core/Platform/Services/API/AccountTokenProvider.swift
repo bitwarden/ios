@@ -31,9 +31,6 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     /// The task associated with refreshing the token, if one is in progress.
     private(set) var refreshTask: Task<String, Error>?
 
-    /// The service used to manage account state.
-    private let stateService: StateService
-
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
 
@@ -49,20 +46,17 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     ///   - timeProvider: The service used to get the present time.
     ///   - tokenService: The service used to get the current tokens from.
     ///   - errorReporter: The service used to report non-fatal errors.
-    ///   - stateService: The service used to manage account state.
     ///
     init(
         httpService: HTTPService,
         timeProvider: TimeProvider = CurrentTime(),
         tokenService: TokenService,
         errorReporter: ErrorReporter,
-        stateService: StateService,
     ) {
         self.httpService = httpService
         self.timeProvider = timeProvider
         self.tokenService = tokenService
         self.errorReporter = errorReporter
-        self.stateService = stateService
     }
 
     // MARK: Methods
@@ -95,12 +89,21 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
             do {
                 let expectedUserId = try await tokenService.getActiveAccountId()
 
-                // Use captured userId for all operations
                 let refreshToken = try await tokenService.getRefreshToken(userId: expectedUserId)
                 let response = try await httpService.send(
                     IdentityTokenRefreshRequest(refreshToken: refreshToken),
                 )
                 let expirationDate = timeProvider.presentTime.addingTimeInterval(TimeInterval(response.expiresIn))
+
+                let userIdAfter = try await tokenService.getActiveAccountId()
+                guard expectedUserId == userIdAfter else {
+                    let error = AccountTokenProviderError(
+                        userIdBefore: expectedUserId,
+                        userIdAfter: userIdAfter,
+                    )
+                    errorReporter.log(error: error)
+                    throw error
+                }
 
                 try await tokenService.setTokens(
                     accessToken: response.accessToken,
@@ -108,19 +111,6 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
                     expirationDate: expirationDate,
                     userId: expectedUserId,
                 )
-
-                do {
-                    let userIdAfter = try await stateService.getActiveAccountId()
-                    if expectedUserId != userIdAfter {
-                        let error = AccountTokenProviderError(
-                            userIdBefore: expectedUserId,
-                            userIdAfter: userIdAfter,
-                        )
-                        errorReporter.log(error: error)
-                    }
-                } catch {
-                    errorReporter.log(error: error)
-                }
 
                 return response.accessToken
             } catch {

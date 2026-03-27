@@ -12,7 +12,6 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
     var client: MockHTTPClient!
     var errorReporter: MockErrorReporter!
-    var stateService: MockStateService!
     var subject: DefaultAccountTokenProvider!
     var timeProvider: MockTimeProvider!
     var tokenService: MockTokenService!
@@ -28,8 +27,6 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
         client = MockHTTPClient()
         errorReporter = MockErrorReporter()
-        stateService = MockStateService()
-        stateService.activeAccount = .fixture()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 10, day: 2)))
         tokenService = MockTokenService()
 
@@ -38,7 +35,6 @@ class AccountTokenProviderTests: BitwardenTestCase {
             timeProvider: timeProvider,
             tokenService: tokenService,
             errorReporter: errorReporter,
-            stateService: stateService,
         )
     }
 
@@ -47,7 +43,6 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
         client = nil
         errorReporter = nil
-        stateService = nil
         subject = nil
         timeProvider = nil
         tokenService = nil
@@ -181,11 +176,9 @@ class AccountTokenProviderTests: BitwardenTestCase {
         }
     }
 
-    /// `refreshToken()` captures userId once at the start and uses it throughout the refresh operation,
-    /// preventing race conditions when the active account changes during the HTTP request.
-    /// This ensures tokens from Account A are stored under Account A's keychain entry,
-    /// even if the active account switches to Account B during the async HTTP operation.
-    func test_refreshToken_accountSwitchDuringRequest_storesTokensForOriginalAccount() async throws {
+    /// `refreshToken()` throws and does not store tokens when the active account switches during the HTTP request,
+    /// preventing tokens from being stored under the wrong account.
+    func test_refreshToken_accountSwitchDuringRequest_throwsAndDoesNotStoreTokens() async throws {
         // Setup: Account 1 is active
         tokenService.activeAccountId = "1"
         tokenService.refreshTokenByUserId["1"] = "REFRESH_1"
@@ -198,19 +191,22 @@ class AccountTokenProviderTests: BitwardenTestCase {
             self.tokenService.activeAccountId = "2"
         }
 
-        let newAccessToken = try await subject.refreshToken()
+        await assertAsyncThrows {
+            _ = try await subject.refreshToken()
+        }
 
-        // Verify: Tokens stored under Account 1 (original), NOT Account 2
-        XCTAssertEqual(newAccessToken, "ACCESS_TOKEN")
-        XCTAssertEqual(tokenService.setTokensCalledWithUserId, "1")
-        XCTAssertEqual(tokenService.getRefreshTokenCalledWithUserId, "1")
-        XCTAssertEqual(tokenService.accessTokenByUserId["1"], "ACCESS_TOKEN")
-        XCTAssertNil(tokenService.accessTokenByUserId["2"], "Access token should NOT be stored under Account 2")
+        // Verify: error logged, setTokens never called, no tokens stored under either account
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let error = errorReporter.errors[0] as? AccountTokenProviderError
+        XCTAssertNotNil(error)
+        XCTAssertEqual(error?.userIdBefore, "1")
+        XCTAssertEqual(error?.userIdAfter, "2")
+        XCTAssertNil(tokenService.setTokensCalledWithUserId)
     }
 
-    /// `refreshToken()` logs an error when the active account changes during the token refresh operation.
-    func test_refreshToken_logsRaceCondition_whenUserIdChanges() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "user-1"))
+    /// `refreshToken()` logs an error and throws when the active account changes during the token refresh operation,
+    /// preventing tokens from being stored in the wrong account.
+    func test_refreshToken_throwsRaceCondition_whenUserIdChanges() async throws {
         tokenService.activeAccountId = "user-1"
         tokenService.accessToken = "🔑"
         tokenService.refreshToken = "🔒"
@@ -219,22 +215,24 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
         // Simulate account switch during HTTP request
         client.onRequest = { _ in
-            self.stateService.activeAccount = .fixture(profile: .fixture(userId: "user-2"))
+            self.tokenService.activeAccountId = "user-2"
         }
 
-        _ = try await subject.refreshToken()
+        await assertAsyncThrows {
+            _ = try await subject.refreshToken()
+        }
 
-        // Verify error was logged
+        // Verify error was logged and setTokens was never called
         XCTAssertEqual(errorReporter.errors.count, 1)
         let error = errorReporter.errors[0] as? AccountTokenProviderError
         XCTAssertNotNil(error)
         XCTAssertEqual(error?.userIdBefore, "user-1")
         XCTAssertEqual(error?.userIdAfter, "user-2")
+        XCTAssertNil(tokenService.setTokensCalledWithUserId)
     }
 
     /// `refreshToken()` does not log an error when the active account remains the same.
     func test_refreshToken_doesNotLogError_whenUserIdStaysSame() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "user-1"))
         tokenService.activeAccountId = "user-1"
         tokenService.accessToken = "🔑"
         tokenService.refreshToken = "🔒"
@@ -247,25 +245,24 @@ class AccountTokenProviderTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.count, 0)
     }
 
-    /// `refreshToken()` logs an error when `getActiveAccountId` throws after tokens are stored,
-    /// but still returns the access token successfully.
-    func test_refreshToken_logsError_whenGetUserIdAfterThrows() async throws {
+    /// `refreshToken()` throws when `getActiveAccountId` throws before setting tokens,
+    /// preventing tokens from being stored without verifying the active account.
+    func test_refreshToken_throws_whenGetUserIdAfterThrows() async throws {
         tokenService.accessToken = "🔑"
         tokenService.refreshToken = "🔒"
         client.result = .httpSuccess(testData: .identityTokenRefresh)
 
-        // Remove the active account during the HTTP request so the second
-        // getActiveAccountId() call (after setTokens) throws noActiveAccount.
+        // Clear the active account ID during the HTTP request so the
+        // getActiveAccountId() call (before setTokens) throws noActiveAccount.
         client.onRequest = { _ in
-            self.stateService.activeAccount = nil
+            self.tokenService.activeAccountId = ""
         }
 
-        let token = try await subject.refreshToken()
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.refreshToken()
+        }
 
-        // Token is still returned successfully despite the diagnostic check throwing
-        XCTAssertEqual(token, "ACCESS_TOKEN")
-        // The thrown error was logged via errorReporter
-        XCTAssertEqual(errorReporter.errors.count, 1)
-        XCTAssertEqual(errorReporter.errors[0] as? StateServiceError, StateServiceError.noActiveAccount)
+        // setTokens was never called
+        XCTAssertNil(tokenService.setTokensCalledWithUserId)
     }
 }

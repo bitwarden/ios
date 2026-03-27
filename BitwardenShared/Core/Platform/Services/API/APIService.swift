@@ -88,7 +88,6 @@ class APIService {
             httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
             tokenService: tokenService,
             errorReporter: errorReporter,
-            stateService: stateService
         )
 
         apiService = httpServiceBuilder.makeService(
