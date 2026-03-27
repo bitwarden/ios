@@ -38,6 +38,7 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 │   ├── Core/                           # Data & business logic
 │   │   ├── Auth/                       # Authentication domain
 │   │   ├── Autofill/                   # AutoFill domain
+│   │   ├── Billing/                    # Billing & subscription domain
 │   │   ├── Platform/                   # Cross-cutting (services, stores, utilities)
 │   │   ├── Tools/                      # Generator, Send, Import/Export
 │   │   └── Vault/                      # Vault items domain
@@ -45,6 +46,7 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 │   └── UI/                             # UI layer (same subdirectories)
 │       ├── Auth/
 │       ├── Autofill/
+│       ├── Billing/
 │       ├── Platform/
 │       ├── Tools/
 │       └── Vault/
@@ -75,7 +77,7 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 └── project-*.yml                       # XcodeGen project specs
 ```
 
-**CRITICAL**: Do NOT add new top-level subdirectories to `Core/` or `UI/`. The fixed subdirectories are: `Auth/`, `Autofill/`, `Platform/`, `Tools/`, `Vault/`.
+**CRITICAL**: Do NOT add new top-level subdirectories to `Core/` or `UI/`. The fixed subdirectories are: `Auth/`, `Autofill/`, `Billing/`, `Platform/`, `Tools/`, `Vault/`.
 
 For key principles (unidirectional data flow, dependency injection, coordinator navigation, zero-knowledge), core patterns (Coordinator/Processor/State/View/Action/Effect files), adding new features, adding services/repositories, and common patterns, see `Docs/Architecture.md`.
 
@@ -185,7 +187,7 @@ Configured in `project-pm.yml`:
 
 - ❌ Mutate state directly from Views — always send Actions/Effects through the Store
 - ❌ Put business logic in Coordinators — logic belongs in Processors
-- ❌ Add new top-level subdirectories to `Core/` or `UI/` — use existing: `Auth/`, `Autofill/`, `Platform/`, `Tools/`, `Vault/`
+- ❌ Add new top-level subdirectories to `Core/` or `UI/` — use existing: `Auth/`, `Autofill/`, `Billing/`, `Platform/`, `Tools/`, `Vault/`
 - ❌ Store sensitive data in UserDefaults or CoreData — use iOS Keychain via `KeychainRepository`
 - ❌ Log or persist unencrypted vault data — zero-knowledge architecture must be preserved
 - ❌ Use `any` type for protocol-based dependencies — use generics or `Has*` composition
