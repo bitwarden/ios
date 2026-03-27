@@ -3,40 +3,37 @@ import XCTest
 @testable import BitwardenShared
 
 class CompleteRegistrationStateTests: BitwardenTestCase {
-    func test_doesMasterPasswordMatchHint_whenMatching_returnsFalse() {
+    func test_doesMasterPasswordMatchHint_whenMatching_returnsTrue() {
         var subject = CompleteRegistrationState(
             emailVerificationToken: "",
             userEmail: "email@example.com",
         )
+        subject.passwordText = "123456789012"
+        subject.retypePasswordText = "123456789012"
+        subject.passwordHintText = "123456789012"
 
-        subject.passwordText = "12345678901"
-        subject.retypePasswordText = "12345678901"
-        subject.passwordHintText = "12345678901"
-
-        XCTAssertFalse(subject.doesMasterPasswordMatchHint)
+        XCTAssertTrue(subject.doesMasterPasswordMatchHint)
     }
 
-    func test_doesMasterPasswordMatchHint_whenWhitespaceDifference_returnsFalse() {
+    func test_doesMasterPasswordMatchHint_whenWhitespaceDifference_returnsTrue() {
         var subject = CompleteRegistrationState(
             emailVerificationToken: "",
             userEmail: "email@example.com",
         )
+        subject.passwordText = "123456789012"
+        subject.retypePasswordText = "123456789012"
+        subject.passwordHintText = "123456789012 "
 
-        subject.passwordText = "12345678901"
-        subject.retypePasswordText = "12345678901"
-        subject.passwordHintText = "12345678901 "
-
-        XCTAssertFalse(subject.doesMasterPasswordMatchHint)
+        XCTAssertTrue(subject.doesMasterPasswordMatchHint)
     }
 
-    func test_doesMasterPasswordMatchHint_whenValidHint_returnsTrue() {
+    func test_doesMasterPasswordMatchHint_whenValidHint_returnsFalse() {
         var subject = CompleteRegistrationState(
             emailVerificationToken: "",
             userEmail: "email@example.com",
         )
-
-        subject.passwordText = "12345678901"
-        subject.retypePasswordText = "12345678901"
+        subject.passwordText = "123456789012"
+        subject.retypePasswordText = "123456789012"
         subject.passwordHintText = "hint"
 
         XCTAssertFalse(subject.doesMasterPasswordMatchHint)
