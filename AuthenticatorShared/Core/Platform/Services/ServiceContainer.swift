@@ -215,9 +215,17 @@ public class ServiceContainer: Services {
         let keychainService = DefaultKeychainService()
         let timeProvider = CurrentTime()
 
-        let keychainRepository = DefaultKeychainRepository(
-            appIDService: appIDService,
+        let keychainRepositoryFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.groupIdentifier,
             keychainService: keychainService,
+            namespacing: .appScoped(
+                appIDService: appIDService,
+                appSecAttrService: Bundle.main.appIdentifier,
+                storageKeyPrefix: "bwaKeychainStorage",
+            ),
+        )
+        let keychainRepository = DefaultKeychainRepository(
+            keychainServiceFacade: keychainRepositoryFacade,
         )
 
         let stateService = DefaultStateService(

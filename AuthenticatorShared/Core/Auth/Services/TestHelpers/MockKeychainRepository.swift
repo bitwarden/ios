@@ -59,7 +59,7 @@ class MockKeychainRepository: KeychainRepository {
     }
 
     func formattedKey(for item: AuthenticatorKeychainItem) -> String {
-        String(format: storageKeyFormat, appId, item.unformattedKey)
+        String(format: "bwaKeychainStorage:%@:%@", appId, item.unformattedKey)
     }
 
     func getSecretKey(userId: String) async throws -> String {
