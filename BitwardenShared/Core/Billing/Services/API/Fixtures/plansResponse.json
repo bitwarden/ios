@@ -24,7 +24,7 @@
       "displaySortOrder": -1,
       "legacyYear": null,
       "disabled": false,
-      "PasswordManager": {
+      "passwordManager": {
         "stripePlanId": null,
         "stripeSeatPlanId": null,
         "stripeProviderPortalSeatPlanId": null,
@@ -45,7 +45,7 @@
         "hasAdditionalSeatsOption": false,
         "maxCollections": null
       },
-      "SecretsManager": null
+      "secretsManager": null
     },
     {
       "type": 22,
@@ -118,7 +118,7 @@
       "displaySortOrder": 2,
       "legacyYear": null,
       "disabled": false,
-      "PasswordManager": {
+      "passwordManager": {
         "stripePlanId": null,
         "stripeSeatPlanId": "2024-teams-org-seat-annually",
         "stripeProviderPortalSeatPlanId": "password-manager-provider-portal-teams-annually",
@@ -139,7 +139,7 @@
         "hasAdditionalSeatsOption": true,
         "maxCollections": null
       },
-      "SecretsManager": {
+      "secretsManager": {
         "stripeSeatPlanId": "secrets-manager-teams-seat-annually",
         "seatPrice": 72.00,
         "baseSeats": 0,

@@ -82,33 +82,4 @@ struct PlanResponseModel: JSONResponse, Equatable, Sendable {
     /// Whether users on the plan get premium features.
     let usersGetPremium: Bool
 
-    // MARK: CodingKeys
-
-    enum CodingKeys: String, CodingKey {
-        case canBeUsedByBusiness
-        case descriptionLocalizationKey
-        case disabled
-        case displaySortOrder
-        case has2fa
-        case hasApi
-        case hasDirectory
-        case hasEvents
-        case hasGroups
-        case hasPolicies
-        case hasResetPassword
-        case hasSelfHost
-        case hasSso
-        case hasTotp
-        case isAnnual
-        case legacyYear
-        case name
-        case nameLocalizationKey
-        case passwordManager = "PasswordManager"
-        case productTier
-        case secretsManager = "SecretsManager"
-        case trialPeriodDays
-        case type
-        case upgradeSortOrder
-        case usersGetPremium
-    }
 }
