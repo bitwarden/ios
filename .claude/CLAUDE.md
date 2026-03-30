@@ -164,13 +164,6 @@ typos                                   # Spell check
 - Use `// MARK: -` sections to organize code within files
 - JIRA ticket required in TODO comments (enforced by `todo_without_jira` SwiftLint rule)
 
-### Pre-build Scripts
-Configured in `project-pm.yml`:
-- SwiftLint runs as post-compile script
-- SwiftFormat lint runs as post-compile script
-- Sourcery mock generation runs as pre-build phase
-- SwiftGen asset code generation runs as pre-build phase
-
 ## Patterns
 
 ### DO
@@ -193,108 +186,9 @@ Configured in `project-pm.yml`:
 - ❌ Use `any` type for protocol-based dependencies — use generics or `Has*` composition
 - ❌ Create TODO comments without JIRA tickets — SwiftLint enforces `todo_without_jira`
 
-## Deployment
+## Build & Deploy
 
-### Building
-
-```bash
-# Generate Xcode projects (required — .xcodeproj files are gitignored)
-mint run xcodegen --spec project-pm.yml    # Password Manager
-mint run xcodegen --spec project-bwa.yml   # Authenticator
-mint run xcodegen --spec project-bwk.yml   # BitwardenKit
-mint run xcodegen --spec project-bwth.yml  # Test Harness
-
-# Build
-./Scripts/build.sh project-pm.yml Bitwarden Simulator   # PM for simulator
-./Scripts/build.sh project-bwa.yml Authenticator Device  # Authenticator for device
-```
-
-### Initial Setup
-
-```bash
-brew bundle                    # Install Homebrew dependencies
-./Scripts/bootstrap.sh         # Generate Xcode projects, install Mint packages, set up git hooks
-```
-
-### Git Hooks
-
-Set up automatically by `bootstrap.sh`:
-- `post-checkout`: Runs `bootstrap.sh` to regenerate projects
-- `post-merge`: Runs `bootstrap.sh` to regenerate projects
-
-### Code Generation
-
-Runs automatically in pre-build phases, but can be triggered manually:
-```bash
-mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml   # Generate mocks
-mint run swiftgen config run --config swiftgen-pm.yml              # Generate asset code
-```
-
-### CI/CD
-
-- **Fastlane**: `fastlane/Fastfile` for build automation
-- CI runs all `-Default` test plans on pull requests to `main`, commits to `main`, and release branches
-- Test execution order is randomized (`randomExecutionOrder: true`)
-
-### Key Tooling
-
-| Tool | Config File | Purpose |
-|------|------------|---------|
-| XcodeGen | `project-*.yml` | Generates Xcode projects from YAML specs |
-| Mint | `Mintfile` | Swift tool package manager |
-| SwiftLint | `.swiftlint.yml` | Linting with custom rules |
-| SwiftFormat | `.swiftformat` | Code formatting (4-space indent, Swift 6.2) |
-| Sourcery | `*/Sourcery/sourcery.yml` | Mock generation (`AutoMockable`) |
-| SwiftGen | `swiftgen-*.yml` | Asset/localization code generation |
-| Fastlane | `fastlane/Fastfile` | CI/CD automation |
-
-## Troubleshooting
-
-### Common Issues
-
-#### Missing Xcode Projects
-
-**Problem**: `.xcodeproj` and `.xcworkspace` files are gitignored and not found after checkout.
-
-**Solution**: Run `./Scripts/bootstrap.sh` or generate manually with `mint run xcodegen --spec project-pm.yml`.
-
-#### Snapshot Test Failures
-
-**Problem**: Snapshot tests fail with image differences.
-
-**Solution**:
-1. Verify simulator matches `.test-simulator-device-name` and `.test-simulator-ios-version`
-2. If visual changes are intentional, re-record: `RECORD_MODE=1 xcodebuild test -testPlan Bitwarden-Snapshot ...`
-3. Commit new snapshot images with your changes
-
-#### Mock Generation Missing
-
-**Problem**: `MockExampleService` not found after adding new protocol.
-
-**Solution**:
-1. Ensure protocol has `// sourcery: AutoMockable` annotation
-2. Run `mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml`
-3. Or build the project (Sourcery runs in pre-build phase)
-
-#### App Extension Memory Crashes
-
-**Problem**: AutoFill or Action extension crashes during vault unlock.
-
-**Solution**: Check KDF settings — Argon2id with memory > 64 MB (`maxArgon2IdMemoryBeforeExtensionCrashing`) can exceed extension memory limits. The app warns users about this.
-
-#### SwiftLint TODO Warning
-
-**Problem**: SwiftLint flags TODO comments.
-
-**Solution**: Include a JIRA ticket reference: `// TODO: PM-12345 - Description of work to do`
-
-### Debug Tips
-
-- **Error reporting**: `ErrorReporter` protocol with `OSLogErrorReporter` for development logging
-- **Flight recorder**: In-app logging system for debugging production issues
-- **SDK diagnostics**: Check Xcode console for SDK errors (prefix: `BitwardenSdk`)
-- **Network debugging**: Networking layer in `Networking/` Swift package — set breakpoints in `APIService` implementations
-- **State debugging**: Add `print(subject.state)` in processor tests to inspect state changes
+See `build-test-verify` skill for project generation, build commands, test execution, lint, format, code generation, common failures, and debug tips.
 
 ## References
 
