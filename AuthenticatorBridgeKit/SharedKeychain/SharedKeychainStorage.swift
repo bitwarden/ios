@@ -64,6 +64,10 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
     ///
     private let keychainService: KeychainService
 
+    /// The keychain service facade used by the repository
+    ///
+    private let keychainServiceFacade: KeychainServiceFacade
+
     /// An identifier for the shared access group used by the application.
     ///
     /// Example: "group.com.8bit.bitwarden"
@@ -76,55 +80,30 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
     ///
     /// - Parameters:
     ///   - keychainService: The keychain service used by the repository
+    ///   - keychainServiceFacade: The keychain service facade used by the repository
     ///   - sharedAppGroupIdentifier: An identifier for the shared access group used by the application.
     public init(
         keychainService: KeychainService,
+        keychainServiceFacade: KeychainServiceFacade,
         sharedAppGroupIdentifier: String,
     ) {
         self.keychainService = keychainService
+        self.keychainServiceFacade = keychainServiceFacade
         self.sharedAppGroupIdentifier = sharedAppGroupIdentifier
     }
 
     // MARK: Methods
 
     public func deleteValue(for item: SharedKeychainItem) async throws {
-        try keychainService.delete(
-            query: item.baseQuery(sharedAppGroupIdentifier: sharedAppGroupIdentifier),
-        )
+        try await keychainServiceFacade.deleteValue(for: item)
     }
 
     public func getValue<T: Codable>(for item: SharedKeychainItem) async throws -> T {
-        var query = item.baseQueryAttributes(sharedAppGroupIdentifier: sharedAppGroupIdentifier)
-        query[kSecMatchLimit] = kSecMatchLimitOne
-        query[kSecReturnData] = true
-        query[kSecReturnAttributes] = true
-
-        let foundItem = try keychainService.search(query: query as CFDictionary)
-
-        guard let resultDictionary = foundItem as? [String: Any],
-              let data = resultDictionary[kSecValueData as String] as? Data else {
-            throw KeychainServiceError.keyNotFound(item)
-        }
-
-        let object = try JSONDecoder.defaultDecoder.decode(T.self, from: data)
-        return object
+        try await keychainServiceFacade.getValue(for: item)
     }
 
     public func setValue<T: Codable>(_ value: T, for item: SharedKeychainItem) async throws {
-        let valueData = try JSONEncoder.defaultEncoder.encode(value)
-
-        do {
-            // Try to update first - if item exists, this avoids delete-then-add race condition
-            try keychainService.update(
-                query: item.baseQuery(sharedAppGroupIdentifier: sharedAppGroupIdentifier),
-                attributes: [kSecValueData: valueData] as CFDictionary,
-            )
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
-            // Item doesn't exist, so add it
-            var attributes = item.baseQueryAttributes(sharedAppGroupIdentifier: sharedAppGroupIdentifier)
-            attributes[kSecValueData] = valueData
-            try keychainService.add(attributes: attributes as CFDictionary)
-        }
+        try await keychainServiceFacade.setValue(value, for: item)
     }
 }
 

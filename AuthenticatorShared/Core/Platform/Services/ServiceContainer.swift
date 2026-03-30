@@ -301,8 +301,15 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore,
         )
 
+        let sharedKeychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.sharedAppGroupIdentifier,
+            keychainService: keychainService,
+            namespacing: .shared,
+        )
+
         let sharedKeychainStorage = DefaultSharedKeychainStorage(
             keychainService: keychainService,
+            keychainServiceFacade: sharedKeychainServiceFacade,
             sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
         )
 
