@@ -76,11 +76,6 @@ extension CardItemState: ViewCardItemState {
         return brand.localizedName
     }
 
-    /// The formatted card number with spaces every 4 digits.
-    var formattedCardNumber: String {
-        cardNumber.formattedCreditCardNumber()
-    }
-
     /// The card's formatted expiration string.
     var expirationString: String {
         var strings = [String]()
@@ -91,6 +86,17 @@ extension CardItemState: ViewCardItemState {
             strings.append(expirationYear)
         }
         return strings.joined(separator: "/")
+    }
+
+    /// The card number formatted with brand-appropriate digit grouping for display.
+    var formattedCardNumber: String {
+        let effectiveBrand = switch brand {
+        case let .custom(customBrand):
+            customBrand
+        default:
+            CardComponent.Brand.detect(from: cardNumber)
+        }
+        return effectiveBrand.formattedCardNumber(cardNumber)
     }
 
     /// Whether the card details section is empty.
