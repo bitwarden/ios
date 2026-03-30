@@ -123,7 +123,7 @@ class MockKeychainRepository: KeychainRepository {
     }
 
     func formattedKey(for item: BitwardenKeychainItem) -> String {
-        String(format: storageKeyFormat, appId, item.unformattedKey)
+        String(format: "bwKeyChainStorage:%@:%@", appId, item.unformattedKey)
     }
 
     func setAccessToken(_ value: String, userId: String) async throws {

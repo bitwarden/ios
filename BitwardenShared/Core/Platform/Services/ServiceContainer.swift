@@ -468,9 +468,18 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let keychainService = DefaultKeychainService()
 
-        let keychainRepository = DefaultKeychainRepository(
-            appIDService: appIDService,
+        let keychainRepositoryFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.keychainAccessGroup,
             keychainService: keychainService,
+            namespacing: .appScoped(
+                appIDService: appIDService,
+                appSecAttrService: Bundle.main.appIdentifier,
+                storageKeyPrefix: "bwKeyChainStorage",
+            ),
+        )
+        let keychainRepository = DefaultKeychainRepository(
+            keychainService: keychainService,
+            keychainServiceFacade: keychainRepositoryFacade,
         )
         let timeProvider = CurrentTime()
 
