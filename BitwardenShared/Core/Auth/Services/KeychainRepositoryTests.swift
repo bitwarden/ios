@@ -41,20 +41,25 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `deleteAllItems` deletes items for all classes via the raw keychain service.
     ///
-//    func test_deleteAllItems() async throws {
-//        try await subject.deleteAllItems()
-//
-//        XCTAssertEqual(
-//            keychainService.deleteQueries,
-//            [
-//                [kSecClass: kSecClassGenericPassword] as CFDictionary,
-//                [kSecClass: kSecClassInternetPassword] as CFDictionary,
-//                [kSecClass: kSecClassCertificate] as CFDictionary,
-//                [kSecClass: kSecClassKey] as CFDictionary,
-//                [kSecClass: kSecClassIdentity] as CFDictionary,
-//            ],
-//        )
-//    }
+    func test_deleteAllItems() async throws {
+        var deletedQueries: [CFDictionary] = []
+        keychainService.deleteClosure = { query in
+            deletedQueries.append(query)
+        }
+
+        try await subject.deleteAllItems()
+
+        XCTAssertEqual(
+            deletedQueries,
+            [
+                [kSecClass: kSecClassGenericPassword] as CFDictionary,
+                [kSecClass: kSecClassInternetPassword] as CFDictionary,
+                [kSecClass: kSecClassCertificate] as CFDictionary,
+                [kSecClass: kSecClassKey] as CFDictionary,
+                [kSecClass: kSecClassIdentity] as CFDictionary,
+            ],
+        )
+    }
 
     // MARK: Tests - deleteAuthenticatorVaultKey(userId:)
 
