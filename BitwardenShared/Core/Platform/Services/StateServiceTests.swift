@@ -2657,6 +2657,71 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(shouldDoArchiveOnboarding)
     }
 
+    /// `shouldShowPremiumUpgradeBanner()` returns `true` when user is free, account is 7+ days old,
+    /// and banner has not been dismissed.
+    func test_shouldShowPremiumUpgradeBanner_true() async {
+        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60) // 8 days ago
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertTrue(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when user has premium.
+    func test_shouldShowPremiumUpgradeBanner_hasPremium() async {
+        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60) // 8 days ago
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: true,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when banner has been dismissed.
+    func test_shouldShowPremiumUpgradeBanner_dismissed() async {
+        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60) // 8 days ago
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account is less than 7 days old.
+    func test_shouldShowPremiumUpgradeBanner_accountTooNew() async {
+        let creationDate = Date().addingTimeInterval(-5 * 24 * 60 * 60) // 5 days ago
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account has no creation date.
+    func test_shouldShowPremiumUpgradeBanner_noCreationDate() async {
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: nil,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
+    }
+
     /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.
     func test_syncToAuthenticatorPublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))

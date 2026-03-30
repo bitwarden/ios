@@ -1351,6 +1351,23 @@ extension StateService {
         let archiveOnboardingShown = await getArchiveOnboardingShown()
         return hasPremium && !archiveOnboardingShown
     }
+
+    /// Whether the user should see the premium upgrade banner based on account criteria.
+    /// - Returns: `true` if user is free, account is 7+ days old, and banner not dismissed.
+    func shouldShowPremiumUpgradeBanner() async -> Bool {
+        guard !(await doesActiveAccountHavePremium()) else { return false }
+
+        let dismissed = await ((try? getPremiumUpgradeBannerDismissed()) ?? false)
+        guard !dismissed else { return false }
+
+        // Check account age >= 7 days
+        guard let account = try? await getActiveAccount(),
+              let creationDate = account.profile.creationDate else { return false }
+        let sevenDays: TimeInterval = 7 * 24 * 60 * 60
+        guard Date().timeIntervalSince(creationDate) >= sevenDays else { return false }
+
+        return true
+    }
 }
 
 // MARK: - StateServiceError
