@@ -26,8 +26,8 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
             namespacing: .appScoped(
                 appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
                 appSecAttrService: "test-service",
+                storageKeyPrefix: "test-prefix",
             ),
-            storageKeyPrefix: "test-prefix",
         )
     }
 
@@ -261,6 +261,17 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
 
     // MARK: Tests - shared namespacing configuration
 
+    /// With `.appScoped` namespacing, `keychainQueryValues` formats `kSecAttrAccount` as `prefix:appID:unformattedKey`.
+    ///
+    func test_keychainQueryValues_appScopedNamespacing_usesFormattedKey() async {
+        let item = makeItem(unformattedKey: "scoped_key")
+
+        let query = await subject.keychainQueryValues(for: item)
+
+        let dict = query as? [String: Any]
+        XCTAssertEqual(dict?[kSecAttrAccount as String] as? String, "test-prefix:test-app-ID:scoped_key")
+    }
+
     /// With `.shared` namespacing, `keychainQueryValues` uses the bare `unformattedKey` for `kSecAttrAccount`.
     ///
     func test_keychainQueryValues_sharedNamespacing_usesBareKey() async {
@@ -292,7 +303,6 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
             appSecAttrAccessGroup: "test-access-group",
             keychainService: keychainService,
             namespacing: .shared,
-            storageKeyPrefix: "test-prefix",
         )
     }
 

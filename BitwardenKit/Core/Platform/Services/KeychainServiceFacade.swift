@@ -71,8 +71,9 @@ public enum KeychainNamespacing {
     ///   - appIDService: A service used to provide the per-install app ID.
     ///   - appSecAttrService: An identifier for the keychain service used by the application and extensions.
     ///                        (e.g., "com.8bit.bitwarden").
+    ///   - storageKeyPrefix: A prefix used for storage keys to namespace keychain items.
     ///
-    case appScoped(appIDService: AppIDService, appSecAttrService: String)
+    case appScoped(appIDService: AppIDService, appSecAttrService: String, storageKeyPrefix: String)
 
     /// Items are stored with a bare key and no `kSecAttrService`, allowing cross-app access.
     ///
@@ -101,20 +102,6 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     ///
     let namespacing: KeychainNamespacing
 
-    /// A prefix used for storage keys to namespace keychain items.
-    ///
-    let storageKeyPrefix: String
-
-    // MARK: Computed Properties
-
-    /// The format string used to generate a storage key for storing a keychain item in an app-scoped keychain.
-    /// The first value should be the app ID from the `appIDService`.
-    /// The second value should be the item's `unformattedKey`.
-    ///
-    /// example: `bwKeyChainStorage:1234567890:biometric_key_98765`
-    ///
-    var storageKeyFormat: String { "\(storageKeyPrefix):%@:%@" }
-
     // MARK: Initialization
 
     /// Creates a new instance of the keychain service façade.
@@ -124,18 +111,15 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     ///                            group and extensions (e.g., "LTZ2PFU5D6.com.8bit.bitwarden").
     ///   - keychainService: The keychain service used by the repository.
     ///   - namespacing: Determines how keychain item keys are constructed.
-    ///   - storageKeyPrefix: A prefix used for storage keys to namespace keychain items.
     ///
     public init(
         appSecAttrAccessGroup: String,
         keychainService: KeychainService,
         namespacing: KeychainNamespacing,
-        storageKeyPrefix: String,
     ) {
         self.appSecAttrAccessGroup = appSecAttrAccessGroup
         self.keychainService = keychainService
         self.namespacing = namespacing
-        self.storageKeyPrefix = storageKeyPrefix
     }
 
     // MARK: Methods
@@ -206,9 +190,10 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     ///
     func formattedKey(for item: any KeychainItem) async -> String {
         switch namespacing {
-        case let .appScoped(appIDService, _):
+        case let .appScoped(appIDService, _, storageKeyPrefix):
             let appId = await appIDService.getOrCreateAppID()
-            return String(format: storageKeyFormat, appId, item.unformattedKey)
+            // Generate a storage key for storing a keychain item in an app-scoped keychain
+            return String(format: "\(storageKeyPrefix):%@:%@", appId, item.unformattedKey)
         case .shared:
             // For historical reasons, shared-keychain items use the plain unformatted key.
             return item.unformattedKey
@@ -236,7 +221,7 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
         ]
 
         // For historical reasons, shared-keychain items don't have a kSecAttrService.
-        if case let .appScoped(_, appSecAttrService) = namespacing {
+        if case let .appScoped(_, appSecAttrService, _) = namespacing {
             result[kSecAttrService] = appSecAttrService
         }
 
