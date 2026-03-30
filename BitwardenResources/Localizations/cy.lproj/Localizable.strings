@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Wedi'i ychwanegu eisoes";
 "SwitchToAlreadyAddedAccountConfirmation" = "Would you like to switch to it now?";
 "MasterPassword" = "Prif gyfrinair";
-"MoreOptions" = "More options";
+"MoreOptions" = "Mwy o ddewisiadau";
 "MyVault" = "Fy nghell";
 "Authenticator" = "Authenticator";
 "Name" = "Enw";
@@ -1218,7 +1218,7 @@
 "ItemInformation" = "Gwybodaeth am yr eitem";
 "ItemsExported" = "Verification codes exported";
 "ItemsImported" = "Verification codes imported";
-"Key" = "Key";
+"Key" = "Allwedd";
 "KeyReadError" = "Cannot read key.";
 "LaunchTutorial" = "Launch tutorial";
 "LearnMoreLink" = "[Learn more](%1$@)";
@@ -1232,9 +1232,9 @@
 "RefreshPeriod" = "Refresh period";
 "RequiredInformationIsMissing" = "Required information is missing at %1$@. Please review the field and try again.";
 "RequiredInformationMissing" = "Required Information Missing";
-"SaveHere" = "Save here";
+"SaveHere" = "Cadw yma";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Save this authenticator key here, or add it to a login in your Bitwarden app.";
-"SaveToBitwarden" = "Save to Bitwarden";
+"SaveToBitwarden" = "Cadw i Bitwarden";
 "ScanComplete" = "Scan complete";
 "ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
@@ -1279,9 +1279,9 @@
 "KeepYtemsYouDontNeedRightNowSafeButOutOfSight" = "Keep items you don’t need right now safe but out of sight.";
 "GoToArchive" = "Go to archive";
 "ItemTransfer" = "Item transfer";
-"TransferItemsToX" = "Transfer items to %1$@";
+"TransferItemsToX" = "Trosglwyddo eitemau i %1$@";
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.";
-"DeclineAndLeave" = "Decline and leave";
+"DeclineAndLeave" = "Gwrthod ac ymadael";
 "WhyAmISeeingThis" = "Pam rydw i'n gweld hyn?";
 "AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
@@ -1295,10 +1295,10 @@
 "YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Your organization has set the default session timeout to never.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Your organization has set the default session timeout to on app restart.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Your organization has set the maximum session timeout to %1$@ and %2$@.";
-"HiddenItems" = "Hidden items";
-"Archive" = "Archive";
-"Archived" = "Archived";
-"Unarchive" = "Unarchive";
+"HiddenItems" = "Eitemau cudd";
+"Archive" = "Archif";
+"Archived" = "Wedi'i archifo";
+"Unarchive" = "Dadarchifo";
 "ItemMovedToArchive" = "Item moved to archive";
 "ItemMovedToVault" = "Item moved to vault";
 "SendingToArchive" = "Sending to archive…";
@@ -1310,7 +1310,7 @@
 "ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Upgrade to premium";
-"ThisItemIsArchived" = "This item is archived.";
+"ThisItemIsArchived" = "Mae'r eitem hon wedi'i harchifo.";
 "YourPremiumSubscriptionEnded" = "Your Premium subscription ended";
 "YourPremiumSubscriptionEndedArchiveDescriptionLong" = "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault.";
 "RestartPremium" = "Restart Premium";

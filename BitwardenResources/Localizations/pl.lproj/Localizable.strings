@@ -1328,5 +1328,5 @@
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Żądanie zostało przerwane, ponieważ aplikacja wymagała ponownego uwierzytelniania. Spróbuj ponownie.";
 "AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
 "LearnMoreAboutAutofill" = "Dowiedz się więcej o autouzupełnianiu";
-"TurnOnNow" = "Turn on now";
+"TurnOnNow" = "Włącz teraz";
 "AcceptTransfer" = "Akceptuj";
