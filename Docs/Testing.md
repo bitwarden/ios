@@ -540,8 +540,7 @@ The codebase uses [Sourcery](https://github.com/krzysztofzablocki/Sourcery) to a
 #### Mark a Protocol for Mocking
 
 ```swift
-// sourcery: AutoMockable
-protocol ExampleService {
+protocol ExampleService { // sourcery: AutoMockable
     func fetchData() async throws -> [String]
     var dataPublisher: AnyPublisher<[String], Never> { get }
 }
@@ -550,7 +549,7 @@ protocol ExampleService {
 #### Generated Mock Location
 
 Mocks are generated in:
-- `BitwardenShared/Core/Platform/Models/Sourcery/AutoMockable.generated.swift`
+- `BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift`
 
 #### Using Generated Mocks
 
