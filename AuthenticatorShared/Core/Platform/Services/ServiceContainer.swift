@@ -307,14 +307,8 @@ public class ServiceContainer: Services {
             namespacing: .shared,
         )
 
-        let sharedKeychainStorage = DefaultSharedKeychainStorage(
-            keychainService: keychainService,
-            keychainServiceFacade: sharedKeychainServiceFacade,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-        )
-
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage,
+            keychainServiceFacade: sharedKeychainServiceFacade,
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(

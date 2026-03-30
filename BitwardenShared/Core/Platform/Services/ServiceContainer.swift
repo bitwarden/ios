@@ -666,14 +666,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             namespacing: .shared,
         )
 
-        let sharedKeychainStorage = DefaultSharedKeychainStorage(
-            keychainService: keychainService,
-            keychainServiceFacade: sharedKeychainServiceFacade,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-        )
-
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage,
+            keychainServiceFacade: sharedKeychainServiceFacade,
         )
 
         let sharedTimeoutService = DefaultSharedTimeoutService(

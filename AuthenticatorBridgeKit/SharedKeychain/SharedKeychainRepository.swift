@@ -45,19 +45,19 @@ public protocol SharedKeychainRepository {
 }
 
 public class DefaultSharedKeychainRepository: SharedKeychainRepository {
-    /// The shared keychain storage used by the repository.
-    let storage: SharedKeychainStorage
+    /// The keychain service facade used by the repository.
+    let keychainServiceFacade: KeychainServiceFacade
 
-    /// Initialize a `DefaultSharedKeychainStorage`.
+    /// Initialize a `DefaultSharedKeychainRepository`.
     ///
     /// - Parameters:
-    ///   - storage: The shared keychain storage used by the repository
-    public init(storage: SharedKeychainStorage) {
-        self.storage = storage
+    ///   - keychainServiceFacade: The keychain service facade used by the repository
+    public init(keychainServiceFacade: KeychainServiceFacade) {
+        self.keychainServiceFacade = keychainServiceFacade
     }
 
     public func deleteAuthenticatorKey() async throws {
-        try await storage.deleteValue(for: .authenticatorKey)
+        try await keychainServiceFacade.deleteValue(for: SharedKeychainItem.authenticatorKey)
     }
 
     /// Gets the authenticator key.
@@ -65,7 +65,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     /// - Returns: Data representing the authenticator key.
     ///
     public func getAuthenticatorKey() async throws -> Data {
-        try await storage.getValue(for: .authenticatorKey)
+        try await keychainServiceFacade.getValue(for: SharedKeychainItem.authenticatorKey)
     }
 
     /// Stores the access token for a user in the keychain.
@@ -73,7 +73,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     /// - Parameter value: The authenticator key to store.
     ///
     public func setAuthenticatorKey(_ value: Data) async throws {
-        try await storage.setValue(value, for: .authenticatorKey)
+        try await keychainServiceFacade.setValue(value, for: SharedKeychainItem.authenticatorKey)
     }
 
     /// Gets when a user account should automatically log out.
@@ -83,7 +83,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     /// - Returns: The time the user should be automatically logged out. If `nil`, then the user should not be.
     ///
     public func getAccountAutoLogoutTime(userId: String) async throws -> Date? {
-        try await storage.getValue(for: .accountAutoLogout(userId: userId))
+        try await keychainServiceFacade.getValue(for: SharedKeychainItem.accountAutoLogout(userId: userId))
     }
 
     /// Sets when a user account should automatically log out.
@@ -96,6 +96,6 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
         _ value: Date?,
         userId: String,
     ) async throws {
-        try await storage.setValue(value, for: .accountAutoLogout(userId: userId))
+        try await keychainServiceFacade.setValue(value, for: SharedKeychainItem.accountAutoLogout(userId: userId))
     }
 }
