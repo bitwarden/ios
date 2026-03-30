@@ -1,6 +1,33 @@
 import BitwardenKit
 import Foundation
 
+// MARK: - SharedKeychainItem
+
+/// Enumeration of support Keychain Items that can be placed in the `SharedKeychainRepository`
+///
+public enum SharedKeychainItem: Equatable, KeychainItem {
+    /// A date at which a BWPM account automatically logs out.
+    case accountAutoLogout(userId: String)
+
+    /// The keychain item for the authenticator encryption key.
+    case authenticatorKey
+
+    public var accessControlFlags: SecAccessControlCreateFlags? { nil }
+
+    public var protection: CFTypeRef { kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly }
+
+    /// The storage key for this keychain item.
+    ///
+    public var unformattedKey: String {
+        switch self {
+        case let .accountAutoLogout(userId: userId):
+            "accountAutoLogout_\(userId)"
+        case .authenticatorKey:
+            "authenticatorKey"
+        }
+    }
+}
+
 // MARK: - SharedKeychainRepository
 
 /// A repository for managing keychain items to be shared between Password Manager and Authenticator.
