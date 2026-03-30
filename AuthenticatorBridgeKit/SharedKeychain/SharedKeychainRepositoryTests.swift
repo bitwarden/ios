@@ -1,76 +1,119 @@
 import AuthenticatorBridgeKit
-import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
-import CryptoKit
 import Foundation
 import XCTest
 
 final class SharedKeychainRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
-    var storage: MockSharedKeychainStorage!
+    var keychainServiceFacade: MockKeychainServiceFacade!
     var subject: DefaultSharedKeychainRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
-        storage = MockSharedKeychainStorage()
+        super.setUp()
+
+        keychainServiceFacade = MockKeychainServiceFacade()
         subject = DefaultSharedKeychainRepository(
-            storage: storage,
+            keychainServiceFacade: keychainServiceFacade,
         )
     }
 
     override func tearDown() {
-        storage = nil
+        super.tearDown()
+
+        keychainServiceFacade = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `deleteAuthenticatorKey()` deletes the authenticator key from storage.
+    /// `deleteAuthenticatorKey()` deletes the authenticator key via the facade.
+    ///
     func test_deleteAuthenticatorKey_success() async throws {
-        storage.storage[.authenticatorKey] = Data()
         try await subject.deleteAuthenticatorKey()
-        XCTAssertNil(storage.storage[.authenticatorKey])
+
+        XCTAssertEqual(
+            keychainServiceFacade.deleteValueReceivedItem?.unformattedKey,
+            SharedKeychainItem.authenticatorKey.unformattedKey
+        )
     }
 
-    /// `getAuthenticatorKey()` retrieves the authenticator key from storage.
-    func test_getAuthenticatorKey_success() async throws {
-        let key = SymmetricKey(size: .bits256)
-        let data = key.withUnsafeBytes { Data(Array($0)) }
-        storage.storage[.authenticatorKey] = data
-        let authenticatorKey = try await subject.getAuthenticatorKey()
-        XCTAssertEqual(authenticatorKey, data)
+    /// `getAccountAutoLogoutTime()` retrieves the account auto-logout time via the facade.
+    ///
+    func test_getAccountAutoLogoutTime_success() async throws {
+        let date = Date(timeIntervalSince1970: 12345)
+        keychainServiceFacade.getValueReturnValue = String(
+            data: try JSONEncoder.defaultEncoder.encode(date),
+            encoding: .utf8
+        )
+
+        let result = try await subject.getAccountAutoLogoutTime(userId: "1")
+
+        XCTAssertEqual(result, date)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            SharedKeychainItem.accountAutoLogout(userId: "1").unformattedKey
+        )
     }
 
-    /// `getAuthenticatorKey()` throws an error if the key is not in storage.
-    func test_getAuthenticatorKey_nil() async throws {
+    /// `getAuthenticatorKey()` throws `keyNotFound` when the key is not in storage.
+    ///
+    func test_getAuthenticatorKey_keyNotFound() async {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            SharedKeychainItem.authenticatorKey
+        )
+
         await assertAsyncThrows(error: KeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)) {
             _ = try await subject.getAuthenticatorKey()
         }
     }
 
-    /// `setAuthenticatorKey()` sets the authenticator key in storage.
-    func test_setAuthenticatorKey_success() async throws {
-        let key = SymmetricKey(size: .bits256)
-        let data = key.withUnsafeBytes { Data(Array($0)) }
-        try await subject.setAuthenticatorKey(data)
-        XCTAssertEqual(storage.storage[.authenticatorKey] as? Data, data)
+    /// `getAuthenticatorKey()` retrieves the authenticator key via the facade.
+    ///
+    func test_getAuthenticatorKey_success() async throws {
+        let data = Data([1, 2, 3])
+        keychainServiceFacade.getValueReturnValue = String(
+            data: try JSONEncoder.defaultEncoder.encode(data),
+            encoding: .utf8
+        )
+
+        let result = try await subject.getAuthenticatorKey()
+
+        XCTAssertEqual(result, data)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            SharedKeychainItem.authenticatorKey.unformattedKey
+        )
     }
 
-    /// `getAccountAutoLogoutTime()` retrieves the last active time from storage.
-    func test_getBWPMAccountAutoLogoutTime_success() async throws {
+    /// `setAccountAutoLogoutTime()` sets the account auto-logout time via the facade.
+    ///
+    func test_setAccountAutoLogoutTime_success() async throws {
         let date = Date(timeIntervalSince1970: 12345)
-        storage.storage[.accountAutoLogout(userId: "1")] = date
-        let lastActiveTime = try await subject.getAccountAutoLogoutTime(userId: "1")
-        XCTAssertEqual(lastActiveTime, date)
-    }
 
-    /// `setAccountAutoLogoutTime()` sets the last active time in storage.
-    func test_setBWPMAccountAutoLogoutTime_success() async throws {
-        let date = Date(timeIntervalSince1970: 12345)
         try await subject.setAccountAutoLogoutTime(date, userId: "1")
-        XCTAssertEqual(storage.storage[.accountAutoLogout(userId: "1")] as? Date, date)
+
+        XCTAssertTrue(keychainServiceFacade.setValueCalled)
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            SharedKeychainItem.accountAutoLogout(userId: "1").unformattedKey
+        )
+    }
+
+    /// `setAuthenticatorKey()` sets the authenticator key via the facade.
+    ///
+    func test_setAuthenticatorKey_success() async throws {
+        let data = Data([1, 2, 3])
+
+        try await subject.setAuthenticatorKey(data)
+
+        XCTAssertTrue(keychainServiceFacade.setValueCalled)
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            SharedKeychainItem.authenticatorKey.unformattedKey
+        )
     }
 }
