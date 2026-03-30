@@ -4,7 +4,7 @@ import Foundation
 
 /// A Service to provide a wrapper around the device Keychain.
 ///
-public protocol KeychainService: AnyObject {
+public protocol KeychainService: AnyObject { // sourcery: AutoMockable
     /// Creates an access control for a given set of flags.
     ///
     /// - Parameters:

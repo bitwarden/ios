@@ -45,7 +45,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_getValue_string_success() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
-        keychainService.setSearchResultData(string: "stored-value")
+        keychainService.searchReturnValue = [kSecValueData as String: Data("stored-value".utf8)] as AnyObject
 
         let result = try await subject.getValue(for: item)
 
@@ -56,7 +56,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_getValue_string_nilResult_throwsKeyNotFound() async {
         let item = MockKeychainItem(unformattedKey: "missing_key")
-        keychainService.searchResult = .success(nil)
+        keychainService.searchReturnValue = nil
 
         await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
             _ = try await subject.getValue(for: item)
@@ -67,7 +67,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_getValue_string_emptyString_throwsKeyNotFound() async {
         let item = MockKeychainItem(unformattedKey: "empty_key")
-        keychainService.setSearchResultData(string: "")
+        keychainService.searchReturnValue = [kSecValueData as String: Data("".utf8)] as AnyObject
 
         await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
             _ = try await subject.getValue(for: item)
@@ -78,7 +78,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_getValue_string_keychainError_rethrows() async {
         let item = MockKeychainItem(unformattedKey: "error_key")
-        keychainService.searchResult = .failure(.osStatusError(errSecItemNotFound))
+        keychainService.searchThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecItemNotFound)) {
             _ = try await subject.getValue(for: item)
@@ -91,7 +91,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_getValue_codable_success() async throws {
         let item = MockKeychainItem(unformattedKey: "codable_key")
-        keychainService.setSearchResultData(string: "42")
+        keychainService.searchReturnValue = [kSecValueData as String: Data("42".utf8)] as AnyObject
 
         let result: Int = try await subject.getValue(for: item)
 
@@ -102,7 +102,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_getValue_codable_invalidJSON_throwsDecodingError() async {
         let item = MockKeychainItem(unformattedKey: "bad_json_key")
-        keychainService.setSearchResultData(string: "not-a-number")
+        keychainService.searchReturnValue = [kSecValueData as String: Data("not-a-number".utf8)] as AnyObject
 
         await assertAsyncThrows {
             let _: Int = try await subject.getValue(for: item)
@@ -113,7 +113,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_getValue_codable_keyNotFound_rethrows() async {
         let item = MockKeychainItem(unformattedKey: "missing_codable_key")
-        keychainService.searchResult = .success(nil)
+        keychainService.searchReturnValue = nil
 
         await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
             let _: Int = try await subject.getValue(for: item)
@@ -126,14 +126,13 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_setValue_updatesExistingItem() async throws {
         let item = makeItem()
-        keychainService.accessControlResult = .success(makeAccessControl())
-        keychainService.updateResult = .success(())
+        keychainService.accessControlReturnValue = makeAccessControl()
 
         try await subject.setValue("new-value", for: item)
 
-        XCTAssertNotNil(keychainService.updateQuery)
-        XCTAssertTrue(keychainService.addCalls.isEmpty)
-        let storedData = (keychainService.updateAttributes as? [String: Any])?[kSecValueData as String] as? Data
+        XCTAssertNotNil(keychainService.updateReceivedArguments)
+        XCTAssertFalse(keychainService.addCalled)
+        let storedData = (keychainService.updateReceivedArguments?.attributes as? [String: Any])?[kSecValueData as String] as? Data
         XCTAssertEqual(storedData, Data("new-value".utf8))
     }
 
@@ -141,14 +140,13 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_setValue_addsNewItem_whenNotFound() async throws {
         let item = makeItem()
-        keychainService.accessControlResult = .success(makeAccessControl())
-        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
-        keychainService.addResult = .success(())
+        keychainService.accessControlReturnValue = makeAccessControl()
+        keychainService.updateThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
         try await subject.setValue("new-value", for: item)
 
-        XCTAssertEqual(keychainService.addCalls.count, 1)
-        let storedData = (keychainService.addCalls.first as? [String: Any])?[kSecValueData as String] as? Data
+        XCTAssertEqual(keychainService.addCallsCount, 1)
+        let storedData = (keychainService.addReceivedAttributes as? [String: Any])?[kSecValueData as String] as? Data
         XCTAssertEqual(storedData, Data("new-value".utf8))
     }
 
@@ -157,35 +155,34 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     func test_setValue_usesItemProtectionAndFlags() async throws {
         let item = makeItem()
         item.accessControlFlags = .biometryCurrentSet
-        keychainService.accessControlResult = .success(makeAccessControl())
-        keychainService.updateResult = .success(())
+        keychainService.accessControlReturnValue = makeAccessControl()
 
         try await subject.setValue("value", for: item)
 
-        XCTAssertEqual(keychainService.accessControlFlags, .biometryCurrentSet)
-        XCTAssertTrue(CFEqual(keychainService.accessControlProtection, kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+        XCTAssertEqual(keychainService.accessControlReceivedArguments?.flags, .biometryCurrentSet)
+        XCTAssertTrue(CFEqual(keychainService.accessControlReceivedArguments?.protection, kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 
     /// `setValue(_:for:)` rethrows when the update fails with an error other than `errSecItemNotFound`.
     ///
     func test_setValue_rethrows_whenUpdateFailsWithOtherError() async {
         let item = makeItem()
-        keychainService.accessControlResult = .success(makeAccessControl())
-        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecInteractionNotAllowed))
+        keychainService.accessControlReturnValue = makeAccessControl()
+        keychainService.updateThrowableError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecInteractionNotAllowed)) {
             try await subject.setValue("value", for: item)
         }
-        XCTAssertTrue(keychainService.addCalls.isEmpty)
+        XCTAssertFalse(keychainService.addCalled)
     }
 
     /// `setValue(_:for:)` rethrows when the add fails after a `errSecItemNotFound` update error.
     ///
     func test_setValue_rethrows_whenAddFails() async {
         let item = makeItem()
-        keychainService.accessControlResult = .success(makeAccessControl())
-        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
-        keychainService.addResult = .failure(.osStatusError(errSecDuplicateItem))
+        keychainService.accessControlReturnValue = makeAccessControl()
+        keychainService.updateThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+        keychainService.addThrowableError = KeychainServiceError.osStatusError(errSecDuplicateItem)
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecDuplicateItem)) {
             try await subject.setValue("value", for: item)
@@ -196,13 +193,13 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_setValue_rethrows_whenAccessControlFails() async {
         let item = makeItem()
-        keychainService.accessControlResult = .failure(.accessControlFailed(nil))
+        keychainService.accessControlThrowableError = KeychainServiceError.accessControlFailed(nil)
 
         await assertAsyncThrows(error: KeychainServiceError.accessControlFailed(nil)) {
             try await subject.setValue("value", for: item)
         }
-        XCTAssertNil(keychainService.updateQuery)
-        XCTAssertTrue(keychainService.addCalls.isEmpty)
+        XCTAssertNil(keychainService.updateReceivedArguments)
+        XCTAssertFalse(keychainService.addCalled)
     }
 
     // MARK: Tests - deleteValue(for:)
@@ -211,19 +208,18 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_deleteValue_success() async throws {
         let item = makeItem()
-        keychainService.deleteResult = .success(())
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
         try await subject.deleteValue(for: item)
 
-        XCTAssertEqual(keychainService.deleteQueries, [expectedQuery])
+        XCTAssertEqual(keychainService.deleteReceivedQuery, expectedQuery)
     }
 
     /// `deleteValue(for:)` rethrows errors from the keychain service.
     ///
     func test_deleteValue_rethrows() async {
         let item = makeItem()
-        keychainService.deleteResult = .failure(.osStatusError(errSecItemNotFound))
+        keychainService.deleteThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecItemNotFound)) {
             try await subject.deleteValue(for: item)
@@ -236,13 +232,12 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_setValue_codable_success() async throws {
         let item = makeItem()
-        keychainService.accessControlResult = .success(makeAccessControl())
-        keychainService.updateResult = .success(())
+        keychainService.accessControlReturnValue = makeAccessControl()
 
         try await subject.setValue(42, for: item)
 
         let expectedData = try JSONEncoder.defaultEncoder.encode(42)
-        let storedData = (keychainService.updateAttributes as? [String: Any])?[kSecValueData as String] as? Data
+        let storedData = (keychainService.updateReceivedArguments?.attributes as? [String: Any])?[kSecValueData as String] as? Data
         XCTAssertEqual(storedData, expectedData)
     }
 
@@ -250,13 +245,13 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     ///
     func test_setValue_codable_encodingError_throws() async {
         let item = makeItem()
-        keychainService.accessControlResult = .success(makeAccessControl())
+        keychainService.accessControlReturnValue = makeAccessControl()
 
         await assertAsyncThrows {
             try await subject.setValue(Double.nan, for: item)
         }
-        XCTAssertNil(keychainService.updateQuery)
-        XCTAssertTrue(keychainService.addCalls.isEmpty)
+        XCTAssertNil(keychainService.updateReceivedArguments)
+        XCTAssertFalse(keychainService.addCalled)
     }
 
     // MARK: Tests - shared namespacing configuration
