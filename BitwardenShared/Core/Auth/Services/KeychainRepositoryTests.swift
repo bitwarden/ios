@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
@@ -11,7 +12,7 @@ import XCTest
 final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var keychainService: MockKeychainService!
     var subject: DefaultKeychainRepository!
 
@@ -20,11 +21,11 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
+        appIDSettingsStore = MockAppIDSettingsStore()
         keychainService = MockKeychainService()
         subject = DefaultKeychainRepository(
-            appIdService: AppIdService(
-                appSettingStore: appSettingsStore,
+            appIDService: AppIDService(
+                appIDSettingsStore: appIDSettingsStore,
             ),
             keychainService: keychainService,
         )
@@ -33,7 +34,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     override func tearDown() {
         super.tearDown()
 
-        appSettingsStore = nil
+        appIDSettingsStore = nil
         keychainService = nil
         subject = nil
     }
@@ -70,7 +71,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `deleteUserAuthKey` succeeds quietly.
     ///
     func test_delete_success() async throws {
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         keychainService.deleteResult = .success(())
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
@@ -100,7 +101,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `deleteAuthenticatorVaultKey` deletes the stored Authenticator Vault Key with the correct query values.
     ///
     func test_deleteAuthenticatorVaultKey_success() async throws {
-        let item = KeychainItem.authenticatorVaultKey(userId: "1")
+        let item = BitwardenKeychainItem.authenticatorVaultKey(userId: "1")
         keychainService.deleteResult = .success(())
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
@@ -134,7 +135,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `deleteDeviceKey` succeeds quietly.
     ///
     func test_deleteDeviceKey_success() async throws {
-        let item = KeychainItem.deviceKey(userId: "1")
+        let item = BitwardenKeychainItem.deviceKey(userId: "1")
         keychainService.deleteResult = .success(())
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
@@ -148,7 +149,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `deletePendingAdminLoginRequest` succeeds quietly.
     ///
     func test_deletePendingAdminLoginRequest_success() async throws {
-        let item = KeychainItem.pendingAdminLoginRequest(userId: "1")
+        let item = BitwardenKeychainItem.pendingAdminLoginRequest(userId: "1")
         keychainService.deleteResult = .success(())
         let expectedQuery = await subject.keychainQueryValues(for: item)
 
@@ -162,10 +163,10 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// The service should generate a storage key for a` KeychainItem`.
     ///
     func test_formattedKey_biometrics() async {
-        let item = KeychainItem.biometrics(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
-        let expectedKey = String(format: subject.storageKeyFormat, "testAppId", item.unformattedKey)
+        let expectedKey = String(format: subject.storageKeyFormat, "testAppID", item.unformattedKey)
 
         XCTAssertEqual(
             formattedKey,
@@ -176,10 +177,10 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// The service should generate a storage key for a` KeychainItem`.
     ///
     func test_formattedKey_neverLock() async {
-        let item = KeychainItem.neverLock(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        let item = BitwardenKeychainItem.neverLock(userId: "123")
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
-        let expectedKey = String(format: subject.storageKeyFormat, "testAppId", item.unformattedKey)
+        let expectedKey = String(format: subject.storageKeyFormat, "testAppID", item.unformattedKey)
 
         XCTAssertEqual(
             formattedKey,
@@ -196,7 +197,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getAccessToken(userId:)` throws an error if one occurs.
     func test_getAccessToken_error() async {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.accessToken(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.accessToken(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAccessToken(userId: "1")
@@ -212,7 +213,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getAuthenticatorVaultKey(userId:)` throws an error if one occurs.
     func test_getAuthenticatorVaultKey_error() async {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.authenticatorVaultKey(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.authenticatorVaultKey(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getAuthenticatorVaultKey(userId: "1")
@@ -237,7 +238,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getDeviceKey(userId:)` returns `nil` when the key is not found.
     func test_getDeviceKey_notFound() async throws {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.deviceKey(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.deviceKey(userId: "1"))
         keychainService.searchResult = .failure(error)
         let deviceKey = try await subject.getDeviceKey(userId: "1")
         XCTAssertNil(deviceKey)
@@ -261,7 +262,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getPendingAdminLoginRequest(userId:)` returns `nil` when the key is not found.
     func test_getPendingAdminLoginRequest_notFound() async throws {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.pendingAdminLoginRequest(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.pendingAdminLoginRequest(userId: "1"))
         keychainService.searchResult = .failure(error)
         let request = try await subject.getPendingAdminLoginRequest(userId: "1")
         XCTAssertNil(request)
@@ -276,7 +277,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `getRefreshToken(userId:)` throws an error if one occurs.
     func test_getRefreshToken_error() async {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.refreshToken(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.refreshToken(userId: "1"))
         keychainService.searchResult = .failure(error)
         await assertAsyncThrows(error: error) {
             _ = try await subject.getRefreshToken(userId: "1")
@@ -286,7 +287,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `getUserAuthKeyValue(_:)` failures rethrow.
     ///
     func test_getUserAuthKeyValue_error_searchError() async {
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let searchError = KeychainServiceError.osStatusError(-1)
         keychainService.searchResult = .failure(searchError)
         await assertAsyncThrows(error: searchError) {
@@ -297,7 +298,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `getUserAuthKeyValue(_:)` errors if the search results are not in the correct format.
     ///
     func test_getUserAuthKeyValue_error_malformedData() async {
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let notFoundError = KeychainServiceError.keyNotFound(item)
         let results = [
             kSecValueData: Data(),
@@ -311,7 +312,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `getUserAuthKeyValue(_:)` errors if the search results are not in the correct format.
     ///
     func test_getUserAuthKeyValue_error_unexpectedResult() async {
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let notFoundError = KeychainServiceError.keyNotFound(item)
         let results = [
             kSecValueData: 1,
@@ -325,7 +326,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `getUserAuthKeyValue(_:)` errors if the search results are empty.
     ///
     func test_getUserAuthKeyValue_error_nilResult() async {
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let notFoundError = KeychainServiceError.keyNotFound(item)
         keychainService.searchResult = .success(nil)
         await assertAsyncThrows(error: notFoundError) {
@@ -336,7 +337,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// `getUserAuthKeyValue(_:)` returns a string on success.
     ///
     func test_getUserAuthKeyValue_error_success() async throws {
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let expectedKey = "1234"
         let results = [
             kSecValueData: Data("1234".utf8),
@@ -349,8 +350,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// The service should generate keychain Query Key/Values` KeychainItem`.
     ///
     func test_keychainQueryValues_biometrics() async {
-        let item = KeychainItem.biometrics(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
         let queryValues = await subject.keychainQueryValues(for: item)
         let expectedResult = [
@@ -369,8 +370,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     /// The service should generate keychain Query Key/Values` KeychainItem`.
     ///
     func test_keychainQueryValues_neverLock() async {
-        let item = KeychainItem.neverLock(userId: "123")
-        appSettingsStore.appId = "testAppId"
+        let item = BitwardenKeychainItem.neverLock(userId: "123")
+        appIDSettingsStore.appID = "testAppID"
         let formattedKey = await subject.formattedKey(for: item)
         let queryValues = await subject.keychainQueryValues(for: item)
         let expectedResult = [
@@ -483,7 +484,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_setUserAuthKey_error_accessControl() async {
         let newKey = "123"
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let accessError = KeychainServiceError.accessControlFailed(nil)
         keychainService.accessControlResult = .failure(accessError)
         keychainService.addResult = .success(())
@@ -496,7 +497,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_setUserAuthKey_error_onSet() async {
         let newKey = "123"
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let addError = KeychainServiceError.osStatusError(-1)
         keychainService.accessControlResult = .success(
             SecAccessControlCreateWithFlags(
@@ -516,7 +517,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_setUserAuthKey_success_biometrics() async throws {
         let newKey = "123"
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         keychainService.accessControlResult = .success(
             SecAccessControlCreateWithFlags(
                 nil,
@@ -536,7 +537,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_setUserAuthKey_success_neverlock() async throws {
         let newKey = "123"
-        let item = KeychainItem.neverLock(userId: "123")
+        let item = BitwardenKeychainItem.neverLock(userId: "123")
         keychainService.accessControlResult = .success(
             SecAccessControlCreateWithFlags(
                 nil,
@@ -556,7 +557,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_setValue_addsNewItem_afterUpdateFails() async throws {
         let newKey = "test-value"
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -602,7 +603,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_setValue_updatesExistingItem() async throws {
         let newKey = "test-value"
-        let item = KeychainItem.biometrics(userId: "123")
+        let item = BitwardenKeychainItem.biometrics(userId: "123")
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,

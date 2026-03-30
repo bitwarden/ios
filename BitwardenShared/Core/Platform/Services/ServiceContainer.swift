@@ -31,7 +31,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     let appContextHelper: AppContextHelper
 
     /// The service used by the application to manage the app's ID.
-    let appIdService: AppIdService
+    let appIDService: AppIDService
 
     /// The service used by the application to get info about the app and device it's running on.
     public let appInfoService: AppInfoService
@@ -41,6 +41,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The service used by the application to persist app setting values.
     let appSettingsStore: AppSettingsStore
+
+    /// The mediator to call ``ASSettingsHelper`` functions with additional business logic.
+    let asSettingsMediator: ASSettingsMediator
 
     /// The repository used by the application to manage auth data for the UI layer.
     let authRepository: AuthRepository
@@ -221,11 +224,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
     ///   - appContextHelper: The helper used to know app context.
-    ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - appInfoService: The service used by the application to get info about the app and device
     ///     it's running on.
     ///   - application: The application instance.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
+    ///   - asSettingsMediator: The mediator to call ``ASSettingsHelper`` functions with additional business logic.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
     ///   - authenticatorSyncService: The service used by the application to sync TOTP codes with the Authenticator app.
@@ -294,10 +298,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     init( // swiftlint:disable:this function_body_length
         apiService: APIService,
         appContextHelper: AppContextHelper,
-        appIdService: AppIdService,
+        appIDService: AppIDService,
         appInfoService: AppInfoService,
         application: Application?,
         appSettingsStore: AppSettingsStore,
+        asSettingsMediator: ASSettingsMediator,
         authRepository: AuthRepository,
         authService: AuthService,
         authenticatorSyncService: AuthenticatorSyncService,
@@ -358,10 +363,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ) {
         self.apiService = apiService
         self.appContextHelper = appContextHelper
-        self.appIdService = appIdService
+        self.appIDService = appIDService
         self.appInfoService = appInfoService
         self.application = application
         self.appSettingsStore = appSettingsStore
+        self.asSettingsMediator = asSettingsMediator
         self.authRepository = authRepository
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
@@ -443,7 +449,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
-        let appIdService = AppIdService(appSettingStore: appSettingsStore)
+        let appIDService = AppIDService(appIDSettingsStore: appSettingsStore)
 
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after configService is created.
@@ -463,7 +469,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let keychainService = DefaultKeychainService()
 
         let keychainRepository = DefaultKeychainRepository(
-            appIdService: appIdService,
+            appIDService: appIDService,
             keychainService: keychainService,
         )
         let timeProvider = CurrentTime()
@@ -476,6 +482,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             userSessionKeychainRepository: keychainRepository,
+        )
+
+        let asSettingsHelperProxy = DefaultASSettingsHelperProxy()
+        let asSettingsMediator = DefaultASSettingsMediator(
+            asSettingsHelperProxy: asSettingsHelperProxy,
+            stateService: stateService,
+            timeProvider: timeProvider,
         )
 
         let flightRecorder = DefaultFlightRecorder(
@@ -667,6 +680,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            policyService: policyService,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider,
@@ -710,7 +724,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let trustDeviceService = DefaultTrustDeviceService(
-            appIdService: appIdService,
+            appIDService: appIDService,
             authAPIService: apiService,
             clientService: clientService,
             keychainRepository: keychainRepository,
@@ -732,7 +746,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let authService = DefaultAuthService(
             accountAPIService: apiService,
-            appIdService: appIdService,
+            appIDService: appIDService,
             authAPIService: apiService,
             clientService: clientService,
             configService: configService,
@@ -794,7 +808,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let notificationService = DefaultNotificationService(
-            appIdService: appIdService,
+            appIDService: appIDService,
             authRepository: authRepository,
             authService: authService,
             configService: configService,
@@ -1051,10 +1065,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.init(
             apiService: apiService,
             appContextHelper: appContextHelper,
-            appIdService: appIdService,
+            appIDService: appIDService,
             appInfoService: appInfoService,
             application: application,
             appSettingsStore: appSettingsStore,
+            asSettingsMediator: asSettingsMediator,
             authRepository: authRepository,
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
@@ -1154,6 +1169,10 @@ extension ServiceContainer {
     }
 
     var authAPIService: AuthAPIService {
+        apiService
+    }
+
+    var billingAPIService: BillingAPIService {
         apiService
     }
 

@@ -339,15 +339,32 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UIHostingController<OtherSettingsView>)
     }
 
-    /// `navigate(to:)` with `.passwordAutoFill` pushes the password auto-fill view onto the stack navigator.
+    /// `navigate(to:)` with `.passwordAutoFill` pushes the password auto-fill view onto the stack navigator
+    /// with no delegate context when no context is provided.
     @MainActor
     func test_navigateTo_passwordAutoFill() throws {
         subject.navigate(to: .passwordAutoFill)
 
         XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
         XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertNil(module.passwordAutoFillCoordinator.contexts.last as? PasswordAutoFillProcessorDelegate)
         XCTAssertNil(module.passwordAutoFillCoordinatorDelegate)
         XCTAssertIdentical(module.passwordAutoFillCoordinatorStackNavigator, stackNavigator)
+    }
+
+    /// `navigate(to:)` with `.passwordAutoFill` passes the delegate as context to the coordinator
+    /// when a `PasswordAutoFillProcessorDelegate` context is provided.
+    @MainActor
+    func test_navigateTo_passwordAutoFill_withDelegate() throws {
+        let mockDelegate = MockPasswordAutoFillProcessorDelegate()
+        subject.navigate(to: .passwordAutoFill, context: mockDelegate)
+
+        XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
+        XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertIdentical(
+            module.passwordAutoFillCoordinator.contexts.last as AnyObject,
+            mockDelegate,
+        )
     }
 
     /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.

@@ -1,4 +1,5 @@
 import AuthenticatorBridgeKit
+import BitwardenKit
 import Foundation
 
 public class MockSharedKeychainStorage: SharedKeychainStorage {
@@ -12,7 +13,7 @@ public class MockSharedKeychainStorage: SharedKeychainStorage {
 
     public func getValue<T>(for item: SharedKeychainItem) async throws -> T where T: Codable {
         guard let stored = storage[item] as? T else {
-            throw SharedKeychainServiceError.keyNotFound(item)
+            throw KeychainServiceError.keyNotFound(item)
         }
         return stored
     }

@@ -1025,7 +1025,7 @@ extension DefaultAuthRepository: AuthRepository {
 
     func unlockVaultWithNeverlockKey() async throws {
         let id = try await stateService.getActiveAccountId()
-        let key = KeychainItem.neverLock(userId: id)
+        let key = BitwardenKeychainItem.neverLock(userId: id)
         let neverlockKey = try await keychainService.getUserAuthKeyValue(for: key)
         try await unlockVault(method: .decryptedKey(decryptedUserKey: neverlockKey), hadUserInteraction: false)
     }

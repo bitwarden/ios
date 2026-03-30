@@ -19,7 +19,7 @@ struct PushNotificationTokenRequest: Request {
 
     // MARK: Properties
 
-    /// The app id.
+    /// The app ID.
     let appId: String
 
     /// The body of this request.

@@ -74,7 +74,7 @@ class MockKeychainRepository: KeychainRepository {
         mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 
-    func deleteUserAuthKey(for item: KeychainItem) async throws {
+    func deleteUserAuthKey(for item: BitwardenKeychainItem) async throws {
         try deleteResult.get()
         let formattedKey = formattedKey(for: item)
         mockStorage = mockStorage.filter { $0.key != formattedKey }
@@ -107,7 +107,7 @@ class MockKeychainRepository: KeychainRepository {
         return try getServerCommunicationConfigResult.get()
     }
 
-    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
+    func getUserAuthKeyValue(for item: BitwardenKeychainItem) async throws -> String {
         let formattedKey = formattedKey(for: item)
         if let result = getResult {
             let value = try result.get()
@@ -120,7 +120,7 @@ class MockKeychainRepository: KeychainRepository {
         }
     }
 
-    func getValue(for item: KeychainItem) throws -> String {
+    func getValue(for item: BitwardenKeychainItem) throws -> String {
         let formattedKey = formattedKey(for: item)
         guard let value = mockStorage[formattedKey] else {
             throw KeychainServiceError.keyNotFound(item)
@@ -128,7 +128,7 @@ class MockKeychainRepository: KeychainRepository {
         return value
     }
 
-    func formattedKey(for item: KeychainItem) -> String {
+    func formattedKey(for item: BitwardenKeychainItem) -> String {
         String(format: storageKeyFormat, appId, item.unformattedKey)
     }
 
@@ -165,7 +165,7 @@ class MockKeychainRepository: KeychainRepository {
         try setServerCommunicationConfigResult.get()
     }
 
-    func setUserAuthKey(for item: KeychainItem, value: String) async throws {
+    func setUserAuthKey(for item: BitwardenKeychainItem, value: String) async throws {
         let formattedKey = formattedKey(for: item)
         securityType = item.accessControlFlags
         try setResult.get()

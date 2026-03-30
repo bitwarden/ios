@@ -46,7 +46,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             ),
             name: expectedName,
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertEqual(identities.count, 2)
         let oneTimeCodeIdentity = try XCTUnwrap(identities[0] as? ASOneTimeCodeCredentialIdentity)
         let passwordIdentity = try XCTUnwrap(identities[1] as? ASPasswordCredentialIdentity)
@@ -93,7 +93,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             ),
             name: expectedName,
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertEqual(identities.count, 2)
         let oneTimeCodeIdentity = try XCTUnwrap(identities[0] as? ASOneTimeCodeCredentialIdentity)
         let passwordIdentity = try XCTUnwrap(identities[1] as? ASPasswordCredentialIdentity)
@@ -133,7 +133,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             ),
             name: expectedName,
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertEqual(identities.count, 1)
         let oneTimeCodeIdentity = try XCTUnwrap(identities[0] as? ASOneTimeCodeCredentialIdentity)
 
@@ -164,7 +164,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 username: expectedUsername,
             ),
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertEqual(identities.count, 1)
         let passwordIdentity = try XCTUnwrap(identities[0] as? ASPasswordCredentialIdentity)
 
@@ -194,7 +194,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 totp: "1234",
             ),
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertTrue(identities.isEmpty)
     }
 
@@ -211,8 +211,79 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 totp: "1234",
             ),
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertTrue(identities.isEmpty)
+    }
+
+    /// `createCredentialIdentities(from:accountHasPremium:)` returns only password identity when
+    /// the account is not premium and the organization does not use TOTP.
+    func test_createCredentialIdentities_totpNotAuthorized() async throws {
+        guard #available(iOS 17.0, *) else {
+            throw XCTSkip("iOS 17.0 is required to run this test.")
+        }
+
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "https://example.com", match: .domain),
+                ],
+                username: "test",
+                totp: "1234",
+            ),
+            organizationUseTotp: false,
+        )
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: false)
+        XCTAssertEqual(identities.count, 1)
+        XCTAssertTrue(identities[0] is ASPasswordCredentialIdentity)
+    }
+
+    /// `createCredentialIdentities(from:accountHasPremium:)` includes OTC identity when
+    /// the account is not premium but the organization uses TOTP.
+    func test_createCredentialIdentities_totpAuthorizedViaOrg() async throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("iOS 18.0 is required to run this test.")
+        }
+
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "https://example.com", match: .domain),
+                ],
+                username: "test",
+                totp: "1234",
+            ),
+            organizationUseTotp: true,
+        )
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: false)
+        XCTAssertEqual(identities.count, 2)
+        XCTAssertTrue(identities[0] is ASOneTimeCodeCredentialIdentity)
+        XCTAssertTrue(identities[1] is ASPasswordCredentialIdentity)
+    }
+
+    /// `createCredentialIdentities(from:accountHasPremium:)` includes OTC identity when
+    /// the account has premium even if the organization does not use TOTP.
+    func test_createCredentialIdentities_totpAuthorizedViaPremium() async throws {
+        guard #available(iOS 18.0, *) else {
+            throw XCTSkip("iOS 18.0 is required to run this test.")
+        }
+
+        let cipher = CipherView.fixture(
+            login: .fixture(
+                password: "1234",
+                uris: [
+                    .fixture(uri: "https://example.com", match: .domain),
+                ],
+                username: "test",
+                totp: "1234",
+            ),
+            organizationUseTotp: false,
+        )
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
+        XCTAssertEqual(identities.count, 2)
+        XCTAssertTrue(identities[0] is ASOneTimeCodeCredentialIdentity)
+        XCTAssertTrue(identities[1] is ASPasswordCredentialIdentity)
     }
 
     /// `createCredentialIdentities(from:)` returns no credentials if the cipher view uris
@@ -232,7 +303,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 totp: "1234",
             ),
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertTrue(identities.isEmpty)
     }
 
@@ -253,7 +324,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
                 totp: "1234",
             ),
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertTrue(identities.isEmpty)
     }
 
@@ -266,7 +337,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         let cipher = CipherView.fixture(
             card: .fixture(),
         )
-        let identities = await subject.createCredentialIdentities(from: cipher)
+        let identities = await subject.createCredentialIdentities(from: cipher, accountHasPremium: true)
         XCTAssertTrue(identities.isEmpty)
     }
 

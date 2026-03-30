@@ -50,7 +50,7 @@
 "AccountAlreadyAdded" = "Cuenta ya añadida";
 "SwitchToAlreadyAddedAccountConfirmation" = "¿Te gustaría cambiar a esa cuenta ahora?";
 "MasterPassword" = "Contraseña maestra";
-"More" = "Más";
+"MoreOptions" = "Más opciones";
 "MyVault" = "Mi caja fuerte";
 "Authenticator" = "Autenticador";
 "Name" = "Nombre";
@@ -208,6 +208,7 @@
 "Status" = "Estado";
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the “Settings” screen.";
 "Autofill" = "Autocompletar";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "¿Quieres autocompletar o ver este elemento?";
 "BitwardenAutofillServiceMatchConfirm" = "¿Estás seguro de que quieres autorellenar esta entrada? No es una coincidencia completa para \"%1$@\".";
 "MatchingItems" = "Elementos que coinciden";
@@ -686,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Recibir notificaciones push para nuevas solicitudes de iniciar sesión";
 "NoThanks" = "No, gracias";
 "ConfimLogInAttempForX" = "Confirmar intento de inicio de sesión para %1$@";
+"ConfirmLogInAttemptForX" = "Confirmar intento de inicio de sesión para %1$@";
 "AllNotifications" = "Todas las notificaciones";
 "PasswordType" = "Tipo de contraseña";
 "WhatWouldYouLikeToGenerate" = "¿Qué desea generar?";
@@ -1282,16 +1284,17 @@
 "XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "%1$@ exige que todos los artículos sean propiedad de la organización por motivos de seguridad y cumplimiento normativo. Haga clic en Aceptar para transferir la propiedad de sus elementos.";
 "DeclineAndLeave" = "Rechazar y salir";
 "WhyAmISeeingThis" = "¿Por qué veo esto?";
-"AreYouSureYouWantToLeave" = "Are you sure you want to leave?";
+"AreYouSureYouWantToLeave" = "¿Estás seguro de que quieres salir de [%1$s]?";
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features.";
 "ContactYourAdminToRegainAccess" = "Contact your admin to regain access.";
 "LeaveX" = "Salir %1$@";
-"HowToManageMyVault" = "Cómo gestionar Mi caja fuerte";
 "YouLeftTheOrganization" = "Dejaste la organización";
 "ItemTransferRequiresMainAppDescriptionLong" = "An organization is requesting ownership of your personal items. Open the main Bitwarden app to review and complete this request.";
 "ThisSettingIsManagedByYourOrganization" = "Estos ajustes los gestiona tu organización.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Su organización ha establecido el tiempo de espera máximo de la sesión en %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Su organización ha establecido el tiempo de espera predeterminado de la sesión en nunca.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Su organización ha establecido el tiempo de espera predeterminado de la sesión al reiniciar la aplicación.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Su organización ha establecido el tiempo de espera máximo de la sesión en %1$@ y %2$@.";
 "HiddenItems" = "Elementos ocultos";
 "Archive" = "Archivar";
@@ -1324,3 +1327,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
 "SsoCookiesCleared" = "SSO cookies cleared";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Your request was interrupted because the app needed to re-authenticate. Please try again.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";

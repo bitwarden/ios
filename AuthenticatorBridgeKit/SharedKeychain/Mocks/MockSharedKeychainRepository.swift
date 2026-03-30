@@ -29,7 +29,7 @@ public class MockSharedKeychainRepository: SharedKeychainRepository {
         if let authenticatorKey {
             return authenticatorKey
         } else {
-            throw SharedKeychainServiceError.keyNotFound(.authenticatorKey)
+            throw KeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         }
     }
 
