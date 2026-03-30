@@ -34,7 +34,7 @@
 "GoToWebsite" = "前往网站";
 "HelpAndFeedback" = "帮助和反馈";
 "Hide" = "隐藏";
-"InternetConnectionRequiredMessage" = "请连接因特网后再继续。";
+"InternetConnectionRequiredMessage" = "请连接互联网后再继续。";
 "InternetConnectionRequiredTitle" = "需要互联网连接";
 "InvalidMasterPassword" = "无效的主密码。请重试。";
 "InvalidPIN" = "无效的 PIN 码。请重试。";
@@ -250,7 +250,7 @@
 "CopyTotp" = "复制 TOTP";
 "CopyTotpAutomaticallyDescription" = "如果登录项目包含验证器密钥，当自动填充此登录时，TOTP 验证码将复制到剪贴板。";
 "CopyTotpAutomatically" = "自动复制 TOTP";
-"PremiumRequired" = "需要高级版成员才能使用此功能。";
+"PremiumRequired" = "需要高级版成员资格才能使用此功能。";
 "AttachementAdded" = "附件已添加";
 "AttachmentDeleted" = "附件已删除";
 "ChooseFile" = "选择文件";
@@ -589,7 +589,7 @@
 "AboutSend" = "关于 Send";
 "HideEmail" = "对接收者隐藏我的电子邮箱地址";
 "SendOptionsPolicyInEffect" = "一个或多个组织策略正在影响您的 Send 设置。";
-"SendFilePremiumRequired" = "免费账户仅限于共享文本。需要高级版成员才能使用文件 Send。";
+"SendFilePremiumRequired" = "免费账户仅限于共享文本。需要高级版成员资格才能使用文件 Send。";
 "SendFileEmailVerificationRequired" = "您必须验证电子邮箱以使用文件 Send。您可以在网页版密码库中验证您的电子邮箱。";
 "PasswordPrompt" = "主密码重新提示";
 "PasswordConfirmation" = "确认主密码";
@@ -714,7 +714,7 @@
 "UnknownXErrorMessage" = "发生未知的 %1$@ 错误。";
 "PlusAddressedEmailDescription" = "使用您的电子邮箱提供商的子地址功能";
 "CatchAllEmailDescription" = "使用您的域名配置的 Catch-all 收件箱。";
-"ForwardedEmailDescription" = "使用外部转发服务生成一个电子邮箱别名。";
+"ForwardedEmailDescription" = "使用外部转发服务生成电子邮箱别名。";
 "Random" = "随机";
 "ConnectToWatch" = "连接到 Watch";
 "AccessibilityServiceDisclosure" = "无障碍服务声明";
@@ -867,7 +867,7 @@
 "FollowTheStepsFromDuoToFinishLoggingIn" = "按照 Duo 的步骤完成登录。";
 "LaunchDuo" = "启动 Duo";
 "VerificationRequiredByX" = "%1$@ 要求验证";
-"VerificationRequiredForThisActionSetUpAnUnlockMethodInBitwardenToContinue" = "此操作需要验证。在 Bitwarden 中设置一个解锁方式以继续。";
+"VerificationRequiredForThisActionSetUpAnUnlockMethodInBitwardenToContinue" = "此操作需要验证。请在 Bitwarden 中设置一个解锁方式以继续。";
 "ErrorCreatingPasskey" = "创建通行密钥时出错";
 "ErrorReadingPasskey" = "读取通行密钥时出错";
 "ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "为 %1$@ 创建通行密钥时出错。请稍后再试。";

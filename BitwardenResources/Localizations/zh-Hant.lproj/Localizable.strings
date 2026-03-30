@@ -208,7 +208,7 @@
 "Status" = "狀態";
 "BitwardenAutofillServiceAlert2" = "Bitwarden 自動填入服務是新增登入資料的最簡單方法。請至「設定」頁面深入了解使用 Bitwarden 自動填入服務的方法 。";
 "Autofill" = "自動填入";
-"AutofillEnabled" = "Autofill enabled";
+"AutofillEnabled" = "已啟用自動填入";
 "AutofillOrView" = "您想自動填入還是檢視此項目？";
 "BitwardenAutofillServiceMatchConfirm" = "您確定要自動填入此項目嗎？它與「%1$@」不完全一致。";
 "MatchingItems" = "相符的項目";
@@ -1327,7 +1327,7 @@
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "與特定人員分享為 Premium 功能。您目前的方案不包含此功能的使用權限。";
 "SsoCookiesCleared" = "SSO Cookie 已清除";
 "YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "您的請求已中斷，因為應用程式需要重新驗證。請再試一次。";
-"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
-"LearnMoreAboutAutofill" = "Learn more about autofill";
-"TurnOnNow" = "Turn on now";
-"AcceptTransfer" = "Accept transfer";
+"AutofillWithBitwardenDescriptionLong" = "當您登入應用程式與網站時，Bitwarden 可以建議您的密碼與其他憑證。";
+"LearnMoreAboutAutofill" = "進一步瞭解「自動填入」功能";
+"TurnOnNow" = "立即開啟";
+"AcceptTransfer" = "同意轉移";
