@@ -11,9 +11,6 @@ struct CardItemState: Equatable {
     /// The name of the card holder.
     var cardholderName: String = ""
 
-    /// Cardholder name candidates populated when the scanner finds more than one possible name.
-    var cardholderNameCandidates: [String] = []
-
     /// The number of the card.
     var cardNumber: String = ""
 

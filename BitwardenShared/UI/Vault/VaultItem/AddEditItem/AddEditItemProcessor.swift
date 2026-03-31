@@ -532,23 +532,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case let .cardScannerLinesUpdated(lines):
             let data = services.cardTextParser.parseCard(lines: lines)
             guard data.cardNumber != nil,
-                  data.expirationMonth != nil,
-                  !data.cardholderNameCandidates.isEmpty else {
+                  data.expirationMonth != nil else {
                 break
             }
             state.cardItemState.isCardScannerPresented = false
             if let number = data.cardNumber {
                 state.cardItemState.cardNumber = number
                 state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
-            }
-            switch data.cardholderNameCandidates.count {
-            case 0:
-                break
-            case 1:
-                state.cardItemState.cardholderName = data.cardholderNameCandidates[0]
-            default:
-                state.cardItemState.cardholderNameCandidates = data.cardholderNameCandidates
-                state.cardItemState.isCardholderNamePickerPresented = true
             }
             if let month = data.expirationMonth,
                let cardMonth = CardComponent.Month(rawValue: month) {
@@ -557,20 +547,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             if let year = data.expirationYear {
                 state.cardItemState.expirationYear = year
             }
-        case let .cardholderNameCandidateSelected(name):
-            state.cardItemState.cardholderName = name
-            state.cardItemState.cardholderNameCandidates = []
-            state.cardItemState.isCardholderNamePickerPresented = false
-        case .cardholderNamePickerCancelled:
-            state.cardItemState.cardNumber = ""
-            state.cardItemState.brand = .default
-            state.cardItemState.expirationMonth = .default
-            state.cardItemState.expirationYear = ""
-            state.cardItemState.cardholderNameCandidates = []
-            state.cardItemState.isCardholderNamePickerPresented = false
-        case .cardholderNamePickerDismissed:
-            state.cardItemState.cardholderNameCandidates = []
-            state.cardItemState.isCardholderNamePickerPresented = false
         }
     }
 

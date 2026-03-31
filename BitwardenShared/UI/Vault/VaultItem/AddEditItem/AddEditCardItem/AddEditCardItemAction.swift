@@ -6,17 +6,8 @@ enum AddEditCardItemAction: Equatable, Sendable {
     /// The brand of the card changed.
     case brandChanged(DefaultableType<CardComponent.Brand>)
 
-    /// The user selected a cardholder name from the disambiguation picker.
-    case cardholderNameCandidateSelected(String)
-
     /// The name of the card holder changed.
     case cardholderNameChanged(String)
-
-    /// The user tapped Cancel in the cardholder name picker, indicating no scanned data should be kept.
-    case cardholderNamePickerCancelled
-
-    /// The cardholder name picker was dismissed without selecting a name.
-    case cardholderNamePickerDismissed
 
     /// The number of the card changed.
     case cardNumberChanged(String)
