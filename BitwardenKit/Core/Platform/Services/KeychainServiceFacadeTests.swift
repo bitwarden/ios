@@ -254,6 +254,35 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         XCTAssertFalse(keychainService.addCalled)
     }
 
+    // MARK: Tests - setValue(_: T?: Codable, for:)
+
+    /// `setValue(_:for:)` JSON-encodes and stores a non-nil optional `Codable` value.
+    ///
+    func test_setValue_optionalCodable_nonNil_storesValue() async throws {
+        let item = makeItem()
+        keychainService.accessControlReturnValue = makeAccessControl()
+
+        try await subject.setValue(Optional(42), for: item)
+
+        let expectedData = try JSONEncoder.defaultEncoder.encode(42)
+        let storedData = (keychainService.updateReceivedArguments?.attributes as? [String: Any])?[kSecValueData as String] as? Data
+        XCTAssertEqual(storedData, expectedData)
+        XCTAssertFalse(keychainService.deleteCalled)
+    }
+
+    /// `setValue(_:for:)` deletes the keychain item when the optional value is nil.
+    ///
+    func test_setValue_optionalCodable_nil_deletesValue() async throws {
+        let item = makeItem()
+        let expectedQuery = await subject.keychainQueryValues(for: item)
+
+        try await subject.setValue(Optional<Int>.none, for: item)
+
+        XCTAssertNil(keychainService.updateReceivedArguments)
+        XCTAssertFalse(keychainService.addCalled)
+        XCTAssertEqual(keychainService.deleteReceivedQuery, expectedQuery)
+    }
+
     // MARK: Tests - shared namespacing configuration
 
     /// With `.appScoped` namespacing, `keychainQueryValues` formats `kSecAttrAccount` as `prefix:appID:unformattedKey`.

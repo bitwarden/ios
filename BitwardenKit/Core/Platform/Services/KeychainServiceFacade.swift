@@ -57,6 +57,21 @@ public extension KeychainServiceFacade {
         }
         try await setValue(jsonString, for: item)
     }
+
+    /// Sets an optional value associated with a keychain item in the keychain.
+    /// If `value` is `nil`, the keychain item is deleted instead.
+    ///
+    /// - Parameters:
+    ///   - value: The value associated with the keychain item to set, or `nil` to delete.
+    ///   - item: The keychain item used to set the associated value.
+    ///
+    func setValue<T: Codable>(_ value: T?, for item: any KeychainItem) async throws {
+        if let value {
+            try await setValue(value, for: item)
+        } else {
+            try await deleteValue(for: item)
+        }
+    }
 }
 
 // MARK: - KeychainNamespacing
