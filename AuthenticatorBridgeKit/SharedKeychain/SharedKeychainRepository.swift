@@ -35,21 +35,7 @@ public enum SharedKeychainItem: Equatable, KeychainItem {
 /// A repository for managing keychain items to be shared between Password Manager and Authenticator.
 /// This should be the entry point in retrieving items from the shared keychain.
 public protocol SharedKeychainRepository {
-    /// Deletes the authenticator key.
-    ///
-    func deleteAuthenticatorKey() async throws
-
-    /// Gets the authenticator key.
-    ///
-    /// - Returns: Data representing the authenticator key.
-    ///
-    func getAuthenticatorKey() async throws -> Data
-
-    /// Stores the access token for a user in the keychain.
-    ///
-    /// - Parameter value: The authenticator key to store.
-    ///
-    func setAuthenticatorKey(_ value: Data) async throws
+    // MARK: AccountAutoLogoutTime
 
     /// Gets when a user account should automatically log out.
     ///
@@ -71,6 +57,24 @@ public protocol SharedKeychainRepository {
         _ value: Date?,
         userId: String,
     ) async throws
+
+    // MARK: AuthenticatorKey
+
+    /// Deletes the authenticator key.
+    ///
+    func deleteAuthenticatorKey() async throws
+
+    /// Gets the authenticator key.
+    ///
+    /// - Returns: Data representing the authenticator key.
+    ///
+    func getAuthenticatorKey() async throws -> Data
+
+    /// Stores the access token for a user in the keychain.
+    ///
+    /// - Parameter value: The authenticator key to store.
+    ///
+    func setAuthenticatorKey(_ value: Data) async throws
 }
 
 public class DefaultSharedKeychainRepository: SharedKeychainRepository {
@@ -84,6 +88,37 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     public init(keychainServiceFacade: KeychainServiceFacade) {
         self.keychainServiceFacade = keychainServiceFacade
     }
+
+    // MARK: AccountAutoLogoutTime
+
+    /// Gets when a user account should automatically log out.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account
+    /// - Returns: The time the user should be automatically logged out. If `nil`, then the user should not be.
+    ///
+    public func getAccountAutoLogoutTime(userId: String) async throws -> Date? {
+        do {
+            return try await keychainServiceFacade.getValue(for: SharedKeychainItem.accountAutoLogout(userId: userId))
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
+    }
+
+    /// Sets when a user account should automatically log out.
+    ///
+    /// - Parameters:
+    ///   - value: when the user should be automatically logged out
+    ///   - userId: The user ID of the account
+    ///
+    public func setAccountAutoLogoutTime(
+        _ value: Date?,
+        userId: String,
+    ) async throws {
+        try await keychainServiceFacade.setValue(value, for: SharedKeychainItem.accountAutoLogout(userId: userId))
+    }
+
+    // MARK: AuthenticatorKey
 
     public func deleteAuthenticatorKey() async throws {
         try await keychainServiceFacade.deleteValue(for: SharedKeychainItem.authenticatorKey)
@@ -103,28 +138,5 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     ///
     public func setAuthenticatorKey(_ value: Data) async throws {
         try await keychainServiceFacade.setValue(value, for: SharedKeychainItem.authenticatorKey)
-    }
-
-    /// Gets when a user account should automatically log out.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID of the account
-    /// - Returns: The time the user should be automatically logged out. If `nil`, then the user should not be.
-    ///
-    public func getAccountAutoLogoutTime(userId: String) async throws -> Date? {
-        try await keychainServiceFacade.getValue(for: SharedKeychainItem.accountAutoLogout(userId: userId))
-    }
-
-    /// Sets when a user account should automatically log out.
-    ///
-    /// - Parameters:
-    ///   - value: when the user should be automatically logged out
-    ///   - userId: The user ID of the account
-    ///
-    public func setAccountAutoLogoutTime(
-        _ value: Date?,
-        userId: String,
-    ) async throws {
-        try await keychainServiceFacade.setValue(value, for: SharedKeychainItem.accountAutoLogout(userId: userId))
     }
 }
