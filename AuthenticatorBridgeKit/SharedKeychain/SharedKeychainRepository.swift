@@ -12,12 +12,14 @@ public enum SharedKeychainItem: Equatable, KeychainItem {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
+    /// The `SecAccessControlCreateFlags` level for this keychain item.
+    /// If `nil`, no extra protection is applied.
     public var accessControlFlags: SecAccessControlCreateFlags? { nil }
 
+    /// The protection level for this keychain item.
     public var protection: CFTypeRef { kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly }
 
     /// The storage key for this keychain item.
-    ///
     public var unformattedKey: String {
         switch self {
         case let .accountAutoLogout(userId: userId):
