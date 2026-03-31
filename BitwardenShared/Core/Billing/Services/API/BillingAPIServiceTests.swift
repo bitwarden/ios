@@ -50,6 +50,24 @@ class BillingAPIServiceTests: BitwardenTestCase {
         XCTAssertEqual(json?["platform"] as? String, "ios")
     }
 
+    /// `getPlans()` performs the request with the correct method and path.
+    func test_getPlans() async throws {
+        client.result = .httpSuccess(testData: .plansResponse)
+
+        let response = try await subject.getPlans()
+
+        let request = try XCTUnwrap(client.requests.last)
+        XCTAssertEqual(request.method, .get)
+        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/plans")
+        XCTAssertNil(request.body)
+
+        // Verify response parsing
+        XCTAssertEqual(response.data.count, 3)
+        XCTAssertEqual(response.data[0].type, .free)
+        XCTAssertEqual(response.data[1].type, .familiesAnnually)
+        XCTAssertEqual(response.data[2].type, .teamsAnnually)
+    }
+
     /// `getPortalUrl()` performs the request with the correct method and path.
     func test_getPortalUrl() async throws {
         client.result = .httpSuccess(testData: .portalUrl)
