@@ -561,6 +561,13 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.cardholderName = name
             state.cardItemState.cardholderNameCandidates = []
             state.cardItemState.isCardholderNamePickerPresented = false
+        case .cardholderNamePickerCancelled:
+            state.cardItemState.cardNumber = ""
+            state.cardItemState.brand = .default
+            state.cardItemState.expirationMonth = .default
+            state.cardItemState.expirationYear = ""
+            state.cardItemState.cardholderNameCandidates = []
+            state.cardItemState.isCardholderNamePickerPresented = false
         case .cardholderNamePickerDismissed:
             state.cardItemState.cardholderNameCandidates = []
             state.cardItemState.isCardholderNamePickerPresented = false

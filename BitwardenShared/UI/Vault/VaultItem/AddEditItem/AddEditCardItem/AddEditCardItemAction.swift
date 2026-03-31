@@ -12,6 +12,9 @@ enum AddEditCardItemAction: Equatable, Sendable {
     /// The name of the card holder changed.
     case cardholderNameChanged(String)
 
+    /// The user tapped Cancel in the cardholder name picker, indicating no scanned data should be kept.
+    case cardholderNamePickerCancelled
+
     /// The cardholder name picker was dismissed without selecting a name.
     case cardholderNamePickerDismissed
 
