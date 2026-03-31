@@ -245,8 +245,10 @@ extension VaultListProcessor {
 
         if await services.configService.getFeatureFlag(.premiumUpgradePath) {
             let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
-            let hasEnoughItems = await ((try? services.vaultRepository.hasMinimumCipherCount(5)) ?? false)
+            let hasEnoughItems = await (try? services.vaultRepository.hasMinimumCipherCount(5)) ?? false
             state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
+        } else {
+            state.shouldShowPremiumUpgradeActionCard = false
         }
     }
 

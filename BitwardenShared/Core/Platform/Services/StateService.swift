@@ -1355,7 +1355,7 @@ extension StateService {
     /// Whether the user should see the premium upgrade banner based on account criteria.
     /// - Returns: `true` if user is free, account is 7+ days old, and banner not dismissed.
     func shouldShowPremiumUpgradeBanner() async -> Bool {
-        guard !(await doesActiveAccountHavePremium()) else { return false }
+        guard await !doesActiveAccountHavePremium() else { return false }
 
         let dismissed = await ((try? getPremiumUpgradeBannerDismissed()) ?? false)
         guard !dismissed else { return false }
