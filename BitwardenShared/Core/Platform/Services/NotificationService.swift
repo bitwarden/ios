@@ -78,7 +78,7 @@ protocol NotificationServiceDelegate: AnyObject {
 
 /// The default implementation of `NotificationService`.
 ///
-class DefaultNotificationService: NotificationService {
+class DefaultNotificationService: NotificationService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The delegate to handle login request actions originating from notifications.

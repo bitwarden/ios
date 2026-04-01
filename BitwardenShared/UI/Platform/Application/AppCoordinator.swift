@@ -8,7 +8,7 @@ import UIKit
 
 /// A coordinator that manages the app's top-level navigation.
 ///
-class AppCoordinator: Coordinator, HasRootNavigator {
+class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// The types of modules used by this coordinator.
@@ -290,9 +290,11 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         // Make sure that the user is authenticated.
         // In the main app, childCoordinator is TabRoute. In extensions, it's VaultRoute or SendItemRoute.
         guard childCoordinator is AnyCoordinator<TabRoute, Void>
-                || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
-                || childCoordinator is AnyCoordinator<SendItemRoute, AuthAction>
-        else { return }
+            || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
+            || childCoordinator is AnyCoordinator<SendItemRoute, AuthAction>
+        else {
+            return
+        }
 
         // Make sure that the user is not currently viewing the migrate to my items view.
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
