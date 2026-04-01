@@ -11,9 +11,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable Credential Exchange export flow.
     static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
 
-    /// Flag to enable/disable Credential Exchange import flow.
-    static let cxpImportMobile = FeatureFlag(rawValue: "cxp-import-mobile")
-
     /// Flag to enable/disable individual cipher encryption configured remotely.
     static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
 
@@ -42,7 +39,6 @@ extension FeatureFlag: @retroactive CaseIterable {
         [
             .archiveVaultItems,
             .cxpExportMobile,
-            .cxpImportMobile,
             .cipherKeyEncryption,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
