@@ -366,6 +366,9 @@ class DefaultVaultRepository {
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
+    
+    /// The service used to retrieve TOTPs.
+    private let totpService: TOTPService
 
     /// The factory to create vault list director strategies.
     private let vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
@@ -393,6 +396,7 @@ class DefaultVaultRepository {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - timeProvider: The service used to get the present time.
+    ///   - totpService: The service used to retrieve Time-based One Time Passwords.
     ///   - vaultListDirectorStrategyFactory: The factory to create vault list director strategies.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
@@ -412,6 +416,7 @@ class DefaultVaultRepository {
         stateService: StateService,
         syncService: SyncService,
         timeProvider: TimeProvider,
+        totpService: TOTPService,
         vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory,
         vaultTimeoutService: VaultTimeoutService,
     ) {
@@ -430,6 +435,7 @@ class DefaultVaultRepository {
         self.stateService = stateService
         self.syncService = syncService
         self.timeProvider = timeProvider
+        self.totpService = totpService
         self.vaultListDirectorStrategyFactory = vaultListDirectorStrategyFactory
         self.vaultTimeoutService = vaultTimeoutService
 
@@ -706,8 +712,7 @@ extension DefaultVaultRepository: VaultRepository {
             return nil
         }
 
-        let accountHavePremium = await doesActiveAccountHavePremium()
-        if !cipher.organizationUseTotp, !accountHavePremium {
+        guard await totpService.isTotpAuthorized(for: cipher) else {
             return nil
         }
 
