@@ -38,7 +38,7 @@ enum AuthenticatorKeychainItem: Equatable, KeychainItem {
 
 // MARK: - KeychainRepository
 
-protocol KeychainRepository: AnyObject {
+protocol KeychainRepository: AnyObject { // sourcery: AutoMockable
     /// Attempts to delete the userAuthKey from the keychain.
     ///
     /// - Parameter item: The KeychainItem to be deleted.
