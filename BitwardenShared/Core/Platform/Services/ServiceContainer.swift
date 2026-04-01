@@ -72,11 +72,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// A helper to create cipher views with proper ownership based on policies.
     let cipherOwnershipHelper: CipherOwnershipHelper
 
-    /// The service used by the application to handle encryption and decryption tasks.
-    let clientService: ClientService
-
     /// The service used by the application to manage client certificates for mTLS authentication.
     let clientCertificateService: ClientCertificateService
+
+    /// The service used by the application to handle encryption and decryption tasks.
+    let clientService: ClientService
 
     /// The service to get server-specified configuration
     public let configService: ConfigService
@@ -244,9 +244,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - cipherOwnershipHelper: A helper to create cipher views with proper ownership based on policies.
-    ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - clientCertificateService: The service used by the application to manage client certificates
     ///     for mTLS authentication.
+    ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -317,8 +317,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         cameraService: CameraService,
         changeKdfService: ChangeKdfService,
         cipherOwnershipHelper: CipherOwnershipHelper,
-        clientService: ClientService,
         clientCertificateService: ClientCertificateService,
+        clientService: ClientService,
         configService: ConfigService,
         deviceAuthKeyService: DeviceAuthKeyService,
         environmentService: EnvironmentService,
@@ -383,8 +383,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.cameraService = cameraService
         self.changeKdfService = changeKdfService
         self.cipherOwnershipHelper = cipherOwnershipHelper
-        self.clientService = clientService
         self.clientCertificateService = clientCertificateService
+        self.clientService = clientService
         self.configService = configService
         self.deviceAuthKeyService = deviceAuthKeyService
         self.environmentService = environmentService
@@ -785,8 +785,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             appContextHelper: appContextHelper,
             authService: authService,
             biometricsRepository: biometricsRepository,
-            clientCertificateService: clientCertificateService,
             changeKdfService: changeKdfService,
+            clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -1093,8 +1093,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cameraService: DefaultCameraService(),
             changeKdfService: changeKdfService,
             cipherOwnershipHelper: cipherOwnershipHelper,
-            clientService: clientService,
             clientCertificateService: clientCertificateService,
+            clientService: clientService,
             configService: configService,
             deviceAuthKeyService: deviceAuthKeyService,
             environmentService: environmentService,

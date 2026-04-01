@@ -14,6 +14,12 @@ public protocol EnvironmentService {
     /// The URL for changing email address.
     var changeEmailURL: URL { get }
 
+    /// The human-readable alias for the client certificate used for mTLS, if configured.
+    var clientCertificateAlias: String? { get }
+
+    /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
+    var clientCertificateFingerprint: String? { get }
+
     /// The URL for the events API.
     var eventsURL: URL { get }
 
@@ -49,12 +55,6 @@ public protocol EnvironmentService {
 
     /// The URL for the web vault.
     var webVaultURL: URL { get }
-
-    /// The human-readable alias for the client certificate used for mTLS, if configured.
-    var clientCertificateAlias: String? { get }
-
-    /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
-    var clientCertificateFingerprint: String? { get }
 
     /// Loads the URLs for the active account into the environment. This can be called on app launch
     /// whether there's an active account or not to pre-populate the environment. If there's no

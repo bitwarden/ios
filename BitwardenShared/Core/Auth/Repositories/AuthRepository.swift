@@ -432,9 +432,6 @@ class DefaultAuthRepository {
     /// Helper to know about the app context.
     private let appContextHelper: AppContextHelper
 
-    /// The service used to manage client certificates for mTLS authentication.
-    private let clientCertificateService: ClientCertificateService
-
     /// The service used that handles some of the auth logic.
     private let authService: AuthService
 
@@ -443,6 +440,9 @@ class DefaultAuthRepository {
 
     /// The service used to change the user's KDF settings.
     private let changeKdfService: ChangeKdfService
+
+    /// The service used to manage client certificates for mTLS authentication.
+    private let clientCertificateService: ClientCertificateService
 
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
@@ -497,9 +497,9 @@ class DefaultAuthRepository {
     ///   - accountAPIService: The services used by the application to make account related API requests.
     ///   - appContextHelper: The helper to know about the app context.
     ///   - authService: The service used that handles some of the auth logic.
-    ///   - clientCertificateService: The service used to manage client certificates for mTLS authentication.
     ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
     ///   - changeKdfService: The service used to change the user's KDF settings.
+    ///   - clientCertificateService: The service used to manage client certificates for mTLS authentication.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -522,8 +522,8 @@ class DefaultAuthRepository {
         appContextHelper: AppContextHelper,
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
-        clientCertificateService: ClientCertificateService,
         changeKdfService: ChangeKdfService,
+        clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
@@ -544,8 +544,8 @@ class DefaultAuthRepository {
         self.appContextHelper = appContextHelper
         self.authService = authService
         self.biometricsRepository = biometricsRepository
-        self.clientCertificateService = clientCertificateService
         self.changeKdfService = changeKdfService
+        self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
@@ -955,13 +955,13 @@ extension DefaultAuthRepository: AuthRepository {
         // Set or delete the never lock key according to the current and new values.
         if case .never = newValue {
             try await keychainService.setUserAuthKey(
-                for: BitwardenKeychainItem.neverLock(userId: id),
+                for: .neverLock(userId: id),
                 value: clientService.crypto().getUserEncryptionKey(),
             )
         } else if currentValue == .never {
             // If there is a key, delete. If not, no worries.
             try? await keychainService.deleteUserAuthKey(
-                for: BitwardenKeychainItem.neverLock(userId: id),
+                for: .neverLock(userId: id),
             )
         }
 

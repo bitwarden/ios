@@ -27,8 +27,11 @@ enum SelfHostedAction: Equatable {
 
     // MARK: Certificate Actions
 
-    /// The user tapped to import a client certificate.
-    case importCertificateTapped
+    /// A dialog was dismissed.
+    case dialogDismiss
+
+    /// The user dismissed the certificate file importer.
+    case dismissCertificateImporter
 
     /// A certificate file was selected.
     case certificateFileSelected(Result<URL, Error>)
@@ -39,14 +42,11 @@ enum SelfHostedAction: Equatable {
     /// The user confirmed overwriting an existing certificate alias.
     case confirmOverwriteCertificate
 
+    /// The user tapped to import a client certificate.
+    case importCertificateTapped
+
     /// The user tapped to remove the current certificate.
     case removeCertificateTapped
-
-    /// The user dismissed the certificate file importer.
-    case dismissCertificateImporter
-
-    /// A dialog was dismissed.
-    case dialogDismiss
 
     // MARK: Equatable
 
@@ -64,7 +64,9 @@ enum SelfHostedAction: Equatable {
             lhsUrl == rhsUrl
         case let (.webVaultUrlChanged(lhsUrl), .webVaultUrlChanged(rhsUrl)):
             lhsUrl == rhsUrl
-        case (.importCertificateTapped, .importCertificateTapped):
+        case (.dialogDismiss, .dialogDismiss):
+            true
+        case (.dismissCertificateImporter, .dismissCertificateImporter):
             true
         case let (.certificateFileSelected(lhsResult), .certificateFileSelected(rhsResult)):
             switch (lhsResult, rhsResult) {
@@ -79,11 +81,9 @@ enum SelfHostedAction: Equatable {
             lhsAlias == rhsAlias && lhsPassword == rhsPassword
         case (.confirmOverwriteCertificate, .confirmOverwriteCertificate):
             true
+        case (.importCertificateTapped, .importCertificateTapped):
+            true
         case (.removeCertificateTapped, .removeCertificateTapped):
-            true
-        case (.dismissCertificateImporter, .dismissCertificateImporter):
-            true
-        case (.dialogDismiss, .dialogDismiss):
             true
         default:
             false

@@ -61,12 +61,12 @@ class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, Sel
         switch effect {
         case .appeared:
             await loadCertificateState()
-        case .saveEnvironment:
-            await saveEnvironment()
         case let .importClientCertificate(data, alias, password):
             await importClientCertificate(data: data, alias: alias, password: password)
         case .removeClientCertificate:
             await removeClientCertificate()
+        case .saveEnvironment:
+            await saveEnvironment()
         }
     }
 
@@ -120,77 +120,6 @@ class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, Sel
         return urls
             .filter { !$0.isEmpty }
             .allSatisfy(\.isValidURL)
-    }
-
-    /// Saves the environment URLs if they are valid or presents an alert if any are invalid.
-    private func saveEnvironment() async {
-        guard areURLsValid() else {
-            coordinator.showAlert(Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.environmentPageUrlsError,
-            ))
-            return
-        }
-
-        let urls = EnvironmentURLData(
-            api: URL(string: state.apiServerUrl)?.sanitized,
-            base: URL(string: state.serverUrl)?.sanitized,
-            clientCertificateAlias: services.environmentService.clientCertificateAlias,
-            clientCertificateFingerprint: services.environmentService.clientCertificateFingerprint,
-            events: nil as URL?,
-            icons: URL(string: state.iconsServerUrl)?.sanitized,
-            identity: URL(string: state.identityServerUrl)?.sanitized,
-            notifications: nil,
-            webVault: URL(string: state.webVaultServerUrl)?.sanitized,
-        )
-        await delegate?.didSaveEnvironment(urls: urls)
-        coordinator.navigate(to: .dismissPresented)
-    }
-
-    private func loadCertificateState() async {
-        let alias = await services.clientCertificateService.getCertificateAlias()
-        state.keyAlias = alias ?? ""
-        state.keyHost = alias != nil ? .keychain : nil
-    }
-
-    /// Imports a client certificate from the provided data, alias, and password.
-    ///
-    /// - Parameters:
-    ///   - data: The certificate data in PKCS#12 format.
-    ///   - alias: The alias to associate with the certificate.
-    ///   - password: The password used to decrypt the PKCS#12 data.
-    ///
-    private func importClientCertificate(data: Data, alias: String, password: String) async {
-        do {
-            try await services.clientCertificateService.importCertificate(
-                data: data,
-                password: password,
-                alias: alias,
-            )
-            state.keyAlias = alias
-            state.keyHost = .keychain
-            state.dialog = nil
-            state.pendingCertificateData = nil
-        } catch ClientCertificateError.invalidPassword {
-            state.dialog = .error(message: Localizations.theCertificatePasswordIsIncorrect)
-        } catch ClientCertificateError.invalidCertificate {
-            state.dialog = .error(message: Localizations.theCertificateFileIsInvalidOrCorrupted)
-        } catch {
-            state.dialog = .error(message: Localizations.theCertificateCouldNotBeInstalled)
-        }
-    }
-
-    private func removeClientCertificate() async {
-        do {
-            try await services.clientCertificateService.removeCertificate()
-            state.keyAlias = ""
-            state.keyHost = nil
-        } catch {
-            coordinator.showAlert(Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: error.localizedDescription,
-            ))
-        }
     }
 
     /// Handles the result of the certificate file picker.
@@ -267,6 +196,83 @@ class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, Sel
         state.dialog = nil
         Task {
             await perform(.importClientCertificate(data: certificateData, alias: alias, password: password))
+        }
+    }
+
+    /// Imports a client certificate from the provided data, alias, and password.
+    ///
+    /// - Parameters:
+    ///   - data: The certificate data in PKCS#12 format.
+    ///   - alias: The alias to associate with the certificate.
+    ///   - password: The password used to decrypt the PKCS#12 data.
+    ///
+    private func importClientCertificate(data: Data, alias: String, password: String) async {
+        do {
+            try await services.clientCertificateService.importCertificate(
+                data: data,
+                password: password,
+                alias: alias,
+            )
+            state.keyAlias = alias
+            state.keyHost = .keychain
+            state.dialog = nil
+            state.pendingCertificateData = nil
+        } catch ClientCertificateError.invalidPassword {
+            state.dialog = .error(message: Localizations.theCertificatePasswordIsIncorrect)
+        } catch ClientCertificateError.invalidCertificate {
+            state.dialog = .error(message: Localizations.theCertificateFileIsInvalidOrCorrupted)
+        } catch {
+            state.dialog = .error(message: Localizations.theCertificateCouldNotBeInstalled)
+        }
+    }
+
+    /// Loads the current certificate state from the service and updates the UI state.
+    ///
+    private func loadCertificateState() async {
+        let alias = await services.clientCertificateService.getCertificateAlias()
+        state.keyAlias = alias ?? ""
+        state.keyHost = alias != nil ? .keychain : nil
+    }
+
+    /// Saves the environment URLs if they are valid or presents an alert if any are invalid.
+    private func saveEnvironment() async {
+        guard areURLsValid() else {
+            coordinator.showAlert(Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.environmentPageUrlsError,
+            ))
+            return
+        }
+
+        let urls = EnvironmentURLData(
+            api: URL(string: state.apiServerUrl)?.sanitized,
+            base: URL(string: state.serverUrl)?.sanitized,
+            clientCertificateAlias: services.environmentService.clientCertificateAlias,
+            clientCertificateFingerprint: services.environmentService.clientCertificateFingerprint,
+            events: nil as URL?,
+            icons: URL(string: state.iconsServerUrl)?.sanitized,
+            identity: URL(string: state.identityServerUrl)?.sanitized,
+            notifications: nil,
+            webVault: URL(string: state.webVaultServerUrl)?.sanitized,
+        )
+        await delegate?.didSaveEnvironment(urls: urls)
+        coordinator.navigate(to: .dismissPresented)
+    }
+
+    /// Removes the currently stored client certificate and clears the associated state.
+    ///
+    /// Presents an error alert if the removal fails.
+    ///
+    private func removeClientCertificate() async {
+        do {
+            try await services.clientCertificateService.removeCertificate()
+            state.keyAlias = ""
+            state.keyHost = nil
+        } catch {
+            coordinator.showAlert(Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: error.localizedDescription,
+            ))
         }
     }
 }

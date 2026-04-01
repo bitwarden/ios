@@ -16,9 +16,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var appContextHelper: MockAppContextHelper!
     var authService: MockAuthService!
     var biometricsRepository: MockBiometricsRepository!
-    var clientCertificateService: MockClientCertificateService!
     var changeKdfService: MockChangeKdfService!
     var client: MockHTTPClient!
+    var clientCertificateService: MockClientCertificateService!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
@@ -101,8 +101,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         accountAPIService = APIService(client: client)
         authService = MockAuthService()
         biometricsRepository = MockBiometricsRepository()
-        clientCertificateService = MockClientCertificateService()
         changeKdfService = MockChangeKdfService()
+        clientCertificateService = MockClientCertificateService()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -126,8 +126,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             appContextHelper: appContextHelper,
             authService: authService,
             biometricsRepository: biometricsRepository,
-            clientCertificateService: clientCertificateService,
             changeKdfService: changeKdfService,
+            clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -153,9 +153,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         appContextHelper = nil
         authService = nil
         biometricsRepository = nil
-        clientCertificateService = nil
         changeKdfService = nil
         client = nil
+        clientCertificateService = nil
         clientService = nil
         configService = nil
         environmentService = nil

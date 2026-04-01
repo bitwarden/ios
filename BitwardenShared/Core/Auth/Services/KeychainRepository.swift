@@ -5,7 +5,7 @@ import Foundation
 // MARK: - KeychainItem
 
 // swiftlint:disable file_length
-enum BitwardenKeychainItem: Equatable, BitwardenKit.KeychainItem {
+enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
 
@@ -14,6 +14,9 @@ enum BitwardenKeychainItem: Equatable, BitwardenKit.KeychainItem {
 
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
+
+    /// The keychain item for a client certificate identity (SecIdentity), keyed by certificate fingerprint.
+    case clientCertificateIdentity(fingerprint: String)
 
     /// The keychain item for the device auth key.
     case deviceAuthKey(userId: String)
@@ -45,9 +48,6 @@ enum BitwardenKeychainItem: Equatable, BitwardenKit.KeychainItem {
     /// The keychain item for a user's vault timeout.
     case vaultTimeout(userId: String)
 
-    /// The keychain item for a client certificate identity (SecIdentity), keyed by certificate fingerprint.
-    case clientCertificateIdentity(fingerprint: String)
-
     /// The `SecAccessControlCreateFlags` level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
@@ -55,9 +55,9 @@ enum BitwardenKeychainItem: Equatable, BitwardenKit.KeychainItem {
         switch self {
         case .accessToken,
              .authenticatorVaultKey,
+             .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
              .deviceKey,
-             .clientCertificateIdentity,
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
@@ -104,10 +104,10 @@ enum BitwardenKeychainItem: Equatable, BitwardenKit.KeychainItem {
             "authenticatorVaultKey_\(userId)"
         case let .biometrics(userId: id):
             "userKeyBiometricUnlock_" + id
-        case let .deviceKey(userId: id):
-            "deviceKey_" + id
         case let .clientCertificateIdentity(fingerprint):
             "clientCertificateIdentity_\(fingerprint)"
+        case let .deviceKey(userId: id):
+            "deviceKey_" + id
         case let .deviceAuthKey(userId: id):
             "deviceAuthKey_" + id
         case let .deviceAuthKeyMetadata(userId: id):
