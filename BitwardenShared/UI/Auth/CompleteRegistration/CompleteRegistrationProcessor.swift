@@ -23,6 +23,9 @@ protocol MasterPasswordUpdateDelegate: AnyObject {
 /// Enumeration of errors that may occur when completing registration for an account.
 ///
 enum CompleteRegistrationError: Error {
+    /// The password and password hint match
+    case passwordAndHintMatch
+
     /// The password confirmation is not correct.
     case passwordsDontMatch
 
@@ -158,6 +161,7 @@ class CompleteRegistrationProcessor: StateProcessor<
     /// - is exposed and strong
     /// - is unexposed and weak
     /// - is unchecked against breaches and weak
+    /// - is the same as the password hint
     ///
     private func checkPasswordAndCompleteRegistration() async {
         if state.isCheckDataBreachesToggleOn {
@@ -223,6 +227,10 @@ class CompleteRegistrationProcessor: StateProcessor<
                 throw CompleteRegistrationError.passwordsDontMatch
             }
 
+            guard !state.doesMasterPasswordMatchHint else {
+                throw CompleteRegistrationError.passwordAndHintMatch
+            }
+
             coordinator.showLoadingOverlay(title: Localizations.creatingAccount)
 
             try await createAccount()
@@ -282,6 +290,11 @@ class CompleteRegistrationProcessor: StateProcessor<
     ///
     private func showCompleteRegistrationErrorAlert(_ error: CompleteRegistrationError) {
         switch error {
+        case .passwordAndHintMatch:
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.yourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint,
+            ))
         case .passwordsDontMatch:
             coordinator.showAlert(.passwordsDontMatch)
         case .passwordEmpty:

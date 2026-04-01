@@ -9,6 +9,12 @@ protocol BillingAPIService { // sourcery: AutoMockable
     ///
     func createCheckoutSession() async throws -> CheckoutSessionResponseModel
 
+    /// Gets the list of subscription plans.
+    ///
+    /// - Returns: A `PlansResponseModel` containing the list of plans.
+    ///
+    func getPlans() async throws -> PlansResponseModel
+
     /// Creates a customer portal session for managing the premium subscription.
     ///
     /// - Returns: A `PortalUrlResponseModel` containing the portal URL.
@@ -28,6 +34,10 @@ extension APIService: BillingAPIService {
                 requestModel: CheckoutSessionRequestModel(platform: Self.platform),
             ),
         )
+    }
+
+    func getPlans() async throws -> PlansResponseModel {
+        try await apiService.send(GetPlansRequest())
     }
 
     func getPortalUrl() async throws -> PortalUrlResponseModel {
