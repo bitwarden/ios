@@ -1132,7 +1132,8 @@ extension DefaultAuthRepository: AuthRepository {
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
         let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) == true
-        let hasNeverLock = await (try? userSessionStateService.getVaultTimeout(userId: account.profile.userId)) == .never
+        let vaultTimeout = try? await userSessionStateService.getVaultTimeout(userId: account.profile.userId)
+        let hasNeverLock = vaultTimeout == .never
         let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(
             userId: account.profile.userId,
         )) == true

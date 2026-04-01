@@ -446,4 +446,4 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         let passwordIdentity = subject.tryCreatePasswordCredentialIdentity(from: cipher)
         XCTAssertNil(passwordIdentity)
     }
-}
+} // swiftlint:disable:this file_length

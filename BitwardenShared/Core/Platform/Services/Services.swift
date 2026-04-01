@@ -13,9 +13,9 @@ typealias Services = HasAPIService
     & HasApplication
     & HasAuthAPIService
     & HasAuthRepository
-    & HasBillingAPIService
     & HasAuthService
     & HasAutofillCredentialService
+    & HasBillingAPIService
     & HasBiometricsRepository
     & HasCameraService
     & HasChangeKdfService

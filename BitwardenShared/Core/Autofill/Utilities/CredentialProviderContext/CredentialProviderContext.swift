@@ -110,6 +110,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
         }
 
         return switch serviceIdentifier.type {
+        case .app:
+            serviceIdentifier.identifier
         case .domain:
             "https://" + serviceIdentifier.identifier
         case .URL:
