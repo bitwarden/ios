@@ -175,41 +175,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.type, .dismissed)
     }
 
-    /// `navigate(to:)` with `.exportVault` presents the export vault to file view when
-    /// Credential Exchange flag to export is disabled.
+    /// `navigate(to:)` with `.exportVault` pushes the export settings view.
     @MainActor
-    func test_navigateTo_exportVaultCXPDisabled() async throws {
-        configService.featureFlagsBool[.cxpExportMobile] = false
-        let task = Task {
-            subject.navigate(to: .exportVault)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return stackNavigator.actions.last?.view is ExportVaultView
-        }
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is ExportVaultView)
-        XCTAssertEqual(action.embedInNavigationController, true)
-    }
-
-    /// `navigate(to:)` with `.exportVault` presents the export settings view when
-    /// Credential Exchange flag to export is enabled.
-    @MainActor
-    func test_navigateTo_exportVaultCXPEnabled() async throws {
-        configService.featureFlagsBool[.cxpExportMobile] = true
-        let task = Task {
-            subject.navigate(to: .exportVault)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return stackNavigator.actions.last != nil
-        }
+    func test_navigateTo_exportVault() throws {
+        subject.navigate(to: .exportVault)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)

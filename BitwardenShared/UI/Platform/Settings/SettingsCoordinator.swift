@@ -170,9 +170,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .dismiss:
             stackNavigator?.dismiss()
         case .exportVault:
-            Task {
-                await showExportVault()
-            }
+            showExportVault()
         case .exportVaultToApp:
             showExportVaultToApp()
         case .exportVaultToFile:
@@ -356,12 +354,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the export vault screen.
     ///
     @MainActor
-    private func showExportVault() async {
-        guard await services.configService.getFeatureFlag(.cxpExportMobile) else {
-            navigate(to: .exportVaultToFile)
-            return
-        }
-
+    private func showExportVault() {
         let processor = ExportSettingsProcessor(coordinator: asAnyCoordinator())
         let view = ExportSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
