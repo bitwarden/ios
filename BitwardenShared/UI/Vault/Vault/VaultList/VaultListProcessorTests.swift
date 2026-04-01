@@ -269,6 +269,20 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(stateService.loginRequest)
     }
 
+    /// `perform(_:)` with `appeared` clears the pending login request from state when the server
+    /// returns 404 (request expired or deleted), without logging an error.
+    @MainActor
+    func test_perform_appeared_checkPendingLoginRequests_notFound() async {
+        stateService.activeAccount = .fixture()
+        stateService.loginRequest = .init(id: "2", userId: Account.fixture().profile.userId)
+        authService.getPendingLoginRequestResult = .failure(PendingLoginRequestError.notFound)
+
+        await subject.perform(.appeared)
+
+        XCTAssertNil(stateService.loginRequest)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `perform(_:)` with `appeared` checks if the user's KDF settings need to be updated and logs
     /// an error and shows an alert if updating the settings fails.
     @MainActor
