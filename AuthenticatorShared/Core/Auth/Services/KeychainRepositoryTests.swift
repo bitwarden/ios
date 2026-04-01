@@ -30,7 +30,7 @@ class KeychainRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests - secretKey
 
-    /// `getSecretKey(userId:)` returns the value from the facade for the correct item.
+    /// `getSecretKey(userId:)` returns the secret key from the façade.
     ///
     func test_getSecretKey_success() async throws {
         keychainServiceFacade.getValueReturnValue = "secret-value"
@@ -44,7 +44,7 @@ class KeychainRepositoryTests: BitwardenTestCase {
         )
     }
 
-    /// `getSecretKey(userId:)` rethrows errors from the facade.
+    /// `getSecretKey(userId:)` rethrows errors from the façade.
     ///
     func test_getSecretKey_rethrows() async {
         let item = AuthenticatorKeychainItem.secretKey(userId: "user-1")
@@ -55,7 +55,7 @@ class KeychainRepositoryTests: BitwardenTestCase {
         }
     }
 
-    /// `setSecretKey(_:userId:)` stores the value via the facade for the correct item.
+    /// `setSecretKey(_:userId:)` stores the secret key via the façade.
     ///
     func test_setSecretKey_success() async throws {
         try await subject.setSecretKey("new-secret", userId: "user-1")
@@ -67,7 +67,7 @@ class KeychainRepositoryTests: BitwardenTestCase {
         )
     }
 
-    /// `setSecretKey(_:userId:)` rethrows errors from the facade.
+    /// `setSecretKey(_:userId:)` rethrows errors from the façade.
     ///
     func test_setSecretKey_rethrows() async {
         keychainServiceFacade.setValueThrowableError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
@@ -79,7 +79,7 @@ class KeychainRepositoryTests: BitwardenTestCase {
 
     // MARK: Tests - BiometricsKeychainRepository
 
-    /// `deleteUserBiometricAuthKey(userId:)` deletes the biometrics item via the facade.
+    /// `deleteUserBiometricAuthKey(userId:)` deletes the user biometrics auth key via the façade.
     ///
     func test_deleteUserBiometricAuthKey_success() async throws {
         try await subject.deleteUserBiometricAuthKey(userId: "user-1")
@@ -90,7 +90,18 @@ class KeychainRepositoryTests: BitwardenTestCase {
         )
     }
 
-    /// `getUserBiometricAuthKey(userId:)` returns the value from the facade for the biometrics item.
+    /// `deleteUserBiometricAuthKey(userId:)` rethrows errors from the façade.
+    ///
+    func test_deleteUserBiometricAuthKey_rethrows() async {
+        let error = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+        keychainServiceFacade.deleteValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            try await subject.deleteUserBiometricAuthKey(userId: "user-1")
+        }
+    }
+
+    /// `getUserBiometricAuthKey(userId:)` returns the user biometrics auth key from the façade.
     ///
     func test_getUserBiometricAuthKey_success() async throws {
         keychainServiceFacade.getValueReturnValue = "biometric-key"
@@ -104,7 +115,18 @@ class KeychainRepositoryTests: BitwardenTestCase {
         )
     }
 
-    /// `setUserBiometricAuthKey(userId:value:)` stores the value via the facade for the biometrics item.
+    /// `getUserBiometricAuthKey(userId:)` rethrows errors from the façade.
+    ///
+    func test_getUserBiometricAuthKey_rethrows() async {
+        let error = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+        keychainServiceFacade.getValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getUserBiometricAuthKey(userId: "user-1")
+        }
+    }
+
+    /// `setUserBiometricAuthKey(userId:value:)` stores the user biometrics auth key via the façade.
     ///
     func test_setUserBiometricAuthKey_success() async throws {
         try await subject.setUserBiometricAuthKey(userId: "user-1", value: "biometric-key")
@@ -114,5 +136,16 @@ class KeychainRepositoryTests: BitwardenTestCase {
             keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
             AuthenticatorKeychainItem.biometrics(userId: "user-1").unformattedKey,
         )
+    }
+
+    /// `setUserBiometricAuthKey(userId:value:)` rethrows errors from the façade.
+    ///
+    func test_setUserBiometricAuthKey_rethrows() async {
+        let error = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+        keychainServiceFacade.setValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            try await subject.setUserBiometricAuthKey(userId: "user-1", value: "biometric-key")
+        }
     }
 }
