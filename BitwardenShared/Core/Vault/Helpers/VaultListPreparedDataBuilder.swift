@@ -416,13 +416,6 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         return userHasMasterPassword
     }
 
-//    private func shouldIncludeTOTP(cipher: CipherListView) async -> Bool {
-//        let hasPremiumFeaturesAccess = await getHasPremiumFeaturesAccess()
-//
-//        let hasAccess = hasPremiumFeaturesAccess || cipher.organizationUseTotp
-//        return hasAccess && cipher.type.loginListView?.totp != nil
-//    }
-
     private func totpItem(
         for cipherListView: CipherListView,
     ) async -> VaultListItem? {
