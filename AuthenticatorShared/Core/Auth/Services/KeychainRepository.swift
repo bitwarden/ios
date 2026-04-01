@@ -1,7 +1,7 @@
 import BitwardenKit
 import Foundation
 
-// MARK: - KeychainItem
+// MARK: - AuthenticatorKeychainItem
 
 enum AuthenticatorKeychainItem: Equatable, KeychainItem {
     /// The keychain item for biometrics protected user auth key.
@@ -39,12 +39,6 @@ enum AuthenticatorKeychainItem: Equatable, KeychainItem {
 // MARK: - KeychainRepository
 
 protocol KeychainRepository: AnyObject { // sourcery: AutoMockable
-    /// Attempts to delete the userAuthKey from the keychain.
-    ///
-    /// - Parameter item: The KeychainItem to be deleted.
-    ///
-    func deleteUserAuthKey(for item: AuthenticatorKeychainItem) async throws
-
     /// Gets the stored secret key for a user from the keychain.
     ///
     /// - Parameters:
@@ -53,13 +47,6 @@ protocol KeychainRepository: AnyObject { // sourcery: AutoMockable
     ///
     func getSecretKey(userId: String) async throws -> String
 
-    /// Gets a user auth key value.
-    ///
-    /// - Parameter item: The storage key of the user auth key.
-    /// - Returns: A string representing the user auth key.
-    ///
-    func getUserAuthKeyValue(for item: AuthenticatorKeychainItem) async throws -> String
-
     /// Stores the secret key for a user in the keychain
     ///
     /// - Parameters:
@@ -67,14 +54,6 @@ protocol KeychainRepository: AnyObject { // sourcery: AutoMockable
     ///   - userId: The user's ID
     ///
     func setSecretKey(_ value: String, userId: String) async throws
-
-    /// Sets a user auth key/value pair.
-    ///
-    /// - Parameters:
-    ///    - item: The storage key for this auth key.
-    ///    - value: A `String` representing the user auth key.
-    ///
-    func setUserAuthKey(for item: AuthenticatorKeychainItem, value: String) async throws
 }
 
 // MARK: - DefaultKeychainRepository
@@ -94,24 +73,12 @@ class DefaultKeychainRepository: KeychainRepository {
 }
 
 extension DefaultKeychainRepository {
-    func deleteUserAuthKey(for item: AuthenticatorKeychainItem) async throws {
-        try await keychainServiceFacade.deleteValue(for: item)
-    }
-
     func getSecretKey(userId: String) async throws -> String {
         try await keychainServiceFacade.getValue(for: AuthenticatorKeychainItem.secretKey(userId: userId))
     }
 
-    func getUserAuthKeyValue(for item: AuthenticatorKeychainItem) async throws -> String {
-        try await keychainServiceFacade.getValue(for: item)
-    }
-
     func setSecretKey(_ value: String, userId: String) async throws {
         try await keychainServiceFacade.setValue(value, for: AuthenticatorKeychainItem.secretKey(userId: userId))
-    }
-
-    func setUserAuthKey(for item: AuthenticatorKeychainItem, value: String) async throws {
-        try await keychainServiceFacade.setValue(value, for: item)
     }
 }
 
