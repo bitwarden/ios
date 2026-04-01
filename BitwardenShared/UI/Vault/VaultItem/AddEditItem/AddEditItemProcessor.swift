@@ -529,6 +529,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.isCardScannerPresented = true
         case .cardScannerDismissed:
             state.cardItemState.isCardScannerPresented = false
+            state.cardItemState.shouldFocusCardholderNameAfterScan = false
         case let .cardScannerLinesUpdated(lines):
             let data = services.cardTextParser.parseCard(lines: lines)
             guard data.cardNumber != nil,
@@ -536,6 +537,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 break
             }
             state.cardItemState.isCardScannerPresented = false
+            state.cardItemState.shouldFocusCardholderNameAfterScan = true
             if let number = data.cardNumber {
                 state.cardItemState.cardNumber = number
                 state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
