@@ -134,7 +134,7 @@ struct SelfHostedView: View {
             }
         } message: {
             if case let .confirmOverwriteAlias(alias, _, _) = store.state.dialog {
-                Text(Localizations.confirmReplaceExistingCertificateDescriptionLong(alias))
+                Text(Localizations.aCertificateWithTheAliasAlreadyExistsDescriptionLong(alias))
             }
         }
     }

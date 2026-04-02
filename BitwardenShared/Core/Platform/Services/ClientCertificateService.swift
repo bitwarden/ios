@@ -270,11 +270,11 @@ enum ClientCertificateError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidCertificate:
-            Localizations.certificateFileInvalidOrCorrupted
+            Localizations.theCertificateFileIsInvalidOrCorrupted
         case .invalidPassword:
-            Localizations.certificatePasswordIncorrect
+            Localizations.theCertificatePasswordIsIncorrect
         case .certificateExpired:
-            Localizations.certificateExpired
+            Localizations.theCertificateHasExpired
         }
     }
 }

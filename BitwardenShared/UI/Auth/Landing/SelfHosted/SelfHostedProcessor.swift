@@ -172,11 +172,11 @@ class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, Sel
             state.dialog = nil
             state.pendingCertificateData = nil
         } catch ClientCertificateError.invalidPassword {
-            state.dialog = .error(message: Localizations.certificatePasswordIncorrect)
+            state.dialog = .error(message: Localizations.theCertificatePasswordIsIncorrect)
         } catch ClientCertificateError.invalidCertificate {
-            state.dialog = .error(message: Localizations.certificateFileInvalidOrCorrupted)
+            state.dialog = .error(message: Localizations.theCertificateFileIsInvalidOrCorrupted)
         } catch {
-            state.dialog = .error(message: Localizations.certificateCouldNotBeInstalled)
+            state.dialog = .error(message: Localizations.theCertificateCouldNotBeInstalled)
         }
     }
 
