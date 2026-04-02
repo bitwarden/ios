@@ -116,8 +116,6 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
 
     /// The prepared data to build.
     var preparedData = VaultListPreparedData()
-    /// Cache of whether the account has premium features access.
-    var hasPremiumFeaturesAccess: Bool?
     /// Cache of whether the user has master password.
     var userHasMasterPassword: Bool?
 
@@ -400,13 +398,13 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         return VaultListItem(cipherListView: cipher)
     }
 
-    private func getHasPremiumFeaturesAccess() async -> Bool {
-        guard let hasPremiumFeaturesAccess else {
-            hasPremiumFeaturesAccess = await stateService.doesActiveAccountHavePremium()
-            return hasPremiumFeaturesAccess ?? false
-        }
-        return hasPremiumFeaturesAccess
-    }
+//    private func getHasPremiumFeaturesAccess() async -> Bool {
+//        guard let hasPremiumFeaturesAccess else {
+//            hasPremiumFeaturesAccess = await stateService.doesActiveAccountHavePremium()
+//            return hasPremiumFeaturesAccess ?? false
+//        }
+//        return hasPremiumFeaturesAccess
+//    }
 
     private func getUserHasMasterPassword() async -> Bool {
         guard let userHasMasterPassword else {
