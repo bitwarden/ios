@@ -1,12 +1,13 @@
 import BitwardenKit
 import BitwardenKitMocks
-import XCTest
+import Foundation
+import Testing
 
 @testable import AuthenticatorShared
 
 // MARK: - KeychainRepositoryTests
 
-class KeychainRepositoryTests: BitwardenTestCase {
+struct KeychainRepositoryTests {
     // MARK: Properties
 
     var keychainServiceFacade: MockKeychainServiceFacade!
@@ -14,65 +15,57 @@ class KeychainRepositoryTests: BitwardenTestCase {
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
         keychainServiceFacade = MockKeychainServiceFacade()
         subject = DefaultKeychainRepository(keychainServiceFacade: keychainServiceFacade)
-    }
-
-    override func tearDown() {
-        super.tearDown()
-
-        keychainServiceFacade = nil
-        subject = nil
     }
 
     // MARK: Tests - secretKey
 
     /// `getSecretKey(userId:)` returns the secret key from the façade.
-    ///
-    func test_getSecretKey_success() async throws {
+    @Test
+    func getSecretKey_success() async throws {
         keychainServiceFacade.getValueReturnValue = "secret-value"
 
         let result = try await subject.getSecretKey(userId: "user-1")
 
-        XCTAssertEqual(result, "secret-value")
-        XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
-            AuthenticatorKeychainItem.secretKey(userId: "user-1").unformattedKey,
-        )
+        #expect(result == "secret-value")
+
+        let actualReceivedItem = keychainServiceFacade.getValueReceivedItem as? AuthenticatorKeychainItem
+        let expectedReceivedItem = AuthenticatorKeychainItem.secretKey(userId: "user-1")
+        #expect(actualReceivedItem == expectedReceivedItem)
     }
 
     /// `getSecretKey(userId:)` rethrows errors from the façade.
-    ///
-    func test_getSecretKey_rethrows() async {
+    @Test
+    func getSecretKey_rethrows() async {
         let item = AuthenticatorKeychainItem.secretKey(userId: "user-1")
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(item)
 
-        await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
+        await #expect(throws: KeychainServiceError.keyNotFound(item)) {
             _ = try await subject.getSecretKey(userId: "user-1")
         }
     }
 
     /// `setSecretKey(_:userId:)` stores the secret key via the façade.
-    ///
-    func test_setSecretKey_success() async throws {
+    @Test
+    func setSecretKey_success() async throws {
         try await subject.setSecretKey("new-secret", userId: "user-1")
 
-        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "new-secret")
-        XCTAssertEqual(
-            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
-            AuthenticatorKeychainItem.secretKey(userId: "user-1").unformattedKey,
-        )
+        #expect(keychainServiceFacade.setValueReceivedArguments?.value == "new-secret")
+
+        let actualReceivedItem = keychainServiceFacade.setValueReceivedArguments?.item as? AuthenticatorKeychainItem
+        let expectedReceivedItem = AuthenticatorKeychainItem.secretKey(userId: "user-1")
+        #expect(actualReceivedItem == expectedReceivedItem)
     }
 
     /// `setSecretKey(_:userId:)` rethrows errors from the façade.
-    ///
-    func test_setSecretKey_rethrows() async {
-        keychainServiceFacade.setValueThrowableError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+    @Test
+    func setSecretKey_rethrows() async {
+        let expectedError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+        keychainServiceFacade.setValueThrowableError = expectedError
 
-        await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecInteractionNotAllowed)) {
+        await #expect(throws: expectedError) {
             try await subject.setSecretKey("new-secret", userId: "user-1")
         }
     }
@@ -80,71 +73,70 @@ class KeychainRepositoryTests: BitwardenTestCase {
     // MARK: Tests - BiometricsKeychainRepository
 
     /// `deleteUserBiometricAuthKey(userId:)` deletes the user biometrics auth key via the façade.
-    ///
-    func test_deleteUserBiometricAuthKey_success() async throws {
+    @Test
+    func deleteUserBiometricAuthKey_success() async throws {
         try await subject.deleteUserBiometricAuthKey(userId: "user-1")
 
-        XCTAssertEqual(
-            keychainServiceFacade.deleteValueReceivedItem?.unformattedKey,
-            AuthenticatorKeychainItem.biometrics(userId: "user-1").unformattedKey,
-        )
+        let actualReceivedItem = keychainServiceFacade.deleteValueReceivedItem as? AuthenticatorKeychainItem
+        let expectedReceivedItem = AuthenticatorKeychainItem.biometrics(userId: "user-1")
+        #expect(actualReceivedItem == expectedReceivedItem)
     }
 
     /// `deleteUserBiometricAuthKey(userId:)` rethrows errors from the façade.
-    ///
-    func test_deleteUserBiometricAuthKey_rethrows() async {
-        let error = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
-        keychainServiceFacade.deleteValueThrowableError = error
+    @Test
+    func deleteUserBiometricAuthKey_rethrows() async {
+        let expectedError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+        keychainServiceFacade.deleteValueThrowableError = expectedError
 
-        await assertAsyncThrows(error: error) {
+        await #expect(throws: expectedError) {
             try await subject.deleteUserBiometricAuthKey(userId: "user-1")
         }
     }
 
     /// `getUserBiometricAuthKey(userId:)` returns the user biometrics auth key from the façade.
-    ///
-    func test_getUserBiometricAuthKey_success() async throws {
+    @Test
+    func getUserBiometricAuthKey_success() async throws {
         keychainServiceFacade.getValueReturnValue = "biometric-key"
 
         let result = try await subject.getUserBiometricAuthKey(userId: "user-1")
 
-        XCTAssertEqual(result, "biometric-key")
-        XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
-            AuthenticatorKeychainItem.biometrics(userId: "user-1").unformattedKey,
-        )
+        #expect(result == "biometric-key")
+
+        let actualReceivedItem = keychainServiceFacade.getValueReceivedItem as? AuthenticatorKeychainItem
+        let expectedReceivedItem = AuthenticatorKeychainItem.biometrics(userId: "user-1")
+        #expect(actualReceivedItem == expectedReceivedItem)
     }
 
     /// `getUserBiometricAuthKey(userId:)` rethrows errors from the façade.
-    ///
-    func test_getUserBiometricAuthKey_rethrows() async {
-        let error = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
-        keychainServiceFacade.getValueThrowableError = error
+    @Test
+    func getUserBiometricAuthKey_rethrows() async {
+        let expectedError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+        keychainServiceFacade.getValueThrowableError = expectedError
 
-        await assertAsyncThrows(error: error) {
+        await #expect(throws: expectedError) {
             _ = try await subject.getUserBiometricAuthKey(userId: "user-1")
         }
     }
 
     /// `setUserBiometricAuthKey(userId:value:)` stores the user biometrics auth key via the façade.
-    ///
-    func test_setUserBiometricAuthKey_success() async throws {
+    @Test
+    func setUserBiometricAuthKey_success() async throws {
         try await subject.setUserBiometricAuthKey(userId: "user-1", value: "biometric-key")
 
-        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "biometric-key")
-        XCTAssertEqual(
-            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
-            AuthenticatorKeychainItem.biometrics(userId: "user-1").unformattedKey,
-        )
+        #expect(keychainServiceFacade.setValueReceivedArguments?.value == "biometric-key")
+
+        let actualReceivedItem = keychainServiceFacade.setValueReceivedArguments?.item as? AuthenticatorKeychainItem
+        let expectedReceivedItem = AuthenticatorKeychainItem.biometrics(userId: "user-1")
+        #expect(actualReceivedItem == expectedReceivedItem)
     }
 
     /// `setUserBiometricAuthKey(userId:value:)` rethrows errors from the façade.
-    ///
-    func test_setUserBiometricAuthKey_rethrows() async {
-        let error = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
-        keychainServiceFacade.setValueThrowableError = error
+    @Test
+    func setUserBiometricAuthKey_rethrows() async {
+        let expectedError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
+        keychainServiceFacade.setValueThrowableError = expectedError
 
-        await assertAsyncThrows(error: error) {
+        await #expect(throws: expectedError) {
             try await subject.setUserBiometricAuthKey(userId: "user-1", value: "biometric-key")
         }
     }
