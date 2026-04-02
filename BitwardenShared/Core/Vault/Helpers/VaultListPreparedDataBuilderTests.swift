@@ -593,7 +593,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     /// does not have premium access.
     func test_addSearchResultItem_totpGroup_noPremiumAccess() async {
         let cipher = CipherListView.fixture(id: "4", type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
-        stateService.doesActiveAccountHavePremiumResult = false
+        totpService.isTotpAuthorizedResult = false
 
         let preparedData = await subject
             .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)
