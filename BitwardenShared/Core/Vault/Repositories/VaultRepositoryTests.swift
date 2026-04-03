@@ -1087,6 +1087,20 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertNil(totpKey)
     }
 
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher has TOTP key,
+    /// and cipher organization doesn't use TOTP and active account doesn't have premiium.
+    func test_getTOTPKeyIfAllowedToCopy_totpNotAuthorized_returnsNil() async throws {
+        stateService.activeAccount = .fixture()
+        totpService.isTotpAuthorizedResult = false
+
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: "123"),
+            organizationUseTotp: false,
+        ))
+
+        XCTAssertNil(totpKey)
+    }
+
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` throws when no active account.
     func test_getTOTPKeyIfAllowedToCopy_throws() async throws {
         stateService.activeAccount = nil
