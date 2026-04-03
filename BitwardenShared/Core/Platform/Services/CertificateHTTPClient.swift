@@ -42,6 +42,37 @@ final class CertificateHTTPClient: NSObject, HTTPClient, @unchecked Sendable {
         // Use the URLSession extension method
         try await urlSession.send(request)
     }
+
+    // MARK: Private
+
+    /// Handles a `URLAuthenticationChallenge` by providing a client certificate credential when
+    /// available, or falling back to default handling.
+    ///
+    /// - Parameter challenge: The authentication challenge to handle.
+    /// - Returns: A tuple containing the disposition and an optional credential. If the challenge
+    ///   is not for a client certificate, or no identity is available, returns
+    ///   `(.performDefaultHandling, nil)`. Otherwise returns `(.useCredential, credential)`.
+    ///
+    private func handle(
+        _ challenge: URLAuthenticationChallenge,
+    ) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+        // Handle client certificate authentication challenges
+        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate else {
+            return (.performDefaultHandling, nil)
+        }
+
+        guard let identity = await certificateService.getClientCertificateIdentity() else {
+            return (.performDefaultHandling, nil)
+        }
+
+        // Create the credential with the identity
+        let credential = URLCredential(
+            identity: identity,
+            certificates: nil,
+            persistence: .forSession,
+        )
+        return (.useCredential, credential)
+    }
 }
 
 // MARK: - URLSessionDelegate & URLSessionTaskDelegate
@@ -70,26 +101,5 @@ extension CertificateHTTPClient: URLSessionDelegate, URLSessionTaskDelegate {
         didReceive challenge: URLAuthenticationChallenge,
     ) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
         await handle(challenge)
-    }
-
-    private func handle(
-        _ challenge: URLAuthenticationChallenge,
-    ) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-        // Handle client certificate authentication challenges
-        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodClientCertificate else {
-            return (.performDefaultHandling, nil)
-        }
-
-        guard let identity = await certificateService.getClientCertificateIdentity() else {
-            return (.performDefaultHandling, nil)
-        }
-
-        // Create the credential with the identity
-        let credential = URLCredential(
-            identity: identity,
-            certificates: nil,
-            persistence: .forSession,
-        )
-        return (.useCredential, credential)
     }
 }
