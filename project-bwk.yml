@@ -69,6 +69,7 @@ targets:
         SWIFT_STRICT_CONCURRENCY: complete
     templates:
       - CommonTarget
+      - SourceryTarget
     templateAttributes:
       sourcesPath: AuthenticatorBridgeKit
     dependencies:
@@ -103,6 +104,9 @@ targets:
       - MocksTarget
     templateAttributes:
       sourcesPath: AuthenticatorBridgeKit
+    sources:
+      - path: AuthenticatorBridgeKit/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
     dependencies:
       - target: AuthenticatorBridgeKit
       - target: BitwardenKit

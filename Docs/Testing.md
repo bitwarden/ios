@@ -549,6 +549,9 @@ protocol ExampleService { // sourcery: AutoMockable
 #### Generated Mock Location
 
 Mocks are generated in:
+- `AuthenticatorBridgeKit/Sourcery/Generated/AutoMockable.generated.swift`
+- `AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift`
+- `BitwardenKit/Sourcery/Generated/AutoMockable.generated.swift`
 - `BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift`
 
 #### Using Generated Mocks

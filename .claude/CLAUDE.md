@@ -63,6 +63,7 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 │           └── Utilities/              # Store, Processor, Coordinator, Alert
 ├── BitwardenResources/                 # Shared assets, fonts, localizations
 ├── AuthenticatorBridgeKit/             # PM ↔ Authenticator communication
+│   └── Sourcery/                       # Mock generation config + output
 ├── Networking/                         # URLSession-based networking (Swift package)
 ├── BitwardenAutoFillExtension/         # AutoFill Credential Provider extension
 ├── BitwardenActionExtension/           # Action extension (autofill via share sheet)
