@@ -8,7 +8,7 @@ import Security
 
 /// A service for managing client certificates used for mTLS authentication.
 ///
-protocol ClientCertificateService: AnyObject {
+protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
     /// Import a client certificate from PKCS#12 data.
     ///
     /// Parses the certificate, stores the identity in the Keychain, and updates the current
@@ -50,7 +50,7 @@ protocol ClientCertificateService: AnyObject {
     ///
     /// - Parameter userId: The user ID of the account being removed.
     ///
-    func removeCertificate(userId: String) async throws
+    func removeCertificate(userId: String) async throws // sourcery: useSelectorName
 
     /// Gets the client certificate identity for mTLS authentication from the current environment.
     ///
