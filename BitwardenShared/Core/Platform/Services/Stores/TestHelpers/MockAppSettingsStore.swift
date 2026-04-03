@@ -5,8 +5,8 @@ import Foundation
 @testable import BitwardenShared
 
 // swiftlint:disable file_length
-// swiftlint:disable:next type_body_length
-class MockAppSettingsStore: AppSettingsStore {
+
+class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()

@@ -379,7 +379,7 @@ class DefaultKeychainRepository: KeychainRepository {
         let string = try await getValue(for: item)
 
         guard let jsonData = string.data(using: .utf8) else {
-            throw BitwardenKit.BitwardenError.dataError("JSON string contains invalid UTF-8 encoding.")
+            throw BitwardenError.dataError("JSON string contains invalid UTF-8 encoding.")
         }
 
         return try JSONDecoder.defaultDecoder.decode(T.self, from: jsonData)
@@ -454,7 +454,7 @@ class DefaultKeychainRepository: KeychainRepository {
     func setValue<T: Codable>(_ value: T, for item: BitwardenKeychainItem) async throws {
         let jsonData = try JSONEncoder.defaultEncoder.encode(value)
         guard let jsonString = String(data: jsonData, encoding: .utf8) else {
-            throw BitwardenKit.BitwardenError.dataError("JSON data is not valid.")
+            throw BitwardenError.dataError("JSON data is not valid.")
         }
         try await setValue(jsonString, for: item)
     }

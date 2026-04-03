@@ -16,7 +16,7 @@ protocol SelfHostedProcessorDelegate: AnyObject {
 
 /// The processor used to manage state and handle actions for the self-hosted environment configuration.
 ///
-class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, SelfHostedEffect> {
+final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, SelfHostedEffect> {
     // MARK: Types
 
     typealias Services = HasClientCertificateService & HasEnvironmentService
