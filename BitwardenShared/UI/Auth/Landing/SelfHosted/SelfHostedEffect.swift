@@ -5,9 +5,6 @@ import Foundation
 /// Effects performed by the `SelfHostedProcessor`.
 ///
 enum SelfHostedEffect: Equatable {
-    /// The view appeared.
-    case appeared
-
     /// Import a client certificate with the given data, alias, and password.
     case importClientCertificate(data: Data, alias: String, password: String)
 

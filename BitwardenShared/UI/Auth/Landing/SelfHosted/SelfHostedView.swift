@@ -42,9 +42,6 @@ struct SelfHostedView: View {
                 await store.perform(.saveEnvironment)
             }
         }
-        .task {
-            await store.perform(.appeared)
-        }
         .fileImporter(
             isPresented: store.binding(
                 get: \.showingCertificateImporter,

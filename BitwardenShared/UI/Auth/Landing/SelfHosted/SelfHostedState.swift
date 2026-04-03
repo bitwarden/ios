@@ -42,6 +42,9 @@ struct SelfHostedState: Equatable {
     /// The alias of the currently configured client certificate.
     var keyAlias: String = ""
 
+    /// The SHA-256 fingerprint of the currently configured client certificate.
+    var keyFingerprint: String = ""
+
     // MARK: Certificate Import Dialog
 
     /// The active dialog state for the client certificate section.

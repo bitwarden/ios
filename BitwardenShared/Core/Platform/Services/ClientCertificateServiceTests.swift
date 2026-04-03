@@ -132,23 +132,36 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
         XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [])
     }
 
-    // MARK: Tests - removeCertificate()
+    // MARK: Tests - removeCertificate(fingerprint:)
 
-    /// `removeCertificate()` clears cert info from the current environment and deletes the keychain
-    /// identity when no other account references it.
-    func test_removeCertificate_currentEnvironment_deletesKeychainIdentity() async throws {
+    /// `removeCertificate(fingerprint:)` deletes the keychain identity when no other account
+    /// references the given fingerprint.
+    func test_removeCertificate_fingerprint_deletesKeychainIdentity() async throws {
         let fingerprint = "current-env-fingerprint"
 
-        environmentService.clientCertificateFingerprint = fingerprint
-        environmentService.clientCertificateAlias = "My Cert"
         stateService.accounts = []
 
-        try await subject.removeCertificate()
+        try await subject.removeCertificate(fingerprint: fingerprint)
 
-        XCTAssertTrue(environmentService.updateClientCertificateInfoCalled)
-        XCTAssertNil(environmentService.updateClientCertificateInfoFingerprint)
-        XCTAssertNil(environmentService.updateClientCertificateInfoAlias)
         XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [fingerprint])
+    }
+
+    /// `removeCertificate(fingerprint:)` keeps the keychain identity when another account
+    /// references the same fingerprint.
+    func test_removeCertificate_fingerprint_sharedFingerprint_doesNotDeleteKeychainIdentity() async throws {
+        let user1 = "1"
+        let fingerprint = "shared-fingerprint"
+
+        stateService.accounts = [.fixture(profile: .fixture(userId: user1))]
+        stateService.environmentURLs[user1] = EnvironmentURLData(
+            base: URL(string: "https://example.com"),
+            clientCertificateAlias: "Cert A",
+            clientCertificateFingerprint: fingerprint,
+        )
+
+        try await subject.removeCertificate(fingerprint: fingerprint)
+
+        XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [])
     }
 
     // MARK: Tests - getClientCertificateIdentity()

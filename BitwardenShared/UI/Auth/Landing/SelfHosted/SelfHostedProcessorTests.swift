@@ -4,10 +4,12 @@ import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class SelfHostedProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var clientCertificateService: MockClientCertificateService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockSelfHostedProcessorDelegate!
     var services: ServiceContainer!
@@ -16,9 +18,12 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     // MARK: Setup and Teardown
 
     override func setUp() {
+        clientCertificateService = MockClientCertificateService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockSelfHostedProcessorDelegate()
-        services = ServiceContainer.withMocks()
+        services = ServiceContainer.withMocks(
+            clientCertificateService: clientCertificateService,
+        )
         subject = SelfHostedProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
@@ -30,6 +35,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     }
 
     override func tearDown() {
+        clientCertificateService = nil
         coordinator = nil
         delegate = nil
         services = nil
@@ -78,6 +84,25 @@ class SelfHostedProcessorTests: BitwardenTestCase {
             ),
         )
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
+    }
+
+    /// `perform(_:)` with `.saveEnvironment` includes certificate alias and fingerprint from state.
+    @MainActor
+    func test_perform_saveEnvironment_withCertificate() async throws {
+        subject.state.serverUrl = "vault.bitwarden.com"
+        subject.state.keyAlias = "My Cert"
+        subject.state.keyFingerprint = "abc123"
+
+        await subject.perform(.saveEnvironment)
+
+        XCTAssertEqual(
+            delegate.savedUrls,
+            EnvironmentURLData(
+                base: URL(string: "https://vault.bitwarden.com")!,
+                clientCertificateAlias: "My Cert",
+                clientCertificateFingerprint: "abc123",
+            ),
+        )
     }
 
     /// `perform(_:)` with `.saveEnvironment` displays an alert if any of the URLs are invalid.
@@ -229,6 +254,77 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         } else {
             XCTFail("Expected error dialog")
         }
+    }
+
+    /// `perform(_:)` with `.importClientCertificate` shows an error dialog on invalid password.
+    @MainActor
+    func test_perform_importClientCertificate_invalidPassword() async throws {
+        clientCertificateService.importCertificateThrowableError = ClientCertificateError.invalidPassword
+
+        await subject.perform(.importClientCertificate(data: Data(), alias: "My Cert", password: "wrong"))
+
+        XCTAssertEqual(
+            subject.state.dialog,
+            .error(message: Localizations.theCertificatePasswordIsIncorrect),
+        )
+    }
+
+    /// `perform(_:)` with `.importClientCertificate` cleans up the replaced certificate's keychain
+    /// entry when the new fingerprint differs from the previous one.
+    @MainActor
+    func test_perform_importClientCertificate_replacesOldCert() async throws {
+        subject.state.keyAlias = "Old Cert"
+        subject.state.keyFingerprint = "old-fingerprint"
+        clientCertificateService.importCertificateReturnValue = "new-fingerprint"
+
+        await subject.perform(.importClientCertificate(data: Data([0x01]), alias: "New Cert", password: "pass"))
+
+        XCTAssertEqual(subject.state.keyAlias, "New Cert")
+        XCTAssertEqual(subject.state.keyFingerprint, "new-fingerprint")
+        XCTAssertEqual(clientCertificateService.removeCertificateFingerprintReceivedFingerprint, "old-fingerprint")
+    }
+
+    /// `perform(_:)` with `.importClientCertificate` updates alias and fingerprint in state on success.
+    @MainActor
+    func test_perform_importClientCertificate_success() async throws {
+        let data = Data([0x01, 0x02])
+        clientCertificateService.importCertificateReturnValue = "fingerprint-xyz"
+
+        await subject.perform(.importClientCertificate(data: data, alias: "My Cert", password: "pass"))
+
+        XCTAssertEqual(subject.state.keyAlias, "My Cert")
+        XCTAssertEqual(subject.state.keyFingerprint, "fingerprint-xyz")
+        XCTAssertNil(subject.state.dialog)
+        XCTAssertNil(subject.state.pendingCertificateData)
+        // No previous cert to clean up.
+        XCTAssertFalse(clientCertificateService.removeCertificateFingerprintCalled)
+    }
+
+    /// `perform(_:)` with `.removeClientCertificate` shows an alert on failure.
+    @MainActor
+    func test_perform_removeClientCertificate_failure() async throws {
+        subject.state.keyAlias = "My Cert"
+        subject.state.keyFingerprint = "fp-123"
+        clientCertificateService.removeCertificateFingerprintThrowableError =
+            NSError(domain: "test", code: 1, userInfo: [NSLocalizedDescriptionKey: "Remove failed"])
+
+        await subject.perform(.removeClientCertificate)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
+    }
+
+    /// `perform(_:)` with `.removeClientCertificate` clears alias and fingerprint from state.
+    @MainActor
+    func test_perform_removeClientCertificate_success() async throws {
+        subject.state.keyAlias = "My Cert"
+        subject.state.keyFingerprint = "fp-123"
+
+        await subject.perform(.removeClientCertificate)
+
+        XCTAssertEqual(subject.state.keyAlias, "")
+        XCTAssertEqual(subject.state.keyFingerprint, "")
+        XCTAssertEqual(clientCertificateService.removeCertificateFingerprintReceivedFingerprint, "fp-123")
     }
 }
 

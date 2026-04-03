@@ -11,20 +11,21 @@ import Security
 protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
     /// Import a client certificate from PKCS#12 data.
     ///
-    /// Parses the certificate, stores the identity in the Keychain, and updates the current
-    /// environment URLs with the certificate fingerprint and alias.
+    /// Parses the certificate, stores the identity in the Keychain, and returns the SHA-256
+    /// fingerprint of the imported certificate.
     ///
     /// - Parameters:
     ///   - data: The PKCS#12 certificate data.
     ///   - password: The password for the certificate.
     ///   - alias: The human-readable label to associate with the certificate.
+    /// - Returns: The SHA-256 fingerprint of the imported certificate.
     /// - Throws: An error if the certificate cannot be imported.
     ///
     func importCertificate(
         data: Data,
         password: String,
         alias: String,
-    ) async throws
+    ) async throws -> String
 
     /// Gets the human-readable alias for the currently configured client certificate.
     ///
@@ -35,12 +36,13 @@ protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
     ///
     func getCertificateAlias() async -> String?
 
-    /// Removes the client certificate for the current environment.
+    /// Removes the client certificate with the given fingerprint from the Keychain if no other
+    /// account still references it.
     ///
-    /// Clears the certificate info from the environment URLs and deletes the Keychain identity
-    /// if no other account still references it.
+    /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate to remove.
     ///
-    func removeCertificate() async throws
+    /// sourcery: useSelectorName
+    func removeCertificate(fingerprint: String) async throws
 
     /// Removes the client certificate for a specific user account.
     ///
@@ -50,7 +52,8 @@ protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
     ///
     /// - Parameter userId: The user ID of the account being removed.
     ///
-    func removeCertificate(userId: String) async throws // sourcery: useSelectorName
+    /// sourcery: useSelectorName
+    func removeCertificate(userId: String) async throws
 
     /// Gets the client certificate identity for mTLS authentication from the current environment.
     ///
@@ -109,7 +112,7 @@ final class DefaultClientCertificateService: ClientCertificateService {
         data: Data,
         password: String,
         alias: String,
-    ) async throws {
+    ) async throws -> String {
         let importOptions: [String: Any] = [
             kSecImportExportPassphrase as String: password,
         ]
@@ -132,9 +135,6 @@ final class DefaultClientCertificateService: ClientCertificateService {
         let identity = identityRef as! SecIdentity // swiftlint:disable:this force_cast
         let fingerprint = try certificateFingerprint(for: identity)
 
-        // Capture the previous fingerprint from the current environment for old cert cleanup.
-        let previousFingerprint = environmentService.clientCertificateFingerprint
-
         // Only add to Keychain if this certificate isn't already stored.
         // Multiple users may share the same certificate — keyed by fingerprint, not userId.
         let existing = try await keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)
@@ -142,17 +142,7 @@ final class DefaultClientCertificateService: ClientCertificateService {
             try await keychainRepository.setClientCertificateIdentity(identity, fingerprint: fingerprint)
         }
 
-        // Update the environment URLs with the new certificate info.
-        await environmentService.updateClientCertificateInfo(fingerprint: fingerprint, alias: alias)
-
-        // If the user replaced a different certificate, clean up the old Keychain item
-        // as long as no other account still references it.
-        if let previousFingerprint, previousFingerprint != fingerprint {
-            let oldStillInUse = await isFingerprintInUse(previousFingerprint)
-            if !oldStillInUse {
-                try await keychainRepository.deleteClientCertificateIdentity(fingerprint: previousFingerprint)
-            }
-        }
+        return fingerprint
     }
 
     func getCertificateAlias() async -> String? {
@@ -170,15 +160,7 @@ final class DefaultClientCertificateService: ClientCertificateService {
         return alias
     }
 
-    func removeCertificate() async throws {
-        // Capture the fingerprint from the current environment before clearing.
-        let fingerprint = environmentService.clientCertificateFingerprint
-
-        // Clear certificate info from the current environment URLs.
-        await environmentService.updateClientCertificateInfo(fingerprint: nil, alias: nil)
-
-        guard let fingerprint else { return }
-
+    func removeCertificate(fingerprint: String) async throws {
         // Only delete the Keychain item if no other account still references this certificate.
         let inUse = await isFingerprintInUse(fingerprint)
         if !inUse {

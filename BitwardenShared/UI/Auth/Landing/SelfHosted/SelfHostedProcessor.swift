@@ -19,7 +19,7 @@ protocol SelfHostedProcessorDelegate: AnyObject {
 final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, SelfHostedEffect> {
     // MARK: Types
 
-    typealias Services = HasClientCertificateService & HasEnvironmentService
+    typealias Services = HasClientCertificateService
 
     // MARK: Private Properties
 
@@ -59,8 +59,6 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
 
     override func perform(_ effect: SelfHostedEffect) async {
         switch effect {
-        case .appeared:
-            await loadCertificateState()
         case let .importClientCertificate(data, alias, password):
             await importClientCertificate(data: data, alias: alias, password: password)
         case .removeClientCertificate:
@@ -208,12 +206,18 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     ///
     private func importClientCertificate(data: Data, alias: String, password: String) async {
         do {
-            try await services.clientCertificateService.importCertificate(
+            let previousFingerprint = state.keyFingerprint.nilIfEmpty
+            let fingerprint = try await services.clientCertificateService.importCertificate(
                 data: data,
                 password: password,
                 alias: alias,
             )
+            // If the user replaced a different certificate, clean up the old Keychain item.
+            if let previousFingerprint, previousFingerprint != fingerprint {
+                try? await services.clientCertificateService.removeCertificate(fingerprint: previousFingerprint)
+            }
             state.keyAlias = alias
+            state.keyFingerprint = fingerprint
             state.dialog = nil
             state.pendingCertificateData = nil
         } catch ClientCertificateError.invalidPassword {
@@ -223,13 +227,6 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
         } catch {
             state.dialog = .error(message: Localizations.theCertificateCouldNotBeInstalled)
         }
-    }
-
-    /// Loads the current certificate state from the service and updates the UI state.
-    ///
-    private func loadCertificateState() async {
-        let alias = await services.clientCertificateService.getCertificateAlias()
-        state.keyAlias = alias ?? ""
     }
 
     /// Saves the environment URLs if they are valid or presents an alert if any are invalid.
@@ -245,8 +242,8 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
         let urls = EnvironmentURLData(
             api: URL(string: state.apiServerUrl)?.sanitized,
             base: URL(string: state.serverUrl)?.sanitized,
-            clientCertificateAlias: services.environmentService.clientCertificateAlias,
-            clientCertificateFingerprint: services.environmentService.clientCertificateFingerprint,
+            clientCertificateAlias: state.keyAlias.nilIfEmpty,
+            clientCertificateFingerprint: state.keyFingerprint.nilIfEmpty,
             events: nil as URL?,
             icons: URL(string: state.iconsServerUrl)?.sanitized,
             identity: URL(string: state.identityServerUrl)?.sanitized,
@@ -263,8 +260,11 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     ///
     private func removeClientCertificate() async {
         do {
-            try await services.clientCertificateService.removeCertificate()
+            if let fingerprint = state.keyFingerprint.nilIfEmpty {
+                try await services.clientCertificateService.removeCertificate(fingerprint: fingerprint)
+            }
             state.keyAlias = ""
+            state.keyFingerprint = ""
         } catch {
             coordinator.showAlert(Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,

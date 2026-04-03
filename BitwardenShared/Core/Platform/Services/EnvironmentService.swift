@@ -83,21 +83,6 @@ class DefaultEnvironmentService: EnvironmentService {
         Logger.application.info("Setting pre-auth URLs: \(String(describing: self.environmentURLs))")
     }
 
-    func updateClientCertificateInfo(fingerprint: String?, alias: String?) async {
-        let updatedData = EnvironmentURLData(
-            api: environmentURLData.api,
-            base: environmentURLData.base,
-            clientCertificateAlias: alias,
-            clientCertificateFingerprint: fingerprint,
-            events: environmentURLData.events,
-            icons: environmentURLData.icons,
-            identity: environmentURLData.identity,
-            notifications: environmentURLData.notifications,
-            webVault: environmentURLData.webVault,
-        )
-        await setPreAuthURLs(urls: updatedData)
-    }
-
     // MARK: Private
 
     /// Returns the URLs that are specified as part of a managed app configuration.

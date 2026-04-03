@@ -68,12 +68,4 @@ public protocol EnvironmentService {
     /// - Parameter urls: The URLs to set and use prior to user authentication.
     ///
     func setPreAuthURLs(urls: EnvironmentURLData) async
-
-    /// Updates the client certificate information in the current environment URLs.
-    ///
-    /// - Parameters:
-    ///   - fingerprint: The SHA-256 fingerprint of the certificate, or nil to clear.
-    ///   - alias: The human-readable alias for the certificate, or nil to clear.
-    ///
-    func updateClientCertificateInfo(fingerprint: String?, alias: String?) async
 }

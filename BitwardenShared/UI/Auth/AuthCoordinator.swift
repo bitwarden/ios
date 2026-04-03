@@ -659,6 +659,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 identityServerUrl: preAuthEnvironmentURLs.identity?.sanitized.description ?? "",
                 serverUrl: preAuthEnvironmentURLs.base?.sanitized.description ?? "",
                 webVaultServerUrl: preAuthEnvironmentURLs.webVault?.sanitized.description ?? "",
+                keyAlias: preAuthEnvironmentURLs.clientCertificateAlias ?? "",
+                keyFingerprint: preAuthEnvironmentURLs.clientCertificateFingerprint ?? "",
             )
         }
 
