@@ -27,15 +27,6 @@ protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
         alias: String,
     ) async throws -> String
 
-    /// Gets the human-readable alias for the currently configured client certificate.
-    ///
-    /// Returns the alias from the current environment if the certificate identity still
-    /// exists in the Keychain.
-    ///
-    /// - Returns: The certificate alias, or `nil` if none is configured or the Keychain identity is missing.
-    ///
-    func getCertificateAlias() async -> String?
-
     /// Removes the client certificate with the given fingerprint from the Keychain if no other
     /// account still references it.
     ///
@@ -63,12 +54,6 @@ protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
     /// - Returns: A `SecIdentity` for the certificate, or `nil` if none is configured.
     ///
     func getClientCertificateIdentity() async -> SecIdentity?
-
-    /// Checks if client certificates are currently enabled and configured for the active environment.
-    ///
-    /// - Returns: `true` if client certificates should be used for authentication.
-    ///
-    func shouldUseCertificates() async -> Bool
 }
 
 // MARK: - DefaultClientCertificateService
@@ -145,21 +130,6 @@ final class DefaultClientCertificateService: ClientCertificateService {
         return fingerprint
     }
 
-    func getCertificateAlias() async -> String? {
-        guard let alias = environmentService.clientCertificateAlias,
-              !alias.isEmpty else {
-            return nil
-        }
-
-        // Verify the identity still exists in Keychain.
-        guard let fingerprint = environmentService.clientCertificateFingerprint,
-              await (try? keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)) != nil else {
-            return nil
-        }
-
-        return alias
-    }
-
     func removeCertificate(fingerprint: String) async throws {
         // Only delete the Keychain item if no other account still references this certificate.
         let inUse = await isFingerprintInUse(fingerprint)
@@ -188,10 +158,6 @@ final class DefaultClientCertificateService: ClientCertificateService {
             return nil
         }
         return try? await keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)
-    }
-
-    func shouldUseCertificates() async -> Bool {
-        await getClientCertificateIdentity() != nil
     }
 
     // MARK: Private

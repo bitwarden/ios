@@ -184,25 +184,4 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         XCTAssertNil(result)
     }
-
-    // MARK: Tests - getCertificateAlias()
-
-    /// `getCertificateAlias()` returns nil when no alias is in the environment.
-    func test_getCertificateAlias_noAlias_returnsNil() async {
-        environmentService.clientCertificateAlias = nil
-
-        let result = await subject.getCertificateAlias()
-
-        XCTAssertNil(result)
-    }
-
-    /// `getCertificateAlias()` returns nil when the alias is set but the keychain identity is missing.
-    func test_getCertificateAlias_aliasSetButKeychainMissing_returnsNil() async {
-        environmentService.clientCertificateAlias = "My Cert"
-        environmentService.clientCertificateFingerprint = "missing-from-keychain"
-
-        let result = await subject.getCertificateAlias()
-
-        XCTAssertNil(result)
-    }
 }
