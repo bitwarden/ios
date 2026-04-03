@@ -214,7 +214,6 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
                 alias: alias,
             )
             state.keyAlias = alias
-            state.keyHost = .keychain
             state.dialog = nil
             state.pendingCertificateData = nil
         } catch ClientCertificateError.invalidPassword {
@@ -231,7 +230,6 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     private func loadCertificateState() async {
         let alias = await services.clientCertificateService.getCertificateAlias()
         state.keyAlias = alias ?? ""
-        state.keyHost = alias != nil ? .keychain : nil
     }
 
     /// Saves the environment URLs if they are valid or presents an alert if any are invalid.
@@ -267,7 +265,6 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
         do {
             try await services.clientCertificateService.removeCertificate()
             state.keyAlias = ""
-            state.keyHost = nil
         } catch {
             coordinator.showAlert(Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,

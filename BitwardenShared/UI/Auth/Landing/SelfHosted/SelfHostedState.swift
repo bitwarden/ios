@@ -1,12 +1,5 @@
 import Foundation
 
-/// The storage host type for a mutual TLS client certificate key.
-///
-enum MutualTlsKeyHost: String {
-    /// The certificate identity was imported and is stored in the app's keychain.
-    case keychain = "KEYCHAIN"
-}
-
 // MARK: - SelfHostedState
 
 /// An object that defines the current state of a `SelfHostedView`.
@@ -48,15 +41,6 @@ struct SelfHostedState: Equatable {
 
     /// The alias of the currently configured client certificate.
     var keyAlias: String = ""
-
-    /// The storage host for the currently configured client certificate key.
-    var keyHost: MutualTlsKeyHost?
-
-    /// A URI encoding the key host and alias (e.g. `cert://KEYCHAIN/myAlias`).
-    var keyUri: String? {
-        guard let keyHost, !keyAlias.isEmpty else { return nil }
-        return "cert://\(keyHost.rawValue)/\(keyAlias)"
-    }
 
     // MARK: Certificate Import Dialog
 
