@@ -74,9 +74,6 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// Whether the user has a premium account.
     var hasPremium = false
 
-    /// Whether the send email verification feature flag is enabled.
-    var isSendEmailVerificationEnabled = false
-
     /// Whether sends are disabled via a policy.
     var isSendDisabled = false
 
@@ -120,16 +117,6 @@ struct AddEditSendItemState: Equatable, Sendable {
     var type: SendType = .text
 
     // MARK: Computed Properties
-
-    /// The access type options available in the menu.
-    /// The "Specific People" option is shown when the feature flag is enabled (for all users).
-    var availableAccessTypes: [SendAccessType] {
-        if isSendEmailVerificationEnabled {
-            SendAccessType.allCases
-        } else {
-            [.anyoneWithLink, .anyoneWithPassword]
-        }
-    }
 
     /// The recipient emails filtered to remove empty entries and normalized
     /// (trimmed whitespace and lowercased) for validation and API submission.
