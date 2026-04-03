@@ -473,4 +473,4 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/verify-otp")
     }
-}
+} // swiftlint:disable:this file_length

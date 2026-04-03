@@ -993,7 +993,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getProfilesState()` can return locked accounts correctly on timeout `.never`.
-    func test_getProfilesState_lockedOnNeverLock() async {
+    func test_getProfilesState_lockedOnNeverLock() async { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -1572,7 +1572,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
     /// unlocks the vault.
-    func test_setMasterPassword_TDE() async throws {
+    func test_setMasterPassword_TDE() async throws { // swiftlint:disable:this function_body_length
         var account = Account.fixtureWithTDE()
         account.profile.userDecryptionOptions?.masterPasswordUnlock = .fixture()
         client.result = .httpSuccess(testData: .emptyResponse)

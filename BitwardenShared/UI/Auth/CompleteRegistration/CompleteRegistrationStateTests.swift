@@ -15,8 +15,9 @@ class CompleteRegistrationStateTests: BitwardenTestCase {
 
         XCTAssertTrue(subject.doesMasterPasswordMatchHint)
     }
-    
-    /// `doesMasterPasswordMatchHint` returns `true` if the password and hint match after trimming whitespace from the hint.
+
+    /// `doesMasterPasswordMatchHint` returns `true` if the password and hint match after
+    /// trimming whitespace from the hint.
     func test_doesMasterPasswordMatchHint_whenWhitespaceDifference_returnsTrue() {
         var subject = CompleteRegistrationState(
             emailVerificationToken: "",
@@ -54,7 +55,7 @@ class CompleteRegistrationStateTests: BitwardenTestCase {
 
         XCTAssertFalse(subject.continueButtonEnabled)
     }
-    
+
     /// `continueButtonEnabled` returns `false` when password is too short.
     func test_isContinueButtonEnabled_whenPasswordShort_returnsFalse() {
         var subject = CompleteRegistrationState(
@@ -67,7 +68,7 @@ class CompleteRegistrationStateTests: BitwardenTestCase {
 
         XCTAssertFalse(subject.continueButtonEnabled)
     }
-    
+
     /// `continueButtonEnabled` returns `true` when password is valid .
     func test_isContinueButtonEnabled_validPassword_returnsTrue() {
         var subject = CompleteRegistrationState(

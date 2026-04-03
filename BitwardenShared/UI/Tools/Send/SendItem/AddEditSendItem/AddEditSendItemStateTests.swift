@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AddEditSendItemStateTests: BitwardenTestCase {
+class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     // MARK: availableAccessTypes

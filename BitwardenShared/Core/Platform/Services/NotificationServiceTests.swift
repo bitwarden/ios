@@ -558,6 +558,29 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(delegate.showLoginRequestRequest, .fixture())
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` clears the login request from state
+    /// when the server returns 404 (request expired) for a same-account login request notification.
+    @MainActor
+    func test_messageReceived_loginRequest_sameAccount_notFound() async throws {
+        stateService.setIsAuthenticated()
+        stateService.accounts = [.fixture()]
+        appIDSettingsStore.appID = "10"
+        authService.getPendingLoginRequestResult = .failure(PendingLoginRequestError.notFound)
+        let loginRequestNotification = LoginRequestNotification(id: "requestId", userId: "1")
+        let notificationData = try JSONEncoder().encode(loginRequestNotification)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.authRequest.rawValue,
+                "payload": String(data: notificationData, encoding: .utf8) ?? "",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertNil(stateService.loginRequest)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` handles logout requests and will not route
     /// to the landing screen if the logged-out account was not the currently active account.
     @MainActor
@@ -886,6 +909,30 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
 
         XCTAssertEqual(delegate.showLoginRequestRequest, .fixture(id: "requestId"))
+    }
+
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` clears the login request from state
+    /// when the server returns 404 (request expired) for a same-account notification tap.
+    @MainActor
+    func test_messageReceived_notificationTapped_sameAccount_notFound() async throws {
+        stateService.accounts = [.fixture()]
+        stateService.activeAccount = .fixture()
+        stateService.loginRequest = LoginRequestNotification(id: "requestId", userId: "1")
+        authService.getPendingLoginRequestResult = .failure(PendingLoginRequestError.notFound)
+        let loginRequest = LoginRequestPushNotification(
+            id: "requestId",
+            timeoutInMinutes: 15,
+            userId: Account.fixture().profile.userId,
+        )
+        let testData = try JSONEncoder().encode(loginRequest)
+        nonisolated(unsafe) let message: [AnyHashable: Any] = [
+            "notificationData": String(data: testData, encoding: .utf8) ?? "",
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: true)
+
+        XCTAssertNil(stateService.loginRequest)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 }
 
