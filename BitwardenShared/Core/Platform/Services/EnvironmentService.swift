@@ -105,10 +105,6 @@ extension DefaultEnvironmentService {
         environmentURLs.apiURL
     }
 
-    var clientCertificateAlias: String? {
-        environmentURLData.clientCertificateAlias
-    }
-
     var clientCertificateFingerprint: String? {
         environmentURLData.clientCertificateFingerprint
     }

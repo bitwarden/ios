@@ -10,7 +10,6 @@ public class MockEnvironmentService: EnvironmentService {
     public var apiURL = URL(string: "https://example.com/api")!
     public var baseURL = URL(string: "https://example.com")!
     public var changeEmailURL = URL(string: "https://example.com/#/settings/account")!
-    public var clientCertificateAlias: String?
     public var clientCertificateFingerprint: String?
     public var eventsURL = URL(string: "https://example.com/events")!
     public var iconsURL = URL(string: "https://example.com/icons")!

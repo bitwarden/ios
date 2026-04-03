@@ -14,9 +14,6 @@ public protocol EnvironmentService {
     /// The URL for changing email address.
     var changeEmailURL: URL { get }
 
-    /// The human-readable alias for the client certificate used for mTLS, if configured.
-    var clientCertificateAlias: String? { get }
-
     /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
     var clientCertificateFingerprint: String? { get }
 
