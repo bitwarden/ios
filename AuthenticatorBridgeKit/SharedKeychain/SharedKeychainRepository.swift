@@ -34,7 +34,7 @@ public enum SharedKeychainItem: Equatable, KeychainItem {
 
 /// A repository for managing keychain items to be shared between Password Manager and Authenticator.
 /// This should be the entry point in retrieving items from the shared keychain.
-public protocol SharedKeychainRepository {
+public protocol SharedKeychainRepository { // sourcery: AutoMockable
     // MARK: AccountAutoLogoutTime
 
     /// Gets when a user account should automatically log out.
