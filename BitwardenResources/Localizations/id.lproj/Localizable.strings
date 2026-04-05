@@ -208,7 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Cara termudah menambahkan login baru ke brankas Anda adalah melalui Layanan Isi Otomatis Bitwarden. Pelajari lebih lanjut penggunaan Layanan Isi Otomatis Bitwarden dengan membuka menu \"Pengaturan\".";
 "Autofill" = "Isi otomatis";
-"AutofillEnabled" = "Autofill enabled";
+"AutofillEnabled" = "Isi otomatis diaktifkan";
 "AutofillOrView" = "Anda ingin mengisi otomatis atau melihat item ini?";
 "BitwardenAutofillServiceMatchConfirm" = "Anda yakin ingin mengisi otomatis info masuk ini? Ini tidak sepenuhnya cocok untuk \"%1$@\".";
 "MatchingItems" = "Item yang cocok";
@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "Learn more about autofill";
 "TurnOnNow" = "Turn on now";
 "AcceptTransfer" = "Accept transfer";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "Learn more about autofill";
 "TurnOnNow" = "Turn on now";
 "AcceptTransfer" = "転送を承認する";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "パスワードとヒントを同じにすることはできません。別のヒントを選択してください。";

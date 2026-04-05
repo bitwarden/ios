@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "További információ az automatikus kitöltésről";
 "TurnOnNow" = "Bekapcsolás most";
 "AcceptTransfer" = "Átvitel elfogadása";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "A jelszó és a tipp nem lehet ugyanaz. Válasszunk más tippet.";

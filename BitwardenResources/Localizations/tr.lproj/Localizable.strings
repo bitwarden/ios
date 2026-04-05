@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "Otomatik doldurma hakkında bilgi alın";
 "TurnOnNow" = "Şimdi etkinleştir";
 "AcceptTransfer" = "Aktarımı kabul et";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

@@ -994,7 +994,7 @@
 "GetStarted" = "开始使用";
 "Dismiss" = "忽略";
 "SaveAndProtectYourData" = "保存和保护您的数据";
-"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "密码库不仅保护您的密码。在这里可以安全地存储登录、ID、支付卡和笔记。";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "密码库不仅保护您的密码。在这里还可以安全地存储登录、ID、支付卡和笔记。";
 "SendSensitiveInformationSafely" = "安全地发送敏感信息";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。";
 "NewLogin" = "新增登录";
@@ -1108,7 +1108,7 @@
 "WebsiteURI" = "网站 (URI)";
 "AddWebsite" = "添加网站";
 "CannotDeleteAccount" = "无法删除账户";
-"CannotDeleteAccountDescriptionLong" = "此操作无法完成，因为您的账户归组织所有。请联系您的组织管理员获取详细信息。";
+"CannotDeleteAccountDescriptionLong" = "此操作无法完成，因为您的账户由组织拥有。请联系您的组织管理员获取详细信息。";
 "NewFolder" = "新增文件夹";
 "SetUpAuthenticatorKey" = "设置验证器密钥";
 "ItemDetails" = "项目详细信息";
@@ -1162,8 +1162,8 @@
 "KeyConnectorDomain" = "Key Connector 域名：";
 "KeyConnectorOrganization" = "组织：";
 "KeyConnectorConfirmDomainWithAdmin" = "请与您的组织管理员确认下面的域名。\n\nKey Connector 域名：\n%1$@";
-"DoYouReallyWantToDeleteThisLog" = "您确定要删除此日志吗？";
-"DoYouReallyWantToDeleteAllRecordedLogs" = "您确定要删除所有记录的日志吗？";
+"DoYouReallyWantToDeleteThisLog" = "确定要删除此日志吗？";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "确定要删除所有记录的日志吗？";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "此账户即将被删除。请在 %1$@ 前登录以继续使用 Bitwarden。";
 "AppSettings" = "App 设置";
 "ViewFileSend" = "查看文件 Send";
@@ -1265,7 +1265,7 @@
 "RegularExpressionIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "「正则表达方式」是一种高级选项，若使用不当，会增加暴露凭据的风险。";
 "StartsWithAdvanced" = "开始于（高级）";
 "RegularExpressionAdvanced" = "正则表达式（高级）";
-"AreYouSureYouWantToUseX" = "您确定要使用「%1$@」吗？";
+"AreYouSureYouWantToUseX" = "确定要使用「%1$@」吗？";
 "KeepYourCredentialsSecure" = "确保您的凭据安全";
 "LearnMoreAboutHowToKeepCredentialsSecureWhenUsingX" = "进一步了解在使用「%1$@」时如何保持凭据安全。";
 "WarningStartsWithIsAnAdvancedOptionWithIncreasedRiskOfExposingCredentials" = "**警告：**「开始于」是一种高级选项，会增加暴露凭据的风险。";
@@ -1280,7 +1280,7 @@
 "GoToArchive" = "前往归档";
 "ItemTransfer" = "项目转移";
 "TransferItemsToX" = "转移项目到 %1$@";
-"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "出于安全和合规考虑，%1$@ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。";
+"XIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong" = "为确保安全性和合规性，%1$@ 要求所有项目由组织拥有。点击「接受」以转移您的项目的所有权。";
 "DeclineAndLeave" = "拒绝并退出";
 "WhyAmISeeingThis" = "为什么我会看到这个？";
 "AreYouSureYouWantToLeave" = "确定要退出吗？";
@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "进一步了解自动填充";
 "TurnOnNow" = "立即启用";
 "AcceptTransfer" = "接受转移";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "您的密码和密码提示不能一样。请选择一个不同的提示。";
