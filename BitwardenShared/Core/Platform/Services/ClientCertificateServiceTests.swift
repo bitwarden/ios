@@ -10,6 +10,7 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var environmentService: MockEnvironmentService!
+    var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
     var stateService: MockStateService!
     var subject: DefaultClientCertificateService!
@@ -20,10 +21,12 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
         super.setUp()
 
         environmentService = MockEnvironmentService()
+        errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
         subject = DefaultClientCertificateService(
             environmentService: environmentService,
+            errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
@@ -33,6 +36,7 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
         super.tearDown()
 
         environmentService = nil
+        errorReporter = nil
         keychainRepository = nil
         stateService = nil
         subject = nil
@@ -48,6 +52,19 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
         let result = await subject.getClientCertificateIdentity()
 
         XCTAssertNil(result)
+    }
+
+    /// `getClientCertificateIdentity()` returns nil and logs an error when the keychain throws an
+    /// unexpected error.
+    func test_getClientCertificateIdentity_keychainThrows_logsErrorAndReturnsNil() async {
+        let error = BitwardenTestError.example
+        environmentService.clientCertificateFingerprint = "some-fingerprint"
+        keychainRepository.getClientCertificateIdentityResult = .failure(error)
+
+        let result = await subject.getClientCertificateIdentity()
+
+        XCTAssertNil(result)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [error])
     }
 
     /// `getClientCertificateIdentity()` returns nil when no fingerprint is in the environment.

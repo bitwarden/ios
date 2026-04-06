@@ -19,7 +19,7 @@ protocol SelfHostedProcessorDelegate: AnyObject {
 final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, SelfHostedEffect> {
     // MARK: Types
 
-    typealias Services = HasClientCertificateService
+    typealias Services = HasClientCertificateService & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -214,7 +214,11 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             )
             // If the user replaced a different certificate, clean up the old Keychain item.
             if let previousFingerprint, previousFingerprint != fingerprint {
-                try? await services.clientCertificateService.removeCertificate(fingerprint: previousFingerprint)
+                do {
+                    try await services.clientCertificateService.removeCertificate(fingerprint: previousFingerprint)
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
             }
             state.keyAlias = alias
             state.keyFingerprint = fingerprint

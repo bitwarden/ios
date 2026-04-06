@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -12,6 +13,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
     var clientCertificateService: MockClientCertificateService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockSelfHostedProcessorDelegate!
+    var errorReporter: MockErrorReporter!
     var services: ServiceContainer!
     var subject: SelfHostedProcessor!
 
@@ -21,8 +23,10 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         clientCertificateService = MockClientCertificateService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockSelfHostedProcessorDelegate()
+        errorReporter = MockErrorReporter()
         services = ServiceContainer.withMocks(
             clientCertificateService: clientCertificateService,
+            errorReporter: errorReporter,
         )
         subject = SelfHostedProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -38,6 +42,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         clientCertificateService = nil
         coordinator = nil
         delegate = nil
+        errorReporter = nil
         services = nil
         subject = nil
 
@@ -185,6 +190,22 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.keyAlias, "New Cert")
         XCTAssertEqual(subject.state.keyFingerprint, "new-fingerprint")
         XCTAssertEqual(clientCertificateService.removeCertificateFingerprintReceivedFingerprint, "old-fingerprint")
+    }
+
+    /// `perform(_:)` with `.importClientCertificate` logs an error when cleaning up the replaced
+    /// certificate fails, but still updates state with the new certificate.
+    @MainActor
+    func test_perform_importClientCertificate_replacesOldCert_removeThrows_logsError() async {
+        let removeError = BitwardenTestError.example
+        subject.state.keyFingerprint = "old-fingerprint"
+        clientCertificateService.importCertificateReturnValue = "new-fingerprint"
+        clientCertificateService.removeCertificateFingerprintThrowableError = removeError
+
+        await subject.perform(.importClientCertificate(data: Data([0x01]), alias: "New Cert", password: "pass"))
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [removeError])
+        XCTAssertEqual(subject.state.keyFingerprint, "new-fingerprint")
+        XCTAssertNil(subject.state.dialog)
     }
 
     /// `perform(_:)` with `.importClientCertificate` updates alias and fingerprint in state on success.
