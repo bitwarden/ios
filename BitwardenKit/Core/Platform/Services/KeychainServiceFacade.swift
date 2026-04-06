@@ -13,6 +13,7 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
     func deleteValue(for item: any KeychainItem) async throws
 
     /// Gets the string value associated with the keychain item from the keychain.
+    /// Throws `KeychainServiceError.keyNotFound` if no value exists for the given item.
     ///
     /// - Parameter item: The keychain item used to fetch the associated value.
     /// - Returns: The fetched value associated with the keychain item.
@@ -30,6 +31,7 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
 
 public extension KeychainServiceFacade {
     /// Gets the value associated with the keychain item from the keychain.
+    /// Throws `KeychainServiceError.keyNotFound` if no value exists for the given item.
     ///
     /// - Parameter item: The keychain item used to fetch the associated value.
     /// - Returns: The fetched value associated with the keychain item.

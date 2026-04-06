@@ -3,9 +3,9 @@ import Foundation
 
 extension MockKeychainItem: Equatable {
     public convenience init(
+        unformattedKey: String,
         accessControlFlags: SecAccessControlCreateFlags? = nil,
         protection: CFTypeRef = kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-        unformattedKey: String = "test_key",
     ) {
         self.init()
         self.accessControlFlags = accessControlFlags
