@@ -1331,3 +1331,4 @@ será desativada automaticamente depois deste período, te dando tempo para capt
 "LearnMoreAboutAutofill" = "Saiba mais sobre preenchimento automático";
 "TurnOnNow" = "Ativar agora";
 "AcceptTransfer" = "Aceitar transferência";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

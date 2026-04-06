@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "Научете повече относно автоматичното попълване";
 "TurnOnNow" = "Включване сега";
 "AcceptTransfer" = "Приемане на прехвърлянето";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Паролата и подсказката не може да са еднакви. Моля, изберете друга подсказка.";

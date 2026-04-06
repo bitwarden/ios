@@ -1331,3 +1331,4 @@
 "LearnMoreAboutAutofill" = "進一步瞭解「自動填入」功能";
 "TurnOnNow" = "立即開啟";
 "AcceptTransfer" = "同意轉移";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

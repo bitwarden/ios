@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "Erfahre mehr über Auto-Ausfüllen";
 "TurnOnNow" = "Jetzt einschalten";
 "AcceptTransfer" = "Übertragung annehmen";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Dein Passwort darf nicht mit dem Hinweis identisch sein. Bitte wähle einen anderen Hinweis.";
