@@ -27,12 +27,6 @@ enum SelfHostedAction: Equatable {
 
     // MARK: Certificate Actions
 
-    /// A dialog was dismissed.
-    case dialogDismiss
-
-    /// The user dismissed the certificate file importer.
-    case dismissCertificateImporter
-
     /// A certificate file was selected.
     case certificateFileSelected(Result<URL, Error>)
 
@@ -41,6 +35,12 @@ enum SelfHostedAction: Equatable {
 
     /// The user confirmed overwriting an existing certificate alias.
     case confirmOverwriteCertificate
+
+    /// A dialog was dismissed.
+    case dialogDismiss
+
+    /// The user dismissed the certificate file importer.
+    case dismissCertificateImporter
 
     /// The user tapped to import a client certificate.
     case importCertificateTapped
@@ -64,10 +64,6 @@ enum SelfHostedAction: Equatable {
             lhsUrl == rhsUrl
         case let (.webVaultUrlChanged(lhsUrl), .webVaultUrlChanged(rhsUrl)):
             lhsUrl == rhsUrl
-        case (.dialogDismiss, .dialogDismiss):
-            true
-        case (.dismissCertificateImporter, .dismissCertificateImporter):
-            true
         case let (.certificateFileSelected(lhsResult), .certificateFileSelected(rhsResult)):
             switch (lhsResult, rhsResult) {
             case let (.success(lhsUrl), .success(rhsUrl)):
@@ -80,6 +76,10 @@ enum SelfHostedAction: Equatable {
         case let (.certificateInfoSubmitted(lhsAlias, lhsPassword), .certificateInfoSubmitted(rhsAlias, rhsPassword)):
             lhsAlias == rhsAlias && lhsPassword == rhsPassword
         case (.confirmOverwriteCertificate, .confirmOverwriteCertificate):
+            true
+        case (.dialogDismiss, .dialogDismiss):
+            true
+        case (.dismissCertificateImporter, .dismissCertificateImporter):
             true
         case (.importCertificateTapped, .importCertificateTapped):
             true

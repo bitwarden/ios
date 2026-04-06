@@ -10,14 +10,14 @@ struct SelfHostedState: Equatable {
     /// Represents the possible dialog states for the client certificate section.
     ///
     enum DialogState: Equatable {
-        /// The alias and password input dialog shown after a certificate file is selected.
-        case setCertificateData(certificateData: Data)
+        /// A confirmation dialog presented when the entered alias matches an existing certificate.
+        case confirmOverwriteAlias(alias: String, certificateData: Data, password: String)
 
         /// An error dialog.
         case error(message: String)
 
-        /// A confirmation dialog presented when the entered alias matches an existing certificate.
-        case confirmOverwriteAlias(alias: String, certificateData: Data, password: String)
+        /// The alias and password input dialog shown after a certificate file is selected.
+        case setCertificateData(certificateData: Data)
     }
 
     // MARK: Environment URLs
@@ -50,9 +50,9 @@ struct SelfHostedState: Equatable {
     /// The active dialog state for the client certificate section.
     var dialog: DialogState?
 
-    /// Whether the certificate file importer is showing.
-    var showingCertificateImporter: Bool = false
-
     /// The certificate data temporarily stored while waiting for password input.
     var pendingCertificateData: Data?
+
+    /// Whether the certificate file importer is showing.
+    var showingCertificateImporter: Bool = false
 }

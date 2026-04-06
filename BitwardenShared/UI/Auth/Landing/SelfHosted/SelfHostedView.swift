@@ -90,7 +90,6 @@ struct SelfHostedView: View {
         } message: {
             Text(Localizations.enterTheCertificatePasswordAndAlias)
         }
-        // Error dialog (matches Android's BasicDialog)
         .alert(
             Localizations.anErrorHasOccurred,
             isPresented: Binding(
