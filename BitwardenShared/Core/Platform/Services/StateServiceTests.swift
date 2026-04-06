@@ -1381,13 +1381,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
 
-        keychainRepository.getAccessTokenResult = .failure(
-            KeychainServiceError.osStatusError(errSecItemNotFound),
-        )
+        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
         var authenticationState = try await subject.isAuthenticated()
         XCTAssertFalse(authenticationState)
 
-        keychainRepository.getAccessTokenResult = .success("ACCESS_TOKEN")
+        keychainRepository.getAccessTokenThrowableError = nil
+        keychainRepository.getAccessTokenReturnValue = "ACCESS_TOKEN"
         authenticationState = try await subject.isAuthenticated()
         XCTAssertTrue(authenticationState)
     }
@@ -1396,7 +1395,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated_keychainError() async throws {
         await subject.addAccount(.fixture())
         let error = KeychainServiceError.osStatusError(errSecParam)
-        keychainRepository.getAccessTokenResult = .failure(error)
+        keychainRepository.getAccessTokenThrowableError = error
 
         await assertAsyncThrows(error: error) {
             _ = try await subject.isAuthenticated()

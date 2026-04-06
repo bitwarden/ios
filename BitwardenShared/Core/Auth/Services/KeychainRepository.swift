@@ -125,7 +125,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
 
 // MARK: - KeychainRepository
 
-protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository {
+protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository { // sourcery: AutoMockable
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws
@@ -319,7 +319,7 @@ extension DefaultKeychainRepository {
 
     func deletePendingAdminLoginRequest(userId: String) async throws {
         try await keychainServiceFacade.deleteValue(
-            for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId)
+            for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId),
         )
     }
 
@@ -338,7 +338,7 @@ extension DefaultKeychainRepository {
     func getDeviceKey(userId: String) async throws -> String? {
         do {
             let value: String = try await keychainServiceFacade.getValue(
-                for: BitwardenKeychainItem.deviceKey(userId: userId)
+                for: BitwardenKeychainItem.deviceKey(userId: userId),
             )
             return value
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
@@ -353,7 +353,7 @@ extension DefaultKeychainRepository {
     func getPendingAdminLoginRequest(userId: String) async throws -> String? {
         do {
             let value: String = try await keychainServiceFacade.getValue(
-                for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId)
+                for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId),
             )
             return value
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
@@ -372,7 +372,7 @@ extension DefaultKeychainRepository {
     func setAuthenticatorVaultKey(_ value: String, userId: String) async throws {
         try await keychainServiceFacade.setValue(
             value,
-            for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId)
+            for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId),
         )
     }
 
@@ -387,7 +387,7 @@ extension DefaultKeychainRepository {
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws {
         try await keychainServiceFacade.setValue(
             value,
-            for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId)
+            for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId),
         )
     }
 
@@ -419,7 +419,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         // We want to delete metadata first because that's what's used to determine if we're in a
         // consistent state.
         try await keychainServiceFacade.deleteValue(
-            for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId)
+            for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
         )
         try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
     }
@@ -427,7 +427,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord? {
         do {
             return try await keychainServiceFacade.getValue(
-                for: BitwardenKeychainItem.deviceAuthKey(userId: userId)
+                for: BitwardenKeychainItem.deviceAuthKey(userId: userId),
             )
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
@@ -437,7 +437,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
         do {
             return try await keychainServiceFacade.getValue(
-                for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId)
+                for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
             )
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
@@ -454,7 +454,7 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
         try await keychainServiceFacade.setValue(record, for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
         try await keychainServiceFacade.setValue(
             metadata,
-            for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId)
+            for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
         )
     }
 }
@@ -467,7 +467,7 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
     func getLastActiveTime(userId: String) async throws -> Date? {
         do {
             let stored = try await keychainServiceFacade.getValue(
-                for: BitwardenKeychainItem.lastActiveTime(userId: userId)
+                for: BitwardenKeychainItem.lastActiveTime(userId: userId),
             )
             guard let timeInterval = TimeInterval(stored) else {
                 return nil
@@ -487,7 +487,7 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
 
     func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int? {
         let stored = try await keychainServiceFacade.getValue(
-            for: BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: userId)
+            for: BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: userId),
         )
         return Int(stored)
     }
@@ -496,7 +496,7 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
         let value = String(attempts)
         try await keychainServiceFacade.setValue(
             value,
-            for: BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: userId)
+            for: BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: userId),
         )
     }
 
@@ -504,7 +504,7 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
 
     func getVaultTimeout(userId: String) async throws -> Int? {
         let stored = try await keychainServiceFacade.getValue(
-            for: BitwardenKeychainItem.vaultTimeout(userId: userId)
+            for: BitwardenKeychainItem.vaultTimeout(userId: userId),
         )
         return Int(stored)
     }

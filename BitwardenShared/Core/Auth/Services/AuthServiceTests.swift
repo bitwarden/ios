@@ -199,7 +199,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_getPendingAdminLoginRequest() async throws {
         stateService.activeAccount = .fixture()
         let keychainRequest = try JSONEncoder().encode(PendingAdminLoginRequest.fixture())
-        keychainRepository.getPendingAdminLoginRequestResult = .success(String(data: keychainRequest, encoding: .utf8)!)
+        keychainRepository.getPendingAdminLoginRequestReturnValue = String(data: keychainRequest, encoding: .utf8)!
 
         let result = try await subject.getPendingAdminLoginRequest(userId: "1")
         XCTAssertEqual(result, .fixture())
@@ -208,13 +208,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// setPendingAdminLoginRequest()` sets the specific pending login request.
     func test_setPendingAdminLoginRequest_value() async throws {
         stateService.activeAccount = .fixture()
-        keychainRepository.setPendingAdminLoginRequestResult = .success(())
 
         try await subject.setPendingAdminLoginRequest(PendingAdminLoginRequest.fixture(), userId: "1")
 
-        let jsonData = keychainRepository.mockStorage[
-            keychainRepository.formattedKey(for: .pendingAdminLoginRequest(userId: "1")),
-        ]!.data(using: .utf8)!
+        let jsonData = try XCTUnwrap(
+            keychainRepository.setPendingAdminLoginRequestReceivedArguments?.value.data(using: .utf8),
+        )
         let request = try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
         XCTAssertEqual(
             request,
@@ -225,20 +224,10 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     /// setPendingAdminLoginRequest()` deletes the specific pending login request.
     func test_setPendingAdminLoginRequest_nil() async throws {
         stateService.activeAccount = .fixture()
-        let keychainRequest = try JSONEncoder().encode(PendingAdminLoginRequest.fixture())
-        keychainRepository.setPendingAdminLoginRequestResult = .success(())
-        keychainRepository.mockStorage[
-            keychainRepository.formattedKey(for: .pendingAdminLoginRequest(userId: "1")),
-        ] = String(data: keychainRequest, encoding: .utf8)!
 
         try await subject.setPendingAdminLoginRequest(nil, userId: "1")
 
-        XCTAssertEqual(
-            keychainRepository.mockStorage[
-                keychainRepository.formattedKey(for: .pendingAdminLoginRequest(userId: "1")),
-            ],
-            nil,
-        )
+        XCTAssertEqual(keychainRepository.deletePendingAdminLoginRequestReceivedUserId, "1")
     }
 
     /// `getPendingLoginRequests(withId:)` returns the specific pending login request.
@@ -387,12 +376,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
         assertGetConfig()
@@ -457,12 +446,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
         assertGetConfig()
@@ -708,12 +697,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
                 ),
             ],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
 
@@ -783,12 +772,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
 
@@ -850,12 +839,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             stateService.masterPasswordHashes,
             ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"],
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setAccessTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().accessToken,
         )
-        try XCTAssertEqual(
-            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+        XCTAssertEqual(
+            keychainRepository.setRefreshTokenReceivedArguments?.value,
             IdentityTokenResponseModel.fixture().refreshToken,
         )
 

@@ -1667,7 +1667,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.vaultTimeout = [
             active.profile.userId: .never,
         ]
-        keychainService.deleteResult = .failure(BitwardenTestError.example)
+        keychainService.deleteUserAuthKeyThrowableError = BitwardenTestError.example
         try await subject.setVaultTimeout(value: .fiveMinutes)
         XCTAssertEqual(vaultTimeoutService.vaultTimeout["1"], .fiveMinutes)
     }
@@ -1679,17 +1679,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.vaultTimeout = [
             active.profile.userId: .never,
         ]
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: BitwardenKeychainItem.neverLock(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
-        keychainService.deleteResult = .success(())
         try await subject.setVaultTimeout(value: .fiveMinutes)
-        XCTAssertTrue(keychainService.mockStorage.isEmpty)
+        XCTAssertTrue(keychainService.deleteUserAuthKeyCalled)
     }
 
     /// `setVaultTimeout` correctly configures the user's timeout value.
@@ -1699,28 +1690,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("pasta")
         try await subject.setVaultTimeout(value: .never)
         XCTAssertEqual(vaultTimeoutService.vaultTimeout[active.profile.userId], .never)
+        XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "pasta")
         XCTAssertEqual(
-            keychainService.mockStorage,
-            [
-                keychainService.formattedKey(
-                    for: BitwardenKeychainItem.neverLock(userId: active.profile.userId),
-                ):
-                    "pasta",
-            ],
+            keychainService.setUserAuthKeyReceivedArguments?.item,
+            BitwardenKeychainItem.neverLock(userId: active.profile.userId),
         )
     }
 
     /// `unlockVaultWithNeverlockKey` attempts to unlock the vault using an auth key from the keychain.
     func test_unlockVaultWithNeverlockKey_error() async throws {
         let active = Account.fixture()
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: BitwardenKeychainItem.neverLock(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getUserAuthKeyValueReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -1739,14 +1719,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithNeverlockKey_success() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: BitwardenKeychainItem.neverLock(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getUserAuthKeyValueReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -1767,14 +1740,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithDeviceKey_success() async throws {
         let active = Account.fixtureWithTDE()
         stateService.activeAccount = active
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: BitwardenKeychainItem.deviceKey(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getDeviceKeyReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -1795,14 +1761,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithDeviceKey_error() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: BitwardenKeychainItem.deviceKey(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getDeviceKeyReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -2673,7 +2632,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
         XCTAssertEqual(setArguments?.userId, "1")
         XCTAssertNil(setArguments?.authKey)
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
+        XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
@@ -2698,7 +2658,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
         XCTAssertEqual(setArguments?.userId, "1")
         XCTAssertNil(setArguments?.authKey)
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
+        XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
@@ -2722,7 +2683,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([], stateService.accountsLoggedOut)
         XCTAssertFalse(biometricsRepository.setBiometricUnlockKeyCalled)
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, [])
+        XCTAssertEqual(keychainService.deleteItemsCallsCount, 0)
         XCTAssertFalse(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
