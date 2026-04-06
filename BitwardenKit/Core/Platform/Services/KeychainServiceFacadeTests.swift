@@ -7,7 +7,7 @@ import Testing
 
 // MARK: - KeychainServiceFacadeTests
 
-struct KeychainServiceFacadeTests {
+struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let appIDSettingsStore: MockAppIDSettingsStore
@@ -30,6 +30,36 @@ struct KeychainServiceFacadeTests {
             ),
         )
     }
+
+    // MARK: Tests - deleteValue(for:)
+
+    /// `deleteValue(for:)` deletes the item using the correct base query.
+    ///
+    @Test
+    func deleteValue_success() async throws {
+        let item = MockKeychainItem(unformattedKey: "delete_key")
+
+        try await subject.deleteValue(for: item)
+
+        let query = keychainService.deleteReceivedQuery as? [String: Any]
+        #expect(query?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:delete_key")
+        #expect(query?[kSecAttrAccessGroup as String] as? String == "test-access-group")
+        #expect(query?[kSecAttrService as String] as? String == "test-service")
+        #expect(query?[kSecClass as String] as? String == kSecClassGenericPassword as String)
+    }
+
+    /// `deleteValue(for:)` rethrows errors from the keychain service.
+    ///
+    @Test
+    func deleteValue_rethrows() async {
+        let item = MockKeychainItem()
+        keychainService.deleteThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+
+        await #expect(throws: KeychainServiceError.osStatusError(errSecItemNotFound)) {
+            try await subject.deleteValue(for: item)
+        }
+    }
+
 
     // MARK: Tests - getValue(for:) -> String
 
@@ -146,7 +176,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_updatesExistingItem() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlReturnValue = try makeAccessControl()
 
         try await subject.setValue("new-value", for: item)
@@ -164,7 +194,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_addsNewItem_whenNotFound() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlReturnValue = try makeAccessControl()
         keychainService.updateThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
@@ -184,7 +214,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_usesItemProtectionAndFlags() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         item.accessControlFlags = .biometryCurrentSet
         keychainService.accessControlReturnValue = try makeAccessControl()
 
@@ -198,7 +228,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_rethrows_whenUpdateFailsWithOtherError() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlReturnValue = try makeAccessControl()
         keychainService.updateThrowableError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
 
@@ -212,7 +242,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_rethrows_whenAddFails() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlReturnValue = try makeAccessControl()
         keychainService.updateThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
         keychainService.addThrowableError = KeychainServiceError.osStatusError(errSecDuplicateItem)
@@ -226,7 +256,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_rethrows_whenAccessControlFails() async {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlThrowableError = KeychainServiceError.accessControlFailed(nil)
 
         await #expect(throws: KeychainServiceError.accessControlFailed(nil)) {
@@ -236,42 +266,13 @@ struct KeychainServiceFacadeTests {
         #expect(!keychainService.addCalled)
     }
 
-    // MARK: Tests - deleteValue(for:)
-
-    /// `deleteValue(for:)` deletes the item using the correct base query.
-    ///
-    @Test
-    func deleteValue_success() async throws {
-        let item = makeItem(unformattedKey: "delete_key")
-
-        try await subject.deleteValue(for: item)
-
-        let query = keychainService.deleteReceivedQuery as? [String: Any]
-        #expect(query?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:delete_key")
-        #expect(query?[kSecAttrAccessGroup as String] as? String == "test-access-group")
-        #expect(query?[kSecAttrService as String] as? String == "test-service")
-        #expect(query?[kSecClass as String] as? String == kSecClassGenericPassword as String)
-    }
-
-    /// `deleteValue(for:)` rethrows errors from the keychain service.
-    ///
-    @Test
-    func deleteValue_rethrows() async {
-        let item = makeItem()
-        keychainService.deleteThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
-
-        await #expect(throws: KeychainServiceError.osStatusError(errSecItemNotFound)) {
-            try await subject.deleteValue(for: item)
-        }
-    }
-
     // MARK: Tests - setValue(_: T: Codable, for:)
 
     /// `setValue(_:for:)` JSON-encodes a `Codable` value and stores the resulting string.
     ///
     @Test
     func setValue_codable_success() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlReturnValue = try makeAccessControl()
 
         try await subject.setValue(42, for: item)
@@ -285,7 +286,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_codable_encodingError_throws() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlReturnValue = try makeAccessControl()
 
         await #expect(throws: (any Error).self) {
@@ -301,7 +302,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_optionalCodable_nonNil_storesValue() async throws {
-        let item = makeItem()
+        let item = MockKeychainItem()
         keychainService.accessControlReturnValue = try makeAccessControl()
 
         try await subject.setValue(Optional(42), for: item)
@@ -316,7 +317,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func setValue_optionalCodable_nil_deletesValue() async throws {
-        let item = makeItem(unformattedKey: "optional_key")
+        let item = MockKeychainItem(unformattedKey: "optional_key")
 
         try await subject.setValue(Int?.none, for: item)
 
@@ -332,7 +333,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func keychainQueryValues_appScopedNamespacing_includesService() async {
-        let item = makeItem()
+        let item = MockKeychainItem()
 
         let query = await subject.keychainQueryValues(for: item)
 
@@ -345,7 +346,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func keychainQueryValues_appScopedNamespacing_usesFormattedKey() async {
-        let item = makeItem(unformattedKey: "scoped_key")
+        let item = MockKeychainItem(unformattedKey: "scoped_key")
 
         let query = await subject.keychainQueryValues(for: item)
 
@@ -358,7 +359,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func keychainQueryValues_sharedNamespacing_usesBareKey() async {
-        let item = makeItem(unformattedKey: "shared_key")
+        let item = MockKeychainItem(unformattedKey: "shared_key")
         let sharedSubject = makeSharedSubject()
 
         let query = await sharedSubject.keychainQueryValues(for: item)
@@ -372,7 +373,7 @@ struct KeychainServiceFacadeTests {
     ///
     @Test
     func keychainQueryValues_sharedNamespacing_omitsService() async {
-        let item = makeItem()
+        let item = MockKeychainItem()
         let sharedSubject = makeSharedSubject()
 
         let query = await sharedSubject.keychainQueryValues(for: item)
@@ -392,12 +393,6 @@ struct KeychainServiceFacadeTests {
         )
     }
 
-    private func makeItem(unformattedKey: String = "test_key") -> MockKeychainItem {
-        let item = MockKeychainItem(unformattedKey: unformattedKey)
-        item.protection = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
-        return item
-    }
-
     private func makeAccessControl() throws -> SecAccessControl {
         var error: Unmanaged<CFError>?
         return try #require(
@@ -405,4 +400,4 @@ struct KeychainServiceFacadeTests {
             "Failed to create access control: \(String(describing: error?.takeRetainedValue()))",
         )
     }
-}
+} // swiftlint:disable:this file_length
