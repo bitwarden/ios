@@ -53,13 +53,12 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     @Test
     func deleteValue_rethrows() async {
         let item = MockKeychainItem()
-        keychainService.deleteThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+        keychainService.deleteThrowableError = KeychainServiceError.osStatusError(errSecInteractionNotAllowed)
 
-        await #expect(throws: KeychainServiceError.osStatusError(errSecItemNotFound)) {
+        await #expect(throws: KeychainServiceError.osStatusError(errSecInteractionNotAllowed)) {
             try await subject.deleteValue(for: item)
         }
     }
-
 
     // MARK: Tests - getValue(for:) -> String
 
