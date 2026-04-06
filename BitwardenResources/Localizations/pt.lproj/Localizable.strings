@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "Saiba mais sobre o preenchimento automático";
 "TurnOnNow" = "Ativar agora";
 "AcceptTransfer" = "Aceitar transferência";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "A sua palavra-passe e a dica não podem ser iguais. Por favor, escolha uma dica diferente.";
