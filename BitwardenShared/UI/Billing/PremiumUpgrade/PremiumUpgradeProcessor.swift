@@ -11,7 +11,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasBillingAPIService
+    typealias Services = HasBillingService
         & HasErrorReporter
 
     // MARK: Properties
@@ -56,20 +56,25 @@ final class PremiumUpgradeProcessor: StateProcessor<
             coordinator.navigate(to: .dismiss)
         case .clearURL:
             state.checkoutURL = nil
+        case .urlOpenFailed:
+            Task {
+                await coordinator.showErrorAlert(error: BillingError.unableToOpenCheckout)
+            }
         }
     }
 
     // MARK: Private Methods
 
-    /// Creates a checkout session by calling the billing API.
+    /// Creates a checkout session by calling the billing service.
     ///
     private func createCheckoutSession() async {
-        defer { state.isLoading = false }
         do {
             state.isLoading = true
-            let response = try await services.billingAPIService.createCheckoutSession()
-            state.checkoutURL = response.checkoutSessionUrl
+            let url = try await services.billingService.createCheckoutSession()
+            state.isLoading = false
+            state.checkoutURL = url
         } catch {
+            state.isLoading = false
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)
         }

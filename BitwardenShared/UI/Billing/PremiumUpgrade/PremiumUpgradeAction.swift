@@ -8,4 +8,7 @@ enum PremiumUpgradeAction: Equatable {
 
     /// Clear the checkout URL after it has been opened.
     case clearURL
+
+    /// The checkout URL failed to open in the browser.
+    case urlOpenFailed
 }

@@ -27,7 +27,11 @@ struct PremiumUpgradeView: View {
             }
             .onChange(of: store.state.checkoutURL) { url in
                 guard let url else { return }
-                openURL(url)
+                openURL(url) { success in
+                    if !success {
+                        store.send(.urlOpenFailed)
+                    }
+                }
                 store.send(.clearURL)
             }
     }
@@ -105,6 +109,7 @@ struct PremiumUpgradeView: View {
             HStack(spacing: 12) {
                 SharedAsset.Icons.checkCircle24.swiftUIImage
                     .foregroundColor(Color(asset: SharedAsset.Colors.textInteraction))
+                    .accessibilityHidden(true)
 
                 Text(text)
                     .styleGuide(.headline, weight: .semibold)
@@ -126,6 +131,7 @@ struct PremiumUpgradeView: View {
         } label: {
             HStack(spacing: 8) {
                 SharedAsset.Icons.externalLink16.swiftUIImage
+                    .accessibilityHidden(true)
 
                 Text(Localizations.upgradeNow)
             }

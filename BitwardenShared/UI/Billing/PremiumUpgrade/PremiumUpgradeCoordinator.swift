@@ -8,7 +8,7 @@ import SwiftUI
 class PremiumUpgradeCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasBillingAPIService
+    typealias Services = HasBillingService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 

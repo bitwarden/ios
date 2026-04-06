@@ -9,7 +9,7 @@ import XCTest
 class PremiumUpgradeProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var billingAPIService: MockBillingAPIService!
+    var billingService: MockBillingService!
     var coordinator: MockCoordinator<PremiumUpgradeRoute, Void>!
     var errorReporter: MockErrorReporter!
     var subject: PremiumUpgradeProcessor!
@@ -19,11 +19,11 @@ class PremiumUpgradeProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        billingAPIService = MockBillingAPIService()
+        billingService = MockBillingService()
         coordinator = MockCoordinator<PremiumUpgradeRoute, Void>()
         errorReporter = MockErrorReporter()
         let services = ServiceContainer.withMocks(
-            billingAPIService: billingAPIService,
+            billingService: billingService,
             errorReporter: errorReporter,
         )
         subject = PremiumUpgradeProcessor(
@@ -36,7 +36,7 @@ class PremiumUpgradeProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        billingAPIService = nil
+        billingService = nil
         coordinator = nil
         errorReporter = nil
         subject = nil
@@ -48,13 +48,11 @@ class PremiumUpgradeProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_upgradeNowTapped_success() async throws {
         let expectedURL = URL(string: "https://checkout.stripe.com/session")!
-        billingAPIService.createCheckoutSessionReturnValue = CheckoutSessionResponseModel(
-            checkoutSessionUrl: expectedURL,
-        )
+        billingService.createCheckoutSessionReturnValue = expectedURL
 
         await subject.perform(.upgradeNowTapped)
 
-        XCTAssertEqual(billingAPIService.createCheckoutSessionCallsCount, 1)
+        XCTAssertEqual(billingService.createCheckoutSessionCallsCount, 1)
         XCTAssertEqual(subject.state.checkoutURL, expectedURL)
         XCTAssertFalse(subject.state.isLoading)
     }
@@ -62,11 +60,11 @@ class PremiumUpgradeProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.upgradeNowTapped` logs the error and shows an error alert on failure.
     @MainActor
     func test_perform_upgradeNowTapped_failure() async throws {
-        billingAPIService.createCheckoutSessionThrowableError = BitwardenTestError.example
+        billingService.createCheckoutSessionThrowableError = BitwardenTestError.example
 
         await subject.perform(.upgradeNowTapped)
 
-        XCTAssertEqual(billingAPIService.createCheckoutSessionCallsCount, 1)
+        XCTAssertEqual(billingService.createCheckoutSessionCallsCount, 1)
         XCTAssertNil(subject.state.checkoutURL)
         XCTAssertFalse(subject.state.isLoading)
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
@@ -89,5 +87,27 @@ class PremiumUpgradeProcessorTests: BitwardenTestCase {
         subject.receive(.clearURL)
 
         XCTAssertNil(subject.state.checkoutURL)
+    }
+
+    /// `receive(_:)` with `.urlOpenFailed` shows an error alert.
+    @MainActor
+    func test_receive_urlOpenFailed() async throws {
+        subject.receive(.urlOpenFailed)
+
+        try await waitForAsync { self.coordinator.errorAlertsShown.count == 1 }
+        XCTAssertEqual(coordinator.errorAlertsShown.first as? BillingError, .unableToOpenCheckout)
+    }
+
+    /// `perform(_:)` with `.upgradeNowTapped` shows an error when the service returns an invalid URL error.
+    @MainActor
+    func test_perform_upgradeNowTapped_invalidUrl() async throws {
+        billingService.createCheckoutSessionThrowableError = BillingError.invalidCheckoutUrl
+
+        await subject.perform(.upgradeNowTapped)
+
+        XCTAssertNil(subject.state.checkoutURL)
+        XCTAssertFalse(subject.state.isLoading)
+        XCTAssertEqual(errorReporter.errors.first as? BillingError, .invalidCheckoutUrl)
+        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
     }
 }
