@@ -98,7 +98,7 @@ private struct SearchableVaultListView: View {
         if store.state.shouldShowPremiumUpgradeActionCard {
             ActionCard(
                 title: Localizations.unlockAdvancedSecurityFeatures,
-                message: Localizations.premiumPlanGivesMoreTools,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
                 actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
                     store.send(.upgradeToPremium)
                 },
