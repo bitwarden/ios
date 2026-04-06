@@ -48,6 +48,9 @@ enum VaultListAction: Equatable {
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
+    /// The upgrade to premium button was tapped.
+    case upgradeToPremium
+
     /// A TOTP Code expired
     ///
     ///  - Parameter item: The VaultListItem with an expired code.

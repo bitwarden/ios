@@ -70,6 +70,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & ImportCXFModule
         & ImportLoginsModule
         & NavigatorBuilderModule
+        & PremiumUpgradeModule
         & ProfileSwitcherModule
         & VaultItemModule
 
@@ -259,6 +260,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id, masterPasswordRepromptCheckCompleted):
@@ -406,6 +409,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         )
         coordinator.start()
         coordinator.navigate(to: .importLogins(.vault))
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makePremiumUpgradeCoordinator(stackNavigator: navigationController)
+        coordinator.start()
         stackNavigator?.present(navigationController)
     }
 

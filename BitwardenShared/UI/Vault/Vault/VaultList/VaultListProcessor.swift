@@ -193,6 +193,8 @@ final class VaultListProcessor: StateProcessor<
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
+        case .upgradeToPremium:
+            coordinator.navigate(to: .premiumUpgrade)
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }

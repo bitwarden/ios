@@ -77,6 +77,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the vault item selection screen.
     case vaultItemSelection(TOTPKeyModel)
 
+    /// A route to the premium upgrade view.
+    case premiumUpgrade
+
     /// A route to the view item screen.
     ///
     /// - Parameters:
