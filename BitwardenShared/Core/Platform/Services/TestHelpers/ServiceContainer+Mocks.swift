@@ -22,7 +22,7 @@ extension ServiceContainer {
         authService: AuthService = MockAuthService(),
         authenticatorSyncService: AuthenticatorSyncService = MockAuthenticatorSyncService(),
         autofillCredentialService: AutofillCredentialService = MockAutofillCredentialService(),
-        billingAPIService: BillingAPIService? = nil,
+        billingService: BillingService = MockBillingService(),
         biometricsRepository: BiometricsRepository = MockBiometricsRepository(),
         biometricsService: BiometricsService = MockBiometricsService(),
         cameraService: CameraService = MockCameraService(),
@@ -106,6 +106,7 @@ extension ServiceContainer {
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
+            billingService: billingService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: cameraService,
@@ -160,7 +161,6 @@ extension ServiceContainer {
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService,
         )
-        container.billingAPIServiceOverride = billingAPIService
         return container
     }
 }

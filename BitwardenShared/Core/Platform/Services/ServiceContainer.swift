@@ -27,9 +27,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to make API requests.
     let apiService: APIService
 
-    /// An optional override for the billing API service, used for testing.
-    var billingAPIServiceOverride: BillingAPIService?
-
     /// Helper used to know app context.
     let appContextHelper: AppContextHelper
 
@@ -62,6 +59,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The repository to manage biometric unlock policies and access controls the user.
     let biometricsRepository: BiometricsRepository
+
+    /// The service used by the application to manage billing operations.
+    let billingService: BillingService
 
     /// The service used to obtain device biometrics status & data.
     let biometricsService: BiometricsService
@@ -310,6 +310,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         authService: AuthService,
         authenticatorSyncService: AuthenticatorSyncService,
         autofillCredentialService: AutofillCredentialService,
+        billingService: BillingService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         cameraService: CameraService,
@@ -375,6 +376,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
         self.autofillCredentialService = autofillCredentialService
+        self.billingService = billingService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.cameraService = cameraService
@@ -1076,6 +1078,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
+            billingService: DefaultBillingService(billingAPIService: apiService),
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),
@@ -1175,7 +1178,7 @@ extension ServiceContainer {
     }
 
     var billingAPIService: BillingAPIService {
-        billingAPIServiceOverride ?? apiService
+        apiService
     }
 
     var configAPIService: ConfigAPIService {
