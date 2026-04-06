@@ -110,8 +110,12 @@ final class VaultListProcessor: StateProcessor<
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case .dismissPremiumUpgradeActionCard:
-            state.shouldShowPremiumUpgradeActionCard = false
-            try? await services.stateService.setPremiumUpgradeBannerDismissed(true)
+            do {
+                try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+                state.shouldShowPremiumUpgradeActionCard = false
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -245,7 +249,8 @@ extension VaultListProcessor {
 
         if await services.configService.getFeatureFlag(.premiumUpgradePath) {
             let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
-            let hasEnoughItems = await (try? services.vaultRepository.hasMinimumCipherCount(5)) ?? false
+            let hasEnoughItems = await (try? services.vaultRepository
+                .hasMinimumCipherCount(Constants.minimumPremiumUpgradeBannerCipherCount)) ?? false
             state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
         } else {
             state.shouldShowPremiumUpgradeActionCard = false
