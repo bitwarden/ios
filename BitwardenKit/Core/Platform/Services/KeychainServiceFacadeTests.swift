@@ -50,6 +50,14 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         let result = try await subject.getValue(for: item)
 
         XCTAssertEqual(result, "stored-value")
+        let searchQuery = keychainService.searchReceivedQuery as? [String: Any]
+        XCTAssertEqual(searchQuery?[kSecAttrAccount as String] as? String, "test-prefix:test-app-ID:test_key")
+        XCTAssertEqual(searchQuery?[kSecAttrAccessGroup as String] as? String, "test-access-group")
+        XCTAssertEqual(searchQuery?[kSecAttrService as String] as? String, "test-service")
+        XCTAssertEqual(searchQuery?[kSecClass as String] as? String, kSecClassGenericPassword as String)
+        XCTAssertEqual(searchQuery?[kSecMatchLimit as String] as? String, kSecMatchLimitOne as String)
+        XCTAssertEqual(searchQuery?[kSecReturnData as String] as? Bool, true)
+        XCTAssertEqual(searchQuery?[kSecReturnAttributes as String] as? Bool, true)
     }
 
     /// `getValue(for:)` throws `keyNotFound` when the search returns `nil`.
@@ -68,6 +76,17 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     func test_getValue_string_emptyString_throwsKeyNotFound() async {
         let item = MockKeychainItem(unformattedKey: "empty_key")
         keychainService.searchReturnValue = [kSecValueData as String: Data("".utf8)] as AnyObject
+
+        await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
+            _ = try await subject.getValue(for: item)
+        }
+    }
+
+    /// `getValue(for:)` throws `keyNotFound` when the search result is not a dictionary.
+    ///
+    func test_getValue_string_nonDictionaryResult_throwsKeyNotFound() async {
+        let item = MockKeychainItem(unformattedKey: "bad_result_key")
+        keychainService.searchReturnValue = "unexpected-string" as AnyObject
 
         await assertAsyncThrows(error: KeychainServiceError.keyNotFound(item)) {
             _ = try await subject.getValue(for: item)
@@ -104,6 +123,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         let item = MockKeychainItem(unformattedKey: "bad_json_key")
         keychainService.searchReturnValue = [kSecValueData as String: Data("not-a-number".utf8)] as AnyObject
 
+        // DecodingError is complex to construct for comparison, so we only assert that an error is thrown.
         await assertAsyncThrows {
             let _: Int = try await subject.getValue(for: item)
         }
@@ -130,8 +150,11 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
 
         try await subject.setValue("new-value", for: item)
 
-        XCTAssertNotNil(keychainService.updateReceivedArguments)
         XCTAssertFalse(keychainService.addCalled)
+        let updateQuery = keychainService.updateReceivedArguments?.query as? [String: Any]
+        XCTAssertEqual(updateQuery?[kSecAttrAccount as String] as? String, "test-prefix:test-app-ID:test_key")
+        XCTAssertEqual(updateQuery?[kSecAttrAccessGroup as String] as? String, "test-access-group")
+        XCTAssertEqual(updateQuery?[kSecAttrService as String] as? String, "test-service")
         let storedData = (keychainService.updateReceivedArguments?.attributes as? [String: Any])?[kSecValueData as String] as? Data
         XCTAssertEqual(storedData, Data("new-value".utf8))
     }
@@ -146,7 +169,12 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
         try await subject.setValue("new-value", for: item)
 
         XCTAssertEqual(keychainService.addCallsCount, 1)
-        let storedData = (keychainService.addReceivedAttributes as? [String: Any])?[kSecValueData as String] as? Data
+        let addAttributes = keychainService.addReceivedAttributes as? [String: Any]
+        XCTAssertEqual(addAttributes?[kSecAttrAccount as String] as? String, "test-prefix:test-app-ID:test_key")
+        XCTAssertEqual(addAttributes?[kSecAttrAccessGroup as String] as? String, "test-access-group")
+        XCTAssertEqual(addAttributes?[kSecAttrService as String] as? String, "test-service")
+        XCTAssertEqual(addAttributes?[kSecClass as String] as? String, kSecClassGenericPassword as String)
+        let storedData = addAttributes?[kSecValueData as String] as? Data
         XCTAssertEqual(storedData, Data("new-value".utf8))
     }
 
@@ -207,12 +235,15 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     /// `deleteValue(for:)` deletes the item using the correct base query.
     ///
     func test_deleteValue_success() async throws {
-        let item = makeItem()
-        let expectedQuery = await subject.keychainQueryValues(for: item)
+        let item = makeItem(unformattedKey: "delete_key")
 
         try await subject.deleteValue(for: item)
 
-        XCTAssertEqual(keychainService.deleteReceivedQuery, expectedQuery)
+        let query = keychainService.deleteReceivedQuery as? [String: Any]
+        XCTAssertEqual(query?[kSecAttrAccount as String] as? String, "test-prefix:test-app-ID:delete_key")
+        XCTAssertEqual(query?[kSecAttrAccessGroup as String] as? String, "test-access-group")
+        XCTAssertEqual(query?[kSecAttrService as String] as? String, "test-service")
+        XCTAssertEqual(query?[kSecClass as String] as? String, kSecClassGenericPassword as String)
     }
 
     /// `deleteValue(for:)` rethrows errors from the keychain service.
@@ -273,17 +304,29 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
     /// `setValue(_:for:)` deletes the keychain item when the optional value is nil.
     ///
     func test_setValue_optionalCodable_nil_deletesValue() async throws {
-        let item = makeItem()
-        let expectedQuery = await subject.keychainQueryValues(for: item)
+        let item = makeItem(unformattedKey: "optional_key")
 
         try await subject.setValue(Optional<Int>.none, for: item)
 
         XCTAssertNil(keychainService.updateReceivedArguments)
         XCTAssertFalse(keychainService.addCalled)
-        XCTAssertEqual(keychainService.deleteReceivedQuery, expectedQuery)
+        let query = keychainService.deleteReceivedQuery as? [String: Any]
+        XCTAssertEqual(query?[kSecAttrAccount as String] as? String, "test-prefix:test-app-ID:optional_key")
     }
 
     // MARK: Tests - shared namespacing configuration
+
+    /// With `.appScoped` namespacing, `keychainQueryValues` includes `kSecAttrService` in the query.
+    ///
+    func test_keychainQueryValues_appScopedNamespacing_includesService() async {
+        let item = makeItem()
+
+        let query = await subject.keychainQueryValues(for: item)
+
+        let dict = query as? [String: Any]
+        XCTAssertEqual(dict?[kSecAttrService as String] as? String, "test-service")
+        XCTAssertEqual(dict?[kSecClass as String] as? String, kSecClassGenericPassword as String)
+    }
 
     /// With `.appScoped` namespacing, `keychainQueryValues` formats `kSecAttrAccount` as `prefix:appID:unformattedKey`.
     ///
@@ -294,6 +337,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
 
         let dict = query as? [String: Any]
         XCTAssertEqual(dict?[kSecAttrAccount as String] as? String, "test-prefix:test-app-ID:scoped_key")
+        XCTAssertEqual(dict?[kSecClass as String] as? String, kSecClassGenericPassword as String)
     }
 
     /// With `.shared` namespacing, `keychainQueryValues` uses the bare `unformattedKey` for `kSecAttrAccount`.
@@ -306,6 +350,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
 
         let dict = query as? [String: Any]
         XCTAssertEqual(dict?[kSecAttrAccount as String] as? String, "shared_key")
+        XCTAssertEqual(dict?[kSecClass as String] as? String, kSecClassGenericPassword as String)
     }
 
     /// With `.shared` namespacing, `keychainQueryValues` omits `kSecAttrService` from the query.
@@ -318,6 +363,7 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
 
         let dict = query as? [String: Any]
         XCTAssertNil(dict?[kSecAttrService as String])
+        XCTAssertEqual(dict?[kSecClass as String] as? String, kSecClassGenericPassword as String)
     }
 
     // MARK: Private Helpers
@@ -338,6 +384,11 @@ class KeychainServiceFacadeTests: BitwardenTestCase {
 
     private func makeAccessControl() -> SecAccessControl {
         var error: Unmanaged<CFError>?
-        return SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, [], &error)!
+        guard let accessControl = SecAccessControlCreateWithFlags(nil, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, [], &error) else {
+            XCTFail("Failed to create access control: \(String(describing: error?.takeRetainedValue()))")
+            // XCTFail does not halt execution, so fatalError satisfies the non-optional return type.
+            fatalError("Unreachable")
+        }
+        return accessControl
     }
 }
