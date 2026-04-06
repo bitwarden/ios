@@ -9,6 +9,15 @@ import Security
 /// A service for managing client certificates used for mTLS authentication.
 ///
 protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
+    /// Gets the client certificate identity for mTLS authentication from the current environment.
+    ///
+    /// The environment service determines which URLs are active (pre-auth or logged-in account),
+    /// so this returns the correct certificate for the current context.
+    ///
+    /// - Returns: A `SecIdentity` for the certificate, or `nil` if none is configured.
+    ///
+    func getClientCertificateIdentity() async -> SecIdentity?
+
     /// Import a client certificate from PKCS#12 data.
     ///
     /// Parses the certificate, stores the identity in the Keychain, and returns the SHA-256
@@ -45,15 +54,6 @@ protocol ClientCertificateService: AnyObject { // sourcery: AutoMockable
     ///
     /// sourcery: useSelectorName
     func removeCertificate(userId: String) async throws
-
-    /// Gets the client certificate identity for mTLS authentication from the current environment.
-    ///
-    /// The environment service determines which URLs are active (pre-auth or logged-in account),
-    /// so this returns the correct certificate for the current context.
-    ///
-    /// - Returns: A `SecIdentity` for the certificate, or `nil` if none is configured.
-    ///
-    func getClientCertificateIdentity() async -> SecIdentity?
 }
 
 // MARK: - DefaultClientCertificateService
@@ -92,6 +92,14 @@ final class DefaultClientCertificateService: ClientCertificateService {
     }
 
     // MARK: Methods
+
+    func getClientCertificateIdentity() async -> SecIdentity? {
+        guard let fingerprint = environmentService.clientCertificateFingerprint,
+              !fingerprint.isEmpty else {
+            return nil
+        }
+        return try? await keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)
+    }
 
     func importCertificate(
         data: Data,
@@ -150,14 +158,6 @@ final class DefaultClientCertificateService: ClientCertificateService {
         if !inUse {
             try await keychainRepository.deleteClientCertificateIdentity(fingerprint: fingerprint)
         }
-    }
-
-    func getClientCertificateIdentity() async -> SecIdentity? {
-        guard let fingerprint = environmentService.clientCertificateFingerprint,
-              !fingerprint.isEmpty else {
-            return nil
-        }
-        return try? await keychainRepository.getClientCertificateIdentity(fingerprint: fingerprint)
     }
 
     // MARK: Private
