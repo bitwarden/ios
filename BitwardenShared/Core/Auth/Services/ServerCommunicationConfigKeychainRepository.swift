@@ -34,14 +34,14 @@ protocol ServerCommunicationConfigKeychainRepository { // sourcery: AutoMockable
 extension DefaultKeychainRepository: ServerCommunicationConfigKeychainRepository {
     func deleteServerCommunicationConfig(hostname: String) async throws {
         try await keychainServiceFacade.deleteValue(
-            for: BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname)
+            for: BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname),
         )
     }
 
     func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
         do {
             return try await keychainServiceFacade.getValue(
-                for: BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname)
+                for: BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname),
             )
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
@@ -58,7 +58,7 @@ extension DefaultKeychainRepository: ServerCommunicationConfigKeychainRepository
         }
         try await keychainServiceFacade.setValue(
             config,
-            for: BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname)
+            for: BitwardenKeychainItem.serverCommunicationConfig(hostname: hostname),
         )
     }
 }
