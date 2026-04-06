@@ -69,6 +69,12 @@ extension Constants {
     /// The minimum number of PBKDF2 iterations before a forced KDF update is required.
     static let minimumPbkdf2IterationsForUpgrade = 600_000
 
+    /// The minimum number of cipher items required to show the premium upgrade banner.
+    static let minimumPremiumUpgradeBannerCipherCount = 5
+
+    /// The minimum account age in days required to show the premium upgrade banner.
+    static let premiumUpgradeBannerAccountAgeDays: TimeInterval = 7 * 24 * 60 * 60
+
     /// The minimum length when setting a pin.
     static let minimumPinLength = 4
 
