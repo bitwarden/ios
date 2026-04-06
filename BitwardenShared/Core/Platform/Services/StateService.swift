@@ -1363,8 +1363,9 @@ extension StateService {
         // Check account age >= 7 days
         guard let account = try? await getActiveAccount(),
               let creationDate = account.profile.creationDate else { return false }
-        let sevenDays: TimeInterval = 7 * 24 * 60 * 60
-        guard Date().timeIntervalSince(creationDate) >= sevenDays else { return false }
+        guard Date().timeIntervalSince(creationDate) >= Constants.premiumUpgradeBannerAccountAgeDays else {
+            return false
+        }
 
         return true
     }
