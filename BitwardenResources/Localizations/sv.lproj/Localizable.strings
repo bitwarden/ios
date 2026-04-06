@@ -1331,3 +1331,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LearnMoreAboutAutofill" = "Läs mer om autofyll";
 "TurnOnNow" = "Aktivera nu";
 "AcceptTransfer" = "Godkänn överföring";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

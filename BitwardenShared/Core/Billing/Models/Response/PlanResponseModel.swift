@@ -81,5 +81,4 @@ struct PlanResponseModel: JSONResponse, Equatable, Sendable {
 
     /// Whether users on the plan get premium features.
     let usersGetPremium: Bool
-
 }

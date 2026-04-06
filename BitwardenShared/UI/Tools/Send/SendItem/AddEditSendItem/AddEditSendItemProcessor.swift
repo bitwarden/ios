@@ -7,7 +7,7 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add/edit send item screen.
 ///
-class AddEditSendItemProcessor:
+class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
     // MARK: Types
 
@@ -89,7 +89,7 @@ class AddEditSendItemProcessor:
         }
     }
 
-    override func receive(_ action: AddEditSendItemAction) {
+    override func receive(_ action: AddEditSendItemAction) { // swiftlint:disable:this function_body_length
         switch action {
         case let .accessTypeChanged(newValue):
             // Check if non-premium user is trying to select "Specific People"
@@ -353,7 +353,7 @@ class AddEditSendItemProcessor:
     ///
     /// - Returns: A flag indicating if the state holds valid information for creating a send.
     ///
-    private func validateSend() async -> Bool {
+    private func validateSend() async -> Bool { // swiftlint:disable:this function_body_length cyclomatic_complexity
         guard !state.name.isEmpty else {
             let alert = Alert.validationFieldRequired(fieldName: Localizations.name)
             coordinator.showAlert(alert)

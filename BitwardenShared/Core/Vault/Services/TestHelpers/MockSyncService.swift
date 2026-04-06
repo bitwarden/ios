@@ -32,8 +32,8 @@ class MockSyncService: SyncService {
     var needsSyncOnlyCheckLocalData: Bool = false
     var needsSyncResult: Result<Bool, Error> = .success(false)
 
-    var organizationIdRequiringVaultMigrationCalled = false
-    var organizationIdRequiringVaultMigrationResult: Result<String?, Error> = .success(nil)
+    var organizationIdRequiringVaultMigrationCalled = false // swiftlint:disable:this identifier_name
+    var organizationIdRequiringVaultMigrationResult: Result<String?, Error> = .success(nil) // swiftlint:disable:this identifier_name line_length
 
     func deleteCipher(data: SyncCipherNotification) async throws {
         deleteCipherData = data
