@@ -87,13 +87,13 @@ struct VaultListState: Equatable {
     /// Whether the Archive Onboarding action card should be shown.
     var shouldShowArchiveOnboardingActionCard: Bool = false
 
-    /// Whether the Premium Upgrade action card should be shown.
-    var shouldShowPremiumUpgradeActionCard: Bool = false
-
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
         importLoginsSetupProgress == .incomplete
     }
+
+    /// Whether the Premium Upgrade action card should be shown.
+    var shouldShowPremiumUpgradeActionCard: Bool = false
 
     /// The state for showing the vault filter.
     var vaultFilterState: SearchVaultFilterRowState {
