@@ -1152,14 +1152,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `hasMinimumCipherCount(_:)` returns `true` when vault has more than the specified count.
     func test_hasMinimumCipherCount_moreThanMinimum() async throws {
-        cipherService.cipherCountResult = .success(10)
+        cipherService.cipherCountResult = .success(6)
         let hasMinimum = try await subject.hasMinimumCipherCount(5)
         XCTAssertTrue(hasMinimum)
     }
 
     /// `hasMinimumCipherCount(_:)` returns `false` when vault has fewer than the specified count.
     func test_hasMinimumCipherCount_false() async throws {
-        cipherService.cipherCountResult = .success(3)
+        cipherService.cipherCountResult = .success(4)
         let hasMinimum = try await subject.hasMinimumCipherCount(5)
         XCTAssertFalse(hasMinimum)
     }
