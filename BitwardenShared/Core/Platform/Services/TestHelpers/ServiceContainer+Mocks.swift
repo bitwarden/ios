@@ -22,6 +22,7 @@ extension ServiceContainer {
         authService: AuthService = MockAuthService(),
         authenticatorSyncService: AuthenticatorSyncService = MockAuthenticatorSyncService(),
         autofillCredentialService: AutofillCredentialService = MockAutofillCredentialService(),
+        billingAPIService: BillingAPIService? = nil,
         biometricsRepository: BiometricsRepository = MockBiometricsRepository(),
         biometricsService: BiometricsService = MockBiometricsService(),
         cameraService: CameraService = MockCameraService(),
@@ -90,7 +91,7 @@ extension ServiceContainer {
             actualSearchProcessorMediatorFactory = factoryMock
         }
 
-        return ServiceContainer(
+        let container = ServiceContainer(
             apiService: APIService(
                 client: httpClient,
                 environmentService: environmentService,
@@ -159,5 +160,7 @@ extension ServiceContainer {
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService,
         )
+        container.billingAPIServiceOverride = billingAPIService
+        return container
     }
 }

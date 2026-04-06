@@ -27,6 +27,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to make API requests.
     let apiService: APIService
 
+    /// An optional override for the billing API service, used for testing.
+    var billingAPIServiceOverride: BillingAPIService?
+
     /// Helper used to know app context.
     let appContextHelper: AppContextHelper
 
@@ -1172,7 +1175,7 @@ extension ServiceContainer {
     }
 
     var billingAPIService: BillingAPIService {
-        apiService
+        billingAPIServiceOverride ?? apiService
     }
 
     var configAPIService: ConfigAPIService {
