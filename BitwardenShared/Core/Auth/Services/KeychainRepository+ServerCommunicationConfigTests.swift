@@ -67,7 +67,7 @@ final class KeychainRepositoryServerCommunicationConfigTests: BitwardenTestCase 
     ///
     func test_getServerCommunicationConfig_notFound_keyNotFound() async throws {
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
-            BitwardenKeychainItem.serverCommunicationConfig(hostname: "example.com")
+            BitwardenKeychainItem.serverCommunicationConfig(hostname: "example.com"),
         )
 
         let result = try await subject.getServerCommunicationConfig(hostname: "example.com")
