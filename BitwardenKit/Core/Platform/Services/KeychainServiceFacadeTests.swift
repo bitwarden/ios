@@ -40,11 +40,11 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
 
         try await subject.deleteValue(for: item)
 
-        let query = keychainService.deleteReceivedQuery as? [String: Any]
-        #expect(query?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:delete_key")
-        #expect(query?[kSecAttrAccessGroup as String] as? String == "test-access-group")
-        #expect(query?[kSecAttrService as String] as? String == "test-service")
-        #expect(query?[kSecClass as String] as? String == kSecClassGenericPassword as String)
+        let query = try #require(keychainService.deleteReceivedQuery as? [String: Any])
+        #expect(query[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:delete_key")
+        #expect(query[kSecAttrAccessGroup as String] as? String == "test-access-group")
+        #expect(query[kSecAttrService as String] as? String == "test-service")
+        #expect(query[kSecClass as String] as? String == kSecClassGenericPassword as String)
     }
 
     /// `deleteValue(for:)` rethrows errors from the keychain service.
@@ -69,14 +69,14 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         let result = try await subject.getValue(for: item)
 
         #expect(result == "stored-value")
-        let searchQuery = keychainService.searchReceivedQuery as? [String: Any]
-        #expect(searchQuery?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:test_key")
-        #expect(searchQuery?[kSecAttrAccessGroup as String] as? String == "test-access-group")
-        #expect(searchQuery?[kSecAttrService as String] as? String == "test-service")
-        #expect(searchQuery?[kSecClass as String] as? String == kSecClassGenericPassword as String)
-        #expect(searchQuery?[kSecMatchLimit as String] as? String == kSecMatchLimitOne as String)
-        #expect(searchQuery?[kSecReturnData as String] as? Bool == true)
-        #expect(searchQuery?[kSecReturnAttributes as String] as? Bool == true)
+        let searchQuery = try #require(keychainService.searchReceivedQuery as? [String: Any])
+        #expect(searchQuery[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:test_key")
+        #expect(searchQuery[kSecAttrAccessGroup as String] as? String == "test-access-group")
+        #expect(searchQuery[kSecAttrService as String] as? String == "test-service")
+        #expect(searchQuery[kSecClass as String] as? String == kSecClassGenericPassword as String)
+        #expect(searchQuery[kSecMatchLimit as String] as? String == kSecMatchLimitOne as String)
+        #expect(searchQuery[kSecReturnData as String] as? Bool == true)
+        #expect(searchQuery[kSecReturnAttributes as String] as? Bool == true)
     }
 
     /// `getValue(for:)` throws `keyNotFound` when the search returns `nil`.
@@ -224,9 +224,9 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
 
         try await subject.setValue("value", for: item)
 
-        #expect(keychainService.accessControlReceivedArguments?.flags == .biometryCurrentSet)
-        let receivedProtection = try #require(keychainService.accessControlReceivedArguments?.protection)
-        #expect(CFEqual(receivedProtection, kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+        let accessControlArgs = try #require(keychainService.accessControlReceivedArguments)
+        #expect(accessControlArgs.flags == .biometryCurrentSet)
+        #expect(CFEqual(accessControlArgs.protection, kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 
     /// `setValue(_:for:)` rethrows when the update fails with an error other than `errSecItemNotFound`.
@@ -311,7 +311,7 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
 
         let expectedData = try JSONEncoder.defaultEncoder.encode(42)
         let actualAttributes = try #require(keychainService.updateReceivedArguments?.attributes as? [String: Any])
-        let storedData = actualAttributes[kSecValueData as String] as? Data
+        let storedData = try #require(actualAttributes[kSecValueData as String] as? Data)
         #expect(storedData == expectedData)
         #expect(!keychainService.deleteCalled)
     }
@@ -325,8 +325,8 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
 
         #expect(!keychainService.updateCalled)
         #expect(!keychainService.addCalled)
-        let query = keychainService.deleteReceivedQuery as? [String: Any]
-        #expect(query?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:optional_key")
+        let query = try #require(keychainService.deleteReceivedQuery as? [String: Any])
+        #expect(query[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:optional_key")
     }
 
     // MARK: Tests - shared namespacing configuration
@@ -334,55 +334,55 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     /// With `.appScoped` namespacing, `keychainQueryValues` includes `kSecAttrService` in the query.
     ///
     @Test
-    func keychainQueryValues_appScopedNamespacing_includesService() async {
+    func keychainQueryValues_appScopedNamespacing_includesService() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
 
         let query = await subject.keychainQueryValues(for: item)
 
-        let dict = query as? [String: Any]
-        #expect(dict?[kSecAttrService as String] as? String == "test-service")
-        #expect(dict?[kSecClass as String] as? String == kSecClassGenericPassword as String)
+        let dict = try #require(query as? [String: Any])
+        #expect(dict[kSecAttrService as String] as? String == "test-service")
+        #expect(dict[kSecClass as String] as? String == kSecClassGenericPassword as String)
     }
 
     /// With `.appScoped` namespacing, `keychainQueryValues` formats `kSecAttrAccount` as `prefix:appID:unformattedKey`.
     ///
     @Test
-    func keychainQueryValues_appScopedNamespacing_usesFormattedKey() async {
+    func keychainQueryValues_appScopedNamespacing_usesFormattedKey() async throws {
         let item = MockKeychainItem(unformattedKey: "scoped_key")
 
         let query = await subject.keychainQueryValues(for: item)
 
-        let dict = query as? [String: Any]
-        #expect(dict?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:scoped_key")
-        #expect(dict?[kSecClass as String] as? String == kSecClassGenericPassword as String)
+        let dict = try #require(query as? [String: Any])
+        #expect(dict[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:scoped_key")
+        #expect(dict[kSecClass as String] as? String == kSecClassGenericPassword as String)
     }
 
     /// With `.shared` namespacing, `keychainQueryValues` uses the bare `unformattedKey` for `kSecAttrAccount`.
     ///
     @Test
-    func keychainQueryValues_sharedNamespacing_usesBareKey() async {
+    func keychainQueryValues_sharedNamespacing_usesBareKey() async throws {
         let item = MockKeychainItem(unformattedKey: "shared_key")
         let sharedSubject = makeSharedSubject()
 
         let query = await sharedSubject.keychainQueryValues(for: item)
 
-        let dict = query as? [String: Any]
-        #expect(dict?[kSecAttrAccount as String] as? String == "shared_key")
-        #expect(dict?[kSecClass as String] as? String == kSecClassGenericPassword as String)
+        let dict = try #require(query as? [String: Any])
+        #expect(dict[kSecAttrAccount as String] as? String == "shared_key")
+        #expect(dict[kSecClass as String] as? String == kSecClassGenericPassword as String)
     }
 
     /// With `.shared` namespacing, `keychainQueryValues` omits `kSecAttrService` from the query.
     ///
     @Test
-    func keychainQueryValues_sharedNamespacing_omitsService() async {
+    func keychainQueryValues_sharedNamespacing_omitsService() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
         let sharedSubject = makeSharedSubject()
 
         let query = await sharedSubject.keychainQueryValues(for: item)
 
-        let dict = query as? [String: Any]
-        #expect(dict?[kSecAttrService as String] == nil)
-        #expect(dict?[kSecClass as String] as? String == kSecClassGenericPassword as String)
+        let dict = try #require(query as? [String: Any])
+        #expect(dict[kSecAttrService as String] == nil)
+        #expect(dict[kSecClass as String] as? String == kSecClassGenericPassword as String)
     }
 
     // MARK: Private Helpers
