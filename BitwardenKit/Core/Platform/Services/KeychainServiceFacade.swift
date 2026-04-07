@@ -159,16 +159,14 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
             ),
         )
 
-        if let resultDictionary = foundItem as? [String: Any],
-           let data = resultDictionary[kSecValueData as String] as? Data,
-           let string = String(data: data, encoding: .utf8) {
-            guard !string.isEmpty else {
-                throw KeychainServiceError.keyNotFound(item)
-            }
-            return string
+        guard let resultDictionary = foundItem as? [String: Any],
+              let data = resultDictionary[kSecValueData as String] as? Data,
+              let string = String(data: data, encoding: .utf8),
+              !string.isEmpty else {
+            throw KeychainServiceError.keyNotFound(item)
         }
 
-        throw KeychainServiceError.keyNotFound(item)
+        return string
     }
 
     public func setValue(_ value: String, for item: any KeychainItem) async throws {
