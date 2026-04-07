@@ -115,11 +115,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used by the application to manage importing credential in Credential Exchange flow.
     let importCiphersRepository: ImportCiphersRepository
 
-    /// The service used to access & store data on the device keychain.
-    let keychainService: KeychainService
-
     /// The repository used to manage keychain items.
     let keychainRepository: KeychainRepository
+
+    /// The service used to access & store data on the device keychain.
+    let keychainService: KeychainService
 
     /// The state service that handles language state.
     public let languageStateService: LanguageStateService
@@ -202,11 +202,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to generate a two step login URL.
     let twoStepLoginService: TwoStepLoginService
 
-    /// A factory protocol to create `UserVerificationHelper`s.
-    let userVerificationHelperFactory: UserVerificationHelperFactory
-
     /// The service used by the application to manage user session state.
     let userSessionStateService: UserSessionStateService
+
+    /// A factory protocol to create `UserVerificationHelper`s.
+    let userVerificationHelperFactory: UserVerificationHelperFactory
 
     /// The repository used by the application to manage vault data for the UI layer.
     let vaultRepository: VaultRepository
@@ -391,8 +391,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.flightRecorder = flightRecorder
         self.generatorRepository = generatorRepository
         self.importCiphersRepository = importCiphersRepository
-        self.keychainService = keychainService
         self.keychainRepository = keychainRepository
+        self.keychainService = keychainService
         self.languageStateService = languageStateService
         self.localAuthService = localAuthService
         self.migrationService = migrationService
