@@ -10,14 +10,13 @@ import Testing
 struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    let appIDSettingsStore: MockAppIDSettingsStore
     let keychainService: MockKeychainService
     let subject: DefaultKeychainServiceFacade
 
     // MARK: Setup
 
     init() {
-        appIDSettingsStore = MockAppIDSettingsStore()
+        let appIDSettingsStore = MockAppIDSettingsStore()
         appIDSettingsStore.appID = "test-app-ID"
         keychainService = MockKeychainService()
         subject = DefaultKeychainServiceFacade(
