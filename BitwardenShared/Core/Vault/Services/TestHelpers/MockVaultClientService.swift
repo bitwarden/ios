@@ -300,4 +300,12 @@ class MockSendClient: SendClientProtocol {
     func encryptFile(send _: Send, decryptedFilePath _: String, encryptedFilePath _: String) throws {
         fatalError("Not implemented yet")
     }
+
+    func makeSendFolderFile(
+        folderName _: String,
+        files _: [MakeSendFolderFileUniFfiEntry],
+        destination _: String
+    ) throws -> MakeSendFolderFileUniFfiResult {
+        fatalError("Not implemented yet")
+    }
 }

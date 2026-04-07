@@ -15,6 +15,9 @@ enum AddEditSendItemAction: Equatable {
     /// The choose file button was pressed.
     case chooseFilePressed
 
+    /// The choose folder button was pressed.
+    case chooseFolderPressed
+
     /// Clear the URL that was opened.
     case clearURL
 

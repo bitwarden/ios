@@ -14,6 +14,7 @@ class MockAppModule:
     ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
+    FolderSelectionModule,
     FlightRecorderModule,
     GeneratorModule,
     GlobalModalModule,
@@ -41,6 +42,8 @@ class MockAppModule:
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
+    var folderSelectionDelegate: FolderSelectionDelegate?
+    var folderSelectionCoordinator: FolderSelectionCoordinator?
     var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
     var globalModalCoordinator = MockCoordinator<GlobalModalRoute, Void>()
@@ -115,6 +118,15 @@ class MockAppModule:
     ) -> AnyCoordinator<FileSelectionRoute, Void> {
         fileSelectionDelegate = delegate
         return fileSelectionCoordinator.asAnyCoordinator()
+    }
+
+    func makeFolderSelectionCoordinator(
+        delegate: FolderSelectionDelegate,
+        stackNavigator _: StackNavigator,
+    ) -> FolderSelectionCoordinator {
+        folderSelectionDelegate = delegate
+        // swiftlint:disable:next force_unwrapping
+        return folderSelectionCoordinator!
     }
 
     func makeFlightRecorderCoordinator(

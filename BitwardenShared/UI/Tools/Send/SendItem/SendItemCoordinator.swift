@@ -13,6 +13,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     // MARK: Types
 
     typealias Module = FileSelectionModule
+        & FolderSelectionModule
         & GeneratorModule
         & NavigatorBuilderModule
         & ProfileSwitcherModule
@@ -20,6 +21,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
 
     typealias Services = GeneratorCoordinator.Services
         & HasAuthRepository
+        & HasClientService
         & HasConfigService
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
@@ -34,6 +36,10 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
     /// The most recent coordinator used to navigate to a `FileSelectionRoute`. Used to keep the
     /// coordinator in memory.
     private var fileSelectionCoordinator: AnyCoordinator<FileSelectionRoute, Void>?
+
+    /// The most recent coordinator used to navigate to the folder selection flow. Used to keep the
+    /// coordinator in memory.
+    private var folderSelectionCoordinator: FolderSelectionCoordinator?
 
     /// The most recent coordinator used to navigate to a `GeneratorRoute`. Used to keep the
     /// coordinator in memory.
@@ -98,6 +104,9 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
             showFileSelection(route: route, delegate: delegate)
+        case .folderSelection:
+            guard let delegate = context as? FolderSelectionDelegate else { return }
+            showFolderSelection(delegate: delegate)
         case .generator:
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(delegate: delegate)
@@ -146,6 +155,10 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
             state.fileData = fileData
             state.type = .file
             state.mode = .shareExtension(.empty())
+        case .folder:
+            state.type = .file
+            state.isFolderSend = true
+            state.mode = .add
         case let .text(text):
             state.text = text
             state.type = .text
@@ -203,6 +216,20 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator, ProfileSwitcher
         coordinator.start()
         coordinator.navigate(to: route)
         fileSelectionCoordinator = coordinator
+    }
+
+    /// Shows the folder selection screen.
+    ///
+    /// - Parameter delegate: The `FolderSelectionDelegate` for this navigation.
+    ///
+    private func showFolderSelection(delegate: FolderSelectionDelegate) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeFolderSelectionCoordinator(
+            delegate: delegate,
+            stackNavigator: stackNavigator,
+        )
+        coordinator.start()
+        folderSelectionCoordinator = coordinator
     }
 
     /// Shows the password generator screen.

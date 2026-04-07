@@ -9,6 +9,9 @@ public enum AddSendContentType: Equatable, Hashable {
     /// A file type, with the provided name and data.
     case file(fileName: String, fileData: Data)
 
+    /// A folder type, for compressing and sending a folder as a zip file.
+    case folder
+
     /// A text type, with the provided string value.
     case text(String)
 
@@ -58,6 +61,9 @@ public enum SendItemRoute: Equatable, Hashable {
     /// - Parameter route: The file selection route to follow.
     ///
     case fileSelection(_ route: FileSelectionRoute)
+
+    /// A route to the folder selection screen.
+    case folderSelection
 
     /// A route to the password generator screen.
     case generator

@@ -12,6 +12,7 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasClientService
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
@@ -107,6 +108,8 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             state.focusedRecipientEmailIndex = state.recipientEmails.count - 1
         case .chooseFilePressed:
             presentFileSelectionAlert()
+        case .chooseFolderPressed:
+            coordinator.navigate(to: .folderSelection, context: self)
         case .clearURL:
             state.url = nil
         case let .deletionDateChanged(newValue):
@@ -305,12 +308,25 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
             let newSendView: SendView
             switch state.mode {
             case .add, .shareExtension:
-                switch state.type {
-                case .file:
-                    guard let fileData = state.fileData else { return }
-                    newSendView = try await services.sendRepository.addFileSend(sendView, data: fileData)
-                case .text:
-                    newSendView = try await services.sendRepository.addTextSend(sendView)
+                if state.isFolderSend {
+                    guard let folderURL = state.folderURL else { return }
+                    let zipData = try await compressFolderToZip(folderURL: folderURL)
+                    guard zipData.count <= Constants.maxFileSizeBytes else {
+                        coordinator.showAlert(.defaultAlert(
+                            title: Localizations.anErrorHasOccurred,
+                            message: Localizations.maxFileSize,
+                        ))
+                        return
+                    }
+                    newSendView = try await services.sendRepository.addFileSend(sendView, data: zipData)
+                } else {
+                    switch state.type {
+                    case .file:
+                        guard let fileData = state.fileData else { return }
+                        newSendView = try await services.sendRepository.addFileSend(sendView, data: fileData)
+                    case .text:
+                        newSendView = try await services.sendRepository.addTextSend(sendView)
+                    }
                 }
                 await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
@@ -401,25 +417,90 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         // Only perform further checks when adding a new file send.
         guard state.mode == .add else { return true }
 
-        guard let fileData = state.fileData, state.fileName != nil else {
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.youMustAttachAFileToSaveThisSend,
-            )
-            coordinator.showAlert(alert)
-            return false
-        }
+        if state.isFolderSend {
+            guard state.folderURL != nil else {
+                let alert = Alert.defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.youMustSelectAFolderToSaveThisSend,
+                )
+                coordinator.showAlert(alert)
+                return false
+            }
+        } else {
+            guard let fileData = state.fileData, state.fileName != nil else {
+                let alert = Alert.defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.youMustAttachAFileToSaveThisSend,
+                )
+                coordinator.showAlert(alert)
+                return false
+            }
 
-        guard fileData.count <= Constants.maxFileSizeBytes else {
-            let alert = Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.maxFileSize,
-            )
-            coordinator.showAlert(alert)
-            return false
+            guard fileData.count <= Constants.maxFileSizeBytes else {
+                let alert = Alert.defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.maxFileSize,
+                )
+                coordinator.showAlert(alert)
+                return false
+            }
         }
 
         return true
+    }
+
+    /// Compresses the contents of a folder into a zip file using the Bitwarden SDK.
+    ///
+    /// - Parameter folderURL: The URL of the folder to compress.
+    /// - Returns: The zip file data.
+    ///
+    private func compressFolderToZip(folderURL: URL) async throws -> Data {
+        let didStartAccessing = folderURL.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccessing {
+                folderURL.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        let fileManager = FileManager.default
+        guard let enumerator = fileManager.enumerator(
+            at: folderURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles],
+        ) else {
+            throw BitwardenError.dataError("Failed to enumerate folder contents")
+        }
+
+        var entries: [MakeSendFolderFileUniFfiEntry] = []
+        for case let fileURL as URL in enumerator {
+            let resourceValues = try fileURL.resourceValues(forKeys: [.isRegularFileKey])
+            guard resourceValues.isRegularFile == true else { continue }
+
+            let relativePath = fileURL.path.replacingOccurrences(
+                of: folderURL.path + "/",
+                with: "",
+            )
+            entries.append(MakeSendFolderFileUniFfiEntry(
+                path: relativePath,
+                source: fileURL.path,
+            ))
+        }
+
+        let zipURL = fileManager.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("zip")
+        defer {
+            try? fileManager.removeItem(at: zipURL)
+        }
+
+        _ = try await services.clientService.sends()
+            .makeSendFolderFile(
+                folderName: folderURL.lastPathComponent,
+                files: entries,
+                destination: zipURL.path,
+            )
+
+        return try Data(contentsOf: zipURL)
     }
 
     /// Shows an alert indicating that the "Specific People" feature requires a premium subscription.
@@ -439,6 +520,49 @@ extension AddEditSendItemProcessor: FileSelectionDelegate {
     func fileSelectionCompleted(fileName: String, data: Data) {
         state.fileName = fileName
         state.fileData = data
+    }
+}
+
+// MARK: - AddEditSendItemProcessor:FolderSelectionDelegate
+
+extension AddEditSendItemProcessor: FolderSelectionDelegate {
+    func folderSelectionCompleted(folderURL: URL) {
+        let didStartAccessing = folderURL.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccessing {
+                folderURL.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        var fileCount = 0
+        var totalSize: Int64 = 0
+        if let enumerator = FileManager.default.enumerator(
+            at: folderURL,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles],
+        ) {
+            for case let fileURL as URL in enumerator {
+                if let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+                   values.isRegularFile == true {
+                    fileCount += 1
+                    totalSize += Int64(values.fileSize ?? 0)
+                }
+            }
+        }
+
+        guard fileCount > 0 else {
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.theSelectedFolderIsEmpty,
+            ))
+            return
+        }
+
+        state.folderURL = folderURL
+        state.folderName = folderURL.lastPathComponent
+        state.fileName = folderURL.lastPathComponent + ".zip"
+        state.folderFileCount = fileCount
+        state.folderTotalSize = totalSize
     }
 }
 

@@ -32,6 +32,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable sends email verification feature.
     static let sendEmailVerification = FeatureFlag(rawValue: "pm-19051-send-email-verification")
 
+    /// Flag to enable/disable folder Send feature.
+    static let sendFolder = FeatureFlag(rawValue: "innovation-sprint-2026-send-folder")
+
     public static var allCases: [FeatureFlag] {
         [
             .archiveVaultItems,
@@ -43,6 +46,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .noLogoutOnKdfChange,
             .premiumUpgradePath,
             .sendEmailVerification,
+            .sendFolder,
         ]
     }
 }

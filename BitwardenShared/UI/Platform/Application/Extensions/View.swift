@@ -60,14 +60,24 @@ extension View {
     ///
     /// - Parameters:
     ///   - hidden: Whether the menu button should be hidden.
+    ///   - isFolderEnabled: Whether the folder option should be shown.
     ///   - action: The action to perform when a send type is tapped in the menu.
+    ///   - folderAction: The action to perform when the folder option is tapped in the menu.
     /// - Returns: A `FloatingActionMenu` configured for adding a send item.
     ///
     func addSendItemFloatingActionMenu(
         hidden: Bool = false,
+        isFolderEnabled: Bool = false,
         action: @escaping (SendType) async -> Void,
+        folderAction: @escaping () async -> Void,
     ) -> some View {
         FloatingActionMenu(image: SharedAsset.Icons.plus32.swiftUIImage) {
+            if isFolderEnabled {
+                AsyncButton(Localizations.folder) {
+                    await folderAction()
+                }
+            }
+
             ForEach(SendType.allCases) { type in
                 AsyncButton(type.localizedName) {
                     await action(type)

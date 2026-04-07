@@ -6,6 +6,9 @@ import Foundation
 /// The route to a specific screen in the send tab.
 ///
 public enum SendRoute: Equatable {
+    /// A route to the add folder item screen.
+    case addFolderItem
+
     /// A route to the add item screen.
     case addItem(type: SendType? = nil)
 

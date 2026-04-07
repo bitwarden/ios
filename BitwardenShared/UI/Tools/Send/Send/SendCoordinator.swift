@@ -65,6 +65,9 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SendRoute, context: AnyObject?) {
         switch route {
+        case .addFolderItem:
+            guard let delegate = context as? SendItemDelegate else { return }
+            showItem(route: .add(content: .folder), delegate: delegate)
         case let .addItem(type):
             guard let delegate = context as? SendItemDelegate else { return }
             let route: SendItemRoute = if let type {

@@ -43,9 +43,15 @@ private struct MainSendListView: View {
                             await store.perform(.addItemPressed(sendType))
                         }
                     } else {
-                        addSendItemFloatingActionMenu { sendType in
-                            await store.perform(.addItemPressed(sendType))
-                        }
+                        addSendItemFloatingActionMenu(
+                            isFolderEnabled: store.state.isSendFolderEnabled,
+                            action: { sendType in
+                                await store.perform(.addItemPressed(sendType))
+                            },
+                            folderAction: {
+                                await store.perform(.addFolderItemPressed)
+                            },
+                        )
                     }
                 }
 
@@ -100,6 +106,12 @@ private struct MainSendListView: View {
                             ForEach(SendType.allCases.reversed()) { sendType in
                                 AsyncButton(sendType.localizedName) {
                                     await store.perform(.addItemPressed(sendType))
+                                }
+                            }
+
+                            if store.state.isSendFolderEnabled {
+                                AsyncButton(Localizations.folder) {
+                                    await store.perform(.addFolderItemPressed)
                                 }
                             }
                         } label: {

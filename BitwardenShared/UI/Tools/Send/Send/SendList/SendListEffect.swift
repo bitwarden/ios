@@ -2,6 +2,9 @@
 
 /// Effects that can be processed by a `SendListProcessor`.
 enum SendListEffect: Equatable {
+    /// The add folder item button was pressed.
+    case addFolderItemPressed
+
     /// The add item button was pressed.
     case addItemPressed(SendType)
 

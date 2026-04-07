@@ -48,6 +48,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     override func perform(_ effect: SendListEffect) async {
         switch effect {
+        case .addFolderItemPressed:
+            await addFolderSend()
         case let .addItemPressed(sendType):
             await addNewSend(sendType: sendType)
         case .loadData:
@@ -119,6 +121,17 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     // MARK: Private Methods
 
+    /// Navigates to the add folder send view. Requires premium since folder sends are file sends.
+    ///
+    private func addFolderSend() async {
+        let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
+        guard hasPremium else {
+            coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
+            return
+        }
+        coordinator.navigate(to: .addFolderItem, context: self)
+    }
+
     /// Navigates to the add new send view. If the user is trying to add a new send type which
     /// requires premium and they don't have premium this will instead show an error alert to the
     /// user.
@@ -171,6 +184,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func loadData() async {
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
+        state.isSendFolderEnabled = await services.configService.getFeatureFlag(.sendFolder)
     }
 
     /// Removes the password from the provided send.

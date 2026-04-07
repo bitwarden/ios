@@ -50,11 +50,36 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A description of the size of the file attached to this send.
     var fileSize: String?
 
+    /// The number of files in the selected folder.
+    var folderFileCount: Int = 0
+
+    /// The name of the selected folder.
+    var folderName: String?
+
+    /// The total size of all files in the selected folder.
+    var folderTotalSize: Int64 = 0
+
+    /// A formatted description of the folder contents (file count and total size).
+    var folderSizeDescription: String? {
+        guard folderFileCount > 0 else { return nil }
+        let sizeString = ByteCountFormatter.string(
+            fromByteCount: folderTotalSize,
+            countStyle: .binary,
+        )
+        return "\(Localizations.xItems(folderFileCount)), \(sizeString)"
+    }
+
+    /// The URL of the selected folder for a folder send.
+    var folderURL: URL?
+
     /// The index of the currently focused recipient email field, or `nil` if none is focused.
     var focusedRecipientEmailIndex: Int?
 
     /// The id for this send.
     var id: String?
+
+    /// A flag indicating if this is a folder send (folder compressed to zip and uploaded as file send).
+    var isFolderSend: Bool = false
 
     /// A flag indicating if this item should be deactivated.
     var isDeactivateThisSendOn = false
@@ -157,11 +182,15 @@ struct AddEditSendItemState: Equatable, Sendable {
         switch mode {
         case .add,
              .shareExtension:
-            switch type {
-            case .file:
-                Localizations.newFileSend
-            case .text:
-                Localizations.newTextSend
+            if isFolderSend {
+                Localizations.newFolderSend
+            } else {
+                switch type {
+                case .file:
+                    Localizations.newFileSend
+                case .text:
+                    Localizations.newTextSend
+                }
             }
         case .edit:
             switch type {

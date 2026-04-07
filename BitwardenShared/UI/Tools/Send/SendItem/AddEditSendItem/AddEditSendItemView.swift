@@ -290,16 +290,65 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    /// The attributes for a folder type send.
+    @ViewBuilder private var folderSendAttributes: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let folderName = store.state.folderName {
+                BitwardenField {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(folderName)
+                            .styleGuide(.body)
+                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+
+                        if let sizeDescription = store.state.folderSizeDescription {
+                            Text(sizeDescription)
+                                .styleGuide(.footnote)
+                                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        }
+                    }
+                    .accessibilityIdentifier("SendCurrentFolderNameLabel")
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Button(Localizations.chooseFolder) {
+                    store.send(.chooseFolderPressed)
+                }
+                .buttonStyle(.secondary())
+                .accessibilityIdentifier("SendChooseFolderButton")
+
+                Text(Localizations.folderSendDescription)
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .padding(.leading, 12)
+
+                Text(Localizations.requiredMaximumFileSizeIsX(
+                    ByteCountFormatter.string(
+                        fromByteCount: Int64(Constants.maxFileSizeBytes),
+                        countStyle: .binary,
+                    ),
+                ))
+                .styleGuide(.subheadline)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .padding(.leading, 12)
+            }
+        }
+    }
+
     /// Additional details for the send.
     @ViewBuilder private var sendDetails: some View {
         SectionView(Localizations.sendDetails, contentSpacing: 8) {
             nameField
 
-            switch store.state.type {
-            case .text:
-                textSendAttributes
-            case .file:
-                fileSendAttributes
+            if store.state.isFolderSend {
+                folderSendAttributes
+            } else {
+                switch store.state.type {
+                case .text:
+                    textSendAttributes
+                case .file:
+                    fileSendAttributes
+                }
             }
 
             if store.state.type == .text {

@@ -254,6 +254,7 @@
 "AttachementAdded" = "Attachment added";
 "AttachmentDeleted" = "Attachment deleted";
 "ChooseFile" = "Choose file";
+"ChooseFolder" = "Choose folder";
 "File" = "File";
 "NoFileChosen" = "No file chosen";
 "NoAttachments" = "There are no attachments.";
@@ -1176,6 +1177,7 @@
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Enable to allow the app to respond to Siri and Shortcuts using App Intents.";
 "ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "New file Send";
+"NewFolderSend" = "New folder Send";
 "NewTextSend" = "New text Send";
 "EditFileSend" = "Edit file Send";
 "EditTextSend" = "Edit text Send";
@@ -1183,6 +1185,9 @@
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
 "YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"YouMustSelectAFolderToSaveThisSend" = "You must select a folder to save this Send.";
+"FolderSendDescription" = "The selected folder will be compressed and uploaded as a zip file.";
+"TheSelectedFolderIsEmpty" = "The selected folder is empty.";
 "SendUpdated" = "Send updated";
 "WeDontRecognizeThisDeviceEnterTheCodeSentToYourEmailDescriptionLong" = "We don’t recognize this device. Enter the code sent to your email to verify your identity.";
 "Created" = "Created: %1$@";

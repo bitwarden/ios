@@ -16,6 +16,9 @@ struct SendListState: Sendable {
     /// Whether sends are disabled via a policy.
     var isSendDisabled = false
 
+    /// Whether the send folder feature is enabled.
+    var isSendFolderEnabled = false
+
     /// A flag indicating if the info button should be hidden.
     var isInfoButtonHidden: Bool { type != nil }
 
