@@ -19,9 +19,6 @@ struct SelfHostedView: View {
     /// Local state for the certificate password text field in the dialog.
     @SwiftUI.State private var dialogPassword: String = ""
 
-    /// Local state for password visibility toggle in the dialog.
-    @SwiftUI.State private var dialogShowPassword: Bool = false
-
     // MARK: View
 
     var body: some View {
@@ -67,15 +64,10 @@ struct SelfHostedView: View {
             TextField(Localizations.alias, text: $dialogAlias)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
-            if dialogShowPassword {
-                TextField(Localizations.password, text: $dialogPassword)
-            } else {
-                SecureField(Localizations.password, text: $dialogPassword)
-            }
+            SecureField(Localizations.password, text: $dialogPassword)
             Button(Localizations.cancel, role: .cancel) {
                 dialogAlias = ""
                 dialogPassword = ""
-                dialogShowPassword = false
                 store.send(.dialogDismiss)
             }
             Button(Localizations.submit) {
@@ -83,7 +75,6 @@ struct SelfHostedView: View {
                 let password = dialogPassword
                 dialogAlias = ""
                 dialogPassword = ""
-                dialogShowPassword = false
                 store.send(.certificateInfoSubmitted(alias: alias, password: password))
             }
             .disabled(dialogPassword.isEmpty)
