@@ -81,7 +81,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     ///
     func test_getDeviceAuthKey_notFound() async throws {
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
-            BitwardenKeychainItem.deviceAuthKey(userId: "1")
+            BitwardenKeychainItem.deviceAuthKey(userId: "1"),
         )
 
         let result = try await subject.getDeviceAuthKey(userId: "1")
@@ -129,7 +129,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     ///
     func test_getDeviceAuthKeyMetadata_notFound() async throws {
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
-            BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1")
+            BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1"),
         )
 
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "1")
