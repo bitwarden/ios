@@ -7,7 +7,9 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class SelfHostedProcessorTests: BitwardenTestCase {
+// swiftlint:disable file_length
+
+class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var clientCertificateService: MockClientCertificateService!
@@ -177,6 +179,32 @@ class SelfHostedProcessorTests: BitwardenTestCase {
 
     // MARK: Certificate Tests
 
+    /// `perform(_:)` with `.importClientCertificate` shows an error dialog on invalid certificate.
+    @MainActor
+    func test_perform_importClientCertificate_invalidCertificate() async {
+        clientCertificateService.importCertificateThrowableError = ClientCertificateError.invalidCertificate
+
+        await subject.perform(.importClientCertificate(data: Data(), alias: "My Cert", password: "pass"))
+
+        XCTAssertEqual(
+            subject.state.dialog,
+            .error(message: Localizations.theCertificateFileIsInvalidOrCorrupted),
+        )
+    }
+
+    /// `perform(_:)` with `.importClientCertificate` shows an error dialog on invalid password.
+    @MainActor
+    func test_perform_importClientCertificate_invalidPassword() async throws {
+        clientCertificateService.importCertificateThrowableError = ClientCertificateError.invalidPassword
+
+        await subject.perform(.importClientCertificate(data: Data(), alias: "My Cert", password: "wrong"))
+
+        XCTAssertEqual(
+            subject.state.dialog,
+            .error(message: Localizations.theCertificatePasswordIsIncorrect),
+        )
+    }
+
     /// `perform(_:)` with `.importClientCertificate` cleans up the replaced certificate's keychain
     /// entry when the new fingerprint differs from the previous one.
     @MainActor
@@ -222,6 +250,19 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.pendingCertificateData)
         // No previous cert to clean up.
         XCTAssertFalse(clientCertificateService.removeCertificateFingerprintCalled)
+    }
+
+    /// `perform(_:)` with `.importClientCertificate` shows the generic fallback dialog for unknown errors.
+    @MainActor
+    func test_perform_importClientCertificate_unknownError() async {
+        clientCertificateService.importCertificateThrowableError = BitwardenTestError.example
+
+        await subject.perform(.importClientCertificate(data: Data(), alias: "My Cert", password: "pass"))
+
+        XCTAssertEqual(
+            subject.state.dialog,
+            .error(message: Localizations.theCertificateCouldNotBeInstalled),
+        )
     }
 
     /// `perform(_:)` with `.removeClientCertificate` shows an alert on failure.
@@ -335,17 +376,55 @@ class SelfHostedProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.showingCertificateImporter)
     }
 
-    /// `perform(_:)` with `.importClientCertificate` shows an error dialog on invalid password.
+    /// Receiving `.certificateFileSelected` with a success result sets `pendingCertificateData` and
+    /// transitions the dialog to `.setCertificateData`.
     @MainActor
-    func test_perform_importClientCertificate_invalidPassword() async throws {
-        clientCertificateService.importCertificateThrowableError = ClientCertificateError.invalidPassword
+    func test_receive_certificateFileSelected_success() throws {
+        let data = Data([0x01, 0x02, 0x03])
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("test.p12")
+        try data.write(to: url)
+        defer { try? FileManager.default.removeItem(at: url) }
 
-        await subject.perform(.importClientCertificate(data: Data(), alias: "My Cert", password: "wrong"))
+        subject.receive(.certificateFileSelected(.success(url)))
+
+        XCTAssertEqual(subject.state.pendingCertificateData, data)
+        XCTAssertFalse(subject.state.showingCertificateImporter)
+        XCTAssertEqual(subject.state.dialog, .setCertificateData(certificateData: data))
+    }
+
+    /// Receiving `.certificateFileSelected` when the file cannot be read shows an error dialog.
+    @MainActor
+    func test_receive_certificateFileSelected_unreadableFile() {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("nonexistent.p12")
+
+        subject.receive(.certificateFileSelected(.success(url)))
 
         XCTAssertEqual(
             subject.state.dialog,
-            .error(message: Localizations.theCertificatePasswordIsIncorrect),
+            .error(message: Localizations.unableToReadCertificateFile),
         )
+        XCTAssertNil(subject.state.pendingCertificateData)
+    }
+
+    /// Receiving `.confirmOverwriteCertificate` clears the dialog and imports the certificate from
+    /// the pending overwrite confirmation state.
+    @MainActor
+    func test_receive_confirmOverwriteCertificate() async throws {
+        let data = Data([0x01])
+        subject.state.dialog = .confirmOverwriteAlias(alias: "My Cert", certificateData: data, password: "pass123")
+        clientCertificateService.importCertificateReturnValue = "fp-new"
+
+        subject.receive(.confirmOverwriteCertificate)
+
+        // Dialog clears synchronously.
+        XCTAssertNil(subject.state.dialog)
+
+        try await waitForAsync {
+            !self.subject.state.keyAlias.isEmpty && !self.subject.state.keyFingerprint.isEmpty
+        }
+
+        XCTAssertEqual(subject.state.keyAlias, "My Cert")
+        XCTAssertEqual(subject.state.keyFingerprint, "fp-new")
     }
 }
 

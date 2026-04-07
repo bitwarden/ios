@@ -224,10 +224,8 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             state.keyFingerprint = fingerprint
             state.dialog = nil
             state.pendingCertificateData = nil
-        } catch ClientCertificateError.invalidPassword {
-            state.dialog = .error(message: Localizations.theCertificatePasswordIsIncorrect)
-        } catch ClientCertificateError.invalidCertificate {
-            state.dialog = .error(message: Localizations.theCertificateFileIsInvalidOrCorrupted)
+        } catch let error as ClientCertificateError {
+            state.dialog = .error(message: error.localizedDescription)
         } catch {
             state.dialog = .error(message: Localizations.theCertificateCouldNotBeInstalled)
         }
