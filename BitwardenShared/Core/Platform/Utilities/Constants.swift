@@ -87,8 +87,8 @@ extension Constants {
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
 
-    /// The minimum account age in days required to show the premium upgrade banner.
-    static let premiumUpgradeBannerAccountAgeDays: TimeInterval = 7 * 24 * 60 * 60
+    /// The minimum account age required to show the premium upgrade banner.
+    static let premiumUpgradeBannerAccountAge: TimeInterval = 7 * 24 * 60 * 60
 
     /// The time to wait until we can request again to turn on credential provider extension.
     ///

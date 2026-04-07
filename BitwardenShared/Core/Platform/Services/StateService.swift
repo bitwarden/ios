@@ -2201,7 +2201,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         // Check account age >= 7 days
         guard let account = try? await getActiveAccount(),
               let creationDate = account.profile.creationDate else { return false }
-        guard timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAgeDays else {
+        guard timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge else {
             return false
         }
 
