@@ -14,6 +14,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var dataStore: DataStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var timeProvider: MockTimeProvider!
     var userSessionKeychainRepository: MockUserSessionKeychainRepository!
     var subject: DefaultStateService!
 
@@ -26,6 +27,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        timeProvider = MockTimeProvider(.currentTime)
         userSessionKeychainRepository = MockUserSessionKeychainRepository()
 
         subject = DefaultStateService(
@@ -33,6 +35,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            timeProvider: timeProvider,
             userSessionKeychainRepository: userSessionKeychainRepository,
         )
     }
@@ -45,6 +48,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         keychainRepository = nil
         subject = nil
+        timeProvider = nil
         userSessionKeychainRepository = nil
     }
 
@@ -2660,7 +2664,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `shouldShowPremiumUpgradeBanner()` returns `true` when user is free, account is 7+ days old,
     /// and banner has not been dismissed.
     func test_shouldShowPremiumUpgradeBanner_true() async {
-        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60) // 8 days ago
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAgeDays - 1)
         await subject.addAccount(.fixture(profile: .fixture(
             creationDate: creationDate,
             hasPremiumPersonally: false,
@@ -2673,7 +2679,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `shouldShowPremiumUpgradeBanner()` returns `false` when user has premium.
     func test_shouldShowPremiumUpgradeBanner_hasPremium() async {
-        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60) // 8 days ago
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAgeDays - 1)
         await subject.addAccount(.fixture(profile: .fixture(
             creationDate: creationDate,
             hasPremiumPersonally: true,
@@ -2686,7 +2694,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `shouldShowPremiumUpgradeBanner()` returns `false` when banner has been dismissed.
     func test_shouldShowPremiumUpgradeBanner_dismissed() async {
-        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60) // 8 days ago
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAgeDays - 1)
         await subject.addAccount(.fixture(profile: .fixture(
             creationDate: creationDate,
             hasPremiumPersonally: false,
@@ -2699,7 +2709,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `shouldShowPremiumUpgradeBanner()` returns `false` when account is less than 7 days old.
     func test_shouldShowPremiumUpgradeBanner_accountTooNew() async {
-        let creationDate = Date().addingTimeInterval(-5 * 24 * 60 * 60) // 5 days ago
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAgeDays + 1)
         await subject.addAccount(.fixture(profile: .fixture(
             creationDate: creationDate,
             hasPremiumPersonally: false,
