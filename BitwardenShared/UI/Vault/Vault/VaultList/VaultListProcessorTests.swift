@@ -609,17 +609,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.appeared` shows the premium upgrade action card when all conditions are met.
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_shown() async {
-        // Set up all conditions for showing the banner:
-        // - Feature flag enabled
-        // - User is free (no premium)
-        // - Banner not dismissed
-        // - Account 7+ days old
-        // - 5+ vault items
         configService.featureFlagsBool[.premiumUpgradePath] = true
-        stateService.doesActiveAccountHavePremiumResult = false
-        stateService.premiumUpgradeBannerDismissedByUserId["1"] = false
-        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60) // 8 days ago
-        stateService.activeAccount = .fixture(profile: .fixture(creationDate: creationDate))
+        stateService.shouldShowPremiumUpgradeBannerResult = true
         vaultRepository.hasMinimumCipherCountResult = .success(true)
 
         await subject.perform(.appeared)
@@ -631,9 +622,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_featureFlagOff() async {
         configService.featureFlagsBool[.premiumUpgradePath] = false
-        stateService.doesActiveAccountHavePremiumResult = false
-        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60)
-        stateService.activeAccount = .fixture(profile: .fixture(creationDate: creationDate))
+        stateService.shouldShowPremiumUpgradeBannerResult = true
         vaultRepository.hasMinimumCipherCountResult = .success(true)
 
         await subject.perform(.appeared)
@@ -645,9 +634,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_hasPremium() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
-        stateService.doesActiveAccountHavePremiumResult = true
-        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60)
-        stateService.activeAccount = .fixture(profile: .fixture(creationDate: creationDate))
+        stateService.shouldShowPremiumUpgradeBannerResult = false
         vaultRepository.hasMinimumCipherCountResult = .success(true)
 
         await subject.perform(.appeared)
@@ -659,9 +646,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_appeared_loadPremiumUpgradeBanner_insufficientItems() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
-        stateService.doesActiveAccountHavePremiumResult = false
-        let creationDate = Date().addingTimeInterval(-8 * 24 * 60 * 60)
-        stateService.activeAccount = .fixture(profile: .fixture(creationDate: creationDate))
+        stateService.shouldShowPremiumUpgradeBannerResult = true
         vaultRepository.hasMinimumCipherCountResult = .success(false)
 
         await subject.perform(.appeared)
