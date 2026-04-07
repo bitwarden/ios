@@ -19,8 +19,8 @@ class DefaultEnvironmentService: EnvironmentService {
 
     // MARK: Private Properties
 
-    /// The raw environment URL data, used to access non-URL fields like certificate info.
-    private var environmentURLData: EnvironmentURLData
+    /// The SHA-256 fingerprint of the client certificate for the current environment.
+    private var currentClientCertificateFingerprint: String?
 
     /// The app's current environment URLs.
     private var environmentURLs: EnvironmentURLs
@@ -43,7 +43,6 @@ class DefaultEnvironmentService: EnvironmentService {
         self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
 
-        environmentURLData = .defaultUS
         environmentURLs = EnvironmentURLs(environmentURLData: .defaultUS)
     }
 
@@ -63,7 +62,7 @@ class DefaultEnvironmentService: EnvironmentService {
         }
 
         await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
-        environmentURLData = urls
+        currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
@@ -74,7 +73,7 @@ class DefaultEnvironmentService: EnvironmentService {
 
     func setPreAuthURLs(urls: EnvironmentURLData) async {
         await stateService.setPreAuthEnvironmentURLs(urls)
-        environmentURLData = urls
+        currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
@@ -106,7 +105,7 @@ extension DefaultEnvironmentService {
     }
 
     var clientCertificateFingerprint: String? {
-        environmentURLData.clientCertificateFingerprint
+        currentClientCertificateFingerprint
     }
 
     var baseURL: URL {
