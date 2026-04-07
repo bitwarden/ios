@@ -87,7 +87,7 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(fingerprint: fingerprint)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [fingerprint])
+        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [fingerprint])
     }
 
     /// `removeCertificate(fingerprint:)` keeps the keychain identity when another account
@@ -105,7 +105,7 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(fingerprint: fingerprint)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [])
+        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
     }
 
     // MARK: Tests - removeCertificate(userId:)
@@ -128,7 +128,7 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [fingerprint])
+        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [fingerprint])
     }
 
     /// `removeCertificate(userId:)` succeeds gracefully when no certificate is configured.
@@ -145,7 +145,7 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [])
+        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
     }
 
     /// `removeCertificate(userId:)` keeps the keychain identity when another account references
@@ -173,7 +173,7 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [])
+        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
     }
 
     /// `removeCertificate(userId:)` keeps the keychain identity when the pre-auth environment URLs
@@ -199,6 +199,6 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertIdentityFingerprints, [])
+        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
     }
 }

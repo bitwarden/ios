@@ -15,11 +15,15 @@ class MockKeychainRepository: KeychainRepository {
 
     var deleteAllItemsCalled = false
     var deleteAllItemsResult: Result<Void, Error> = .success(())
+    var deleteClientCertificateIdentityFingerprints = [String]() // swiftlint:disable:this identifier_name
+    var deleteClientCertificateIdentityResult: Result<Void, Error> = .success(())
     var deleteItemsForUserIds = [String]()
     var deleteItemsForUserResult: Result<Void, Error> = .success(())
 
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
     var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
+    var getClientCertificateIdentityFingerprints = [String]()
+    var getClientCertificateIdentityResult: Result<SecIdentity?, Error> = .success(nil)
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
     var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
@@ -28,6 +32,8 @@ class MockKeychainRepository: KeychainRepository {
 
     var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
     var setAccessTokenResult: Result<Void, Error> = .success(())
+    var setClientCertificateIdentityFingerprints = [String]()
+    var setClientCertificateIdentityResult: Result<Void, Error> = .success(())
     var setDeviceKeyResult: Result<Void, Error> = .success(())
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
     var setRefreshTokenResult: Result<Void, Error> = .success(())
@@ -35,14 +41,6 @@ class MockKeychainRepository: KeychainRepository {
     var setServerCommunicationConfigCalledConfig: BitwardenSdk.ServerCommunicationConfig?
     var setServerCommunicationConfigCalledHostname: String? // swiftlint:disable:this identifier_name
 
-    // MARK: Client Certificate Properties
-
-    var getClientCertificateIdentityResult: Result<SecIdentity?, Error> = .success(nil)
-    var setClientCertificateIdentityResult: Result<Void, Error> = .success(())
-    var deleteClientCertificateIdentityResult: Result<Void, Error> = .success(())
-    var getClientCertIdentityFingerprints = [String]()
-    var setClientCertIdentityFingerprints = [String]()
-    var deleteClientCertIdentityFingerprints = [String]()
     var storedIdentities = [String: SecIdentity]()
 
     func deleteAllItems() async throws {
@@ -56,6 +54,12 @@ class MockKeychainRepository: KeychainRepository {
         try deleteResult.get()
         let formattedKey = formattedKey(for: .authenticatorVaultKey(userId: userId))
         mockStorage = mockStorage.filter { $0.key != formattedKey }
+    }
+
+    func deleteClientCertificateIdentity(fingerprint: String) async throws {
+        deleteClientCertificateIdentityFingerprints.append(fingerprint)
+        try deleteClientCertificateIdentityResult.get()
+        storedIdentities.removeValue(forKey: fingerprint)
     }
 
     func deleteItems(for userId: String) async throws {
@@ -93,6 +97,12 @@ class MockKeychainRepository: KeychainRepository {
 
     func getAuthenticatorVaultKey(userId: String) async throws -> String {
         try getValue(for: .authenticatorVaultKey(userId: userId))
+    }
+
+    func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
+        getClientCertificateIdentityFingerprints.append(fingerprint)
+        _ = try getClientCertificateIdentityResult.get()
+        return storedIdentities[fingerprint]
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
@@ -147,6 +157,12 @@ class MockKeychainRepository: KeychainRepository {
         mockStorage[formattedKey(for: .authenticatorVaultKey(userId: userId))] = value
     }
 
+    func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws {
+        setClientCertificateIdentityFingerprints.append(fingerprint)
+        try setClientCertificateIdentityResult.get()
+        storedIdentities[fingerprint] = identity
+    }
+
     func setDeviceKey(_ value: String, userId: String) async throws {
         mockStorage[formattedKey(for: .deviceKey(userId: userId))] = value
     }
@@ -175,25 +191,5 @@ class MockKeychainRepository: KeychainRepository {
         securityType = item.accessControlFlags
         try setResult.get()
         mockStorage[formattedKey] = value
-    }
-
-    // MARK: Client Certificate Methods
-
-    func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
-        getClientCertIdentityFingerprints.append(fingerprint)
-        _ = try getClientCertificateIdentityResult.get()
-        return storedIdentities[fingerprint]
-    }
-
-    func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws {
-        setClientCertIdentityFingerprints.append(fingerprint)
-        try setClientCertificateIdentityResult.get()
-        storedIdentities[fingerprint] = identity
-    }
-
-    func deleteClientCertificateIdentity(fingerprint: String) async throws {
-        deleteClientCertIdentityFingerprints.append(fingerprint)
-        try deleteClientCertificateIdentityResult.get()
-        storedIdentities.removeValue(forKey: fingerprint)
     }
 }
