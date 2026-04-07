@@ -324,7 +324,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             BitwardenMenuField(
                 title: Localizations.whoCanView,
                 accessibilityIdentifier: "SendAccessTypePicker",
-                options: store.state.availableAccessTypes,
+                options: SendAccessType.allCases,
                 selection: store.binding(
                     get: \.accessType,
                     send: AddEditSendItemAction.accessTypeChanged,
@@ -589,7 +589,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     state: AddEditSendItemState(
                         accessType: .specificPeople,
                         hasPremium: true,
-                        isSendEmailVerificationEnabled: true,
                         name: "Sendy",
                         recipientEmails: ["test@example.com", ""],
                         text: "Example text",

@@ -75,7 +75,7 @@ private struct SearchableVaultListView: View {
 
     // MARK: Private Properties
 
-    /// The action card for importing login items.
+    /// The action card for archive onboarding.
     @ViewBuilder private var archiveOnboardingActionCard: some View {
         if store.state.shouldShowArchiveOnboardingActionCard {
             ActionCard(
@@ -90,6 +90,22 @@ private struct SearchableVaultListView: View {
             ) {
                 SharedAsset.Icons.archive24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
+        }
+    }
+
+    /// The action card for premium upgrade.
+    @ViewBuilder private var premiumUpgradeActionCard: some View {
+        if store.state.shouldShowPremiumUpgradeActionCard {
+            ActionCard(
+                title: Localizations.unlockAdvancedSecurityFeatures,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
+                    store.send(.upgradeToPremium)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissPremiumUpgradeActionCard)
+                },
+            )
         }
     }
 
@@ -268,6 +284,8 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
+            premiumUpgradeActionCard
+
             archiveOnboardingActionCard
 
             vaultFilterRow

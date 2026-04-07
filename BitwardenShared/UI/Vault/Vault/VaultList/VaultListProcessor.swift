@@ -109,6 +109,13 @@ final class VaultListProcessor: StateProcessor<
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
+        case .dismissPremiumUpgradeActionCard:
+            do {
+                try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+                state.shouldShowPremiumUpgradeActionCard = false
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -193,6 +200,9 @@ final class VaultListProcessor: StateProcessor<
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
+        case .upgradeToPremium:
+            // TODO: PM-33849 - Navigate to upgrade to premium view
+            break
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -235,6 +245,15 @@ extension VaultListProcessor {
 
         if await services.configService.getFeatureFlag(.archiveVaultItems) {
             state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+        }
+
+        if await services.configService.getFeatureFlag(.premiumUpgradePath) {
+            let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
+            let hasEnoughItems = await (try? services.vaultRepository
+                .hasMinimumCipherCount(Constants.minimumPremiumUpgradeBannerCipherCount)) ?? false
+            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
+        } else {
+            state.shouldShowPremiumUpgradeActionCard = false
         }
     }
 
