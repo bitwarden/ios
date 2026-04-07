@@ -149,7 +149,6 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     }
 
     /// `getValue(for:)` propagates `keyNotFound` when the underlying string getter throws.
-    ///
     @Test
     func getValue_codable_keyNotFound_rethrows() async {
         let item = MockKeychainItem(unformattedKey: "missing_codable_key")
@@ -161,7 +160,6 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     }
 
     /// `getValue(for:)` rethrows other keychain service errors as-is.
-    ///
     @Test
     func getValue_codable_otherKeychainError_rethrows() async {
         let item = MockKeychainItem(unformattedKey: "error_codable_key")
@@ -175,7 +173,6 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     // MARK: Tests - setValue(_: String, for:)
 
     /// `setValue(_:for:)` updates the existing item when the update succeeds without calling `add`.
-    ///
     @Test
     func setValue_updatesExistingItem() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
@@ -184,16 +181,19 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         try await subject.setValue("new-value", for: item)
 
         #expect(!keychainService.addCalled)
-        let updateQuery = keychainService.updateReceivedArguments?.query as? [String: Any]
-        #expect(updateQuery?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:test_key")
-        #expect(updateQuery?[kSecAttrAccessGroup as String] as? String == "test-access-group")
-        #expect(updateQuery?[kSecAttrService as String] as? String == "test-service")
-        let storedData = (keychainService.updateReceivedArguments?.attributes as? [String: Any])?[kSecValueData as String] as? Data
+        let updateReceivedArguments = try #require(keychainService.updateReceivedArguments)
+
+        let updateQuery = try #require(updateReceivedArguments.query as? [String: Any])
+        #expect(updateQuery[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:test_key")
+        #expect(updateQuery[kSecAttrAccessGroup as String] as? String == "test-access-group")
+        #expect(updateQuery[kSecAttrService as String] as? String == "test-service")
+
+        let receivedAttributes = try #require(updateReceivedArguments.attributes as? [String: Any])
+        let storedData = try #require(receivedAttributes[kSecValueData as String] as? Data)
         #expect(storedData == Data("new-value".utf8))
     }
 
     /// `setValue(_:for:)` falls through to `add` when the update returns `errSecItemNotFound`.
-    ///
     @Test
     func setValue_addsNewItem_whenNotFound() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
@@ -203,31 +203,33 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         try await subject.setValue("new-value", for: item)
 
         #expect(keychainService.addCallsCount == 1)
-        let addAttributes = keychainService.addReceivedAttributes as? [String: Any]
-        #expect(addAttributes?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:test_key")
-        #expect(addAttributes?[kSecAttrAccessGroup as String] as? String == "test-access-group")
-        #expect(addAttributes?[kSecAttrService as String] as? String == "test-service")
-        #expect(addAttributes?[kSecClass as String] as? String == kSecClassGenericPassword as String)
-        let storedData = addAttributes?[kSecValueData as String] as? Data
+        let addAttributes = try #require(keychainService.addReceivedAttributes as? [String: Any])
+        #expect(addAttributes[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:test_key")
+        #expect(addAttributes[kSecAttrAccessGroup as String] as? String == "test-access-group")
+        #expect(addAttributes[kSecAttrService as String] as? String == "test-service")
+        #expect(addAttributes[kSecClass as String] as? String == kSecClassGenericPassword as String)
+
+        let storedData = try #require(addAttributes[kSecValueData as String] as? Data)
         #expect(storedData == Data("new-value".utf8))
     }
 
     /// `setValue(_:for:)` passes the item's `protection` and `accessControlFlags` to the access control call.
-    ///
     @Test
     func setValue_usesItemProtectionAndFlags() async throws {
-        let item = MockKeychainItem(unformattedKey: "test_key")
-        item.accessControlFlags = .biometryCurrentSet
+        let item = MockKeychainItem(
+            unformattedKey: "test_key",
+            accessControlFlags: .biometryCurrentSet,
+        )
         keychainService.accessControlReturnValue = try makeAccessControl()
 
         try await subject.setValue("value", for: item)
 
         #expect(keychainService.accessControlReceivedArguments?.flags == .biometryCurrentSet)
-        #expect(CFEqual(keychainService.accessControlReceivedArguments?.protection, kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
+        let receivedProtection = try #require(keychainService.accessControlReceivedArguments?.protection)
+        #expect(CFEqual(receivedProtection, kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 
     /// `setValue(_:for:)` rethrows when the update fails with an error other than `errSecItemNotFound`.
-    ///
     @Test
     func setValue_rethrows_whenUpdateFailsWithOtherError() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
@@ -241,7 +243,6 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     }
 
     /// `setValue(_:for:)` rethrows when the add fails after a `errSecItemNotFound` update error.
-    ///
     @Test
     func setValue_rethrows_whenAddFails() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
@@ -255,7 +256,6 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
     }
 
     /// `setValue(_:for:)` rethrows when creating the access control fails, without calling update or add.
-    ///
     @Test
     func setValue_rethrows_whenAccessControlFails() async {
         let item = MockKeychainItem(unformattedKey: "test_key")
@@ -264,7 +264,7 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         await #expect(throws: KeychainServiceError.accessControlFailed(nil)) {
             try await subject.setValue("value", for: item)
         }
-        #expect(keychainService.updateReceivedArguments == nil)
+        #expect(!keychainService.updateCalled)
         #expect(!keychainService.addCalled)
     }
 
@@ -280,28 +280,28 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         try await subject.setValue(42, for: item)
 
         let expectedData = try JSONEncoder.defaultEncoder.encode(42)
-        let storedData = (keychainService.updateReceivedArguments?.attributes as? [String: Any])?[kSecValueData as String] as? Data
+        let actualAttributes = try #require(keychainService.updateReceivedArguments?.attributes as? [String: Any])
+        let storedData = try #require(actualAttributes[kSecValueData as String] as? Data)
         #expect(storedData == expectedData)
     }
 
     /// `setValue(_:for:)` rethrows when JSON encoding fails.
-    ///
     @Test
     func setValue_codable_encodingError_throws() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
         keychainService.accessControlReturnValue = try makeAccessControl()
 
+        // EncodingError is complex to construct for comparison, so we only assert that an error is thrown.
         await #expect(throws: (any Error).self) {
             try await subject.setValue(Double.nan, for: item)
         }
-        #expect(keychainService.updateReceivedArguments == nil)
+        #expect(!keychainService.updateCalled)
         #expect(!keychainService.addCalled)
     }
 
     // MARK: Tests - setValue(_: T?: Codable, for:)
 
     /// `setValue(_:for:)` JSON-encodes and stores a non-nil optional `Codable` value.
-    ///
     @Test
     func setValue_optionalCodable_nonNil_storesValue() async throws {
         let item = MockKeychainItem(unformattedKey: "test_key")
@@ -310,20 +310,20 @@ struct KeychainServiceFacadeTests { // swiftlint:disable:this type_body_length
         try await subject.setValue(Optional(42), for: item)
 
         let expectedData = try JSONEncoder.defaultEncoder.encode(42)
-        let storedData = (keychainService.updateReceivedArguments?.attributes as? [String: Any])?[kSecValueData as String] as? Data
+        let actualAttributes = try #require(keychainService.updateReceivedArguments?.attributes as? [String: Any])
+        let storedData = actualAttributes[kSecValueData as String] as? Data
         #expect(storedData == expectedData)
         #expect(!keychainService.deleteCalled)
     }
 
     /// `setValue(_:for:)` deletes the keychain item when the optional value is nil.
-    ///
     @Test
     func setValue_optionalCodable_nil_deletesValue() async throws {
         let item = MockKeychainItem(unformattedKey: "optional_key")
 
         try await subject.setValue(Int?.none, for: item)
 
-        #expect(keychainService.updateReceivedArguments == nil)
+        #expect(!keychainService.updateCalled)
         #expect(!keychainService.addCalled)
         let query = keychainService.deleteReceivedQuery as? [String: Any]
         #expect(query?[kSecAttrAccount as String] as? String == "test-prefix:test-app-ID:optional_key")
