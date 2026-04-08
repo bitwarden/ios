@@ -1,5 +1,5 @@
 ---
-description: Plan implementation for a Bitwarden iOS Jira ticket or task description. Fetches requirements, performs gap analysis, designs the implementation approach, and saves a design doc to .claude/outputs/plans/.
+description: Plan implementation for a Bitwarden iOS Jira ticket or task description. Fetches requirements, performs gap analysis, and designs the implementation approach.
 argument-hint: <PM-XXXXX ticket ID or task description>
 ---
 
@@ -18,7 +18,6 @@ If `$ARGUMENTS` is a description, use it directly as the requirements source.
 Invoke the `refining-ios-requirements` skill to:
 - Extract structured requirements and acceptance criteria
 - Perform gap analysis (error states, edge cases, extensions, accessibility)
-- Map to iOS domain (see `Docs/Architecture.md` Architecture Structure for domain list)
 
 **Pause here**: Present requirements to user and confirm accuracy before proceeding.
 
@@ -31,8 +30,4 @@ Once requirements are confirmed, invoke the `planning-ios-implementation` skill 
 - Order implementation into dependency-ordered phases
 - Assess risks (security, extensions, multi-account, SDK)
 
-## Phase 4: Save Design Doc
-
-Save the complete plan to `.claude/outputs/plans/<ticket-id>.md`.
-
-**Final output**: "Plan saved to `.claude/outputs/plans/<ticket-id>.md`. Ready to implement with `/work-on-ios <ticket-id>`."
+**Final output**: Present the complete plan and suggest using `/work-on-ios` to begin implementation.
