@@ -75,6 +75,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// A helper to create cipher views with proper ownership based on policies.
     let cipherOwnershipHelper: CipherOwnershipHelper
 
+    /// The service used by the application to manage client certificates for mTLS authentication.
+    let clientCertificateService: ClientCertificateService
+
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
 
@@ -244,6 +247,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - cameraService: The service used by the application to manage camera use.
     ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - cipherOwnershipHelper: A helper to create cipher views with proper ownership based on policies.
+    ///   - clientCertificateService: The service used by the application to manage client certificates
+    ///     for mTLS authentication.
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
     ///   - deviceAuthKeyService: The service to make and use the device auth key.
@@ -316,6 +321,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         cameraService: CameraService,
         changeKdfService: ChangeKdfService,
         cipherOwnershipHelper: CipherOwnershipHelper,
+        clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
         deviceAuthKeyService: DeviceAuthKeyService,
@@ -382,6 +388,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.cameraService = cameraService
         self.changeKdfService = changeKdfService
         self.cipherOwnershipHelper = cipherOwnershipHelper
+        self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
         self.deviceAuthKeyService = deviceAuthKeyService
@@ -519,6 +526,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository,
             stateService: stateService,
         )
+        let clientCertificateService = DefaultClientCertificateService(
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            keychainRepository: keychainRepository,
+            stateService: stateService,
+        )
+
+        // Create certificate-aware HTTP client
+        let certificateHttpClient = CertificateHTTPClient(certificateService: clientCertificateService)
 
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after serverCommConfigClientSingletonHolder is created.
@@ -530,19 +546,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             )
         }
 
-        let noRedirectSession = URLSession(
-            configuration: .default,
-            delegate: NoRedirectSessionDelegate(),
-            delegateQueue: nil,
-        )
         let apiService = APIService(
-            client: noRedirectSession,
+            client: certificateHttpClient,
             environmentService: environmentService,
             flightRecorder: flightRecorder,
             serverCommunicationConfigClientSingleton: { serverCommConfigClientSingletonHolder },
             stateService: stateService,
             tokenService: tokenService,
         )
+
         let errorReportBuilder = DefaultErrorReportBuilder(
             activeAccountStateProvider: stateService,
             appInfoService: appInfoService,
@@ -780,6 +792,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             biometricsRepository: biometricsRepository,
             changeKdfService: changeKdfService,
+            clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -1087,6 +1100,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cameraService: DefaultCameraService(),
             changeKdfService: changeKdfService,
             cipherOwnershipHelper: cipherOwnershipHelper,
+            clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
             deviceAuthKeyService: deviceAuthKeyService,
