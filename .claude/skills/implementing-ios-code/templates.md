@@ -43,7 +43,7 @@ final class <Feature>Coordinator: Coordinator, HasStackNavigator {
     // MARK: Properties
 
     private let services: Services
-    var stackNavigator: StackNavigator
+    private(set) weak var stackNavigator: StackNavigator?
 
     // MARK: Initialization
 
@@ -57,7 +57,7 @@ final class <Feature>Coordinator: Coordinator, HasStackNavigator {
     func navigate(to route: <Parent>Route, context: AnyObject?) {
         switch route {
         case .dismiss:
-            stackNavigator.dismiss()
+            stackNavigator?.dismiss()
         case .<featureRoute>:
             show<Feature>()
         }
@@ -75,7 +75,7 @@ final class <Feature>Coordinator: Coordinator, HasStackNavigator {
         )
         let store = Store(processor: processor)
         let view = <Feature>View(store: store)
-        stackNavigator.push(view)
+        stackNavigator?.push(view)
     }
 }
 ```
