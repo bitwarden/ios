@@ -42,8 +42,8 @@ Or run all at once via `./Scripts/bootstrap.sh`.
 **Always read the simulator config files before running tests:**
 
 ```bash
-DEVICE=$(cat .test-simulator-device-name | tr -d '[:space:]')
-OS=$(cat .test-simulator-ios-version | tr -d '[:space:]')
+DEVICE=$(tr -d '\n' < .test-simulator-device-name)
+OS=$(tr -d '\n' < .test-simulator-ios-version)
 ```
 
 Then run tests with:
