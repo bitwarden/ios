@@ -157,7 +157,7 @@ Your output must always be a structured planning document with these sections:
 - Pursue plans with incomplete specifications – ask before proceeding
 - Produce vague tasks – every task must be concrete and actionable
 - Skip the requirements refinement phase even for seemingly simple requests
-- Add new top-level subdirectories to `Core/` or `UI/` – use existing domains (`Auth/`, `Autofill/`, `Billing/`, `Platform/`, `Tools/`, `Vault/`)
+- Add new top-level subdirectories to `Core/` or `UI/` – see `Docs/Architecture.md` [Architecture Structure] for the fixed domain list
 
 ### Codebase Exploration Protocol
 Before designing any architecture, deploy exploration sub-agents to:
