@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Runs fix-localizable-strings against all .strings files in the repo.
+# Usage: fix-localizable-strings.sh [--dry-run]
+# Any extra arguments are forwarded to the underlying Python script.
 set -euo pipefail
 
 # Resolve paths relative to this script so it can be run from anywhere.
