@@ -41,7 +41,7 @@ Identify unstated requirements the ticket may have missed:
 
 **Platform concerns**
 - App extension impact (AutoFill, Action, Share — memory limits apply)
-- watchOS companion impact (if vault data is involved)
+- watchOS companion impact (if vault data is involved, especially TOTP data)
 - Offline mode behavior
 
 **Accessibility**
@@ -51,12 +51,7 @@ Identify unstated requirements the ticket may have missed:
 
 ## Step 4: Map to iOS Domain
 
-Determine which Bitwarden iOS domain(s) are involved:
-- **Auth/**: Authentication, login, unlock, key derivation
-- **Autofill/**: Credential provider, autofill flows
-- **Platform/**: Cross-cutting concerns, services, utilities
-- **Tools/**: Generator, Send, Import/Export
-- **Vault/**: Cipher management, folders, collections
+Determine which Bitwarden iOS domain(s) are involved. Read `Docs/Architecture.md` (Architecture Structure section) for the canonical domain list and descriptions.
 
 Determine which app(s) are affected:
 - **BitwardenShared**: Password Manager
@@ -88,7 +83,7 @@ Determine which app(s) are affected:
 1. [Question for product/design]
 
 ### Scope
-- **Domain**: [Auth / Autofill / Platform / Tools / Vault]
+- **Domain**: [from Architecture Structure domain list]
 - **App(s)**: [Password Manager / Authenticator / Both]
 - **Extensions affected**: [AutoFill / Action / Share / Watch / None]
 - **Out of scope**: [explicit exclusions]

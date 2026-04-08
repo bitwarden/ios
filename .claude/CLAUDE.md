@@ -30,12 +30,12 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 ### Code Organization
 
 `Bitwarden/`, `Authenticator/` — app targets
-`BitwardenShared/`, `AuthenticatorShared/`, `BitwardenKit/` — shared frameworks; each has `Core/` + `UI/` with fixed subdirs: `Auth/`, `Autofill/`, `Platform/`, `Tools/`, `Vault/`
+`BitwardenShared/`, `AuthenticatorShared/`, `BitwardenKit/` — shared frameworks; each has `Core/` + `UI/` with fixed subdirs (see `Docs/Architecture.md` [Architecture Structure] for canonical domain list)
 `AuthenticatorBridgeKit/`, `BitwardenResources/`, `Networking/` — support frameworks
 `BitwardenAutoFillExtension/`, `BitwardenActionExtension/`, `BitwardenShareExtension/`, `BitwardenWatchApp/` — extensions
 `Docs/`, `Scripts/`, `TestPlans/`, `Configs/`, `Sourcery/Templates/`, `project-*.yml` — configuration
 
-**CRITICAL**: Do NOT add new top-level subdirectories to `Core/` or `UI/`. Fixed: `Auth/`, `Autofill/`, `Platform/`, `Tools/`, `Vault/`.
+**CRITICAL**: Do NOT add new top-level subdirectories to `Core/` or `UI/`. The fixed subdirectories are defined in `Docs/Architecture.md` under [Architecture Structure].
 
 For key principles (unidirectional data flow, dependency injection, coordinator navigation, zero-knowledge), core patterns (Coordinator/Processor/State/View/Action/Effect files), adding new features, adding services/repositories, and common patterns, see `Docs/Architecture.md`.
 

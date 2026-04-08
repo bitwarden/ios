@@ -14,12 +14,17 @@ Use this skill to design a complete implementation plan before writing code. Out
 
 ## Step 1: Classify the Change
 
-Determine what type of change this is:
-- **New feature** (new screen + full file-set): Coordinator, Processor, State, Action, Effect, View, Route
-- **Enhancement** (modify existing screen): Identify which existing files change
-- **New service/repository**: Protocol + Default implementation + Has* protocol + Mock
-- **Bug fix**: Identify root cause file(s)
-- **Data model change**: CoreData schema + migration if needed
+Determine the change type to guide scope and planning depth:
+
+| Type | Description | Typical Scope |
+|------|-------------|---------------|
+| **New Feature** | Entirely new functionality, screens, or flows | New files + modifications, multi-phase |
+| **Enhancement** | Extending existing feature with new capabilities | Mostly modifications, 1-2 phases |
+| **Bug Fix** | Correcting incorrect behavior | Targeted modifications, single phase |
+| **Refactoring** | Restructuring without behavior change | Modifications only, migration-aware |
+| **Infrastructure** | Build, CI, tooling, or dependency changes | Config files, minimal code changes |
+
+State the classification and rationale before proceeding.
 
 ## Step 2: Explore Existing Patterns
 
@@ -68,14 +73,14 @@ Models, CoreData entities (if needed), service protocols, repository protocols
 ### Phase 2: Service/Repository Implementations
 Default<Name>Service/Repository — business logic, SDK calls, network
 
-### Phase 3: Processor + State
+### Phase 3: DI Wiring
+ServiceContainer extensions, Has* protocol additions
+
+### Phase 4: Processor + State
 StateProcessor subclass, State struct, Action enum, Effect enum
 
-### Phase 4: View + Coordinator
+### Phase 5: View + Coordinator
 SwiftUI View with store.binding, Coordinator with routes, navigation wiring
-
-### Phase 5: DI Wiring
-ServiceContainer extensions, Has* protocol additions
 
 ### Phase 6: Tests
 ProcessorTests (action/effect paths), ServiceTests (business logic), ViewTests (snapshots if UI)
@@ -85,7 +90,7 @@ ProcessorTests (action/effect paths), ServiceTests (business logic), ViewTests (
 
 Identify risks and mitigations:
 - **Security**: Does this touch vault data, auth tokens, or Keychain? → Security review required
-- **Extensions**: Does this affect AutoFill/Action extensions? → Memory limit check needed
+- **Extensions**: Does this affect AutoFill/Action/Share extensions? → Memory limit check needed
 - **Multi-account**: Does this need per-account isolation? → CoreData userId scoping
 - **SDK dependency**: Does this require BitwardenSdk changes? → Coordinate with SDK team
 

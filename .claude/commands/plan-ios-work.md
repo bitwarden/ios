@@ -18,7 +18,7 @@ If `$ARGUMENTS` is a description, use it directly as the requirements source.
 Invoke the `refining-ios-requirements` skill to:
 - Extract structured requirements and acceptance criteria
 - Perform gap analysis (error states, edge cases, extensions, accessibility)
-- Map to iOS domain (Auth/Autofill/Platform/Tools/Vault)
+- Map to iOS domain (see `Docs/Architecture.md` Architecture Structure for domain list)
 
 **Pause here**: Present requirements to user and confirm accuracy before proceeding.
 
