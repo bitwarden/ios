@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Ungültiges Master-Passwort. Bitte erneut versuchen.";
 "InvalidPIN" = "Ungültiger PIN. Bitte erneut versuchen.";
 "Launch" = "Öffnen";
+"LaunchBrowser" = "Browser starten";
 "LogIn" = "Anmelden";
 "LoginCredentials" = "Zugangsdaten";
 "LogInNoun" = "Zugangsdaten";
@@ -49,7 +50,7 @@
 "AccountAlreadyAdded" = "Konto bereits hinzugefügt";
 "SwitchToAlreadyAddedAccountConfirmation" = "Möchtest du jetzt dazu wechseln?";
 "MasterPassword" = "Master-Passwort";
-"More" = "Mehr";
+"MoreOptions" = "Weitere Optionen";
 "MyVault" = "Mein Tresor";
 "Authenticator" = "Authenticator";
 "Name" = "Name";
@@ -207,6 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Die einfachste Möglichkeit, neue Zugangsdaten zu deinem Tresor hinzuzufügen, ist der Bitwarden Auto-Ausfüllen Dienst. Erfahre mehr über den Bitwarden Auto-Ausfüllen Dienst, indem du zu \"Einstellungen\" wechselst.";
 "Autofill" = "Automatisches Ausfüllen";
+"AutofillEnabled" = "Auto-Ausfüllen aktiviert";
 "AutofillOrView" = "Möchtest du diese Zugangsdaten automatisch ausfüllen oder ansehen?";
 "BitwardenAutofillServiceMatchConfirm" = "Bist du sicher, dass du diesen Eintrag automatisch ausfüllen möchtest? Er stimmt nicht komplett mit \"%1$@\" überein.";
 "MatchingItems" = "Passende Einträge";
@@ -685,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Push-Benachrichtigungen für neue Anmeldeanfragen erhalten";
 "NoThanks" = "Nein danke";
 "ConfimLogInAttempForX" = "Anmeldeversuch für %1$@ bestätigen";
+"ConfirmLogInAttemptForX" = "Anmeldeversuch für %1$@ bestätigen";
 "AllNotifications" = "Alle Benachrichtigungen";
 "PasswordType" = "Passworttyp";
 "WhatWouldYouLikeToGenerate" = "Was möchtest du generieren?";
@@ -836,6 +839,7 @@
 "ContinueToPrivacyPolicy" = "Weiter zur Datenschutzerklärung?";
 "ContinueToAppStore" = "Weiter zum App Store?";
 "ContinueToDeviceSettings" = "Weiter zu den Geräteeinstellungen?";
+"ContinueWithoutSyncing" = "Ohne Synchronisierung fortfahren";
 "TwoStepLoginDescriptionLong" = "Mache dein Konto sicherer, indem du eine Zwei-Faktor-Authentifizierung in der Bitwarden Web-App einrichtest.";
 "ChangeMasterPasswordDescriptionLong" = "Du kannst dein Master-Passwort in der Bitwarden Web-App ändern.";
 "YouCanImportDataToYourVaultOnX" = "Du kannst Daten in deinem Tresor auf %1$@ importieren.";
@@ -1043,6 +1047,7 @@
 "AutofillPasswords" = "Passwörter automatisch ausfüllen";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Richte Auto-Ausfüllen auf all deinen Geräten ein, um dich mit einem einzigen Fingertipp überall anzumelden.";
 "GotIt" = "Verstanden";
+"ClearSsoCookies" = "SSO-Cookies löschen";
 "GenerateCrash" = "Absturz erzeugen";
 "GenerateErrorReport" = "Fehlerbericht generieren";
 "GenerateSdkErrorReport" = "SDK-Fehlerbericht generieren";
@@ -1239,7 +1244,9 @@
 "Skip" = "Überspringen";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Speicher alle deine Zugangsdaten und synchronisiere Verifizierungscodes direkt mit der Authenticator-App.";
+"SyncWithBrowserDescriptionLong" = "Um dich mit %1$@ zu verbinden, synchronisiere deinen Standardbrowser mit der mobilen Bitwarden-App. Wenn sich dein Browser öffnet, dann schließ die Anmeldung ab, wenn du dazu aufgefordert wirst. Sobald die Synchronisierung abgeschlossen ist, wirst du zu dieser App zurückgeleitet.";
 "SyncWithBitwardenApp" = "Mit der Bitwarden-App synchronisieren";
+"SyncWithBrowser" = "Mit Browser synchronisieren";
 "SyncWithTheBitwardenApp" = "Mit der Bitwarden-App synchronisieren";
 "TakeMeToTheAppSettings" = "Bring mich zu den App-Einstellungen";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Das angegebene Datenformat entspricht nicht den Erwartungen. Bitte überprüfe deine Datei und stelle sicher, dass die korrekten Datentypen verwendet werden.";
@@ -1280,11 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Wenn du ablehnst, bleiben deine persönlichen Einträge in deinem Konto erhalten, aber du wirst den Zugriff auf geteilte Einträge und Organisationsfunktionen verlieren.";
 "ContactYourAdminToRegainAccess" = "Kontaktiere deinen Administrator, um wieder Zugriff zu erhalten.";
 "LeaveX" = "%1$@ verlassen";
-"HowToManageMyVault" = "So verwaltest du deinen Tresor";
 "YouLeftTheOrganization" = "Du hast die Organisation verlassen";
+"ItemTransferRequiresMainAppDescriptionLong" = "Eine Organisation möchte die Besitzrechte an deinen persönlichen Einträgen übernehmen. Öffne die Bitwarden-App, um diese Anfrage zu überprüfen und abzuschließen.";
 "ThisSettingIsManagedByYourOrganization" = "Diese Einstellung wird von deiner Organisation verwaltet.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Deine Organisation hat das Standard-Sitzungs-Timeout auf %1$@ gesetzt.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ gesetzt.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Deine Organisation hat das Standard Sitzungs-Timeout auf \"Nie\" gesetzt.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Deine Organisation hat das Standard Sitzungs-Timeout auf \"Beim Neustart der App\" gesetzt.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Deine Organisation hat das maximale Sitzungs-Timeout auf %1$@ und %2$@ gesetzt.";
 "HiddenItems" = "Versteckte Einträge";
 "Archive" = "Archiv";
@@ -1315,3 +1324,10 @@
 "SpecificPeople" = "Bestimmte Personen";
 "WhoCanView" = "Wer kann das sehen";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Das Teilen mit bestimmten Personen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
+"SsoCookiesCleared" = "SSO-Cookies gelöscht";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Deine Anfrage wurde unterbrochen, weil die App erneut authentifiziert werden musste. Bitte versuche es erneut.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden kann dir deine Passwörter und andere Zugangsdaten vorschlagen, wenn du dich bei Apps und Websites anmeldest.";
+"LearnMoreAboutAutofill" = "Erfahre mehr über Auto-Ausfüllen";
+"TurnOnNow" = "Jetzt einschalten";
+"AcceptTransfer" = "Übertragung annehmen";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Dein Passwort darf nicht mit dem Hinweis identisch sein. Bitte wähle einen anderen Hinweis.";

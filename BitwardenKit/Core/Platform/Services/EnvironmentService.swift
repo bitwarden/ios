@@ -14,6 +14,9 @@ public protocol EnvironmentService {
     /// The URL for changing email address.
     var changeEmailURL: URL { get }
 
+    /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
+    var clientCertificateFingerprint: String? { get }
+
     /// The URL for the events API.
     var eventsURL: URL { get }
 

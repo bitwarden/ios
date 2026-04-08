@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Ogiltigt huvudlösenord. Försök igen.";
 "InvalidPIN" = "Ogiltig PIN-kod. Försök igen.";
 "Launch" = "Öppna";
+"LaunchBrowser" = "Starta webbläsare";
 "LogIn" = "Logga in";
 "LoginCredentials" = "Inloggningsuppgifter";
 "LogInNoun" = "Inloggning";
@@ -49,7 +50,7 @@
 "AccountAlreadyAdded" = "Kontot har redan lagts till";
 "SwitchToAlreadyAddedAccountConfirmation" = "Vill du byta till det nu?";
 "MasterPassword" = "Huvudlösenord";
-"More" = "Mer";
+"MoreOptions" = "Fler alternativ";
 "MyVault" = "Mitt valv";
 "Authenticator" = "Autentiserare";
 "Name" = "Namn";
@@ -207,6 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Det enklaste sättet att lägga till nya inloggningar i ditt valv är från Bitwarden Autofill Service. Läs mer om hur du använder Bitwarden Autofill Service genom att navigera till skärmen \"Inställningar\".";
 "Autofill" = "Autofyll";
+"AutofillEnabled" = "Autofyll aktiverat";
 "AutofillOrView" = "Vill du autofylla eller visa den här artikeln?";
 "BitwardenAutofillServiceMatchConfirm" = "Är du säker på att du vill automatiskt fylla i den här inloggningen? Det är inte en fullständig träff för \"%1$@\".";
 "MatchingItems" = "Matchande objekt";
@@ -686,6 +688,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ReceivePushNotificationsForNewLoginRequests" = "Få push-meddelanden för nya inloggningsförfrågningar";
 "NoThanks" = "Nej tack";
 "ConfimLogInAttempForX" = "Bekräfta inloggningsförsök för %1$@";
+"ConfirmLogInAttemptForX" = "Bekräfta inloggningsförsök för %1$@";
 "AllNotifications" = "Alla aviseringar";
 "PasswordType" = "Lösenordstyp";
 "WhatWouldYouLikeToGenerate" = "Vad skulle du vilja generera?";
@@ -837,6 +840,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ContinueToPrivacyPolicy" = "Fortsätt till Integritetspolicy?";
 "ContinueToAppStore" = "Fortsätt till appbutiken?";
 "ContinueToDeviceSettings" = "Fortsätt till enhetsinställningar?";
+"ContinueWithoutSyncing" = "Fortsätt utan att synkronisera";
 "TwoStepLoginDescriptionLong" = "Gör ditt konto säkrare genom att konfigurera tvåstegsverifiering i Bitwardens webbapp.";
 "ChangeMasterPasswordDescriptionLong" = "Du kan ändra ditt huvudlösenord i Bitwardens webbapp.";
 "YouCanImportDataToYourVaultOnX" = "Du kan importera data till ditt valv på %1$@.";
@@ -1044,6 +1048,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "AutofillPasswords" = "Autofyll lösenord";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Ställ in autofyll på alla dina enheter för att logga in med ett enda tryck var som helst.";
 "GotIt" = "Jag fattar";
+"ClearSsoCookies" = "Rensa SSO-cookies";
 "GenerateCrash" = "Generera krasch";
 "GenerateErrorReport" = "Generera felrapport";
 "GenerateSdkErrorReport" = "Generera SDK-felrapport";
@@ -1240,7 +1245,9 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "Skip" = "Hoppa över";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Spara alla inloggningar och synkronisera verifieringskoder direkt med Authenticator-appen.";
+"SyncWithBrowserDescriptionLong" = "To connect to %1$@, sync your default browser with the Bitwarden mobile app. When your browser opens, complete sign-in if prompted. Once syncing is complete, you'll be returned to this app.";
 "SyncWithBitwardenApp" = "Synkronisera med Bitwarden-appen";
+"SyncWithBrowser" = "Synkronisera med webbläsaren";
 "SyncWithTheBitwardenApp" = "Synkronisera med Bitwarden-appen";
 "TakeMeToTheAppSettings" = "Ta mig till appinställningarna";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Det angivna dataformatet stämmer inte överens med det förväntade. Kontrollera din fil och se till att rätt datatyper används.";
@@ -1281,11 +1288,13 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Genom att avböja kommer dina personliga objekt att stanna på ditt konto, men du kommer att förlora åtkomst till delade objekt och organisationsfunktioner.";
 "ContactYourAdminToRegainAccess" = "Kontakta administratören för att återfå åtkomst.";
 "LeaveX" = "Lämna %1$@";
-"HowToManageMyVault" = "Hur man hanterar Mitt valv";
 "YouLeftTheOrganization" = "Du lämnade organisationen";
+"ItemTransferRequiresMainAppDescriptionLong" = "En organisation begär ägarskap av dina personliga objekt. Öppna Bitwardens app för att granska och slutföra denna begäran.";
 "ThisSettingIsManagedByYourOrganization" = "Den här inställningen hanteras av din organisation.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Din organisation har ställt in standardtidsgräns för sessionen till %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Din organisation har ställt in maximal tidsgräns för sessionen till %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Din organisation har ställt in standardtidsgräns för sessionen till aldrig.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Din organisation har ställt in standardtidsgräns för sessionen till vid omstart av appen.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Din organisation har ställt in maximal tidsgräns för sessionen till %1$@ och %2$@.";
 "HiddenItems" = "Dolda objekt";
 "Archive" = "Arkiv";
@@ -1316,3 +1325,10 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SpecificPeople" = "Specifika personer";
 "WhoCanView" = "Vem kan se";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Sharing with specific people is a Premium feature. Your current plan does not include access to this feature.";
+"SsoCookiesCleared" = "SSO-cookies rensade";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Din begäran avbröts eftersom appen behövde autentisera sig på nytt. Försök igen.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden kan föreslå dina lösenord och andra uppgifter när du loggar in på appar och webbplatser.";
+"LearnMoreAboutAutofill" = "Läs mer om autofyll";
+"TurnOnNow" = "Aktivera nu";
+"AcceptTransfer" = "Godkänn överföring";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

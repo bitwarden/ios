@@ -102,8 +102,6 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
-        case .checkVaultMigration:
-            await checkVaultMigration()
         case .dismissArchiveOnboardingActionCard:
             state.shouldShowArchiveOnboardingActionCard = false
             await services.stateService.setArchiveOnboardingShown(true)
@@ -111,6 +109,13 @@ final class VaultListProcessor: StateProcessor<
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
+        case .dismissPremiumUpgradeActionCard:
+            do {
+                try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+                state.shouldShowPremiumUpgradeActionCard = false
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -195,6 +200,9 @@ final class VaultListProcessor: StateProcessor<
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
+        case .upgradeToPremium:
+            // TODO: PM-33849 - Navigate to upgrade to premium view
+            break
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -238,6 +246,15 @@ extension VaultListProcessor {
         if await services.configService.getFeatureFlag(.archiveVaultItems) {
             state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
         }
+
+        if await services.configService.getFeatureFlag(.premiumUpgradePath) {
+            let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
+            let hasEnoughItems = await (try? services.vaultRepository
+                .hasMinimumCipherCount(Constants.minimumPremiumUpgradeBannerCipherCount)) ?? false
+            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
+        } else {
+            state.shouldShowPremiumUpgradeActionCard = false
+        }
     }
 
     /// Checks if the user needs to update their KDF settings.
@@ -277,6 +294,9 @@ extension VaultListProcessor {
                 // Since the request has been handled, remove it from local storage.
                 await services.stateService.setLoginRequest(nil)
             }
+        } catch is PendingLoginRequestError {
+            // Login request no longer exists on the server (e.g., expired); clear it from state.
+            await services.stateService.setLoginRequest(nil)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -288,16 +308,6 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
-    }
-
-    /// Checks if the user needs to migrate their vault. The SyncService delegate handles navigation.
-    ///
-    private func checkVaultMigration() async {
-        do {
-            try await services.syncService.checkUserNeedsVaultMigration()
-        } catch {
-            services.errorReporter.log(error: error)
-        }
     }
 
     /// Checks available item types user can create.

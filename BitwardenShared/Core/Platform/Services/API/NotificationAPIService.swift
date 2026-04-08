@@ -6,7 +6,7 @@ protocol NotificationAPIService {
     /// Performs an API request to save the push notification token to the backend.
     ///
     /// - Parameters:
-    ///   - appId: The app id.
+    ///   - appId: The app ID.
     ///   - token: The push notification received from successfully registering for push notifications.
     ///
     func savePushNotificationToken(for appId: String, token: String) async throws

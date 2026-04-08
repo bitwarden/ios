@@ -5,11 +5,16 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the password auto-fill screen.
 ///
-final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Void, PasswordAutoFillEffect> {
+final class PasswordAutoFillProcessor: StateProcessor<
+    PasswordAutoFillState,
+    PasswordAutoFillAction,
+    PasswordAutoFillEffect,
+> {
     // MARK: Types
 
     /// The services used by this processor.
-    typealias Services = HasAutofillCredentialService
+    typealias Services = HasASSettingsMediator
+        & HasAutofillCredentialService
         & HasConfigService
         & HasErrorReporter
         & HasNotificationCenterService
@@ -20,6 +25,9 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>?
 
+    /// The delegate to notify of autofill completion events.
+    private weak var delegate: (any PasswordAutoFillProcessorDelegate)?
+
     /// The services used by this processor.
     private let services: Services
 
@@ -29,15 +37,18 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
+    ///   - delegate: The delegate to notify of autofill completion events.
     ///   - services: The services required by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
         coordinator: AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>,
+        delegate: (any PasswordAutoFillProcessorDelegate)? = nil,
         services: Services,
         state: PasswordAutoFillState,
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: state)
     }
@@ -48,6 +59,8 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
         switch effect {
         case .checkAutofillOnForeground:
             await monitorAutofillCompletionDuringOnboarding()
+        case .continueTapped:
+            await attemptToTurnOnCredentialProvider()
         case .turnAutoFillOnLaterButtonTapped:
             coordinator?.showAlert(
                 .setUpAutoFillLater { [weak self] in
@@ -57,7 +70,42 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
         }
     }
 
+    override func receive(_ action: PasswordAutoFillAction) {
+        switch action {
+        case .clearURL:
+            state.url = nil
+        }
+    }
+
     // MARK: Private Functions
+
+    /// Attempts to turn on credential provider for autofill or navigate to the OS specific settings.
+    private func attemptToTurnOnCredentialProvider() async {
+        if #available(iOS 18, *) {
+            do {
+                let isOn = try await services.asSettingsMediator.requestToTurnOnCredentialProviderExtension()
+                guard isOn else {
+                    do {
+                        try await services.stateService.setAccountSetupAutofill(.setUpLater)
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                    await navigateOnCompletion()
+                    return
+                }
+            } catch ASSettingsMediatorError.cantRequest {
+                try? await services.asSettingsMediator.openVerificationCodeAppSettings()
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+
+            await checkAutofillCompletion()
+        } else if #available(iOS 17, *) {
+            try? await services.asSettingsMediator.openVerificationCodeAppSettings()
+        } else {
+            state.url = ExternalLinksConstants.passwordOptions
+        }
+    }
 
     /// Continues the set up unlock flow by navigating to autofill setup.
     ///
@@ -89,10 +137,16 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
 
         do {
             try await services.stateService.setAccountSetupAutofill(.complete)
+            delegate?.didEnableAutofill()
         } catch {
             services.errorReporter.log(error: error)
         }
 
+        await navigateOnCompletion()
+    }
+
+    /// Navigates on completion of trying to turn autofill ON appropriately depending on the mode.
+    private func navigateOnCompletion() async {
         switch state.mode {
         case .onboarding:
             await coordinator?.handleEvent(.didCompleteAuth)

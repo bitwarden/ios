@@ -78,7 +78,7 @@ jobs:
           xcodebuild -downloadPlatform watchOS
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
+        uses: ruby/setup-ruby@c984c1a20bb35a1cbda04477c816cea024418be9 # v1.294.0
         with:
           bundler-cache: true
 
@@ -244,7 +244,7 @@ jobs:
           echo "export_filepath=$EXPORT_FILEPATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifacts to GitHub
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: ${{ steps.get_file_paths.outputs.artifact_filename }}
           path: ${{ env._EXPORT_PATH }}

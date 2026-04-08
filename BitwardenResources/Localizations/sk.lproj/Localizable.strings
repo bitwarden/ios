@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Neplatné hlavné heslo. Skúste to znova.";
 "InvalidPIN" = "Neplatný PIN kód. Skúste znova.";
 "Launch" = "Spustiť";
+"LaunchBrowser" = "Spustiť prehliadač";
 "LogIn" = "Prihlásiť sa";
 "LoginCredentials" = "Prihlasovacie údaje";
 "LogInNoun" = "Prihlásenie";
@@ -49,7 +50,7 @@
 "AccountAlreadyAdded" = "Účet je už pridaný";
 "SwitchToAlreadyAddedAccountConfirmation" = "Chceli by ste naň prejsť teraz?";
 "MasterPassword" = "Hlavné heslo";
-"More" = "Viac";
+"MoreOptions" = "Ďalšie možnosti";
 "MyVault" = "Môj trezor";
 "Authenticator" = "Authenticator";
 "Name" = "Meno";
@@ -207,6 +208,7 @@
 "Status" = "Stav";
 "BitwardenAutofillServiceAlert2" = "Najjednoduchší spôsob, ako pridať nové prihlasovacie údaje do vášho trezora, je prostredníctvom služby automatického vypĺňania Bitwardenu. Ďalšie informácie o používaní automatického vypĺňania Bitwardenu získate prechodom do obrazovky Nastavení.";
 "Autofill" = "Automatické vypĺňanie";
+"AutofillEnabled" = "Automatické vypĺňanie je zapnuté";
 "AutofillOrView" = "Chcete automaticky vyplniť alebo zobraziť tieto prihlasovacie údaje?";
 "BitwardenAutofillServiceMatchConfirm" = "Naozaj chcete automaticky vyplniť toto prihlásenie? Nie je to úplná zhoda pre %1$@.";
 "MatchingItems" = "Zodpovedajúce položky";
@@ -589,7 +591,7 @@
 "SendOptionsPolicyInEffect" = "Jedno alebo viac pravidiel organizácie ovplyvňujú vaše možnosti funkcie Send.";
 "SendFilePremiumRequired" = "Bezplatné účty sú obmedzené len na zdieľanie textu. Na odosielanie súborov cez Send sa vyžaduje prémiové členstvo.";
 "SendFileEmailVerificationRequired" = "Na odosielanie súborov cez Send musíte overiť svoj e-mail.";
-"PasswordPrompt" = "Znova zadajte hlavné heslo";
+"PasswordPrompt" = "Znova vyzvať na zadanie hlavného hesla";
 "PasswordConfirmation" = "Potvrdenie hlavného hesla";
 "PasswordConfirmationDesc" = "Táto akcia je chránená. Ak chcete pokračovať, znova zadajte hlavné heslo a overte svoju totožnosť.";
 "CaptchaRequired" = "Vyžaduje sa CAPTCHA";
@@ -685,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Prijímať push notifikácie o nových požiadavkách na prihlásenie";
 "NoThanks" = "Nie, ďakujem";
 "ConfimLogInAttempForX" = "Potvrdiť pokus o prihlásenie pre %1$@";
+"ConfirmLogInAttemptForX" = "Potvrdiť pokus o prihlásenie pre %1$@";
 "AllNotifications" = "Všetky upozornenia";
 "PasswordType" = "Typ hesla";
 "WhatWouldYouLikeToGenerate" = "Čo by ste chceli vygenerovať?";
@@ -836,6 +839,7 @@
 "ContinueToPrivacyPolicy" = "Pokračovať na zásady ochrany osobných údajov?";
 "ContinueToAppStore" = "Pokračovať v obchode s aplikáciami?";
 "ContinueToDeviceSettings" = "Pokračovať do nastavení zariadenia?";
+"ContinueWithoutSyncing" = "Pokračovať bez synchronizácie";
 "TwoStepLoginDescriptionLong" = "Zabezpečte svoj účet nastavením dvojstupňového prihlasovania vo webovej aplikácii Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Hlavné heslo si môžete zmeniť vo webovej aplikácii Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Údaje do trezora môžete importovať na stránke %1$@.";
@@ -1043,6 +1047,7 @@
 "AutofillPasswords" = "Automatické vypĺňanie hesiel";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte si automatické vypĺňanie na všetkých svojich zariadeniach a prihláste sa jediným ťuknutím kdekoľvek.";
 "GotIt" = "Chápem";
+"ClearSsoCookies" = "Vymazať cookies SSO";
 "GenerateCrash" = "Generovať zlyhanie";
 "GenerateErrorReport" = "Generovať správu o zlyhaní";
 "GenerateSdkErrorReport" = "Generovať správu o zlyhaní SDK";
@@ -1239,7 +1244,9 @@
 "Skip" = "Preskočiť";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Ukladajte všetky svoje prihlasovacie údaje a synchronizujte overovacie kódy priamo s aplikáciou Authenticator.";
+"SyncWithBrowserDescriptionLong" = "Ak sa chcete pripojiť k %1$@, synchronizujte svoj predvolený prehliadač s mobilnou aplikáciou Bitwarden. Po otvorení prehliadača sa prihláste, ak budete vyzvaní. Po dokončení synchronizácie budete presmerovaný do tejto aplikácie.";
 "SyncWithBitwardenApp" = "Synchronizovať s apkou Bitwarden";
+"SyncWithBrowser" = "Synchronizácia s prehliadačom";
 "SyncWithTheBitwardenApp" = "Synchronizovať s apkou Bitwarden";
 "TakeMeToTheAppSettings" = "Prejsť do nastavení apky";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Poskytnutý formát údajov nezodpovedá očakávaniam. Skontrolujte súbor a uistite sa, že sú použité správne typy údajov.";
@@ -1280,11 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Ak odmietnete, vaše osobné položky zostanú vo vašom účte, ale stratíte prístup k zdieľaným položkám a funkciám organizácie.";
 "ContactYourAdminToRegainAccess" = "Ak chcete obnoviť prístup, obráťte sa na správcu.";
 "LeaveX" = "Opustiť %1$@";
-"HowToManageMyVault" = "Ako spravovať môj trezor";
 "YouLeftTheOrganization" = "Opustili ste organizáciu";
+"ItemTransferRequiresMainAppDescriptionLong" = "Organizácia žiada o vlastníctvo vašich osobných položiek. Otvorte hlavnú aplikáciu Bitwarden, aby ste túto žiadosť skontrolovali a dokončili.";
 "ThisSettingIsManagedByYourOrganization" = "Toto nastavenie spravuje vaša organizácia.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Vaša organizácia nastavila predvolený časový limit relácie na %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Vaša organizácia nastavila predvolený časový limit relácie na [%1$s].";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Vaša organizácia nastavila predvolený časový limit relácie na reštart aplikácie.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Vaša organizácia nastavila maximálny časový limit relácie na %1$@ a %2$@.";
 "HiddenItems" = "Skryté položky";
 "Archive" = "Archív";
@@ -1295,7 +1304,7 @@
 "SendingToArchive" = "Odosiela sa do archívu…";
 "MovingItemToVault" = "Položka sa presúva do trezoru";
 "OrganizationNotFound" = "Organizácia sa nenašla.";
-"ItemsTransferred" = "Items transferred";
+"ItemsTransferred" = "Položky boli prenesené";
 "ArchiveIsEmpty" = "Archív je prázdny";
 "ArchiveEmptyDescriptionLong" = "Naplňte svoj archív položkami, ktoré nechcete vidieť vo výsledkoch vyhľadávania a automatických návrhoch, ale ktoré budete možno niekedy potrebovať.";
 "ArchiveUnavailable" = "Archív je nedostupný";
@@ -1315,3 +1324,10 @@
 "SpecificPeople" = "Konkrétne osoby";
 "WhoCanView" = "Kto môže zobraziť";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Zdieľanie s konkrétnymi osobami je prémiová funkcia. Váš aktuálny plán nezahŕňa prístup k tejto funkcii.";
+"SsoCookiesCleared" = "Cookies SSO vymazané";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Vaša žiadosť bola prerušená, pretože aplikácia musela znovu overiť vašu identitu. Skúste to znova.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden vám môže navrhovať heslá a ďalšie prihlasovacie údaje pri prihlasovaní do aplikácií a na webové stránky.";
+"LearnMoreAboutAutofill" = "Viac informácií o automatickom vypĺňaní";
+"TurnOnNow" = "Zapnúť teraz";
+"AcceptTransfer" = "Prijať prenos";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Heslo a nápoveď sa nesmú zhodovať. Zvoľte si inú nápoveď.";

@@ -77,6 +77,8 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
 
+    var hasMinimumCipherCountResult: Result<Bool, Error> = .success(false)
+
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
@@ -261,6 +263,10 @@ class MockVaultRepository: VaultRepository { // swiftlint:disable:this type_body
 
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {
         try getTOTPKeyIfAllowedToCopyResult.get()
+    }
+
+    func hasMinimumCipherCount(_ count: Int) async throws -> Bool {
+        try hasMinimumCipherCountResult.get()
     }
 
     func isVaultEmpty() async throws -> Bool {

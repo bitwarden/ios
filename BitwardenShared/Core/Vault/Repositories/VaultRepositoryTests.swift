@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -9,9 +10,11 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+@MainActor
 class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var cipherEncryptionMediator: MockCipherEncryptionMediator!
     var cipherService: MockCipherService!
     var client: MockHTTPClient!
     var clientCiphers: MockClientCiphers!
@@ -32,6 +35,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
+    var totpService: MockTOTPService!
     var vaultListDirectorStrategy: MockVaultListDirectorStrategy!
     var vaultListSearchDirectorStrategy: MockVaultListSearchDirectorStrategy!
     var vaultListDirectorStrategyFactory: MockVaultListDirectorStrategyFactory!
@@ -39,8 +43,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
+
+        cipherEncryptionMediator = MockCipherEncryptionMediator()
+        cipherEncryptionMediator.encryptAndUpdateCipherClosure = { cipherView in
+            Cipher(cipherView: cipherView)
+        }
+        cipherEncryptionMediator.updateCipherKeyIfNeededClosure = { cipherView in
+            cipherView
+        }
 
         cipherService = MockCipherService()
         client = MockHTTPClient()
@@ -58,6 +70,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         policyService = MockPolicyService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(now))
+        totpService = MockTOTPService()
         vaultListDirectorStrategyFactory = MockVaultListDirectorStrategyFactory()
         vaultTimeoutService = MockVaultTimeoutService()
         clientService.mockVault.clientCiphers = clientCiphers
@@ -69,6 +82,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         vaultListDirectorStrategyFactory.makeSearchStrategyReturnValue = vaultListSearchDirectorStrategy
 
         subject = DefaultVaultRepository(
+            cipherEncryptionMediator: cipherEncryptionMediator,
             cipherService: cipherService,
             clientService: clientService,
             collectionHelper: collectionHelper,
@@ -83,14 +97,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             stateService: stateService,
             syncService: syncService,
             timeProvider: timeProvider,
+            totpService: totpService,
             vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
             vaultTimeoutService: vaultTimeoutService,
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
+        cipherEncryptionMediator = nil
         cipherService = nil
         client = nil
         clientCiphers = nil
@@ -108,6 +124,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService = nil
         subject = nil
         timeProvider = nil
+        totpService = nil
         vaultListDirectorStrategy = nil
         vaultListDirectorStrategyFactory = nil
         vaultTimeoutService = nil
@@ -151,24 +168,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixtureAccountLogin()
         let cipherView: CipherView = .fixture(id: "123")
         cipherService.archiveCipherResult = .success(())
+
         try await subject.archiveCipher(cipherView)
+
         XCTAssertNil(cipherView.archivedDate)
         XCTAssertNotNil(cipherService.archiveCipher?.archivedDate)
         XCTAssertEqual(cipherService.archiveCipherId, "123")
-    }
-
-    /// `archiveCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_archiveCipher_updatesMigratedCipher() async throws {
-        stateService.activeAccount = .fixture()
-        let cipherView = CipherView.fixture()
-        let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
-
-        try await subject.archiveCipher(cipherView)
-
-        XCTAssertEqual(cipherService.archiveCipher, cipher)
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
-        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
+        XCTAssertNil(cipherEncryptionMediator.updateCipherKeyIfNeededReceivedCipherView?.archivedDate)
+        XCTAssertNotNil(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView?.archivedDate)
     }
 
     /// `bulkShareCiphers()` ensures cipher keys, prepares ciphers and calls the cipher service.
@@ -188,7 +195,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.bulkShareCiphers(ciphers, newOrganizationId: "org-123", newCollectionIds: ["col-1", "col-2"])
 
         // Verify ciphers were encrypted (to ensure cipher key).
-        XCTAssertEqual(clientCiphers.encryptedCiphers.count, 2)
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherCallsCount, 2)
 
         // Verify bulk share was called.
         XCTAssertEqual(cipherService.bulkShareCiphersWithServerCiphers.last, encryptionContexts.map(\.cipher))
@@ -1048,6 +1055,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(totpKey, "123")
     }
 
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher has an empty TOTP key.
+    func test_getTOTPKeyIfAllowedToCopy_totpEmpty() async throws {
+        stateService.activeAccount = .fixture()
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: ""),
+            organizationUseTotp: true,
+        ))
+        XCTAssertNil(totpKey)
+    }
+
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher doesn't have TOTP key.
     func test_getTOTPKeyIfAllowedToCopy_totpNil() async throws {
         stateService.activeAccount = .fixture()
@@ -1071,16 +1088,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher has TOTP key,
-    /// is enable to auto copy the TOTP and cipher organization doesn't use TOTP and active account
-    /// doesn't have premiium.
-    func test_getTOTPKeyIfAllowedToCopy_orgDoesntUseTOTPAndAccountDoesntHavePremium() async throws {
+    /// and cipher organization doesn't use TOTP and active account doesn't have premiium.
+    func test_getTOTPKeyIfAllowedToCopy_totpNotAuthorized_returnsNil() async throws {
         stateService.activeAccount = .fixture()
-        stateService.disableAutoTotpCopyByUserId["1"] = false
-        stateService.doesActiveAccountHavePremiumResult = false
+        totpService.isTotpAuthorizedResult = false
+
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
             organizationUseTotp: false,
         ))
+
         XCTAssertNil(totpKey)
     }
 
@@ -1120,6 +1137,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             _ = try await subject.needsSync()
         }
         XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
+    }
+
+    /// `hasMinimumCipherCount(_:)` throws an error if one occurs.
+    func test_hasMinimumCipherCount_error() async {
+        cipherService.cipherCountResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.hasMinimumCipherCount(5)
+        }
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `true` when vault has at least the specified count.
+    func test_hasMinimumCipherCount_true() async throws {
+        cipherService.cipherCountResult = .success(5)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertTrue(hasMinimum)
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `true` when vault has more than the specified count.
+    func test_hasMinimumCipherCount_moreThanMinimum() async throws {
+        cipherService.cipherCountResult = .success(6)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertTrue(hasMinimum)
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `false` when vault has fewer than the specified count.
+    func test_hasMinimumCipherCount_false() async throws {
+        cipherService.cipherCountResult = .success(4)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertFalse(hasMinimum)
     }
 
     /// `isVaultEmpty()` throws an error if one occurs.
@@ -1420,7 +1466,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipherCollections(cipher)
 
         XCTAssertEqual(cipherService.updateCipherCollectionsWithServerCiphers, [Cipher(cipherView: cipher)])
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipher)
     }
 
     /// `updateCipherCollections()` unarchives the cipher when it's archived, feature flag is on,
@@ -1436,7 +1482,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         // Verify cipher was unarchived before updating collections
         let unarchivedCipher = archivedCipher.update(archivedDate: nil)
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [unarchivedCipher])
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, unarchivedCipher)
         XCTAssertEqual(
             cipherService.updateCipherCollectionsWithServerCiphers,
             [Cipher(cipherView: unarchivedCipher)],
@@ -1455,7 +1501,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipherCollections(archivedCipher)
 
         // Verify cipher was NOT unarchived (kept archived)
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [archivedCipher])
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, archivedCipher)
         XCTAssertEqual(
             cipherService.updateCipherCollectionsWithServerCiphers,
             [Cipher(cipherView: archivedCipher)],
@@ -1474,7 +1520,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipherCollections(archivedCipher)
 
         // Verify cipher was NOT unarchived (kept archived)
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [archivedCipher])
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, archivedCipher)
         XCTAssertEqual(
             cipherService.updateCipherCollectionsWithServerCiphers,
             [Cipher(cipherView: archivedCipher)],
@@ -1492,7 +1538,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipherCollections(cipher)
 
         // Verify cipher was updated normally (no changes)
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipher)
         XCTAssertEqual(
             cipherService.updateCipherCollectionsWithServerCiphers,
             [Cipher(cipherView: cipher)],
@@ -1666,24 +1712,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixtureAccountLogin()
         let cipherView: CipherView = .fixture(deletedDate: .now, id: "123")
         cipherService.restoreWithServerResult = .success(())
+
         try await subject.restoreCipher(cipherView)
+
         XCTAssertNotNil(cipherView.deletedDate)
         XCTAssertNil(cipherService.restoredCipher?.deletedDate)
         XCTAssertEqual(cipherService.restoredCipherId, "123")
-    }
-
-    /// `restoreCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_restoreCipher_updatesMigratedCipher() async throws {
-        stateService.activeAccount = .fixture()
-        let cipherView = CipherView.fixture(deletedDate: .now)
-        let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
-
-        try await subject.restoreCipher(cipherView)
-
-        XCTAssertEqual(cipherService.restoredCipher, cipher)
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
-        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView?.id, "123")
     }
 
     /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
@@ -1692,36 +1727,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let cipherView = CipherView.fixture()
         let updatedCipher = try await subject.saveAttachment(
-            cipherView: .fixture(),
+            cipherView: cipherView,
             fileData: Data(),
             fileName: "Pineapple on pizza",
         )
 
         // Ensure all the steps completed as expected.
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [.fixture()])
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipherView)
         XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedBuffers, [Data()])
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherView))
         XCTAssertEqual(updatedCipher.id, "42")
-    }
-
-    /// `saveAttachment(cipherView:fileData:fileName:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_saveAttachment_updatesMigratedCipher() async throws {
-        cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
-        let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
-
-        let updatedCipher = try await subject.saveAttachment(
-            cipherView: .fixture(),
-            fileData: Data(),
-            fileName: "Pineapple on pizza",
-        )
-
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [.fixture()])
-        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedBuffers, [Data()])
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
-        XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, cipher)
-        XCTAssertEqual(updatedCipher.id, "42")
-        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `softDeleteCipher()` throws on id errors.
@@ -1740,23 +1755,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixtureAccountLogin()
         let cipherView: CipherView = .fixture(id: "123")
         cipherService.softDeleteWithServerResult = .success(())
+
         try await subject.softDeleteCipher(cipherView)
+
         XCTAssertNil(cipherView.deletedDate)
         XCTAssertNotNil(cipherService.softDeleteCipher?.deletedDate)
         XCTAssertEqual(cipherService.softDeleteCipherId, "123")
-    }
-
-    /// `softDeleteCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_softDeleteCipher_updatesMigratedCipher() async throws {
-        stateService.activeAccount = .fixture()
-        let cipherView = CipherView.fixture(deletedDate: .now)
-        let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
-
-        try await subject.softDeleteCipher(cipherView)
-
-        XCTAssertEqual(cipherService.softDeleteCipher, cipher)
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView?.id, "123")
     }
 
     /// `vaultListPublisher(filter:)` makes a strategy and builds the vault list sections.
@@ -1836,24 +1841,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixtureAccountLogin()
         let cipherView: CipherView = .fixture(archivedDate: .now, id: "123")
         cipherService.unarchiveCipherResult = .success(())
+
         try await subject.unarchiveCipher(cipherView)
+
         XCTAssertNotNil(cipherView.archivedDate)
         XCTAssertNil(cipherService.unarchiveCipher?.archivedDate)
         XCTAssertEqual(cipherService.unarchiveCipherId, "123")
-    }
-
-    /// `unarchiveCipher(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_unarchiveCipher_updatesMigratedCipher() async throws {
-        stateService.activeAccount = .fixture()
-        let cipherView = CipherView.fixture(archivedDate: .now)
-        let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
-
-        try await subject.unarchiveCipher(cipherView)
-
-        XCTAssertEqual(cipherService.unarchiveCipher, cipher)
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
-        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
+        XCTAssertNotNil(cipherEncryptionMediator.updateCipherKeyIfNeededReceivedCipherView?.archivedDate)
+        XCTAssertNil(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView?.archivedDate)
     }
 
     // MARK: Private

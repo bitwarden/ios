@@ -8,9 +8,6 @@ enum VaultListEffect: Equatable {
     /// Check if the user is eligible for an app review prompt.
     case checkAppReviewEligibility
 
-    /// Check if the user needs to migrate their vault to my items.
-    case checkVaultMigration
-
     /// The user tapped the dismiss button on the Archive Onboarding action card.
     case dismissArchiveOnboardingActionCard
 
@@ -19,6 +16,9 @@ enum VaultListEffect: Equatable {
 
     /// The user tapped the dismiss button on the import logins action card.
     case dismissImportLoginsActionCard
+
+    /// The user tapped the dismiss button on the Premium Upgrade action card.
+    case dismissPremiumUpgradeActionCard
 
     /// The more button on an item in the vault group was tapped.
     ///

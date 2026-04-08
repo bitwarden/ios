@@ -8,7 +8,7 @@ import XCTest
 
 // swiftlint:disable file_length type_body_length
 
-final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
+final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase, @unchecked Sendable {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
@@ -66,8 +66,6 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
             forUserId: "userID 2",
         )
 
-        keychainRepository.authenticatorKey = keychainRepository.generateMockKeyData()
-
         try await subject.deleteAll()
 
         // Verify items were deleted
@@ -79,7 +77,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertNotNil(fetchResultTwo)
         XCTAssertEqual(fetchResultTwo.count, 0)
 
-        XCTAssertNil(keychainRepository.authenticatorKey)
+        XCTAssertTrue(keychainRepository.deleteAuthenticatorKeyCalled)
     }
 
     /// `deleteAll()` rethrows errors.
@@ -95,7 +93,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
             forUserId: "userID 2",
         )
 
-        keychainRepository.errorToThrow = BitwardenTestError.example
+        keychainRepository.deleteAuthenticatorKeyThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.deleteAll()
@@ -155,6 +153,49 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         // None of the items for userId should contain the item inserted for differentUserId
         let emptyResult = result.filter { $0.id == differentUserItem.id }
         XCTAssertEqual(emptyResult.count, 0)
+    }
+
+    /// Verify that `fetchAllForUserId` can be called concurrently from multiple tasks
+    /// without causing CoreData threading violations.
+    ///
+    func test_fetchAllForUserId_concurrentAccess() async throws {
+        let expectedItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(expectedItems, forUserId: "userId")
+
+        try await withThrowingTaskGroup(of: [AuthenticatorBridgeItemDataView].self) { group in
+            for _ in 0 ..< 10 {
+                group.addTask {
+                    try await self.subject.fetchAllForUserId("userId")
+                }
+            }
+            for try await result in group {
+                XCTAssertEqual(result.sorted { $0.id < $1.id }, expectedItems)
+            }
+        }
+    }
+
+    /// Verify that concurrent `fetchAllForUserId` and `insertItems` calls do not cause
+    /// CoreData threading violations.
+    ///
+    func test_fetchAllForUserId_concurrentWithInserts() async throws {
+        let items = AuthenticatorBridgeItemDataView.fixtures()
+
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask {
+                try? await self.subject.insertItems(items, forUserId: "userA")
+            }
+            group.addTask {
+                try? await self.subject.insertItems(items, forUserId: "userB")
+            }
+            for _ in 0 ..< 5 {
+                group.addTask {
+                    _ = try? await self.subject.fetchAllForUserId("userA")
+                }
+            }
+        }
+
+        let result = try await subject.fetchAllForUserId("userA")
+        XCTAssertEqual(result.count, items.count)
     }
 
     /// When no temporary item has been stored,  `fetchTemporaryItem()` returns `nil`
@@ -219,7 +260,8 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// Verify that `isSyncOn` returns false when the key is not present in the keychain.
     ///
     func test_isSyncOn_false() async throws {
-        try keychainRepository.deleteAuthenticatorKey()
+        let error = KeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        keychainRepository.getAuthenticatorKeyThrowableError = error
         let sync = await subject.isSyncOn()
         XCTAssertFalse(sync)
     }
@@ -227,8 +269,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// Verify that `isSyncOn` returns true when the key is present in the keychain.
     ///
     func test_isSyncOn_true() async throws {
-        let key = keychainRepository.generateMockKeyData()
-        try await keychainRepository.setAuthenticatorKey(key)
+        keychainRepository.getAuthenticatorKeyReturnValue = keychainRepository.generateMockKeyData()
         let sync = await subject.isSyncOn()
         XCTAssertTrue(sync)
     }
@@ -418,6 +459,24 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
 
         XCTAssertNotNil(itemsForWithinTimeoutUser)
         XCTAssertEqual(itemsForWithinTimeoutUser.count, withinTimeoutItems.count)
+    }
+
+    /// Verify that `sharedItemsPublisher()` can be called concurrently from multiple tasks
+    /// without causing CoreData threading violations in `checkForLogout`.
+    ///
+    func test_sharedItemsPublisher_concurrentCheckForLogout() async throws {
+        let items = AuthenticatorBridgeItemDataView.fixtures()
+        try await subject.insertItems(items, forUserId: "userId")
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for _ in 0 ..< 5 {
+                group.addTask {
+                    let publisher = try await self.subject.sharedItemsPublisher()
+                    publisher.sink(receiveCompletion: { _ in }, receiveValue: { _ in }).cancel()
+                }
+            }
+            try await group.waitForAll()
+        }
     }
 
     /// `sharedItemsPublisher()` throws if checking for logout throws

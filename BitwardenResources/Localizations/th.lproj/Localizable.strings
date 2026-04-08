@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "รหัสผ่านหลักไม่ถูกต้อง โปรดลองอีกครั้ง";
 "InvalidPIN" = "รหัส PIN ไม่ถูกต้อง โปรดลองอีกครั้ง";
 "Launch" = "เปิด";
+"LaunchBrowser" = "เปิดบราว์เซอร์";
 "LogIn" = "เข้าสู่ระบบ";
 "LoginCredentials" = "ข้อมูลเข้าสู่ระบบ";
 "LogInNoun" = "เข้าสู่ระบบ";
@@ -49,7 +50,7 @@
 "AccountAlreadyAdded" = "เพิ่มบัญชีแล้ว";
 "SwitchToAlreadyAddedAccountConfirmation" = "ต้องการสลับไปใช้บัญชีดังกล่าวตอนนี้หรือไม่";
 "MasterPassword" = "รหัสผ่านหลัก";
-"More" = "เพิ่มเติม";
+"MoreOptions" = "ตัวเลือกเพิ่มเติม";
 "MyVault" = "ตู้นิรภัยของฉัน";
 "Authenticator" = "แอปยืนยันตัวตน";
 "Name" = "ชื่อ";
@@ -207,6 +208,7 @@
 "Status" = "สถานะ";
 "BitwardenAutofillServiceAlert2" = "วิธีที่ง่ายที่สุดในการเพิ่มข้อมูลเข้าสู่ระบบใหม่ลงในตู้นิรภัยคือผ่านบริการป้อนอัตโนมัติของ Bitwarden เรียนรู้เพิ่มเติมเกี่ยวกับการใช้บริการนี้ได้ที่หน้า “การตั้งค่า”";
 "Autofill" = "ป้อนอัตโนมัติ";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "ต้องการป้อนอัตโนมัติหรือดูรายการนี้";
 "BitwardenAutofillServiceMatchConfirm" = "ยืนยันที่จะป้อนข้อมูลรายการนี้อัตโนมัติหรือไม่ รายการนี้ไม่ตรงกับ “%1$@” ทั้งหมด";
 "MatchingItems" = "รายการที่ตรงกัน";
@@ -685,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "รับการแจ้งเตือนแบบพุชสำหรับคำขอเข้าสู่ระบบใหม่";
 "NoThanks" = "ไม่ ขอบคุณ";
 "ConfimLogInAttempForX" = "ยืนยันความพยายามเข้าสู่ระบบสำหรับ %1$@";
+"ConfirmLogInAttemptForX" = "ยืนยันความพยายามเข้าสู่ระบบสำหรับ %1$@";
 "AllNotifications" = "การแจ้งเตือนทั้งหมด";
 "PasswordType" = "ประเภทรหัสผ่าน";
 "WhatWouldYouLikeToGenerate" = "คุณต้องการสร้างอะไร";
@@ -836,6 +839,7 @@
 "ContinueToPrivacyPolicy" = "ดำเนินการต่อไปยังนโยบายความเป็นส่วนตัวหรือไม่";
 "ContinueToAppStore" = "ดำเนินการต่อไปยัง App Store หรือไม่";
 "ContinueToDeviceSettings" = "ดำเนินการต่อไปยังการตั้งค่าอุปกรณ์หรือไม่";
+"ContinueWithoutSyncing" = "ดำเนินการต่อโดยไม่ซิงค์";
 "TwoStepLoginDescriptionLong" = "ทำให้บัญชีของคุณปลอดภัยยิ่งขึ้นโดยการตั้งค่าการยืนยันตัวตนสองขั้นตอนในเว็บแอป Bitwarden";
 "ChangeMasterPasswordDescriptionLong" = "คุณสามารถเปลี่ยนรหัสผ่านหลักได้ในเว็บแอป Bitwarden";
 "YouCanImportDataToYourVaultOnX" = "คุณสามารถนำเข้าข้อมูลไปยังตู้นิรภัยของคุณได้บน %1$@";
@@ -1043,6 +1047,7 @@
 "AutofillPasswords" = "ป้อนรหัสผ่านอัตโนมัติ";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "ตั้งค่าการป้อนอัตโนมัติบนอุปกรณ์ทั้งหมดของคุณเพื่อเข้าสู่ระบบด้วยการแตะเพียงครั้งเดียวจากทุกที่";
 "GotIt" = "รับทราบ";
+"ClearSsoCookies" = "ลบคุกกี้ SSO";
 "GenerateCrash" = "สร้างการหยุดทำงาน (Crash)";
 "GenerateErrorReport" = "สร้างรายงานข้อผิดพลาด";
 "GenerateSdkErrorReport" = "สร้างรายงานข้อผิดพลาด SDK";
@@ -1239,7 +1244,9 @@
 "Skip" = "ข้าม";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "จัดเก็บข้อมูลเข้าสู่ระบบทั้งหมดของคุณและซิงค์รหัสยืนยันกับแอป Authenticator โดยตรง";
+"SyncWithBrowserDescriptionLong" = "ในการเชื่อมต่อกับ %1$@, ซิ้งค์กับเบราว์เซอร์เริ่มต้นด้วยแอป Bitwarden เมื่อเปิดเบราว์เซอร์ ลงชื่อเข้าใช้ให้สำเร็จหากจำเป็น เมื่อซิ้งค์สำเร็จแล้ว คุณจะถูกนำกลับมาที่แอปนี้";
 "SyncWithBitwardenApp" = "ซิงค์กับแอป Bitwarden";
+"SyncWithBrowser" = "ซิงค์กับบราว์เซอร์";
 "SyncWithTheBitwardenApp" = "ซิงค์กับแอป Bitwarden";
 "TakeMeToTheAppSettings" = "พาฉันไปที่การตั้งค่าแอป";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "รูปแบบข้อมูลที่ระบุไม่ตรงกับที่คาดไว้ โปรดตรวจสอบไฟล์ของคุณและตรวจสอบให้แน่ใจว่าใช้ประเภทข้อมูลที่ถูกต้อง";
@@ -1280,11 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "หากปฏิเสธ รายการส่วนตัวของคุณจะยังคงอยู่ในบัญชี แต่คุณจะเสียสิทธิ์เข้าถึงรายการที่แชร์และฟีเจอร์ขององค์กร";
 "ContactYourAdminToRegainAccess" = "ติดต่อผู้ดูแลระบบเพื่อขอรับสิทธิ์เข้าถึงอีกครั้ง";
 "LeaveX" = "ออกจาก %1$@";
-"HowToManageMyVault" = "วิธีจัดการตู้นิรภัยของฉัน";
 "YouLeftTheOrganization" = "คุณออกจากองค์กรแล้ว";
+"ItemTransferRequiresMainAppDescriptionLong" = "องค์กรหนี่ง กำลังขอสิทธิการครอบครองรายการส่วนตัวของคุณ เปิดแอป Bitwarden หลักเพื่อตรวจสอบ และดำเนินการตามคำขอนี้ให้เสร็จสมบูรณ์";
 "ThisSettingIsManagedByYourOrganization" = "การตั้งค่านี้ได้รับการจัดการโดยองค์กรของคุณ";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "องค์กรของคุณได้ตั้งค่าเวลาหมดอายุเซสชันเริ่มต้นเป็น %1$@";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "องค์กรของคุณกำหนดการหมดเวลาเซสชันสูงสุดเป็น %1$@";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "องค์กรของคุณกำหนดการหมดเวลาเซสชันเริ่มต้นเป็น ไม่เลย";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "องค์กรของคุณกำหนดการหมดเวลาเซสชันเริ่มต้นเป็น เมื่อเปิดแอปใหม่";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "องค์กรของคุณกำหนดการหมดเวลาเซสชันสูงสุดเป็น %1$@ %2$@";
 "HiddenItems" = "รายการที่ซ่อนไว้";
 "Archive" = "รายการเก็บถาวร";
@@ -1315,3 +1324,10 @@
 "SpecificPeople" = "บุคคลที่ระบุ";
 "WhoCanView" = "ใครสามารดูได้";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "การแชร์กับบุคคลที่ระบุเป็นฟีเจอร์พรีเมียม แผนปัจจุบันของคุณไม่สามารถใช้งานฟีเจอร์นี้ได้";
+"SsoCookiesCleared" = "ลบคุกกี้ SSO แล้ว";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "คำขอของคุณถูกขัด เพราะแอปต้องการที่จะยืนยันตัวตนใหม่ โปรดลองอีกครั้ง";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Learn more about autofill";
+"TurnOnNow" = "Turn on now";
+"AcceptTransfer" = "Accept transfer";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

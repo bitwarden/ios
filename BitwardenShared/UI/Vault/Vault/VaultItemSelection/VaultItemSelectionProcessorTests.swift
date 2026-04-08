@@ -646,7 +646,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         subject.receive(.searchStateChanged(isSearching: true))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
         XCTAssertTrue(searchProcessorMediator.startSearchingCalled)
         XCTAssertFalse(searchProcessorMediator.stopSearchingCalled)
     }

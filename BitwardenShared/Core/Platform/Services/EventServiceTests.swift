@@ -5,6 +5,7 @@ import XCTest
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+@MainActor
 class EventServiceTests: XCTestCase {
     // MARK: Properties
 
@@ -39,8 +40,8 @@ class EventServiceTests: XCTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         cipherService = nil
         client = nil

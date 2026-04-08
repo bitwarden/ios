@@ -95,9 +95,6 @@ private struct VaultAutofillListSearchableView: View {
                 store.send(.searchStateChanged(isSearching: newValue))
             }
             .task {
-                await store.perform(.checkVaultMigration)
-            }
-            .task {
                 await store.perform(.loadData)
             }
             .task {

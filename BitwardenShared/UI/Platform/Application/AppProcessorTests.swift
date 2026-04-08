@@ -195,6 +195,10 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `init()` subscribes to will enter foreground events and handles an active user timeout.
     @MainActor
     func test_init_appForeground_activeUserTimeout() {
+        // The processor checks for account timeouts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        waitFor(willEnterForegroundCalled == 1)
+
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
         let account2 = Account.fixture(profile: .fixture(userId: "2"))
         stateService.activeAccount = account1
@@ -203,7 +207,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService.shouldSessionTimeout["1"] = true
         notificationCenterService.willEnterForegroundSubject.send()
         // Wait for the checkSessionTimeouts method to be called
-        waitFor(authRepository.checkSessionTimeoutCalled)
+        waitFor(authRepository.checkSessionTimeoutCalled && authRepository.handleActiveUserClosure != nil)
 
         // Simulate calling the handleActiveUser closure
         if let handleActiveUserClosure = authRepository.handleActiveUserClosure {
@@ -686,6 +690,19 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
         vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
+    /// coordinator if the user's vault is unlocked but a vault migration is required.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultUnlockedMigrationRequired() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
 
         await subject.openUrl(.bitwardenAccountSecurity)
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
@@ -1527,39 +1544,5 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
-    }
-
-    /// `migrateVaultToMyItems(organizationId:)` shows a warning alert instead of the migration
-    /// screen when running in an app extension, and closes the extension when OK is tapped.
-    @MainActor
-    func test_migrateVaultToMyItems_inAppExtension() async throws {
-        let delegate = MockAppExtensionDelegate()
-        delegate.isInAppExtension = true
-        subject = AppProcessor(
-            appExtensionDelegate: delegate,
-            appModule: appModule,
-            services: ServiceContainer.withMocks(),
-        )
-        subject.coordinator = coordinator.asAnyCoordinator()
-        coordinator.isLoadingOverlayShowing = true
-
-        subject.migrateVaultToMyItems(organizationId: "org-123")
-
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertTrue(coordinator.routes.isEmpty)
-
-        // Verify alert is shown with correct content.
-        XCTAssertEqual(coordinator.alertShown.count, 1)
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert.title, Localizations.itemTransfer)
-        XCTAssertEqual(alert.message, Localizations.itemTransferRequiresMainAppDescriptionLong)
-        XCTAssertEqual(alert.alertActions.count, 1)
-        XCTAssertEqual(alert.alertActions.first?.title, Localizations.ok)
-
-        // Verify tapping OK closes the extension.
-        XCTAssertFalse(delegate.didCancelCalled)
-        let okAction = try XCTUnwrap(alert.alertActions.first)
-        await okAction.handler?(okAction, [])
-        XCTAssertTrue(delegate.didCancelCalled)
     }
 }

@@ -9,6 +9,7 @@ import XCTest
 class MigrateToMyItemsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appExtensionDelegate: MockAppExtensionDelegate!
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockMigrateToMyItemsProcessorDelegate!
@@ -22,6 +23,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        appExtensionDelegate = MockAppExtensionDelegate()
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         delegate = MockMigrateToMyItemsProcessorDelegate()
@@ -30,6 +32,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         vaultRepository = MockVaultRepository()
 
         subject = MigrateToMyItemsProcessor(
+            appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
@@ -45,6 +48,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        appExtensionDelegate = nil
         authRepository = nil
         coordinator = nil
         delegate = nil
@@ -99,7 +103,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(authRepository.revokeSelfFromOrganizationCalled)
         XCTAssertEqual(authRepository.revokeSelfFromOrganizationOrganizationId, "org-123")
-        XCTAssertEqual(eventService.collectEventType, .organizationItemOrganizationDeclined)
+        XCTAssertNil(eventService.collectEventType)
         XCTAssertTrue(delegate.didLeaveOrganizationCalled)
         XCTAssertTrue(coordinator.alertShown.isEmpty)
     }
@@ -179,6 +183,26 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.alertShown.count, 1)
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    // MARK: Tests - CloseTapped Action
+
+    /// `receive(_:)` with `.closeTapped` calls didCancel on the app extension delegate.
+    @MainActor
+    func test_receive_closeTapped() {
+        subject.receive(.closeTapped)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+    }
+
+    // MARK: Tests - ContinueToBitwardenTapped Action
+
+    /// `receive(_:)` with `.continueToBitwardenTapped` calls didCancel on the app extension delegate.
+    @MainActor
+    func test_receive_continueToBitwardenTapped() {
+        subject.receive(.continueToBitwardenTapped)
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 }
 

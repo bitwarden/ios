@@ -13,7 +13,7 @@ struct PasswordAutoFillView: View {
     /// The store used to render the view.
     @ObservedObject var store: Store<
         PasswordAutoFillState,
-        Void,
+        PasswordAutoFillAction,
         PasswordAutoFillEffect,
     >
 
@@ -39,6 +39,11 @@ struct PasswordAutoFillView: View {
         .task {
             await store.perform(.checkAutofillOnForeground)
         }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
     // MARK: Private Views
@@ -55,10 +60,10 @@ struct PasswordAutoFillView: View {
                 .frame(width: 230, height: 278)
 
                 VStack(spacing: 12) {
-                    Text(Localizations.turnOnAutoFill)
+                    Text(store.state.title)
                         .styleGuide(.title2, weight: .bold)
 
-                    Text(Localizations.useAutoFillToLogIntoYourAccountsWithASingleTap)
+                    Text(store.state.subtitle)
                         .styleGuide(.body)
                         .multilineTextAlignment(.center)
                 }
@@ -66,7 +71,9 @@ struct PasswordAutoFillView: View {
             .padding(.top, 12)
             .padding(.horizontal, 12)
 
-            autofillInstructions
+            if #unavailable(iOS 18) {
+                autofillInstructions
+            }
 
             Text(
                 LocalizedStringKey(
@@ -79,12 +86,8 @@ struct PasswordAutoFillView: View {
             .tint(SharedAsset.Colors.textInteraction.swiftUIColor)
 
             VStack(spacing: 12) {
-                Button(Localizations.continue) {
-                    if #available(iOS 17, *) {
-                        ASSettingsHelper.openVerificationCodeAppSettings()
-                    } else {
-                        openURL(ExternalLinksConstants.passwordOptions)
-                    }
+                AsyncButton(Localizations.continue) {
+                    await store.perform(.continueTapped)
                 }
                 .buttonStyle(.primary())
 

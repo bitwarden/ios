@@ -4,9 +4,10 @@ import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
+    & HasASSettingsMediator
     & HasAccountAPIService
     & HasAppContextHelper
-    & HasAppIdService
+    & HasAppIDService
     & HasAppInfoService
     & HasAppSettingsStore
     & HasApplication
@@ -14,9 +15,12 @@ typealias Services = HasAPIService
     & HasAuthRepository
     & HasAuthService
     & HasAutofillCredentialService
+    & HasBillingAPIService
     & HasBiometricsRepository
     & HasCameraService
     & HasChangeKdfService
+    & HasCipherOwnershipHelper
+    & HasClientCertificateService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
@@ -86,11 +90,11 @@ protocol HasAppContextHelper {
     var appContextHelper: AppContextHelper { get }
 }
 
-/// Protocol for an object that provides an `AppIdService`.
+/// Protocol for an object that provides an `AppIDService`.
 ///
-protocol HasAppIdService {
+protocol HasAppIDService {
     /// The service used by the application to manage the app's ID.
-    var appIdService: AppIdService { get }
+    var appIDService: AppIDService { get }
 }
 
 /// Protocol for an object that provides an `AppSettingsStore`.
@@ -114,6 +118,13 @@ protocol HasAuthAPIService {
     var authAPIService: AuthAPIService { get }
 }
 
+/// Protocol for an object that provides an `ASSettingsMediator`.
+///
+protocol HasASSettingsMediator {
+    /// The mediator to call ``ASSettingsHelper`` functions with additional business logic.
+    var asSettingsMediator: ASSettingsMediator { get }
+}
+
 /// Protocol for an object that provides an `AuthRepository`.
 ///
 protocol HasAuthRepository {
@@ -135,6 +146,13 @@ protocol HasAutofillCredentialService {
     var autofillCredentialService: AutofillCredentialService { get }
 }
 
+/// Protocol for an object that provides a `BillingAPIService`.
+///
+protocol HasBillingAPIService {
+    /// The service used by the application to make billing-related API requests.
+    var billingAPIService: BillingAPIService { get }
+}
+
 /// Protocol for obtaining the device's biometric authentication type.
 ///
 protocol HasBiometricsRepository {
@@ -149,11 +167,25 @@ protocol HasCameraService {
     var cameraService: CameraService { get }
 }
 
+/// Protocol for an object that provides a `CipherOwnershipHelper`.
+///
+protocol HasCipherOwnershipHelper {
+    /// A helper to create cipher views with proper ownership based on policies.
+    var cipherOwnershipHelper: CipherOwnershipHelper { get }
+}
+
 /// Protocol for an object that provides a `ChangeKdfService`.
 ///
 protocol HasChangeKdfService {
     /// The service used to change the user's KDF settings.
     var changeKdfService: ChangeKdfService { get }
+}
+
+/// Protocol for an object that provides a `ClientCertificateService`.
+///
+protocol HasClientCertificateService {
+    /// The service used by the application to manage client certificates for mTLS authentication.
+    var clientCertificateService: ClientCertificateService { get }
 }
 
 /// Protocol for an object that provides a `ClientService`.

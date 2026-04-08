@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Hasło główne jest nieprawidłowe. Spróbuj ponownie.";
 "InvalidPIN" = "Kod PIN jest nieprawidłowy. Spróbuj ponownie.";
 "Launch" = "Uruchom";
+"LaunchBrowser" = "Uruchom przeglądarkę";
 "LogIn" = "Zaloguj się";
 "LoginCredentials" = "Dane logowania";
 "LogInNoun" = "Zaloguj się";
@@ -49,7 +50,7 @@
 "AccountAlreadyAdded" = "Konto zostało już dodane";
 "SwitchToAlreadyAddedAccountConfirmation" = "Czy chcesz przełączyć się teraz?";
 "MasterPassword" = "Hasło główne";
-"More" = "Więcej";
+"MoreOptions" = "Więcej opcji";
 "MyVault" = "Mój sejf";
 "Authenticator" = "Authenticator";
 "Name" = "Nazwa";
@@ -207,6 +208,7 @@
 "Status" = "Status";
 "BitwardenAutofillServiceAlert2" = "Najprostszym sposobem dodania nowych danych logowania do sejfu jest usługa autouzupełniania Bitwarden. Więcej informacji o usłudze znajdziesz w ustawieniach.";
 "Autofill" = "Autouzupełnianie";
+"AutofillEnabled" = "Autofill enabled";
 "AutofillOrView" = "Co chcesz zrobić z elementem?";
 "BitwardenAutofillServiceMatchConfirm" = "Czy na pewno chcesz uzupełnić tym elementem? Nie jest on w pełni dopasowany do „%1$@”.";
 "MatchingItems" = "Pasujące elementy";
@@ -685,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Otrzymuj powiadomienia dla nowych próśb logowania";
 "NoThanks" = "Nie, dziękuję";
 "ConfimLogInAttempForX" = "Potwierdź próbę logowania dla %1$@";
+"ConfirmLogInAttemptForX" = "Potwierdź próbę logowania dla %1$@";
 "AllNotifications" = "Wszystkie powiadomienia";
 "PasswordType" = "Rodzaj hasła";
 "WhatWouldYouLikeToGenerate" = "Co chcesz wygenerować?";
@@ -836,6 +839,7 @@
 "ContinueToPrivacyPolicy" = "Kontynuować przejście do polityki prywatności?";
 "ContinueToAppStore" = "Kontynuować przejście do App Store?";
 "ContinueToDeviceSettings" = "Kontynuować przejście do ustawień urządzenia?";
+"ContinueWithoutSyncing" = "Kontynuuj bez synchronizacji";
 "TwoStepLoginDescriptionLong" = "Zwiększ bezpieczeństwo konta, konfigurując logowanie dwustopniowe w aplikacji internetowej Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Możesz zmienić hasło główne w aplikacji internetowej Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Zaimportuj dane do sejfu na stronie %1$@.";
@@ -1043,6 +1047,7 @@
 "AutofillPasswords" = "Autouzupełnianie haseł";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Skonfiguruj autouzupełnianie na wszystkich swoich urządzeniach, aby logować się jednym kliknięciem.";
 "GotIt" = "Ok";
+"ClearSsoCookies" = "Wyczyść pliki cookies SSO";
 "GenerateCrash" = "Wygeneruj awarię";
 "GenerateErrorReport" = "Wygeneruj raport błędu";
 "GenerateSdkErrorReport" = "Wygeneruj raport błędu SDK";
@@ -1239,7 +1244,9 @@
 "Skip" = "Pomiń";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Przechowuj wszystkie dane logowania i synchronizuj kody weryfikacyjne z aplikacją Bitwarden Authenticator.";
+"SyncWithBrowserDescriptionLong" = "Aby połączyć się z %1$@, zsynchronizuj domyślną przeglądarkę z aplikacją mobilną Bitwarden. Zaloguj się do przeglądarki, jeśli to będzie konieczne. Po zakończeniu synchronizacji nastąpi powrót do aplikacji.";
 "SyncWithBitwardenApp" = "Synchronizacja z aplikacją Bitwarden";
+"SyncWithBrowser" = "Synchronizuj z przeglądarką";
 "SyncWithTheBitwardenApp" = "Synchronizuj z aplikacją Bitwarden";
 "TakeMeToTheAppSettings" = "Przejdź do ustawień aplikacji";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Format danych nie jest zgodny z oczekiwanym. Sprawdź plik i upewnij się, że używasz prawidłowych danych.";
@@ -1280,11 +1287,13 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "Odrzucenie spowoduje, że Twoje osobiste elementy pozostaną na koncie, ale stracisz dostęp do udostępnionych elementów oraz funkcji organizacji.";
 "ContactYourAdminToRegainAccess" = "Skontaktuj się z administratorem, aby odzyskać dostęp.";
 "LeaveX" = "Opuść organizację %1$@";
-"HowToManageMyVault" = "Jak zarządzać sejfem";
 "YouLeftTheOrganization" = "Nie należysz już do tej organizacji";
+"ItemTransferRequiresMainAppDescriptionLong" = "Organizacja prosi o prawo własności do Twoich osobistych elementów. Otwórz aplikację Bitwarden, aby sprawdzić prośbę.";
 "ThisSettingIsManagedByYourOrganization" = "Ustawienie jest zarządzane przez Twoją organizację.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Your organization has set the default session timeout to %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Twoja organizacja wyłączyła domyślną blokadę aplikacji.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Twoja organizacja ustawiła domyślną blokadę aplikacji po jej uruchomieniu.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Twoja organizacja ustawiła blokadę aplikacji. Maksymalny czas to %1$@ i %2$@.";
 "HiddenItems" = "Ukryte elementy";
 "Archive" = "Archiwum";
@@ -1299,7 +1308,7 @@
 "ArchiveIsEmpty" = "Archiwum jest puste";
 "ArchiveEmptyDescriptionLong" = "Przenieś do archiwum elementy, których nie chcesz widzieć w wynikach wyszukiwania i sugestiach autouzupełniania, ale które mogą Ci się kiedyś przydać.";
 "ArchiveUnavailable" = "Archiwum jest niedostępne";
-"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiwizowanie elementów jest funkcją Premium. Twój obecny plan nie obejmuje dostępu do tej funkcji.";
+"ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiwizowanie elementów jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
 "UpgradeToPremium" = "Kup konto Premium";
 "ThisItemIsArchived" = "Element jest zarchiwizowany.";
 "YourPremiumSubscriptionEnded" = "Subskrypcja Premium wygasła";
@@ -1315,3 +1324,10 @@
 "SpecificPeople" = "Konkretni użytkownicy";
 "WhoCanView" = "Kto może odczytać";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Udostępnianie użytkownikom jest funkcją Premium. Twój obecny plan nie zawiera tej funkcji.";
+"SsoCookiesCleared" = "Pliki cookies SSO zostały wyczyszczone";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Żądanie zostało przerwane, ponieważ aplikacja wymagała ponownego uwierzytelniania. Spróbuj ponownie.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden can suggest your passwords and other credentials when you sign in to apps and websites.";
+"LearnMoreAboutAutofill" = "Dowiedz się więcej o autouzupełnianiu";
+"TurnOnNow" = "Włącz teraz";
+"AcceptTransfer" = "Akceptuj";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Podpowiedź do hasła nie może być taka sama jak hasło.";

@@ -40,18 +40,12 @@ struct SyncWithBrowserView: View {
                 }
                 .buttonStyle(.secondary())
             }
-
-            Button {
-                openURL(ExternalLinksConstants.aboutOrganizations)
-            } label: {
-                Text(Localizations.whyAmISeeingThis)
-            }
-            .buttonStyle(.bitwardenBorderless)
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .scrollView()
+        .dismissKeyboardOnAppear()
         .task {
             await store.perform(.appeared)
         }

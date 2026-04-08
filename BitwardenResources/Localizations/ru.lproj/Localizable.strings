@@ -39,6 +39,7 @@
 "InvalidMasterPassword" = "Неверный мастер-пароль. Попробуйте снова.";
 "InvalidPIN" = "Неверный PIN. Попробуйте снова.";
 "Launch" = "Перейти";
+"LaunchBrowser" = "Запустить браузер";
 "LogIn" = "Войти";
 "LoginCredentials" = "Данные для авторизации";
 "LogInNoun" = "Вход";
@@ -49,7 +50,7 @@
 "AccountAlreadyAdded" = "Аккаунт уже добавлен";
 "SwitchToAlreadyAddedAccountConfirmation" = "Хотите переключиться на него?";
 "MasterPassword" = "Мастер-пароль";
-"More" = "Еще";
+"MoreOptions" = "Больше опций";
 "MyVault" = "Хранилище";
 "Authenticator" = "Аутентификатор";
 "Name" = "Название";
@@ -207,6 +208,7 @@
 "Status" = "Статус";
 "BitwardenAutofillServiceAlert2" = "Самый простой способ добавить новые логины в ваше хранилище – это служба автозаполнения Bitwarden. Дополнительные сведения об использовании службы автозаполнения Bitwarden в разделе “Настройки”.";
 "Autofill" = "Автозаполнение";
+"AutofillEnabled" = "Автозаполнение включено";
 "AutofillOrView" = "Выполнить автозаполнение или просмотреть этот элемент?";
 "BitwardenAutofillServiceMatchConfirm" = "Вы действительно хотите использовать этот элемент? Это неточное соответствие для “%1$@”.";
 "MatchingItems" = "Соответствующие элементы";
@@ -685,6 +687,7 @@
 "ReceivePushNotificationsForNewLoginRequests" = "Получайть push-уведомления о новых запросах на вход";
 "NoThanks" = "Нет, спасибо";
 "ConfimLogInAttempForX" = "Подтвердите попытку входа для %1$@";
+"ConfirmLogInAttemptForX" = "Подтвердите попытку входа для %1$@";
 "AllNotifications" = "Все уведомления";
 "PasswordType" = "Тип пароля";
 "WhatWouldYouLikeToGenerate" = "Что вы хотите сгенерировать?";
@@ -838,6 +841,7 @@
 "ContinueToPrivacyPolicy" = "Перейти к политике конфиденциальности?";
 "ContinueToAppStore" = "Перейти в магазин приложений?";
 "ContinueToDeviceSettings" = "Перейти к настройкам устройства?";
+"ContinueWithoutSyncing" = "Продолжить без синхронизации";
 "TwoStepLoginDescriptionLong" = "Сделайте ваш аккаунт более защищенным, настроив двухэтапную аутентификацию в веб-приложении Bitwarden.";
 "ChangeMasterPasswordDescriptionLong" = "Изменить мастер-пароль можно в веб-приложении Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Импортировать данные в хранилище можно в %1$@.";
@@ -1045,6 +1049,7 @@
 "AutofillPasswords" = "Автозаполнение паролей";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автозаполнение на всех своих устройствах, чтобы авторизоваться одним кликом везде.";
 "GotIt" = "Понятно";
+"ClearSsoCookies" = "Очистить cookie SSO";
 "GenerateCrash" = "Сгенерировать отчет об ошибке";
 "GenerateErrorReport" = "Создать отчет об ошибке";
 "GenerateSdkErrorReport" = "Создать отчет об ошибке SDK";
@@ -1175,7 +1180,7 @@
 "NewFileSend" = "Новая файловая Send";
 "NewTextSend" = "Новая текстовая Send";
 "EditFileSend" = "Изменить файловую Send";
-"EditTextSend" = "Изменить тестовую Send";
+"EditTextSend" = "Изменить текстовую Send";
 "LogDeleted" = "Лог удален";
 "AllLogsDeleted" = "Все логи удалены";
 "LoggingEndsOnDateAtTime" = "Логирование заканчивается %1$@ в %2$@";
@@ -1241,7 +1246,9 @@
 "Skip" = "Пропустить";
 "Steam" = "Steam";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Храните все свои логины и синхронизируйте коды подтверждения непосредственно с приложением Authenticator.";
+"SyncWithBrowserDescriptionLong" = "Для подключения к %1$@, синхронизируйте ваш браузер по умолчанию с мобильным приложением Bitwarden. Когда браузер откроется, выполните авторизацию, если будет предложено. После завершения синхронизации вы вернетесь в это приложение.";
 "SyncWithBitwardenApp" = "Синхронизация с приложением Bitwarden";
+"SyncWithBrowser" = "Синхронизация с браузером";
 "SyncWithTheBitwardenApp" = "Синхронизация с приложением Bitwarden";
 "TakeMeToTheAppSettings" = "Перейти в настройки приложения";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Формат данных не соответствует ожидаемому. Пожалуйста, проверьте свой файл и убедитесь, что используются правильные типы данных.";
@@ -1282,17 +1289,19 @@
 "ByDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong" = "В случае отказа ваши личные данные останутся в вашем аккаунте, но вы потеряете доступ к общим элементам и возможностям организации.";
 "ContactYourAdminToRegainAccess" = "Свяжитесь с вашим администратором для восстановления доступа.";
 "LeaveX" = "Покинуть %1$@";
-"HowToManageMyVault" = "Как управлять моим хранилищем";
 "YouLeftTheOrganization" = "Вы покинули организацию";
+"ItemTransferRequiresMainAppDescriptionLong" = "Организация запрашивает право собственности на ваши личные элементы. Откройте основное приложение Bitwarden, чтобы просмотреть и выполнить этот запрос.";
 "ThisSettingIsManagedByYourOrganization" = "Эта настройка управляется вашей организацией.";
 "YourOrganizationHasSetTheDefaultSessionTimeoutToX" = "Ваша организация установила тайм-аут сессии по умолчанию равным %1$@.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToX" = "Ваша организация установила максимальный тайм-аут сессии равным %1$@.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToNever" = "Ваша организация не установила тайм-аут сессии по умолчанию.";
+"YourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart" = "Ваша организация установила тайм-аут сессии по умолчанию при перезапуске приложения.";
 "YourOrganizationHasSetTheMaximumSessionTimeoutToXAndY" = "Ваша организация установила максимальный тайм-аут сессии %1$@ и %2$@.";
 "HiddenItems" = "Скрытые элементы";
 "Archive" = "Архив";
 "Archived" = "Архивирован";
 "Unarchive" = "Разархивировать";
-"ItemMovedToArchive" = "Элемент перемещён в архив";
+"ItemMovedToArchive" = "Элемент перемещен в архив";
 "ItemMovedToVault" = "Элемент перемещен в хранилище";
 "SendingToArchive" = "Отправка в архив…";
 "MovingItemToVault" = "Перемещение элемента в хранилище";
@@ -1317,3 +1326,10 @@
 "SpecificPeople" = "Конкретные пользователи";
 "WhoCanView" = "Кто может просматривать";
 "SharingWithSpecificPeopleIsPremiumFeatureDescriptionLong" = "Совместное использование с конкретными пользователями является Премиум функцией. Она не входит в ваш текущий тарифный план.";
+"SsoCookiesCleared" = "Cookie SSO очищены";
+"YourRequestWasInterruptedBecauseTheAppNeededToReAuthenticatePleaseTryAgain" = "Ваш запрос был прерван, поскольку приложению потребовалась повторная аутентификация. Повторите попытку.";
+"AutofillWithBitwardenDescriptionLong" = "Bitwarden может предлагать ваши пароли и другие учетные данные при авторизации в приложениях и на сайтах.";
+"LearnMoreAboutAutofill" = "Узнать больше об автозаполнении";
+"TurnOnNow" = "Включить сейчас";
+"AcceptTransfer" = "Принять передачу";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Пароль и подсказка к нему не должны совпадать. Пожалуйста, выберите другую подсказку.";

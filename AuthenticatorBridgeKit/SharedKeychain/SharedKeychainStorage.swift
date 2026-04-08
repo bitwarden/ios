@@ -5,12 +5,16 @@ import Foundation
 
 /// Enumeration of support Keychain Items that can be placed in the `SharedKeychainRepository`
 ///
-public enum SharedKeychainItem: Equatable, Hashable, Sendable {
+public enum SharedKeychainItem: Equatable, Hashable, Sendable, KeychainItem {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
     /// A date at which a BWPM account automatically logs out.
     case accountAutoLogout(userId: String)
+
+    public var accessControlFlags: SecAccessControlCreateFlags? { nil }
+
+    public var protection: CFTypeRef { kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly }
 
     /// The storage key for this keychain item.
     ///
@@ -58,7 +62,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
     /// The keychain service used by the repository
     ///
-    private let keychainService: SharedKeychainService
+    private let keychainService: KeychainService
 
     /// An identifier for the shared access group used by the application.
     ///
@@ -74,7 +78,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
     ///   - keychainService: The keychain service used by the repository
     ///   - sharedAppGroupIdentifier: An identifier for the shared access group used by the application.
     public init(
-        keychainService: SharedKeychainService,
+        keychainService: KeychainService,
         sharedAppGroupIdentifier: String,
     ) {
         self.keychainService = keychainService
@@ -99,7 +103,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
         guard let resultDictionary = foundItem as? [String: Any],
               let data = resultDictionary[kSecValueData as String] as? Data else {
-            throw SharedKeychainServiceError.keyNotFound(item)
+            throw KeychainServiceError.keyNotFound(item)
         }
 
         let object = try JSONDecoder.defaultDecoder.decode(T.self, from: data)

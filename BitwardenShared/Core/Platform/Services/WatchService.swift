@@ -38,7 +38,7 @@ class DefaultWatchService: NSObject, WatchService {
     private let organizationService: OrganizationService
 
     /// The watch connect session.
-    private var session: WCSession?
+    private var session: (any WatchSession)?
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -46,6 +46,12 @@ class DefaultWatchService: NSObject, WatchService {
     /// Keep a reference to the task used to sync the watch when the ciphers change, so that
     /// it can be cancelled and recreated when the user changes.
     private var syncCiphersTask: Task<Void, Never>?
+
+    /// The service used by the application to manage vault access.
+    private let vaultTimeoutService: VaultTimeoutService
+
+    /// The factory used to create and check support for watch sessions.
+    private let watchSessionFactory: WatchSessionFactory
 
     // MARK: Initialization
 
@@ -59,6 +65,8 @@ class DefaultWatchService: NSObject, WatchService {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - vaultTimeoutService: The service used by the application to manage vault access.
+    ///   - watchSessionFactory: The factory used to create and check support for watch sessions.
     ///
     init(
         cipherService: CipherService,
@@ -68,6 +76,8 @@ class DefaultWatchService: NSObject, WatchService {
         errorReporter: ErrorReporter,
         organizationService: OrganizationService,
         stateService: StateService,
+        watchSessionFactory: WatchSessionFactory = DefaultWatchSessionFactory(),
+        vaultTimeoutService: VaultTimeoutService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
@@ -76,20 +86,40 @@ class DefaultWatchService: NSObject, WatchService {
         self.errorReporter = errorReporter
         self.organizationService = organizationService
         self.stateService = stateService
+        self.vaultTimeoutService = vaultTimeoutService
+        self.watchSessionFactory = watchSessionFactory
         super.init()
 
-        // Listen for changes in the settings and data that would require syncing with the watch.
+        // Listen for changes in the settings, vault lock state, and data that would require
+        // syncing with the watch.
         Task {
-            for await (userId, shouldConnect) in await self.stateService.connectToWatchPublisher().values {
-                syncWithWatch(userId: userId, shouldConnect: shouldConnect)
+            let connectPublisher = await self.stateService.connectToWatchPublisher()
+            let vaultStatusPublisher = await self.vaultTimeoutService.vaultLockStatusPublisher()
+
+            // Use the publishers as triggers only — reading their combined values directly would
+            // produce intermediate mismatched states, since both independently subscribe to
+            // `activeAccountIdPublisher()` and emit sequentially on account changes.
+            // `syncWithWatch()` reads all relevant state in a single pass to ensure consistency.
+            for await _ in connectPublisher.combineLatest(vaultStatusPublisher).values {
+                syncWithWatch()
             }
         }
     }
 
     // MARK: Methods
 
+    /// Handle messages received from the watch to listen for requests to sync.
+    ///
+    /// - Parameter message: The message received from the watch.
+    ///
+    func handleMessage(_ message: [String: Any]) async {
+        if let actionMessage = message["actionMessage"] as? String, actionMessage == "triggerSync" {
+            syncWithWatch()
+        }
+    }
+
     func isSupported() -> Bool {
-        WCSession.isSupported()
+        watchSessionFactory.isSupported()
     }
 
     // MARK: Private Methods
@@ -149,30 +179,56 @@ class DefaultWatchService: NSObject, WatchService {
         return (userData, .valid)
     }
 
-    /// Handle messages received from the watch to listen for requests to sync.
-    ///
-    /// - Parameter message: The message received from the watch.
-    ///
-    private func handleMessage(_ message: [String: Any]) {
-        if let actionMessage = message["actionMessage"] as? String,
-           actionMessage == "triggerSync" {
-            Task {
-                let userId = try? await self.stateService.getActiveAccountId()
-                let shouldConnect = try? await self.stateService.getConnectToWatch()
-                let lastUserShouldConnectToWatch = await self.stateService.getLastUserShouldConnectToWatch()
-                syncWithWatch(userId: userId, shouldConnect: shouldConnect ?? lastUserShouldConnectToWatch)
-            }
-        }
-    }
-
     /// Start the session to connect to the watch.
     private func startSession() {
-        if WCSession.isSupported(), session == nil {
-            session = WCSession.default
+        if watchSessionFactory.isSupported(), session == nil {
+            session = watchSessionFactory.makeSession()
             session?.delegate = self
         }
         if session?.activationState != .activated {
             session?.activate()
+        }
+    }
+
+    /// Fetch the current account state and sync with the watch.
+    ///
+    private func syncWithWatch() {
+        // This method will be called whenever the connect value, vault lock state, or account
+        // value changes, so the task listening to the cipher updates will need to be cancelled
+        // and recreated each time.
+        syncCiphersTask?.cancel()
+        syncCiphersTask = Task {
+            let userId: String?
+            do {
+                userId = try await stateService.getActiveAccountId()
+            } catch StateServiceError.noActiveAccount {
+                userId = nil
+            } catch {
+                userId = nil
+                errorReporter.log(error: error)
+            }
+
+            let shouldConnect: Bool
+            do {
+                shouldConnect = try await stateService.getConnectToWatch()
+            } catch StateServiceError.noActiveAccount {
+                shouldConnect = await stateService.getLastUserShouldConnectToWatch()
+            } catch {
+                shouldConnect = await stateService.getLastUserShouldConnectToWatch()
+                errorReporter.log(error: error)
+            }
+
+            let isVaultLocked = if let userId {
+                await vaultTimeoutService.isLocked(userId: userId)
+            } else {
+                true
+            }
+
+            await syncWithWatch(
+                userId: userId,
+                shouldConnect: shouldConnect,
+                isVaultLocked: isVaultLocked,
+            )
         }
     }
 
@@ -183,7 +239,7 @@ class DefaultWatchService: NSObject, WatchService {
     ///   - shouldConnect: Whether the user has toggled on the connect to watch setting.
     ///
     private func syncWithWatch(ciphers: [Cipher], shouldConnect: Bool) async throws {
-        guard WCSession.isSupported() else { return }
+        guard watchSessionFactory.isSupported() else { return }
 
         // Connect the session if necessary.
         if shouldConnect, session?.activationState != .activated {
@@ -223,27 +279,27 @@ class DefaultWatchService: NSObject, WatchService {
     /// - Parameters:
     ///   - userId: The user's id, if one exists.
     ///   - shouldConnect: Whether the user has toggled on the connect to watch setting.
+    ///   - isVaultLocked: Whether the active vault is currently locked.
     ///
-    private func syncWithWatch(userId: String?, shouldConnect: Bool) {
-        // This method will be called whenever the connect value or the account value changes,
-        // so the task listening to the cipher updates will need to be cancelled and recreated
-        // each time.
-        syncCiphersTask?.cancel()
-        syncCiphersTask = Task {
-            do {
-                // If the user isn't logged in, sync the watch with an empty list of ciphers.
-                guard userId != nil else {
-                    try await syncWithWatch(ciphers: [], shouldConnect: shouldConnect)
-                    return
-                }
-
-                // Otherwise, listen to the publisher to sync any cipher updates with the watch.
-                for try await ciphers in try await cipherService.ciphersPublisher().values {
-                    try await syncWithWatch(ciphers: ciphers, shouldConnect: shouldConnect)
-                }
-            } catch {
-                self.errorReporter.log(error: error)
+    private func syncWithWatch(userId: String?, shouldConnect: Bool, isVaultLocked: Bool) async {
+        do {
+            // If the user isn't logged in, sync the watch with an empty list of ciphers.
+            guard userId != nil else {
+                try await syncWithWatch(ciphers: [], shouldConnect: shouldConnect)
+                return
             }
+
+            // If the vault is locked, skip cipher sync to avoid decryption errors.
+            guard !isVaultLocked else {
+                return
+            }
+
+            // Otherwise, listen to the publisher to sync any cipher updates with the watch.
+            for try await ciphers in try await cipherService.ciphersPublisher().values {
+                try await syncWithWatch(ciphers: ciphers, shouldConnect: shouldConnect)
+            }
+        } catch {
+            errorReporter.log(error: error)
         }
     }
 }
@@ -251,8 +307,15 @@ class DefaultWatchService: NSObject, WatchService {
 // MARK: - WCSessionDelegate
 
 extension DefaultWatchService: WCSessionDelegate {
-    /// Required delegate method that requires no action on the app.
-    func session(_: WCSession, activationDidCompleteWith _: WCSessionActivationState, error _: Error?) {}
+    /// Triggers a sync when the session activates successfully.
+    func session(
+        _ session: WCSession,
+        activationDidCompleteWith activationState: WCSessionActivationState,
+        error: Error?,
+    ) {
+        guard activationState == .activated, error == nil else { return }
+        syncWithWatch()
+    }
 
     /// Required delegate method that requires no action on the app.
     func sessionDidBecomeInactive(_: WCSession) {}
@@ -262,7 +325,9 @@ extension DefaultWatchService: WCSessionDelegate {
 
     /// Handle messages received from the watch.
     func session(_: WCSession, didReceiveMessage message: [String: Any]) {
-        handleMessage(message)
+        Task {
+            await handleMessage(message)
+        }
     }
 
     /// Handle messages received from the watch.
@@ -271,14 +336,16 @@ extension DefaultWatchService: WCSessionDelegate {
         didReceiveMessage message: [String: Any],
         replyHandler _: @escaping ([String: Any]) -> Void,
     ) {
-        handleMessage(message)
+        Task {
+            await handleMessage(message)
+        }
     }
 }
 
-// MARK: - WCSession
+// MARK: WatchSession Extension
 
-extension WCSession {
-    /// A convenience method for supreme laziness to send a state to the watch.
+extension WatchSession {
+    /// A convenience method to send an invalid state to the watch.
     ///
     /// - Parameter state: The invalid state to send.
     ///

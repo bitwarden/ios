@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -10,9 +11,14 @@ protocol TOTPService {
     /// Retrieves the TOTP configuration for a given key.
     ///
     /// - Parameter key: A string representing the TOTP key.
-    /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
+    /// - Throws: `TOTPKeyError.invalidKeyFormat` if the key format is invalid.
     /// - Returns: A `TOTPKeyModel` containing the configuration details.
     func getTOTPConfiguration(key: String?) throws -> TOTPKeyModel
+
+    /// Returns whether the active account is authorized to use TOTP for the given cipher.
+    /// - Parameter cipher: The cipher to check authorization for.
+    /// - Returns: `true` if the account has premium or the cipher's organization has TOTP enabled.
+    func isTotpAuthorized(for cipher: CipherWithOrgTOTPStatus) async -> Bool
 }
 
 /// Default implementation of the `TOTPService`.
@@ -55,8 +61,7 @@ struct DefaultTOTPService: TOTPService {
             return
         }
 
-        let accountHasPremium = await stateService.doesActiveAccountHavePremium()
-        guard cipher.organizationUseTotp || accountHasPremium else {
+        guard await isTotpAuthorized(for: cipher) else {
             return
         }
 
@@ -64,16 +69,16 @@ struct DefaultTOTPService: TOTPService {
         pasteboardService.copy(codeModel.code)
     }
 
-    /// Retrieves the TOTP configuration for a given key.
-    ///
-    /// - Parameter key: A string representing the TOTP key.
-    /// - Throws: `TOTPServiceError.invalidKeyFormat` if the key format is invalid.
-    /// - Returns: A `TOTPKeyModel` containing the configuration details.
     func getTOTPConfiguration(key: String?) throws -> TOTPKeyModel {
         guard let key else {
-            throw TOTPServiceError.invalidKeyFormat
+            throw TOTPKeyError.invalidKeyFormat
         }
 
         return TOTPKeyModel(authenticatorKey: key)
+    }
+
+    func isTotpAuthorized(for cipher: CipherWithOrgTOTPStatus) async -> Bool {
+        let accountHasPremium = await stateService.doesActiveAccountHavePremium()
+        return cipher.organizationUseTotp || accountHasPremium
     }
 }

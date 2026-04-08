@@ -282,7 +282,7 @@ class VaultListViewTests: BitwardenTestCase {
     func test_vaultItem_moreButton_tap() async throws {
         let item = VaultListItem.fixture()
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.moreOptions)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .morePressed(item))
     }

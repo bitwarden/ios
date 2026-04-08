@@ -5,6 +5,7 @@ import XCTest
 
 // MARK: - AccountAPIServiceTests
 
+@MainActor
 class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -19,8 +20,8 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         subject = APIService(client: client)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
         client = nil
         subject = nil
     }
@@ -472,4 +473,4 @@ class AccountAPIServiceTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(client.requests[0].method, .post)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/accounts/verify-otp")
     }
-}
+} // swiftlint:disable:this file_length

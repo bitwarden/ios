@@ -79,6 +79,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasAutofillCredentialService
         & HasCameraService
         & HasChangeKdfService
+        & HasCipherOwnershipHelper
         & HasClientService
         & HasConfigService
         & HasEnvironmentService
@@ -238,7 +239,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                 }
             }
         case .dismiss:
-            stackNavigator?.dismiss()
+            // If we're presenting a more complicated stack of view controllers (in particular, this could happen
+            // if the user goes to the change profile sheet in the VaultItemSelection modal) then we only want to
+            // dismiss the presented one, not the full stack.
+            if let presentedViewController = stackNavigator?.rootViewController?.presentedViewController {
+                presentedViewController.dismiss(animated: UI.animated)
+            } else {
+                stackNavigator?.dismiss()
+            }
         case .flightRecorderSettings:
             delegate?.switchToSettingsTab(route: .about)
         case let .group(group, filter):
@@ -463,7 +471,13 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             ),
         )
 
-        stackNavigator?.present(VaultItemSelectionView(store: Store(processor: processor)))
+        // When we display the Vault Item Selection, we want to make sure we're not already displaying something else.
+        // In particular, this could be another Vault Item Selection screen, if the user is changing profiles.
+        // If the `stackNavigator` isn't displaying anything, the `dismiss()` will be a no-op, and it will simply
+        // present as expected.
+        stackNavigator?.dismiss {
+            self.stackNavigator?.present(VaultItemSelectionView(store: Store(processor: processor)))
+        }
     }
 
     /// Shows the view vault item screen.
