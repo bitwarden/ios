@@ -9,7 +9,6 @@ When adding a new screen, create these files (replace `<Feature>` throughout):
 
 ```
 BitwardenShared/UI/<Domain>/<Feature>/
-├── <Feature>Coordinator.swift
 ├── <Feature>Processor.swift
 ├── <Feature>State.swift
 ├── <Feature>Action.swift
@@ -18,6 +17,8 @@ BitwardenShared/UI/<Domain>/<Feature>/
 ```
 
 Add a new case to the **parent** Coordinator's existing `Route` enum rather than creating a new `Route` file.
+
+**When to create a new Coordinator:** Most screens do NOT need their own coordinator. A single coordinator typically manages an entire feature flow with many routes (e.g., `AuthCoordinator` handles ~30 screens). Only create a new child coordinator when the flow introduces a new navigation container (e.g., a new modal or tab) or becomes complex enough to warrant isolation. When in doubt, add a route to the parent coordinator.
 
 ---
 

@@ -28,7 +28,12 @@ Implement from the bottom up:
 **Data Models** (if needed)
 - Request/Response types in `Core/<Domain>/Models/Request/` and `Response/`
 - Enum types in `Core/<Domain>/Models/Enum/`
-- CoreData entities only if persistence is needed (add to `Bitwarden.xcdatamodeld`)
+
+**Persistence** (if needed)
+- Vault sync data → CoreData via `DataStore` (add entities to `Bitwarden.xcdatamodeld`)
+- Non-sensitive settings → `AppSettingsStore` (backed by UserDefaults)
+- Credentials/keys → `KeychainRepository`
+- All three are exposed through `StateService`. Prefer adding a separate protocol over extending `StateService`, `AppSettingsStore`, or `KeychainRepository` directly, to maintain interface segregation.
 
 **Services / Repositories**
 - Define protocol with `// sourcery: AutoMockable`
@@ -58,7 +63,7 @@ After creating a new service/repository:
 
 Before finishing:
 - [ ] Vault data? → Must use `BitwardenSdk` for all encryption/decryption
-- [ ] Storing credentials? → Must use `KeychainRepository`, not `UserDefaults`
+- [ ] Storing credentials? → Must use `KeychainRepository`, not `AppSettingsStore`
 - [ ] User input? → Must validate via `InputValidator`
 - [ ] Surfacing errors? → Sensitive errors must implement `NonLoggableError`
 - [ ] Running in an extension? → Check Argon2id memory if KDF is involved
@@ -67,4 +72,4 @@ Before finishing:
 
 All new public types and methods require DocC (`///`) documentation.
 Exceptions: protocol property/function implementations (docs live in the protocol), mock classes.
-Use `// MARK: -` sections to organize code within files.
+Use pragma marks to organize code. `// MARK: -` is used to denote different objects in the same file; `// MARK:` is used to denote different sections within an object.
