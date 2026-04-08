@@ -1,77 +1,66 @@
 ---
-description: Execute a complete Bitwarden iOS implementation workflow from ticket to PR. Loads or creates a plan, implements, tests, builds, runs preflight, commits, and opens a PR with labels.
-argument-hint: <PM-XXXXX ticket ID or task description>
+description: Guided iOS development workflow through all lifecycle phases
+argument-hint: <task description, plan, or Jira ticket reference>
 ---
 
-# Work on iOS: $ARGUMENTS
+# iOS Development Workflow
 
-Full implementation workflow with user confirmation at each phase boundary.
+You are guiding the developer through a complete iOS development lifecycle for the Bitwarden iOS project. The task to work on is:
 
-## Phase 1: Load or Create Plan
+**Task**: $ARGUMENTS
 
-Check for an existing plan at `.claude/outputs/plans/`:
-- **If found**: Load it and present a summary to the user
-- **If not found**: Invoke `/plan-ios-work $ARGUMENTS` to create one
+## Workflow Phases
 
-**Confirm**: "Plan loaded/created. Ready to begin implementation? (y/n)"
+Work through each phase sequentially. **Confirm with the user before advancing to the next phase.** If a phase fails (tests fail, lint errors, etc.), loop on that phase until resolved before advancing. The user may skip phases that are not applicable.
 
-## Phase 2: Implement
+### Phase 1: Implement
 
-Invoke the `implementing-ios-code` skill:
-- Follow the dependency-ordered phases from the plan (Core → Services → Processors → Views → DI wiring)
-- Use `templates.md` for file-set skeletons
-- Apply the security checklist as each layer is completed
+Invoke `Skill(implementing-ios-code)` to guide your implementation of the task. Understand what needs to be done, explore the relevant code, and write the implementation.
 
-**Confirm**: "Implementation complete. Proceed to writing tests? (y/n)"
+**Before advancing**: Summarize what was implemented and confirm the user is ready to move to testing.
 
-## Phase 3: Write Tests
+### Phase 2: Test
 
-Invoke the `testing-ios-code` skill:
-- Write processor tests (action/effect paths, error paths)
-- Write service/repository tests
-- Add `// sourcery: AutoMockable` to new protocols and run Sourcery
+Invoke `Skill(testing-ios-code)` to write tests for the changes made in Phase 1. Follow the project's test patterns and conventions.
 
-**Confirm**: "Tests written. Proceed to build verification? (y/n)"
+**Before advancing**: Summarize what tests were written and confirm readiness for build verification.
 
-## Phase 4: Build and Verify
+### Phase 3: Build & Verify
 
-Invoke the `build-test-verify` skill:
-- Generate Xcode projects if needed
-- Run lint: `mint run swiftlint`
-- Run format check: `mint run swiftformat --lint --lenient .`
-- Run spell check: `typos`
-- Build the project
-- Run tests for affected modules
+Invoke `Skill(build-test-verify)` to run tests, lint, and format checks. Ensure everything passes.
 
-Fix any failures before proceeding.
+**If failures occur**: Fix the issues and re-run verification. Do not advance until all checks pass.
 
-**Confirm**: "Build and tests pass. Proceed to preflight? (y/n)"
+**Before advancing**: Report build/test/lint results and confirm readiness for self-review.
 
-## Phase 5: Preflight
+### Phase 4: Self-Review
 
-Invoke the `perform-ios-preflight-checklist` skill:
-- Run automated checks
-- Complete the manual checklist (architecture, security, testing, docs, hygiene)
+Invoke `Skill(perform-ios-preflight-checklist)` to perform a quality gate check on all changes. Address any issues found.
 
-**Confirm**: "Preflight complete. Proceed to commit? (y/n)"
+**Before advancing**: Share the self-review results and confirm readiness to commit.
 
-## Phase 6: Commit
+### Phase 5: Commit
 
-Invoke the `committing-ios-changes` skill:
-- Stage specific changed files
-- Write commit message in `[PM-XXXXX] <type>: Description` format
-- Create commit
+Invoke `Skill(committing-ios-changes)` to stage and commit the changes with a properly formatted commit message.
 
-**Confirm**: "Committed. Proceed to create PR? (y/n)"
+**Before advancing**: Confirm the commit was successful and ask if the user wants to proceed to review and PR creation, or stop here.
 
-## Phase 7: Create PR and Label
+### Phase 6: Review
 
-Invoke the `creating-ios-pull-request` skill:
-- Push branch to remote
-- Create draft PR with Tracking/Objective template
+**Pre-requisites:**
+- `bitwarden-code-review` from the [Bitwarden Plugin Marketplace](https://github.com/bitwarden/ai-plugins) must be installed in order to perform this phase. If it is not installed prompt the user to install it, or skip the review phase.
 
-Invoke the `labeling-ios-changes` skill:
-- Add change type label (`t:feature-app`, `t:bug`, `t:tech-debt`, etc.)
-- Add app context label (`app:password-manager`, `app:authenticator`)
+Launch a subagent with the `/bitwarden-code-review:code-review-local` command to perform a **local** code review of the committed diff. Validate and address any issues found before proceeding.
 
-**Final output**: "Draft PR created: <URL>. Review your changes and mark ready when satisfied."
+**Before advancing**: Share review findings and confirm readiness for PR creation.
+
+### Phase 7: Pull Request
+
+Prompt the user to invoke `Skill(creating-ios-pull-request)` to create the pull request with proper description and formatting. **Create as a draft PR by default** unless the user has explicitly requested a ready-for-review PR.
+
+## Guidelines
+
+- Be explicit about which phase you are in at all times.
+- Never proceed to another phase without user confirmation.
+- If the user wants to skip a phase, acknowledge and move to the next applicable phase.
+- If starting from a partially completed task (e.g., code already written), skip to the appropriate phase.

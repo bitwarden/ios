@@ -163,6 +163,6 @@ See `build-test-verify` skill for project generation, build commands, test execu
 
 | Command | Usage |
 |---------|-------|
-| `/plan-ios-work <PM-XXXXX>` | Fetch ticket → refine requirements → create design doc |
-| `/work-on-ios <PM-XXXXX>` | Full workflow: plan → implement → test → verify → commit → PR |
+| `/plan-ios-work <PM-XXXXX>` | Fetch ticket → refine requirements → design implementation approach |
+| `/work-on-ios <PM-XXXXX>` | Full workflow: implement → test → verify → preflight → commit → review → PR |
 
