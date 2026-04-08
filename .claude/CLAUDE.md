@@ -29,55 +29,13 @@ The app follows a layered architecture: Views send Actions/Effects to a Store, w
 
 ### Code Organization
 
-```
-├── Bitwarden/                          # Password Manager app target
-│   └── Application/
-├── Authenticator/                      # Authenticator app target
-│   └── Application/
-├── BitwardenShared/                    # Main PM shared framework
-│   ├── Core/                           # Data & business logic
-│   │   ├── Auth/                       # Authentication domain
-│   │   ├── Autofill/                   # AutoFill domain
-│   │   ├── Billing/                    # Billing & subscription domain
-│   │   ├── Platform/                   # Cross-cutting (services, stores, utilities)
-│   │   ├── Tools/                      # Generator, Send, Import/Export
-│   │   └── Vault/                      # Vault items domain
-│   ├── Sourcery/                       # Mock generation config + output
-│   └── UI/                             # UI layer (same subdirectories)
-│       ├── Auth/
-│       ├── Autofill/
-│       ├── Billing/
-│       ├── Platform/
-│       ├── Tools/
-│       └── Vault/
-├── AuthenticatorShared/                # Authenticator shared framework
-│   ├── Core/                           # Same structure as BitwardenShared
-│   ├── Sourcery/                       # Mock generation config + output
-│   └── UI/
-├── BitwardenKit/                       # Common functionality across both apps
-│   ├── Core/
-│   │   └── Platform/Services/          # Has* protocols, ServiceContainer base
-│   ├── Sourcery/                       # Mock generation config + output
-│   └── UI/
-│       └── Platform/Application/
-│           └── Utilities/              # Store, Processor, Coordinator, Alert
-├── BitwardenResources/                 # Shared assets, fonts, localizations
-├── AuthenticatorBridgeKit/             # PM ↔ Authenticator communication
-├── Networking/                         # URLSession-based networking (Swift package)
-├── BitwardenAutoFillExtension/         # AutoFill Credential Provider extension
-├── BitwardenActionExtension/           # Action extension (autofill via share sheet)
-├── BitwardenShareExtension/            # Share extension (create Sends)
-├── BitwardenWatchApp/                  # watchOS companion
-├── GlobalTestHelpers/                  # Shared test utilities
-├── Sourcery/Templates/                 # Shared Sourcery Stencil templates
-├── Configs/                            # xcconfig files (Debug/Release per target)
-├── Scripts/                            # Build, bootstrap, CI scripts
-├── TestPlans/                          # Xcode test plans
-├── Docs/                               # Architecture.md, Testing.md
-└── project-*.yml                       # XcodeGen project specs
-```
+`Bitwarden/`, `Authenticator/` — app targets
+`BitwardenShared/`, `AuthenticatorShared/`, `BitwardenKit/` — shared frameworks; each has `Core/` + `UI/` with fixed subdirs (see `Docs/Architecture.md` [Architecture Structure] for canonical domain list)
+`AuthenticatorBridgeKit/`, `BitwardenResources/`, `Networking/` — support frameworks
+`BitwardenAutoFillExtension/`, `BitwardenActionExtension/`, `BitwardenShareExtension/`, `BitwardenWatchApp/` — extensions
+`Docs/`, `Scripts/`, `TestPlans/`, `Configs/`, `Sourcery/Templates/`, `project-*.yml` — configuration
 
-**CRITICAL**: Do NOT add new top-level subdirectories to `Core/` or `UI/`. The fixed subdirectories are: `Auth/`, `Autofill/`, `Billing/`, `Platform/`, `Tools/`, `Vault/`.
+**CRITICAL**: Do NOT add new top-level subdirectories to `Core/` or `UI/`. The fixed subdirectories are defined in `Docs/Architecture.md` under [Architecture Structure].
 
 For key principles (unidirectional data flow, dependency injection, coordinator navigation, zero-knowledge), core patterns (Coordinator/Processor/State/View/Action/Effect files), adding new features, adding services/repositories, and common patterns, see `Docs/Architecture.md`.
 
@@ -105,32 +63,13 @@ Build configurations use xcconfig files in `Configs/` (Debug/Release per target)
 
 Xcode version requirement: see `.xcode-version` file
 
-### Authentication & Authorization
-
-- **Login flows**: Email+password, SSO, SSO+TDE, passwordless (device approval), biometric unlock, PIN unlock
-- **Key derivation**: PBKDF2 or Argon2id (configurable per account)
-- **Token lifecycle**: Access tokens refreshed preemptively 5 minutes before expiry (`tokenRefreshThreshold`)
-- **Biometric auth**: Touch ID / Face ID unlock via Keychain access control flags
-- **Multi-account**: Up to 5 accounts with per-user data isolation (CoreData `userId` scoping)
-
 ## Testing
 
-**You MUST follow testing guidelines in `Docs/Testing.md`** (authoritative source for test structure, naming, templates, decision matrix, running tests, and simulator configuration). Snapshot tests are currently disabled — prefix function names with `disable`.
+Follow `Docs/Testing.md` (authoritative). See `testing-ios-code` skill for test-writing workflow. Snapshot tests are currently disabled — prefix function names with `disabletest_`.
 
 ## Code Style & Standards
 
-### Core Directives
-
-**You MUST follow these directives at all times:**
-
-1. **Adhere to Architecture**: All code modifications MUST follow patterns in `Docs/Architecture.md`
-2. **Follow Code Style**: ALWAYS follow https://contributing.bitwarden.com/contributing/code-style/swift
-3. **Follow Testing Guidelines**: Tests MUST follow guidelines in `Docs/Testing.md`
-4. **Best Practices**: Follow Swift / SwiftUI best practices (value over reference types, guard clauses, extensions, protocol-oriented programming)
-5. **Document Everything**: All code requires DocC documentation except protocol property/function implementations (docs live in the protocol) and mocks
-6. **Dependency Management**: Use `ServiceContainer` as established in the project
-7. **Use Established Patterns**: Leverage existing components before creating new ones
-8. **File References**: Use `file_path:line_number` format when referencing code
+Architecture and testing rules are in `Docs/Architecture.md` and `Docs/Testing.md` (authoritative). Key style rules are inline below.
 
 ### Formatting
 
@@ -190,10 +129,40 @@ typos                                   # Spell check
 
 See `build-test-verify` skill for project generation, build commands, test execution, lint, format, code generation, common failures, and debug tips.
 
+## Delivery Workflow
+
+**You MUST use the following skills for code delivery tasks** — invoke via the Skill tool:
+
+- **Before committing**: Run `perform-ios-preflight-checklist` to verify architecture, security, testing, and style compliance
+- **When committing**: Use `committing-ios-changes` for commit message format, staging guidance, and commit creation
+- **When creating a PR**: Use `creating-ios-pull-request` for PR title/body format, draft creation, and AI review label prompt
+- **When labeling a PR**: Use `labeling-ios-changes` for change type (`t:*`) and app context (`app:*`) label selection
+- **When reviewing code**: Use `reviewing-changes` for architecture, style, compilation, testing, and security review
+
 ## References
 
 - `Docs/Architecture.md` — Architecture patterns and principles (authoritative)
 - `Docs/Testing.md` — Testing guidelines and component-specific strategies (authoritative)
 
 **Do not duplicate information from these files — reference them instead.**
+
+## Skills & Commands
+
+| Skill | Triggers |
+|-------|---------|
+| `refining-ios-requirements` | "refine requirements", "analyze ticket", "gap analysis" |
+| `planning-ios-implementation` | "plan implementation", "design approach", "architecture plan" |
+| `implementing-ios-code` | "implement", "write code", "add screen", "create feature" |
+| `testing-ios-code` | "write tests", "add test coverage", "unit test" |
+| `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
+| `perform-ios-preflight-checklist` | "preflight", "self review", "ready to commit" |
+| `committing-ios-changes` | "commit", "stage changes", "create commit" |
+| `creating-ios-pull-request` | "create PR", "open pull request", "submit PR" |
+| `labeling-ios-changes` | "label PR", "add labels", "categorize changes" |
+| `reviewing-changes` | "review", "code review", "check PR" |
+
+| Command | Usage |
+|---------|-------|
+| `/plan-ios-work <PM-XXXXX>` | Use the `ios-architect` agent (or this command) to fetch ticket → refine requirements → design implementation approach |
+| `/work-on-ios <PM-XXXXX>` | Use the `ios-implementer` agent (or this command) for full workflow: implement → test → verify → preflight → commit → review → PR |
 

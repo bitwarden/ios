@@ -820,6 +820,12 @@ protocol StateService: AnyObject {
     ///
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never>
 
+    /// Whether the user should see the premium upgrade banner based on account criteria.
+    ///
+    /// - Returns: `true` if user is free, account is 7+ days old, and banner not dismissed.
+    ///
+    func shouldShowPremiumUpgradeBanner() async -> Bool
+
     /// A publisher for whether or not to show the web icons.
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
@@ -1431,6 +1437,9 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     /// A service used to access data in the keychain.
     let keychainRepository: KeychainRepository
 
+    /// Provides the present time for time-based calculations.
+    private let timeProvider: TimeProvider
+
     /// A service used to access user session data in the keychain.
     private let userSessionKeychainRepository: UserSessionKeychainRepository
 
@@ -1455,18 +1464,22 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     ///  - dataStore: The data store that handles performing data requests.
     ///  - errorReporter: The service used by the application to report non-fatal errors.
     ///  - keychainRepository: A service used to access data in the keychain.
+    ///  - timeProvider: Provides the present time for time-based calculations.
+    ///  - userSessionKeychainRepository: A service used to access user session data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
+        timeProvider: TimeProvider,
         userSessionKeychainRepository: UserSessionKeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
+        self.timeProvider = timeProvider
         self.userSessionKeychainRepository = userSessionKeychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -2177,6 +2190,22 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
+    }
+
+    func shouldShowPremiumUpgradeBanner() async -> Bool {
+        guard await !doesActiveAccountHavePremium() else { return false }
+
+        let dismissed = await ((try? getPremiumUpgradeBannerDismissed()) ?? false)
+        guard !dismissed else { return false }
+
+        // Check account age >= 7 days
+        guard let account = try? await getActiveAccount(),
+              let creationDate = account.profile.creationDate else { return false }
+        guard timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge else {
+            return false
+        }
+
+        return true
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {

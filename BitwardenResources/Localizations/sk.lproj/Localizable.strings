@@ -1330,3 +1330,4 @@
 "LearnMoreAboutAutofill" = "Viac informácií o automatickom vypĺňaní";
 "TurnOnNow" = "Zapnúť teraz";
 "AcceptTransfer" = "Prijať prenos";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Heslo a nápoveď sa nesmú zhodovať. Zvoľte si inú nápoveď.";

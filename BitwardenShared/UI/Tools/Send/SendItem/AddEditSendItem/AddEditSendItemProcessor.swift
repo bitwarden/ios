@@ -12,7 +12,6 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Services = HasAuthRepository
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
@@ -225,7 +224,6 @@ class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
         state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
-        state.isSendEmailVerificationEnabled = await services.configService.getFeatureFlag(.sendEmailVerification)
         await refreshProfileState()
 
         if state.maximumAccessCount != 0 {

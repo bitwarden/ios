@@ -1,4 +1,3 @@
-#if SUPPORTS_CXP
 import AuthenticationServices
 import BitwardenKitMocks
 import InlineSnapshotTesting
@@ -6,6 +5,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - ExportCXFCiphersRepositoryTests
 
@@ -117,7 +117,7 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(result.count, 2)
         XCTAssertEqual(result[0].id, "1")
         XCTAssertEqual(result[1].id, "2")
-        XCTAssertEqual(exportVaultService.fetchAllCiphersIncludeArchived, false)
+        XCTAssertEqual(exportVaultService.fetchAllCiphersToExportIncludeArchived, false)
     }
 
     /// `getAllCiphersToExportCXF()` throws when fetching ciphers throws.
@@ -235,5 +235,3 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         }
     }
 }
-
-#endif

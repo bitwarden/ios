@@ -53,6 +53,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAuthService
         & HasAutofillCredentialService
         & HasBiometricsRepository
+        & HasClientCertificateService
         & HasClientService
         & HasConfigService
         & HasDeviceAPIService
@@ -658,12 +659,15 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 identityServerUrl: preAuthEnvironmentURLs.identity?.sanitized.description ?? "",
                 serverUrl: preAuthEnvironmentURLs.base?.sanitized.description ?? "",
                 webVaultServerUrl: preAuthEnvironmentURLs.webVault?.sanitized.description ?? "",
+                keyAlias: preAuthEnvironmentURLs.clientCertificateAlias ?? "",
+                keyFingerprint: preAuthEnvironmentURLs.clientCertificateFingerprint ?? "",
             )
         }
 
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
+            services: services,
             state: state,
         )
         let view = SelfHostedView(store: Store(processor: processor))

@@ -11,6 +11,12 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     /// The base URL.
     public let base: URL?
 
+    /// The human-readable alias for the client certificate used for mTLS, if configured.
+    public let clientCertificateAlias: String?
+
+    /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
+    public let clientCertificateFingerprint: String?
+
     /// The URL for the events API.
     public let events: URL?
 
@@ -33,6 +39,8 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     /// - Parameters:
     ///   - api: The URL for the API.
     ///   - base: The base URL.
+    ///   - clientCertificateAlias: The human-readable alias for the client certificate.
+    ///   - clientCertificateFingerprint: The SHA-256 fingerprint of the client certificate.
     ///   - events: The URL for the events API.
     ///   - icons: The URL for the icons API.
     ///   - identity: The URL for the identity API.
@@ -42,6 +50,8 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     public init(
         api: URL? = nil,
         base: URL? = nil,
+        clientCertificateAlias: String? = nil,
+        clientCertificateFingerprint: String? = nil,
         events: URL? = nil,
         icons: URL? = nil,
         identity: URL? = nil,
@@ -50,6 +60,8 @@ public struct EnvironmentURLData: Codable, Equatable, Hashable, Sendable {
     ) {
         self.api = api
         self.base = base
+        self.clientCertificateAlias = clientCertificateAlias
+        self.clientCertificateFingerprint = clientCertificateFingerprint
         self.events = events
         self.icons = icons
         self.identity = identity

@@ -1332,3 +1332,4 @@
 "LearnMoreAboutAutofill" = "Learn more about autofill";
 "TurnOnNow" = "Turn on now";
 "AcceptTransfer" = "Accept transfer";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";

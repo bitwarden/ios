@@ -147,6 +147,13 @@ public protocol VaultRepository: AnyObject {
     /// - Returns: The TOTP if the user/org has the necessary permissions for it to be copied.
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String?
 
+    /// Returns whether the user's vault has at least the specified number of items.
+    ///
+    /// - Parameter count: The minimum number of items to check for.
+    /// - Returns: Whether the vault has at least the specified number of items.
+    ///
+    func hasMinimumCipherCount(_ count: Int) async throws -> Bool
+
     /// Returns whether the user's vault is empty.
     ///
     /// - Returns: Whether the user's vault is empty.
@@ -366,6 +373,9 @@ class DefaultVaultRepository {
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
+    
+    /// The service used to retrieve TOTPs.
+    private let totpService: TOTPService
 
     /// The factory to create vault list director strategies.
     private let vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
@@ -393,6 +403,7 @@ class DefaultVaultRepository {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - timeProvider: The service used to get the present time.
+    ///   - totpService: The service used to retrieve Time-based One Time Passwords.
     ///   - vaultListDirectorStrategyFactory: The factory to create vault list director strategies.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
@@ -412,6 +423,7 @@ class DefaultVaultRepository {
         stateService: StateService,
         syncService: SyncService,
         timeProvider: TimeProvider,
+        totpService: TOTPService,
         vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory,
         vaultTimeoutService: VaultTimeoutService,
     ) {
@@ -430,6 +442,7 @@ class DefaultVaultRepository {
         self.stateService = stateService
         self.syncService = syncService
         self.timeProvider = timeProvider
+        self.totpService = totpService
         self.vaultListDirectorStrategyFactory = vaultListDirectorStrategyFactory
         self.vaultTimeoutService = vaultTimeoutService
 
@@ -706,12 +719,15 @@ extension DefaultVaultRepository: VaultRepository {
             return nil
         }
 
-        let accountHavePremium = await doesActiveAccountHavePremium()
-        if !cipher.organizationUseTotp, !accountHavePremium {
+        guard await totpService.isTotpAuthorized(for: cipher) else {
             return nil
         }
 
         return totp
+    }
+
+    func hasMinimumCipherCount(_ count: Int) async throws -> Bool {
+        try await cipherService.cipherCount() >= count
     }
 
     func isVaultEmpty() async throws -> Bool {

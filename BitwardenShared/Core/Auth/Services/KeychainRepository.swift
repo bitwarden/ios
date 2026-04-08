@@ -15,6 +15,9 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
 
+    /// The keychain item for a client certificate identity (SecIdentity), keyed by certificate fingerprint.
+    case clientCertificateIdentity(fingerprint: String)
+
     /// The keychain item for the device auth key.
     case deviceAuthKey(userId: String)
 
@@ -52,6 +55,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
         switch self {
         case .accessToken,
              .authenticatorVaultKey,
+             .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
              .deviceKey,
              .lastActiveTime,
@@ -83,6 +87,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
              .authenticatorVaultKey,
+             .clientCertificateIdentity,
              .refreshToken,
              .serverCommunicationConfig:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
@@ -99,6 +104,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "authenticatorVaultKey_\(userId)"
         case let .biometrics(userId: id):
             "userKeyBiometricUnlock_" + id
+        case let .clientCertificateIdentity(fingerprint):
+            "clientCertificateIdentity_\(fingerprint)"
         case let .deviceKey(userId: id):
             "deviceKey_" + id
         case let .deviceAuthKey(userId: id):
@@ -135,6 +142,11 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     /// - Parameter userId: The user ID associated with the authenticator vault key.
     ///
     func deleteAuthenticatorVaultKey(userId: String) async throws
+
+    /// Deletes the client certificate identity from the keychain by certificate fingerprint.
+    ///
+    /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate to delete.
+    func deleteClientCertificateIdentity(fingerprint: String) async throws
 
     /// Deletes items stored in the keychain for a specific user.
     ///
@@ -173,6 +185,13 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     /// - Returns: The authenticator vault key.
     ///
     func getAuthenticatorVaultKey(userId: String) async throws -> String
+
+    /// Gets the client certificate identity from the keychain by certificate fingerprint.
+    ///
+    /// - Parameter fingerprint: The SHA-256 fingerprint of the certificate.
+    /// - Returns: The SecIdentity, or `nil` if not stored.
+    ///
+    func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity?
 
     /// Gets the stored device key for a user from the keychain.
     ///
@@ -217,6 +236,14 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     ///   - userId: The user ID associated with the authenticator vault key.
     ///
     func setAuthenticatorVaultKey(_ value: String, userId: String) async throws
+
+    /// Stores the client certificate identity in the keychain, keyed by certificate fingerprint.
+    ///
+    /// - Parameters:
+    ///   - identity: The SecIdentity to store.
+    ///   - fingerprint: The SHA-256 fingerprint of the certificate used as the keychain label.
+    ///
+    func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws
 
     /// Stores the device key for a user in the keychain.
     ///
@@ -451,6 +478,18 @@ extension DefaultKeychainRepository {
         )
     }
 
+    func deleteClientCertificateIdentity(fingerprint: String) async throws {
+        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
+
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassIdentity,
+            kSecAttrLabel as String: keyLabel,
+            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
+        ]
+
+        try keychainService.delete(query: deleteQuery as CFDictionary)
+    }
+
     func deleteItems(for userId: String) async throws {
         let keychainItems: [BitwardenKeychainItem] = [
             .accessToken(userId: userId),
@@ -497,6 +536,27 @@ extension DefaultKeychainRepository {
         try await getValue(for: .authenticatorVaultKey(userId: userId))
     }
 
+    func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
+        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassIdentity,
+            kSecAttrLabel as String: keyLabel,
+            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
+            kSecReturnRef as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+
+        do {
+            let foundItem = try keychainService.search(query: query as CFDictionary)
+            guard let foundItem else { return nil }
+            // swiftlint:disable:next force_cast
+            return (foundItem as! SecIdentity)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return nil
+        }
+    }
+
     func getDeviceKey(userId: String) async throws -> String? {
         do {
             let value: String = try await getValue(for: .deviceKey(userId: userId))
@@ -529,6 +589,21 @@ extension DefaultKeychainRepository {
 
     func setAuthenticatorVaultKey(_ value: String, userId: String) async throws {
         try await setValue(value, for: .authenticatorVaultKey(userId: userId))
+    }
+
+    func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws {
+        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
+
+        let addAttributes: [String: Any] = [
+            kSecClass as String: kSecClassIdentity,
+            kSecValueRef as String: identity,
+            kSecAttrLabel as String: keyLabel,
+            kSecAttrAccessible as String: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint)
+                .protection,
+            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
+        ]
+
+        try keychainService.add(attributes: addAttributes as CFDictionary)
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {

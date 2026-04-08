@@ -1332,3 +1332,4 @@
 "LearnMoreAboutAutofill" = "Узнать больше об автозаполнении";
 "TurnOnNow" = "Включить сейчас";
 "AcceptTransfer" = "Принять передачу";
+"YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Пароль и подсказка к нему не должны совпадать. Пожалуйста, выберите другую подсказку.";
