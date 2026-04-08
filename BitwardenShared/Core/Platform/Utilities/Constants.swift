@@ -54,11 +54,11 @@ extension Constants {
     /// The value representing 100 MB of data.
     static let maxFileSize = 104_857_600
 
-    /// The maximum number of passwords stored in history.
-    static let maxPasswordsInHistory = 100
-
     /// The maximum size of files for upload.
     static let maxFileSizeBytes = 104_857_600
+
+    /// The maximum number of passwords stored in history.
+    static let maxPasswordsInHistory = 100
 
     /// The maximum number of unsuccessful attempts the user can make to unlock
     static let maxUnlockUnsuccessfulAttempts = 5
@@ -72,6 +72,9 @@ extension Constants {
     /// The minimum length when setting a pin.
     static let minimumPinLength = 4
 
+    /// The minimum number of cipher items required to show the premium upgrade banner.
+    static let minimumPremiumUpgradeBannerCipherCount = 5
+
     /// The minimum number of minutes before allowing the vault to sync again.
     static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
 
@@ -83,6 +86,9 @@ extension Constants {
 
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
+
+    /// The minimum account age required to show the premium upgrade banner.
+    static let premiumUpgradeBannerAccountAge: TimeInterval = 7 * 24 * 60 * 60
 
     /// The time to wait until we can request again to turn on credential provider extension.
     ///

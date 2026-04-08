@@ -105,6 +105,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
+    var shouldShowPremiumUpgradeBannerResult: Bool = false
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
@@ -776,6 +777,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
+    func shouldShowPremiumUpgradeBanner() async -> Bool {
+        shouldShowPremiumUpgradeBannerResult
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

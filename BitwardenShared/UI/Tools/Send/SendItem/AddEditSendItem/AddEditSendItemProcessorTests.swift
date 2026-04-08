@@ -12,7 +12,6 @@ import XCTest
 class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
@@ -28,7 +27,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func setUp() {
         super.setUp()
-        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
@@ -38,7 +36,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject = AddEditSendItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -51,7 +48,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     override func tearDown() {
         super.tearDown()
-        configService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -951,28 +947,24 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: LoadData Tests
 
-    /// `perform(_:)` with `loadData` loads the premium status and feature flag.
+    /// `perform(_:)` with `loadData` loads the premium status.
     @MainActor
-    func test_perform_loadData_premiumAndFeatureFlag() async {
+    func test_perform_loadData_premium() async {
         sendRepository.doesActivateAccountHavePremiumResult = true
-        configService.featureFlagsBool[.sendEmailVerification] = true
 
         await subject.perform(.loadData)
 
         XCTAssertTrue(subject.state.hasPremium)
-        XCTAssertTrue(subject.state.isSendEmailVerificationEnabled)
     }
 
-    /// `perform(_:)` with `loadData` loads false for premium and feature flag when not available.
+    /// `perform(_:)` with `loadData` loads false for premium when not available.
     @MainActor
-    func test_perform_loadData_noPremiumNoFeatureFlag() async {
+    func test_perform_loadData_noPremium() async {
         sendRepository.doesActivateAccountHavePremiumResult = false
-        configService.featureFlagsBool[.sendEmailVerification] = false
 
         await subject.perform(.loadData)
 
         XCTAssertFalse(subject.state.hasPremium)
-        XCTAssertFalse(subject.state.isSendEmailVerificationEnabled)
     }
 
     // MARK: ProfileSwitcherHandler

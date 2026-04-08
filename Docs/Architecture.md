@@ -69,6 +69,7 @@ Most of the app's functionality is implemented in the `BitwardenShared` and `Aut
 
 - `Auth`
 - `Autofill`
+- `Billing`
 - `Platform`
 - `Tools`
 - `Vault`
@@ -382,7 +383,7 @@ Test files are co-located with the code they test, maintaining the same folder s
 
 - Makes it easy to find tests for a given type
 - Ensures tests evolve alongside the code
-- Reinforces the architectural boundaries (Auth, Autofill, Platform, Tools, Vault)
+- Reinforces the architectural boundaries (see [Architecture Structure](#architecture-structure) for domain list)
 
 ### Dependency Mocking
 

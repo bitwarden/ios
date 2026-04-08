@@ -29,9 +29,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
-    /// Flag to enable/disable sends email verification feature.
-    static let sendEmailVerification = FeatureFlag(rawValue: "pm-19051-send-email-verification")
-
     public static var allCases: [FeatureFlag] {
         [
             .archiveVaultItems,
@@ -42,7 +39,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .migrateMyVaultToMyItems,
             .noLogoutOnKdfChange,
             .premiumUpgradePath,
-            .sendEmailVerification,
         ]
     }
 }

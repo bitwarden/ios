@@ -606,6 +606,54 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.hasPremium)
     }
 
+    /// `perform(_:)` with `.appeared` shows the premium upgrade action card when all conditions are met.
+    @MainActor
+    func test_perform_appeared_loadPremiumUpgradeBanner_shown() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        stateService.shouldShowPremiumUpgradeBannerResult = true
+        vaultRepository.hasMinimumCipherCountResult = .success(true)
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the premium upgrade action card when feature flag is off.
+    @MainActor
+    func test_perform_appeared_loadPremiumUpgradeBanner_featureFlagOff() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+        stateService.shouldShowPremiumUpgradeBannerResult = true
+        vaultRepository.hasMinimumCipherCountResult = .success(true)
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the premium upgrade action card when user has premium.
+    @MainActor
+    func test_perform_appeared_loadPremiumUpgradeBanner_hasPremium() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        stateService.shouldShowPremiumUpgradeBannerResult = false
+        vaultRepository.hasMinimumCipherCountResult = .success(true)
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the premium upgrade action card when user has less than 5 items.
+    @MainActor
+    func test_perform_appeared_loadPremiumUpgradeBanner_insufficientItems() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        stateService.shouldShowPremiumUpgradeBannerResult = true
+        vaultRepository.hasMinimumCipherCountResult = .success(false)
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
     /// `perform(_:)` with `.dismissArchiveOnboardingActionCard` dismisses the archive onboarding card
     /// and sets the archive onboarding shown property to true.
     @MainActor
@@ -617,6 +665,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
         XCTAssertTrue(stateService.archiveOnboardingShown)
+    }
+
+    /// `perform(_:)` with `.dismissPremiumUpgradeActionCard` dismisses the premium upgrade card
+    /// and sets the premium upgrade banner dismissed property to true.
+    @MainActor
+    func test_perform_dismissPremiumUpgradeActionCard() async {
+        stateService.activeAccount = .fixture()
+        subject.state.shouldShowPremiumUpgradeActionCard = true
+
+        await subject.perform(.dismissPremiumUpgradeActionCard)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+        XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
     }
 
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
@@ -2140,6 +2201,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.totpCodeExpired(.fixture()))
 
+        XCTAssertEqual(subject.state, initialState)
+    }
+
+    /// `receive(_:)` with `.upgradeToPremium` does nothing (placeholder for PM-33849).
+    @MainActor
+    func test_receive_upgradeToPremium() {
+        let initialState = subject.state
+
+        subject.receive(.upgradeToPremium)
+
+        // Currently a no-op, will navigate to upgrade view in PM-33849
         XCTAssertEqual(subject.state, initialState)
     }
 

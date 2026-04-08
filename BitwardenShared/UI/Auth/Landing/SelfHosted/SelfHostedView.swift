@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import SwiftUI
+import UniformTypeIdentifiers
 
 // MARK: - SelfHostedView
 
@@ -12,12 +13,19 @@ struct SelfHostedView: View {
     /// The store used to render the view.
     @ObservedObject var store: Store<SelfHostedState, SelfHostedAction, SelfHostedEffect>
 
+    /// Local state for the certificate alias text field in the dialog.
+    @SwiftUI.State private var dialogAlias: String = ""
+
+    /// Local state for the certificate password text field in the dialog.
+    @SwiftUI.State private var dialogPassword: String = ""
+
     // MARK: View
 
     var body: some View {
         VStack(spacing: 16) {
             selfHostedEnvironment
             customEnvironment
+            clientCertificateSection
         }
         .textFieldConfiguration(.url)
         .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
@@ -29,6 +37,91 @@ struct SelfHostedView: View {
 
             saveToolbarItem {
                 await store.perform(.saveEnvironment)
+            }
+        }
+        .fileImporter(
+            isPresented: store.binding(
+                get: \.showingCertificateImporter,
+                send: { _ in SelfHostedAction.dismissCertificateImporter },
+            ),
+            allowedContentTypes: [UTType(filenameExtension: "p12")!, UTType(filenameExtension: "pfx")!],
+            onCompletion: { result in
+                store.send(.certificateFileSelected(result))
+            },
+        )
+        .alert(
+            Localizations.importClientCertificate,
+            isPresented: Binding(
+                get: {
+                    if case .setCertificateData = store.state.dialog { return true }
+                    return false
+                },
+                set: { newValue in
+                    if !newValue { store.send(.dialogDismiss) }
+                },
+            ),
+        ) {
+            TextField(Localizations.alias, text: $dialogAlias)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+            SecureField(Localizations.password, text: $dialogPassword)
+            Button(Localizations.cancel, role: .cancel) {
+                dialogAlias = ""
+                dialogPassword = ""
+                store.send(.dialogDismiss)
+            }
+            Button(Localizations.submit) {
+                let alias = dialogAlias
+                let password = dialogPassword
+                dialogAlias = ""
+                dialogPassword = ""
+                store.send(.certificateInfoSubmitted(alias: alias, password: password))
+            }
+            .disabled(dialogPassword.isEmpty)
+        } message: {
+            Text(Localizations.enterTheCertificatePasswordAndAlias)
+        }
+        .alert(
+            Localizations.anErrorHasOccurred,
+            isPresented: Binding(
+                get: {
+                    if case .error = store.state.dialog { return true }
+                    return false
+                },
+                set: { newValue in
+                    if !newValue { store.send(.dialogDismiss) }
+                },
+            ),
+        ) {
+            Button(Localizations.ok) {
+                store.send(.dialogDismiss)
+            }
+        } message: {
+            if case let .error(message) = store.state.dialog {
+                Text(message)
+            }
+        }
+        .alert(
+            Localizations.replaceExistingCertificate,
+            isPresented: Binding(
+                get: {
+                    if case .confirmOverwriteAlias = store.state.dialog { return true }
+                    return false
+                },
+                set: { newValue in
+                    if !newValue { store.send(.dialogDismiss) }
+                },
+            ),
+        ) {
+            Button(Localizations.cancel, role: .cancel) {
+                store.send(.dialogDismiss)
+            }
+            Button(Localizations.replaceCertificate, role: .destructive) {
+                store.send(.confirmOverwriteCertificate)
+            }
+        } message: {
+            if case let .confirmOverwriteAlias(alias, _, _) = store.state.dialog {
+                Text(Localizations.aCertificateWithTheAliasAlreadyExistsDescriptionLong(alias))
             }
         }
     }
@@ -93,6 +186,33 @@ struct SelfHostedView: View {
             .keyboardType(.URL)
             .textContentType(.URL)
             .textInputAutocapitalization(.never)
+        }
+    }
+
+    /// The client certificate (mTLS) section.
+    private var clientCertificateSection: some View {
+        SectionView(Localizations.clientCertificateMtls, contentSpacing: 8) {
+            BitwardenTextField(
+                title: Localizations.certificateAlias,
+                text: .constant(store.state.keyAlias),
+                footer: Localizations.certificateUsedForClientAuthentication,
+            )
+            .accessibilityIdentifier("KeyAliasEntry")
+            .disabled(true)
+
+            Button(Localizations.importCertificate) {
+                store.send(.importCertificateTapped)
+            }
+            .accessibilityIdentifier("ImportCertificateButton")
+            .buttonStyle(.primary())
+
+            if !store.state.keyAlias.isEmpty {
+                Button(Localizations.removeCertificate) {
+                    store.send(.removeCertificateTapped)
+                }
+                .accessibilityIdentifier("RemoveCertificateButton")
+                .buttonStyle(.secondary(isDestructive: true))
+            }
         }
     }
 }

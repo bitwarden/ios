@@ -147,6 +147,13 @@ public protocol VaultRepository: AnyObject {
     /// - Returns: The TOTP if the user/org has the necessary permissions for it to be copied.
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String?
 
+    /// Returns whether the user's vault has at least the specified number of items.
+    ///
+    /// - Parameter count: The minimum number of items to check for.
+    /// - Returns: Whether the vault has at least the specified number of items.
+    ///
+    func hasMinimumCipherCount(_ count: Int) async throws -> Bool
+
     /// Returns whether the user's vault is empty.
     ///
     /// - Returns: Whether the user's vault is empty.
@@ -717,6 +724,10 @@ extension DefaultVaultRepository: VaultRepository {
         }
 
         return totp
+    }
+
+    func hasMinimumCipherCount(_ count: Int) async throws -> Bool {
+        try await cipherService.cipherCount() >= count
     }
 
     func isVaultEmpty() async throws -> Bool {

@@ -1139,6 +1139,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
     }
 
+    /// `hasMinimumCipherCount(_:)` throws an error if one occurs.
+    func test_hasMinimumCipherCount_error() async {
+        cipherService.cipherCountResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.hasMinimumCipherCount(5)
+        }
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `true` when vault has at least the specified count.
+    func test_hasMinimumCipherCount_true() async throws {
+        cipherService.cipherCountResult = .success(5)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertTrue(hasMinimum)
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `true` when vault has more than the specified count.
+    func test_hasMinimumCipherCount_moreThanMinimum() async throws {
+        cipherService.cipherCountResult = .success(6)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertTrue(hasMinimum)
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `false` when vault has fewer than the specified count.
+    func test_hasMinimumCipherCount_false() async throws {
+        cipherService.cipherCountResult = .success(4)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertFalse(hasMinimum)
+    }
+
     /// `isVaultEmpty()` throws an error if one occurs.
     func test_isVaultEmpty_error() async {
         cipherService.cipherCountResult = .failure(BitwardenTestError.example)
