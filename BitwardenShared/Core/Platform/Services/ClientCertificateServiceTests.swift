@@ -1,25 +1,24 @@
 import BitwardenKit
 import BitwardenKitMocks
+import Foundation
 import TestHelpers
-import XCTest
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-final class ClientCertificateServiceTests: BitwardenTestCase {
+struct ClientCertificateServiceTests {
     // MARK: Properties
 
-    var environmentService: MockEnvironmentService!
-    var errorReporter: MockErrorReporter!
-    var keychainRepository: MockKeychainRepository!
-    var stateService: MockStateService!
-    var subject: DefaultClientCertificateService!
+    var environmentService: MockEnvironmentService
+    var errorReporter: MockErrorReporter
+    var keychainRepository: MockKeychainRepository
+    var stateService: MockStateService
+    var subject: DefaultClientCertificateService
 
-    // MARK: Setup & Teardown
+    // MARK: Initialization
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
@@ -32,67 +31,62 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
-
-        environmentService = nil
-        errorReporter = nil
-        keychainRepository = nil
-        stateService = nil
-        subject = nil
-    }
-
     // MARK: Tests - getClientCertificateIdentity()
 
     /// `getClientCertificateIdentity()` returns nil when the fingerprint is set but the keychain
     /// identity is missing.
-    func test_getClientCertificateIdentity_fingerprintSetButKeychainMissing_returnsNil() async {
+    @Test
+    func getClientCertificateIdentity_fingerprintSetButKeychainMissing_returnsNil() async {
         environmentService.clientCertificateFingerprint = "missing-from-keychain"
 
         let result = await subject.getClientCertificateIdentity()
 
-        XCTAssertNil(result)
+        #expect(result == nil)
     }
 
     /// `getClientCertificateIdentity()` returns nil and logs an error when the keychain throws an
     /// unexpected error.
-    func test_getClientCertificateIdentity_keychainThrows_logsErrorAndReturnsNil() async {
+    @Test
+    func getClientCertificateIdentity_keychainThrows_logsErrorAndReturnsNil() async {
         let error = BitwardenTestError.example
         environmentService.clientCertificateFingerprint = "some-fingerprint"
         keychainRepository.getClientCertificateIdentityResult = .failure(error)
 
         let result = await subject.getClientCertificateIdentity()
 
-        XCTAssertNil(result)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [error])
+        #expect(result == nil)
+        #expect(errorReporter.errors as? [BitwardenTestError] == [error])
     }
 
     /// `getClientCertificateIdentity()` returns nil when no fingerprint is in the environment.
-    func test_getClientCertificateIdentity_noFingerprint_returnsNil() async {
+    @Test
+    func getClientCertificateIdentity_noFingerprint_returnsNil() async {
         environmentService.clientCertificateFingerprint = nil
 
         let result = await subject.getClientCertificateIdentity()
 
-        XCTAssertNil(result)
+        #expect(result == nil)
     }
 
     // MARK: Tests - removeCertificate(fingerprint:)
 
     /// `removeCertificate(fingerprint:)` deletes the keychain identity when no other account
     /// references the given fingerprint.
-    func test_removeCertificate_fingerprint_deletesKeychainIdentity() async throws {
+    @Test
+    func removeCertificate_fingerprint_deletesKeychainIdentity() async throws {
         let fingerprint = "current-env-fingerprint"
 
         stateService.accounts = []
 
         try await subject.removeCertificate(fingerprint: fingerprint)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [fingerprint])
+        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints == [fingerprint])
     }
 
     /// `removeCertificate(fingerprint:)` keeps the keychain identity when another account
     /// references the same fingerprint.
-    func test_removeCertificate_fingerprint_sharedFingerprint_doesNotDeleteKeychainIdentity() async throws {
+    @Test
+    func removeCertificate_fingerprint_sharedFingerprint_doesNotDeleteKeychainIdentity() async throws {
         let user1 = "1"
         let fingerprint = "shared-fingerprint"
 
@@ -105,14 +99,15 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(fingerprint: fingerprint)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
+        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
     }
 
     // MARK: Tests - removeCertificate(userId:)
 
     /// `removeCertificate(userId:)` deletes the keychain identity when the removed user is the
     /// last reference to the certificate fingerprint.
-    func test_removeCertificate_lastFingerprintReference_deletesKeychainIdentity() async throws {
+    @Test
+    func removeCertificate_lastFingerprintReference_deletesKeychainIdentity() async throws {
         let user1 = "1"
         let fingerprint = "only-fingerprint"
 
@@ -128,11 +123,12 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [fingerprint])
+        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints == [fingerprint])
     }
 
     /// `removeCertificate(userId:)` succeeds gracefully when no certificate is configured.
-    func test_removeCertificate_noCertConfigured_succeeds() async throws {
+    @Test
+    func removeCertificate_noCertConfigured_succeeds() async throws {
         let user1 = "1"
 
         stateService.accounts = [
@@ -145,12 +141,13 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
+        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
     }
 
     /// `removeCertificate(userId:)` keeps the keychain identity when another account references
     /// the same certificate fingerprint in its environment URLs.
-    func test_removeCertificate_sharedFingerprintAcrossAccounts_doesNotDeleteKeychainIdentity() async throws {
+    @Test
+    func removeCertificate_sharedFingerprintAcrossAccounts_doesNotDeleteKeychainIdentity() async throws {
         let user1 = "1"
         let user2 = "2"
         let fingerprint = "shared-fingerprint"
@@ -173,12 +170,13 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
+        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
     }
 
     /// `removeCertificate(userId:)` keeps the keychain identity when the pre-auth environment URLs
     /// still reference the same certificate fingerprint.
-    func test_removeCertificate_sharedWithPreAuth_doesNotDeleteKeychainIdentity() async throws {
+    @Test
+    func removeCertificate_sharedWithPreAuth_doesNotDeleteKeychainIdentity() async throws {
         let user1 = "1"
         let fingerprint = "shared-with-preauth"
 
@@ -199,6 +197,6 @@ final class ClientCertificateServiceTests: BitwardenTestCase {
 
         try await subject.removeCertificate(userId: user1)
 
-        XCTAssertEqual(keychainRepository.deleteClientCertificateIdentityFingerprints, [])
+        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
     }
 }
