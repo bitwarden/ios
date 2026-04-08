@@ -19,7 +19,8 @@ protocol SelfHostedProcessorDelegate: AnyObject {
 final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedAction, SelfHostedEffect> {
     // MARK: Types
 
-    typealias Services = HasClientCertificateService & HasErrorReporter
+    typealias Services = HasClientCertificateService
+        & HasErrorReporter
 
     // MARK: Private Properties
 
