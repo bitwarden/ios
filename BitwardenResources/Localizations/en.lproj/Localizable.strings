@@ -658,6 +658,8 @@
 "Totp" = "TOTP";
 "VerificationCodes" = "Verification codes";
 "PremiumSubscriptionRequired" = "Premium subscription required";
+"APremiumPlanGivesYouMoreToolsDescriptionLong" = "A Premium plan gives you more tools to stay secure and in control.";
+"UnlockAdvancedSecurityFeatures" = "Unlock advanced security features";
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "ScanQRCode" = "Scan QR Code";
 "CannotScanQRCode" = "Cannot scan QR Code?";

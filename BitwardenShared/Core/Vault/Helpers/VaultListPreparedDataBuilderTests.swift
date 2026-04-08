@@ -19,6 +19,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     var stateService: MockStateService!
     var subject: DefaultVaultListPreparedDataBuilder!
     var timeProvider: MockTimeProvider!
+    var totpService: MockTOTPService!
 
     // MARK: Setup & Teardown
 
@@ -30,12 +31,14 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
+        totpService = MockTOTPService()
         subject = DefaultVaultListPreparedDataBuilder(
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpService: totpService,
         )
     }
 
@@ -47,6 +50,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
         errorReporter = nil
         stateService = nil
         timeProvider = nil
+        totpService = nil
         subject = nil
     }
 
@@ -363,8 +367,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     /// `incrementTOTPCount(cipher:)` does not increment the TOTP items count when cipher does not have TOTP.
     func test_incrementTOTPCount_doesNotIncrementWhenCipherHasNoTOTP() async {
         let cipher = CipherListView.fixture(type: .login(.fixture(totp: nil)))
-        stateService.doesActiveAccountHavePremiumResult = true
-
+        totpService.isTotpAuthorizedResult = false
         let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
 
         XCTAssertEqual(preparedData.totpItemsCount, 0)
@@ -374,8 +377,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     ///  or organiation access.
     func test_incrementTOTPCount_doesNotIncrementWhenNoAccess() async {
         let cipher = CipherListView.fixture(type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
-        stateService.doesActiveAccountHavePremiumResult = false
-
+        totpService.isTotpAuthorizedResult = false
         let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
 
         XCTAssertEqual(preparedData.totpItemsCount, 0)
@@ -385,8 +387,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     /// but cipher is not a login.
     func test_incrementTOTPCount_doesNotIncrementWhenNotALogin() async {
         let cipher = CipherListView.fixture(type: .secureNote)
-        stateService.doesActiveAccountHavePremiumResult = false
-
+        totpService.isTotpAuthorizedResult = false
         let preparedData = await subject.incrementTOTPCount(cipher: cipher).build()
 
         XCTAssertEqual(preparedData.totpItemsCount, 0)
@@ -592,7 +593,7 @@ class VaultListPreparedDataBuilderTests: BitwardenTestCase { // swiftlint:disabl
     /// does not have premium access.
     func test_addSearchResultItem_totpGroup_noPremiumAccess() async {
         let cipher = CipherListView.fixture(id: "4", type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
-        stateService.doesActiveAccountHavePremiumResult = false
+        totpService.isTotpAuthorizedResult = false
 
         let preparedData = await subject
             .addSearchResultItem(withMatchResult: .exact, cipher: cipher, for: .totp)

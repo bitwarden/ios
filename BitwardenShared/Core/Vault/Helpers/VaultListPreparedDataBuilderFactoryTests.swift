@@ -13,6 +13,7 @@ class VaultListPreparedDataBuilderFactoryTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var timeProvider: MockTimeProvider!
+    var totpService: MockTOTPService!
     var subject: VaultListPreparedDataBuilderFactory!
 
     // MARK: Setup & Teardown
@@ -25,12 +26,14 @@ class VaultListPreparedDataBuilderFactoryTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
+        totpService = MockTOTPService()
         subject = DefaultVaultListPreparedDataBuilderFactory(
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpService: totpService,
         )
     }
 
@@ -42,6 +45,7 @@ class VaultListPreparedDataBuilderFactoryTests: BitwardenTestCase {
         errorReporter = nil
         stateService = nil
         timeProvider = nil
+        totpService = nil
         subject = nil
     }
 
