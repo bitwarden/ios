@@ -11,21 +11,55 @@ Use this skill to write tests following Bitwarden iOS patterns.
 
 Read `Docs/Testing.md` — it is the authoritative source for test structure, naming, templates, decision matrix, and simulator configuration.
 
-## Step 1: Determine Test Type
+## Step 1: Choose Framework
+
+| Scenario | Framework | Why |
+|----------|-----------|-----|
+| **New test file** | Swift Testing | Preferred for all new tests |
+| **Existing XCTest file** | XCTest | Don't mix frameworks in one file |
+| **ViewInspector tests** | XCTest | ViewInspector requires XCTest |
+| **Snapshot tests** | XCTest | SnapshotTesting requires `BitwardenTestCase` |
+
+## Step 2: Determine Test Type
 
 Choose the right test type based on what you're testing:
 
-| What | Test type | Example file |
-|------|-----------|--------------|
-| Processor actions/effects/state | Unit test (`BitwardenTestCase`) | `examples/processor-test-example.md` |
-| Coordinator navigation/routes | Unit test (`BitwardenTestCase`) | `examples/coordinator-test-example.md` |
-| View interactions (buttons, toggles) | ViewInspector test | `examples/view-test-example.md` |
-| View appearance | Snapshot test (`disabletest_` prefix) | `examples/view-test-example.md` |
-| Service/repository business logic | Unit test | `examples/service-test-example.md` |
+| What | Test type | XCTest example | Swift Testing example |
+|------|-----------|----------------|----------------------|
+| Processor actions/effects/state | Unit test | `examples/processor-test-example.md` | `examples/processor-test-swift-testing-example.md` |
+| Coordinator navigation/routes | Unit test | `examples/coordinator-test-example.md` | `examples/coordinator-test-swift-testing-example.md` |
+| View interactions (buttons, toggles) | ViewInspector test | `examples/view-test-example.md` | — (use XCTest) |
+| View appearance | Snapshot test (`disabletest_` prefix) | `examples/view-test-example.md` | — (use XCTest) |
+| Service/repository business logic | Unit test | `examples/service-test-example.md` | `examples/service-test-swift-testing-example.md` |
 
-## Step 2: Test Setup Pattern
+## Step 3: Test Setup Pattern
 
-All processor and coordinator tests use `ServiceContainer.withMocks(...)`:
+### Swift Testing (new files)
+
+Use a `struct` with `init()` — no teardown needed, value types are discarded after each test:
+
+```swift
+@MainActor
+struct FeatureProcessorTests {
+    let coordinator: MockCoordinator<FeatureRoute, FeatureEvent>
+    let services: MockServiceContainer
+    let subject: FeatureProcessor
+
+    init() {
+        coordinator = MockCoordinator()
+        services = ServiceContainer.withMocks()
+        subject = FeatureProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: services,
+            state: FeatureState(),
+        )
+    }
+}
+```
+
+### XCTest (existing files, ViewInspector, snapshots)
+
+Use a `class` subclassing `BitwardenTestCase` with `setUp()`/`tearDown()`:
 
 ```swift
 class FeatureProcessorTests: BitwardenTestCase {
@@ -55,9 +89,27 @@ class FeatureProcessorTests: BitwardenTestCase {
 
 See `examples/` for complete patterns per test type.
 
-## Step 3: Write Tests
+## Step 4: Write Tests
 
-**Naming**: `test_<functionName>_<behaviorDescription>`
+### Naming
+
+| Framework | Pattern | Example |
+|-----------|---------|---------|
+| Swift Testing | `@Test func <functionName>_<behavior>()` | `@Test func perform_appeared_loadsData() async` |
+| XCTest | `func test_<functionName>_<behavior>()` | `func test_perform_appeared_loadsData() async` |
+
+### Assertions
+
+| XCTest | Swift Testing |
+|--------|---------------|
+| `XCTAssertEqual(a, b)` | `#expect(a == b)` |
+| `XCTAssertTrue(x)` | `#expect(x == true)` or `#expect(x)` |
+| `XCTAssertNil(x)` | `#expect(x == nil)` |
+| `XCTAssertNotNil(x)` | `#expect(x != nil)` |
+| `XCTUnwrap(x)` | `try #require(x)` |
+| `XCTAssertThrowsError` | `#expect(throws:) { ... }` |
+
+### Test focus areas
 
 **Processor tests** — test both paths:
 - `receive(_:)` actions: assert `subject.state` mutations
@@ -69,12 +121,12 @@ See `examples/` for complete patterns per test type.
 - Error handling and propagation
 - Interactions with mocked dependencies
 
-**View tests** — test:
+**View tests** — test (XCTest only):
 - Button taps → `processor.dispatchedActions.last` (sync)
 - Async button taps → `processor.effects.last`
 - State-driven UI (disabled buttons, text content)
 
-## Step 4: Verify Co-location
+## Step 5: Verify Co-location
 
 Test files must live alongside implementation files:
 ```
@@ -82,10 +134,10 @@ BitwardenShared/UI/Auth/Login/LoginProcessor.swift
 BitwardenShared/UI/Auth/Login/LoginProcessorTests.swift  ← same directory
 ```
 
-## Step 5: Mock Generation
+## Step 6: Mock Generation
 
 New protocols need mocks:
-1. Add `// sourcery: AutoMockable` above the protocol
+1. Add `// sourcery: AutoMockable` as a trailing comment on the protocol declaration line
 2. Run `mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml`
 3. Or just build — Sourcery runs automatically in pre-build phase
 

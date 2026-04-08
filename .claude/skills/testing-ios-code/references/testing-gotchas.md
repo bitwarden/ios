@@ -3,9 +3,9 @@
 Non-obvious, iOS/Bitwarden-specific facts that cause test failures.
 Only pre-populated with confirmed codebase-specific behaviour.
 
-## Snapshot Tests Are Globally Disabled
+## Snapshot Tests Are Globally Disabled (XCTest)
 
-Snapshot test function names must be prefixed with `disabletest_` (not `test_`).
+In XCTest files, snapshot test function names must be prefixed with `disabletest_` (not `test_`).
 The full prefix is `disabletest_`, not just `disable`.
 
 ```swift
@@ -15,10 +15,11 @@ func disabletest_snapshot_empty() { ... }
 // ❌ Wrong — will run as a test and fail
 func test_snapshot_empty() { ... }
 
-// ❌ Wrong prefix
-func disabletest_snapshot_empty() { ... }  // This is actually correct
-func disable_snapshot_empty() { ... }      // This won't be recognized
+// ❌ Wrong prefix — won't be recognized
+func disable_snapshot_empty() { ... }
 ```
+
+> **Swift Testing note**: Snapshot tests currently remain XCTest-based (they depend on `SnapshotTesting` + `BitwardenTestCase`). As Swift Testing adoption grows, disabling may shift to traits (e.g., `.disabled()`). For now, always use XCTest with `disabletest_` prefix for snapshot tests.
 
 ## Simulator Requirements
 
@@ -30,10 +31,10 @@ Snapshot test failures with image differences almost always mean the wrong simul
 
 ## BitwardenTestError
 
-`BitwardenTestError` is a test-only error type available in `GlobalTestHelpers/`:
+`BitwardenTestError` is a test-only error type available in `TestHelpers/Support/`:
 
 ```swift
-public enum BitwardenTestError: Error, Equatable {
+public enum BitwardenTestError: Equatable, LocalizedError {
     case example
     case mock(String)
 }

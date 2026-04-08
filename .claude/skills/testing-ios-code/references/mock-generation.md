@@ -4,11 +4,10 @@ How Sourcery generates mocks for testing.
 
 ## Annotation
 
-Add `// sourcery: AutoMockable` above any protocol that needs a mock:
+Add `// sourcery: AutoMockable` as a trailing comment on the protocol declaration line:
 
 ```swift
-// sourcery: AutoMockable
-protocol FeatureService: AnyObject {
+protocol FeatureService: AnyObject { // sourcery: AutoMockable
     func fetchItems() async throws -> [Item]
 }
 ```
@@ -28,6 +27,9 @@ mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
 
 # For BitwardenKit
 mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
+
+# For AuthenticatorBridgeKit
+mint run sourcery --config AuthenticatorBridgeKit/Sourcery/sourcery.yml
 ```
 
 ## Generated File Locations
@@ -37,6 +39,7 @@ mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
 | BitwardenShared | `BitwardenShared/Sourcery/Generated/` |
 | AuthenticatorShared | `AuthenticatorShared/Sourcery/Generated/` |
 | BitwardenKit | `BitwardenKit/Sourcery/Generated/` |
+| AuthenticatorBridgeKit | `AuthenticatorBridgeKit/Sourcery/Generated/` |
 
 ## ServiceContainer.withMocks()
 
