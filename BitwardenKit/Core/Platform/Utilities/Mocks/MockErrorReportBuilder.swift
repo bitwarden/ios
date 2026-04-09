@@ -5,7 +5,8 @@ public class MockErrorReportBuilder: ErrorReportBuilder {
     public var buildShareErrorLogCallStack: String?
     public var buildShareErrorLogError: Error?
     public var buildShareErrorLogReturnValue: String = "Bitwarden Error Report"
-
+    public var userIdReturnValue: String?
+    
     public init() {}
 
     public func buildShareErrorLog(for error: Error, callStack: String) async -> String {
@@ -14,7 +15,6 @@ public class MockErrorReportBuilder: ErrorReportBuilder {
         return buildShareErrorLogReturnValue
     }
 
-    public var userIdReturnValue: String?
     public func getUserId() async -> String? {
         userIdReturnValue
     }

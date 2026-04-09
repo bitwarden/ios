@@ -175,6 +175,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         }
     }
 
+    /// `getUserId()` returns nil when `ActiveAccountStateProvider` throws an error.
     func test_getUserId_returnsNilWhenAccountStateProviderThrowsError() async {
         let mockError = BitwardenTestError.mock("test_getUserId_returnsNilWhenAccountStateProviderThrowsError")
         activeAccountStateProvider.getActiveAccountIdThrowableError = mockError
@@ -182,6 +183,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         XCTAssertNil(userId)
     }
 
+    /// `getUserId()` returns a valid user id when one exists.
     func test_getUserId_returnsValidID() async {
         let expectation = "1234567890"
         activeAccountStateProvider.getActiveAccountIdReturnValue = expectation
