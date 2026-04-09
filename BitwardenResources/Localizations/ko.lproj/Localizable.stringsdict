@@ -2,18 +2,184 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>XMinutes</key>
+    <!-- An error report if there are issues decrypting vault items. -->
+    <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
-      <key>minutes</key>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ 추가 데이터 손실을 막으려면 이 오류 보고서를 복사해 고객 지원 팀과 공유하세요.</string>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>Bitwarden이 보관함 항목 %d개를 복호화할 수 없었습니다.</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@MasterPasswordMustBeAtLeastCharactersLong@</string>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>마스터 비밀번호는 최소 %d자 이상이어야 합니다.</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ 비밀번호를 변경하는 것이 좋습니다.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>이 비밀번호는 데이터 유출에 %d회 노출되었습니다.</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Characters@</string>
+      <key>Characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>%d자</string>
+      </dict>
+    </dict>
+    <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
+    <key>XDays</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Days@</string>
+      <key>Days</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>%d일</string>
+      </dict>
+    </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Hours@</string>
+      <key>Hours</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>%d시간</string>
+      </dict>
+    </dict>
+    <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
+    <key>XItems</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Items@</string>
+      <key>Items</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>항목 %d개</string>
+      </dict>
+    </dict>
+    <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
+    <key>XItemsSuccessfullyImported</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@ItemsSuccessfullyImported@</string>
+      <key>ItemsSuccessfullyImported</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>항목 %d개 가져오기 성공</string>
+      </dict>
+    </dict>
+    <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
+    <key>XMinutes</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Minutes@</string>
+      <key>Minutes</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>%d분</string>
+      </dict>
+    </dict>
+    <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
+    <key>XSeconds</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Seconds@</string>
+      <key>Seconds</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>%d초</string>
+      </dict>
+    </dict>
+    <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
+    <key>XWeeks</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Weeks@</string>
+      <key>Weeks</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>%d주</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@YourPINMustBeAtLeastCharacters@ 애플리케이션에서 완전히 로그아웃하면 PIN 설정이 초기화됩니다.</string>
+      <key>YourPINMustBeAtLeastCharacters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>PIN은 최소 %d자 이상이어야 합니다.</string>
       </dict>
     </dict>
   </dict>

@@ -96,10 +96,10 @@ extension DataStore: FolderDataStore {
         // A sort descriptor is needed by `NSFetchedResultsController`.
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \FolderData.id, ascending: true)]
         return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
+            context: backgroundContext,
             request: fetchRequest,
+            transform: { try $0.map(Folder.init) },
         )
-        .tryMap { try $0.map(Folder.init) }
         .eraseToAnyPublisher()
     }
 

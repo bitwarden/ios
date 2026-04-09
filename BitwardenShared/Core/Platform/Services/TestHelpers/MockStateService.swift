@@ -1,12 +1,14 @@
 import BitwardenKit
 import BitwardenKitMocks
 import struct BitwardenSdk.EnrollPinResponse
+import struct BitwardenSdk.ServerCommunicationConfig
 import Combine
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
-class MockStateService: StateService { // swiftlint:disable:this type_body_length
+class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateService, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
@@ -25,6 +27,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var appLanguage: LanguageOption = .default
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
+    var archiveOnboardingShown = false
+    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
+    var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -50,7 +55,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
-    var lastActiveTime = [String: Date]()
+    var isInitialSyncRequiredByUserId = [String: Bool]()
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
@@ -58,7 +63,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var getAccountEncryptionKeysError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
+    var getActiveAccountIdError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var lastRequestToTurnOnCredentialProvider: Date?
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
@@ -86,6 +93,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var siriAndShortcutsAccess = [String: Bool]()
     var timeoutAction = [String: SessionTimeoutAction]()
+    var serverCommunicationConfigs = [String: BitwardenSdk.ServerCommunicationConfig]()
+    var getServerCommunicationConfigError: Error?
+    var setServerCommunicationConfigError: Error?
     var serverConfig = [String: ServerConfig]()
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
     // swiftlint:disable:next identifier_name
@@ -94,16 +104,13 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAccountSetupAutofillCalled = false
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var setBiometricIntegrityStateError: Error?
-    var setLastActiveTimeError: Error?
-    var setVaultTimeoutError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
+    var shouldShowPremiumUpgradeBannerResult: Bool = false
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
     var syncToAuthenticatorSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var twoFactorTokens = [String: String]()
-    var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
     var userHasMasterPassword = [String: Bool]()
@@ -111,7 +118,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
     var usesKeyConnector = [String: Bool]()
-    var vaultTimeout = [String: SessionTimeoutValue]()
 
     lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.activeAccount?.profile.userId)
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
@@ -126,6 +132,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountVolatileData.removeValue(forKey: userId)
         pinProtectedUserKeyValue[userId] = nil
         encryptedPinByUserId[userId] = nil
+        pinProtectedUserKeyEnvelopeValue[userId] = nil
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {
@@ -208,12 +215,23 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getActiveAccountId() async throws -> String {
+        if let getActiveAccountIdError { throw getActiveAccountIdError }
         guard let activeAccount else { throw StateServiceError.noActiveAccount }
         return activeAccount.profile.userId
     }
 
     func getAddSitePromptShown() async -> Bool {
         addSitePromptShown
+    }
+
+    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return allowSyncOnRefresh[userId] ?? false
+    }
+
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return allowUniversalClipboard[userId] ?? false
     }
 
     func getAppRehydrationState(userId: String?) async throws -> BitwardenShared.AppRehydrationState? {
@@ -225,14 +243,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         appTheme ?? .default
     }
 
-    func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
-        let userId = try unwrapUserId(userId)
-        return allowSyncOnRefresh[userId] ?? false
+    func getArchiveOnboardingShown() async -> Bool {
+        archiveOnboardingShown
     }
 
-    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        try premiumUpgradeBannerDismissedResult.get()
         let userId = try unwrapUserId(userId)
-        return allowUniversalClipboard[userId] ?? false
+        return premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -298,9 +316,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         learnNewLoginActionCardStatus
     }
 
-    func getLastActiveTime(userId: String?) async throws -> Date? {
-        let userId = try unwrapUserId(userId)
-        return lastActiveTime[userId]
+    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
+        lastRequestToTurnOnCredentialProvider
     }
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
@@ -359,6 +376,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         reviewPromptData
     }
 
+    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
+        if let getServerCommunicationConfigError { throw getServerCommunicationConfigError }
+        return serverCommunicationConfigs[hostname]
+    }
+
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try unwrapUserId(userId)
         return serverConfig[userId]
@@ -392,11 +414,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         twoFactorTokens[email]
     }
 
-    func getUnsuccessfulUnlockAttempts(userId: String?) async throws -> Int {
-        let userId = try unwrapUserId(userId)
-        return unsuccessfulUnlockAttempts[userId] ?? 0
-    }
-
     func getUserHasMasterPassword(userId: String?) async throws -> Bool {
         if let userHasMasterPasswordError { throw userHasMasterPasswordError }
         let userId = try unwrapUserId(userId)
@@ -417,15 +434,15 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return usesKeyConnector[userId] ?? false
     }
 
-    func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
-        let userId = try unwrapUserId(userId)
-        return vaultTimeout[userId] ?? .immediately
-    }
-
     func isAuthenticated(userId: String?) async throws -> Bool {
         let userId = try unwrapUserId(userId)
         if let isAuthenticatedError { throw isAuthenticatedError }
         return isAuthenticated[userId] ?? false
+    }
+
+    func isInitialSyncRequired(userId: String?) async -> Bool {
+        guard let userId = try? unwrapUserId(userId) else { return false }
+        return isInitialSyncRequiredByUserId[userId] ?? false
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
@@ -538,6 +555,16 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.appTheme = appTheme
     }
 
+    func setArchiveOnboardingShown(_ shown: Bool) async {
+        archiveOnboardingShown = shown
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        try premiumUpgradeBannerDismissedResult.get()
+        let userId = try unwrapUserId(userId)
+        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
@@ -606,10 +633,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         learnNewLoginActionCardStatus = status
     }
 
-    func setLastActiveTime(_ date: Date?, userId: String?) async throws {
-        if let setLastActiveTimeError { throw setLastActiveTimeError }
-        let userId = try unwrapUserId(userId)
-        lastActiveTime[userId] = date
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
+        lastRequestToTurnOnCredentialProvider = date
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
@@ -694,6 +719,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         reviewPromptData = data
     }
 
+    func setServerCommunicationConfig(
+        _ config: BitwardenSdk.ServerCommunicationConfig?,
+        hostname: String,
+    ) async throws {
+        if let setServerCommunicationConfigError { throw setServerCommunicationConfigError }
+        serverCommunicationConfigs[hostname] = config
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         serverConfig[userId] = config
@@ -731,11 +764,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         twoFactorTokens[email] = token
     }
 
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String?) async throws {
-        let userId = try unwrapUserId(userId)
-        unsuccessfulUnlockAttempts[userId] = attempts
-    }
-
     func setUserHasMasterPassword(_ hasMasterPassword: Bool) async throws {
         let userId = try unwrapUserId(nil)
         userHasMasterPassword[userId] = hasMasterPassword
@@ -751,10 +779,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.usesKeyConnector[userId] = usesKeyConnector
     }
 
-    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
-        if let setVaultTimeoutError { throw setVaultTimeoutError }
-        let userId = try unwrapUserId(userId)
-        vaultTimeout[userId] = value
+    func shouldShowPremiumUpgradeBanner() async -> Bool {
+        shouldShowPremiumUpgradeBannerResult
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.
@@ -828,15 +854,15 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 // MARK: Biometrics
 
 extension MockStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
         try getBiometricAuthenticationEnabledResult.get()
-        return biometricsEnabled[activeAccount.profile.userId] ?? false
+        return biometricsEnabled[userId] ?? false
     }
 
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        guard let activeAccount else { throw StateServiceError.noActiveAccount }
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
         try setBiometricAuthenticationEnabledResult.get()
-        biometricsEnabled[activeAccount.profile.userId] = isEnabled
+        biometricsEnabled[userId] = isEnabled
     }
 } // swiftlint:disable:this file_length

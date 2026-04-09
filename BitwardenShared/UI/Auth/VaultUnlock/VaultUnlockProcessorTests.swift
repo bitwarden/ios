@@ -6,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -14,10 +15,11 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     var application: MockApplication!
     var authRepository: MockAuthRepository!
     var biometricsRepository: MockBiometricsRepository!
+    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
-    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var subject: VaultUnlockProcessor!
+    var userSessionStateService: MockUserSessionStateService!
 
     // MARK: Setup & Teardown
 
@@ -31,6 +33,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+        userSessionStateService = MockUserSessionStateService()
+
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
+        userSessionStateService.getVaultTimeoutReturnValue = .fifteenMinutes
+        userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 0
+        userSessionStateService.setUnsuccessfulUnlockAttemptsClosure = { [weak self] attempts, _ in
+            self?.userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = attempts
+        }
 
         subject = VaultUnlockProcessor(
             appExtensionDelegate: appExtensionDelegate,
@@ -41,6 +51,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
                 stateService: stateService,
+                userSessionStateService: userSessionStateService,
             ),
             state: VaultUnlockState(account: .fixture()),
         )
@@ -57,6 +68,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         errorReporter = nil
         stateService = nil
         subject = nil
+        userSessionStateService = nil
     }
 
     // MARK: Tests
@@ -65,8 +77,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_appeared_biometricUnlockStatus_error() async {
         stateService.activeAccount = .fixture()
-        struct FetchError: Error {}
-        biometricsRepository.biometricUnlockStatus = .failure(FetchError())
+        biometricsRepository.getBiometricUnlockStatusThrowableError = BitwardenTestError.example
         await subject.perform(.appeared)
 
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
@@ -79,7 +90,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_biometricUnlockStatus_success() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true)
-        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         await subject.perform(.appeared)
 
         XCTAssertEqual([], subject.state.profileSwitcherState.alternateAccounts)
@@ -104,9 +115,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_loadData_unlockWithBiometrics_background() async throws {
         application.applicationState = .background
         stateService.activeAccount = .fixture()
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         subject.shouldAttemptAutomaticBiometricUnlock = true
 
         await subject.perform(.appeared)
@@ -121,7 +130,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_false() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true)
-        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(false)
         authRepository.hasMasterPasswordResult = .success(false)
         await subject.perform(.appeared)
@@ -136,7 +145,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_true_pin() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.notAvailable
-        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(true)
         authRepository.hasMasterPasswordResult = .success(false)
         await subject.perform(.appeared)
@@ -151,7 +160,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_true_masterPassword() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.notAvailable
-        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(false)
         authRepository.hasMasterPasswordResult = .success(true)
         await subject.perform(.appeared)
@@ -166,9 +175,10 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_appeared_shouldShowPasswordOrPinFields_true_masterPasswordError() async {
         stateService.activeAccount = .fixture()
         let expectedStatus = BiometricsUnlockStatus.notAvailable
-        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = expectedStatus
         authRepository.isPinUnlockAvailableResult = .success(false)
         authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
+
         await subject.perform(.appeared)
 
         XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
@@ -235,7 +245,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_appeared_unlockAttempts() async {
         stateService.activeAccount = .fixture()
-        await stateService.setUnsuccessfulUnlockAttempts(3)
+        userSessionStateService.getUnsuccessfulUnlockAttemptsReturnValue = 3
         await subject.perform(.appeared)
 
         XCTAssertEqual(3, subject.state.unsuccessfulUnlockAttemptsCount)
@@ -288,7 +298,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_requestedProfileSwitcherVisible_false() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -311,7 +320,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_requestedProfileSwitcherVisible_true() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -328,6 +336,26 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+    }
+
+    /// `showProfileSwitcher()` navigates to present the profile switcher sheet on iOS 26.
+    @MainActor
+    func test_perform_requestedProfileSwitcherVisible_true_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let active = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
+
+        XCTAssertEqual(coordinator.routes.last, .viewProfileSwitcher)
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
@@ -468,7 +496,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockVault` displays an alert a maximum of 5 times if the master password was incorrect.
     ///  After the 5th attempt, it logs the user out.
     @MainActor
-    func test_perform_unlockVault_invalidPassword_logout() async throws { // swiftlint:disable:this function_body_length
+    func test_perform_unlockVault_invalidPassword_logout() async throws {
         subject.state.masterPassword = "password"
         stateService.activeAccount = .fixture()
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
@@ -481,8 +509,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
         XCTAssertEqual(alert.message, Localizations.invalidMasterPassword)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
-        var attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 1)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 1)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         XCTAssertFalse(authRepository.logoutCalled)
         XCTAssertNotEqual(coordinator.routes.last, .landing)
@@ -490,8 +517,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         // 2nd unsuccessful attempts
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 2)
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 2)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 2)
         alert = try XCTUnwrap(coordinator.alertShown.last)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         XCTAssertFalse(authRepository.logoutCalled)
@@ -500,8 +526,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         // 3rd unsuccessful attempts
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 3)
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 3)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 3)
         alert = try XCTUnwrap(coordinator.alertShown.last)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         XCTAssertFalse(authRepository.logoutCalled)
@@ -510,8 +535,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         // 4th unsuccessful attempts
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 4)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 4)
         alert = try XCTUnwrap(coordinator.alertShown.last)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
         XCTAssertFalse(authRepository.logoutCalled)
@@ -521,11 +545,9 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await subject.perform(.unlockVault)
         // after 5th unsuccessful attempts, we log user out and reset the count to 0.
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 0)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 0)
         await alert.alertActions[0].handler?(alert.alertActions[0], [])
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 0)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 0)
         XCTAssertEqual(
             coordinator.events.last,
             .action(
@@ -534,18 +556,16 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
-    /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempts.
+    /// `perform(_:)` with `.unlockVault` logs error if force logout fails after the 5th unsuccessful attempt.
     @MainActor
     func test_perform_unlockVault_invalidPassword() async throws {
         subject.state.masterPassword = "password"
         stateService.activeAccount = .fixtureAccountLogin()
         subject.state.unsuccessfulUnlockAttemptsCount = 4
-        await stateService.setUnsuccessfulUnlockAttempts(5)
-        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 4)
         struct VaultUnlockError: Error {}
         authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
 
-        // 5th unsuccessful attempts
+        // 5th unsuccessful attempt
         await subject.perform(.unlockVault)
 
         XCTAssertEqual(
@@ -564,23 +584,19 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         struct VaultUnlockError: Error {}
         authRepository.unlockWithPasswordResult = .failure(VaultUnlockError())
         stateService.activeAccount = .fixture()
-        var attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 0)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, nil)
 
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 1)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 1)
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 2)
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 2)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 2)
 
         authRepository.unlockWithPasswordResult = .success(())
         await subject.perform(.unlockVault)
         XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 0)
-        attemptsInUserDefaults = await stateService.getUnsuccessfulUnlockAttempts()
-        XCTAssertEqual(attemptsInUserDefaults, 0)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 0)
     }
 
     /// `perform(_:)` with `.unlockVaultWithBiometrics` logs the user out if biometrics is locked
@@ -588,9 +604,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_unlockWithBiometrics_biometryLocked() async throws {
         stateService.activeAccount = .fixture()
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.biometryLocked)
 
         await subject.perform(.unlockVaultWithBiometrics)
@@ -604,9 +618,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_unlockWithBiometrics_extensionKdfWarning() async throws {
         appExtensionDelegate.isInAppExtension = true
         authRepository.unlockVaultWithBiometricsResult = .success(())
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         stateService.activeAccount = .fixture(profile: .fixture(kdfMemory: 65, kdfType: .argon2id))
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -623,9 +635,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
     @MainActor
     func test_perform_unlockWithBiometrics_noAccount() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(StateServiceError.noActiveAccount)
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -638,7 +648,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
     @MainActor
     func test_perform_unlockWithBiometrics_notAvailable() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
         authRepository.unlockVaultWithBiometricsResult = .success(())
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -649,9 +659,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires a set user preference.
     @MainActor
     func test_perform_unlockWithBiometrics_notEnabled() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: false),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: false)
         authRepository.unlockVaultWithBiometricsResult = .success(())
         subject.state.biometricUnlockStatus = .available(.touchID, enabled: true)
 
@@ -663,15 +671,14 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError() async throws {
         stateService.activeAccount = .fixture()
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         struct BiometricsError: Error {}
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
 
         await subject.perform(.unlockVaultWithBiometrics)
         XCTAssertNil(coordinator.routes.last)
-        XCTAssertEqual(1, subject.state.unsuccessfulUnlockAttemptsCount)
+        XCTAssertEqual(subject.state.unsuccessfulUnlockAttemptsCount, 1)
+        XCTAssertEqual(userSessionStateService.setUnsuccessfulUnlockAttemptsReceivedArguments?.attempts, 1)
 
         XCTAssertEqual(errorReporter.errors.count, 1)
         XCTAssertEqual(
@@ -685,9 +692,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_perform_unlockWithBiometrics_authRepoError_maxAttempts() async throws {
         stateService.activeAccount = .fixture()
         subject.state.unsuccessfulUnlockAttemptsCount = 4
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         struct BiometricsError: Error {}
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsError())
 
@@ -710,9 +715,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` requires successful biometrics.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
 
@@ -725,9 +728,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and they have a master password but no PIN.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_masterPasswordWithoutPin() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .success(true)
@@ -742,9 +743,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and they have a PIN but no master password.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_pinWithoutMasterPassword() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .success(false)
@@ -759,9 +758,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and they don't have a master password or PIN.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_noMPOrPin() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .success(false)
@@ -776,9 +773,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// exist and fetching whether they have a master password fails.
     @MainActor
     func test_perform_unlockWithBiometrics_authRepoError_getAuthKeyFailed_hasMasterPasswordError() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         authRepository.allowBiometricUnlockResult = .success(())
         authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
@@ -792,9 +787,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `perform(_:)` with `.unlockWithBiometrics` handles user cancellation.
     @MainActor
     func test_perform_unlockWithBiometrics_userCancelled() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.touchID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .failure(BiometricsServiceError.biometryCancelled)
         authRepository.allowBiometricUnlockResult = .success(())
 
@@ -807,9 +800,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_perform_unlockWithBiometrics_success() async throws {
         subject.state.unsuccessfulUnlockAttemptsCount = 3
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true),
-        )
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         authRepository.unlockVaultWithBiometricsResult = .success(())
 
         await subject.perform(.unlockVaultWithBiometrics)
@@ -866,7 +857,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_receive_accountLongPressed_lock() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -901,11 +891,51 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` for iOS 26 shows alert and allows locking
+    /// another account, dismissing the profile switcher after confirmation.
+    @MainActor
+    func test_receive_accountLongPressed_lock_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem.fixture(userId: "1")
+        let otherProfile = ProfileSwitcherItem.fixture(isUnlocked: true, userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.activeAccount = Account.fixture(profile: .fixture(userId: "1"))
+
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
+        // On iOS 26, the alert presents from the sheet, so the sheet stays visible
+
+        // Select the alert action to lock the account.
+        let lockAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await lockAction.handler?(lockAction, [])
+
+        // Verify dismissal happens after lock action
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        // Verify the results.
+        XCTAssertEqual(
+            coordinator.events.last,
+            .action(
+                .lockVault(
+                    userId: otherProfile.userId,
+                    isManuallyLocking: true,
+                ),
+            ),
+        )
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
     @MainActor
     func test_receive_accountLongPressed_lock_error() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -931,12 +961,42 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` for iOS 26 records any errors from locking.
+    @MainActor
+    func test_receive_accountLongPressed_lock_error_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem.fixture()
+        let otherProfile = ProfileSwitcherItem.fixture(isUnlocked: true, userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.activeAccount = nil
+
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
+
+        // Select the alert action to lock the account.
+        let lockAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await lockAction.handler?(lockAction, [])
+
+        // Verify dismissal happens after lock error
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+
+        // Verify the results.
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account, which navigates back to the landing page for the active account.
     @MainActor
     func test_receive_accountLongPressed_logout_activeAccount() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -971,12 +1031,53 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` for iOS 26 shows the alert and allows the user to
+    /// log out of the selected account, which navigates back to the landing page for the active account
+    /// and dismisses the profile switcher.
+    @MainActor
+    func test_receive_accountLongPressed_logout_activeAccount_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem.fixture()
+        let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.activeAccount = .fixture()
+
+        await subject.perform(.profileSwitcher(.accountLongPressed(activeProfile)))
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the profile switcher sheet is dismissed after logout action
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+
+        // Verify the results.
+        XCTAssertEqual(
+            coordinator.events.last,
+            .action(
+                .logout(userId: activeProfile.userId, userInitiated: true),
+            ),
+        )
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account, which triggers an account switch.
     @MainActor
     func test_receive_accountLongPressed_logout_activeAccount_withAlternate() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1018,12 +1119,59 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` for iOS 26 shows the alert and allows the user to
+    /// log out of the selected account, which triggers an account switch and dismisses the profile switcher.
+    @MainActor
+    func test_receive_accountLongPressed_logout_activeAccount_withAlternate_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem.fixture()
+        let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.activeAccount = .fixture()
+        stateService.accounts = [
+            .fixture(
+                profile: .fixture(
+                    userId: "42",
+                ),
+            ),
+        ]
+
+        await subject.perform(.profileSwitcher(.accountLongPressed(activeProfile)))
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the profile switcher sheet is dismissed after logout action
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+
+        // Verify the results.
+        XCTAssertEqual(
+            coordinator.events.last,
+            .action(
+                .logout(userId: activeProfile.userId, userInitiated: true),
+            ),
+        )
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// log out of the selected account, which displays a toast.
     @MainActor
     func test_receive_accountLongPressed_logout_otherAccount() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1062,12 +1210,56 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLoggedOutSuccessfully))
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` for iOS 26 shows the alert and allows the user to
+    /// log out of the selected account, which displays a toast and dismisses the profile switcher.
+    @MainActor
+    func test_receive_accountLongPressed_logout_otherAccount_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem.fixture()
+        let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.activeAccount = .fixture()
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the profile switcher sheet is dismissed after logout action
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+
+        // Verify the results.
+        XCTAssertEqual(
+            coordinator.events.last,
+            .action(.logout(userId: otherProfile.userId, userInitiated: true)),
+        )
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLoggedOutSuccessfully))
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from logging out the
     /// account.
     @MainActor
     func test_receive_accountLongPressed_logout_error() async throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1097,11 +1289,46 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` for iOS 26 records any errors from logging out
+    /// the account and dismisses the profile switcher.
+    @MainActor
+    func test_receive_accountLongPressed_logout_error_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        // Set up the mock data.
+        let activeProfile = ProfileSwitcherItem.fixture()
+        let otherProfile = ProfileSwitcherItem.fixture(userId: "42")
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [otherProfile, activeProfile],
+            activeAccountId: activeProfile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.activeAccount = nil
+
+        await subject.perform(.profileSwitcher(.accountLongPressed(otherProfile)))
+
+        // Select the alert action to log out from the account.
+        let logoutAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await logoutAction.handler?(logoutAction, [])
+
+        // Confirm logging out on the second alert.
+        let confirmAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        // Verify the profile switcher sheet is dismissed even after error
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+
+        // Verify the results.
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
     func test_receive_accountPressed_active_unlocked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1131,11 +1358,40 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.events, [])
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 dismisses the profile switcher
+    /// when pressing the active unlocked account.
+    @MainActor
+    func test_receive_accountPressed_active_unlocked_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let profile = ProfileSwitcherItem.fixture()
+        authRepository.profileSwitcherState = .init(
+            accounts: [profile],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(profile)))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.events, [])
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
     func test_receive_accountPressed_active_locked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1168,11 +1424,43 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.events, [])
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 dismisses the profile switcher
+    /// when pressing the active locked account.
+    @MainActor
+    func test_receive_accountPressed_active_locked_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
+        let account = Account.fixture(profile: .fixture(
+            userId: profile.userId,
+        ))
+        authRepository.profileSwitcherState = .init(
+            accounts: [profile],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.accountForItemResult = .success(account)
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile],
+            activeAccountId: profile.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(profile)))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.events, [])
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
     func test_receive_accountPressed_alternateUnlocked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1207,11 +1495,45 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.events, [.action(.switchAccount(isAutomatic: false, userId: profile.userId))])
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 dismisses the profile switcher
+    /// and switches to an alternate unlocked account.
+    @MainActor
+    func test_receive_accountPressed_alternateUnlocked_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let profile = ProfileSwitcherItem.fixture(isUnlocked: true)
+        let active = ProfileSwitcherItem.fixture()
+        let account = Account.fixture(profile: .fixture(
+            userId: profile.userId,
+        ))
+        authRepository.profileSwitcherState = .init(
+            accounts: [active, profile],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.accountForItemResult = .success(account)
+        authRepository.isLockedResult = .success(false)
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(profile)))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.events, [.action(.switchAccount(isAutomatic: false, userId: profile.userId))])
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
     func test_receive_accountPressed_alternateLocked() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1245,11 +1567,44 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.events, [.action(.switchAccount(isAutomatic: false, userId: profile.userId))])
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 dismisses the profile switcher
+    /// and switches to an alternate locked account.
+    @MainActor
+    func test_receive_accountPressed_alternateLocked_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let profile = ProfileSwitcherItem.fixture(isUnlocked: false)
+        let active = ProfileSwitcherItem.fixture()
+        let account = Account.fixture(profile: .fixture(
+            userId: profile.userId,
+        ))
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        authRepository.accountForItemResult = .success(account)
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(profile)))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.events, [.action(.switchAccount(isAutomatic: false, userId: profile.userId))])
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` updates the state to reflect the changes.
     @MainActor
     func test_receive_accountPressed_noMatch() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1279,11 +1634,40 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.events, [.action(.switchAccount(isAutomatic: false, userId: profile.userId))])
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 dismisses the profile switcher
+    /// and switches to an account that doesn't match.
+    @MainActor
+    func test_receive_accountPressed_noMatch_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let profile = ProfileSwitcherItem.fixture()
+        let active = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [profile, active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        await subject.perform(.profileSwitcher(.accountPressed(profile)))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.events, [.action(.switchAccount(isAutomatic: false, userId: profile.userId))])
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.addAccountPressed)` updates the state to reflect the changes.
     @MainActor
     func test_receive_addAccountPressed() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1306,11 +1690,33 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.routes, [.landing])
     }
 
+    /// `receive(_:)` with `.profileSwitcher(.addAccountPressed)` for iOS 26 dismisses the profile switcher
+    /// and navigates to the landing page to add a new account.
+    @MainActor
+    func test_receive_addAccountPressed_iOS26() async throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let active = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        await subject.perform(.profileSwitcher(.addAccountPressed))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertEqual(coordinator.routes.last, .landing)
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` updates the state to reflect the changes.
     @MainActor
     func test_receive_backgroundPressed() throws {
         guard #unavailable(iOS 26) else {
-            // TODO: PM-25906 - Backfill tests for new account switcher
             throw XCTSkip("This test requires iOS 18.6 or earlier")
         }
 
@@ -1331,6 +1737,28 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertNotNil(subject.state.profileSwitcherState)
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
         XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` for iOS 26 dismisses the profile switcher
+    /// when tapping the background.
+    @MainActor
+    func test_receive_backgroundPressed_iOS26() throws {
+        guard #available(iOS 26, *) else {
+            throw XCTSkip("This test requires iOS 26 or later")
+        }
+
+        let active = ProfileSwitcherItem.fixture()
+        subject.state.profileSwitcherState = ProfileSwitcherState(
+            accounts: [active],
+            activeAccountId: active.userId,
+            allowLockAndLogout: true,
+            isVisible: true,
+        )
+
+        subject.receive(.profileSwitcher(.backgroundTapped))
+
+        XCTAssertNotNil(subject.state.profileSwitcherState)
+        XCTAssertTrue(coordinator.routes.contains(.dismiss))
     }
 
     /// `receive(_:)` with `.cancelPressed` notifies the delegate that cancel was pressed.

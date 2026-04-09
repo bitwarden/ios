@@ -2,9 +2,11 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SendAPIServiceTests
 
+@MainActor
 class SendAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -19,8 +21,8 @@ class SendAPIServiceTests: BitwardenTestCase {
         subject = APIService(client: client)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
         client = nil
         subject = nil
     }
@@ -44,8 +46,10 @@ class SendAPIServiceTests: BitwardenTestCase {
             SendResponseModel(
                 accessCount: 0,
                 accessId: "access id",
+                authType: nil,
                 deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                 disabled: false,
+                emails: nil,
                 expirationDate: nil,
                 file: nil,
                 hideEmail: false,
@@ -84,8 +88,10 @@ class SendAPIServiceTests: BitwardenTestCase {
                 sendResponse: SendResponseModel(
                     accessCount: 0,
                     accessId: "access id",
+                    authType: nil,
                     deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                     disabled: false,
+                    emails: nil,
                     expirationDate: nil,
                     file: nil,
                     hideEmail: false,
@@ -124,8 +130,10 @@ class SendAPIServiceTests: BitwardenTestCase {
             SendResponseModel(
                 accessCount: 0,
                 accessId: "access id",
+                authType: nil,
                 deletionDate: Date(year: 2023, month: 8, day: 7, hour: 21, minute: 33),
                 disabled: false,
+                emails: nil,
                 expirationDate: nil,
                 file: nil,
                 hideEmail: false,

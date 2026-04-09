@@ -1,5 +1,4 @@
-[![Github Workflow build on main](https://github.com/bitwarden/authenticator-ios/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/bitwarden/authenticator-ios/actions/workflows/build.yml?query=branch:main)
-[![Join the chat at https://gitter.im/bitwarden/Lobby](https://badges.gitter.im/bitwarden/Lobby.svg)](https://gitter.im/bitwarden/Lobby)
+[![Github Workflow build on main](https://github.com/bitwarden/ios/actions/workflows/ci-bwa.yml/badge.svg?branch=main)]([https://github.com/bitwarden/authenticator-ios/actions/workflows/build.yml](https://github.com/bitwarden/ios/actions/workflows/ci-bwa.yml)?query=branch:main)
 
 # Bitwarden Authenticator iOS App
 
@@ -61,7 +60,8 @@ Bitwarden Authenticator allows you easily store and generate two-factor authenti
 
 ### Run the App
 
-1. Open the project in Xcode 26.0+.
+1. Open the project in Xcode (using
+   the version in our [xcode-version file](https://github.com/bitwarden/ios/blob/main/.xcode-version)).
 2. Run the app in the Simulator with the `Authenticator` target.
 
 ### Running Tests

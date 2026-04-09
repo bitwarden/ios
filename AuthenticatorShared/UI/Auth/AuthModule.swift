@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AuthModule
 
 /// An object that builds coordinators for the auth flow.

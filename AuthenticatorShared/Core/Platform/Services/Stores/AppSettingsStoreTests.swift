@@ -1,3 +1,4 @@
+import BitwardenKit
 import XCTest
 
 @testable import AuthenticatorShared
@@ -7,7 +8,7 @@ import XCTest
 class AppSettingsStoreTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: AppSettingsStore!
+    var subject: DefaultAppSettingsStore!
     var userDefaults: UserDefaults!
 
     // MARK: Setup & Teardown
@@ -36,23 +37,23 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `appId` returns `nil` if there isn't a previously stored value.
-    func test_appId_isInitiallyNil() {
-        XCTAssertNil(subject.appId)
+    /// `appID` returns `nil` if there isn't a previously stored value.
+    func test_appID_isInitiallyNil() {
+        XCTAssertNil(subject.appID)
     }
 
-    /// `appId` can be used to get and set the persisted value in user defaults.
-    func test_appId_withValue() {
-        subject.appId = "📱"
-        XCTAssertEqual(subject.appId, "📱")
+    /// `appID` can be used to get and set the persisted value in user defaults.
+    func test_appID_withValue() {
+        subject.appID = "📱"
+        XCTAssertEqual(subject.appID, "📱")
         XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:appId"), "📱")
 
-        subject.appId = "☎️"
-        XCTAssertEqual(subject.appId, "☎️")
+        subject.appID = "☎️"
+        XCTAssertEqual(subject.appID, "☎️")
         XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:appId"), "☎️")
 
-        subject.appId = nil
-        XCTAssertNil(subject.appId)
+        subject.appID = nil
+        XCTAssertNil(subject.appID)
         XCTAssertNil(userDefaults.string(forKey: "bwaPreferencesStorage:appId"))
     }
 
@@ -86,26 +87,6 @@ class AppSettingsStoreTests: BitwardenTestCase {
         subject.appTheme = nil
         XCTAssertNil(subject.appTheme)
         XCTAssertNil(userDefaults.string(forKey: "bwaPreferencesStorage:theme"))
-    }
-
-    /// `biometricIntegrityState` returns nil if there is no previous value.
-    func test_biometricIntegrityState_isInitiallyNil() {
-        XCTAssertNil(subject.biometricIntegrityState(userId: "-1"))
-    }
-
-    /// `biometricIntegrityState` can be used to get and set the persisted value in user defaults.
-    func test_biometricIntegrityState_withValue() {
-        subject.setBiometricIntegrityState("state1", userId: "0")
-        subject.setBiometricIntegrityState("state2", userId: "1")
-
-        XCTAssertEqual("state1", subject.biometricIntegrityState(userId: "0"))
-        XCTAssertEqual("state2", subject.biometricIntegrityState(userId: "1"))
-
-        subject.setBiometricIntegrityState("state3", userId: "0")
-        subject.setBiometricIntegrityState("state4", userId: "1")
-
-        XCTAssertEqual("state3", subject.biometricIntegrityState(userId: "0"))
-        XCTAssertEqual("state4", subject.biometricIntegrityState(userId: "1"))
     }
 
     /// `cardClosedState` returns `false` if there isn't a previously stored value.
@@ -165,6 +146,30 @@ class AppSettingsStoreTests: BitwardenTestCase {
         XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "none")
     }
 
+    /// `flightRecorderData` returns `nil` if there isn't any previously stored flight recorder data.
+    func test_flightRecorderData_isInitiallyNil() {
+        XCTAssertNil(subject.flightRecorderData)
+    }
+
+    /// `flightRecorderData` can be used to get and set the flight recorder data.
+    func test_flightRecorderData_withValue() throws {
+        let flightRecorderData = FlightRecorderData(
+            activeLog: FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
+            inactiveLogs: [],
+        )
+        subject.flightRecorderData = flightRecorderData
+
+        let data = try XCTUnwrap(
+            userDefaults.string(forKey: "bwaPreferencesStorage:flightRecorderData")?
+                .data(using: .utf8),
+        )
+        let decodedData = try JSONDecoder().decode(FlightRecorderData.self, from: data)
+        XCTAssertEqual(decodedData, flightRecorderData)
+
+        subject.flightRecorderData = nil
+        XCTAssertNil(userDefaults.string(forKey: "bwaPreferencesStorage:flightRecorderData"))
+    }
+
     /// `hasSeenDefaultSaveOptionPrompt` returns `false` if there isn't a 'defaultSaveOption` value stored, and `true`
     /// when there is a value stored.
     func test_hasSeenDefaultSaveOptionPrompt() {
@@ -202,7 +207,8 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
         // Stores with the hashed value:
         XCTAssertTrue(userDefaults.bool(
-            forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName.hexSHA256Hash)"))
+            forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName.hexSHA256Hash)",
+        ))
 
         // A new account that we've not synced before defaults to `false`
         XCTAssertFalse(subject.hasSyncedAccount(name: "New Account"))

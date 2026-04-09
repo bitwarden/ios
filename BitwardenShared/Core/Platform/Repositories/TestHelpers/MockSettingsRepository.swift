@@ -1,8 +1,10 @@
+import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockSettingsRepository: SettingsRepository {
     var addedFolderName: String?

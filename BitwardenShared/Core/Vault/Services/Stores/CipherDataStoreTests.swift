@@ -46,21 +46,134 @@ class CipherDataStoreTests: BitwardenTestCase {
 
     /// `cipherPublisher(userId:)` returns a publisher for a user's cipher objects.
     func test_cipherPublisher() async throws {
-        var publishedValues = [[Cipher]]()
-        let publisher = subject.cipherPublisher(userId: "1")
+        var iterator = subject.cipherPublisher(userId: "1").valuesWithTimeout().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
+
+        try await subject.replaceCiphers(ciphers, userId: "1")
+
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, ciphers)
+    }
+
+    /// `cipherChangesPublisher(userId:)` emits inserted ciphers for the user.
+    func test_cipherChangesPublisher_insert() async throws {
+        var publishedChanges = [CipherChange]()
+        let publisher = subject.cipherChangesPublisher(userId: "1")
             .sink(
                 receiveCompletion: { _ in },
-                receiveValue: { values in
-                    publishedValues.append(values)
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
+        defer { publisher.cancel() }
+
+        let cipher = Cipher.fixture(id: "1", name: "CIPHER1")
+        try await subject.upsertCipher(cipher, userId: "1")
+
+        waitFor { publishedChanges.count == 1 }
+        guard case let .upserted(insertedCipher) = publishedChanges[0] else {
+            XCTFail("Expected upserted change")
+            return
+        }
+        XCTAssertEqual(insertedCipher.id, cipher.id)
+        XCTAssertEqual(insertedCipher.name, cipher.name)
+    }
+
+    /// `cipherChangesPublisher(userId:)` emits updated ciphers for the user.
+    func test_cipherChangesPublisher_update() async throws {
+        // Insert initial cipher
+        try await insertCiphers([ciphers[0]], userId: "1")
+
+        var publishedChanges = [CipherChange]()
+        let publisher = subject.cipherChangesPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
+        defer { publisher.cancel() }
+
+        let updatedCipher = Cipher.fixture(id: "1", name: "UPDATED CIPHER1")
+        try await subject.upsertCipher(updatedCipher, userId: "1")
+
+        waitFor { publishedChanges.count == 1 }
+        guard case let .upserted(updated) = publishedChanges[0] else {
+            XCTFail("Expected upserted change")
+            return
+        }
+        XCTAssertEqual(updated.id, updatedCipher.id)
+        XCTAssertEqual(updated.name, updatedCipher.name)
+    }
+
+    /// `cipherChangesPublisher(userId:)` emits deleted cipher IDs for the user.
+    func test_cipherChangesPublisher_delete() async throws {
+        // Insert initial ciphers
+        try await insertCiphers(ciphers, userId: "1")
+
+        var publishedChanges = [CipherChange]()
+        let publisher = subject.cipherChangesPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
+        defer { publisher.cancel() }
+
+        try await subject.deleteCipher(id: "2", userId: "1")
+
+        waitFor { publishedChanges.count == 1 }
+        guard case let .deleted(deletedCipher) = publishedChanges[0] else {
+            XCTFail("Expected deleted change")
+            return
+        }
+        XCTAssertEqual(deletedCipher.id, "2")
+    }
+
+    /// `cipherChangesPublisher(userId:)` emits replaced changes for replace operations.
+    func test_cipherChangesPublisher_replace() async throws {
+        var publishedChanges = [CipherChange]()
+        let publisher = subject.cipherChangesPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
                 },
             )
         defer { publisher.cancel() }
 
         try await subject.replaceCiphers(ciphers, userId: "1")
 
-        waitFor { publishedValues.count == 2 }
-        XCTAssertTrue(publishedValues[0].isEmpty)
-        XCTAssertEqual(publishedValues[1], ciphers)
+        waitFor { publishedChanges.count == 1 }
+        guard case .replacedAll = publishedChanges[0] else {
+            XCTFail("Expected replaced change")
+            return
+        }
+    }
+
+    /// `cipherChangesPublisher(userId:)` does not emit changes for other users.
+    func test_cipherChangesPublisher_doesNotEmitForOtherUsers() async throws {
+        var publishedChanges = [CipherChange]()
+        let publisher = subject.cipherChangesPublisher(userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { change in
+                    publishedChanges.append(change)
+                },
+            )
+        defer { publisher.cancel() }
+
+        // Insert cipher for a different user
+        let cipher = Cipher.fixture(id: "1", name: "CIPHER1")
+        try await subject.upsertCipher(cipher, userId: "2")
+
+        // Wait a bit to ensure no changes are emitted
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        XCTAssertTrue(publishedChanges.isEmpty)
     }
 
     /// `deleteAllCiphers(user:)` removes all objects for the user.
@@ -135,6 +248,57 @@ class CipherDataStoreTests: BitwardenTestCase {
         expectedCiphers[1] = updatedCipher
 
         try XCTAssertEqual(fetchCiphers(userId: "1"), expectedCiphers)
+    }
+
+    /// `hasPersonalCiphers(userId:)` returns `false` when user has no ciphers.
+    func test_hasPersonalCiphers_noCiphers() async throws {
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertFalse(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` returns `true` when user has personal ciphers.
+    func test_hasPersonalCiphers_hasPersonalCipher() async throws {
+        let personalCipher = Cipher.fixture(id: "1", organizationId: nil)
+        try await insertCiphers([personalCipher], userId: "1")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` returns `false` when user only has organization ciphers.
+    func test_hasPersonalCiphers_onlyOrgCiphers() async throws {
+        let orgCiphers = [
+            Cipher.fixture(id: "1", organizationId: "org-123"),
+            Cipher.fixture(id: "2", organizationId: "org-456"),
+        ]
+        try await insertCiphers(orgCiphers, userId: "1")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertFalse(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` returns `true` when user has mixed personal and organization ciphers.
+    func test_hasPersonalCiphers_mixedCiphers() async throws {
+        let mixedCiphers = [
+            Cipher.fixture(id: "1", organizationId: "org-123"),
+            Cipher.fixture(id: "2", organizationId: nil),
+            Cipher.fixture(id: "3", organizationId: "org-456"),
+        ]
+        try await insertCiphers(mixedCiphers, userId: "1")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `hasPersonalCiphers(userId:)` only checks ciphers for the specified user.
+    func test_hasPersonalCiphers_userSpecific() async throws {
+        let user1Cipher = Cipher.fixture(id: "1", organizationId: "org-123")
+        let user2Cipher = Cipher.fixture(id: "2", organizationId: nil)
+        try await insertCiphers([user1Cipher], userId: "1")
+        try await insertCiphers([user2Cipher], userId: "2")
+
+        let result = try await subject.hasPersonalCiphers(userId: "1")
+        XCTAssertFalse(result)
     }
 
     // MARK: Test Helpers

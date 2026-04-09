@@ -53,14 +53,19 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
 
     override func perform(_ effect: AboutEffect) async {
         switch effect {
+        case .copyVersionInfo:
+            await copyVersionInfo()
+        case let .flightRecorder(flightRecorderEffect):
+            switch flightRecorderEffect {
+            case let .toggleFlightRecorder(isOn):
+                if isOn {
+                    coordinator.navigate(to: .flightRecorder(.enableFlightRecorder))
+                } else {
+                    await services.flightRecorder.disableFlightRecorder()
+                }
+            }
         case .streamFlightRecorderLog:
             await streamFlightRecorderLog()
-        case let .toggleFlightRecorder(isOn):
-            if isOn {
-                coordinator.navigate(to: .enableFlightRecorder)
-            } else {
-                await services.flightRecorder.disableFlightRecorder()
-            }
         }
     }
 
@@ -70,6 +75,11 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
             state.appReviewUrl = nil
         case .clearURL:
             state.url = nil
+        case let .flightRecorder(flightRecorderAction):
+            switch flightRecorderAction {
+            case .viewLogsTapped:
+                coordinator.navigate(to: .flightRecorder(.flightRecorderLogs))
+            }
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
         case .learnAboutOrganizationsTapped:
@@ -89,10 +99,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
             services.errorReporter.isEnabled = isOn
-        case .versionTapped:
-            handleVersionTapped()
-        case .viewFlightRecorderLogsTapped:
-            coordinator.navigate(to: .flightRecorderLogs)
         case .webVaultTapped:
             coordinator.showAlert(.webVaultAlert {
                 self.state.url = self.services.environmentService.webVaultURL
@@ -102,16 +108,17 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
 
     // MARK: - Private Methods
 
-    /// Prepare the text to be copied.
-    private func handleVersionTapped() {
-        services.pasteboardService.copy(services.appInfoService.appInfoString)
+    /// Copies the app's version info to the pasteboard.
+    private func copyVersionInfo() async {
+        let appInfo = await services.appInfoService.appInfoString
+        services.pasteboardService.copy(appInfo)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 
     /// Streams the flight recorder's active log metadata.
     private func streamFlightRecorderLog() async {
         for await activeLog in await services.flightRecorder.activeLogPublisher().values {
-            state.flightRecorderActiveLog = activeLog
+            state.flightRecorderState.activeLog = activeLog
         }
     }
 }

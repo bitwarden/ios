@@ -59,13 +59,16 @@ struct VaultGroupState: Equatable, Sendable {
             return .button
         case .collection, .folder, .noFolder:
             return .menu
-        case .sshKey, .totp, .trash:
+        case .archive, .sshKey, .totp, .trash:
             return nil
         }
     }
 
     /// The `VaultListGroup` being displayed.
     var group: VaultListGroup = .login
+
+    /// Whether the user has a premium account.
+    var hasPremium: Bool = false
 
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
@@ -85,6 +88,8 @@ struct VaultGroupState: Equatable, Sendable {
     /// The string to use in the empty view.
     var noItemsString: String {
         switch group {
+        case .archive:
+            Localizations.archiveEmptyDescriptionLong
         case .card:
             Localizations.thereAreNoCardsInYourVault
         case .collection:
@@ -106,6 +111,16 @@ struct VaultGroupState: Equatable, Sendable {
         }
     }
 
+    /// The string to use as the title of the empty view.
+    var noItemsTitle: String? {
+        switch group {
+        case .archive:
+            Localizations.archiveIsEmpty
+        default:
+            nil
+        }
+    }
+
     /// The list of organizations the user is a member of.
     var organizations = [Organization]()
 
@@ -117,6 +132,11 @@ struct VaultGroupState: Equatable, Sendable {
 
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType = VaultFilterType.allVaults
+
+    /// Whether the archive premium subscription ended card should be shown.
+    var showArchivePremiumSubscriptionEndedCard: Bool {
+        !hasPremium && group == .archive
+    }
 
     /// Whether to show the special web icons.
     var showWebIcons = true

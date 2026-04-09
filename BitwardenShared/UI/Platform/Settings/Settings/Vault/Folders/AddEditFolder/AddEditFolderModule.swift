@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AddEditFolderModule
 
 /// An object that builds coordinators for the add and edit folder view.

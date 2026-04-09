@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExtensionSetupCoordinator
 
 /// A coordinator that manages navigation in the vault tab.
@@ -5,7 +7,8 @@
 final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasAutofillCredentialService
+        & HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
@@ -61,6 +64,7 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     private func showExtensionActivation(extensionType: ExtensionActivationType) {
         let processor = ExtensionActivationProcessor(
             appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
             services: services,
             state: ExtensionActivationState(extensionType: extensionType),
         )

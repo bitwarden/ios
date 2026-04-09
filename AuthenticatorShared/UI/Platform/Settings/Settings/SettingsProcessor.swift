@@ -17,6 +17,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         & HasConfigService
         & HasErrorReporter
         & HasExportItemsService
+        & HasFlightRecorder
         & HasPasteboardService
         & HasStateService
 
@@ -51,12 +52,23 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
 
     override func perform(_ effect: SettingsEffect) async {
         switch effect {
+        case .copyVersionInfo:
+            await copyVersionInfo()
+        case let .flightRecorder(flightRecorderEffect):
+            switch flightRecorderEffect {
+            case let .toggleFlightRecorder(isOn):
+                if isOn {
+                    coordinator.navigate(to: .flightRecorder(.enableFlightRecorder))
+                } else {
+                    await services.flightRecorder.disableFlightRecorder()
+                }
+            }
         case .loadData:
             await loadData()
         case let .sessionTimeoutValueChanged(timeoutValue):
             guard case .available = state.biometricUnlockStatus else { return }
 
-            if case .available(_, false, _) = state.biometricUnlockStatus {
+            if case .available(_, enabled: false) = state.biometricUnlockStatus {
                 await setBiometricAuth(true)
             }
 
@@ -65,6 +77,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
                 minutes: timeoutValue.rawValue,
                 userId: services.appSettingsStore.localUserId,
             )
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case let .toggleUnlockWithBiometrics(isOn):
             await setBiometricAuth(isOn)
         }
@@ -88,6 +102,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             services.appSettingsStore.defaultSaveOption = option
         case .exportItemsTapped:
             coordinator.navigate(to: .exportItems)
+        case let .flightRecorder(flightRecorderAction):
+            switch flightRecorderAction {
+            case .viewLogsTapped:
+                coordinator.navigate(to: .flightRecorder(.flightRecorderLogs))
+            }
         case .helpCenterTapped:
             state.url = ExternalLinksConstants.helpAndFeedback
         case .importItemsTapped:
@@ -108,16 +127,15 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             state.toast = newValue
         case .tutorialTapped:
             coordinator.navigate(to: .tutorial)
-        case .versionTapped:
-            handleVersionTapped()
         }
     }
 
     // MARK: - Private Methods
 
-    /// Prepare the text to be copied.
-    private func handleVersionTapped() {
-        services.pasteboardService.copy(services.appInfoService.appInfoString)
+    /// Copies the app's version info to the pasteboard.
+    private func copyVersionInfo() async {
+        let appInfo = await services.appInfoService.appInfoString
+        services.pasteboardService.copy(appInfo)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
     }
 
@@ -170,11 +188,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         do {
             try await services.biometricsRepository.setBiometricUnlockKey(authKey: enabled ? "key" : nil)
             state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
-            // Set biometric integrity if needed.
-            if case .available(_, true, false) = state.biometricUnlockStatus {
-                try await services.biometricsRepository.configureBiometricIntegrity()
-                state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
-            }
 
             if enabled {
                 state.sessionTimeoutValue = .onAppRestart
@@ -187,6 +200,13 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             }
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the flight recorder's active log metadata.
+    private func streamFlightRecorderLog() async {
+        for await activeLog in await services.flightRecorder.activeLogPublisher().values {
+            state.flightRecorderState.activeLog = activeLog
         }
     }
 }

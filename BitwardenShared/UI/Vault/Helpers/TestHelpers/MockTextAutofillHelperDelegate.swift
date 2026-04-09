@@ -1,7 +1,8 @@
+import BitwardenKit
 @testable import BitwardenShared
 
 class MockTextAutofillHelperDelegate: TextAutofillHelperDelegate {
-    var alertsShown = [Alert]()
+    var alertsShown = [BitwardenKit.Alert]()
     var alertOnDismissed: (() -> Void)?
     var completeTextRequestText: String?
 
@@ -9,7 +10,7 @@ class MockTextAutofillHelperDelegate: TextAutofillHelperDelegate {
         completeTextRequestText = text
     }
 
-    func showAlert(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
+    func showAlert(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?) {
         alertsShown.append(alert)
         alertOnDismissed = onDismissed
     }

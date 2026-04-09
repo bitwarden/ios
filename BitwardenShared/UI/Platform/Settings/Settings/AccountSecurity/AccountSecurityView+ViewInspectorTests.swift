@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import ViewInspector
 import XCTest
@@ -104,11 +105,11 @@ class AccountSecurityViewTests: BitwardenTestCase {
     func test_biometricsToggle() throws {
         processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         _ = try subject.inspect().find(
-            toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.faceID),
+            toggleWithAccessibilityLabel: Localizations.unlockWithFaceID,
         )
         processor.state.biometricUnlockStatus = .available(.touchID, enabled: true)
         _ = try subject.inspect().find(
-            toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.touchID),
+            toggleWithAccessibilityLabel: Localizations.unlockWithTouchID,
         )
     }
 
@@ -118,7 +119,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
         processor.state.biometricUnlockStatus = .notAvailable
         XCTAssertNil(
             try? subject.inspect().find(
-                toggleWithAccessibilityLabel: Localizations.unlockWith(Localizations.faceID),
+                toggleWithAccessibilityLabel: Localizations.unlockWithFaceID,
             ),
         )
     }

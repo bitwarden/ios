@@ -64,13 +64,6 @@ public extension String {
         self == "bitwarden"
     }
 
-    /// A flag indicating if this string is considered a valid email address or not.
-    ///
-    /// An email is considered valid if it has at least one `@` symbol in it.
-    var isValidEmail: Bool {
-        contains("@")
-    }
-
     /// Returns `true` if the URL is valid.
     var isValidURL: Bool {
         guard rangeOfCharacter(from: .whitespaces) == nil else { return false }
@@ -122,6 +115,22 @@ public extension String {
         return result
     }
 
+    /// Validates whether the string is a valid email address.
+    ///
+    /// - Parameter useStrictValidation: If `true`, validates against a regex pattern requiring
+    ///   a properly formatted email (e.g., `user@domain.com`). If `false`, only checks for
+    ///   the presence of an `@` symbol. Defaults to `true`.
+    /// - Returns: `true` if the string is a valid email according to the validation mode.
+    ///
+    func isValidEmail(useStrictValidation: Bool = true) -> Bool {
+        if useStrictValidation {
+            let emailRegex = "^[A-Za-z0-9._%+-/*]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+            return range(of: emailRegex, options: .regularExpression) != nil
+        } else {
+            return contains("@")
+        }
+    }
+
     /// Returns a copy of the string, padded to the specified length on the left side with the
     /// provided padding character.
     ///
@@ -137,6 +146,38 @@ public extension String {
         } else {
             String(suffix(toLength))
         }
+    }
+
+    /// Returns a normalized URL string with an HTTPS scheme and no trailing slash.
+    ///
+    /// This method performs two normalization operations:
+    /// 1. Removes any trailing slash from the URL
+    /// 2. Prefixes the URL with `https://` if no scheme (`http://` or `https://`) is present
+    ///
+    /// If the URL already has an `http://` or `https://` scheme, it is preserved as-is
+    /// (after removing any trailing slash).
+    ///
+    /// - Returns: A normalized URL string suitable for consistent URL matching and comparison.
+    ///
+    /// # Examples
+    /// ```swift
+    /// "example.com".httpsNormalized()        // "https://example.com"
+    /// "example.com/".httpsNormalized()       // "https://example.com"
+    /// "http://example.com".httpsNormalized() // "http://example.com"
+    /// "https://example.com/".httpsNormalized() // "https://example.com"
+    /// ```
+    ///
+    func httpsNormalized() -> String {
+        let stringUrl = if hasSuffix("/") {
+            String(dropLast())
+        } else {
+            self
+        }
+
+        guard stringUrl.starts(with: "https://") || stringUrl.starts(with: "http://") else {
+            return "https://" + stringUrl
+        }
+        return stringUrl
     }
 
     /// Creates a new string that has been encoded for use in a url or request header.

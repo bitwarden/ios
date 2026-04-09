@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExportCXFModule
 
 /// An object that builds coordinators for the Credential Exchange export flow.

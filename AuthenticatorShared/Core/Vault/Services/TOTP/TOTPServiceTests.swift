@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import XCTest
 
@@ -63,7 +64,7 @@ final class TOTPServiceTests: BitwardenTestCase {
             try subject.getTOTPConfiguration(key: "1234"),
         ) { error in
             XCTAssertEqual(
-                error as? TOTPServiceError,
+                error as? TOTPKeyError,
                 .invalidKeyFormat,
             )
         }

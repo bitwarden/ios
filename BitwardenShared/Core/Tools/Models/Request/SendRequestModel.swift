@@ -9,11 +9,17 @@ import Networking
 struct SendRequestModel: JSONRequestBody {
     // MARK: Properties
 
+    /// The authentication type for this send.
+    var authType: SendAuthType?
+
     /// The date this Send will be deleted.
     var deletionDate: Date
 
     /// A flag indicating if this Send has been disabled.
     var disabled: Bool
+
+    /// Comma-separated list of emails that can access the send (for email auth type).
+    var emails: String?
 
     /// The date this Send will expire.
     var expirationDate: Date?

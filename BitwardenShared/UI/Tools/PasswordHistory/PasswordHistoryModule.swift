@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - PasswordHistoryModule
 
 /// An object that builds coordinators for the password history view.

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import SwiftUI
@@ -174,52 +175,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.type, .dismissed)
     }
 
-    /// `navigate(to:)` with `.enableFlightRecorder` presents the enable flight recorder view.
+    /// `navigate(to:)` with `.exportVault` pushes the export settings view.
     @MainActor
-    func test_navigateTo_enableFlightRecorder() throws {
-        subject.navigate(to: .enableFlightRecorder)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is EnableFlightRecorderView)
-        XCTAssertEqual(action.embedInNavigationController, true)
-    }
-
-    /// `navigate(to:)` with `.exportVault` presents the export vault to file view when
-    /// Credential Exchange flag to export is disabled.
-    @MainActor
-    func test_navigateTo_exportVaultCXPDisabled() async throws {
-        configService.featureFlagsBool[.cxpExportMobile] = false
-        let task = Task {
-            subject.navigate(to: .exportVault)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return stackNavigator.actions.last?.view is ExportVaultView
-        }
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is ExportVaultView)
-        XCTAssertEqual(action.embedInNavigationController, true)
-    }
-
-    /// `navigate(to:)` with `.exportVault` presents the export settings view when
-    /// Credential Exchange flag to export is enabled.
-    @MainActor
-    func test_navigateTo_exportVaultCXPEnabled() async throws {
-        configService.featureFlagsBool[.cxpExportMobile] = true
-        let task = Task {
-            subject.navigate(to: .exportVault)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return stackNavigator.actions.last != nil
-        }
+    func test_navigateTo_exportVault() throws {
+        subject.navigate(to: .exportVault)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
@@ -261,15 +220,14 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.settings))
     }
 
-    /// `navigate(to:)` with `.flightRecorderLogs` presents the flight recorder logs view.
+    /// `navigate(to:)` with `.flightRecorder` starts flight recorder coordinator and navigates to
+    /// the enable flight recorder view.
     @MainActor
-    func test_navigateTo_flightRecorderLogs() throws {
-        subject.navigate(to: .flightRecorderLogs)
+    func test_navigateTo_flightRecorder() throws {
+        subject.navigate(to: .flightRecorder(.enableFlightRecorder))
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is FlightRecorderLogsView)
-        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertTrue(module.flightRecorderCoordinator.isStarted)
+        XCTAssertEqual(module.flightRecorderCoordinator.routes.last, .enableFlightRecorder)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -350,15 +308,32 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UIHostingController<OtherSettingsView>)
     }
 
-    /// `navigate(to:)` with `.passwordAutoFill` pushes the password auto-fill view onto the stack navigator.
+    /// `navigate(to:)` with `.passwordAutoFill` pushes the password auto-fill view onto the stack navigator
+    /// with no delegate context when no context is provided.
     @MainActor
     func test_navigateTo_passwordAutoFill() throws {
         subject.navigate(to: .passwordAutoFill)
 
         XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
         XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertNil(module.passwordAutoFillCoordinator.contexts.last as? PasswordAutoFillProcessorDelegate)
         XCTAssertNil(module.passwordAutoFillCoordinatorDelegate)
         XCTAssertIdentical(module.passwordAutoFillCoordinatorStackNavigator, stackNavigator)
+    }
+
+    /// `navigate(to:)` with `.passwordAutoFill` passes the delegate as context to the coordinator
+    /// when a `PasswordAutoFillProcessorDelegate` context is provided.
+    @MainActor
+    func test_navigateTo_passwordAutoFill_withDelegate() throws {
+        let mockDelegate = MockPasswordAutoFillProcessorDelegate()
+        subject.navigate(to: .passwordAutoFill, context: mockDelegate)
+
+        XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
+        XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertIdentical(
+            module.passwordAutoFillCoordinator.contexts.last as AnyObject,
+            mockDelegate,
+        )
     }
 
     /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.
@@ -375,12 +350,13 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
     @MainActor
     func test_navigateTo_selectLanguage() throws {
-        subject.navigate(to: .selectLanguage(currentLanguage: .default))
+        let delegate = MockSelectLanguageDelegate()
+        subject.navigate(to: .selectLanguage(currentLanguage: .default), context: delegate)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is SelectLanguageView)
-        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertTrue(module.selectLanguageCoordinator.isStarted)
+        XCTAssertEqual(module.selectLanguageCoordinator.routes, [.open(currentLanguage: .default)])
+        XCTAssertNotNil(module.selectLanguageCoordinator.contexts.last as? MockSelectLanguageDelegate)
+        XCTAssertIdentical(module.selectLanguageCoordinatorStackNavigator, stackNavigator)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
@@ -397,16 +373,6 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_navigateTo_shareURL() throws {
         subject.navigate(to: .shareURL(.example))
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is UIActivityViewController)
-    }
-
-    /// `navigate(to:)` with `.shareURL(_:)` presents an activity view controller to share the URLs.
-    @MainActor
-    func test_navigateTo_shareURLs() throws {
-        subject.navigate(to: .shareURLs([.example]))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)

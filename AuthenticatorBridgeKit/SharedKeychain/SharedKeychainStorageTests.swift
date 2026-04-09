@@ -1,5 +1,7 @@
 import AuthenticatorBridgeKit
 import AuthenticatorBridgeKitMocks
+import BitwardenKit
+import BitwardenKitMocks
 import CryptoKit
 import Foundation
 import XCTest
@@ -8,13 +10,13 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden"
-    var keychainService: MockSharedKeychainService!
+    var keychainService: MockKeychainService!
     var subject: SharedKeychainStorage!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
-        keychainService = MockSharedKeychainService()
+        keychainService = MockKeychainService()
         subject = DefaultSharedKeychainStorage(
             keychainService: keychainService,
             sharedAppGroupIdentifier: accessGroup,
@@ -76,7 +78,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     ///
     func test_getValue_badResult() async throws {
         let key = SharedKeychainItem.accountAutoLogout(userId: "1")
-        let error = SharedKeychainServiceError.keyNotFound(key)
+        let error = KeychainServiceError.keyNotFound(key)
         keychainService.searchResult = .success([kSecValueData as String: NSObject()] as AnyObject)
 
         await assertAsyncThrows(error: error) {
@@ -89,7 +91,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     ///
     func test_getValue_nilResult() async throws {
         let key = SharedKeychainItem.accountAutoLogout(userId: "1")
-        let error = SharedKeychainServiceError.keyNotFound(key)
+        let error = KeychainServiceError.keyNotFound(key)
         keychainService.searchResult = .success(nil)
 
         await assertAsyncThrows(error: error) {
@@ -101,7 +103,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     /// present in the keychain
     ///
     func test_getAuthenticatorKey_keyNotFound() async throws {
-        let error = SharedKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        let error = KeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .failure(error)
 
         await assertAsyncThrows(error: error) {
@@ -126,5 +128,72 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
         try XCTAssertEqual(XCTUnwrap(attributes[kSecClass] as? String),
                            String(kSecClassGenericPassword))
         try XCTAssertEqual(XCTUnwrap(attributes[kSecValueData] as? Data), encodedData)
+    }
+
+    /// Verify that `setValue(_:for:)` attempts to update before adding when item doesn't exist.
+    ///
+    func test_setValue_addsNewItem_afterUpdateFails() async throws {
+        let key = SymmetricKey(size: .bits256)
+        let data = key.withUnsafeBytes { Data(Array($0)) }
+        let encodedData = try JSONEncoder.defaultEncoder.encode(data)
+
+        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
+
+        try await subject.setValue(data, for: .authenticatorKey)
+
+        // Verify update was attempted first
+        let updateQuery = try XCTUnwrap(keychainService.updateQuery as? [CFString: Any])
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessGroup] as? String), accessGroup)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessible] as? String),
+                           String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccount] as? String),
+                           SharedKeychainItem.authenticatorKey.unformattedKey)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecClass] as? String),
+                           String(kSecClassGenericPassword))
+        XCTAssertNil(updateQuery[kSecValueData])
+
+        let updateAttributes = try XCTUnwrap(keychainService.updateAttributes as? [CFString: Any])
+        try XCTAssertEqual(XCTUnwrap(updateAttributes[kSecValueData] as? Data), encodedData)
+        XCTAssertEqual(updateAttributes.count, 1)
+
+        // Verify add was called after update failed
+        let addAttributes = try XCTUnwrap(keychainService.addAttributes as? [CFString: Any])
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrAccessGroup] as? String), accessGroup)
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrAccessible] as? String),
+                           String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrAccount] as? String),
+                           SharedKeychainItem.authenticatorKey.unformattedKey)
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecClass] as? String),
+                           String(kSecClassGenericPassword))
+        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecValueData] as? Data), encodedData)
+    }
+
+    /// Verify that `setValue(_:for:)` updates an existing item without calling add.
+    ///
+    func test_setValue_updatesExistingItem() async throws {
+        let key = SymmetricKey(size: .bits256)
+        let data = key.withUnsafeBytes { Data(Array($0)) }
+        let encodedData = try JSONEncoder.defaultEncoder.encode(data)
+
+        keychainService.updateResult = .success(())
+
+        try await subject.setValue(data, for: .authenticatorKey)
+
+        // Verify update was called with correct query and attributes
+        let updateQuery = try XCTUnwrap(keychainService.updateQuery as? [CFString: Any])
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessGroup] as? String), accessGroup)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessible] as? String),
+                           String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccount] as? String),
+                           SharedKeychainItem.authenticatorKey.unformattedKey)
+        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecClass] as? String),
+                           String(kSecClassGenericPassword))
+
+        let updateAttributes = try XCTUnwrap(keychainService.updateAttributes as? [CFString: Any])
+        try XCTAssertEqual(XCTUnwrap(updateAttributes[kSecValueData] as? Data), encodedData)
+        XCTAssertEqual(updateAttributes.count, 1)
+
+        // Verify add was NOT called
+        XCTAssertNil(keychainService.addAttributes)
     }
 }

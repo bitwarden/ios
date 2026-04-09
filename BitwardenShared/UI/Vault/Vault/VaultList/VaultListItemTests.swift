@@ -4,6 +4,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -23,6 +24,42 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     // MARK: Tests
+
+    /// `accessoryIcon` returns nil for cipher items.
+    func test_accessoryIcon_cipher() {
+        let item = VaultListItem(cipherListView: .fixture(login: .fixture()))
+        XCTAssertNil(item?.accessoryIcon)
+    }
+
+    /// `accessoryIcon` returns nil for TOTP items.
+    func test_accessoryIcon_totp() {
+        let item = VaultListItem.fixtureTOTP(totp: .fixture())
+        XCTAssertNil(item.accessoryIcon)
+    }
+
+    /// `accessoryIcon` returns nil for group items that don't require premium.
+    func test_accessoryIcon_group_noPremiumRequired() {
+        let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.login, 0))
+        XCTAssertNil(item.accessoryIcon)
+    }
+
+    /// `accessoryIcon` returns locked icon for archive group when premium is required.
+    func test_accessoryIcon_archiveGroup_premiumRequired() {
+        let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.archive, 0))
+        XCTAssertEqual(item.accessoryIcon?.name, SharedAsset.Icons.locked24.name)
+    }
+
+    /// `accessoryIcon` returns nil for archive group when user has archived items (no premium required).
+    func test_accessoryIcon_archiveGroup_hasArchivedItems() {
+        let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.archive, 3))
+        XCTAssertNil(item.accessoryIcon)
+    }
+
+    /// `accessoryIcon` returns nil for archive group when user has premium.
+    func test_accessoryIcon_archiveGroup_hasPremium() {
+        let item = VaultListItem(id: "test", hasPremium: true, itemType: .group(.archive, 5))
+        XCTAssertNil(item.accessoryIcon)
+    }
 
     /// `init` returns the expected value.
     func test_init() {
@@ -62,6 +99,12 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 fido2CredentialAutofillView: .fixture(),
             ),
         )
+    }
+
+    /// `init(id:itemType:)` sets hasPremium to false by default.
+    func test_init_itemType_hasPremiumDefaultsFalse() {
+        let item = VaultListItem(id: "test", itemType: .group(.archive, 5))
+        XCTAssertEqual(item.hasPremium, false)
     }
 
     /// `fido2CredentialRpId` returns expected value.
@@ -179,8 +222,8 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             SharedAsset.Icons.clock24.name,
         )
         XCTAssertEqual(
-            VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,
-            SharedAsset.Icons.trash24.name,
+            VaultListItem(id: "", itemType: .group(.archive, 1)).icon.name,
+            SharedAsset.Icons.archive24.name,
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,
@@ -410,6 +453,30 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             ), fido2CredentialAutofillView: .fixture(userNameForUi: FakeData.username2))?.subtitle,
             FakeData.username2,
         )
+    }
+
+    /// `subtitle` returns premium subscription required for archive group when premium is required.
+    func test_subtitle_archiveGroup_premiumRequired() {
+        let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.archive, 0))
+        XCTAssertEqual(item.subtitle, Localizations.premiumSubscriptionRequired)
+    }
+
+    /// `subtitle` returns nil for archive group when user has archived items.
+    func test_subtitle_archiveGroup_hasArchivedItems() {
+        let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.archive, 3))
+        XCTAssertNil(item.subtitle)
+    }
+
+    /// `subtitle` returns nil for archive group when user has premium.
+    func test_subtitle_archiveGroup_hasPremium() {
+        let item = VaultListItem(id: "test", hasPremium: true, itemType: .group(.archive, 5))
+        XCTAssertNil(item.subtitle)
+    }
+
+    /// `subtitle` returns nil for non-archive group items.
+    func test_subtitle_nonArchiveGroup() {
+        let item = VaultListItem(id: "test", hasPremium: false, itemType: .group(.trash, 0))
+        XCTAssertNil(item.subtitle)
     }
 }
 

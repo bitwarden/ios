@@ -52,6 +52,61 @@ extension GetAssertionRequest {
     }
 }
 
+// MARK: - ASPasskeyAssertionCredential
+
+@available(iOS 17.0, *)
+extension ASPasskeyAssertionCredential {
+    /// Creates a passkey assertion credential from a Bitwarden SDK assertion result.
+    ///
+    /// This convenience initializer creates an `ASPasskeyAssertionCredential` from the result
+    /// of a FIDO2 assertion operation performed by the Bitwarden SDK. It handles compatibility
+    /// across iOS versions, including extension output support on iOS 18+.
+    ///
+    /// - Parameters:
+    ///   - assertionResult: The result from the Bitwarden SDK's `getAssertion` operation,
+    ///                      containing the signature, authenticator data, and credential ID.
+    ///   - rpId: The relying party identifier for the credential.
+    ///   - clientDataHash: The hash of the client data JSON from the authentication request.
+    ///
+    convenience init(assertionResult: GetAssertionResult, rpId: String, clientDataHash: Data) {
+        if #available(iOSApplicationExtension 18.0, *) {
+            self.init(
+                userHandle: assertionResult.userHandle,
+                relyingParty: rpId,
+                signature: assertionResult.signature,
+                clientDataHash: clientDataHash,
+                authenticatorData: assertionResult.authenticatorData,
+                credentialID: assertionResult.credentialId,
+                extensionOutput: nil, // TODO: PM-26177 once SDK is updated for full PRF support we can include this
+            )
+        } else {
+            self.init(
+                userHandle: assertionResult.userHandle,
+                relyingParty: rpId,
+                signature: assertionResult.signature,
+                clientDataHash: clientDataHash,
+                authenticatorData: assertionResult.authenticatorData,
+                credentialID: assertionResult.credentialId,
+            )
+        }
+    }
+}
+
+// MARK: - ASPasskeyCredentialIdentity
+
+@available(iOS 17.0, *)
+extension ASPasskeyCredentialIdentity {
+    convenience init(deviceAuthKeyMetadata metadata: DeviceAuthKeyMetadata) {
+        self.init(
+            relyingPartyIdentifier: metadata.rpId,
+            userName: metadata.userName,
+            credentialID: metadata.credentialId,
+            userHandle: metadata.userHandle,
+            recordIdentifier: metadata.cipherId,
+        )
+    }
+}
+
 // MARK: - MakeCredentialRequest
 
 extension BitwardenSdk.MakeCredentialRequest: @retroactive CustomDebugStringConvertible {

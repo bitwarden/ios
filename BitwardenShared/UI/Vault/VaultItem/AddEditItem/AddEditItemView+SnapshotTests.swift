@@ -1,4 +1,6 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
 import SnapshotTesting
@@ -6,6 +8,7 @@ import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - AddEditItemViewTests
 

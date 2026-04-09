@@ -2,6 +2,32 @@ import CryptoKit
 import Foundation
 
 public extension Data {
+    // MARK: Initializers
+
+    /// Initializes a Data object from a base64url-encoded String.
+    /// We have this as a convenience for working with WebAuthn data structures.
+    ///
+    /// - Parameters:
+    ///   - base64urlEncoded: A base64url-encoded string.
+    ///
+    init?(base64urlEncoded str: String) throws {
+        try self.init(base64Encoded: str.urlDecoded())
+    }
+
+    // MARK: Functions
+
+    /// Provides the contents of this Data object as a base64url-encoded String.
+    /// We have this as a convenience for working with WebAuthn data structures.
+    ///
+    /// NB: This will remove `=` padding characters at the end.
+    ///
+    /// - Returns: A base64url-encoded String representing this Data.
+    ///
+    func base64urlEncodedString() -> String {
+        base64EncodedString()
+            .urlEncoded()
+    }
+
     /// Generates a hash value for the provided data.
     ///
     /// - Parameter using: The type of cryptographically secure hashing being performed.

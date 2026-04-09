@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// An enum describing the type of secure note.
 ///
 enum SecureNoteType: Int, Codable {

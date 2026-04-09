@@ -1,6 +1,7 @@
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class StateTests: BitwardenTestCase {
     // MARK: Tests

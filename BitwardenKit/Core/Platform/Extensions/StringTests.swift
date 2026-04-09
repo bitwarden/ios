@@ -47,6 +47,42 @@ class StringTests: BitwardenTestCase {
         XCTAssertEqual(subject.hexSHA256Hash, expected)
     }
 
+    /// `httpsNormalized()` adds HTTPS prefix when no scheme is present.
+    func test_httpsNormalized_addsHttpsPrefix() {
+        XCTAssertEqual("example.com".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("bitwarden.com".httpsNormalized(), "https://bitwarden.com")
+        XCTAssertEqual("sub.domain.example.com".httpsNormalized(), "https://sub.domain.example.com")
+    }
+
+    /// `httpsNormalized()` removes trailing slash.
+    func test_httpsNormalized_removesTrailingSlash() {
+        XCTAssertEqual("example.com/".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("https://example.com/".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("http://example.com/".httpsNormalized(), "http://example.com")
+    }
+
+    /// `httpsNormalized()` preserves existing HTTPS scheme.
+    func test_httpsNormalized_preservesHttpsScheme() {
+        XCTAssertEqual("https://example.com".httpsNormalized(), "https://example.com")
+        XCTAssertEqual("https://bitwarden.com".httpsNormalized(), "https://bitwarden.com")
+        XCTAssertEqual("https://example.com:8080".httpsNormalized(), "https://example.com:8080")
+    }
+
+    /// `httpsNormalized()` preserves existing HTTP scheme.
+    func test_httpsNormalized_preservesHttpScheme() {
+        XCTAssertEqual("http://example.com".httpsNormalized(), "http://example.com")
+        XCTAssertEqual("http://bitwarden.com".httpsNormalized(), "http://bitwarden.com")
+        XCTAssertEqual("http://localhost:8080".httpsNormalized(), "http://localhost:8080")
+    }
+
+    /// `httpsNormalized()` handles URLs with paths correctly.
+    func test_httpsNormalized_withPaths() {
+        XCTAssertEqual("example.com/path".httpsNormalized(), "https://example.com/path")
+        XCTAssertEqual("https://example.com/path".httpsNormalized(), "https://example.com/path")
+        XCTAssertEqual("example.com/path/to/resource".httpsNormalized(), "https://example.com/path/to/resource")
+        XCTAssertEqual("https://example.com/path/".httpsNormalized(), "https://example.com/path")
+    }
+
     /// `isValidURL` returns `true` for a valid URL.
     func test_isBitwardenAppScheme() {
         XCTAssertTrue("bitwarden".isBitwardenAppScheme)
@@ -56,8 +92,53 @@ class StringTests: BitwardenTestCase {
         XCTAssertFalse("a[b]c".isBitwardenAppScheme)
     }
 
-    /// `isValidEmail` with an invalid string returns `false`.
-    func test_isValidEmail_withInvalidString() {
+    /// `isValidEmail(useStrictValidation:)` with strict validation returns `false` for invalid emails.
+    func test_isValidEmail_strictValidation_withInvalidString() {
+        let subjects = [
+            "",
+            "e",
+            "email",
+            "example.com",
+            "email@example",
+            "email@example.",
+            "@example.com",
+            "email@.com",
+            "example.com@email",
+            "@@example.com",
+            " @example.com",
+            " email@example.com",
+            "email@example.com ",
+            "e@e.c",
+        ]
+
+        // All strings should _not_ be considered valid emails with strict validation
+        XCTAssertTrue(subjects.allSatisfy { string in
+            !string.isValidEmail(useStrictValidation: true)
+        })
+    }
+
+    /// `isValidEmail(useStrictValidation:)` with strict validation returns `true` for valid emails.
+    func test_isValidEmail_strictValidation_withValidString() {
+        let subjects = [
+            "email@example.com",
+            "user.name@domain.org",
+            "user+tag@example.co",
+            "test123@test.io",
+            "a@b.co",
+            "user%name@domain.com",
+            "user-name@sub.domain.com",
+            "user_name@example.museum",
+            "user/test@example.com",
+            "user*test@example.com",
+        ]
+
+        XCTAssertTrue(subjects.allSatisfy { string in
+            string.isValidEmail(useStrictValidation: true)
+        })
+    }
+
+    /// `isValidEmail(useStrictValidation:)` with non-strict validation returns `false` for strings without `@`.
+    func test_isValidEmail_nonStrictValidation_withInvalidString() {
         let subjects = [
             "",
             "e",
@@ -67,12 +148,12 @@ class StringTests: BitwardenTestCase {
 
         // All strings should _not_ be considered valid emails
         XCTAssertTrue(subjects.allSatisfy { string in
-            !string.isValidEmail
+            !string.isValidEmail(useStrictValidation: false)
         })
     }
 
-    /// `isValidEmail` with a valid string returns `true`.
-    func test_isValidEmail_withValidString() {
+    /// `isValidEmail(useStrictValidation:)` with non-strict validation returns `true` for strings with `@`.
+    func test_isValidEmail_nonStrictValidation_withValidString() {
         let subjects = [
             "email@example.com",
             "e@e.c",
@@ -87,7 +168,16 @@ class StringTests: BitwardenTestCase {
             "email@example.com ",
         ]
 
-        XCTAssertTrue(subjects.allSatisfy(\.isValidEmail))
+        XCTAssertTrue(subjects.allSatisfy { string in
+            string.isValidEmail(useStrictValidation: false)
+        })
+    }
+
+    /// `isValidEmail()` defaults to strict validation.
+    func test_isValidEmail_defaultsToStrictValidation() {
+        XCTAssertTrue("email@example.com".isValidEmail())
+        XCTAssertFalse("email@example".isValidEmail())
+        XCTAssertFalse("@example.com".isValidEmail())
     }
 
     /// `isValidURL` returns `true` for a valid URL.

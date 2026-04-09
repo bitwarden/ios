@@ -41,6 +41,10 @@ extension DefaultEnvironmentService {
         environmentURLs.changeEmailURL
     }
 
+    var clientCertificateFingerprint: String? {
+        nil
+    }
+
     var eventsURL: URL {
         environmentURLs.eventsURL
     }
@@ -55,6 +59,10 @@ extension DefaultEnvironmentService {
 
     var importItemsURL: URL {
         environmentURLs.importItemsURL
+    }
+
+    var proxyCookieRedirectConnectorURL: URL {
+        environmentURLs.proxyCookieRedirectConnectorURL
     }
 
     var recoveryCodeURL: URL {
@@ -81,6 +89,10 @@ extension DefaultEnvironmentService {
 
     var setUpTwoFactorURL: URL {
         environmentURLs.setUpTwoFactorURL
+    }
+
+    var upgradeToPremiumURL: URL {
+        environmentURLs.upgradeToPremiumURL
     }
 
     var webVaultURL: URL {

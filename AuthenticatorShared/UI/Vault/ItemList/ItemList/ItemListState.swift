@@ -12,6 +12,9 @@ struct ItemListState: Equatable {
         loadingState.data.isEmptyOrNil
     }
 
+    /// The state for the flight recorder toast banner displayed in the item list.
+    var flightRecorderToastBanner = FlightRecorderToastBannerState()
+
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 

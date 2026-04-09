@@ -25,4 +25,18 @@ enum LoadingState<T: Equatable & Sendable>: Equatable, Sendable {
             nil
         }
     }
+
+    /// Whether the loading state is currently in the loading state.
+    ///
+    /// - Returns: `true` if the case is `.loading`, `false` otherwise.
+    ///
+    var isLoading: Bool {
+        switch self {
+        case .data,
+             .error:
+            false
+        case .loading:
+            true
+        }
+    }
 }

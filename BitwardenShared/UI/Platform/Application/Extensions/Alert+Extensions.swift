@@ -18,6 +18,30 @@ extension Alert {
         )
     }
 
+    /// An alert to show when one or more email addresses are invalid.
+    ///
+    static var invalidEmailAddresses: Alert {
+        Alert(
+            title: Localizations.invalidEmailAddresses,
+            message: Localizations.oneOrMoreEmailAddressesIncorrect,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ],
+        )
+    }
+
+    /// An alert to show when no email addresses have been entered.
+    ///
+    static var noEmailAddressesEntered: Alert {
+        Alert(
+            title: Localizations.noEmailAddressesEntered,
+            message: Localizations.enterAtLeastOneValidEmailToShareSend,
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ],
+        )
+    }
+
     /// An alert to show when password confirmation is incorrect.
     ///
     static var passwordsDontMatch: Alert {
@@ -35,7 +59,7 @@ extension Alert {
     static var passwordIsTooShort: Alert {
         Alert(
             title: Localizations.anErrorHasOccurred,
-            message: Localizations.masterPasswordLengthValMessageX(Constants.minimumPasswordCharacters),
+            message: Localizations.masterPasswordMustBeAtLeastXCharactersLong(Constants.minimumPasswordCharacters),
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
             ],
@@ -155,7 +179,7 @@ extension Alert {
     static func dataBreachesCountAlert(count: Int) -> Alert {
         if count >= 1 {
             Alert(
-                title: Localizations.passwordExposed(count),
+                title: Localizations.thisPasswordHasBeenExposedXTimesDescriptionLong(count),
                 message: nil,
                 alertActions: [
                     AlertAction(title: Localizations.ok, style: .default),

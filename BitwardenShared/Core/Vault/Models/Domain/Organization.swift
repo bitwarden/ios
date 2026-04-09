@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A domain model containing the details of an organization.
 ///
 public struct Organization: Equatable, Hashable, Sendable {

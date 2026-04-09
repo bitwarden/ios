@@ -7,6 +7,9 @@ import Networking
 struct CipherRequestModel: JSONRequestBody {
     // MARK: Properties
 
+    /// The date the cipher was archived.
+    let archivedDate: Date?
+
     /// The cipher's attachment data.
     ///
     /// - Note: `attachments2` is the newer version of the `attachment` API property for sending
@@ -28,6 +31,11 @@ struct CipherRequestModel: JSONRequestBody {
 
     /// The folder identifier.
     let folderId: String?
+
+    /// The cipher's identifier.
+    ///
+    /// - Note: This is only included for bulk share operations where the ID needs to be in the request body.
+    let id: String?
 
     /// Identity data if the cipher is a identity.
     let identity: CipherIdentityModel?
@@ -73,8 +81,11 @@ extension CipherRequestModel {
     /// - Parameters:
     ///   - cipher: The `Cipher` used to initialize a `CipherRequestModel`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
-    init(cipher: Cipher, encryptedFor: String? = nil) {
+    ///   - includeId: Whether to include the cipher's ID in the request model. Defaults to `false`.
+    ///
+    init(cipher: Cipher, encryptedFor: String? = nil, includeId: Bool = false) {
         self.init(
+            archivedDate: cipher.archivedDate,
             attachments2: cipher.attachments?.reduce(into: [String: AttachmentRequestModel]()) { result, attachment in
                 guard let id = attachment.id else { return }
                 result[id] = AttachmentRequestModel(attachment: attachment)
@@ -84,6 +95,7 @@ extension CipherRequestModel {
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
             folderId: cipher.folderId,
+            id: includeId ? cipher.id : nil,
             identity: cipher.identity.map(CipherIdentityModel.init),
             lastKnownRevisionDate: cipher.revisionDate,
             login: cipher.login.map(CipherLoginModel.init),

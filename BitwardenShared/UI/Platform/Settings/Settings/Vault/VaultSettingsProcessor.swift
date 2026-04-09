@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - VaultSettingsProcessor
 
 /// The processor used to manage state and handle actions for the `VaultSettingsView`.

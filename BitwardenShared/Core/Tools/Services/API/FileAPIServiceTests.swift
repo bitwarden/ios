@@ -4,8 +4,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - FileAPIServieTests
+// MARK: - FileAPIServiceTests
 
+@MainActor
 class FileAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -20,8 +21,8 @@ class FileAPIServiceTests: BitwardenTestCase {
         subject = APIService(client: client)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
         client = MockHTTPClient()
         subject = nil
     }

@@ -12,6 +12,9 @@ struct EventRequestModel: Codable, Equatable {
     /// The ID of the cipher related to the event, if there is one.
     let cipherId: String?
 
+    /// The ID of the organization related to the event, if there is one.
+    let organizationId: String?
+
     /// The time when the event occurred.
     let date: Date
 }

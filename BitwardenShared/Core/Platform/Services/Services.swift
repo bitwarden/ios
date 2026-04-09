@@ -2,13 +2,12 @@ import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenSdk
 
-// swiftlint:disable file_length
-
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
+    & HasASSettingsMediator
     & HasAccountAPIService
     & HasAppContextHelper
-    & HasAppIdService
+    & HasAppIDService
     & HasAppInfoService
     & HasAppSettingsStore
     & HasApplication
@@ -16,12 +15,16 @@ typealias Services = HasAPIService
     & HasAuthRepository
     & HasAuthService
     & HasAutofillCredentialService
+    & HasBillingAPIService
     & HasBiometricsRepository
     & HasCameraService
     & HasChangeKdfService
+    & HasCipherOwnershipHelper
+    & HasClientCertificateService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
+    & HasDeviceAuthKeyService
     & HasEnvironmentService
     & HasErrorReportBuilder
     & HasErrorReporter
@@ -34,6 +37,7 @@ typealias Services = HasAPIService
     & HasFlightRecorder
     & HasGeneratorRepository
     & HasImportCiphersRepository
+    & HasLanguageStateService
     & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
@@ -44,7 +48,10 @@ typealias Services = HasAPIService
     & HasPolicyService
     & HasRehydrationHelper
     & HasReviewPromptService
+    & HasSearchProcessorMediatorFactory
     & HasSendRepository
+    & HasServerCommunicationConfigAPIService
+    & HasServerCommunicationConfigClientSingleton
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
@@ -56,6 +63,7 @@ typealias Services = HasAPIService
     & HasTimeProvider
     & HasTrustDeviceService
     & HasTwoStepLoginService
+    & HasUserSessionStateService
     & HasUserVerificationHelperFactory
     & HasVaultRepository
     & HasVaultTimeoutService
@@ -82,11 +90,11 @@ protocol HasAppContextHelper {
     var appContextHelper: AppContextHelper { get }
 }
 
-/// Protocol for an object that provides an `AppIdService`.
+/// Protocol for an object that provides an `AppIDService`.
 ///
-protocol HasAppIdService {
+protocol HasAppIDService {
     /// The service used by the application to manage the app's ID.
-    var appIdService: AppIdService { get }
+    var appIDService: AppIDService { get }
 }
 
 /// Protocol for an object that provides an `AppSettingsStore`.
@@ -110,6 +118,13 @@ protocol HasAuthAPIService {
     var authAPIService: AuthAPIService { get }
 }
 
+/// Protocol for an object that provides an `ASSettingsMediator`.
+///
+protocol HasASSettingsMediator {
+    /// The mediator to call ``ASSettingsHelper`` functions with additional business logic.
+    var asSettingsMediator: ASSettingsMediator { get }
+}
+
 /// Protocol for an object that provides an `AuthRepository`.
 ///
 protocol HasAuthRepository {
@@ -131,6 +146,13 @@ protocol HasAutofillCredentialService {
     var autofillCredentialService: AutofillCredentialService { get }
 }
 
+/// Protocol for an object that provides a `BillingAPIService`.
+///
+protocol HasBillingAPIService {
+    /// The service used by the application to make billing-related API requests.
+    var billingAPIService: BillingAPIService { get }
+}
+
 /// Protocol for obtaining the device's biometric authentication type.
 ///
 protocol HasBiometricsRepository {
@@ -145,11 +167,25 @@ protocol HasCameraService {
     var cameraService: CameraService { get }
 }
 
+/// Protocol for an object that provides a `CipherOwnershipHelper`.
+///
+protocol HasCipherOwnershipHelper {
+    /// A helper to create cipher views with proper ownership based on policies.
+    var cipherOwnershipHelper: CipherOwnershipHelper { get }
+}
+
 /// Protocol for an object that provides a `ChangeKdfService`.
 ///
 protocol HasChangeKdfService {
     /// The service used to change the user's KDF settings.
     var changeKdfService: ChangeKdfService { get }
+}
+
+/// Protocol for an object that provides a `ClientCertificateService`.
+///
+protocol HasClientCertificateService {
+    /// The service used by the application to manage client certificates for mTLS authentication.
+    var clientCertificateService: ClientCertificateService { get }
 }
 
 /// Protocol for an object that provides a `ClientService`.
@@ -159,13 +195,6 @@ protocol HasClientService {
     var clientService: ClientService { get }
 }
 
-/// Protocol for an object that provides a `ConfigService`.
-///
-protocol HasConfigService {
-    /// The service to get server-specified configuration.
-    var configService: ConfigService { get }
-}
-
 /// Protocol for an object that provides a `DeviceAPIService`.
 ///
 protocol HasDeviceAPIService {
@@ -173,25 +202,11 @@ protocol HasDeviceAPIService {
     var deviceAPIService: DeviceAPIService { get }
 }
 
-/// Protocol for an object that provides an `EnvironmentService`.
+/// Protocol for an object that provides a `DeviceAuthKeyService`.
 ///
-protocol HasEnvironmentService {
-    /// The service used by the application to manage the environment settings.
-    var environmentService: EnvironmentService { get }
-}
-
-/// Protocol for an object that provides an `ErrorReportBuilder`.
-///
-protocol HasErrorReportBuilder {
-    /// A helper for building an error report containing the details of an error that occurred.
-    var errorReportBuilder: ErrorReportBuilder { get }
-}
-
-/// Protocol for an object that provides an `ErrorReporter`.
-///
-protocol HasErrorReporter {
-    /// The service used by the application to report non-fatal errors.
-    var errorReporter: ErrorReporter { get }
+protocol HasDeviceAuthKeyService {
+    /// The service used by the application to make and use the device passkey.
+    var deviceAuthKeyService: DeviceAuthKeyService { get }
 }
 
 /// Protocol for an object that provides an `EventService`.
@@ -237,13 +252,6 @@ protocol HasFileAPIService {
     var fileAPIService: FileAPIService { get }
 }
 
-/// Protocol for an object that provides a `FlightRecorder`.
-///
-protocol HasFlightRecorder {
-    /// The service used by the application for recording temporary debug logs.
-    var flightRecorder: FlightRecorder { get }
-}
-
 /// Protocol for an object that provides a `GeneratorRepository`.
 ///
 protocol HasGeneratorRepository {
@@ -254,7 +262,7 @@ protocol HasGeneratorRepository {
 /// Protocol for an object that provides a `ImportCiphersRepository`.
 ///
 protocol HasImportCiphersRepository {
-    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    /// The repository used by the application to manage importing credential in Credential Exchange flow.
     var importCiphersRepository: ImportCiphersRepository { get }
 }
 
@@ -326,11 +334,24 @@ protocol HasReviewPromptService {
     var reviewPromptService: ReviewPromptService { get }
 }
 
+/// Protocol for an object that provides a `SearchProcessorMediatorFactory`.
+protocol HasSearchProcessorMediatorFactory {
+    /// The factory to make `SearchProcessorMediator`s.
+    var searchProcessorMediatorFactory: SearchProcessorMediatorFactory { get }
+}
+
 /// Protocol for an object that provides a `SendRepository`.
 ///
 public protocol HasSendRepository {
     /// The repository used by the application to manage send data for the UI layer.
     var sendRepository: SendRepository { get }
+}
+
+/// Protocol for an object that provides a `ServerCommunicationConfigAPIService`.
+///
+public protocol HasServerCommunicationConfigAPIService {
+    /// The service used to handle server communication configuration.
+    var serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService { get }
 }
 
 /// Protocol for an object that provides a `SettingsRepository`.
@@ -345,6 +366,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that provides a `UserSessionStateService`.
+///
+protocol HasUserSessionStateService {
+    /// The service used by the application to manage user session state.
+    var userSessionStateService: UserSessionStateService { get }
 }
 
 /// Protocol for an object that has a `SyncService`.
@@ -366,13 +394,6 @@ protocol HasSystemDevice {
 protocol HasTextAutofillHelperFactory {
     /// Helper to create `TextAutofillHelper`s`.
     var textAutofillHelperFactory: TextAutofillHelperFactory { get }
-}
-
-/// Protocol for an object that provides a `TimeProvider`.
-///
-protocol HasTimeProvider {
-    /// Provides the present time for TOTP Code Calculation.
-    var timeProvider: TimeProvider { get }
 }
 
 /// Protocol for an object that provides a `TOTPExpirationManagerFactory`.
@@ -429,4 +450,4 @@ protocol HasVaultTimeoutService {
 protocol HasWatchService {
     /// The service used by the application to connect to and communicate with the watch app.
     var watchService: WatchService { get }
-}
+} // swiftlint:disable:this file_length

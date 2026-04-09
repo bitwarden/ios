@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -5,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - UpdateMasterPasswordProcessorTests
 
@@ -248,8 +250,8 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authRepository.updateMasterPasswordPasswordHint, "NEW_PASSWORD_HINT")
         XCTAssertEqual(authRepository.updateMasterPasswordReason, .weakMasterPasswordOnLogin)
 
-        XCTAssertEqual(coordinator.events, [.didCompleteAuth])
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.events, [.action(.logout(userId: nil, userInitiated: false))])
+        XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `receive(_:)` with `.currentMasterPasswordChanged` updates the state to reflect the changes.

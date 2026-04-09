@@ -11,7 +11,7 @@ public struct CameraPreviewView {
 
     /// The UIView holding the `AVCaptureVideoPreviewLayer`.
     public class VideoPreviewView: UIView {
-        /// The layerClass, overrided to be an `AVCaptureVideoPreviewLayer`.
+        /// The layerClass, overridden to be an `AVCaptureVideoPreviewLayer`.
         override public class var layerClass: AnyClass {
             AVCaptureVideoPreviewLayer.self
         }

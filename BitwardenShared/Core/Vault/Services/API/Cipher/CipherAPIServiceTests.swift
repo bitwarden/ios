@@ -5,6 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+@MainActor
 class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -138,6 +139,84 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 viewPassword: true,
             ),
         )
+    }
+
+    /// `archiveCipher()` performs the archive cipher request and decodes the response.
+    func test_archiveCipher() async throws {
+        client.result = .httpSuccess(testData: .cipherResponse)
+
+        let response = try await subject.archiveCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/archive/")
+
+        XCTAssertEqual(
+            response,
+            CipherDetailsResponseModel(
+                archivedDate: nil,
+                attachments: nil,
+                card: nil,
+                collectionIds: nil,
+                creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                deletedDate: nil,
+                edit: true,
+                favorite: true,
+                fields: nil,
+                folderId: "folderId",
+                id: "3792af7a-4441-11ee-be56-0242ac120002",
+                identity: nil,
+                key: nil,
+                login: CipherLoginModel(
+                    autofillOnPageLoad: nil,
+                    fido2Credentials: nil,
+                    password: "encrypted password",
+                    passwordRevisionDate: nil,
+                    totp: "totp",
+                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
+                    username: "encrypted username",
+                ),
+                name: "encrypted name",
+                notes: nil,
+                organizationId: nil,
+                organizationUseTotp: false,
+                passwordHistory: nil,
+                permissions: nil,
+                reprompt: .none,
+                revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                secureNote: nil,
+                sshKey: nil,
+                type: .login,
+                viewPassword: true,
+            ),
+        )
+    }
+
+    /// `bulkShareCiphers()` performs the bulk share ciphers request and decodes the response.
+    func test_bulkShareCiphers() async throws {
+        client.result = .httpSuccess(testData: .bulkShareCiphersResponse)
+
+        let response = try await subject.bulkShareCiphers(
+            [
+                .fixture(collectionIds: ["1", "2"], id: "1"),
+                .fixture(collectionIds: ["1", "2"], id: "2"),
+            ],
+            collectionIds: ["1", "2"],
+            encryptedFor: "user-1",
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNotNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/share")
+
+        XCTAssertEqual(response.data.count, 2)
+        XCTAssertEqual(response.data[0].id, "3792af7a-4441-11ee-be56-0242ac120002")
+        XCTAssertEqual(response.data[0].organizationId, "org-123")
+        XCTAssertEqual(response.data[0].name, "encrypted name")
+        XCTAssertEqual(response.data[1].id, "4892bf8b-5552-22ff-cf67-1353bd231113")
+        XCTAssertEqual(response.data[1].name, "encrypted name 2")
     }
 
     /// `deleteAttachment(withID:cipherId:)` performs the delete attachment request.
@@ -349,6 +428,58 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/delete")
     }
 
+    /// `unarchiveCipher()` performs the unarchive cipher request and decodes the response.
+    func test_unarchiveCipher() async throws {
+        client.result = .httpSuccess(testData: .cipherResponse)
+
+        let response = try await subject.unarchiveCipher(withID: "123")
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(client.requests[0].body)
+        XCTAssertEqual(client.requests[0].method, .put)
+        XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123/unarchive/")
+
+        XCTAssertEqual(
+            response,
+            CipherDetailsResponseModel(
+                archivedDate: nil,
+                attachments: nil,
+                card: nil,
+                collectionIds: nil,
+                creationDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                deletedDate: nil,
+                edit: true,
+                favorite: true,
+                fields: nil,
+                folderId: "folderId",
+                id: "3792af7a-4441-11ee-be56-0242ac120002",
+                identity: nil,
+                key: nil,
+                login: CipherLoginModel(
+                    autofillOnPageLoad: nil,
+                    fido2Credentials: nil,
+                    password: "encrypted password",
+                    passwordRevisionDate: nil,
+                    totp: "totp",
+                    uris: [CipherLoginUriModel(match: nil, uri: "encrypted uri", uriChecksum: nil)],
+                    username: "encrypted username",
+                ),
+                name: "encrypted name",
+                notes: nil,
+                organizationId: nil,
+                organizationUseTotp: false,
+                passwordHistory: nil,
+                permissions: nil,
+                reprompt: .none,
+                revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
+                secureNote: nil,
+                sshKey: nil,
+                type: .login,
+                viewPassword: true,
+            ),
+        )
+    }
+
     /// `updateCipherCollections()` performs the update cipher collections request.
     func test_updateCipherCollections() async throws {
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -360,4 +491,4 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
         XCTAssertEqual(client.requests[0].method, .put)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/1/collections")
     }
-}
+} // swiftlint:disable:this file_length

@@ -26,20 +26,6 @@ protocol StateService: AnyObject {
     ///
     func getAppTheme() async -> AppTheme
 
-    /// Get the active user's Biometric Authentication Preference.
-    ///
-    /// - Returns: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///
-    func getBiometricAuthenticationEnabled() async throws -> Bool
-
-    /// Gets the BiometricIntegrityState for the active user.
-    ///
-    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
-    ///
-    func getBiometricIntegrityState() async throws -> String?
-
     /// Gets the clear clipboard value for an account.
     ///
     /// - Parameter userId: The user ID associated with the clear clipboard value. Defaults to the active
@@ -47,6 +33,12 @@ protocol StateService: AnyObject {
     /// - Returns: The time after which the clipboard should clear.
     ///
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue
+
+    /// Gets the data for the flight recorder.
+    ///
+    /// - Returns: The flight recorder data.
+    ///
+    func getFlightRecorderData() async -> FlightRecorderData?
 
     /// Gets the user's encryption secret key.
     ///
@@ -72,20 +64,6 @@ protocol StateService: AnyObject {
     ///
     func setAppTheme(_ appTheme: AppTheme) async
 
-    /// Sets the user's Biometric Authentication Preference.
-    ///
-    /// - Parameter isEnabled: A `Bool` indicating the user's preference for using biometric authentication.
-    ///     If `true`, the device should attempt biometric authentication for authorization events.
-    ///     If `false`, the device should not attempt biometric authentication for authorization events.
-    ///
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
-
-    /// Sets the BiometricIntegrityState for the active user.
-    ///
-    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
-    ///
-    func setBiometricIntegrityState(_ base64State: String?) async throws
-
     /// Sets the clear clipboard value for an account.
     ///
     /// - Parameters:
@@ -94,7 +72,11 @@ protocol StateService: AnyObject {
     ///
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws
 
-    /// Sets the user's encryption secreet key.
+    /// Sets the data for the flight recorder.
+    ///
+    func setFlightRecorderData(_ data: FlightRecorderData?) async
+
+    /// Sets the user's encryption secret key.
     ///
     /// - Parameters:
     ///   - key: The key to set
@@ -144,7 +126,12 @@ enum StateServiceError: Error {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService, ConfigStateService {
+actor DefaultStateService:
+    StateService,
+    ActiveAccountStateProvider,
+    ConfigStateService,
+    FlightRecorderStateService,
+    LanguageStateService {
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -193,6 +180,10 @@ actor DefaultStateService: StateService, ConfigStateService {
 
     // MARK: Methods
 
+    func clearServerCommunicationCookieValue(hostname: String) async throws {
+        // no-op as there's no cookie to clear on the BWA app.
+    }
+
     func getActiveAccountId() async -> String {
         appSettingsStore.localUserId
     }
@@ -204,6 +195,10 @@ actor DefaultStateService: StateService, ConfigStateService {
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
+    }
+
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        appSettingsStore.flightRecorderData
     }
 
     func getPreAuthServerConfig() async -> ServerConfig? {
@@ -239,6 +234,10 @@ actor DefaultStateService: StateService, ConfigStateService {
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
+    }
+
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        appSettingsStore.flightRecorderData = data
     }
 
     func setPreAuthServerConfig(config: ServerConfig) async {
@@ -281,26 +280,16 @@ actor DefaultStateService: StateService, ConfigStateService {
     }
 }
 
-// MARK: Biometrics
+// MARK: BiometricsStateService
 
-extension DefaultStateService {
-    func getBiometricAuthenticationEnabled() async throws -> Bool {
-        let userId = try getActiveAccountUserId()
+extension DefaultStateService: BiometricsStateService {
+    func getBiometricAuthenticationEnabled(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func getBiometricIntegrityState() async throws -> String? {
-        let userId = try getActiveAccountUserId()
-        return appSettingsStore.biometricIntegrityState(userId: userId)
-    }
-
-    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
-        let userId = try getActiveAccountUserId()
+    func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
-    }
-
-    func setBiometricIntegrityState(_ base64State: String?) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

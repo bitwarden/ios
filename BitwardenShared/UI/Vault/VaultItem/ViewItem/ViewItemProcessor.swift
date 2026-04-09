@@ -61,6 +61,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The task that streams cipher details.
     private(set) var streamCipherDetailsTask: Task<Void, Never>?
 
+    /// The helper to execute vault item actions.
+    private let vaultItemActionHelper: VaultItemActionHelper
+
     // MARK: Initialization
 
     /// Creates a new `ViewItemProcessor`.
@@ -71,6 +74,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     ///   - itemId: The id of the item that is being viewed.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of this processor.
+    ///   - vaultItemActionHelper: The helper to execute vault item actions.
     ///
     init(
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
@@ -78,12 +82,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         itemId: String,
         services: Services,
         state: ViewItemState,
+        vaultItemActionHelper: VaultItemActionHelper,
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
         self.itemId = itemId
         self.services = services
+        self.vaultItemActionHelper = vaultItemActionHelper
+
         super.init(state: state)
+
         Task {
             await self.services.rehydrationHelper.addRehydratableTarget(self)
         }
@@ -111,6 +119,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             } catch {
                 services.errorReporter.log(error: error)
             }
+        case .archivedPressed:
+            await archiveItem()
         case .deletePressed:
             guard case let .data(cipherState) = state.loadingState else { return }
             if cipherState.cipher.deletedDate == nil {
@@ -122,6 +132,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             toggleDisplayMultipleCollections()
         case .totpCodeExpired:
             await updateTOTPCode()
+        case .unarchivePressed:
+            await unarchiveItem()
         }
     }
 
@@ -129,6 +141,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         switch action {
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
+        case .clearURL:
+            state.url = nil
         case let .copyPressed(value, field):
             copyValue(value, field)
         case let .customFieldVisibilityPressed(customFieldState):
@@ -195,6 +209,20 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
 private extension ViewItemProcessor {
     // MARK: Private Methods
+
+    /// Archives a cipher.
+    ///
+    private func archiveItem() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+
+        await vaultItemActionHelper.archive(cipher: cipherState.cipher) { [weak self] url in
+            self?.state.url = url
+        } completionHandler: { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemArchived()
+            }
+        }
+    }
 
     /// Navigates to the clone item view. If the cipher contains FIDO2 credentials, an alert is
     /// shown confirming that the user wants to proceed cloning the cipher without a FIDO2 credential.
@@ -280,6 +308,12 @@ private extension ViewItemProcessor {
             coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Dismisses with an action.
+    /// - Parameter action: Action to execute when dismissing this view.
+    private func dismiss(action: @escaping () -> Void) {
+        coordinator.navigate(to: .dismiss(DismissAction(action: action)))
     }
 
     /// Triggers the edit state for the item currently stored in `state`.
@@ -426,6 +460,32 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Performs an operation and dismisses the view with an action.
+    /// - Parameters:
+    ///   - loadingTitle: The title of the loading overlay.
+    ///   - operation: The operation to execute.
+    ///   - onDismiss: The action to execute when dismissing.
+    private func performOperationAndDismiss(
+        loadingTitle: String,
+        operation: () async throws -> Void,
+        onDismiss: @escaping (ViewItemProcessor) -> Void,
+    ) async {
+        defer { coordinator.hideLoadingOverlay() }
+        do {
+            coordinator.showLoadingOverlay(.init(title: loadingTitle))
+
+            try await operation()
+
+            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+                guard let self else { return }
+                onDismiss(self)
+            })))
+        } catch {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Restores the item currently stored in `state`.
     ///
     private func restoreItem(_ cipher: CipherView) async {
@@ -513,6 +573,8 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
+                let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
+
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasPremium: hasPremium,
@@ -526,6 +588,8 @@ private extension ViewItemProcessor {
                     itemState.organizationName = organization?.name
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
+                    itemState.isArchiveVaultItemsFFEnabled = isArchiveVaultItemsFFEnabled
+
                     newState.loadingState = .data(itemState)
                 }
                 state = newState
@@ -545,6 +609,18 @@ private extension ViewItemProcessor {
         cipherState.isShowingMultipleCollections.toggle()
 
         state.loadingState = .data(cipherState)
+    }
+
+    /// Unarchives cipher.
+    ///
+    private func unarchiveItem() async {
+        guard case let .data(cipherState) = state.loadingState else { return }
+
+        await vaultItemActionHelper.unarchive(cipher: cipherState.cipher) { [weak self] in
+            self?.dismiss { [weak self] in
+                self?.delegate?.itemUnarchived()
+            }
+        }
     }
 }
 
@@ -582,6 +658,12 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
+    func itemArchived() {
+        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+            self?.delegate?.itemArchived()
+        })))
+    }
+
     func itemDeleted() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
             self?.delegate?.itemDeleted()
@@ -595,6 +677,12 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     func itemSoftDeleted() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
             self?.delegate?.itemSoftDeleted()
+        })))
+    }
+
+    func itemUnarchived() {
+        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+            self?.delegate?.itemUnarchived()
         })))
     }
 }

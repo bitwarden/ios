@@ -10,12 +10,22 @@ protocol PlatformClientService: AnyObject {
 
     /// Gets the fingerprint (public key) based on `req`.
     /// - Parameter request: Request with parameters for the fingerprint.
-    /// - Returns: Fingerprint pubilc key.
+    /// - Returns: Fingerprint public key.
     func fingerprint(request req: FingerprintRequest) throws -> String
 
     /// Load feature flags into the client.
     /// - Parameter flags: Flags to load.
     func loadFlags(_ flags: [String: Bool]) throws
+
+    /// Server communication configuration operations.
+    /// - Parameters:
+    ///   - repository: The repository to use for server communication operations.
+    ///   - platformApi: The platform API to use for server communication operations.
+    /// - Returns: A server communication client to interact with.
+    func serverCommunicationConfig(
+        repository: ServerCommunicationConfigRepository,
+        platformApi: ServerCommunicationConfigPlatformApi,
+    ) -> ServerCommunicationConfigClientProtocol
 
     /// Returns an object to handle state.
     func state() -> StateClientProtocol
@@ -39,6 +49,17 @@ extension PlatformClient: PlatformClientService {
 
     func loadFlags(_ flags: [String: Bool]) throws {
         try loadFlags(flags: flags)
+    }
+
+    func serverCommunicationConfig(
+        repository: ServerCommunicationConfigRepository,
+        platformApi: ServerCommunicationConfigPlatformApi,
+    ) -> ServerCommunicationConfigClientProtocol {
+        let client: ServerCommunicationConfigClient = serverCommunicationConfig(
+            repository: repository,
+            platformApi: platformApi,
+        )
+        return client
     }
 
     func state() -> StateClientProtocol {

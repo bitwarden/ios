@@ -51,25 +51,17 @@ private struct SearchableVaultListView: View {
             ),
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
         )
-        .toastBanner(
-            title: Localizations.flightRecorderOn,
-            subtitle: {
-                guard let log = store.state.activeFlightRecorderLog else { return "" }
-                return Localizations.flightRecorderWillBeActiveUntilDescriptionLong(
-                    log.formattedEndDate,
-                    log.formattedEndTime,
-                )
-            }(),
+        .flightRecorderToastBanner(
+            activeLog: store.state.flightRecorderToastBanner.activeLog,
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
             isVisible: store.bindingAsync(
-                get: \.isFlightRecorderToastBannerVisible,
+                get: \.flightRecorderToastBanner.isToastBannerVisible,
                 perform: { _ in .dismissFlightRecorderToastBanner },
             ),
-        ) {
-            Button(Localizations.goToSettings) {
+            goToSettingsAction: {
                 store.send(.navigateToFlightRecorderSettings)
-            }
-        }
+            },
+        )
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -82,6 +74,40 @@ private struct SearchableVaultListView: View {
     }
 
     // MARK: Private Properties
+
+    /// The action card for archive onboarding.
+    @ViewBuilder private var archiveOnboardingActionCard: some View {
+        if store.state.shouldShowArchiveOnboardingActionCard {
+            ActionCard(
+                title: Localizations.introducingArchive,
+                message: Localizations.keepYtemsYouDontNeedRightNowSafeButOutOfSight,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.goToArchive) {
+                    store.send(.goToArchive)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissArchiveOnboardingActionCard)
+                },
+            ) {
+                SharedAsset.Icons.archive24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+        }
+    }
+
+    /// The action card for premium upgrade.
+    @ViewBuilder private var premiumUpgradeActionCard: some View {
+        if store.state.shouldShowPremiumUpgradeActionCard {
+            ActionCard(
+                title: Localizations.unlockAdvancedSecurityFeatures,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
+                    store.send(.upgradeToPremium)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissPremiumUpgradeActionCard)
+                },
+            )
+        }
+    }
 
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
@@ -257,7 +283,11 @@ private struct SearchableVaultListView: View {
     ///
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
-        LazyVStack(spacing: 20) {
+        VStack(spacing: 20) {
+            premiumUpgradeActionCard
+
+            archiveOnboardingActionCard
+
             vaultFilterRow
 
             ForEach(sections) { section in
@@ -342,7 +372,7 @@ struct VaultListView: View {
                 prompt: Localizations.search,
             )
             .autocorrectionDisabled(true)
-            .task(id: store.state.searchText) {
+            .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
             .task(id: store.state.searchVaultFilterType) {

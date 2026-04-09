@@ -1,9 +1,11 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     // MARK: Properties
@@ -88,7 +90,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData() async {
         let status = BiometricsUnlockStatus.available(.faceID, enabled: false)
-        biometricsRepository.biometricUnlockStatus = .success(status)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = status
 
         await subject.perform(.loadData)
 
@@ -100,7 +102,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData_biometrics() async {
         let status = BiometricsUnlockStatus.available(.unknown, enabled: false)
-        biometricsRepository.biometricUnlockStatus = .success(status)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = status
 
         await subject.perform(.loadData)
 
@@ -111,7 +113,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadData` logs the error and shows an alert if one occurs.
     @MainActor
     func test_perform_loadData_error() async {
-        biometricsRepository.biometricUnlockStatus = .failure(BitwardenTestError.example)
+        biometricsRepository.getBiometricUnlockStatusThrowableError = BitwardenTestError.example
 
         await subject.perform(.loadData)
 
@@ -124,7 +126,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData_noBiometrics() async {
         let status = BiometricsUnlockStatus.notAvailable
-        biometricsRepository.biometricUnlockStatus = .success(status)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = status
 
         await subject.perform(.loadData)
 
@@ -136,7 +138,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData_opticID() async {
         let status = BiometricsUnlockStatus.available(.opticID, enabled: false)
-        biometricsRepository.biometricUnlockStatus = .success(status)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = status
 
         await subject.perform(.loadData)
 
@@ -148,7 +150,7 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadData_touchID() async {
         let status = BiometricsUnlockStatus.available(.touchID, enabled: false)
-        biometricsRepository.biometricUnlockStatus = .success(status)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = status
 
         await subject.perform(.loadData)
 

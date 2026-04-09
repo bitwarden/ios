@@ -30,10 +30,12 @@ class APIService {
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///
     init(
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
+        flightRecorder: FlightRecorder,
     ) {
         self.client = client
 
@@ -47,6 +49,9 @@ class APIService {
         apiUnauthenticatedService = HTTPService(
             baseURLGetter: { environmentService.apiURL },
             client: client,
+            loggers: [
+                FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
+            ],
             requestHandlers: [defaultHeadersRequestHandler],
             responseHandlers: [responseValidationHandler],
         )

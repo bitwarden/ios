@@ -1,4 +1,5 @@
 import BitwardenKit
+import Foundation
 
 /// A domain model containing the details of a policy.
 ///
@@ -17,6 +18,9 @@ struct Policy: Equatable {
     /// The organization identifier for the policy.
     let organizationId: String
 
+    /// The date the policy was last revised.
+    let revisionDate: Date?
+
     /// The policy type.
     let type: PolicyType
 }
@@ -28,6 +32,7 @@ extension Policy {
             enabled: responseModel.enabled,
             id: responseModel.id,
             organizationId: responseModel.organizationId,
+            revisionDate: responseModel.revisionDate,
             type: responseModel.type,
         )
     }

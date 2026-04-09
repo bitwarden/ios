@@ -30,6 +30,9 @@ enum PolicyOptionType: String {
     /// A policy option for the minimum number of special characters.
     case minSpecial
 
+    /// A policy option for the vault timeout type.
+    case type
+
     /// A policy option for whether to include lowercase characters.
     case useLower
 

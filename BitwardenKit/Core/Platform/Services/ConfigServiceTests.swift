@@ -55,6 +55,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -75,6 +76,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -95,6 +97,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -121,6 +124,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -144,6 +148,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -181,6 +186,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -216,6 +222,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -239,6 +246,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -266,6 +274,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 10, hour: 8, minute: 0, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -290,6 +299,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.preAuthServerConfig = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238192",
@@ -361,6 +371,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: ["test-feature-flag": .bool(true)],
                 gitHash: "75238191",
@@ -377,6 +388,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238191",
@@ -393,6 +405,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: ["test-feature-flag": .int(42)],
                 gitHash: "75238191",
@@ -409,6 +422,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238191",
@@ -425,6 +439,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: ["test-feature-flag": .string("exists")],
                 gitHash: "75238191",
@@ -441,6 +456,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: [:],
                 gitHash: "75238191",
@@ -457,6 +473,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.serverConfig["1"] = ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
+                communication: nil,
                 environment: nil,
                 featureStates: ["test-feature-flag": .bool(true)],
                 gitHash: "75238191",
@@ -492,6 +509,15 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertFalse(flag.isEnabled)
     }
 
+    // MARK: Tests - Server communication cookie
+
+    /// `clearServerCommunicationCookieValue(hostname:)` delegates to the state service with the correct hostname.
+    func test_clearServerCommunicationCookieValue() async throws {
+        try await subject.clearServerCommunicationCookieValue(hostname: "example.com")
+
+        XCTAssertEqual(stateService.clearServerCommCookieValueHostname, "example.com")
+    }
+
     // MARK: Private
 
     /// Asserts the config publisher is publishing the right values.
@@ -506,8 +532,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         file: StaticString = #file,
         line: UInt = #line,
     ) async throws {
-        var publisher = try await subject.configPublisher().makeAsyncIterator()
-        let result = try await publisher.next()
+        var publisher = await subject.configPublisher().makeAsyncIterator()
+        let result = await publisher.next()
         let metaConfig = try XCTUnwrap(XCTUnwrap(result))
         XCTAssertEqual(metaConfig.isPreAuth, isPreAuth, file: file, line: line)
         XCTAssertEqual(metaConfig.userId, userId, file: file, line: line)

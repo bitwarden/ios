@@ -3,6 +3,7 @@ import BitwardenSdk
 // MARK: MockTrustDeviceService
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockTrustDeviceService: TrustDeviceService {
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")

@@ -37,6 +37,11 @@ public enum VaultListGroup: Equatable, Hashable, Sendable {
     /// A group of ciphers without a folder
     case noFolder
 
+    // MARK: Archive
+
+    /// A group of archived ciphers.
+    case archive
+
     // MARK: Trash
 
     /// A group of ciphers in the trash.
@@ -65,6 +70,8 @@ extension VaultListGroup {
     /// The display name for the group.
     var name: String {
         switch self {
+        case .archive:
+            Localizations.archive
         case .card:
             Localizations.typeCard
         case let .collection(_, name, _):
@@ -91,6 +98,8 @@ extension VaultListGroup {
     /// The navigation title for the group.
     var navigationTitle: String {
         switch self {
+        case .archive:
+            Localizations.archive
         case .card:
             Localizations.cards
         case let .collection(_, name, _):

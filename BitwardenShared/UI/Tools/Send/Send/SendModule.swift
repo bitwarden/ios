@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SendModule
 
 /// An object that builds coordinators for the send tab.

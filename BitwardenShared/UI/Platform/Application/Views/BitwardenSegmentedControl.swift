@@ -51,7 +51,7 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
                         self.selection = selection
                     } label: {
                         Text(selection.localizedName)
-                            .styleGuide(.callout, weight: .semibold)
+                            .styleGuide(.callout, weight: isSelected ? .semibold : .regular)
                     }
                     .accessibility(if: isSelected, addTraits: .isSelected)
                     .accessibilityIdentifier(selection.accessibilityId)

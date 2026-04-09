@@ -8,6 +8,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // swiftlint:disable file_length
 
@@ -32,6 +33,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var pendingAppIntentActionMediator: MockPendingAppIntentActionMediator!
     var policyService: MockPolicyService!
     var router: MockRouter<AuthEvent, AuthRoute>!
+    var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
     var stateService: MockStateService!
     var subject: AppProcessor!
     var syncService: MockSyncService!
@@ -67,6 +69,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationService = MockNotificationService()
         pendingAppIntentActionMediator = MockPendingAppIntentActionMediator()
         policyService = MockPolicyService()
+        serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -93,6 +96,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 pendingAppIntentActionMediator: pendingAppIntentActionMediator,
                 policyService: policyService,
                 notificationCenterService: notificationCenterService,
+                serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
                 stateService: stateService,
                 syncService: syncService,
                 vaultRepository: vaultRepository,
@@ -121,6 +125,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         pendingAppIntentActionMediator = nil
         policyService = nil
         router = nil
+        serverCommunicationConfigAPIService = nil
         stateService = nil
         subject = nil
         syncService = nil
@@ -190,6 +195,10 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `init()` subscribes to will enter foreground events and handles an active user timeout.
     @MainActor
     func test_init_appForeground_activeUserTimeout() {
+        // The processor checks for account timeouts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        waitFor(willEnterForegroundCalled == 1)
+
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
         let account2 = Account.fixture(profile: .fixture(userId: "2"))
         stateService.activeAccount = account1
@@ -198,7 +207,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService.shouldSessionTimeout["1"] = true
         notificationCenterService.willEnterForegroundSubject.send()
         // Wait for the checkSessionTimeouts method to be called
-        waitFor(authRepository.checkSessionTimeoutCalled)
+        waitFor(authRepository.checkSessionTimeoutCalled && authRepository.handleActiveUserClosure != nil)
 
         // Simulate calling the handleActiveUser closure
         if let handleActiveUserClosure = authRepository.handleActiveUserClosure {
@@ -210,7 +219,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.events, [.didTimeout(userId: "1")])
     }
 
-    /// `init()` subscribes to will enter foreground events ands completes the user's autofill setup
+    /// `init()` subscribes to will enter foreground events and completes the user's autofill setup
     /// process if autofill is enabled and they previously choose to set it up later.
     @MainActor
     func test_init_appForeground_completeAutofillAccountSetup() async throws {
@@ -681,6 +690,19 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
         vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.openUrl(.bitwardenAccountSecurity)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
+    /// coordinator if the user's vault is unlocked but a vault migration is required.
+    @MainActor
+    func test_openUrl_bitwardenAccountSecurity_vaultUnlockedMigrationRequired() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
 
         await subject.openUrl(.bitwardenAccountSecurity)
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
@@ -1158,6 +1180,34 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(stateService.accountSetupAutofill.isEmpty)
     }
 
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
+    /// when a non-nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async throws {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send("example.com")
+
+        try await waitForAsync { [weak self] in
+            self?.coordinator.routes.contains(.syncWithBrowser) == true
+        }
+
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
+    }
+
+    /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
+    /// `.syncWithBrowser` when a nil hostname is emitted.
+    @MainActor
+    func test_start_acquireCookiesPublisher_withNilHostname_doesNotNavigate() async {
+        let rootNavigator = MockRootNavigator()
+        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
+
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
+
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser))
+    }
+
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and
     /// they previously choose to set it up later.
     @MainActor
@@ -1384,9 +1434,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, "1")
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: true)])
     }
 
     /// `securityStampChanged(userId:)` throws logging the user out which is logged and notifies the coordinator.
@@ -1400,7 +1450,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when a 401 is
@@ -1413,9 +1463,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, nil)
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator a 403 is
@@ -1428,9 +1478,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, nil)
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` logs the user out and notifies the coordinator when error is `.invalidGrant`.
@@ -1442,9 +1492,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(authRepository.logoutUserId, nil)
-        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertTrue(authRepository.logoutUserInitiated)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` throws logging the user out which is logged and notifies the coordinator
@@ -1459,7 +1509,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(authRepository.logoutCalled)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: false)])
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: nil, userInitiated: true)])
     }
 
     /// `onRefreshTokenError(error:)` doesn't perform log out when error is not `.invalidGrant`.
@@ -1480,5 +1530,19 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.prepareEnvironmentConfig()
         XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
         XCTAssertTrue(configService.configMocker.called)
+    }
+
+    // MARK: - MigrateVaultToMyItems Tests
+
+    /// `migrateVaultToMyItems(organizationId:)` hides the loading overlay and navigates to the
+    /// migrate to my items route.
+    @MainActor
+    func test_migrateVaultToMyItems() {
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.migrateVaultToMyItems(organizationId: "org-123")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.migrateToMyItems(organizationId: "org-123")])
     }
 }

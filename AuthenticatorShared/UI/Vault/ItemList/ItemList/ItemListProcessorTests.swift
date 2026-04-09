@@ -20,10 +20,14 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var configService: MockConfigService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var notificationCenterService: MockNotificationCenterService!
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
+    var totpExpirationManagerForItems: MockTOTPExpirationManager!
+    var totpExpirationManagerForSearchItems: MockTOTPExpirationManager!
+    var totpExpirationManagerFactory: MockTOTPExpirationManagerFactory!
 
     // MARK: Setup & Teardown
 
@@ -37,9 +41,18 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         notificationCenterService = MockNotificationCenterService()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
+
+        totpExpirationManagerForItems = MockTOTPExpirationManager()
+        totpExpirationManagerForSearchItems = MockTOTPExpirationManager()
+        totpExpirationManagerFactory = MockTOTPExpirationManagerFactory()
+        totpExpirationManagerFactory.createResults = [
+            totpExpirationManagerForItems,
+            totpExpirationManagerForSearchItems,
+        ]
 
         let services = ServiceContainer.withMocks(
             application: application,
@@ -48,8 +61,10 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             cameraService: cameraService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
         )
 
@@ -69,6 +84,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         cameraService = nil
         configService = nil
         errorReporter = nil
+        flightRecorder = nil
         notificationCenterService = nil
         pasteboardService = nil
         totpService = nil
@@ -173,62 +189,40 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(_:)` with `.appeared` handles TOTP Code expiration
     /// with updates the state's TOTP codes.
     @MainActor
-    func test_perform_appeared_totpExpired_single() throws { // swiftlint:disable:this function_body_length
+    func test_perform_appeared_totpExpired_single() throws {
         let firstItem = ItemListItem.fixture(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
-                    code: "",
+                    code: "123456",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
                     period: 30,
                 ),
             ),
         )
-        let firstSection = ItemListSection(
-            id: "",
-            items: [firstItem],
-            name: "Items",
-        )
 
-        let secondItem = ItemListItem.fixture(
+        let resultSection = ItemListSection(id: "", items: [firstItem], name: "Items")
+        subject.state.loadingState = .data([resultSection])
+
+        let firstItemRefreshed = ItemListItem.fixture(
             totp: .fixture(
                 totpCode: TOTPCodeModel(
-                    code: "345678",
+                    code: "234567",
                     codeGenerationDate: Date(timeIntervalSinceNow: -61),
                     period: 30,
                 ),
             ),
         )
-        let secondSection = ItemListSection(
-            id: "",
-            items: [secondItem],
-            name: "Items",
-        )
 
-        let thirdModel = TOTPCodeModel(
-            code: "654321",
-            codeGenerationDate: Date(),
-            period: 30,
-        )
-        let thirdItem = ItemListItem.fixture(
-            totp: .fixture(
-                totpCode: thirdModel,
-            ),
-        )
-        let thirdResultSection = ItemListSection(id: "", items: [thirdItem], name: "Items")
+        authItemRepository.refreshTotpCodesResult = .success([firstItemRefreshed])
 
-        authItemRepository.refreshTotpCodesResult = .success([secondItem])
-        let task = Task {
-            await subject.perform(.appeared)
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
         }
-        authItemRepository.itemListSubject.send([firstSection])
-        waitFor(subject.state.loadingState.data == [secondSection])
-        authItemRepository.refreshTotpCodesResult = .success([thirdItem])
-        waitFor(subject.state.loadingState.data == [thirdResultSection])
+        onExpiration([firstItemRefreshed])
 
-        task.cancel()
-        XCTAssertEqual([secondItem], authItemRepository.refreshedTotpCodes)
-        let first = try XCTUnwrap(subject.state.loadingState.data?.first)
-        XCTAssertEqual(first, thirdResultSection)
+        waitFor(!authItemRepository.refreshedTotpCodes.isEmpty)
+        XCTAssertEqual([firstItemRefreshed], authItemRepository.refreshedTotpCodes)
     }
 
     /// `perform(:_)` with `.copyPressed()` with a local item copies the code to the pasteboard
@@ -308,6 +302,15 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         }
         XCTAssertNil(subject.state.toast)
         XCTAssertNil(pasteboardService.copiedString)
+    }
+
+    /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
+    @MainActor
+    func test_perform_dismissFlightRecorderToastBanner() async {
+        await subject.perform(.dismissFlightRecorderToastBanner)
+
+        XCTAssertFalse(subject.state.flightRecorderToastBanner.isToastBannerVisible)
+        XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedCalled)
     }
 
     /// `perform(:_)` with `.moveToBitwardenPressed()` with a local item stores the item in the shared
@@ -430,48 +433,53 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             totp: .fixture(
                 totpCode: TOTPCodeModel(
                     code: "123456",
-                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30,
-                ),
-            ),
-        )
-        let firstSection = ItemListSection(id: "", items: [firstItem], name: "Items")
-        subject.state.loadingState = .data([firstSection])
-
-        let secondItem = ItemListItem.fixtureShared(
-            totp: .fixture(
-                totpCode: TOTPCodeModel(
-                    code: "345678",
-                    codeGenerationDate: Date(timeIntervalSinceNow: -61),
-                    period: 30,
-                ),
-            ),
-        )
-
-        let thirdItem = ItemListItem.fixture(
-            totp: .fixture(
-                totpCode: TOTPCodeModel(
-                    code: "654321",
                     codeGenerationDate: Date(),
                     period: 30,
                 ),
             ),
         )
 
-        authItemRepository.refreshTotpCodesResult = .success([secondItem])
-        let task = Task {
-            subject.receive(.searchTextChanged("text"))
-            await subject.perform(.search("text"))
+        subject.state.searchResults = [firstItem]
+
+        let firstItemRefreshed = ItemListItem.fixture(
+            totp: .fixture(
+                totpCode: TOTPCodeModel(
+                    code: "234567",
+                    codeGenerationDate: Date(),
+                    period: 30,
+                ),
+            ),
+        )
+
+        authItemRepository.refreshTotpCodesResult = .success([firstItemRefreshed])
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[1] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
         }
-        authItemRepository.searchItemListSubject.send([firstItem])
-        waitFor(!subject.state.searchResults.isEmpty)
-        XCTAssertEqual(subject.state.searchResults, [secondItem])
+        onExpiration([firstItem])
 
-        authItemRepository.refreshTotpCodesResult = .success([thirdItem])
-        waitFor(authItemRepository.refreshedTotpCodes == [secondItem])
-        waitFor(subject.state.searchResults == [thirdItem])
+        waitFor { subject.state.searchResults == [firstItemRefreshed] }
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, [firstItem])
+        XCTAssertEqual(subject.state.searchResults, [firstItemRefreshed])
+    }
 
-        task.cancel()
+    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log and displays
+    /// the flight recorder banner if the user hasn't dismissed it previously.
+    @MainActor
+    func test_perform_streamFlightRecorderLog() async throws {
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        flightRecorder.activeLogSubject.send(FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now))
+        try await waitForAsync { self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, true)
+
+        flightRecorder.activeLogSubject.send(nil)
+        try await waitForAsync { !self.subject.state.flightRecorderToastBanner.isToastBannerVisible }
+        XCTAssertEqual(subject.state.flightRecorderToastBanner.isToastBannerVisible, false)
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are no shared
@@ -662,6 +670,93 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNil(subject.state.url)
     }
 
+    /// `receive(_:)` with `.navigateToFlightRecorderSettings` navigates to the flight recorder settings.
+    @MainActor
+    func test_receive_navigateToFlightRecorderSettings() {
+        subject.receive(.navigateToFlightRecorderSettings)
+
+        XCTAssertEqual(coordinator.routes.last, .flightRecorderSettings)
+    }
+
+    /// `refreshTOTPCodes(for:)` does nothing if state.loadingState is nil
+    @MainActor
+    func test_refreshTOTPCodes_forItemsReturnsEmpty() {
+        let items = [
+            ItemListItem.fixture(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "123456",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30),
+                ),
+            ),
+            ItemListItem.fixtureShared(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "654321",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30),
+                ),
+            ),
+        ]
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
+        }
+        onExpiration(items)
+
+        waitFor(subject.state.loadingState == .loading(nil))
+    }
+
+    /// `refreshTOTPCodes(for:)` logs when refreshing throws.
+    @MainActor
+    func test_refreshTOTPCodes_forItemsThrows() {
+        let items = [ItemListItem]()
+
+        let resultSection = ItemListSection(id: "", items: items, name: "Items")
+        subject.state.loadingState = .data([resultSection])
+
+        authItemRepository.refreshTotpCodesResult = .failure(BitwardenTestError.example)
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[0] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
+        }
+        onExpiration(items)
+
+        waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
+    }
+
+    /// `refreshTOTPCodes(searchItems:)` logs when refreshing throws.
+    @MainActor
+    func test_refreshTOTPCodes_searchItemsThrows() {
+        let items = [
+            ItemListItem.fixture(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "123456",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30),
+                ),
+            ),
+            ItemListItem.fixtureShared(
+                totp: .fixture(
+                    totpCode: TOTPCodeModel(code: "654321",
+                                            codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                            period: 30),
+                ),
+            ),
+        ]
+
+        authItemRepository.refreshTotpCodesResult = .failure(BitwardenTestError.example)
+
+        guard let onExpiration = totpExpirationManagerFactory.onExpirationClosures[1] else {
+            XCTFail("There is no onExpiration closure for the first item in the factory")
+            return
+        }
+        onExpiration(items)
+
+        waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
+    }
+
     /// `setupForegroundNotification()` is called as part of `init()` and subscribes to any
     ///  foreground notification, performing `.refresh` when it receives a notification.
     @MainActor
@@ -687,7 +782,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_didCompleteAutomaticCapture_failure() {
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
         appSettingsStore.defaultSaveOption = .saveHere
-        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        totpService.getTOTPConfigResult = .failure(TOTPKeyError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: "1234")
         waitFor(captureCoordinator.routes.last != nil)
@@ -1048,7 +1143,7 @@ class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `didCompleteManualCapture` failure
     @MainActor
     func test_didCompleteManualCapture_failure() {
-        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        totpService.getTOTPConfigResult = .failure(TOTPKeyError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteManualCapture(captureCoordinator.asAnyCoordinator(),
                                          key: "1234",

@@ -38,7 +38,7 @@ struct CombinedSingleAutofillVaultListDirectorStrategy: VaultListDirectorStrateg
         from ciphers: [Cipher],
         filter: VaultListFilter,
     ) async throws -> VaultListData {
-        guard let preparedData = try await vaultListDataPreparator.prepareAutofillCombinedSingleData(
+        guard let preparedData = await vaultListDataPreparator.prepareAutofillCombinedSingleData(
             from: ciphers,
             filter: filter,
         ) else {

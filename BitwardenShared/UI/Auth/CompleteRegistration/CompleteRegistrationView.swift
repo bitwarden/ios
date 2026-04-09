@@ -210,6 +210,7 @@ struct CompleteRegistrationView: View {
         state: CompleteRegistrationState(
             emailVerificationToken: "emailVerificationToken",
             userEmail: "example@bitwarden.com",
-        ))))
+        ),
+    )))
 }
 #endif

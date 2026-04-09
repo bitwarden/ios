@@ -21,7 +21,16 @@ struct TwoFactorAuthView: View {
         case .yubiKey:
             TextFieldConfiguration.oneTimeCode(keyboardType: .default)
         default:
-            TextFieldConfiguration.oneTimeCode()
+            if #available(iOS 26, *) {
+                TextFieldConfiguration.oneTimeCode(
+                    // WORKAROUND: Using an iPad with the floating keyboard on iOS 26 will occasionally
+                    // crash on this screen when displaying the `numberPad` keyboard type. Using the
+                    // default keyboard prevents this. (PM-31717)
+                    keyboardType: UIDevice.current.userInterfaceIdiom == .pad ? .default : .numberPad,
+                )
+            } else {
+                TextFieldConfiguration.oneTimeCode()
+            }
         }
     }
 

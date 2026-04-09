@@ -1,0 +1,8 @@
+#include "./Common-bwth.xcconfig"
+#include "./Base-Release.xcconfig"
+#include? "./Local-bwth.xcconfig"
+
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+CODE_SIGN_ENTITLEMENTS = TestHarness/Application/Support/Entitlements/TestHarness.entitlements
+PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID)
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) $(BITWARDEN_FLAGS)

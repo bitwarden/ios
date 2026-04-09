@@ -1,4 +1,6 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import XCTest
 
@@ -12,7 +14,7 @@ class ExtensionActivationViewTests: BitwardenTestCase {
     var processor: MockProcessor<
         ExtensionActivationState,
         ExtensionActivationAction,
-        Void,
+        ExtensionActivationEffect,
     >!
     var subject: ExtensionActivationView!
 

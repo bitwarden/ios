@@ -76,6 +76,11 @@ protocol AutofillCredentialService: AnyObject {
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         repromptPasswordValidated: Bool,
     ) async throws -> ASOneTimeCodeCredential
+
+    /// Updates all credential identities in the identity store with the current list of ciphers
+    /// for the current user.
+    ///
+    func updateCredentialsInStore() async
 }
 
 /// A default implementation of an `AutofillCredentialService`.
@@ -83,14 +88,26 @@ protocol AutofillCredentialService: AnyObject {
 class DefaultAutofillCredentialService {
     // MARK: Private Properties
 
+    /// Helper to know about the app context.
+    private let appContextHelper: AppContextHelper
+
+    /// A reference to the task used to track cipher changes.
+    private var cipherChangesSubscriptionTask: Task<Void, Never>?
+
     /// The service used to manage syncing and updates to the user's ciphers.
     private let cipherService: CipherService
 
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The service to get server-specified configuration.
+    private let configService: ConfigService
+
     /// The factory to create credential identities.
     private let credentialIdentityFactory: CredentialIdentityFactory
+
+    /// The service to use device auth key for passkey assertions.
+    private let deviceAuthKeyService: DeviceAuthKeyService
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
@@ -105,11 +122,22 @@ class DefaultAutofillCredentialService {
     /// of the `Fido2UserInterface` from the SDK.
     private let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
+    /// The service used by the application for recording temporary debug logs.
+    private let flightRecorder: FlightRecorder
+
+    /// Whether the cipher changes publisher has been subscribed to. This is useful for tests.
+    /// This is `true` only after the publisher has been obtained and the `for try await` loop
+    /// is about to start iterating.
+    private(set) var hasCipherChangesSubscription: Bool = false
+
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
 
     /// The last user ID that had their identities synced.
-    private var lastSyncedUserId: String?
+    private(set) var lastSyncedUserId: String?
+
+    /// The service used to subscribe to notification center events.
+    private let notificationCenterService: NotificationCenterService
 
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
@@ -135,15 +163,20 @@ class DefaultAutofillCredentialService {
     /// Initialize an `AutofillCredentialService`.
     ///
     /// - Parameters:
+    ///   - appContextHelper: The helper to know about the app context.
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - configService: The service to get server-specified configuration.
     ///   - credentialIdentityFactory: The factory to create credential identities.
+    ///   - deviceAuthKeyService: The service to use device auth key for passkey assertions.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service to manage events.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
     ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
+    ///   - notificationCenterService: The service used to subscribe to notification center events.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: Provides the present time.
@@ -151,46 +184,111 @@ class DefaultAutofillCredentialService {
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
+        appContextHelper: AppContextHelper,
         cipherService: CipherService,
         clientService: ClientService,
+        configService: ConfigService,
         credentialIdentityFactory: CredentialIdentityFactory,
+        deviceAuthKeyService: DeviceAuthKeyService,
         errorReporter: ErrorReporter,
         eventService: EventService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
+        flightRecorder: FlightRecorder,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
         stateService: StateService,
         timeProvider: TimeProvider,
         totpService: TOTPService,
         vaultTimeoutService: VaultTimeoutService,
     ) {
+        self.appContextHelper = appContextHelper
         self.cipherService = cipherService
         self.clientService = clientService
+        self.configService = configService
         self.credentialIdentityFactory = credentialIdentityFactory
+        self.deviceAuthKeyService = deviceAuthKeyService
         self.errorReporter = errorReporter
         self.eventService = eventService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
+        self.flightRecorder = flightRecorder
         self.identityStore = identityStore
+        self.notificationCenterService = notificationCenterService
         self.pasteboardService = pasteboardService
         self.stateService = stateService
         self.timeProvider = timeProvider
         self.totpService = totpService
         self.vaultTimeoutService = vaultTimeoutService
 
+        guard appContextHelper.appContext == .mainApp else {
+            // NOTE: [PM-28855] when in the context of iOS extensions
+            // subscribe to individual cipher changes to update the local OS store
+            // to improve memory performance and avoid crashes by not loading
+            // nor potentially decrypting the whole vault.
+            subscribeToCipherChanges()
+            return
+        }
+
         Task {
-            for await vaultLockStatus in await self.vaultTimeoutService.vaultLockStatusPublisher().values {
-                syncIdentities(vaultLockStatus: vaultLockStatus)
+            // Trigger autofill sync when vault lock status or device auth key changes.
+            for await (vaultLockStatus, _) in await self.vaultTimeoutService
+                .vaultLockStatusPublisher()
+                .combineLatest(deviceAuthKeyService.deviceAuthKeyPublisher())
+                .values {
+                syncIdentities(
+                    vaultLockStatus: vaultLockStatus,
+                )
             }
         }
     }
 
+    /// Deinitializes this service.
+    deinit {
+        cipherChangesSubscriptionTask?.cancel()
+        cipherChangesSubscriptionTask = nil
+    }
+
     // MARK: Private Methods
+
+    /// Subscribes to cipher changes to update the internal `ASCredentialIdentityStore`.
+    private func subscribeToCipherChanges() {
+        cipherChangesSubscriptionTask?.cancel()
+        cipherChangesSubscriptionTask = Task { [weak self] in
+            guard let self, #available(iOS 17.0, *) else {
+                return
+            }
+
+            do {
+                let publisher = try await cipherService.cipherChangesPublisher()
+                hasCipherChangesSubscription = true
+                for try await cipherChange in publisher.values {
+                    await flightRecorder.log(
+                        "[AutofillCredentialService] Received cipher change \(cipherChange.debugDescription)",
+                    )
+                    switch cipherChange {
+                    case let .deleted(cipher):
+                        await removeCredentialsInStore(for: cipher)
+                    case let .upserted(cipher):
+                        await upsertCredentialsInStore(for: cipher)
+                    case .replacedAll:
+                        // NOTE: [PM-28855] Since the cipher changes subscription is only used in the
+                        // extension, don't replace all credentials since it can be memory intensive.
+                        break
+                    }
+                }
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
+    }
 
     /// Synchronizes the identities in the identity store for the user with the specified lock status.
     ///
-    /// - If the user's vault is unlocked, identities in the store will be replaced by the user's identities.
+    /// - If the user's vault is unlocked, identities in the store will be replaced by the user's
+    ///   identities. If the app is backgrounded when a cipher change occurs, the update is deferred
+    ///   until the app returns to the foreground.
     /// - If the user's vault is locked, there's no changes to the identity store.
     /// - If there's no active user, all identities are removed from the store.
     ///
@@ -203,6 +301,13 @@ class DefaultAutofillCredentialService {
             if let vaultLockStatus, !vaultLockStatus.isVaultLocked {
                 do {
                     for try await _ in try await self.cipherService.ciphersPublisher().values {
+                        // Guard against calling replaceCredentialIdentities from the background,
+                        // which throws ASCredentialIdentityStoreErrorDomain Code 0. If backgrounded,
+                        // wait here until the app returns to the foreground.
+                        for await isInForeground in notificationCenterService.isInForegroundPublisher()
+                            where isInForeground {
+                            break
+                        }
                         await replaceAllIdentities(userId: vaultLockStatus.userId)
                     }
                 } catch {
@@ -221,7 +326,7 @@ class DefaultAutofillCredentialService {
         guard await identityStore.state().isEnabled else { return }
 
         do {
-            Logger.application.info("AutofillCredentialService: removing all credential identities")
+            await flightRecorder.log("[AutofillCredentialService] Removing all credential identities")
             try await identityStore.removeAllCredentialIdentities()
         } catch {
             errorReporter.log(error: error)
@@ -229,31 +334,37 @@ class DefaultAutofillCredentialService {
     }
 
     /// Replaces all credential identities in the identity store with the current list of ciphers
-    /// for the user.
+    /// and potentially the device auth key for the user.
     ///
-    /// - Parameter userId: The ID of the user whose ciphers should be added to the identity store.
+    /// - Parameter userId: The ID of the user whose ciphers and device auth key should be added to the identity store.
     ///
     private func replaceAllIdentities(userId: String) async {
         guard await identityStore.state().isEnabled else { return }
 
         do {
-            Logger.application.info("AutofillCredentialService: replacing all credential identities")
+            await flightRecorder.log("[AutofillCredentialService] Replacing all credential identities")
+
+            let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
 
             let decryptedCiphers = try await cipherService.fetchAllCiphers()
-                .filter { $0.type == .login && $0.deletedDate == nil }
+                .filter { $0.type == .login && !$0.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled) }
                 .asyncMap { cipher in
                     try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
                 }
 
             if #available(iOS 17, *) {
                 var identities = [ASCredentialIdentity]()
+                let accountHasPremium = await stateService.doesActiveAccountHavePremium()
                 for cipher in decryptedCiphers {
-                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: cipher)
+                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(
+                        from: cipher,
+                        accountHasPremium: accountHasPremium,
+                    )
                     identities.append(contentsOf: newIdentities)
                 }
 
                 let fido2Identities = try await clientService.platform().fido2()
-                    .authenticator(
+                    .vaultAuthenticator(
                         userInterface: fido2UserInterfaceHelper,
                         credentialStore: fido2CredentialStore,
                     )
@@ -261,14 +372,27 @@ class DefaultAutofillCredentialService {
                     .compactMap { $0.toFido2CredentialIdentity() }
                 identities.append(contentsOf: fido2Identities)
 
+                var deviceAuthKeyFlightRecorderInfo = ""
+                // Register the Device Auth Key if we have one
+                if await configService.getFeatureFlag(.deviceAuthKey),
+                   let metadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId) {
+                    identities.append(ASPasskeyCredentialIdentity(deviceAuthKeyMetadata: metadata))
+                    deviceAuthKeyFlightRecorderInfo = ", including a device auth key"
+                }
+
                 try await identityStore.replaceCredentialIdentities(identities)
-                Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
+                await flightRecorder.log(
+                    // swiftlint:disable:next line_length
+                    "[AutofillCredentialService] Replaced \(identities.count) credential identities\(deviceAuthKeyFlightRecorderInfo)",
+                )
             } else {
                 let identities = decryptedCiphers.compactMap { cipher in
                     credentialIdentityFactory.tryCreatePasswordCredentialIdentity(from: cipher)
                 }
                 try await identityStore.replaceCredentialIdentities(with: identities)
-                Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
+                await flightRecorder.log(
+                    "[AutofillCredentialService] Replaced \(identities.count) credential identities",
+                )
             }
             lastSyncedUserId = userId
         } catch {
@@ -289,6 +413,47 @@ class DefaultAutofillCredentialService {
         }
 
         return vaultLockStatus.isVaultLocked && lastSyncedUserId != vaultLockStatus.userId
+    }
+
+    /// Attempts to satisfy a passkey credential request using the device auth key instead of a vault passkey.
+    ///
+    /// - Parameters:
+    ///   - credentialIdentity: The passkey credential identity from the autofill request.
+    ///   - passkeyRequest: The system passkey credential request containing client data hash.
+    ///   - request: The FIDO2 get assertion request parameters.
+    ///   - userId: The ID of the user whose device auth key should be checked.
+    ///
+    /// - Returns: An `ASPasskeyAssertionCredential` if the request can be satisfied by the device auth key,
+    ///     or `nil` if the device auth key feature is disabled, no device auth key exists, or the requested
+    ///     credential doesn't match the device auth key.
+    ///
+    /// - Throws: An error if there's an issue retrieving the device auth key metadata or generating the assertion.
+    ///
+    @available(iOS 17.0, *)
+    private func tryUsingDeviceAuthKey(
+        credentialIdentity: ASPasskeyCredentialIdentity,
+        passkeyRequest: ASPasskeyCredentialRequest,
+        request: GetAssertionRequest,
+        userId: String,
+    ) async throws -> ASPasskeyAssertionCredential? {
+        if await configService.getFeatureFlag(.deviceAuthKey),
+           let recordIdentifier = credentialIdentity.recordIdentifier,
+           let deviceAuthKeyMetadata = try await deviceAuthKeyService.getDeviceAuthKeyMetadata(userId: userId),
+           recordIdentifier == deviceAuthKeyMetadata.cipherId {
+            // The credential request is for the device auth key, so we serve that up.
+            if let deviceResult = try await deviceAuthKeyService.assertDeviceAuthKey(
+                for: request,
+                recordIdentifier: recordIdentifier,
+                userId: userId,
+            ) {
+                return ASPasskeyAssertionCredential(
+                    assertionResult: deviceResult,
+                    rpId: credentialIdentity.relyingPartyIdentifier,
+                    clientDataHash: passkeyRequest.clientDataHash,
+                )
+            }
+        }
+        return nil
     }
 
     /// Attempts to unlock the user's vault if it can be done without user interaction (e.g. if
@@ -358,14 +523,28 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw AppProcessorError.invalidOperation
         }
 
-        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
-        guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
-            throw Fido2Error.userInteractionRequired
-        }
-
         let request = GetAssertionRequest(
             passkeyRequest: passkeyRequest, credentialIdentity: credentialIdentity,
         )
+
+        let userId = try await stateService.getActiveAccountId()
+
+        // Before trying to unlock the vault, see if we can satisfy the credential request with the device auth key.
+        if let credential = try await tryUsingDeviceAuthKey(
+            credentialIdentity: credentialIdentity,
+            passkeyRequest: passkeyRequest,
+            request: request,
+            userId: userId,
+        ) {
+            return credential
+        }
+
+        // If the device auth key doesn't match (or errors), then we unlock the vault to serve up a passkey from it.
+
+        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
+        guard await !vaultTimeoutService.isLocked(userId: userId) else {
+            throw Fido2Error.userInteractionRequired
+        }
 
         return try await provideFido2Credential(
             with: request,
@@ -406,6 +585,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw ASExtensionError(.userInteractionRequired)
         }
 
+        guard await totpService.isTotpAuthorized(for: cipher) else {
+            throw ASExtensionError(.credentialIdentityNotFound)
+        }
+
         guard let vault = try? await clientService.vault(),
               let code = try? vault.generateTOTPCode(for: totpKey, date: timeProvider.presentTime) else {
             throw ASExtensionError(.credentialIdentityNotFound)
@@ -417,6 +600,15 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         )
 
         return ASOneTimeCodeCredential(code: code.code)
+    }
+
+    func updateCredentialsInStore() async {
+        do {
+            let userId = try await stateService.getActiveAccountId()
+            await replaceAllIdentities(userId: userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     // MARK: Private
@@ -441,6 +633,34 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         }
 
         return try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+    }
+
+    /// Gets the credential identities for a given cipher.
+    /// - Parameter cipher: The cipher to get the credential identities from.
+    /// - Returns: A list of credential identities for the cipher.
+    @available(iOS 17.0, *)
+    private func getCredentialIdentities(from cipher: Cipher) async throws -> [ASCredentialIdentity] {
+        var identities = [ASCredentialIdentity]()
+        let decryptedCipher = try await clientService.vault().ciphers().decrypt(cipher: cipher)
+
+        let accountHasPremium = await stateService.doesActiveAccountHavePremium()
+        let newIdentities = await credentialIdentityFactory.createCredentialIdentities(
+            from: decryptedCipher,
+            accountHasPremium: accountHasPremium,
+        )
+        identities.append(contentsOf: newIdentities)
+
+        let fido2Identities = try await clientService.platform().fido2()
+            .vaultAuthenticator(
+                userInterface: fido2UserInterfaceHelper,
+                credentialStore: fido2CredentialStore,
+            )
+            .credentialsForAutofill()
+            .filter { $0.cipherId == cipher.id }
+            .compactMap { $0.toFido2CredentialIdentity() }
+        identities.append(contentsOf: fido2Identities)
+
+        return identities
     }
 
     /// Provides a Fido2 credential based for the given request.
@@ -470,7 +690,7 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
 
         do {
             let assertionResult = try await clientService.platform().fido2()
-                .authenticator(
+                .vaultAuthenticator(
                     userInterface: fido2UserInterfaceHelper,
                     credentialStore: fido2CredentialStore,
                 )
@@ -501,6 +721,48 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw error
         }
     }
+
+    /// Removes the credential identities associated with the cipher on the store.
+    /// - Parameter cipher: The cipher to get the credential identities from.
+    @available(iOS 17.0, *)
+    private func removeCredentialsInStore(for cipher: Cipher) async {
+        guard await identityStore.state().isEnabled,
+              await identityStore.state().supportsIncrementalUpdates else {
+            return
+        }
+
+        do {
+            let identities = try await getCredentialIdentities(from: cipher)
+            try await identityStore.removeCredentialIdentities(identities)
+
+            await flightRecorder.log(
+                "[AutofillCredentialService] Removed \(identities.count) identities from \(cipher.id ?? "nil")",
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
+
+    /// Adds/Updates the credential identities associated with the cipher on the store.
+    /// - Parameter cipher: The cipher to get the credential identities from.
+    @available(iOS 17.0, *)
+    private func upsertCredentialsInStore(for cipher: Cipher) async {
+        guard await identityStore.state().isEnabled,
+              await identityStore.state().supportsIncrementalUpdates else {
+            return
+        }
+
+        do {
+            let identities = try await getCredentialIdentities(from: cipher)
+            try await identityStore.saveCredentialIdentities(identities)
+
+            await flightRecorder.log(
+                "[AutofillCredentialService] Upserted \(identities.count) identities from \(cipher.id ?? "nil")",
+            )
+        } catch {
+            errorReporter.log(error: error)
+        }
+    }
 }
 
 // MARK: - CredentialIdentityStore
@@ -511,6 +773,13 @@ protocol CredentialIdentityStore {
     /// Removes all existing credential identities from the store.
     ///
     func removeAllCredentialIdentities() async throws
+
+    /// Remove the given credential identities from the store.
+    ///
+    /// - Parameter credentialIdentities: A list of credential identities to remove.
+    ///
+    @available(iOS 17.0, *)
+    func removeCredentialIdentities(_ credentialIdentities: [any ASCredentialIdentity]) async throws
 
     /// Replaces existing credential identities with new credential identities.
     ///
@@ -524,6 +793,13 @@ protocol CredentialIdentityStore {
     /// - Parameter newCredentialIdentities: The new credential identities.
     ///
     func replaceCredentialIdentities(with newCredentialIdentities: [ASPasswordCredentialIdentity]) async throws
+
+    /// Save the supplied credential identities to the store.
+    ///
+    /// - Parameter credentialIdentities: A list of credential identities to save.
+    ///
+    @available(iOS 17.0, *)
+    func saveCredentialIdentities(_ credentialIdentities: [any ASCredentialIdentity]) async throws
 
     /// Gets the state of the credential identity store.
     ///

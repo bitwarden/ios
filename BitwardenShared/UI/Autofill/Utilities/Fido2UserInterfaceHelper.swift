@@ -186,7 +186,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         }
     }
 
-    func isVerificationEnabled() async -> Bool {
+    func isVerificationEnabled() -> Bool {
         guard let userVerificationPreference else {
             return false
         }
@@ -195,7 +195,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         case .discouraged:
             return false
         case .preferred:
-            return await fido2UserVerificationMediator.isPreferredVerificationEnabled()
+            return true
         case .required:
             return true
         }
@@ -231,7 +231,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
         case .discouraged:
             false
         case .preferred:
-            await isVerificationEnabled()
+            await fido2UserVerificationMediator.isPreferredVerificationEnabled()
         case .required:
             true
         }

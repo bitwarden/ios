@@ -1,9 +1,12 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import SnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class AddEditFolderViewTests: BitwardenTestCase {
     // MARK: Properties

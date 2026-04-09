@@ -1,10 +1,12 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKit
 import BitwardenKitMocks
 import InlineSnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListSectionsBuilderFolderTests
 
@@ -272,7 +274,9 @@ class VaultListSectionsBuilderFolderTests: BitwardenTestCase {
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: MockConfigService(),
             errorReporter: errorReporter,
+            stateService: MockStateService(),
             withData: withData,
         )
     }

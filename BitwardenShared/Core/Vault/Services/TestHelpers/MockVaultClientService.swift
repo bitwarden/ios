@@ -119,6 +119,10 @@ class MockClientCiphers: CiphersClientProtocol {
     var moveToOrganizationOrganizationId: String?
     var moveToOrganizationCalled: Bool?
     var moveToOrganizationResult: Result<CipherView, Error> = .success(.fixture())
+    var prepareCiphersForBulkShareCiphers: [CipherView]?
+    var prepareCiphersForBulkShareOrganizationId: String?
+    var prepareCiphersForBulkShareCollectionIds: [String]?
+    var prepareCiphersForBulkShareResult: Result<[EncryptionContext], Error> = .success([])
 
     func decrypt(cipher: Cipher) throws -> CipherView {
         try decryptResult(cipher)
@@ -171,6 +175,17 @@ class MockClientCiphers: CiphersClientProtocol {
         moveToOrganizationCipher = cipher
         moveToOrganizationOrganizationId = organizationId
         return try moveToOrganizationResult.get()
+    }
+
+    func prepareCiphersForBulkShare(
+        ciphers: [CipherView],
+        organizationId: OrganizationId,
+        collectionIds: [CollectionId],
+    ) async throws -> [EncryptionContext] {
+        prepareCiphersForBulkShareCiphers = ciphers
+        prepareCiphersForBulkShareOrganizationId = organizationId
+        prepareCiphersForBulkShareCollectionIds = collectionIds
+        return try prepareCiphersForBulkShareResult.get()
     }
 }
 

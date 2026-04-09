@@ -2,11 +2,180 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+    <!-- An error report if there are issues decrypting vault items. -->
+    <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ Skopiuj i udostępnij raport błędu działowi obsługi klienta, aby uniknąć dodatkowej utraty danych.</string>
+      <key>BitwardenCouldNotDecryptVaultItems</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Bitwarden nie mógł odszyfrować %d elementu sejfu.</string>
+        <key>few</key>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu.</string>
+        <key>many</key>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu.</string>
+        <key>other</key>
+        <string>Bitwarden nie mógł odszyfrować %d elementów sejfu.</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a master password in characters. -->
+    <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@MasterPasswordMustBeAtLeastCharactersLong@</string>
+      <key>MasterPasswordMustBeAtLeastCharactersLong</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Hasło główne musi zawierać co najmniej %d znak.</string>
+        <key>few</key>
+        <string>Hasło główne musi zawierać co najmniej %d znaki.</string>
+        <key>many</key>
+        <string>Hasło główne musi zawierać co najmniej %d znaków.</string>
+        <key>other</key>
+        <string>Hasło główne musi zawierać co najmniej %d znaków.</string>
+      </dict>
+    </dict>
+    <!-- A warning if we have determined that a password has been exposed in a data breach. -->
+    <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Zmień je.</string>
+      <key>ThisPasswordHasBeenExposedTimes</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Hasło zostało ujawnione %d raz w wyciekach danych.</string>
+        <key>few</key>
+        <string>Hasło zostało ujawnione %d razy w wyciekach danych.</string>
+        <key>many</key>
+        <string>Hasło zostało ujawnione %d razy w wyciekach danych.</string>
+        <key>other</key>
+        <string>Hasło zostało ujawnione %d razy w wyciekach danych.</string>
+      </dict>
+    </dict>
+    <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
+    <key>XCharacters</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Characters@</string>
+      <key>Characters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d znak</string>
+        <key>few</key>
+        <string>%d znaki</string>
+        <key>many</key>
+        <string>%d znaków</string>
+        <key>other</key>
+        <string>%d znaków</string>
+      </dict>
+    </dict>
+    <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
+    <key>XDays</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Days@</string>
+      <key>Days</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d dzień</string>
+        <key>few</key>
+        <string>%d dni</string>
+        <key>many</key>
+        <string>%d dni</string>
+        <key>other</key>
+        <string>%d dnia</string>
+      </dict>
+    </dict>
+    <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
+    <key>XHours</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Hours@</string>
+      <key>Hours</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d godzina</string>
+        <key>few</key>
+        <string>%d godziny</string>
+        <key>many</key>
+        <string>%d godzin</string>
+        <key>other</key>
+        <string>%d godziny</string>
+      </dict>
+    </dict>
+    <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
+    <key>XItems</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Items@</string>
+      <key>Items</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d element</string>
+        <key>few</key>
+        <string>%d elementy</string>
+        <key>many</key>
+        <string>%d elementów</string>
+        <key>other</key>
+        <string>%d elementów</string>
+      </dict>
+    </dict>
+    <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
+    <key>XItemsSuccessfullyImported</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@ItemsSuccessfullyImported@</string>
+      <key>ItemsSuccessfullyImported</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Zaimportowano %d element</string>
+        <key>few</key>
+        <string>Zaimportowano %d elementy</string>
+        <key>many</key>
+        <string>Zaimportowano %d elementów</string>
+        <key>other</key>
+        <string>Zaimportowano %d elementów</string>
+      </dict>
+    </dict>
+    <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
     <key>XMinutes</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@minutes@</string>
-      <key>minutes</key>
+      <string>%#@Minutes@</string>
+      <key>Minutes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
@@ -20,6 +189,69 @@
         <string>%d minut</string>
         <key>other</key>
         <string>%d minuty</string>
+      </dict>
+    </dict>
+    <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
+    <key>XSeconds</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Seconds@</string>
+      <key>Seconds</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d sekunda</string>
+        <key>few</key>
+        <string>%d sekundy</string>
+        <key>many</key>
+        <string>%d sekund</string>
+        <key>other</key>
+        <string>%d sekundy</string>
+      </dict>
+    </dict>
+    <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
+    <key>XWeeks</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@Weeks@</string>
+      <key>Weeks</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>%d tydzień</string>
+        <key>few</key>
+        <string>%d tygodnie</string>
+        <key>many</key>
+        <string>%d tygodni</string>
+        <key>other</key>
+        <string>%d tygodnia</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the minimum length of a PIN in characters. -->
+    <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Ustawienia kodu PIN zostaną zresetowane po wylogowaniu się z aplikacji.</string>
+      <key>YourPINMustBeAtLeastCharacters</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Kod PIN musi zawierać co najmniej %d znak.</string>
+        <key>few</key>
+        <string>Kod PIN musi zawierać co najmniej %d znaki.</string>
+        <key>many</key>
+        <string>Kod PIN musi zawierać co najmniej %d znaków.</string>
+        <key>other</key>
+        <string>Kod PIN musi zawierać co najmniej %d znaków.</string>
       </dict>
     </dict>
   </dict>

@@ -1,4 +1,6 @@
 import BitwardenKit
+import Foundation
+
 @testable import BitwardenShared
 
 extension Policy {
@@ -7,6 +9,7 @@ extension Policy {
         enabled: Bool = true,
         id: String = "policy-1",
         organizationId: String = "organization-1",
+        revisionDate: Date? = nil,
         type: PolicyType = .twoFactorAuthentication,
     ) -> Policy {
         Policy(
@@ -14,6 +17,7 @@ extension Policy {
             enabled: enabled,
             id: id,
             organizationId: organizationId,
+            revisionDate: revisionDate,
             type: type,
         )
     }

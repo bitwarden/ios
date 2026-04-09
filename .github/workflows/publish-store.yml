@@ -58,10 +58,12 @@ jobs:
             inputs: "${{ toJson(inputs) }}"
 
         - name: Check out repo
-          uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+          uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+          with:
+            persist-credentials: false
 
         - name: Configure Ruby
-          uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
+          uses: ruby/setup-ruby@c984c1a20bb35a1cbda04477c816cea024418be9 # v1.294.0
           with:
             bundler-cache: true
 
@@ -90,23 +92,24 @@ jobs:
             CONTAINER_NAME: mobile
             FILE: appstoreconnect-fastlane.json
           run: |
-            mkdir -p $HOME/secrets
-            az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-              --file $HOME/secrets/$FILE --output none
+            mkdir -p "$HOME/secrets"
+            az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" --name "$FILE" \
+              --file "$HOME/secrets/$FILE" --output none
 
         - name: Log out from Azure
           uses: bitwarden/gh-actions/azure-logout@main
 
         - name: Set up private auth key
+          env:
+            AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           run: |
             mkdir ~/private_keys
             cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-            ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+            $AUTH_KEY
             EOF
 
         - name: Upload app to with Fastlane
           id: publish
-          if: ${{ inputs.dry-run == false }}
           env:
             VERSION_CODE: ${{ inputs.build-number }}
             VERSION_NAME: ${{inputs.build-version}}
@@ -115,7 +118,16 @@ jobs:
             CHANGELOG: ${{ inputs.changelog }}
             FASTLANE_ENABLE_BETA_DELIVER_SYNC_SCREENSHOTS: true
             SUBMIT_RELEASE: ${{ inputs.submit-release }}
+            DRY_RUN: ${{ inputs.dry-run }}
           run: |
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "🧪 DRY RUN MODE - Testing without actual App Store submission"
+              echo "📦 Would publish build $VERSION_CODE to iOS App Store"
+            else
+              echo "🚀 PRODUCTION MODE - Publishing to iOS App Store"
+              echo "📦 Publishing build $VERSION_CODE to iOS App Store"
+            fi
+
             if [ "$PRODUCT" = "Password Manager" ]; then
               PACKAGE_NAME="com.8bit.bitwarden"
               METADATA_PATH="metadata_bwpm_prod"
@@ -135,7 +147,8 @@ jobs:
               app_identifier:"$PACKAGE_NAME" \
               changelog:"$CHANGELOG" \
               metadata_path:"$METADATA_PATH" \
-              submit_release:"$SUBMIT_RELEASE"
+              submit_release:"$SUBMIT_RELEASE" \
+              dry_run:"$DRY_RUN"
 
         - name: Enable Publish Github Release Workflow
           if: ${{ steps.publish.conclusion == 'success' }}
@@ -149,5 +162,5 @@ jobs:
             if [ "$PRODUCT" = "Password Manager" ]; then
               gh workflow enable publish-github-release-bwpm.yml
             elif [ "$PRODUCT" = "Authenticator" ]; then
-                gh workflow enable publish-github-release-bwa.yml
+              gh workflow enable publish-github-release-bwa.yml
             fi

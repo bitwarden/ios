@@ -7,12 +7,12 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the add/edit send item screen.
 ///
-class AddEditSendItemProcessor:
+class AddEditSendItemProcessor: // swiftlint:disable:this type_body_length
     StateProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
-        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
@@ -59,6 +59,8 @@ class AddEditSendItemProcessor:
         case .copyLinkPressed:
             guard let sendView = state.originalSendView else { return }
             await copyLink(to: sendView)
+        case .copyPasswordPressed:
+            copyPassword()
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
@@ -86,14 +88,39 @@ class AddEditSendItemProcessor:
         }
     }
 
-    override func receive(_ action: AddEditSendItemAction) {
+    override func receive(_ action: AddEditSendItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .accessTypeChanged(newValue):
+            // Check if non-premium user is trying to select "Specific People"
+            if newValue == .specificPeople, !state.hasPremium {
+                showSpecificPeoplePremiumRequiredAlert()
+                return
+            }
+            state.accessType = newValue
+            // Ensure there's at least one email row when selecting "Specific People"
+            if newValue == .specificPeople, state.recipientEmails.isEmpty {
+                state.recipientEmails.append("")
+            }
+        case .addRecipientEmail:
+            state.recipientEmails.append("")
+            state.focusedRecipientEmailIndex = state.recipientEmails.count - 1
         case .chooseFilePressed:
             presentFileSelectionAlert()
+        case .clearURL:
+            state.url = nil
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
+        case let .focusedRecipientEmailIndexChanged(newValue):
+            guard state.focusedRecipientEmailIndex != newValue else { return }
+            state.focusedRecipientEmailIndex = newValue
+        case .generatePasswordPressed:
+            if state.password.isEmpty {
+                coordinator.navigate(to: .generator, context: self)
+            } else {
+                presentReplacePasswordAlert()
+            }
         case let .hideMyEmailChanged(newValue):
             state.isHideMyEmailOn = newValue
         case let .hideTextByDefaultChanged(newValue):
@@ -106,6 +133,17 @@ class AddEditSendItemProcessor:
             state.isPasswordVisible = newValue
         case let .profileSwitcher(profileAction):
             handle(profileAction)
+        case let .recipientEmailChanged(index, value):
+            guard index >= 0, index < state.recipientEmails.count else { return }
+            state.recipientEmails[index] = value
+        case let .removeRecipientEmail(index):
+            guard index >= 0, index < state.recipientEmails.count else { return }
+            if index == 0, state.recipientEmails.count == 1 {
+                state.recipientEmails[0] = ""
+            } else {
+                state.recipientEmails.remove(at: index)
+            }
+            state.focusedRecipientEmailIndex = nil
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
@@ -137,6 +175,31 @@ class AddEditSendItemProcessor:
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
     }
 
+    /// Copies the password to the clipboard.
+    private func copyPassword() {
+        services.pasteboardService.copy(state.password)
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.password))
+    }
+
+    /// Presents an alert confirming that the user wants to replace the existing password.
+    private func presentReplacePasswordAlert() {
+        let alert = Alert(
+            title: Localizations.passwordOverrideAlert,
+            message: nil,
+            alertActions: [
+                AlertAction(title: Localizations.no, style: .default),
+                AlertAction(
+                    title: Localizations.yes,
+                    style: .default,
+                    handler: { [weak self] _ in
+                        self?.coordinator.navigate(to: .generator, context: self)
+                    },
+                ),
+            ],
+        )
+        coordinator.showAlert(alert)
+    }
+
     /// Deletes the provided send.
     ///
     /// - Parameter sendView: The send to be deleted.
@@ -160,6 +223,7 @@ class AddEditSendItemProcessor:
     private func loadData() async {
         state.isSendDisabled = await services.policyService.policyAppliesToUser(.disableSend)
         state.isSendHideEmailDisabled = await services.policyService.isSendHideEmailDisabledByPolicy()
+        state.hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
         await refreshProfileState()
 
         if state.maximumAccessCount != 0 {
@@ -287,11 +351,28 @@ class AddEditSendItemProcessor:
     ///
     /// - Returns: A flag indicating if the state holds valid information for creating a send.
     ///
-    private func validateSend() async -> Bool {
+    private func validateSend() async -> Bool { // swiftlint:disable:this function_body_length cyclomatic_complexity
         guard !state.name.isEmpty else {
             let alert = Alert.validationFieldRequired(fieldName: Localizations.name)
             coordinator.showAlert(alert)
             return false
+        }
+
+        // Validate recipient emails for "Specific people" access type.
+        if state.accessType == .specificPeople {
+            // Check if at least one email is provided
+            guard !state.normalizedRecipientEmails.isEmpty else {
+                coordinator.showAlert(.noEmailAddressesEntered)
+                return false
+            }
+
+            // Validate each email address
+            for email in state.normalizedRecipientEmails {
+                guard email.isValidEmail() else {
+                    coordinator.showAlert(.invalidEmailAddresses)
+                    return false
+                }
+            }
         }
 
         // Only perform further checks for file sends.
@@ -337,6 +418,16 @@ class AddEditSendItemProcessor:
         }
 
         return true
+    }
+
+    /// Shows an alert indicating that the "Specific People" feature requires a premium subscription.
+    ///
+    private func showSpecificPeoplePremiumRequiredAlert() {
+        let alert = Alert.specificPeopleUnavailable { [weak self] in
+            guard let self else { return }
+            state.url = services.environmentService.upgradeToPremiumURL
+        }
+        coordinator.showAlert(alert)
     }
 }
 
@@ -401,11 +492,30 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
         // No-Op for the AddEditSendItemProcessor.
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
     }
 
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
+    }
+}
+
+// MARK: - GeneratorCoordinatorDelegate
+
+extension AddEditSendItemProcessor: GeneratorCoordinatorDelegate {
+    func didCancelGenerator() {
+        coordinator.navigate(to: .dismiss(nil))
+    }
+
+    func didCompleteGenerator(for type: GeneratorType, with value: String) {
+        switch type {
+        case .passphrase,
+             .password:
+            state.password = value
+        case .username:
+            break
+        }
+        coordinator.navigate(to: .dismiss(nil))
     }
 } // swiftlint:disable:this file_length

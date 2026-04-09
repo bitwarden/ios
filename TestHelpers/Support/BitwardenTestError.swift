@@ -7,13 +7,16 @@ import Foundation
 ///
 /// These errors will typically be provided to a mocked type to be thrown at the
 /// appropriate time. XCAssertThrows
-public enum BitwardenTestError: LocalizedError {
+public enum BitwardenTestError: Equatable, LocalizedError {
     case example
+    case mock(String)
 
     public var errorDescription: String? {
         switch self {
         case .example:
             "An example error used to test throwing capabilities."
+        case let .mock(string):
+            "A mock error with the string: \(string)."
         }
     }
 }

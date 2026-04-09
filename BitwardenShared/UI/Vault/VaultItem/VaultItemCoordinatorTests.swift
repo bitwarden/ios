@@ -1,4 +1,6 @@
 import AVFoundation
+import BitwardenKit
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
@@ -523,6 +525,27 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is ViewItemView)
+    }
+
+    /// `navigate(to:)` with `.migrateToMyItems` replaces the view with the migrate to my items screen.
+    @MainActor
+    func test_navigateTo_migrateToMyItems() throws {
+        subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is MigrateToMyItemsView)
+    }
+
+    /// `navigate(to:)` with `.migrateToMyItems` and a delegate sets up the processor with the delegate.
+    @MainActor
+    func test_navigateTo_migrateToMyItems_withDelegate() throws {
+        let delegate = MockMigrateToMyItemsProcessorDelegate()
+        subject.navigate(to: .migrateToMyItems(organizationId: "org-456"), context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is MigrateToMyItemsView)
     }
 
     /// `start()` has no effect.

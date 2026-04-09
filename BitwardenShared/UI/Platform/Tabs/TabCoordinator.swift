@@ -101,10 +101,8 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         case let .vault(vaultRoute):
             show(vaultRoute: vaultRoute, context: context)
         case .send:
-            // TODO: BIT-249 Add show send function for navigating to a send route
             break
         case .generator:
-            // TODO: BIT-327 Add show generation function for navigation to a generator route
             break
         case let .settings(settingsRoute):
             settingsCoordinator?.start()

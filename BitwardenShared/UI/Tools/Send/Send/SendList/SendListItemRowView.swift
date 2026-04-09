@@ -88,10 +88,10 @@ struct SendListItemRowView: View {
                 } label: {
                     buttonLabel(for: store.state.item)
                 }
-                .accessibilityIdentifier(store.state.accessibilityIdentifier)
 
                 if case let .send(sendView) = store.state.item.itemType {
                     optionsMenu(for: sendView)
+                        .accessibilityLabel(Localizations.moreOptions)
                 }
             }
             .padding(.horizontal, 16)
@@ -101,6 +101,8 @@ struct SendListItemRowView: View {
                     .padding(.leading, scaledIconWidth + 16 + 16)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(store.state.accessibilityIdentifier)
     }
 
     // MARK: Private Views

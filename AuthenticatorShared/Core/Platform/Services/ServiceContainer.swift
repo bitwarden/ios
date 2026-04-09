@@ -42,19 +42,31 @@ public class ServiceContainer: Services {
     let clientService: ClientService
 
     /// The service to get locally-specified configuration
-    let configService: ConfigService
+    public let configService: ConfigService
 
     /// The service used by the application to encrypt and decrypt items
     let cryptographyService: CryptographyService
 
+    /// The service used by the application to manage the environment settings.
+    public let environmentService: EnvironmentService
+
+    /// A helper for building an error report containing the details of an error that occurred.
+    public let errorReportBuilder: ErrorReportBuilder
+
     /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
+    public let errorReporter: ErrorReporter
 
     /// The service used to export items.
     let exportItemsService: ExportItemsService
 
+    /// The service used by the application for recording temporary debug logs.
+    public let flightRecorder: FlightRecorder
+
     /// The service used to import items.
     let importItemsService: ImportItemsService
+
+    /// The state service that handles language state.
+    public let languageStateService: LanguageStateService
 
     /// The service used to perform app data migrations.
     let migrationService: MigrationService
@@ -65,11 +77,17 @@ public class ServiceContainer: Services {
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
+    /// The lazily-initialized, cached holder for a `ServerCommunicationConfigClientProtocol` instance.
+    public let serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton
+
     /// The service used by the application to manage account state.
     let stateService: StateService
 
     /// Provides the present time for TOTP Code Calculation.
-    let timeProvider: TimeProvider
+    public let timeProvider: TimeProvider
+
+    /// The factory to create TOTP expiration managers.
+    let totpExpirationManagerFactory: TOTPExpirationManagerFactory
 
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
@@ -90,14 +108,22 @@ public class ServiceContainer: Services {
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get locally-specified configuration.
     ///   - cryptographyService: The service used by the application to encrypt and decrypt items
+    ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - errorReportBuilder: A helper for building an error report containing the details of an
+    ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - exportItemsService: The service to export items.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - importItemsService: The service to import items.
+    ///   - languageStateService: The service for handling language state.
     ///   - migrationService: The service to do data migrations
     ///   - notificationCenterService:  The service used to receive foreground and background notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
+    ///   - serverCommunicationConfigClientSingleton: The lazily-initialized, cached holder for a
+    ///   `ServerCommunicationConfigClientProtocol` instance..
     ///   - stateService: The service for managing account state.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
+    ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///
     init(
@@ -111,14 +137,20 @@ public class ServiceContainer: Services {
         clientService: ClientService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
+        environmentService: EnvironmentService,
+        errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         exportItemsService: ExportItemsService,
+        flightRecorder: FlightRecorder,
         importItemsService: ImportItemsService,
+        languageStateService: LanguageStateService,
         migrationService: MigrationService,
         notificationCenterService: NotificationCenterService,
         pasteboardService: PasteboardService,
+        serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton,
         stateService: StateService,
         timeProvider: TimeProvider,
+        totpExpirationManagerFactory: TOTPExpirationManagerFactory,
         totpService: TOTPService,
     ) {
         self.application = application
@@ -131,14 +163,20 @@ public class ServiceContainer: Services {
         self.clientService = clientService
         self.configService = configService
         self.cryptographyService = cryptographyService
+        self.environmentService = environmentService
+        self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.exportItemsService = exportItemsService
+        self.flightRecorder = flightRecorder
         self.importItemsService = importItemsService
+        self.languageStateService = languageStateService
         self.migrationService = migrationService
         self.notificationCenterService = notificationCenterService
         self.pasteboardService = pasteboardService
         self.timeProvider = timeProvider
+        self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.stateService = stateService
+        self.totpExpirationManagerFactory = totpExpirationManagerFactory
         self.totpService = totpService
     }
 
@@ -156,16 +194,29 @@ public class ServiceContainer: Services {
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
 
-        let appIdService = AppIdService(appSettingStore: appSettingsStore)
-        let appInfoService = DefaultAppInfoService()
+        let appIDService = AppIDService(appIDSettingsStore: appSettingsStore)
+
+        // Create holder for breaking circular dependency.
+        // This is set later in this initializer, after configService is created.
+        var configServiceHolder: ConfigService?
+        defer {
+            precondition(configServiceHolder != nil, "`configServiceHolder` needs to be set prior to this defer block.")
+        }
+
+        // Create appInfoService with a provider closure that captures the holder.
+        // The provider will be called when server version info is needed.
+        let appInfoService = DefaultAppInfoService(
+            configServiceProvider: { configServiceHolder },
+        )
 
         let biometricsService = DefaultBiometricsService()
         let cameraService = DefaultCameraService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let keychainService = DefaultKeychainService()
+        let timeProvider = CurrentTime()
 
         let keychainRepository = DefaultKeychainRepository(
-            appIdService: appIdService,
+            appIDService: appIDService,
             keychainService: keychainService,
         )
 
@@ -174,13 +225,28 @@ public class ServiceContainer: Services {
             dataStore: dataStore,
         )
 
+        let flightRecorder = DefaultFlightRecorder(
+            appInfoService: appInfoService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider,
+        )
+        errorReporter.add(logger: flightRecorder)
+
         let environmentService = DefaultEnvironmentService()
 
         let apiService = APIService(
             environmentService: environmentService,
+            flightRecorder: flightRecorder,
         )
 
-        let timeProvider = CurrentTime()
+        let errorReportBuilder = DefaultErrorReportBuilder(
+            activeAccountStateProvider: stateService,
+            appInfoService: appInfoService,
+            timeProvider: timeProvider,
+        )
+
+        let totpExpirationManagerFactory = DefaultTOTPExpirationManagerFactory(timeProvider: timeProvider)
 
         let biometricsRepository = DefaultBiometricsRepository(
             biometricsService: biometricsService,
@@ -195,6 +261,7 @@ public class ServiceContainer: Services {
             stateService: stateService,
             timeProvider: timeProvider,
         )
+        configServiceHolder = configService
 
         let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
         let clientService = DefaultClientService(
@@ -213,9 +280,9 @@ public class ServiceContainer: Services {
         )
 
         let migrationService = DefaultMigrationService(
+            appGroupUserDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
             appSettingsStore: appSettingsStore,
             errorReporter: errorReporter,
-            keychainRepository: keychainRepository,
         )
 
         let notificationCenterService = DefaultNotificationCenterService()
@@ -298,14 +365,20 @@ public class ServiceContainer: Services {
             clientService: clientService,
             configService: configService,
             cryptographyService: cryptographyService,
+            environmentService: environmentService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             exportItemsService: exportItemsService,
+            flightRecorder: flightRecorder,
             importItemsService: importItemsService,
+            languageStateService: stateService,
             migrationService: migrationService,
             notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
+            serverCommunicationConfigClientSingleton: StubServerCommunicationConfigClientSingleton(),
             stateService: stateService,
             timeProvider: timeProvider,
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
         )
     }

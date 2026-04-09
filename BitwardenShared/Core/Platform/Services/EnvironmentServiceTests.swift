@@ -3,6 +3,7 @@ import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class EnvironmentServiceTests: XCTestCase {
     // MARK: Properties
@@ -49,6 +50,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
@@ -74,6 +77,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
@@ -84,6 +89,18 @@ class EnvironmentServiceTests: XCTestCase {
 
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
+    }
+
+    /// `loadURLsForActiveAccount()` loads the client certificate fingerprint from the account URLs.
+    func test_loadURLsForActiveAccount_clientCertificateFingerprint() async {
+        let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
+        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
+        stateService.activeAccount = account
+        stateService.environmentURLs = [account.profile.userId: urls]
+
+        await subject.loadURLsForActiveAccount()
+
+        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
     }
 
     /// `loadURLsForActiveAccount()` handles EU URLs
@@ -102,6 +119,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.eu"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.eu"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.eu/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.eu/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.eu/#/recover-2fa"))
         XCTAssertEqual(subject.region, .europe)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
@@ -132,6 +151,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://vault.example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.example.com/#/send"))
@@ -162,6 +183,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
@@ -186,6 +209,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://vault.bitwarden.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
@@ -214,6 +239,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
@@ -244,6 +271,8 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.proxyCookieRedirectConnectorURL, URL(string: "https://example.com/proxy-cookie-redirect-connector.html"))
         XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
@@ -253,5 +282,14 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, true)
+    }
+
+    /// `setPreAuthURLs(urls:)` sets the client certificate fingerprint from the pre-auth URLs.
+    func test_setPreAuthURLs_clientCertificateFingerprint() async {
+        let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
+
+        await subject.setPreAuthURLs(urls: urls)
+
+        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
     }
 }

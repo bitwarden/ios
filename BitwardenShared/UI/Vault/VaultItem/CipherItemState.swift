@@ -78,6 +78,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded = false
 
+    /// Whether archive vault items feature flag is enabled.
+    var isArchiveVaultItemsFFEnabled = false
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn = false
 
@@ -142,6 +145,22 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         self
     }
 
+    /// The info text to display when item is archived.
+    var archiveInfoText: String {
+        guard shouldDisplayAsArchived else {
+            return ""
+        }
+        return accountHasPremium
+            ? Localizations.thisItemIsArchived
+            : Localizations.thisItemIsArchivedSavingChangesWillRestoreItToYourVault
+    }
+
+    /// Whether or not this item can be archived by the user.
+    var canBeArchived: Bool {
+        isArchiveVaultItemsFFEnabled && cipher.archivedDate == nil && cipher.deletedDate == nil
+    }
+
+    /// Whether the cipher belongs to any organization.
     var hasOrganizations: Bool {
         cipher.organizationId != nil || ownershipOptions.contains { !$0.isPersonal }
     }
@@ -185,6 +204,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         return cipherPermissions.restore && isSoftDeleted
     }
 
+    /// Whether or not this item can be unarchived by the user.
+    var canBeUnarchived: Bool {
+        isArchiveVaultItemsFFEnabled && cipher.archivedDate != nil && cipher.deletedDate == nil
+    }
+
     /// Whether or not this item can be moved to an organization.
     var canMoveToOrganization: Bool {
         hasOrganizations && cipher.organizationId == nil
@@ -208,7 +232,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// show more/less for this to have one or more collections the cipher
     /// belongs to.
     var cipherCollectionsToDisplay: [CollectionView] {
-        guard !cipherCollections.isEmpty else {
+        guard !cipherCollections.isEmpty, !shouldDisplayAsArchived else {
             return []
         }
 
@@ -254,6 +278,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             collectionIds = []
             selectDefaultCollectionIfNeeded()
         }
+    }
+
+    /// Whether the item should be displayed as archived.
+    var shouldDisplayAsArchived: Bool {
+        isArchiveVaultItemsFFEnabled && canBeUnarchived
     }
 
     /// The flag indicating if we should show the learn new login action card.
@@ -398,12 +427,16 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     ///     primarily used when cloning a cipher to provide a default name for the cloned `CipherView`
     ///     that is different from the original.
     ///   - overrideLoginItemState: An optional value to override the `CipherView`s `LoginItemState`.
-    ///     This is primarily used when cloning a cipher to exclude FIDO2 credentials.
+    ///     Used when cloning a cipher to exclude FIDO2 credentials.
+    ///   - overrideTOTPState: An optional TOTP state that always takes precedence over whatever
+    ///     TOTP value is derived from the cipher view. Used to preserve an in-memory TOTP key
+    ///     added via BWA import that may not yet be persisted to the server.
     ///
     private mutating func apply(
         cipherView: CipherView,
         overrideName: String? = nil,
         overrideLoginItemState: LoginItemState? = nil,
+        overrideTOTPState: LoginTOTPState? = nil,
     ) {
         let type = CipherType(type: cipherView.type)
 
@@ -418,8 +451,12 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         identityState = cipherView.identityItemState()
         isFavoriteOn = cipherView.favorite
         isMasterPasswordRePromptOn = cipherView.reprompt == .password
-        loginState = overrideLoginItemState
+        var newLoginState = overrideLoginItemState
             ?? cipherView.loginItemState(showTOTP: accountHasPremium || cipherView.organizationUseTotp)
+        if let overrideTOTPState {
+            newLoginState.totpState = overrideTOTPState
+        }
+        loginState = newLoginState
         name = overrideName ?? cipherView.name
         notes = cipherView.notes ?? ""
         organizationId = cipherView.organizationId
@@ -472,8 +509,11 @@ extension CipherItemState: AddEditItemState {
         collectionIds.append(defaultCollectionId)
     }
 
-    mutating func update(from cipherView: CipherView) {
-        apply(cipherView: cipherView)
+    mutating func update(
+        from cipherView: CipherView,
+        preservingTOTPState totpState: LoginTOTPState?,
+    ) {
+        apply(cipherView: cipherView, overrideTOTPState: totpState)
     }
 }
 
@@ -484,6 +524,10 @@ extension CipherItemState: ViewVaultItemState {
 
     var belongsToMultipleCollections: Bool {
         cipher.collectionIds.count > 1
+    }
+
+    var isArchived: Bool {
+        cipher.archivedDate != nil && cipher.deletedDate == nil
     }
 
     var cardItemViewState: any ViewCardItemState {
@@ -545,6 +589,7 @@ extension CipherItemState: ViewVaultItemState {
 
     var shouldDisplayFolder: Bool {
         !folderName.isEmptyOrNil
+            && !shouldDisplayAsArchived
             && (!belongsToMultipleCollections || isShowingMultipleCollections)
     }
 
@@ -552,6 +597,7 @@ extension CipherItemState: ViewVaultItemState {
         organizationId == nil
             && folderId == nil
             && collectionIds.isEmpty
+            && !shouldDisplayAsArchived
     }
 
     var shouldUseCustomPlaceholderContent: Bool {
@@ -602,6 +648,7 @@ extension CipherItemState {
             viewPassword: true,
             localData: nil,
             attachments: nil,
+            attachmentDecryptionFailures: nil,
             fields: customFieldsState.customFields.isEmpty ? nil : customFieldsState.customFields.map { customField in
                 FieldView(
                     name: customField.name,

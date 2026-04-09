@@ -1,3 +1,6 @@
+import BitwardenKit
+import UIKit
+
 // MARK: AppModule
 
 /// An object that builds coordinators for the app.
@@ -52,5 +55,57 @@ extension DefaultAppModule: AppModule {
             rootNavigator: navigator,
             services: services,
         ).asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + DebugMenuModule
+
+extension DefaultAppModule: DebugMenuModule {
+    public func makeDebugMenuCoordinator(
+        delegate: DebugMenuCoordinatorDelegate,
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<DebugMenuRoute, Void> {
+        DebugMenuCoordinator(
+            delegate: delegate,
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + FlightRecorderModule
+
+extension DefaultAppModule: FlightRecorderModule {
+    public func makeFlightRecorderCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        FlightRecorderCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
+    }
+}
+
+// MARK: - DefaultAppModule + NavigatorBuilderModule
+
+extension DefaultAppModule: NavigatorBuilderModule {
+    public func makeNavigationController() -> UINavigationController {
+        ViewLoggingNavigationController(logger: services.flightRecorder)
+    }
+}
+
+// MARK: - DefaultAppModule + SelectLanguageModule
+
+extension DefaultAppModule: SelectLanguageModule {
+    public func makeSelectLanguageCoordinator(
+        stackNavigator: StackNavigator,
+    ) -> AnyCoordinator<SelectLanguageRoute, Void> {
+        SelectLanguageCoordinator(
+            services: services,
+            stackNavigator: stackNavigator,
+        )
+        .asAnyCoordinator()
     }
 }

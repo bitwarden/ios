@@ -165,7 +165,7 @@ class LocalAuthServiceTests: BitwardenTestCase {
 
     /// `evaluateDeviceOwnerPolicy(_:for:reason:)`
     /// when status is unknown error
-    func test_evaluateDeviceOwnerPolicy_statusUknownError() async throws {
+    func test_evaluateDeviceOwnerPolicy_statusUnknownError() async throws {
         let result = try await subject.evaluateDeviceOwnerPolicy(laContext, for: .unknownError(""), reason: "")
 
         XCTAssertFalse(result)

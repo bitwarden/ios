@@ -18,6 +18,7 @@ extension APIService: EventAPIService {
             EventRequestModel(
                 type: event.type,
                 cipherId: event.cipherId,
+                organizationId: event.organizationId,
                 date: event.date,
             )
         }

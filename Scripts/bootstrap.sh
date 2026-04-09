@@ -13,7 +13,11 @@ repo_root=$(dirname "$script_dir")
 mint run xcodegen --spec "$repo_root/project-bwk.yml"
 mint run xcodegen --spec "$repo_root/project-pm.yml"
 mint run xcodegen --spec "$repo_root/project-bwa.yml"
+mint run xcodegen --spec "$repo_root/project-bwth.yml"
 echo "✅ Bootstrapped!"
+
+# Set up git hooks
+"$script_dir/setup-hooks.sh"
 
 # Check Xcode version matches .xcode-version
 xcode_version_file="$repo_root/.xcode-version"

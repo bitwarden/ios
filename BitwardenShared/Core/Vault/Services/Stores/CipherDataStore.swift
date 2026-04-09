@@ -51,6 +51,26 @@ protocol CipherDataStore: AnyObject {
     ///
     func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error>
 
+    /// A publisher that emits cipher changes (upsert, delete, replace) as they occur.
+    ///
+    /// This publisher emits `.upserted` for individual cipher upserts, `.deleted` for individual
+    /// cipher deletes, and `.replaced` for batch replace operations.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the ciphers.
+    /// - Returns: A publisher that emits cipher changes.
+    ///
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never>
+
+    /// Checks whether the user has any personal ciphers (ciphers with no organization).
+    ///
+    /// This method uses batch fetching with early termination for efficiency,
+    /// avoiding the need to load all ciphers into memory.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the ciphers.
+    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
+    ///
+    func hasPersonalCiphers(userId: String) async throws -> Bool
+
     /// Replaces a list of `Cipher` objects for a user.
     ///
     /// - Parameters:
@@ -81,11 +101,17 @@ extension DataStore: CipherDataStore {
     }
 
     func deleteCipher(id: String, userId: String) async throws {
+        let cipher = try await fetchCipher(withId: id, userId: userId)
+
         try await backgroundContext.performAndSave {
             let results = try self.backgroundContext.fetch(CipherData.fetchByIdRequest(id: id, userId: userId))
             for result in results {
                 self.backgroundContext.delete(result)
             }
+        }
+
+        if let cipher {
+            cipherChangeSubject.send((userId, .deleted(cipher)))
         }
     }
 
@@ -109,11 +135,49 @@ extension DataStore: CipherDataStore {
         // A sort descriptor is needed by `NSFetchedResultsController`.
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \CipherData.id, ascending: true)]
         return FetchedResultsPublisher(
-            context: persistentContainer.viewContext,
+            context: backgroundContext,
             request: fetchRequest,
+            transform: { try $0.map(Cipher.init) },
         )
-        .tryMap { try $0.map(Cipher.init) }
         .eraseToAnyPublisher()
+    }
+
+    func cipherChangesPublisher(userId: String) -> AnyPublisher<CipherChange, Never> {
+        cipherChangeSubject
+            .filter { $0.userId == userId }
+            .map(\.change)
+            .eraseToAnyPublisher()
+    }
+
+    func hasPersonalCiphers(userId: String) async throws -> Bool {
+        let batchSize = 50
+        var offset = 0
+
+        while true {
+            let found = try await backgroundContext.perform {
+                let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
+                fetchRequest.fetchLimit = batchSize
+                fetchRequest.fetchOffset = offset
+
+                let batch = try self.backgroundContext.fetch(fetchRequest)
+                if batch.isEmpty {
+                    return false as Bool?
+                }
+
+                for cipherData in batch {
+                    if let cipher = try? Cipher(cipherData: cipherData),
+                       cipher.organizationId == nil {
+                        return true as Bool?
+                    }
+                }
+                return nil
+            }
+
+            if let result = found {
+                return result
+            }
+            offset += batchSize
+        }
     }
 
     func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {
@@ -123,11 +187,15 @@ extension DataStore: CipherDataStore {
             deleteRequest: deleteRequest,
             insertRequest: insertRequest,
         )
+
+        cipherChangeSubject.send((userId, .replacedAll))
     }
 
     func upsertCipher(_ cipher: Cipher, userId: String) async throws {
         try await backgroundContext.performAndSave {
             _ = try CipherData(context: self.backgroundContext, userId: userId, cipher: cipher)
         }
+
+        cipherChangeSubject.send((userId, .upserted(cipher)))
     }
 }

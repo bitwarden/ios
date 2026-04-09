@@ -1,8 +1,10 @@
+import BitwardenKit
 import BitwardenSdk
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - TOTPServiceTests
 
@@ -185,7 +187,42 @@ final class TOTPServiceTests: BitwardenTestCase {
 
     func test_getTOTPConfiguration_failure() {
         XCTAssertThrowsError(try subject.getTOTPConfiguration(key: nil)) { error in
-            XCTAssertEqual(error as? TOTPServiceError, .invalidKeyFormat)
+            XCTAssertEqual(error as? TOTPKeyError, .invalidKeyFormat)
         }
+    }
+
+    /// `isTotpAuthorized(for:)` returns `false` when the account is not premium and
+    /// the cipher's organization does not have TOTP enabled.
+    func test_isTotpAuthorized_noPremiumNorOrgUseTotp() async {
+        let cipher = CipherView.fixture(organizationUseTotp: false)
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let result = await subject.isTotpAuthorized(for: cipher)
+
+        XCTAssertFalse(result)
+    }
+
+    /// `isTotpAuthorized(for:)` returns `true` when the cipher's organization has TOTP enabled,
+    /// even if the account is not premium.
+    func test_isTotpAuthorized_organizationUseTotp() async {
+        let cipher = CipherView.fixture(organizationUseTotp: true)
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = false
+
+        let result = await subject.isTotpAuthorized(for: cipher)
+
+        XCTAssertTrue(result)
+    }
+
+    /// `isTotpAuthorized(for:)` returns `true` when the account has premium.
+    func test_isTotpAuthorized_premium() async {
+        let cipher = CipherView.fixture()
+        stateService.activeAccount = .fixture()
+        stateService.doesActiveAccountHavePremiumResult = true
+
+        let result = await subject.isTotpAuthorized(for: cipher)
+
+        XCTAssertTrue(result)
     }
 }

@@ -163,6 +163,15 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 .padding(.leading, 8)
                 .accessibilityLabel(Localizations.folderX(Localizations.folderNone))
             } else {
+                if store.state.shouldDisplayAsArchived {
+                    belongingView(
+                        icon: SharedAsset.Icons.archive24,
+                        name: Localizations.archived,
+                    )
+                    .padding(.leading, 8)
+                    .accessibilityLabel(Localizations.archived)
+                }
+
                 itemHeaderBelongingToSection
                     .padding(.leading, 8)
 

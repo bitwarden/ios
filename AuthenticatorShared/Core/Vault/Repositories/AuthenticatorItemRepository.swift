@@ -54,7 +54,7 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///   - items: The list of items that need updated TOTP codes.
     /// - Returns: A list of items with updated TOTP codes.
     ///
-    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem]
+    func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem]
 
     /// Create a temporary shared item based on a `AuthenticatorItemView` for sharing with the BWPM app.
     /// This method will store it as a temporary item in the shared store.
@@ -330,7 +330,7 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         await sharedItemService.isSyncOn()
     }
 
-    func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
+    func refreshTotpCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
         try await items.asyncMap { item in
             let keyModel: TOTPKeyModel?
             switch item.itemType {
@@ -401,12 +401,23 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             return sections.flatMap(\.items)
                 .filter { item in
                     item.name.lowercased()
-                        .folding(options: .diacriticInsensitive, locale: nil)
+                        .folding(options: .diacriticInsensitive, locale: .current)
                         .contains(query)
                 }
                 .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
         .eraseToAnyPublisher()
         .values
+    }
+}
+
+extension DefaultAuthenticatorItemRepository: TOTPRefreshingRepository {
+    // MARK: Types
+
+    /// The type os item in the list to be refreshed.
+    typealias Item = ItemListItem
+
+    func refreshTOTPCodes(for items: [ItemListItem]) async throws -> [ItemListItem] {
+        try await refreshTotpCodes(for: items)
     }
 } // swiftlint:disable:this file_length

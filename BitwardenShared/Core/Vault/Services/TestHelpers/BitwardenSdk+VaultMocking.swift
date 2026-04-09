@@ -141,6 +141,7 @@ extension Cipher {
             deletedDate: cipherView.deletedDate,
             revisionDate: cipherView.revisionDate,
             archivedDate: cipherView.archivedDate,
+            data: nil,
         )
     }
 }
@@ -169,6 +170,7 @@ extension CipherView {
             viewPassword: cipher.viewPassword,
             localData: cipher.localData.map(LocalDataView.init),
             attachments: cipher.attachments?.map(AttachmentView.init),
+            attachmentDecryptionFailures: nil,
             fields: cipher.fields?.map(FieldView.init),
             passwordHistory: cipher.passwordHistory?.map(PasswordHistoryView.init),
             creationDate: cipher.creationDate,
@@ -462,6 +464,8 @@ extension SendView {
             revisionDate: send.revisionDate,
             deletionDate: send.deletionDate,
             expirationDate: send.expirationDate,
+            emails: [],
+            authType: AuthType.none,
         )
     }
 }
@@ -505,6 +509,8 @@ extension Send {
             revisionDate: sendView.revisionDate,
             deletionDate: sendView.deletionDate,
             expirationDate: sendView.expirationDate,
+            emails: nil,
+            authType: sendView.authType,
         )
     }
 }

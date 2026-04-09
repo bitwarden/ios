@@ -1,12 +1,15 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 import ViewInspector
+import ViewInspectorTestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListViewTests
 
@@ -229,7 +232,10 @@ class VaultListViewTests: BitwardenTestCase {
     /// `.navigateToFlightRecorderSettings` action.
     @MainActor
     func test_toastBannerGoToSettings_tap() async throws {
-        processor.state.isFlightRecorderToastBannerVisible = true
+        processor.state.flightRecorderToastBanner.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: Date(year: 2025, month: 4, day: 3),
+        )
         let button = try subject.inspect().find(button: Localizations.goToSettings)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions, [.navigateToFlightRecorderSettings])
@@ -276,7 +282,7 @@ class VaultListViewTests: BitwardenTestCase {
     func test_vaultItem_moreButton_tap() async throws {
         let item = VaultListItem.fixture()
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.moreOptions)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .morePressed(item))
     }

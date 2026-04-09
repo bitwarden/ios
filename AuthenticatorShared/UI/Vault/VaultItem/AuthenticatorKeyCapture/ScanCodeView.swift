@@ -1,4 +1,5 @@
 import AVFoundation
+import BitwardenKit
 import BitwardenResources
 import SwiftUI
 

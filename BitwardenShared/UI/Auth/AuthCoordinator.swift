@@ -45,7 +45,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
     typealias Services = HasAccountAPIService
-        & HasAppIdService
+        & HasAppIDService
         & HasAppSettingsStore
         & HasApplication
         & HasAuthAPIService
@@ -53,6 +53,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAuthService
         & HasAutofillCredentialService
         & HasBiometricsRepository
+        & HasClientCertificateService
         & HasClientService
         & HasConfigService
         & HasDeviceAPIService
@@ -68,6 +69,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasStateService
         & HasSystemDevice
         & HasTrustDeviceService
+        & HasUserSessionStateService
         & HasVaultTimeoutService
 
     // MARK: Properties
@@ -243,7 +245,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showVaultUnlock(
                 account: account,
                 animated: animated,
-                attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitch,
             )
         case let .vaultUnlockSetup(accountSetupFlow):
@@ -467,6 +469,10 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             stackNavigator.setNavigationBarHidden(false, animated: false)
             stackNavigator.replace(view, animated: false)
         }
+
+        if stackNavigator.isPresenting == true {
+            stackNavigator.dismiss()
+        }
     }
 
     /// Shows the login screen. If the create account flow is being presented it will be dismissed
@@ -653,12 +659,15 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 identityServerUrl: preAuthEnvironmentURLs.identity?.sanitized.description ?? "",
                 serverUrl: preAuthEnvironmentURLs.base?.sanitized.description ?? "",
                 webVaultServerUrl: preAuthEnvironmentURLs.webVault?.sanitized.description ?? "",
+                keyAlias: preAuthEnvironmentURLs.clientCertificateAlias ?? "",
+                keyFingerprint: preAuthEnvironmentURLs.clientCertificateFingerprint ?? "",
             )
         }
 
         let processor = SelfHostedProcessor(
             coordinator: asAnyCoordinator(),
             delegate: delegate,
+            services: services,
             state: state,
         )
         let view = SelfHostedView(store: Store(processor: processor))
@@ -811,13 +820,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// - Parameters:
     ///   - account: The active account.
     ///   - animated: Whether to animate the transition.
-    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
+    ///   - attemptAutomaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
     ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
     ///
     private func showVaultUnlock(
         account: Account,
         animated: Bool,
-        attemptAutmaticBiometricUnlock: Bool,
+        attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool,
     ) {
         let processor = VaultUnlockProcessor(
@@ -826,7 +835,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             services: services,
             state: VaultUnlockState(account: account),
         )
-        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutmaticBiometricUnlock
+        processor.shouldAttemptAutomaticBiometricUnlock = attemptAutomaticBiometricUnlock
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: animated)
         if didSwitchAccountAutomatically {

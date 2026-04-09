@@ -79,10 +79,10 @@ public struct BitwardenMenuField<
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             menu
+                .padding(.horizontal, 16)
 
             footerView()
         }
-        .padding(.horizontal, 16)
         .background(
             isEnabled
                 ? SharedAsset.Colors.backgroundSecondary.swiftUIColor
@@ -118,12 +118,14 @@ public struct BitwardenMenuField<
                                 includeLinePadding: false,
                                 includeLineSpacing: false,
                             )
-                            .foregroundColor(isEnabled
-                                ? SharedAsset.Colors.textSecondary.swiftUIColor
-                                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor)
-                                .onSizeChanged { size in
-                                    titleWidth = size.width
-                                }
+                            .foregroundColor(
+                                isEnabled
+                                    ? SharedAsset.Colors.textSecondary.swiftUIColor
+                                    : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor,
+                            )
+                            .onSizeChanged { size in
+                                titleWidth = size.width
+                            }
                     }
 
                     Text(selection.localizedName)
@@ -148,22 +150,24 @@ public struct BitwardenMenuField<
             }
         }
         .styleGuide(.body)
-        .foregroundColor(isEnabled
-            ? SharedAsset.Colors.textPrimary.swiftUIColor
-            : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor)
-            .frame(minHeight: 64)
-            .accessibilityIdentifier(accessibilityIdentifier ?? "")
-            .overlay {
-                if let titleAccessoryContent {
-                    titleAccessoryContent
-                        .frame(
-                            maxWidth: .infinity,
-                            maxHeight: .infinity,
-                            alignment: .topLeading,
-                        )
-                        .offset(x: titleWidth + 4, y: 12)
-                }
+        .foregroundColor(
+            isEnabled
+                ? SharedAsset.Colors.textPrimary.swiftUIColor
+                : SharedAsset.Colors.buttonFilledDisabledForeground.swiftUIColor,
+        )
+        .frame(minHeight: 64)
+        .accessibilityIdentifier(accessibilityIdentifier ?? "")
+        .overlay {
+            if let titleAccessoryContent {
+                titleAccessoryContent
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .topLeading,
+                    )
+                    .offset(x: titleWidth + 4, y: 12)
             }
+        }
     }
 
     // MARK: Initialization
@@ -343,14 +347,16 @@ public struct BitwardenMenuField<
     @ViewBuilder
     private func footerView() -> some View {
         if let footerContent {
+            Divider()
+                .padding(.leading, 16)
             Group {
-                Divider()
                 if let footerContent = footerContent as? Text {
                     footerContent.bitwardenMenuFooterText(topPadding: 12, bottomPadding: 12)
                 } else {
                     footerContent
                 }
             }
+            .padding(.horizontal, 16)
         }
     }
 }
@@ -421,9 +427,20 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
+
+    Group {
+        BitwardenMenuField(
+            title: "Animals",
+            footer: "Your organization has set the maximum session timeout to 1 hour and 30 minutes.",
+            options: MenuPreviewOptions.allCases,
+            selection: .constant(.dog),
+        )
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
 }
 
-#Preview("Addititional Menu") {
+#Preview("Additional Menu") {
     Group {
         BitwardenMenuField(
             title: "Animals",

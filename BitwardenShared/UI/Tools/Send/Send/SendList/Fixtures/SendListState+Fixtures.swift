@@ -1,3 +1,4 @@
+import BitwardenSdk
 import Foundation
 
 @testable import BitwardenShared
@@ -51,6 +52,8 @@ extension SendListState {
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
                                 expirationDate: date.advanced(by: 100),
+                                emails: [],
+                                authType: AuthType.none,
                             ),
                         )!,
                         SendListItem(
@@ -72,6 +75,8 @@ extension SendListState {
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
                                 expirationDate: date.advanced(by: 100),
+                                emails: [],
+                                authType: AuthType.none,
                             ),
                         )!,
                         SendListItem(
@@ -93,6 +98,8 @@ extension SendListState {
                                 revisionDate: date,
                                 deletionDate: date,
                                 expirationDate: date.advanced(by: -1),
+                                emails: [],
+                                authType: AuthType.none,
                             ),
                         )!,
                     ],
@@ -128,6 +135,8 @@ extension SendListState {
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
                                 expirationDate: date.advanced(by: 100),
+                                emails: [],
+                                authType: AuthType.none,
                             ),
                         )!,
                         SendListItem(
@@ -149,6 +158,8 @@ extension SendListState {
                                 revisionDate: date,
                                 deletionDate: date.advanced(by: 100),
                                 expirationDate: date.advanced(by: 100),
+                                emails: [],
+                                authType: AuthType.none,
                             ),
                         )!,
                         SendListItem(
@@ -170,6 +181,8 @@ extension SendListState {
                                 revisionDate: date,
                                 deletionDate: date,
                                 expirationDate: date.advanced(by: -1),
+                                emails: [],
+                                authType: AuthType.none,
                             ),
                         )!,
                     ],
@@ -204,6 +217,8 @@ extension SendListState {
                         revisionDate: date,
                         deletionDate: date.advanced(by: 100),
                         expirationDate: date.advanced(by: 100),
+                        emails: [],
+                        authType: AuthType.none,
                     ),
                 )!,
                 SendListItem(
@@ -225,6 +240,8 @@ extension SendListState {
                         revisionDate: date,
                         deletionDate: date.advanced(by: 100),
                         expirationDate: date.advanced(by: 100),
+                        emails: [],
+                        authType: AuthType.none,
                     ),
                 )!,
                 SendListItem(
@@ -246,6 +263,8 @@ extension SendListState {
                         revisionDate: date,
                         deletionDate: date,
                         expirationDate: date.advanced(by: -1),
+                        emails: [],
+                        authType: AuthType.none,
                     ),
                 )!,
             ],

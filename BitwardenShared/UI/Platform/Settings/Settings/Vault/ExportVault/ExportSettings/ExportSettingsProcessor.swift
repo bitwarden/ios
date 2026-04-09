@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExportSettingsProcessor
 
 /// The processor used to manage state and handle actions for the `ExportSettingsView`.

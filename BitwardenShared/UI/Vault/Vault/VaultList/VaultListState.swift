@@ -9,14 +9,14 @@ import Foundation
 struct VaultListState: Equatable {
     // MARK: Properties
 
-    /// The active flight recorder log metadata, or `nil` if the flight recorder isn't active.
-    var activeFlightRecorderLog: FlightRecorderData.LogMetadata?
-
-    /// List of available item type for creation.
-    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
-
     /// Whether the vault filter can be shown.
     var canShowVaultFilter = true
+
+    /// The state for the flight recorder toast banner displayed in the item list.
+    var flightRecorderToastBanner = FlightRecorderToastBannerState()
+
+    /// Whether the user has premium subscription.
+    var hasPremium: Bool = false
 
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
@@ -24,14 +24,14 @@ struct VaultListState: Equatable {
     /// The user's import logins setup progress.
     var importLoginsSetupProgress: AccountSetupProgress?
 
-    /// Whether the policy is enforced to disable personal vault ownership.
-    var isPersonalOwnershipDisabled: Bool = false
-
     /// Whether the user is eligible for an app review prompt.
     var isEligibleForAppReview: Bool = false
 
-    /// Whether the flight recorder toast banner is visible.
-    var isFlightRecorderToastBannerVisible = false
+    /// Whether the policy is enforced to disable personal vault ownership.
+    var isPersonalOwnershipDisabled: Bool = false
+
+    /// List of available item type for creation.
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
 
     /// The loading state of the My Vault screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
@@ -84,9 +84,20 @@ struct VaultListState: Equatable {
         )
     }
 
+    /// Whether the Archive Onboarding action card should be shown.
+    var shouldShowArchiveOnboardingActionCard: Bool = false
+
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
         importLoginsSetupProgress == .incomplete
+    }
+
+    /// Whether the Premium Upgrade action card should be shown.
+    var shouldShowPremiumUpgradeActionCard: Bool = false
+
+    /// The user's initials.
+    var userInitials: String {
+        profileSwitcherState.activeAccountInitials
     }
 
     /// The state for showing the vault filter.
@@ -97,10 +108,5 @@ struct VaultListState: Equatable {
             organizations: organizations,
             searchVaultFilterType: vaultFilterType,
         )
-    }
-
-    /// The user's initials.
-    var userInitials: String {
-        profileSwitcherState.activeAccountInitials
     }
 }

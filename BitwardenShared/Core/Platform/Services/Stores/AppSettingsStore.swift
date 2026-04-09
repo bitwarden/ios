@@ -13,14 +13,14 @@ protocol AppSettingsStore: AnyObject {
     /// Whether the autofill info prompt has been shown.
     var addSitePromptShown: Bool { get set }
 
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
     /// The app's theme.
     var appTheme: String? { get set }
+
+    /// Whether the archive onboarding has been shown.
+    var archiveOnboardingShown: Bool { get set }
 
     /// The last published active user ID by `activeAccountIdPublisher` in the current process.
     /// If this is different than the active user ID in the `State`, the active user was likely
@@ -192,13 +192,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func hasPerformedSyncAfterLogin(userId: String) -> Bool
 
-    /// The user's last active time within the app.
-    /// This value is set when the app is backgrounded.
-    ///
-    /// - Parameter userId: The user ID associated with the last active time within the app.
-    ///
-    func lastActiveTime(userId: String) -> Date?
-
     /// Get the user's Biometric Authentication Preference.
     ///
     /// - Parameter userId: The user ID associated with the biometric authentication preference.
@@ -208,6 +201,12 @@ protocol AppSettingsStore: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
     func isBiometricAuthenticationEnabled(userId: String) -> Bool
+
+    /// Gets the time of the last request to turn on credential provider.
+    ///
+    /// - Returns: The time of the last request to turn on credential provider.
+    ///
+    func lastRequestToTurnOnCredentialProvider() -> Date?
 
     /// Gets the time of the last sync for the user ID.
     ///
@@ -257,6 +256,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The pin protected user key envelope.
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
+
+    /// Whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
     /// Gets the environment URLs used to start the account creation flow.
     ///
@@ -418,13 +424,11 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
 
-    /// Sets the last active time within the app.
+    /// Sets the time of the last request to turn on credential provider for the user ID.
     ///
-    /// - Parameters:
-    ///   - date: The current time.
-    ///   - userId: The user ID associated with the last active time within the app.
+    /// - Parameter date: The time of the last request to turn on credential provider.
     ///
-    func setLastActiveTime(_ date: Date?, userId: String)
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?)
 
     /// Sets the time of the last sync for the user ID.
     ///
@@ -482,6 +486,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
 
+    /// Sets whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
+
     /// Sets the environment URLs used to start the account creation flow.
     ///
     /// - Parameters:
@@ -536,14 +548,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTwoFactorToken(_ token: String?, email: String)
 
-    /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameters:
-    ///  -  attempts: The number of unsuccessful unlock attempts.
-    ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
-    ///
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
-
     /// Sets whether the user uses key connector.
     ///
     /// - Parameters:
@@ -551,14 +555,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID to set whether they use key connector.
     ///
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String)
-
-    /// Sets the user's session timeout, in minutes.
-    ///
-    /// - Parameters:
-    ///   - key: The session timeout, in minutes.
-    ///   - userId: The user ID associated with the session timeout.
-    ///
-    func setVaultTimeout(minutes: Int, userId: String)
 
     /// Sets the username generation options for a user ID.
     ///
@@ -610,26 +606,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions?
 
-    /// Gets the number of unsuccessful attempts to unlock the vault for a user ID.
-    ///
-    /// - Parameter userId: The user ID associated with the unsuccessful unlock attempts.
-    /// - Returns: The number of unsuccessful attempts to unlock the vault.
-    ///
-    func unsuccessfulUnlockAttempts(userId: String) -> Int
-
     /// Gets whether the user uses key connector.
     ///
     /// - Parameter userId: The user ID to check if they use key connector.
     /// - Returns: Whether the user uses key connector.
     ///
     func usesKeyConnector(userId: String) -> Bool
-
-    /// Returns the session timeout in minutes.
-    ///
-    /// - Parameter userId: The user ID associated with the session timeout.
-    /// - Returns: The user's session timeout in minutes.
-    ///
-    func vaultTimeout(userId: String) -> Int?
 
     // MARK: Publishers
 
@@ -763,10 +745,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case allowUniversalClipboard(userId: String)
-        case appId
+        case appID
         case appLocale
         case appRehydrationState(userId: String)
         case appTheme
+        case archiveOnboardingShown
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
@@ -782,7 +765,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
-        case lastActiveTime(userId: String)
+        case lastRequestToTurnOnCredentialProvider
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
         case learnGeneratorActionCardStatus
@@ -798,6 +781,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
+        case premiumUpgradeBannerDismissed(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -807,10 +791,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
-        case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
-        case vaultTimeout(userId: String)
         case vaultTimeoutAction(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
@@ -832,7 +814,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "syncOnRefresh_\(userId)"
             case let .allowUniversalClipboard(userId):
                 "allowUniversalClipboard_\(userId)"
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -840,6 +822,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "appRehydrationState_\(userId)"
             case .appTheme:
                 "theme"
+            case .archiveOnboardingShown:
+                "archiveOnboardingShown"
             case let .biometricAuthEnabled(userId):
                 "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
@@ -870,8 +854,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "introCarouselShown"
             case .learnNewLoginActionCardStatus:
                 "learnNewLoginActionCardStatus"
-            case let .lastActiveTime(userId):
-                "lastActiveTime_\(userId)"
+            case .lastRequestToTurnOnCredentialProvider:
+                "lastRequestToTurnOnCredentialProvider"
             case let .lastSync(userId):
                 "lastSync_\(userId)"
             case .learnGeneratorActionCardStatus:
@@ -902,6 +886,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 "preAuthServerConfig"
+            case let .premiumUpgradeBannerDismissed(userId):
+                "premiumUpgradeBannerDismissed_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -920,14 +906,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 "twoFactorToken_\(email)"
-            case let .unsuccessfulUnlockAttempts(userId):
-                "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
                 "usesKeyConnector_\(userId)"
-            case let .vaultTimeout(userId):
-                "vaultTimeout_\(userId)"
             case let .vaultTimeoutAction(userId):
                 "vaultTimeoutAction_\(userId)"
             }
@@ -940,11 +922,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         set { store(newValue, for: .addSitePromptShown) }
     }
 
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
-    }
-
     var appLocale: String? {
         get { fetch(for: .appLocale) }
         set { store(newValue, for: .appLocale) }
@@ -953,6 +930,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var archiveOnboardingShown: Bool {
+        get { fetch(for: .archiveOnboardingShown) }
+        set { store(newValue, for: .archiveOnboardingShown) }
     }
 
     var cachedActiveUserId: String? {
@@ -1113,12 +1095,12 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
-    func lastActiveTime(userId: String) -> Date? {
-        fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
-    }
-
     func isBiometricAuthenticationEnabled(userId: String) -> Bool {
         fetch(for: .biometricAuthEnabled(userId: userId))
+    }
+
+    func lastRequestToTurnOnCredentialProvider() -> Date? {
+        fetch(for: .lastRequestToTurnOnCredentialProvider).map { Date(timeIntervalSince1970: $0) }
     }
 
     func lastSyncTime(userId: String) -> Date? {
@@ -1151,6 +1133,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func pinProtectedUserKeyEnvelope(userId: String) -> String? {
         fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool {
+        fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
@@ -1235,8 +1221,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
-    func setLastActiveTime(_ date: Date?, userId: String) {
-        store(date?.timeIntervalSince1970, for: .lastActiveTime(userId: userId))
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) {
+        store(date?.timeIntervalSince1970, for: .lastRequestToTurnOnCredentialProvider)
     }
 
     func setLastSyncTime(_ date: Date?, userId: String) {
@@ -1265,6 +1251,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
+        store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
@@ -1299,10 +1289,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
     }
 
-    func setVaultTimeout(minutes: Int, userId: String) {
-        store(minutes, for: .vaultTimeout(userId: userId))
-    }
-
     func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
         store(siriAndShortcutsAccess, for: .siriAndShortcutsAccess(userId: userId))
     }
@@ -1323,14 +1309,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .twoFactorToken(email: email))
     }
 
-    func vaultTimeout(userId: String) -> Int? {
-        fetch(for: .vaultTimeout(userId: userId))
-    }
-
-    func unsuccessfulUnlockAttempts(userId: String) -> Int {
-        fetch(for: .unsuccessfulUnlockAttempts(userId: userId))
-    }
-
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
     }
@@ -1339,15 +1317,20 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .usesKeyConnector(userId: userId))
     }
 
-    func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {
-        store(attempts, for: .unsuccessfulUnlockAttempts(userId: userId))
-    }
-
     func activeAccountIdPublisher() -> AnyPublisher<String?, Never> {
         activeAccountIdSubject.eraseToAnyPublisher()
     }
 
     func shouldTrustDevice(userId: String) -> Bool? {
         fetch(for: .shouldTrustDevice(userId: userId))
+    }
+}
+
+// MARK: AppIDSettingsStore
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }

@@ -1,9 +1,11 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -285,21 +287,6 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
     }
 
-    /// `singleSignOnCompleted(code:)` navigates to the update password screen if the user needs
-    /// to update their master password.
-    @MainActor
-    func test_singleSignOnCompleted_requireUpdatePasswordError() {
-        authService.loginWithSingleSignOnResult = .failure(AuthError.requireUpdatePassword)
-        subject.state.identifierText = "BestOrganization"
-
-        subject.singleSignOnCompleted(code: "CODE")
-
-        waitFor(!coordinator.routes.isEmpty)
-
-        XCTAssertEqual(coordinator.routes, [.updateMasterPassword])
-        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
-    }
-
     /// `singleSignOnCompleted(code:)` navigates to the show login decryption options screen if the
     /// user needs to choose their decryption option for login.
     @MainActor
@@ -355,7 +342,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
-        waitFor(!coordinator.routes.isEmpty)
+        waitFor(!coordinator.events.isEmpty)
 
         // Verify the results.
         XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
@@ -363,7 +350,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `singleSignOnCompleted(code:)` show confirm key connector dialog
@@ -452,7 +439,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
 
         // Receive the completed code.
         subject.singleSignOnCompleted(code: "super_cool_secret_code")
-        waitFor(!coordinator.routes.isEmpty)
+        waitFor(!coordinator.events.isEmpty)
 
         // Verify the results.
         XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
@@ -460,7 +447,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `singleSignOnErrored(error:)` handles the error correctly.

@@ -8,6 +8,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - AddItemProcessorTests
 
@@ -28,6 +29,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
     var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
+    var vaultItemActionHelper: MockVaultItemActionHelper!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -47,7 +49,9 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         policyService = MockPolicyService()
         stateService = MockStateService()
         totpService = MockTOTPService()
+        vaultItemActionHelper = MockVaultItemActionHelper()
         vaultRepository = MockVaultRepository()
+
         subject = AddEditItemProcessor(
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
@@ -74,6 +78,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
                 ],
                 hasPremium: true,
             ),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
     }
 
@@ -89,6 +94,7 @@ class AddEditItemProcessorFido2Tests: BitwardenTestCase {
         stateService = nil
         subject = nil
         totpService = nil
+        vaultItemActionHelper = nil
         vaultRepository = nil
     }
 

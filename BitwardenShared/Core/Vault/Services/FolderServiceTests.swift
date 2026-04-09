@@ -3,7 +3,9 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
+@MainActor
 class FolderServiceTests: XCTestCase {
     // MARK: Properties
 
@@ -30,8 +32,8 @@ class FolderServiceTests: XCTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         client = nil
         folderAPIService = nil

@@ -11,4 +11,8 @@ enum BitwardenDeepLinkConstants {
     /// Deep link that tells the BWPM app to fetch a shared item from the Authenticator app and
     /// then present the Vault selection screen to save that item.
     static let authenticatorNewItem = "bitwarden://authenticator/newItem"
+
+    /// Base URL of the deep link used by the SSO cookie vendor flow. The browser redirects to this
+    /// URL after acquiring cookies, passing each cookie as a URL query parameter.
+    static let ssoCookieVendor = "bitwarden://sso-cookie-vendor"
 }

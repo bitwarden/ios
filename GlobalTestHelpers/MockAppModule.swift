@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import UIKit
 
 @testable import BitwardenShared
@@ -13,7 +14,9 @@ class MockAppModule:
     ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
+    FlightRecorderModule,
     GeneratorModule,
+    GlobalModalModule,
     ImportCXFModule,
     ImportLoginsModule,
     LoginRequestModule,
@@ -21,6 +24,7 @@ class MockAppModule:
     PasswordAutoFillModule,
     PasswordHistoryModule,
     ProfileSwitcherModule,
+    SelectLanguageModule,
     SendModule,
     SendItemModule,
     SettingsModule,
@@ -37,7 +41,9 @@ class MockAppModule:
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
+    var flightRecorderCoordinator = MockCoordinator<FlightRecorderRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var globalModalCoordinator = MockCoordinator<GlobalModalRoute, Void>()
     var importCXFCoordinator = MockCoordinator<ImportCXFRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
@@ -47,6 +53,9 @@ class MockAppModule:
     var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
+    var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
+    // swiftlint:disable:next weak_navigator
+    var selectLanguageCoordinatorStackNavigator: StackNavigator?
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
@@ -76,7 +85,7 @@ class MockAppModule:
         authCoordinator.asAnyCoordinator()
     }
 
-    func makeAuthRouter() -> BitwardenShared.AnyRouter<BitwardenShared.AuthEvent, BitwardenShared.AuthRoute> {
+    func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
         authRouter.asAnyRouter()
     }
 
@@ -108,11 +117,21 @@ class MockAppModule:
         return fileSelectionCoordinator.asAnyCoordinator()
     }
 
+    func makeFlightRecorderCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<FlightRecorderRoute, Void> {
+        flightRecorderCoordinator.asAnyCoordinator()
+    }
+
     func makeGeneratorCoordinator(
         delegate _: GeneratorCoordinatorDelegate?,
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         generatorCoordinator.asAnyCoordinator()
+    }
+
+    func makeGlobalModalCoordinator(stackNavigator: StackNavigator) -> AnyCoordinator<GlobalModalRoute, Void> {
+        globalModalCoordinator.asAnyCoordinator()
     }
 
     func makeImportCXFCoordinator(
@@ -160,6 +179,13 @@ class MockAppModule:
         profileSwitcherCoordinator.asAnyCoordinator()
     }
 
+    func makeSelectLanguageCoordinator(
+        stackNavigator: any StackNavigator,
+    ) -> AnyCoordinator<SelectLanguageRoute, Void> {
+        selectLanguageCoordinatorStackNavigator = stackNavigator
+        return selectLanguageCoordinator.asAnyCoordinator()
+    }
+
     func makeSendCoordinator(
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<SendRoute, Void> {
@@ -183,19 +209,19 @@ class MockAppModule:
 
     func makeTabCoordinator( // swiftlint:disable:this function_parameter_count
         errorReporter _: ErrorReporter,
-        rootNavigator _: BitwardenShared.RootNavigator,
-        settingsDelegate _: BitwardenShared.SettingsCoordinatorDelegate,
-        tabNavigator _: BitwardenShared.TabNavigator,
-        vaultDelegate _: BitwardenShared.VaultCoordinatorDelegate,
-        vaultRepository _: BitwardenShared.VaultRepository,
-    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute, Void> {
+        rootNavigator _: RootNavigator,
+        settingsDelegate _: SettingsCoordinatorDelegate,
+        tabNavigator _: TabNavigator,
+        vaultDelegate _: VaultCoordinatorDelegate,
+        vaultRepository _: VaultRepository,
+    ) -> AnyCoordinator<TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
     }
 
     func makeVaultCoordinator(
-        delegate _: BitwardenShared.VaultCoordinatorDelegate,
-        stackNavigator _: BitwardenShared.StackNavigator,
-    ) -> BitwardenShared.AnyCoordinator<BitwardenShared.VaultRoute, AuthAction> {
+        delegate _: VaultCoordinatorDelegate,
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<VaultRoute, AuthAction> {
         vaultCoordinator.asAnyCoordinator()
     }
 

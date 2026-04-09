@@ -83,6 +83,7 @@ extension Cipher {
             deletedDate: deletedDate,
             revisionDate: revisionDate,
             archivedDate: archivedDate,
+            data: nil,
         )
     }
 }
@@ -139,6 +140,7 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
+            attachmentDecryptionFailures: nil,
             fields: fields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
@@ -194,6 +196,7 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
+            attachmentDecryptionFailures: nil,
             fields: fields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
@@ -249,6 +252,7 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
+            attachmentDecryptionFailures: nil,
             fields: fields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,

@@ -1,6 +1,8 @@
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - ProfileSwitcherProcessorTests
 

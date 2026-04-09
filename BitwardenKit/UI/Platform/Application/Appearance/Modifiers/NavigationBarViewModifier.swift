@@ -34,3 +34,25 @@ public struct NavigationBarViewModifier: ViewModifier {
             .navigationTitle(title)
     }
 }
+
+// MARK: View + NavigationBarViewModifier
+
+public extension View {
+    /// Applies a custom navigation bar title and title display mode to a view.
+    ///
+    /// - Parameters:
+    ///   - title: The navigation bar title.
+    ///   - titleDisplayMode: The navigation bar title display mode.
+    ///
+    /// - Returns: A view with a custom navigation bar.
+    ///
+    func navigationBar(
+        title: String,
+        titleDisplayMode: NavigationBarItem.TitleDisplayMode,
+    ) -> some View {
+        modifier(NavigationBarViewModifier(
+            title: title,
+            navigationBarTitleDisplayMode: titleDisplayMode,
+        ))
+    }
+}

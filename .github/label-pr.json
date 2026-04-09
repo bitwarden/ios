@@ -1,0 +1,84 @@
+{
+  "title_patterns": {
+    "t:feature": ["feat", "feature", "tool"],
+    "t:bug": ["fix", "bug", "bugfix"],
+    "t:tech-debt": ["refactor", "chore", "cleanup", "revert", "debt", "test", "perf"],
+    "t:docs": ["docs"],
+    "t:ci": ["ci", "build", "chore(ci)"],
+    "t:deps": ["deps"],
+    "t:breaking-change": ["breaking", "breaking-change"],
+    "t:misc": ["misc"],
+    "t:llm": ["llm"]
+  },
+  "path_patterns": {
+    "app:shared": [
+      "AuthenticatorBridgeKit/",
+      "BitwardenKit/",
+      "BitwardenResources/",
+      "Networking/",
+      "project-bwk.yml",
+      "project-common.yml",
+      "project-pm.yml",
+      "swiftgen-bwr.yml"
+    ],
+    "app:password-manager": [
+      "Bitwarden/",
+      "BitwardenActionExtension/",
+      "BitwardenAutoFillExtension/",
+      "BitwardenShareExtension/",
+      "BitwardenShared/",
+      "BitwardenWatchApp/",
+      "BitwardenWatchShared/",
+      "BitwardenWatchWidgetExtension/",
+      "TestHarness/",
+      "TestHarnessShared/",
+      "project-bwth.yml",
+      "swiftgen-bwth.yml",
+      "swiftgen-pm.yml"
+    ],
+    "app:authenticator": [
+      "Authenticator/",
+      "AuthenticatorShared/",
+      "project-bwa.yml",
+      "swiftgen-bwa.yml"
+    ],
+    "t:feature": [
+      "TestHarness/",
+      "TestHarnessShared/",
+      "project-bwth.yml",
+      "swiftgen-bwth.yml"
+    ],
+    "t:ci": [
+      ".checkmarx/",
+      ".github/",
+      "Configs/",
+      "Configs-bwa/",
+      "Scripts/",
+      "Scripts-bwa/",
+      "fastlane/",
+      "crowdin.yml"
+    ],
+    "t:docs": [
+      "Docs/"
+    ],
+    "t:deps": [
+      "Brewfile",
+      "Gemfile",
+      "Gemfile.lock",
+      "Mintfile",
+      "Bitwarden.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+    ],
+    "t:misc": [
+      "GlobalTestHelpers/",
+      "GlobalTestHelpers-bwa/",
+      "GlobalTestHelpers-bwth/",
+      "Sourcery/",
+      "TestHelpers/",
+      "TestPlans/",
+      "ViewInspectorTestHelpers/"
+    ],
+    "t:llm": [
+      ".claude/"
+    ]
+  }
+}

@@ -9,7 +9,21 @@ class MockCipherService: CipherService {
     var addCipherWithServerEncryptedFor: String?
     var addCipherWithServerResult: Result<Void, Error> = .success(())
 
+    var archiveCipherId: String?
+    var archiveCipher: Cipher?
+    var archiveCipherResult: Result<Void, Error> = .success(())
+
+    var bulkShareCiphersWithServerCiphers = [[Cipher]]()
+    var bulkShareCiphersWithServerCollectionIds: [String]?
+    var bulkShareCiphersWithServerEncryptedFor: String?
+    var bulkShareCiphersWithServerResult: Result<Void, Error> = .success(())
+
     var cipherCountResult: Result<Int, Error> = .success(0)
+
+    /// Optional `CipherChange` is used so that `nil` can serve as the required initial value,
+    /// which `compactMap(\.self)` in `cipherChangesPublisher()` filters out to avoid an initial
+    /// emission on subscription.
+    var cipherChangesSubject = CurrentValueSubject<CipherChange?, Never>(nil)
 
     var ciphersSubject = CurrentValueSubject<[Cipher], Error>([])
 
@@ -28,6 +42,9 @@ class MockCipherService: CipherService {
 
     var fetchAllCiphersCalled = false
     var fetchAllCiphersResult: Result<[Cipher], Error> = .success([])
+
+    var hasPersonalCiphersCalled = false
+    var hasPersonalCiphersResult: Result<Bool, Error> = .success(false)
 
     var deleteCipherId: String?
     var deleteCipherWithServerResult: Result<Void, Error> = .success(())
@@ -54,6 +71,10 @@ class MockCipherService: CipherService {
     var syncCipherWithServerId: String?
     var syncCipherWithServerResult: Result<Void, Error> = .success(())
 
+    var unarchiveCipherId: String?
+    var unarchiveCipher: Cipher?
+    var unarchiveCipherResult: Result<Void, Error> = .success(())
+
     var updateCipherWithLocalStorageCiphers = [BitwardenSdk.Cipher]()
     var updateCipherWithLocalStorageResult: Result<Void, Error> = .success(())
 
@@ -64,10 +85,31 @@ class MockCipherService: CipherService {
     var updateCipherCollectionsWithServerCiphers = [Cipher]()
     var updateCipherCollectionsWithServerResult: Result<Void, Error> = .success(())
 
+    var unarchivedCipherId: String?
+    var unarchivedCipher: Cipher?
+    var unarchiveWithServerResult: Result<Void, Error> = .success(())
+
     func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         addCipherWithServerCiphers.append(cipher)
         addCipherWithServerEncryptedFor = encryptedFor
         try addCipherWithServerResult.get()
+    }
+
+    func archiveCipherWithServer(id: String, _ cipher: Cipher) async throws {
+        archiveCipherId = id
+        archiveCipher = cipher
+        try archiveCipherResult.get()
+    }
+
+    func bulkShareCiphersWithServer(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String,
+    ) async throws {
+        bulkShareCiphersWithServerCiphers.append(ciphers)
+        bulkShareCiphersWithServerCollectionIds = collectionIds
+        bulkShareCiphersWithServerEncryptedFor = encryptedFor
+        try bulkShareCiphersWithServerResult.get()
     }
 
     func cipherCount() async throws -> Int {
@@ -97,6 +139,11 @@ class MockCipherService: CipherService {
     func fetchAllCiphers() async throws -> [Cipher] {
         fetchAllCiphersCalled = true
         return try fetchAllCiphersResult.get()
+    }
+
+    func hasPersonalCiphers() async throws -> Bool {
+        hasPersonalCiphersCalled = true
+        return try hasPersonalCiphersResult.get()
     }
 
     func fetchCipher(withId id: String) async throws -> Cipher? {
@@ -143,6 +190,12 @@ class MockCipherService: CipherService {
         return try syncCipherWithServerResult.get()
     }
 
+    func unarchiveCipherWithServer(id: String, _ cipher: Cipher) async throws {
+        unarchiveCipherId = id
+        unarchiveCipher = cipher
+        try unarchiveCipherResult.get()
+    }
+
     func updateCipherWithLocalStorage(_ cipher: Cipher) async throws {
         updateCipherWithLocalStorageCiphers.append(cipher)
         return try updateCipherWithLocalStorageResult.get()
@@ -157,6 +210,10 @@ class MockCipherService: CipherService {
     func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {
         updateCipherCollectionsWithServerCiphers.append(cipher)
         try updateCipherCollectionsWithServerResult.get()
+    }
+
+    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Never> {
+        cipherChangesSubject.compactMap(\.self).eraseToAnyPublisher()
     }
 
     func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {

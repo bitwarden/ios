@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 import UIKit
@@ -13,6 +14,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     typealias Module = AuthModule
         & DebugMenuModule
         & ItemListModule
+        & NavigatorBuilderModule
         & TabModule
         & TutorialModule
 
@@ -23,6 +25,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
+
+    /// Whether the debug menu is currently being shown.
+    private(set) var isShowingDebugMenu = false
 
     // MARK: Properties
 
@@ -82,9 +87,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
         case .debugMenu:
-            #if DEBUG_MENU
             showDebugMenu()
-            #endif
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         }
@@ -106,7 +109,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: authRoute)
         } else {
             guard let rootNavigator else { return }
-            let navigationController = UINavigationController()
+            let navigationController = module.makeNavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
@@ -129,9 +132,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
         } else {
             guard let rootNavigator else { return }
-            let tabNavigator = UITabBarController()
+            let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
+                itemListDelegate: self,
                 rootNavigator: rootNavigator,
                 tabNavigator: tabNavigator,
             )
@@ -147,7 +151,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Shows the welcome tutorial.
     ///
     private func showTutorial() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeTutorialCoordinator(
             stackNavigator: navigationController,
         )
@@ -157,7 +161,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         rootNavigator?.rootViewController?.present(navigationController, animated: false)
     }
 
-    #if DEBUG_MENU
     /// Configures and presents the debug menu.
     ///
     /// Initializes feedback generator for haptic feedback. Sets up a `UINavigationController`
@@ -165,22 +168,23 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Presents the navigation controller and triggers haptic feedback upon completion.
     ///
     private func showDebugMenu() {
+        guard !isShowingDebugMenu else { return }
+
         let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
         feedbackGenerator.prepare()
         let stackNavigator = UINavigationController()
         stackNavigator.navigationBar.prefersLargeTitles = true
         stackNavigator.modalPresentationStyle = .fullScreen
-        let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
+        let debugMenuCoordinator = module.makeDebugMenuCoordinator(delegate: self, stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
-        childCoordinator = debugMenuCoordinator
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
             animated: true,
             completion: { feedbackGenerator.impactOccurred() },
         )
+        isShowingDebugMenu = true
     }
-    #endif
 }
 
 // MARK: - AuthCoordinatorDelegate
@@ -188,5 +192,27 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 extension AppCoordinator: AuthCoordinatorDelegate {
     func didCompleteAuth() {
         showTab(route: .itemList(.list))
+    }
+}
+
+// MARK: - DebugMenuCoordinatorDelegate
+
+extension AppCoordinator: DebugMenuCoordinatorDelegate {
+    func didDismissDebugMenu() {
+        isShowingDebugMenu = false
+    }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AppCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - ItemListCoordinatorDelegate
+
+extension AppCoordinator: ItemListCoordinatorDelegate {
+    func switchToSettingsTab(route: SettingsRoute) {
+        showTab(route: .settings(route))
     }
 }

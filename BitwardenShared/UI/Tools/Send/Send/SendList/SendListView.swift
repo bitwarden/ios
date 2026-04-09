@@ -132,7 +132,7 @@ private struct MainSendListView: View {
     /// interface, and a message indicating that no results were found.
     @ViewBuilder private var search: some View {
         if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
-            LazyVStack(spacing: 0) {
+            VStack(spacing: 0) {
                 if !store.state.searchResults.isEmpty {
                     sendItemSectionView(
                         sectionName: nil,
@@ -149,7 +149,7 @@ private struct MainSendListView: View {
     /// The list for this view, displayed when there is content to display.
     @ViewBuilder
     private func list(sections: [SendListSection]) -> some View {
-        LazyVStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16) {
             if store.state.isSendDisabled {
                 InfoContainer(Localizations.sendDisabledWarning)
             }
@@ -266,7 +266,7 @@ struct SendListView: View {
             )
             .task { await store.perform(.loadData) }
             .task { await store.perform(.streamSendList) }
-            .task(id: store.state.searchText) {
+            .searchDebouncedTask(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
             .onChange(of: store.state.infoUrl) { newValue in

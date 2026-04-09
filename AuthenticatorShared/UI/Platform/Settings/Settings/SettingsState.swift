@@ -22,6 +22,9 @@ struct SettingsState: Equatable {
     /// The current default save option.
     var defaultSaveOption: DefaultSaveOption = .none
 
+    /// The state for the Flight Recorder feature.
+    var flightRecorderState = FlightRecorderSettingsSectionState()
+
     /// The current default save option.
     var sessionTimeoutValue: SessionTimeoutValue = .never
 

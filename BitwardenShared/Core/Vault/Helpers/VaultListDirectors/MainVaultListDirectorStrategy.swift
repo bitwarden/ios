@@ -51,7 +51,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     ) async throws -> VaultListData {
         guard !ciphers.isEmpty else { return VaultListData() }
 
-        guard let preparedData = try await vaultListDataPreparator.prepareData(
+        guard let preparedData = await vaultListDataPreparator.prepareData(
             from: ciphers,
             collections: collections,
             folders: folders,
@@ -62,7 +62,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
 
         var builder = builderFactory.make(withData: preparedData)
 
-        if filter.addTOTPGroup {
+        if filter.options.contains(.addTOTPGroup) {
             builder = builder.addTOTPSection()
         }
 
@@ -73,8 +73,8 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             .addCollectionsSection()
             .addCipherDecryptionFailureIds()
 
-        if filter.addTrashGroup {
-            builder = builder.addTrashSection()
+        if filter.options.contains(.addHiddenItemsGroup) {
+            builder = await builder.addHiddenItemsSection()
         }
 
         return builder.build()

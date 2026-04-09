@@ -12,6 +12,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var appTheme: String?
     var disableWebIcons = false
     var defaultSaveOption: DefaultSaveOption = .none
+    var flightRecorderData: FlightRecorderData?
     var hasSeenDefaultSaveOptionPrompt = false
     var hasSeenWelcomeTutorial = false
     var lastUserShouldConnectToWatch = false
@@ -24,7 +25,6 @@ class MockAppSettingsStore: AppSettingsStore {
 
     var approveLoginRequestsByUserId = [String: Bool]()
     var biometricAuthenticationEnabled = [String: Bool?]()
-    var biometricIntegrityStates = [String: String?]()
     var cardClosedStateValues = [ItemListCard: Bool]()
     var clearClipboardValues = [String: ClearClipboardValue]()
     var connectToWatchByUserId = [String: Bool]()
@@ -120,23 +120,11 @@ extension MockAppSettingsStore {
         (biometricAuthenticationEnabled[userId] ?? false) ?? false
     }
 
-    func biometricIntegrityState(userId: String) -> String? {
-        biometricIntegrityStates[userId] ?? nil
-    }
-
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
         guard isEnabled != nil else {
             biometricAuthenticationEnabled.removeValue(forKey: userId)
             return
         }
         biometricAuthenticationEnabled[userId] = isEnabled
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        guard let base64EncodedIntegrityState else {
-            biometricIntegrityStates.removeValue(forKey: userId)
-            return
-        }
-        biometricIntegrityStates[userId] = base64EncodedIntegrityState
     }
 }

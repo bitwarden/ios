@@ -14,6 +14,9 @@ public protocol EnvironmentService {
     /// The URL for changing email address.
     var changeEmailURL: URL { get }
 
+    /// The SHA-256 fingerprint of the client certificate used for mTLS, if configured.
+    var clientCertificateFingerprint: String? { get }
+
     /// The URL for the events API.
     var eventsURL: URL { get }
 
@@ -25,6 +28,9 @@ public protocol EnvironmentService {
 
     /// The URL for importing items.
     var importItemsURL: URL { get }
+
+    /// The URL for a proxy on cookie redirect (used on SSO sync error).
+    var proxyCookieRedirectConnectorURL: URL { get }
 
     /// The URL for the recovery code help page.
     var recoveryCodeURL: URL { get }
@@ -40,6 +46,9 @@ public protocol EnvironmentService {
 
     /// The URL for setting up two-factor login.
     var setUpTwoFactorURL: URL { get }
+
+    /// The URL for upgrading to premium.
+    var upgradeToPremiumURL: URL { get }
 
     /// The URL for the web vault.
     var webVaultURL: URL { get }

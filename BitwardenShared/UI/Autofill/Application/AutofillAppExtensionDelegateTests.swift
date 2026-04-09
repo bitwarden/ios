@@ -2,6 +2,7 @@ import AuthenticationServices
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 @available(iOS 17.0, *)
 class AutofillAppExtensionDelegateTests: BitwardenTestCase {
@@ -69,7 +70,8 @@ class AutofillAppExtensionDelegateTests: BitwardenTestCase {
         XCTAssertEqual(subject.rpID, expectedRpID)
 
         subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
-            credentialIdentity: .fixture(relyingPartyIdentifier: expectedRpID)))
+            credentialIdentity: .fixture(relyingPartyIdentifier: expectedRpID),
+        ))
         XCTAssertEqual(subject.rpID, expectedRpID)
 
         subject.extensionMode = .autofillVaultList([])

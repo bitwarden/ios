@@ -11,6 +11,9 @@ public enum ItemListRoute: Equatable, Hashable {
     /// A route to the edit item screen
     case editItem(item: AuthenticatorItemView)
 
+    /// A route to the flight recorder settings in the settings tab.
+    case flightRecorderSettings
+
     /// A route to the base item list screen.
     case list
 

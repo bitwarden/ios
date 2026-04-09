@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import Foundation
@@ -10,7 +11,7 @@ import Foundation
 class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     // MARK: Types
 
-    typealias Services = HasAppIdService
+    typealias Services = HasAppIDService
         & HasAuthRepository
         & HasAuthService
         & HasConfigService
@@ -148,14 +149,14 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         }
 
         do {
-            let deviceIdentifier = await services.appIdService.getOrCreateAppId()
+            let deviceIdentifier = await services.appIDService.getOrCreateAppID()
             let isKnownDevice = try await services.deviceAPIService.knownDevice(
                 email: state.username,
                 deviceIdentifier: deviceIdentifier,
             )
             state.isLoginWithDeviceVisible = isKnownDevice
         } catch {
-            await handleErrorResponse(error)
+            services.errorReporter.log(error: error)
         }
     }
 

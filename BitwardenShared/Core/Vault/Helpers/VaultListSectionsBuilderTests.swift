@@ -1,8 +1,10 @@
 import BitwardenKitMocks
+import BitwardenResources
 import InlineSnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListSectionsBuilderTests
 
@@ -10,7 +12,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     // MARK: Properties
 
     var clientService: MockClientService!
+    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: DefaultVaultListSectionsBuilder!
 
     // MARK: Setup & Teardown
@@ -19,20 +23,133 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         super.setUp()
 
         clientService = MockClientService()
+        configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        stateService = MockStateService()
     }
 
     override func tearDown() {
         super.tearDown()
 
         clientService = nil
+        configService = nil
         errorReporter = nil
+        stateService = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `addAutofillCombinedSingleSection()` adds a vault section combinining passwords and Fido2 items.
+    /// `addAutofillCombinedMultipleSection()` adds separate sections for passwords and Fido2 items with rpID.
+    func test_addAutofillCombinedMultipleSection() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fido2-1"), fido2CredentialAutofillView: .fixture()),
+                .fixture(cipherListView: .fixture(id: "6", name: "zFido2-2"), fido2CredentialAutofillView: .fixture()),
+            ],
+            groupItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Password-3")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Password-1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Password-2")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passkeys for example.com]: Passkeys for example.com
+              - Cipher: Fido2-1
+              - Cipher: zFido2-2
+            Section[Passwords for example.com]: Passwords for example.com
+              - Cipher: Password-1
+              - Cipher: Password-2
+              - Cipher: Password-3
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` adds only passwords section when no rpID provided.
+    func test_addAutofillCombinedMultipleSection_noRpID() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fido2-1"), fido2CredentialAutofillView: .fixture()),
+            ],
+            groupItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Password-1")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Password-2")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: nil).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passwords]: Passwords
+              - Cipher: Password-1
+              - Cipher: Password-2
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` adds only passwords section when Fido2 items exist but no rpID.
+    func test_addAutofillCombinedMultipleSection_onlyPasswords() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [],
+            groupItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Password-3")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Password-1")),
+            ],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passwords for example.com]: Passwords for example.com
+              - Cipher: Password-1
+              - Cipher: Password-3
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` adds only Fido2 section when no passwords but rpID provided.
+    func test_addAutofillCombinedMultipleSection_onlyFido2() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Fido2-2"), fido2CredentialAutofillView: .fixture()),
+                .fixture(cipherListView: .fixture(id: "2", name: "Fido2-1"), fido2CredentialAutofillView: .fixture()),
+            ],
+            groupItems: [],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[Passkeys for example.com]: Passkeys for example.com
+              - Cipher: Fido2-1
+              - Cipher: Fido2-2
+            """
+        }
+    }
+
+    /// `addAutofillCombinedMultipleSection()` doesn't add any sections when no items available.
+    func test_addAutofillCombinedMultipleSection_empty() {
+        setUpSubject(withData: VaultListPreparedData(
+            fido2Items: [],
+            groupItems: [],
+        ))
+
+        let vaultListData = subject.addAutofillCombinedMultipleSection(rpID: "example.com").build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            """
+        }
+    }
+
+    /// `addAutofillCombinedSingleSection()` adds a vault section combining passwords and Fido2 items.
     func test_addAutofillCombinedSingleSection() {
         setUpSubject(withData: VaultListPreparedData(
             fido2Items: [
@@ -75,7 +192,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addAutofillPasswordsSection()` adds a vault section combinining exact and fuzzy match items.
+    /// `addAutofillPasswordsSection()` adds a vault section combining exact and fuzzy match items.
     func test_addAutofillPasswordsSection() {
         setUpSubject(withData: VaultListPreparedData(
             exactMatchItems: [
@@ -251,6 +368,109 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
+    /// `addHiddenItemsSection()` adds the hidden items section to the list of sections with the count
+    /// of deleted ciphers when the archive feature flag is off.
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagDisabled() async {
+        configService.featureFlagsBool[.archiveVaultItems] = false
+        setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Trash]: Trash (10)
+            """
+        }
+    }
+
+    /// `addHiddenItemsSection()` adds the hidden items section with archive when the feature flag is on
+    /// and the user has premium.
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_hasPremium() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        stateService.doesActiveAccountHavePremiumResult = true
+        setUpSubject(withData: VaultListPreparedData(
+            ciphersArchivedCount: 5,
+            ciphersDeletedCount: 10,
+        ))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Archive]: Archive (5)
+              - Group[Trash]: Trash (10)
+            """
+        }
+
+        // Verify hasPremium is correctly set on the Archive item
+        let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
+        XCTAssertEqual(archiveItem?.hasPremium, true)
+    }
+
+    /// `addHiddenItemsSection()` adds archive when the feature flag is on even if the user
+    /// does not have premium and there are no archived items, showing premium required UI.
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_noArchivedItems() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        stateService.doesActiveAccountHavePremiumResult = false
+        setUpSubject(withData: VaultListPreparedData(
+            ciphersArchivedCount: 0,
+            ciphersDeletedCount: 10,
+        ))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Archive]: Archive (0)
+              - Group[Trash]: Trash (10)
+            """
+        }
+
+        // Verify hasPremium is correctly set on the Archive item
+        let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
+        XCTAssertEqual(archiveItem?.hasPremium, false)
+
+        // Verify that premium subscription is required (should show locked icon and subtitle)
+        XCTAssertEqual(archiveItem?.subtitle, Localizations.premiumSubscriptionRequired)
+        XCTAssertEqual(archiveItem?.accessoryIcon?.name, SharedAsset.Icons.locked24.name)
+    }
+
+    /// `addHiddenItemsSection()` adds archive when the feature flag is on and the user
+    /// does not have premium but there are archived items.
+    @MainActor
+    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_hasArchivedItems() async {
+        configService.featureFlagsBool[.archiveVaultItems] = true
+        stateService.doesActiveAccountHavePremiumResult = false
+        setUpSubject(withData: VaultListPreparedData(
+            ciphersArchivedCount: 3,
+            ciphersDeletedCount: 10,
+        ))
+
+        let vaultListData = await subject.addHiddenItemsSection().build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[HiddenItems]: Hidden items
+              - Group[Archive]: Archive (3)
+              - Group[Trash]: Trash (10)
+            """
+        }
+
+        // Verify hasPremium is correctly set on the Archive item
+        let archiveItem = vaultListData.sections.first?.items.first { $0.id == "Archive" }
+        XCTAssertEqual(archiveItem?.hasPremium, false)
+
+        // Verify that premium subscription is NOT required since there are archived items
+        XCTAssertNil(archiveItem?.subtitle)
+        XCTAssertNil(archiveItem?.accessoryIcon)
+    }
+
     /// `addTOTPSection()` adds the TOTP section with an item when there are TOTP items.
     func test_addTOTPSection() {
         setUpSubject(
@@ -281,20 +501,6 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            """
-        }
-    }
-
-    /// `addTrashSection()` adds the trash section to the list of sections with the count of deleted ciphers.
-    func test_addTrashSection() {
-        setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
-
-        let vaultListData = subject.addTrashSection().build()
-
-        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
-            """
-            Section[Trash]: Trash
-              - Group[Trash]: Trash (10)
             """
         }
     }
@@ -383,6 +589,196 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
+    // MARK: addSearchResultsSection Tests
+
+    /// `addSearchResultsSection(options:)` adds a search results section with exact and fuzzy match items combined.
+    func test_addSearchResultsSection_exactAndFuzzyMatches() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Exact-2")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Exact-1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Exact-3")),
+            ],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy-2")),
+                .fixture(cipherListView: .fixture(id: "6", name: "Fuzzy-1")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Exact-1
+              - Cipher: Exact-2
+              - Cipher: Exact-3
+              - Cipher: Fuzzy-1
+              - Cipher: Fuzzy-2
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` adds a search results section with only exact match items
+    /// when no fuzzy items.
+    func test_addSearchResultsSection_onlyExactMatches() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Item-C")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Item-A")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Item-B")),
+            ],
+            fuzzyMatchItems: [],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Item-A
+              - Cipher: Item-B
+              - Cipher: Item-C
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` adds a search results section with only fuzzy match items
+    /// when no exact items.
+    func test_addSearchResultsSection_onlyFuzzyMatches() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Fuzzy-3")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Fuzzy-1")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy-2")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Fuzzy-1
+              - Cipher: Fuzzy-2
+              - Cipher: Fuzzy-3
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` doesn't add a section when there are no exact or fuzzy match items.
+    func test_addSearchResultsSection_empty() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` sorts exact and fuzzy match items together alphabetically by name.
+    func test_addSearchResultsSection_sortingOrder() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Zebra")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Apple")),
+                .fixture(cipherListView: .fixture(id: "3", name: "Banana")),
+            ],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "4", name: "Xylophone")),
+                .fixture(cipherListView: .fixture(id: "5", name: "Cherry")),
+                .fixture(cipherListView: .fixture(id: "6", name: "Mango")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: Apple
+              - Cipher: Banana
+              - Cipher: Cherry
+              - Cipher: Mango
+              - Cipher: Xylophone
+              - Cipher: Zebra
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` correctly handles single exact match item.
+    func test_addSearchResultsSection_singleExactMatch() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "SingleItem")),
+            ],
+            fuzzyMatchItems: [],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: SingleItem
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` correctly handles single fuzzy match item.
+    func test_addSearchResultsSection_singleFuzzyMatch() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "FuzzyItem")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: []).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[SearchResults]: 
+              - Cipher: FuzzyItem
+            """
+        }
+    }
+
+    /// `addSearchResultsSection(options:)` adds a search results section with exact and fuzzy match items combined
+    /// in picker mode.
+    func test_addSearchResultsSection_exactAndFuzzyMatchesPickerMode() {
+        setUpSubject(withData: VaultListPreparedData(
+            exactMatchItems: [
+                .fixture(cipherListView: .fixture(id: "1", name: "Exact-2")),
+                .fixture(cipherListView: .fixture(id: "2", name: "Exact-1")),
+                .fixture(cipherListView: .fixture(id: "4", name: "Exact-3")),
+            ],
+            fuzzyMatchItems: [
+                .fixture(cipherListView: .fixture(id: "3", name: "Fuzzy-2")),
+                .fixture(cipherListView: .fixture(id: "6", name: "Fuzzy-1")),
+            ],
+        ))
+
+        let vaultListData = subject.addSearchResultsSection(options: [.isInPickerMode]).build()
+
+        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
+            """
+            Section[\(Localizations.matchingItems)]: \(Localizations.matchingItems)
+              - Cipher: Exact-1
+              - Cipher: Exact-2
+              - Cipher: Exact-3
+              - Cipher: Fuzzy-1
+              - Cipher: Fuzzy-2
+            """
+        }
+    }
+
     /// `build()` returns the built sections.
     /// Using this test also to verify that sections get appended and to verify fluent code usage of the builder.
     func test_build() async throws { // swiftlint:disable:this function_body_length
@@ -407,7 +803,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         )
 
         let vaultListData = try await subject
-            .addTrashSection()
+            .addHiddenItemsSection()
             .addCollectionsSection()
             .addFavoritesSection()
             .addFoldersSection()
@@ -418,7 +814,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
 
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
-            Section[Trash]: Trash
+            Section[HiddenItems]: Hidden items
               - Group[Trash]: Trash (10)
             Section[Collections]: Collections
               - Group[1]: Collection 1 (5)
@@ -450,7 +846,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
+            configService: configService,
             errorReporter: errorReporter,
+            stateService: stateService,
             withData: withData,
         )
     }

@@ -18,6 +18,7 @@ class AddItemStateTests: XCTestCase {
             """
             ▿ CipherView
               - archivedDate: Optional<Date>.none
+              - attachmentDecryptionFailures: Optional<Array<AttachmentView>>.none
               - attachments: Optional<Array<AttachmentView>>.none
               - card: Optional<CardView>.none
               - collectionIds: 0 elements
@@ -72,6 +73,7 @@ class AddItemStateTests: XCTestCase {
             """
             ▿ CipherView
               - archivedDate: Optional<Date>.none
+              - attachmentDecryptionFailures: Optional<Array<AttachmentView>>.none
               - attachments: Optional<Array<AttachmentView>>.none
               - card: Optional<CardView>.none
               - collectionIds: 0 elements

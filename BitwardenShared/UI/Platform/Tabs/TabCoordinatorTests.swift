@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import SwiftUI
@@ -5,6 +6,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - TabCoordinatorTests
 

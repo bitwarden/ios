@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AppExtensionProcessorDelegate
 
 /// A delegate of the app extension setup flow that is notified when the user enables the extension.

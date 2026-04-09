@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import CryptoKit
 import Foundation
@@ -35,26 +36,26 @@ protocol TrustDeviceService {
 
     /// Get value to decide if the device should be trusted.
     ///
-    /// - Returns: Boolean value refering to if device should be trusted.
+    /// - Returns: Boolean value referring to if device should be trusted.
     ///
     func getShouldTrustDevice() async throws -> Bool
 
-    /// Set value refering to if device should be trusted.
+    /// Set value referring to if device should be trusted.
     ///
-    /// - Parameter value: Boolean value refering to if device should be trusted.
+    /// - Parameter value: Boolean value referring to if device should be trusted.
     ///
     func setShouldTrustDevice(_ value: Bool) async throws
 
     /// Is the current device trusted.
     ///
-    /// - Returns: Boolean value refering to if device is trusted.
+    /// - Returns: Boolean value referring to if device is trusted.
     ///
     func isDeviceTrusted() async throws -> Bool
 }
 
 class DefaultTrustDeviceService: TrustDeviceService {
     /// The service used by the application to manage the app's ID.
-    private let appIdService: AppIdService
+    private let appIDService: AppIDService
 
     /// The API service used to make calls related to the auth process.
     private let authAPIService: AuthAPIService
@@ -73,20 +74,20 @@ class DefaultTrustDeviceService: TrustDeviceService {
     /// Creates a new `DefaultTrustDeviceService`.
     ///
     /// - Parameters:
-    ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - authAPIService: The API service used to make calls related to the auth process.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - stateService: The object used by the application to retrieve information about this device.
     ///
     init(
-        appIdService: AppIdService,
+        appIDService: AppIDService,
         authAPIService: AuthAPIService,
         clientService: ClientService,
         keychainRepository: KeychainRepository,
         stateService: StateService,
     ) {
-        self.appIdService = appIdService
+        self.appIDService = appIDService
         self.authAPIService = authAPIService
         self.clientService = clientService
         self.keychainRepository = keychainRepository
@@ -96,8 +97,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
     func getDeviceKey() async throws -> String? {
         let activeUserId = try await stateService.getActiveAccountId()
         do {
-            return try await keychainRepository.getDeviceKey(
-                userId: activeUserId)
+            return try await keychainRepository.getDeviceKey(userId: activeUserId)
         } catch {
             return nil
         }
@@ -147,7 +147,7 @@ class DefaultTrustDeviceService: TrustDeviceService {
     /// - Returns: A object containing all keys from the process of trusting a device
     ///
     private func setDeviceAsTrusted(_ trustDeviceDetails: TrustDeviceResponse) async throws -> TrustDeviceResponse {
-        let appId = await appIdService.getOrCreateAppId()
+        let appId = await appIDService.getOrCreateAppID()
         let trustedDeviceKeysRequestModel = TrustedDeviceKeysRequestModel(
             encryptedPrivateKey: trustDeviceDetails.protectedDevicePrivateKey,
             encryptedPublicKey: trustDeviceDetails.protectedDevicePublicKey,

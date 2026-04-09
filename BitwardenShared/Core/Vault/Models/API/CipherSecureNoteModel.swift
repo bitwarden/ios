@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// API model for a cipher secure note.
 ///
 struct CipherSecureNoteModel: Codable, Equatable {

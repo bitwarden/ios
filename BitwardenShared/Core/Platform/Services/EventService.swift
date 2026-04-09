@@ -14,7 +14,8 @@ protocol EventService {
     /// - Parameters:
     ///   - eventType: The event to track.
     ///   - cipherId: The ID of the relevant cipher for some events.
-    func collect(eventType: EventType, cipherId: String?) async
+    ///   - organizationId: The ID of the organization related to the event.
+    func collect(eventType: EventType, cipherId: String?, organizationId: String?) async
 
     /// Uploads events saved to disk. This does not propagate errors that might be
     /// thrown and instead just logs the error.
@@ -25,8 +26,9 @@ extension EventService {
     func collect(
         eventType: EventType,
         cipherId: String? = nil,
+        organizationId: String? = nil,
     ) async {
-        await collect(eventType: eventType, cipherId: cipherId)
+        await collect(eventType: eventType, cipherId: cipherId, organizationId: organizationId)
     }
 }
 
@@ -85,7 +87,7 @@ class DefaultEventService: EventService {
 
     // MARK: Methods
 
-    func collect(eventType: EventType, cipherId: String?) async {
+    func collect(eventType: EventType, cipherId: String?, organizationId: String?) async {
         do {
             guard let userId = try? await stateService.getActiveAccountId() else { return }
 
@@ -95,10 +97,20 @@ class DefaultEventService: EventService {
                 return
             }
 
+            let organizationIds = organizations.map(\.id)
+
+            if let organizationId, !organizationIds.contains(organizationId) {
+                return
+            }
+
             if let cipherId {
                 guard let cipher = try await cipherService.fetchCipher(withId: cipherId),
-                      let orgId = cipher.organizationId,
-                      organizations.map(\.id).contains(orgId) else {
+                      let cipherOrgId = cipher.organizationId,
+                      organizationIds.contains(cipherOrgId) else {
+                    return
+                }
+
+                if let organizationId, cipherOrgId != organizationId {
                     return
                 }
             }
@@ -108,6 +120,7 @@ class DefaultEventService: EventService {
             let newEvent = EventData(
                 type: eventType,
                 cipherId: cipherId,
+                organizationId: organizationId,
                 date: timeProvider.presentTime,
             )
 

@@ -198,6 +198,7 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
+            attachmentDecryptionFailures: attachmentDecryptionFailures,
             fields: newFields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
@@ -248,6 +249,22 @@ extension CipherView {
 }
 
 extension CipherView {
+    /// Returns a copy of the existing cipher with an updated archived date.
+    ///
+    /// - Parameter archivedDate: The archived date of the cipher.
+    /// - Returns: A copy of the existing cipher, with the specified properties updated.
+    ///
+    func update(archivedDate: Date?) -> CipherView {
+        update(
+            archivedDate: archivedDate,
+            collectionIds: collectionIds,
+            deletedDate: deletedDate,
+            folderId: folderId,
+            login: login,
+            organizationId: organizationId,
+        )
+    }
+
     /// Returns a copy of the existing cipher with an updated list of collection IDs.
     ///
     /// - Parameter collectionIds: The identifiers of any collections containing the cipher.
@@ -255,6 +272,7 @@ extension CipherView {
     ///
     func update(collectionIds: [String]) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -270,6 +288,7 @@ extension CipherView {
     ///
     func update(deletedDate: Date?) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -285,6 +304,7 @@ extension CipherView {
     ///
     func update(folderId: String?) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -300,6 +320,7 @@ extension CipherView {
     ///
     func update(login: BitwardenSdk.LoginView) -> CipherView {
         update(
+            archivedDate: archivedDate,
             collectionIds: collectionIds,
             deletedDate: deletedDate,
             folderId: folderId,
@@ -313,6 +334,7 @@ extension CipherView {
     /// Returns a copy of the existing cipher, updating any of the specified properties.
     ///
     /// - Parameters:
+    ///   - archivedDate: The archived date of the cipher.
     ///   - collectionIds: The identifiers of any collections containing the cipher.
     ///   - deletedDate: The deleted date of the cipher.
     ///   - folderId: The identifier of the cipher's folder
@@ -320,7 +342,8 @@ extension CipherView {
     ///   - organizationId: The identifier of the cipher's organization.
     /// - Returns: A copy of the existing cipher, with the specified properties updated.
     ///
-    private func update(
+    private func update( // swiftlint:disable:this function_parameter_count
+        archivedDate: Date?,
         collectionIds: [String],
         deletedDate: Date?,
         folderId: String?,
@@ -349,6 +372,7 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
+            attachmentDecryptionFailures: attachmentDecryptionFailures,
             fields: fields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
@@ -376,4 +400,4 @@ extension BitwardenSdk.LoginView {
             fido2Credentials: fido2Credentials,
         )
     }
-}
+} // swiftlint:disable:this file_length

@@ -26,6 +26,9 @@ public struct EnvironmentURLs: Equatable {
     /// The URL for importing items.
     public let importItemsURL: URL
 
+    /// The URL for a proxy on cookie redirect (used on SSO sync error).
+    public let proxyCookieRedirectConnectorURL: URL
+
     /// The URL for the recovery code help page.
     public let recoveryCodeURL: URL
 
@@ -37,6 +40,9 @@ public struct EnvironmentURLs: Equatable {
 
     /// The URL for setting up two-factor login.
     public let setUpTwoFactorURL: URL
+
+    /// The URL for upgrading to premium.
+    public let upgradeToPremiumURL: URL
 
     /// The URL for the web vault.
     public let webVaultURL: URL
@@ -51,10 +57,12 @@ public struct EnvironmentURLs: Equatable {
     ///   - iconsURL: The URL for the icons API.
     ///   - identityURL: The URL for the identity API.
     ///   - importItemsURL: The URL for importing items.
+    ///   - proxyCookieRedirectConnectorURL: The URL for a proxy on cookie redirect (used on SSO sync error).
     ///   - recoveryCodeURL: The URL for the recovery code help page.
     ///   - sendShareURL: The URL for sharing a send.
     ///   - settingsURL: The URL for vault settings.
     ///   - setUpTwoFactorURL: The URL for setting up two-factor login.
+    ///   - upgradeToPremiumURL: The URL for upgrading to premium.
     ///   - webVaultURL: The URL for the web vault.
     public init(
         apiURL: URL,
@@ -64,10 +72,12 @@ public struct EnvironmentURLs: Equatable {
         iconsURL: URL,
         identityURL: URL,
         importItemsURL: URL,
+        proxyCookieRedirectConnectorURL: URL,
         recoveryCodeURL: URL,
         sendShareURL: URL,
         settingsURL: URL,
         setUpTwoFactorURL: URL,
+        upgradeToPremiumURL: URL,
         webVaultURL: URL,
     ) {
         self.apiURL = apiURL
@@ -77,10 +87,12 @@ public struct EnvironmentURLs: Equatable {
         self.iconsURL = iconsURL
         self.identityURL = identityURL
         self.importItemsURL = importItemsURL
+        self.proxyCookieRedirectConnectorURL = proxyCookieRedirectConnectorURL
         self.recoveryCodeURL = recoveryCodeURL
         self.sendShareURL = sendShareURL
         self.settingsURL = settingsURL
         self.setUpTwoFactorURL = setUpTwoFactorURL
+        self.upgradeToPremiumURL = upgradeToPremiumURL
         self.webVaultURL = webVaultURL
     }
 }
@@ -120,6 +132,8 @@ public extension EnvironmentURLs {
         sendShareURL = environmentURLData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentURLData.settingsURL ?? webVaultURL
         changeEmailURL = environmentURLData.changeEmailURL ?? settingsURL
+        proxyCookieRedirectConnectorURL = environmentURLData.proxyCookieRedirectConnectorURL ?? webVaultURL
         setUpTwoFactorURL = environmentURLData.setUpTwoFactorURL ?? settingsURL
+        upgradeToPremiumURL = environmentURLData.upgradeToPremiumURL ?? settingsURL
     }
 }

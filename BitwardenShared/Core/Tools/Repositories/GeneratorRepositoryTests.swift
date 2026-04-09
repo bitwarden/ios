@@ -3,6 +3,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -151,6 +152,16 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generateMasterPassword() async throws {
         let masterPassword = try await subject.generateMasterPassword()
         XCTAssertEqual(masterPassword, "PASSPHRASE")
+        XCTAssertTrue(clientService.mockGeneratorsIsPreAuth)
+        XCTAssertEqual(
+            clientService.mockGenerators.passphraseGeneratorRequest,
+            PassphraseGeneratorRequest(
+                numWords: 3,
+                wordSeparator: "-",
+                capitalize: true,
+                includeNumber: true,
+            ),
+        )
     }
 
     /// `generatePassphrase` returns the generated passphrase.

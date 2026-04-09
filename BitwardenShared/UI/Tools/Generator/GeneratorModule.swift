@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - Generator Module
 
 /// An object that builds coordinators for the generator tab.

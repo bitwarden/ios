@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import AuthenticationServices
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -8,6 +9,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 /// Tests for `VaultAutofillListProcessor` Fido2 flows which require iOS 17
 /// and another setup given that the `appExtensionDelegate` is different.
@@ -18,11 +20,15 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!
     var authRepository: MockAuthRepository!
     var autofillCredentialService: MockAutofillCredentialService!
+    var cipherOwnershipHelper: MockCipherOwnershipHelper!
     var clientService: MockClientService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var fido2CredentialStore: MockFido2CredentialStore!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var policyService: MockPolicyService!
+    var searchProcessorMediator: MockSearchProcessorMediator!
+    var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var subject: VaultAutofillListProcessor!
     var timeProvider: MockTimeProvider!
     var vaultRepository: MockVaultRepository!
@@ -35,13 +41,32 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate = MockAutofillAppExtensionDelegate()
         authRepository = MockAuthRepository()
         autofillCredentialService = MockAutofillCredentialService()
+        cipherOwnershipHelper = MockCipherOwnershipHelper()
         clientService = MockClientService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         fido2CredentialStore = MockFido2CredentialStore()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        policyService = MockPolicyService()
+
+        searchProcessorMediator = MockSearchProcessorMediator()
+        searchProcessorMediatorFactory = MockSearchProcessorMediatorFactory()
+        searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
+
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)))
         vaultRepository = MockVaultRepository()
+
+        // Set default return value for cipherOwnershipHelper
+        // This matches what CipherView(fido2CredentialNewView:) would produce
+        // for a Fido2CredentialNewView with rpName: "rpName", userName: "username", rpId: "myApp.com"
+        cipherOwnershipHelper.createCipherViewReturnValue = .fixture(
+            id: nil,
+            login: .fixture(
+                uris: [.fixture(uri: "myApp.com")],
+                username: "username",
+            ),
+            name: "rpName",
+        )
 
         subject = VaultAutofillListProcessor(
             appExtensionDelegate: appExtensionDelegate,
@@ -49,10 +74,13 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 autofillCredentialService: autofillCredentialService,
+                cipherOwnershipHelper: cipherOwnershipHelper,
                 clientService: clientService,
                 errorReporter: errorReporter,
                 fido2CredentialStore: fido2CredentialStore,
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+                policyService: policyService,
+                searchProcessorMediatorFactory: searchProcessorMediatorFactory,
                 timeProvider: timeProvider,
                 vaultRepository: vaultRepository,
             ),
@@ -66,11 +94,15 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate = nil
         authRepository = nil
         autofillCredentialService = nil
+        cipherOwnershipHelper = nil
         clientService = nil
         coordinator = nil
         errorReporter = nil
         fido2CredentialStore = nil
         fido2UserInterfaceHelper = nil
+        policyService = nil
+        searchProcessorMediator = nil
+        searchProcessorMediatorFactory = nil
         subject = nil
         timeProvider = nil
         vaultRepository = nil
@@ -191,6 +223,78 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
     }
 
+    /// `receive(_:)` with `.addTapped` creates a new cipher with organization ID and collection IDs
+    /// when personal ownership is disabled (via cipherOwnershipHelper).
+    @MainActor
+    func test_receive_addTapped_fido2CreationEmptyViewWithOrganization() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required,
+        )
+        fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
+
+        // Set up cipherOwnershipHelper to return a cipher with organization and collection
+        let organizationId = "org-123"
+        let defaultCollectionId = "collection-456"
+        cipherOwnershipHelper.createCipherViewReturnValue = .fixture(
+            collectionIds: [defaultCollectionId],
+            id: nil,
+            login: .fixture(uris: [.fixture(uri: "myApp.com")], username: "username"),
+            name: "rpName",
+            organizationId: organizationId,
+        )
+
+        subject.receive(.addTapped(fromFAB: false))
+
+        waitFor(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+
+        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
+            guard case let .success(pickedResult) = result,
+                  pickedResult.checkUserResult.userVerified,
+                  pickedResult.cipher.cipher.id == nil,
+                  pickedResult.cipher.cipher.type == .login,
+                  pickedResult.cipher.cipher.name == "rpName",
+                  pickedResult.cipher.cipher.organizationId == organizationId,
+                  pickedResult.cipher.cipher.collectionIds == [defaultCollectionId] else {
+                return false
+            }
+            return true
+        }
+    }
+
+    /// `receive(_:)` with `.addTapped` shows an error alert when personal ownership is disabled
+    /// but no eligible organization is available (via cipherOwnershipHelper throwing error).
+    @MainActor
+    func test_receive_addTapped_fido2CreationEmptyViewNoEligibleOrganization() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required,
+        )
+
+        // Set up cipherOwnershipHelper to throw noEligibleOrganization error
+        cipherOwnershipHelper.createCipherViewThrowableError = CipherOwnershipHelperError.noEligibleOrganization
+
+        subject.receive(.addTapped(fromFAB: false))
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertEqual(
+            coordinator.errorAlertsShown.last as? CipherOwnershipHelperError,
+            CipherOwnershipHelperError.noEligibleOrganization,
+        )
+        XCTAssertEqual(
+            errorReporter.errors.last as? CipherOwnershipHelperError,
+            CipherOwnershipHelperError.noEligibleOrganization,
+        )
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+    }
+
     /// `receive(_:)` with `.addTapped` shows an alert and logs
     /// when executed from the empty view and in the create Fido2 credential context but user verification throws.
     @MainActor
@@ -276,10 +380,10 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` updates the state with the excluded credential
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` updates the state with the excluded credential
     /// vault list section.
     @MainActor
-    func test_perform_excludedCredentialFoundChaged() async throws {
+    func test_perform_excludedCredentialFoundChanged() async throws {
         let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(cipher)
@@ -297,18 +401,18 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
-            return !subject.state.vaultListSections.isEmpty
+            return subject.state.loadingState.data != nil
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
-        let firstSection = try XCTUnwrap(subject.state.vaultListSections.first)
+        XCTAssertEqual(subject.state.loadingState.data?.count, 1)
+        let firstSection = try XCTUnwrap(subject.state.loadingState.data?.first)
         XCTAssertEqual(firstSection.id, "excludedCredentialsId")
         XCTAssertEqual(firstSection.name, "excludedCredentialsId")
         XCTAssertEqual(firstSection.items.count, 1)
@@ -316,11 +420,11 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertEqual(firstItem.id, cipher.id)
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` updates the state with the excluded credential
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` updates the state with the excluded credential
     /// vault list section but then sets `excludedCredentialFound` to `nil` in state when cipher
     /// has no Fido2 credentials.
     @MainActor
-    func test_perform_excludedCredentialFoundChaged_cipherHasNoFido2Credentials() async throws {
+    func test_perform_excludedCredentialFoundChanged_cipherHasNoFido2Credentials() async throws {
         let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(cipher)
@@ -338,17 +442,17 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
-            return !subject.state.vaultListSections.isEmpty
+            return subject.state.loadingState.data != nil
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
+        XCTAssertEqual(subject.state.loadingState.data?.count, 1)
 
         vaultRepository.cipherDetailsSubject.send(
             CipherView.fixture(
@@ -363,16 +467,16 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` throws when getting the excluded credential cipher
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when getting the excluded credential cipher
     /// from the publisher so it shows an error and cancels the extension flow.
     @MainActor
-    func test_perform_excludedCredentialFoundChaged_cipherPublisherThrows() async throws {
+    func test_perform_excludedCredentialFoundChanged_cipherPublisherThrows() async throws {
         let cipher = CipherView.fixture()
         subject.state.excludedCredentialIdFound = cipher.id
         vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 
@@ -382,7 +486,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
@@ -403,7 +507,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
-    /// `perform(_:)` with `.excludedCredentialFoundChaged` throws when creating the excluded credential cipher
+    /// `perform(_:)` with `.excludedCredentialFoundChanged` throws when creating the excluded credential cipher
     /// section so it shows an error and cancels the extension flow.
     @MainActor
     func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
@@ -413,7 +517,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         vaultRepository.createAutofillListExcludedCredentialSectionResult = .failure(BitwardenTestError.example)
 
         let task = Task {
-            await subject.perform(.excludedCredentialFoundChaged)
+            await subject.perform(.excludedCredentialFoundChanged)
         }
         defer { task.cancel() }
 
@@ -423,7 +527,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
-        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
@@ -923,72 +1027,22 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
     }
 
-    /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
-    /// when on autofillFido2VaulltList
+    /// `perform(_:)` with `.search()` performs a cipher search and indicates the search processor
+    /// mediator that the filter changed
     @MainActor
-    func test_perform_search_onAutofillFido2VaultList() { // swiftlint:disable:this function_body_length
-        let passkeyParameters = MockPasskeyCredentialRequestParameters()
-        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
-        let expectedCredentialId = Data(repeating: 123, count: 16)
-
-        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
-        let expectedSections = [
-            VaultListSection(
-                id: Localizations.passkeysForX("Bit"),
-                items: ciphers.suffix(from: 1).compactMap { cipher in
-                    VaultListItem(
-                        cipherListView: cipher,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipher.id ?? "",
-                            rpId: "myApp.com",
-                        ),
-                    )
-                },
-                name: Localizations.passkeysForX("Bit"),
-            ),
-            VaultListSection(
-                id: Localizations.passwordsForX("Bit"),
-                items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-                name: Localizations.passwordsForX("Bit"),
-            ),
-        ]
-        vaultRepository.searchCipherAutofillSubject.value = VaultListData(sections: expectedSections)
-
-        let task = Task {
-            await subject.perform(.search("Bit"))
-        }
-
-        waitFor(!subject.state.ciphersForSearch.isEmpty)
-        task.cancel()
-
+    func test_perform_search() async {
+        appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
+        await subject.perform(.search("example"))
         XCTAssertEqual(
-            subject.state.ciphersForSearch[0],
-            VaultListSection(
-                id: Localizations.passkeysForX("Bit"),
-                items: ciphers.suffix(from: 1).compactMap { cipher in
-                    VaultListItem(
-                        cipherListView: cipher,
-                        fido2CredentialAutofillView: .fixture(
-                            credentialId: expectedCredentialId,
-                            cipherId: cipher.id ?? "",
-                            rpId: "myApp.com",
-                        ),
-                    )
-                },
-                name: Localizations.passkeysForX("Bit"),
+            searchProcessorMediator.updateFilterReceivedFilter,
+            VaultListFilter(
+                filterType: .allVaults,
+                group: .login,
+                mode: .combinedMultipleSections,
+                rpID: "myApp.com",
+                searchText: "example",
             ),
         )
-        XCTAssertEqual(
-            subject.state.ciphersForSearch[1],
-            VaultListSection(
-                id: Localizations.passwordsForX("Bit"),
-                items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
-                name: Localizations.passwordsForX("Bit"),
-            ),
-        )
-
-        XCTAssertFalse(subject.state.showNoResults)
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers when creating Fido2 credential.
@@ -1010,10 +1064,10 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             await subject.perform(.streamAutofillItems)
         }
 
-        waitFor(!subject.state.vaultListSections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(subject.state.loadingState.data, [expectedSection])
         XCTAssertEqual(vaultRepository.ciphersAutofillPublisherUriCalled, "https://\(rpId)")
     }
 
@@ -1041,7 +1095,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         waitFor(vaultRepository.ciphersAutofillPublisherUriCalled != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.vaultListSections, [])
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
         XCTAssertEqual(vaultRepository.ciphersAutofillPublisherUriCalled, "https://\(rpId)")
     }
 } // swiftlint:disable:this file_length

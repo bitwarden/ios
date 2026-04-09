@@ -2,6 +2,7 @@ import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - MainVaultListDirectorStrategyTests
 
@@ -100,8 +101,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                addTOTPGroup: true,
-                addTrashGroup: true,
+                options: [.addTOTPGroup, .addHiddenItemsGroup],
             ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
@@ -115,7 +115,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addFoldersSection",
             "addCollectionsSection",
             "addCipherDecryptionFailureIds",
-            "addTrashSection",
+            "addHiddenItemsSection",
         ])
     }
 
@@ -137,8 +137,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                addTOTPGroup: true,
-                addTrashGroup: false,
+                options: [.addTOTPGroup],
             ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
@@ -174,8 +173,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                addTOTPGroup: false,
-                addTrashGroup: true,
+                options: [.addHiddenItemsGroup],
             ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()
@@ -188,7 +186,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
             "addFoldersSection",
             "addCollectionsSection",
             "addCipherDecryptionFailureIds",
-            "addTrashSection",
+            "addHiddenItemsSection",
         ])
     }
 
@@ -210,8 +208,7 @@ class MainVaultListDirectorStrategyTests: BitwardenTestCase {
 
         var iteratorPublisher = try await subject.build(
             filter: VaultListFilter(
-                addTOTPGroup: false,
-                addTrashGroup: false,
+                options: [],
             ),
         ).makeAsyncIterator()
         let result = try await iteratorPublisher.next()

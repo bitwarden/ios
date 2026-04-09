@@ -1,10 +1,13 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import SwiftUI
 import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - SearchVaultFilterRowViewTests
 

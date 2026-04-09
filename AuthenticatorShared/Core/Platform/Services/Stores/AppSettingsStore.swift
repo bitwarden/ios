@@ -10,9 +10,6 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -24,6 +21,9 @@ protocol AppSettingsStore: AnyObject {
 
     /// The default save location for new keys.
     var defaultSaveOption: DefaultSaveOption { get set }
+
+    /// The data used by the flight recorder for the active and any inactive logs.
+    var flightRecorderData: FlightRecorderData? { get set }
 
     /// Whether the user has seen the default save options prompt.
     var hasSeenDefaultSaveOptionPrompt: Bool { get }
@@ -39,14 +39,6 @@ protocol AppSettingsStore: AnyObject {
 
     /// The server config used prior to user authentication.
     var preAuthServerConfig: ServerConfig? { get set }
-
-    /// The system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
-    /// - Returns: A base64 encoded `String`
-    ///  representing the last known Biometric Integrity State `Data` for the userID.
-    ///
-    func biometricIntegrityState(userId: String) -> String?
 
     /// Gets the closed state for the given card.
     ///
@@ -114,14 +106,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the biometric authentication preference.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
-
-    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
-    ///
-    /// - Parameters:
-    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
-    ///   - userId: The user ID associated with the Biometric Integrity State.
-    ///
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
 
     /// Sets the closed state to true for the given card.
     ///
@@ -300,16 +284,16 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
-        case appId
+        case appID
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
-        case biometricIntegrityState(userId: String, bundleId: String)
         case cardClosedState(card: ItemListCard)
         case clearClipboardValue(userId: String)
         case debugFeatureFlag(name: String)
         case defaultSaveOption
         case disableWebIcons
+        case flightRecorderData
         case hasSeenWelcomeTutorial
         case hasSyncedAccount(name: String)
         case lastActiveTime(userId: String)
@@ -322,7 +306,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
             let key = switch self {
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -330,8 +314,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "theme"
             case let .biometricAuthEnabled(userId):
                 "biometricUnlock_\(userId)"
-            case let .biometricIntegrityState(userId, bundleId):
-                "biometricIntegritySource_\(userId)_\(bundleId)"
             case let .cardClosedState(card: card):
                 "cardClosedState_\(card)"
             case let .clearClipboardValue(userId):
@@ -342,6 +324,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "defaultSaveOption"
             case .disableWebIcons:
                 "disableFavicon"
+            case .flightRecorderData:
+                "flightRecorderData"
             case .hasSeenWelcomeTutorial:
                 "hasSeenWelcomeTutorial"
             case let .hasSyncedAccount(name: name):
@@ -361,11 +345,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             }
             return "bwaPreferencesStorage:\(key)"
         }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {
@@ -394,6 +373,11 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         set { store(newValue.rawValue, for: .defaultSaveOption) }
     }
 
+    var flightRecorderData: FlightRecorderData? {
+        get { fetch(for: .flightRecorderData) }
+        set { store(newValue, for: .flightRecorderData) }
+    }
+
     var hasSeenDefaultSaveOptionPrompt: Bool {
         fetch(for: .defaultSaveOption) != nil
     }
@@ -411,15 +395,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var preAuthServerConfig: ServerConfig? {
         get { fetch(for: .preAuthServerConfig) }
         set { store(newValue, for: .preAuthServerConfig) }
-    }
-
-    func biometricIntegrityState(userId: String) -> String? {
-        fetch(
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId,
-            ),
-        )
     }
 
     func cardClosedState(card: ItemListCard) -> Bool {
@@ -466,16 +441,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(isEnabled, for: .biometricAuthEnabled(userId: userId))
     }
 
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        store(
-            base64EncodedIntegrityState,
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId,
-            ),
-        )
-    }
-
     func setCardClosedState(card: ItemListCard) {
         store(true, for: .cardClosedState(card: card))
     }
@@ -506,6 +471,15 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func vaultTimeout(userId: String) -> Int? {
         fetch(for: .vaultTimeout(userId: userId))
+    }
+}
+
+// MARK: AppIDSettingsStore
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }
 

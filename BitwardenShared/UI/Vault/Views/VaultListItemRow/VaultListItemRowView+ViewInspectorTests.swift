@@ -1,9 +1,11 @@
 // swiftlint:disable:this file_name
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListItemRowViewTests
 
@@ -37,7 +39,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     /// Test that tapping the more button dispatches the `.morePressed` action.
     @MainActor
     func test_moreButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.more)
+        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.moreOptions)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .morePressed)
     }

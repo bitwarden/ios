@@ -92,9 +92,9 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
     /// `checkUser(userVerificationPreference:credential:)`  with each preference,
     /// account has been unlocked in current transaction.
     func test_checkUser_anyPreferenceUnlockedCurrentTransaction() async throws {
-        try await checkUser_verified_when_unlockedCurrentTransation(.discouraged)
-        try await checkUser_verified_when_unlockedCurrentTransation(.preferred)
-        try await checkUser_verified_when_unlockedCurrentTransation(.required)
+        try await checkUser_verified_when_unlockedCurrentTransaction(.discouraged)
+        try await checkUser_verified_when_unlockedCurrentTransaction(.preferred)
+        try await checkUser_verified_when_unlockedCurrentTransaction(.required)
     }
 
     /// `checkUser(userVerificationPreference:credential:)`  with each preference,
@@ -183,7 +183,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
     }
 
     /// `checkUser(userVerificationPreference:credential:)`  with preference required,
-    /// reprompt none and unable to perform perform device local auth, pin nor master passwrod verifications.
+    /// reprompt none and unable to perform perform device local auth, pin nor master password verifications.
     func test_checkUser_requiredUnableToPerform() async throws {
         userVerificationRunner.verifyInQueueResult = .success(.unableToPerform)
 
@@ -365,7 +365,7 @@ class Fido2UserVerificationMediatorTests: BitwardenTestCase { // swiftlint:disab
         )
     }
 
-    private func checkUser_verified_when_unlockedCurrentTransation(
+    private func checkUser_verified_when_unlockedCurrentTransaction(
         _ userVerificationPreference: BitwardenSdk.Verification,
         file: StaticString = #filePath,
         line: UInt = #line,

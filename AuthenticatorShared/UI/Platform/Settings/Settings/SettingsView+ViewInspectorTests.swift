@@ -1,6 +1,8 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
+import ViewInspectorTestHelpers
 import XCTest
 
 // MARK: - SettingsViewTests
@@ -10,7 +12,7 @@ import XCTest
 class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    let copyrightText = "© Bitwarden Inc. 2015-2024"
+    let copyrightText = "© Bitwarden Inc. 2015-2024" // No need to be dynamic
     let version = "Version: 1.0.0 (1)"
 
     var processor: MockProcessor<SettingsState, SettingsAction, SettingsEffect>!
@@ -58,7 +60,7 @@ class SettingsViewTests: BitwardenTestCase {
     func test_defaultSaveOptionChanged_updateValue() throws {
         processor.state.shouldShowDefaultSaveOption = true
         processor.state.defaultSaveOption = .none
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultSaveOption)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.defaultSaveOption)
         try menuField.select(newValue: DefaultSaveOption.saveToBitwarden)
         XCTAssertEqual(processor.dispatchedActions.last, .defaultSaveChanged(.saveToBitwarden))
     }
@@ -69,6 +71,34 @@ class SettingsViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.export)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .exportItemsTapped)
+    }
+
+    /// The flight recorder toggle turns logging on and off.
+    @MainActor
+    func test_flightRecorder_toggle_tap() async throws {
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.flightRecorder)
+
+        try toggle.tap()
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects, [.flightRecorder(.toggleFlightRecorder(true))])
+        processor.effects.removeAll()
+
+        processor.state.flightRecorderState.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: .now,
+        )
+        try toggle.tap()
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects, [.flightRecorder(.toggleFlightRecorder(false))])
+    }
+
+    /// Tapping the flight recorder view recorded logs button dispatches the
+    /// `.viewFlightRecorderLogsTapped` action.
+    @MainActor
+    func test_flightRecorder_viewRecordedLogsButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.viewRecordedLogs)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .flightRecorder(.viewLogsTapped))
     }
 
     /// Tapping the help center button dispatches the `.helpCenterTapped` action.
@@ -98,9 +128,9 @@ class SettingsViewTests: BitwardenTestCase {
     /// Updating the value of the `sessionTimeoutValue` sends the  `.sessionTimeoutValueChanged()` action.
     @MainActor
     func test_sessionTimeoutValue_updateValue() throws {
-        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
+        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         processor.state.sessionTimeoutValue = .never
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.sessionTimeout)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.sessionTimeout)
         try menuField.select(newValue: SessionTimeoutValue.fifteenMinutes)
 
         waitFor(!processor.effects.isEmpty)
@@ -123,11 +153,12 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .tutorialTapped)
     }
 
-    /// Tapping the version button dispatches the `.versionTapped` action.
+    /// Tapping the version button performs the `.copyVersionInfo` effect.
     @MainActor
-    func test_versionButton_tap() throws {
+    func test_versionButton_tap() async throws {
         let button = try subject.inspect().find(button: version)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .versionTapped)
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects.last, .copyVersionInfo)
     }
 }

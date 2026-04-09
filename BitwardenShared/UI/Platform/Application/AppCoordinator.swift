@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
 import SwiftUI
@@ -7,7 +8,7 @@ import UIKit
 
 /// A coordinator that manages the app's top-level navigation.
 ///
-class AppCoordinator: Coordinator, HasRootNavigator {
+class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// The types of modules used by this coordinator.
@@ -15,10 +16,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
+        & GlobalModalModule
         & LoginRequestModule
         & NavigatorBuilderModule
         & SendItemModule
         & TabModule
+        & VaultItemModule
         & VaultModule
 
     // MARK: Private Properties
@@ -122,8 +125,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showExtensionSetup(route: extensionSetupRoute)
         case let .loginRequest(loginRequest):
             showLoginRequest(loginRequest)
+        case let .migrateToMyItems(organizationId):
+            showMigrateToMyItems(organizationId: organizationId)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
+        case .syncWithBrowser:
+            showSyncWithBrowser()
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         case let .vault(vaultRoute):
@@ -275,6 +282,61 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         }
     }
 
+    /// Show the migrate to my items screen.
+    ///
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    ///
+    private func showMigrateToMyItems(organizationId: String) {
+        // Make sure that the user is authenticated.
+        // In the main app, childCoordinator is TabRoute. In extensions, it's VaultRoute or SendItemRoute.
+        guard childCoordinator is AnyCoordinator<TabRoute, Void>
+            || childCoordinator is AnyCoordinator<VaultRoute, AuthAction>
+            || childCoordinator is AnyCoordinator<SendItemRoute, AuthAction>
+        else {
+            return
+        }
+
+        // Make sure that the user is not currently viewing the migrate to my items view.
+        let currentView = rootNavigator?.rootViewController?.topmostViewController()
+        guard !(currentView is UIHostingController<MigrateToMyItemsView>) else { return }
+
+        // Create the migrate to my items view.
+        let navigationController = module.makeNavigationController()
+        navigationController.isModalInPresentation = true
+        let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(
+            to: .migrateToMyItems(organizationId: organizationId),
+            context: self,
+        )
+
+        // Present the migrate to my items view.
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            navigationController,
+            animated: true,
+        )
+    }
+
+    /// Show the sync with browser screen.
+    ///
+    private func showSyncWithBrowser() {
+        // Make sure that the user is not currently viewing the migrate to my items view.
+        let currentView = rootNavigator?.rootViewController?.topmostViewController()
+        guard !(currentView is UIHostingController<SyncWithBrowserView>) else { return }
+
+        let navigationController = module.makeNavigationController()
+        navigationController.isModalInPresentation = true
+        navigationController.modalPresentationStyle = .fullScreen
+        let globalModalCoordinator = module.makeGlobalModalCoordinator(stackNavigator: navigationController)
+        globalModalCoordinator.start()
+        globalModalCoordinator.navigate(to: .syncWithBrowser, context: self)
+
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            navigationController,
+            animated: true,
+        )
+    }
+
     /// Adds a transparent navigation controller to the root navigator.
     /// This is needed for the Autofill Fido2 flow when unlocking with the never unlock key
     /// and performing user verification. If we don't do this, the biometrics prompt may not be presented
@@ -340,13 +402,12 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
         switch appContext {
         case .appExtension:
-            guard let appExtensionDelegate else {
+            // Navigate to vault first to set up the childCoordinator.
+            if let appExtensionDelegate, let route = appExtensionDelegate.authCompletionRoute {
+                navigate(to: route)
+            } else {
                 navigate(to: .vault(.autofillList))
-                return
             }
-
-            guard let route = appExtensionDelegate.authCompletionRoute else { return }
-            navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))
 
@@ -365,6 +426,21 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             if let authCompletionRoute {
                 navigate(to: authCompletionRoute)
                 self.authCompletionRoute = nil
+            }
+        }
+
+        // Check for pending vault migration after setting up the vault coordinator.
+        if appExtensionDelegate?.canAutofill != true {
+            Task {
+                do {
+                    if let organizationId = try await services.syncService.organizationIdRequiringVaultMigration() {
+                        await MainActor.run {
+                            navigate(to: .migrateToMyItems(organizationId: organizationId))
+                        }
+                    }
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
             }
         }
     }
@@ -393,6 +469,22 @@ extension AppCoordinator: LoginRequestDelegate {
     ///
     func loginRequestAnswered(approved: Bool) {
         showToast(approved ? Localizations.loginApproved : Localizations.logInDenied)
+    }
+}
+
+// MARK: - MigrateToMyItemsProcessorDelegate
+
+extension AppCoordinator: MigrateToMyItemsProcessorDelegate {
+    func didLeaveOrganization() {
+        rootNavigator?.rootViewController?.topmostViewController().dismiss(animated: true) {
+            self.showToast(Localizations.youLeftTheOrganization)
+        }
+    }
+
+    func didMigrateVault() {
+        rootNavigator?.rootViewController?.topmostViewController().dismiss(animated: true) {
+            self.showToast(Localizations.itemsTransferred)
+        }
     }
 }
 

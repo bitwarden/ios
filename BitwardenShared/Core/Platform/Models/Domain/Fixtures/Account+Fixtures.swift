@@ -42,6 +42,7 @@ extension Account {
             profile: Account.AccountProfile.fixture(
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: true,
+                    masterPasswordUnlock: .fixture(),
                     keyConnectorOption: nil,
                     trustedDeviceOption: TrustedDeviceUserDecryptionOption(
                         encryptedPrivateKey: "PRIVATE_KEY",
@@ -62,6 +63,7 @@ extension Account {
             profile: Account.AccountProfile.fixture(
                 userDecryptionOptions: UserDecryptionOptions(
                     hasMasterPassword: false,
+                    masterPasswordUnlock: nil,
                     keyConnectorOption: nil,
                     trustedDeviceOption: TrustedDeviceUserDecryptionOption(
                         encryptedPrivateKey: "PRIVATE_KEY",
@@ -124,6 +126,24 @@ extension Account.AccountSettings {
     ) -> Account.AccountSettings {
         Account.AccountSettings(
             environmentUrls: environmentURLs,
+        )
+    }
+}
+
+extension MasterPasswordUnlockResponseModel {
+    static func fixture(
+        kdfType: KdfType = .pbkdf2sha256,
+        iterations: Int = Constants.pbkdf2Iterations,
+        masterKeyEncryptedUserKey: String = "MASTER_KEY_ENCRYPTED_USER_KEY",
+        salt: String = "SALT",
+    ) -> MasterPasswordUnlockResponseModel {
+        MasterPasswordUnlockResponseModel(
+            kdf: KdfConfig(
+                kdfType: kdfType,
+                iterations: iterations,
+            ),
+            masterKeyEncryptedUserKey: masterKeyEncryptedUserKey,
+            salt: salt,
         )
     }
 }

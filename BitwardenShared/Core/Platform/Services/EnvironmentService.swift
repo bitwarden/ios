@@ -19,6 +19,9 @@ class DefaultEnvironmentService: EnvironmentService {
 
     // MARK: Private Properties
 
+    /// The SHA-256 fingerprint of the client certificate for the current environment.
+    private var currentClientCertificateFingerprint: String?
+
     /// The app's current environment URLs.
     private var environmentURLs: EnvironmentURLs
 
@@ -59,6 +62,7 @@ class DefaultEnvironmentService: EnvironmentService {
         }
 
         await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
+        currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
@@ -69,6 +73,7 @@ class DefaultEnvironmentService: EnvironmentService {
 
     func setPreAuthURLs(urls: EnvironmentURLData) async {
         await stateService.setPreAuthEnvironmentURLs(urls)
+        currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
@@ -99,6 +104,10 @@ extension DefaultEnvironmentService {
         environmentURLs.apiURL
     }
 
+    var clientCertificateFingerprint: String? {
+        currentClientCertificateFingerprint
+    }
+
     var baseURL: URL {
         environmentURLs.baseURL
     }
@@ -121,6 +130,10 @@ extension DefaultEnvironmentService {
 
     var importItemsURL: URL {
         environmentURLs.importItemsURL
+    }
+
+    var proxyCookieRedirectConnectorURL: URL {
+        environmentURLs.proxyCookieRedirectConnectorURL
     }
 
     var recoveryCodeURL: URL {
@@ -147,6 +160,10 @@ extension DefaultEnvironmentService {
 
     var setUpTwoFactorURL: URL {
         environmentURLs.setUpTwoFactorURL
+    }
+
+    var upgradeToPremiumURL: URL {
+        environmentURLs.upgradeToPremiumURL
     }
 
     var webVaultURL: URL {

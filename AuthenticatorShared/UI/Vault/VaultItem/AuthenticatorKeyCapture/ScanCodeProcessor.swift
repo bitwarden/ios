@@ -1,3 +1,4 @@
+import BitwardenKit
 import Combine
 import SwiftUI
 
@@ -29,10 +30,10 @@ final class ScanCodeProcessor: StateProcessor<ScanCodeState, ScanCodeAction, Sca
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
 
-    /// A subject cointaining the scan code results.
+    /// A subject containing the scan code results.
     private var qrScanResultSubject = CurrentValueSubject<[ScanResult], Never>([])
 
-    // MARK: Intialization
+    // MARK: Initialization
 
     /// Creates a new `ScanCodeProcessor`.
     ///

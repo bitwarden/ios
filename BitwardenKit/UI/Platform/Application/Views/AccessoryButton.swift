@@ -6,13 +6,13 @@ import SwiftUI
 public struct AccessoryButton: View {
     // MARK: Types
 
-    /// A type that wraps a synchrounous or asynchrounous block that is executed by this button.
+    /// A type that wraps a synchronous or asynchronous block that is executed by this button.
     ///
     enum Action {
         /// An action run synchrounously.
         case sync(() -> Void)
 
-        /// An action run asynchrounously.
+        /// An action run asynchronously.
         case async(() async -> Void)
     }
 

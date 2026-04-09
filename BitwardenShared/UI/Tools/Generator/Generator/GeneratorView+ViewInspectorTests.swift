@@ -1,8 +1,10 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import SwiftUI
 import ViewInspector
+import ViewInspectorTestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -178,7 +180,7 @@ class GeneratorViewTests: BitwardenTestCase {
         let field = StepperField<GeneratorState>(
             accessibilityId: "MinNumberValueLabel",
             keyPath: \.passwordState.minimumNumber,
-            range: 0 ... 5,
+            range: 0 ... 9,
             title: Localizations.minNumbers,
             value: 1,
         )

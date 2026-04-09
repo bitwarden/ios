@@ -23,6 +23,8 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
     let stateService: StateService
     /// Provides the present time.
     let timeProvider: TimeProvider
+    /// The service used to get time-based one time passwords.
+    let totpService: TOTPService
 
     func make() -> VaultListPreparedDataBuilder {
         DefaultVaultListPreparedDataBuilder(
@@ -31,6 +33,7 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpService: totpService,
         )
     }
 }
@@ -60,8 +63,21 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     ) async -> VaultListPreparedDataBuilder
     /// Adds a no folder item to the prepared data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
+    /// Adds a search result item to the prepared exact/fuzzy data.
+    /// - Parameters:
+    ///   - matchResult: The match result of the cipher search.
+    ///   - cipher: The target cipher.
+    ///   - group: The group filter, if any.
+    /// - Returns: This same instance builder for fluent coding.
+    func addSearchResultItem(
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView,
+        for group: VaultListGroup?,
+    ) async -> VaultListPreparedDataBuilder
     /// Builds the prepared data.
     func build() -> VaultListPreparedData
+    /// Increments the cipher archived count in the prepared data.
+    func incrementCipherArchivedCount() -> VaultListPreparedDataBuilder
     /// Increments the cipher type count in the prepared data.
     func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Increments the cipher deleted count in the prepared data.
@@ -82,7 +98,7 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
 // MARK: - DefaultVaultListPreparedDataBuilder
 
 /// Default implementation of `VaultListPreparedDataBuilder`.
-class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
+class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The service used to manage syncing and updates to the user's ciphers.
@@ -95,11 +111,11 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     let stateService: StateService
     /// The service used to get the present time.
     let timeProvider: TimeProvider
+    /// The service used to get time-based one time passwords.
+    let totpService: TOTPService
 
     /// The prepared data to build.
     var preparedData = VaultListPreparedData()
-    /// Cache of whether the account has premium features access.
-    var hasPremiumFeaturesAccess: Bool?
     /// Cache of whether the user has master password.
     var userHasMasterPassword: Bool?
 
@@ -112,18 +128,21 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The service used to get the present time.
+    ///   - totpService: The service used to get time-based one time passwords.
     init(
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider,
+        totpService: TOTPService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider
+        self.totpService = totpService
     }
 
     // MARK: Methods
@@ -213,7 +232,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         case .sshKey:
             guard cipher.type == .sshKey else { return self }
         case .totp:
-            if await shouldIncludeTOTP(cipher: cipher),
+            if await totpService.isTotpAuthorized(for: cipher),
                let totpItem = await totpItem(for: cipher) {
                 preparedData.groupItems.append(totpItem)
             }
@@ -224,6 +243,8 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
             guard cipher.folderId == id else { return self }
         case .noFolder:
             guard cipher.folderId == nil else { return self }
+        case .archive:
+            guard cipher.archivedDate != nil else { return self }
         case .trash:
             // this case is handled at the beginning of the function.
             return self
@@ -264,6 +285,28 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         return self
     }
 
+    func addSearchResultItem(
+        withMatchResult matchResult: CipherMatchResult,
+        cipher: CipherListView,
+        for group: VaultListGroup?,
+    ) async -> VaultListPreparedDataBuilder {
+        guard matchResult != .none,
+              let vaultListItem = await buildVaultListItemForGroupOrDefault(cipher: cipher, group: group) else {
+            return self
+        }
+
+        switch matchResult {
+        case .exact:
+            preparedData.exactMatchItems.append(vaultListItem)
+        case .fuzzy:
+            preparedData.fuzzyMatchItems.append(vaultListItem)
+        case .none:
+            break
+        }
+
+        return self
+    }
+
     func build() -> VaultListPreparedData {
         preparedData
     }
@@ -275,6 +318,11 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     func incrementCipherDeletedCount() -> VaultListPreparedDataBuilder {
         preparedData.ciphersDeletedCount += 1
+        return self
+    }
+
+    func incrementCipherArchivedCount() -> VaultListPreparedDataBuilder {
+        preparedData.ciphersArchivedCount += 1
         return self
     }
 
@@ -295,10 +343,17 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     }
 
     func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
-        if await shouldIncludeTOTP(cipher: cipher) {
-            preparedData.totpItemsCount += 1
-        }
+        guard await totpService.isTotpAuthorized(for: cipher) else { return self }
 
+        // Ensure the TOTP key is valid by generating a TOTP code. The count shouldn't be
+        // incremented for invalid keys since they are filtered out from the list.
+        let isValidKey = await (try? clientService.vault().generateTOTPCode(
+            for: cipher,
+            date: timeProvider.presentTime,
+        )) != nil
+        guard isValidKey else { return self }
+
+        preparedData.totpItemsCount += 1
         return self
     }
 
@@ -326,12 +381,21 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
 
     // MARK: Private methods
 
-    private func getHasPremiumFeaturesAccess() async -> Bool {
-        guard let hasPremiumFeaturesAccess else {
-            hasPremiumFeaturesAccess = await stateService.doesActiveAccountHavePremium()
-            return hasPremiumFeaturesAccess ?? false
+    /// Builds the `VaultListItem` for the given `group` or returns the default `VaultListItem` for a given cipher.
+    /// - Parameters:
+    ///   - cipher: The cipher to build the vault list item.
+    ///   - group: The group to build the item for, if passed.
+    /// - Returns: The built `VaultListItem` for the `cipher` and `group`.
+    func buildVaultListItemForGroupOrDefault(cipher: CipherListView, group: VaultListGroup?) async -> VaultListItem? {
+        if case .totp = group {
+            guard await totpService.isTotpAuthorized(for: cipher) else {
+                return nil
+            }
+
+            return await totpItem(for: cipher)
         }
-        return hasPremiumFeaturesAccess
+
+        return VaultListItem(cipherListView: cipher)
     }
 
     private func getUserHasMasterPassword() async -> Bool {
@@ -342,13 +406,6 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         return userHasMasterPassword
     }
 
-    private func shouldIncludeTOTP(cipher: CipherListView) async -> Bool {
-        let hasPremiumFeaturesAccess = await getHasPremiumFeaturesAccess()
-
-        let hasAccess = hasPremiumFeaturesAccess || cipher.organizationUseTotp
-        return hasAccess && cipher.type.loginListView?.totp != nil
-    }
-
     private func totpItem(
         for cipherListView: CipherListView,
     ) async -> VaultListItem? {
@@ -356,31 +413,31 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
               cipherListView.type.loginListView?.totp != nil else {
             return nil
         }
-        guard let code = try? await clientService.vault().generateTOTPCode(
-            for: cipherListView,
-            date: timeProvider.presentTime,
-        ) else {
-            errorReporter.log(
-                error: TOTPServiceError
-                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)"),
+
+        do {
+            let code = try await clientService.vault().generateTOTPCode(
+                for: cipherListView,
+                date: timeProvider.presentTime,
             )
+
+            let userHasMasterPassword = await getUserHasMasterPassword()
+
+            let listModel = VaultListTOTP(
+                id: id,
+                cipherListView: cipherListView,
+                requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
+                totpCode: code,
+            )
+            return VaultListItem(
+                id: id,
+                itemType: .totp(
+                    name: cipherListView.name,
+                    totpModel: listModel,
+                ),
+            )
+        } catch {
+            errorReporter.log(error: error)
             return nil
         }
-
-        let userHasMasterPassword = await getUserHasMasterPassword()
-
-        let listModel = VaultListTOTP(
-            id: id,
-            cipherListView: cipherListView,
-            requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
-            totpCode: code,
-        )
-        return VaultListItem(
-            id: id,
-            itemType: .totp(
-                name: cipherListView.name,
-                totpModel: listModel,
-            ),
-        )
     }
-}
+} // swiftlint:disable:this file_length

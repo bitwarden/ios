@@ -6,7 +6,7 @@ import BitwardenSdk
 ///
 enum VaultAutofillListEffect: Equatable {
     /// Triggered when `excludedCredentialFound` state changed.
-    case excludedCredentialFoundChaged
+    case excludedCredentialFoundChanged
 
     /// Fido2 flow should be initialized if needed..
     case initFido2

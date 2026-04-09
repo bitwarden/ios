@@ -15,10 +15,12 @@ final class VaultGroupProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
         & HasPolicyService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -38,6 +40,9 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// An object to manage TOTP code expirations and batch refresh calls for the group.
     private var groupTotpExpirationManager: TOTPExpirationManager?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// An object to manage TOTP code expirations and batch refresh calls for search results.
     private var searchTotpExpirationManager: TOTPExpirationManager?
@@ -69,10 +74,12 @@ final class VaultGroupProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
+
         groupTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
@@ -103,6 +110,7 @@ final class VaultGroupProcessor: StateProcessor<
     override func perform(_ effect: VaultGroupEffect) async {
         switch effect {
         case .appeared:
+            await loadHasPremiumAccount()
             await checkPersonalOwnershipPolicy()
             await loadItemTypesUserCanCreate()
             await streamVaultList()
@@ -119,9 +127,7 @@ final class VaultGroupProcessor: StateProcessor<
         case .refresh:
             await refreshVaultGroup()
         case let .search(text):
-            let results = await searchGroup(for: text)
-            state.searchResults = results
-            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: results)
+            await searchGroup(for: text)
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -135,7 +141,10 @@ final class VaultGroupProcessor: StateProcessor<
         switch action {
         case let .addItemPressed(type):
             let type = type ?? CipherType(group: state.group) ?? .login
-            coordinator.navigate(to: .addItem(group: state.group, type: type))
+            coordinator.navigate(
+                to: .addItem(group: state.group, type: type),
+                context: self,
+            )
         case .clearURL:
             state.url = nil
         case let .copyTOTPCode(code):
@@ -156,11 +165,17 @@ final class VaultGroupProcessor: StateProcessor<
             case let .totp(_, model):
                 navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
             }
+        case .restartPremiumSubscription:
+            state.url = services.environmentService.upgradeToPremiumURL
         case let .searchStateChanged(isSearching):
             if !isSearching {
                 state.searchText = ""
                 state.searchResults = []
+                searchProcessorMediator.stopSearching()
                 searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: [])
+            }
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
             }
             state.isSearching = isSearching
         case let .searchTextChanged(newValue):
@@ -182,6 +197,12 @@ final class VaultGroupProcessor: StateProcessor<
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
+    /// Loads whether the current account has premium subscription.
+    ///
+    private func loadHasPremiumAccount() async {
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+    }
+
     /// Checks available item types user can create.
     ///
     private func loadItemTypesUserCanCreate() async {
@@ -198,7 +219,10 @@ final class VaultGroupProcessor: StateProcessor<
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
@@ -243,7 +267,6 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             try await services.vaultRepository.fetchSync(
                 forceSync: true,
-                filter: state.vaultFilterType,
                 isPeriodic: false,
             )
         } catch {
@@ -252,28 +275,33 @@ final class VaultGroupProcessor: StateProcessor<
         }
     }
 
-    /// Searches the vault using the provided string, and returns any matching results.
+    /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
-    /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
-    private func searchGroup(for searchText: String) async -> [VaultListItem] {
+    private func searchGroup(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
+            state.searchResults = []
+            return
         }
-        do {
-            let result = try await services.vaultRepository.searchVaultListPublisher(
-                searchText: searchText,
+
+        searchProcessorMediator.updateFilter(
+            VaultListFilter(
+                filterType: state.searchVaultFilterType,
                 group: state.group,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType),
-            )
-            for try await ciphers in result {
-                return ciphers
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-        return []
+                searchText: searchText,
+            ),
+        )
+    }
+
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+        searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: state.searchResults)
     }
 
     /// Streams the user's organizations.
@@ -305,22 +333,35 @@ final class VaultGroupProcessor: StateProcessor<
 // MARK: - CipherItemOperationDelegate
 
 extension VaultGroupProcessor: CipherItemOperationDelegate {
+    // MARK: Methods
+
+    func itemArchived() {
+        displayToastAndRefresh(toastTitle: Localizations.itemMovedToArchive)
+    }
+
     func itemDeleted() {
-        state.toast = Toast(title: Localizations.itemDeleted)
-        Task {
-            await perform(.refresh)
-        }
+        displayToastAndRefresh(toastTitle: Localizations.itemDeleted)
     }
 
     func itemSoftDeleted() {
-        state.toast = Toast(title: Localizations.itemSoftDeleted)
-        Task {
-            await perform(.refresh)
-        }
+        displayToastAndRefresh(toastTitle: Localizations.itemSoftDeleted)
     }
 
     func itemRestored() {
-        state.toast = Toast(title: Localizations.itemRestored)
+        displayToastAndRefresh(toastTitle: Localizations.itemRestored)
+    }
+
+    func itemUnarchived() {
+        displayToastAndRefresh(toastTitle: Localizations.itemMovedToVault)
+    }
+
+    // MARK: Private methods
+
+    /// Displays a toast and performs a refresh.
+    ///
+    /// - Parameter toastTitle: The title of the toast.
+    func displayToastAndRefresh(toastTitle: String) {
+        state.toast = Toast(title: toastTitle)
         Task {
             await perform(.refresh)
         }

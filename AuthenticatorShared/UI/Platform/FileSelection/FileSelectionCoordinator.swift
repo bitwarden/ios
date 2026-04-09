@@ -11,6 +11,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasCameraService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
     // MARK: Properties
@@ -213,3 +214,9 @@ extension FileSelectionCoordinator: UIImagePickerControllerDelegate {
 // MARK: - FileSelectionCoordinator:UINavigationControllerDelegate
 
 extension FileSelectionCoordinator: UINavigationControllerDelegate {}
+
+// MARK: - HasErrorAlertServices
+
+extension FileSelectionCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}

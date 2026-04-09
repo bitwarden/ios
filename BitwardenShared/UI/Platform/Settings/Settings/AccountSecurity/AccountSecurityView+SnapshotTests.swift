@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import SnapshotTesting
 import XCTest
@@ -135,7 +136,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
             store: Store(
                 processor: StateProcessor(
                     state: AccountSecurityState(
-                        isTimeoutPolicyEnabled: true,
+                        isPolicyTimeoutEnabled: true,
                         sessionTimeoutValue: .custom(1),
                     ),
                 ),
@@ -154,7 +155,7 @@ class AccountSecurityViewTests: BitwardenTestCase {
             store: Store(
                 processor: StateProcessor(
                     state: AccountSecurityState(
-                        isTimeoutPolicyEnabled: true,
+                        isPolicyTimeoutEnabled: true,
                         policyTimeoutAction: .logout,
                         sessionTimeoutAction: .logout,
                         sessionTimeoutValue: .custom(1),

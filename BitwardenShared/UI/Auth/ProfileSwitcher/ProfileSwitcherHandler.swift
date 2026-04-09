@@ -68,7 +68,7 @@ protocol ProfileSwitcherHandler: AnyObject { // sourcery: AutoMockable
     ///
     /// - Parameter alert: The alert to show.
     ///
-    func showAlert(_ alert: Alert)
+    func showAlert(_ alert: BitwardenKit.Alert)
 
     /// Shows the profile switcher; this is used on iOS >=26 for displaying the sheet;
     /// on iOS <26, `profileSwitcherState.isVisible` is used instead.
@@ -156,7 +156,7 @@ private extension ProfileSwitcherHandler {
             .logoutConfirmation(profile) { [weak self] in
                 guard let self else { return }
                 if #available(iOS 26, *) {
-                    self.dismissProfileSwitcher()
+                    dismissProfileSwitcher()
                 }
                 await logout(profile)
             },
@@ -172,7 +172,7 @@ private extension ProfileSwitcherHandler {
             .removeAccountConfirmation(profile) { [weak self] in
                 guard let self else { return }
                 if #available(iOS 26, *) {
-                    self.dismissProfileSwitcher()
+                    dismissProfileSwitcher()
                 }
                 await removeAccount(profile)
             },

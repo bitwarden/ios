@@ -1,10 +1,12 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - VaultListPreparedDataBuilderAddItemTests
 
@@ -17,7 +19,8 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     var stateService: MockStateService!
     var subject: DefaultVaultListPreparedDataBuilder!
     var timeProvider: MockTimeProvider!
-
+    var totpService: MockTOTPService!
+    
     // MARK: Setup & Teardown
 
     override func setUp() {
@@ -28,12 +31,14 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
+        totpService = MockTOTPService()
         subject = DefaultVaultListPreparedDataBuilder(
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpService: totpService,
         )
     }
 
@@ -45,10 +50,29 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         errorReporter = nil
         stateService = nil
         timeProvider = nil
+        totpService = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `addItem(forGroup:with:)` adds an archived item to the prepared data when the cipher
+    /// is archived and group is archive.
+    func test_addItem_addsArchivedItemWhenCipherIsArchivedAndGroupIsArchive() async {
+        let cipher = CipherListView.fixture(archivedDate: Date())
+        let preparedData = await subject.addItem(forGroup: .archive, with: cipher).build()
+
+        XCTAssertEqual(preparedData.groupItems.count, 1)
+        XCTAssertEqual(preparedData.groupItems[0].id, cipher.id)
+    }
+
+    /// `addItem(forGroup:with:)` does not add an item when the cipher is not archived and group is archive.
+    func test_addItem_doesNotAddWhenCipherIsNotArchivedAndGroupIsArchive() async {
+        let cipher = CipherListView.fixture(archivedDate: nil)
+        let preparedData = await subject.addItem(forGroup: .archive, with: cipher).build()
+
+        XCTAssertTrue(preparedData.groupItems.isEmpty)
+    }
 
     /// `addItem(forGroup:with:)` adds a trash item to the prepared data when the cipher is deleted and group is trash.
     func test_addItem_addsTrashItemWhenCipherIsDeletedAndGroupIsTrash() async {
@@ -188,7 +212,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     /// `addItem(forGroup:with:)` does not add a TOTP item when user does not have access.
     func test_addItem_doesNotAddTotpItemWhenNoAccess() async {
         let cipher = CipherListView.fixture(id: "1", type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
-        stateService.doesActiveAccountHavePremiumResult = false
+        totpService.isTotpAuthorizedResult = false
 
         let preparedData = await subject.addItem(forGroup: .totp, with: cipher).build()
 

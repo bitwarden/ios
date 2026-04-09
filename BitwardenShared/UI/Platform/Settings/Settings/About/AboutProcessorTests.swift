@@ -76,15 +76,62 @@ class AboutProcessorTests: BitwardenTestCase {
             state: AboutState(),
         )
 
-        XCTAssertEqual(subject.state.copyrightText, "© Bitwarden Inc. 2015–2025")
+        XCTAssertEqual(
+            subject.state.copyrightText,
+            "© Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))",
+        )
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
         XCTAssertEqual(subject.state.version, "1.0 (1)")
+    }
+
+    /// `perform(_:)` with `.copyVersionInfo` copies the copyright, the version string
+    /// and device info to the pasteboard.
+    @MainActor
+    func test_perform_copyVersionInfo() async {
+        await subject.perform(.copyVersionInfo)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            """,
+        )
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
+    }
+
+    /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(true))` navigates to the enable
+    /// flight recorder screen when toggled on.
+    @MainActor
+    func test_perform_flightRecorder_toggleFlightRecorder_on() async {
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
+
+        await subject.perform(.flightRecorder(.toggleFlightRecorder(true)))
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.enableFlightRecorder)])
+    }
+
+    /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(false))` disables the flight
+    /// recorder when toggled off.
+    @MainActor
+    func test_perform_flightRecorder_toggleFlightRecorder_off() async throws {
+        subject.state.flightRecorderState.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: .now,
+        )
+
+        await subject.perform(.flightRecorder(.toggleFlightRecorder(false)))
+
+        XCTAssertTrue(flightRecorder.disableFlightRecorderCalled)
     }
 
     /// `perform(_:)` with `.streamFlightRecorderLog` subscribes to the active flight recorder log.
     @MainActor
     func test_perform_streamFlightRecorderLog() async throws {
-        XCTAssertNil(subject.state.flightRecorderActiveLog)
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
 
         let task = Task {
             await subject.perform(.streamFlightRecorderLog)
@@ -93,36 +140,12 @@ class AboutProcessorTests: BitwardenTestCase {
 
         let log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         flightRecorder.activeLogSubject.send(log)
-        try await waitForAsync { self.subject.state.flightRecorderActiveLog != nil }
-        XCTAssertEqual(subject.state.flightRecorderActiveLog, log)
+        try await waitForAsync { self.subject.state.flightRecorderState.activeLog != nil }
+        XCTAssertEqual(subject.state.flightRecorderState.activeLog, log)
 
         flightRecorder.activeLogSubject.send(nil)
-        try await waitForAsync { self.subject.state.flightRecorderActiveLog == nil }
-        XCTAssertNil(subject.state.flightRecorderActiveLog)
-    }
-
-    /// `perform(_:)` with `.toggleFlightRecorder(false)` disables the flight recorder when toggled off.
-    @MainActor
-    func test_perform_toggleFlightRecorder_off() async throws {
-        subject.state.flightRecorderActiveLog = FlightRecorderData.LogMetadata(
-            duration: .eightHours,
-            startDate: .now,
-        )
-
-        await subject.perform(.toggleFlightRecorder(false))
-
-        XCTAssertTrue(flightRecorder.disableFlightRecorderCalled)
-    }
-
-    /// `perform(_:)` with `.toggleFlightRecorder(true)` navigates to the enable flight
-    /// recorder screen when toggled on.
-    @MainActor
-    func test_perform_toggleFlightRecorder_on() async {
-        XCTAssertNil(subject.state.flightRecorderActiveLog)
-
-        await subject.perform(.toggleFlightRecorder(true))
-
-        XCTAssertEqual(coordinator.routes, [.enableFlightRecorder])
+        try await waitForAsync { self.subject.state.flightRecorderState.activeLog == nil }
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
     }
 
     /// `receive(_:)` with `.clearAppReviewURL` clears the app review URL in the state.
@@ -139,6 +162,15 @@ class AboutProcessorTests: BitwardenTestCase {
         subject.state.url = .example
         subject.receive(.clearURL)
         XCTAssertNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with action `.flightRecorder(.viewLogsTapped)` navigates to the view flight
+    /// recorder logs screen.
+    @MainActor
+    func test_receive_flightRecorder_viewFlightRecorderLogsTapped() {
+        subject.receive(.flightRecorder(.viewLogsTapped))
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.flightRecorderLogs)])
     }
 
     /// `receive(_:)` with `.helpCenterTapped` set the URL to open in the state.
@@ -205,34 +237,6 @@ class AboutProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
         XCTAssertTrue(errorReporter.isEnabled)
-    }
-
-    /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string
-    /// and device info to the pasteboard.
-    @MainActor
-    func test_receive_versionTapped() {
-        subject.receive(.versionTapped)
-        XCTAssertEqual(
-            pasteboardService.copiedString,
-            """
-            © Bitwarden Inc. 2015–2025
-
-            📝 Bitwarden 1.0 (1)
-            📦 Bundle: com.8bit.bitwarden
-            📱 Device: iPhone14,2
-            🍏 System: iOS 16.4
-            """,
-        )
-        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
-    }
-
-    /// `receive(_:)` with action `.isFlightRecorderToggleOn` navigates to the view flight recorder
-    /// logs screen.
-    @MainActor
-    func test_receive_viewFlightRecorderLogsTapped() {
-        subject.receive(.viewFlightRecorderLogsTapped)
-
-        XCTAssertEqual(coordinator.routes, [.flightRecorderLogs])
     }
 
     /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the web vault

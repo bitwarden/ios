@@ -5,6 +5,7 @@ import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - BitwardenSdk.CipherType
 
@@ -204,6 +205,7 @@ class CipherViewTests: BitwardenTestCase {
                 viewPassword: true,
                 localData: nil,
                 attachments: nil,
+                attachmentDecryptionFailures: nil,
                 fields: nil,
                 passwordHistory: nil,
                 creationDate: timeProvider.presentTime,
@@ -255,6 +257,7 @@ class CipherViewTests: BitwardenTestCase {
                 viewPassword: true,
                 localData: nil,
                 attachments: nil,
+                attachmentDecryptionFailures: nil,
                 fields: nil,
                 passwordHistory: nil,
                 creationDate: timeProvider.presentTime,

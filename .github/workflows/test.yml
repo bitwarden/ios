@@ -67,7 +67,9 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Optimize macOS Runner
         uses: ./.github/actions/macos-runner-tuneup
@@ -90,12 +92,12 @@ jobs:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@44511735964dcb71245e7e55f72539531f7bc0eb # v1.257.0
+        uses: ruby/setup-ruby@c984c1a20bb35a1cbda04477c816cea024418be9 # v1.294.0
         with:
           bundler-cache: true
 
       - name: Cache Mint packages
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -103,7 +105,7 @@ jobs:
             ${{ runner.os }}-mint-
 
       - name: Cache SPM packages
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: build/DerivedData/SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
@@ -112,7 +114,7 @@ jobs:
 
       - name: Update local config
         run: |
-          ./Scripts/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
+          ./Scripts/update_test_local_config.sh "${_COMPILER_FLAGS}"
 
       - name: Install Homebrew Dependencies and run bootstrap.sh
         run: |
@@ -121,54 +123,50 @@ jobs:
           ./Scripts/bootstrap.sh
 
       - name: Boot Simulator
-        run: |
-            echo "Listing simulator devices:"
-            SIMULATORS=$(xcrun simctl list devices "iOS $_SIMULATOR_VERSION" available)
-            echo "$SIMULATORS"
-            DEVICE_ID=$(echo "$SIMULATORS" | grep "$_SIMULATOR_NAME" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
-            echo "--------------------------------"
-            echo "👀 Updating dyld_shared_cache:"
-            xcrun simctl runtime dyld_shared_cache update --all
-            echo "--------------------------------"
-            echo "👀 Booting simulator: $_SIMULATOR_NAME ($_SIMULATOR_VERSION) with ID: $DEVICE_ID"
-            xcrun simctl bootstatus "$DEVICE_ID" -b
+        id: boot-simulator
+        uses: ./.github/actions/boot-simulator
+        with:
+          simulator-name: ${{ env._SIMULATOR_NAME }}
+          simulator-version: ${{ env._SIMULATOR_VERSION }}
 
       - name: Build
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
             xcrun xcodebuild build-for-testing \
               -workspace Bitwarden.xcworkspace \
               -scheme Bitwarden \
               -configuration Debug \
-              -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+              -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
               -derivedDataPath build/DerivedData \
-              -resultBundlePath $_BUILD_RESULT_BUNDLE_PATH \
+              -resultBundlePath "$_BUILD_RESULT_BUNDLE_PATH" \
               -quiet
-            kill $PYEETD_PID
+            kill "$PYEETD_PID"
 
       - name: Test
+        id: test
+        env:
+          _SIMULATOR_ID: ${{ steps.boot-simulator.outputs.simulator-id }}
         run: |
             python Scripts/pyeetd/main.py & PYEETD_PID=$!
             xcrun xcodebuild test-without-building \
               -workspace Bitwarden.xcworkspace \
               -scheme Bitwarden \
               -configuration Debug \
-              -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
-              -resultBundlePath $_TESTS_RESULT_BUNDLE_PATH \
+              -destination "platform=iOS Simulator,id=$_SIMULATOR_ID" \
+              -resultBundlePath "$_TESTS_RESULT_BUNDLE_PATH" \
               -derivedDataPath build/DerivedData \
               -test-timeouts-enabled yes \
               -maximum-test-execution-time-allowance 1 \
-              -retry-tests-on-failure \
-              -test-repetition-relaunch-enabled YES \
               -quiet
-            kill $PYEETD_PID
+            kill "$PYEETD_PID"
 
       - name: Print Logs Summary
-        if: always()
+        if: always() && steps.test.outcome != 'skipped'
         run: |
-          xcresultparser -o cli "$_TESTS_RESULT_BUNDLE_PATH"
-          echo "# Test Summary" >> $GITHUB_STEP_SUMMARY
-          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" | grep "Number of" >> $GITHUB_STEP_SUMMARY
+          xcresultparser -f -o cli "$_TESTS_RESULT_BUNDLE_PATH"
+          xcresultparser -f -o txt "$_TESTS_RESULT_BUNDLE_PATH" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Convert coverage to Cobertura
         run: |
@@ -177,7 +175,7 @@ jobs:
             "$_TESTS_RESULT_BUNDLE_PATH" > "$_COVERAGE_PATH"
 
       - name: Upload test reports
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         if: always()
         with:
           name: test-reports
@@ -198,23 +196,25 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           sparse-checkout: .github/codecov.yml
           sparse-checkout-cone-mode: false
+          persist-credentials: false
 
       - name: Download test artifacts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: test-reports
 
       - name: Upload to codecov.io
         id: upload-to-codecov
-        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         continue-on-error: true
         with:
           files: coverage.xml
           fail_ci_if_error: true
+          version: v11.2.3 # Do not bump until this is fixed: https://github.com/getsentry/prevent-cli/issues/101
 
       - name: Comment PR if tests failed
         if: steps.upload-to-codecov.outcome == 'failure'
@@ -223,10 +223,10 @@ jobs:
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             RUN_ACTOR: ${{ github.triggering_actor }}
         run: |
-          echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
-          echo "> Uploading code coverage report failed. Please check the \"Upload to codecov.io\" step of \"Process Test Reports\" job for more details." >> $GITHUB_STEP_SUMMARY
+          echo "> [!WARNING]" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Uploading code coverage report failed. Please check the \"Upload to codecov.io\" step of \"Process Test Reports\" job for more details." >> "$GITHUB_STEP_SUMMARY"
 
           if [ ! -z "$PR_NUMBER" ]; then
             message=$'> [!WARNING]\n> @'$RUN_ACTOR' Uploading code coverage report failed. Please check the "Upload to codecov.io" step of [Process Test Reports job]('$_GITHUB_ACTION_RUN_URL') for more details.'
-            gh pr comment --repo $GITHUB_REPOSITORY $PR_NUMBER --body "$message"
+            gh pr comment --repo "$GITHUB_REPOSITORY" "$PR_NUMBER" --body "$message"
           fi

@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 /// An object that is notified external navigation actions need to occur from within the import logins flow.

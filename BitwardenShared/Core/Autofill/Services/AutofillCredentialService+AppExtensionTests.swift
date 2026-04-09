@@ -1,0 +1,422 @@
+// swiftlint:disable:this file_name
+
+import AuthenticationServices
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenSdk
+import TestHelpers
+import XCTest
+
+@testable import BitwardenShared
+@testable import BitwardenSharedMocks
+
+// swiftlint:disable file_length
+
+/// The tests for `DefaultAutofillCredentialService` when the app context is `.appExtension`.
+/// This new file is needed given that the app context is necessary on `DefaultAutofillCredentialService`
+/// initialization to see if the subscription to the `VaultTimeoutService` is necessary. So it's easier to test
+/// having a new class test specifically for it.
+@MainActor
+class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+    // MARK: Properties
+
+    var appContextHelper: MockAppContextHelper!
+    var autofillCredentialServiceDelegate: MockAutofillCredentialServiceDelegate!
+    var cipherService: MockCipherService!
+    var clientService: MockClientService!
+    var configService: MockConfigService!
+    var credentialIdentityFactory: MockCredentialIdentityFactory!
+    var deviceAuthKeyService: MockDeviceAuthKeyService!
+    var errorReporter: MockErrorReporter!
+    var eventService: MockEventService!
+    var fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate!
+    var fido2CredentialStore: MockFido2CredentialStore!
+    var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
+    var flightRecorder: MockFlightRecorder!
+    var identityStore: MockCredentialIdentityStore!
+    var notificationCenterService: MockNotificationCenterService!
+    var pasteboardService: MockPasteboardService!
+    var stateService: MockStateService!
+    var timeProvider: MockTimeProvider!
+    var totpService: MockTOTPService!
+    var subject: DefaultAutofillCredentialService!
+    var vaultTimeoutService: MockVaultTimeoutService!
+
+    // MARK: Setup & Teardown
+
+    override func setUp() {
+        super.setUp()
+
+        appContextHelper = MockAppContextHelper()
+        appContextHelper.appContext = .appExtension
+
+        autofillCredentialServiceDelegate = MockAutofillCredentialServiceDelegate()
+        cipherService = MockCipherService()
+        clientService = MockClientService()
+        configService = MockConfigService()
+        credentialIdentityFactory = MockCredentialIdentityFactory()
+        deviceAuthKeyService = MockDeviceAuthKeyService()
+        errorReporter = MockErrorReporter()
+        eventService = MockEventService()
+        fido2UserInterfaceHelperDelegate = MockFido2UserInterfaceHelperDelegate()
+        fido2CredentialStore = MockFido2CredentialStore()
+        fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
+        flightRecorder = MockFlightRecorder()
+        identityStore = MockCredentialIdentityStore()
+        notificationCenterService = MockNotificationCenterService()
+        pasteboardService = MockPasteboardService()
+        stateService = MockStateService()
+        timeProvider = MockTimeProvider(.currentTime)
+        totpService = MockTOTPService()
+        vaultTimeoutService = MockVaultTimeoutService()
+
+        subject = DefaultAutofillCredentialService(
+            appContextHelper: appContextHelper,
+            cipherService: cipherService,
+            clientService: clientService,
+            configService: configService,
+            credentialIdentityFactory: credentialIdentityFactory,
+            deviceAuthKeyService: deviceAuthKeyService,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            fido2CredentialStore: fido2CredentialStore,
+            fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
+            identityStore: identityStore,
+            notificationCenterService: notificationCenterService,
+            pasteboardService: pasteboardService,
+            stateService: stateService,
+            timeProvider: timeProvider,
+            totpService: totpService,
+            vaultTimeoutService: vaultTimeoutService,
+        )
+    }
+
+    override func tearDown() async throws {
+        try await super.tearDown()
+
+        appContextHelper = nil
+        autofillCredentialServiceDelegate = nil
+        cipherService = nil
+        clientService = nil
+        configService = nil
+        credentialIdentityFactory = nil
+        deviceAuthKeyService = nil
+        errorReporter = nil
+        eventService = nil
+        fido2UserInterfaceHelperDelegate = nil
+        fido2CredentialStore = nil
+        fido2UserInterfaceHelper = nil
+        flightRecorder = nil
+        identityStore = nil
+        notificationCenterService = nil
+        pasteboardService = nil
+        stateService = nil
+        timeProvider = nil
+        totpService = nil
+        subject = nil
+        vaultTimeoutService = nil
+    }
+
+    // MARK: Tests
+
+    /// `subscribeToCipherChanges()` inserts credentials in the store when a cipher is inserted.
+    func test_subscribeToCipherChanges_insert() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        try await waitForCipherChangesSubscription()
+
+        // Send an upserted cipher
+        cipherService.cipherChangesSubject.send(
+            .upserted(.fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com",
+                ),
+            )),
+        )
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return identityStore.saveCredentialIdentitiesCalled
+        }
+
+        XCTAssertTrue(stateService.doesActiveAccountHavePremiumCalled)
+        XCTAssertTrue(identityStore.saveCredentialIdentitiesCalled)
+        XCTAssertEqual(
+            identityStore.saveCredentialIdentitiesIdentities,
+            [
+                .password(PasswordCredentialIdentity(id: "1", uri: "bitwarden.com", username: "user@bitwarden.com")),
+            ],
+        )
+    }
+
+    /// `subscribeToCipherChanges()` updates credentials in the store when a cipher is updated.
+    func test_subscribeToCipherChanges_update() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        credentialIdentityFactory.createCredentialIdentitiesMocker
+            .withResult { cipher in
+                if cipher.id == "3" {
+                    [
+                        .password(
+                            PasswordCredentialIdentity(
+                                id: "3",
+                                uri: "example.com",
+                                username: "updated@example.com",
+                            ),
+                        ),
+                    ]
+                } else {
+                    []
+                }
+            }
+
+        try await waitForCipherChangesSubscription()
+
+        // Send an upserted cipher
+        cipherService.cipherChangesSubject.send(
+            .upserted(.fixture(
+                id: "3",
+                login: .fixture(
+                    password: "newpassword",
+                    uris: [.fixture(uri: "example.com")],
+                    username: "updated@example.com",
+                ),
+            )),
+        )
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return identityStore.saveCredentialIdentitiesCalled
+        }
+
+        XCTAssertTrue(identityStore.saveCredentialIdentitiesCalled)
+        XCTAssertEqual(
+            identityStore.saveCredentialIdentitiesIdentities,
+            [
+                .password(PasswordCredentialIdentity(id: "3", uri: "example.com", username: "updated@example.com")),
+            ],
+        )
+    }
+
+    /// `subscribeToCipherChanges()` removes credentials from the store when a cipher is deleted.
+    func test_subscribeToCipherChanges_delete() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        try await waitForCipherChangesSubscription()
+
+        // Send a deleted cipher
+        cipherService.cipherChangesSubject.send(
+            .deleted(.fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com",
+                ),
+            )),
+        )
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return identityStore.removeCredentialIdentitiesCalled
+        }
+
+        XCTAssertTrue(identityStore.removeCredentialIdentitiesCalled)
+        XCTAssertEqual(
+            identityStore.removeCredentialIdentitiesIdentities,
+            [
+                .password(PasswordCredentialIdentity(id: "1", uri: "bitwarden.com", username: "user@bitwarden.com")),
+            ],
+        )
+    }
+
+    /// `subscribeToCipherChanges()` does not do a full replace when ciphers are replaced to avoid
+    /// memory issues in extensions.
+    func test_subscribeToCipherChanges_replace_doesNotReplaceAll() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+
+        try await waitForCipherChangesSubscription()
+
+        // Send a replaced event
+        cipherService.cipherChangesSubject.send(.replacedAll)
+
+        // Wait a bit to ensure no full replacement is triggered
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        // Verify that a full replace was NOT performed
+        XCTAssertFalse(identityStore.replaceCredentialIdentitiesCalled)
+        XCTAssertFalse(cipherService.fetchAllCiphersCalled)
+    }
+
+    /// `subscribeToCipherChanges()` does not update the store when identity store is disabled.
+    func test_subscribeToCipherChanges_storeDisabled() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        identityStore.state.mockIsEnabled = false
+
+        try await waitForCipherChangesSubscription()
+
+        // Send an upserted cipher
+        cipherService.cipherChangesSubject.send(
+            .upserted(.fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com",
+                ),
+            )),
+        )
+
+        // Wait a bit to ensure no changes are processed
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        XCTAssertFalse(identityStore.saveCredentialIdentitiesCalled)
+    }
+
+    /// `subscribeToCipherChanges()` does not update the store when incremental updates are not supported.
+    func test_subscribeToCipherChanges_incrementalUpdatesNotSupported() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        identityStore.state.mockSupportsIncrementalUpdates = false
+
+        try await waitForCipherChangesSubscription()
+
+        // Send an upserted cipher
+        cipherService.cipherChangesSubject.send(
+            .upserted(.fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com",
+                ),
+            )),
+        )
+
+        // Wait a bit to ensure no changes are processed
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        XCTAssertFalse(identityStore.saveCredentialIdentitiesCalled)
+    }
+
+    /// `syncIdentities(vaultLockStatus:)` doesn't update the credential identity store with the identities
+    /// from the user's vault when the app context is `.appExtension`.
+    func test_syncIdentities_appExtensionContext() {
+        prepareDataForIdentitiesReplacement()
+
+        vaultTimeoutService.vaultLockStatusSubject.send(VaultLockStatus(isVaultLocked: false, userId: "1"))
+
+        XCTAssertFalse(cipherService.fetchAllCiphersCalled)
+        XCTAssertFalse(credentialIdentityFactory.createCredentialIdentitiesMocker.called)
+        XCTAssertFalse(identityStore.replaceCredentialIdentitiesCalled)
+        XCTAssertNil(identityStore.replaceCredentialIdentitiesIdentities)
+    }
+
+    /// `updateCredentialsInStore()` replaces all identities in the identity Store correctly
+    /// for the active user ID.
+    func test_updateCredentialsInStore_succeedsActiveUserId() async throws {
+        prepareDataForIdentitiesReplacement()
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "50"))
+
+        await subject.updateCredentialsInStore()
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return identityStore.replaceCredentialIdentitiesIdentities != nil
+        }
+
+        XCTAssertEqual(
+            identityStore.replaceCredentialIdentitiesIdentities,
+            [
+                .password(PasswordCredentialIdentity(id: "1", uri: "bitwarden.com", username: "user@bitwarden.com")),
+                .password(PasswordCredentialIdentity(id: "3", uri: "example.com", username: "user@example.com")),
+            ],
+        )
+        XCTAssertEqual(subject.lastSyncedUserId, "50")
+    }
+
+    /// `updateCredentialsInStore()` logs error when it throws.
+    func test_updateCredentialsInStore_logOnThrow() async throws {
+        stateService.activeAccount = nil
+
+        await subject.updateCredentialsInStore()
+
+        XCTAssertNil(identityStore.replaceCredentialIdentitiesIdentities)
+        XCTAssertEqual(subject.lastSyncedUserId, nil)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    // MARK: Private methods
+
+    /// Prepares fixture data for identities replacement tests.
+    func prepareDataForIdentitiesReplacement() {
+        cipherService.fetchAllCiphersResult = .success([
+            .fixture(
+                id: "1",
+                login: .fixture(
+                    password: "password123",
+                    uris: [.fixture(uri: "bitwarden.com")],
+                    username: "user@bitwarden.com",
+                ),
+            ),
+            .fixture(id: "2", type: .identity),
+            .fixture(
+                id: "3",
+                login: .fixture(
+                    password: "123321",
+                    uris: [.fixture(uri: "example.com")],
+                    username: "user@example.com",
+                ),
+            ),
+            .fixture(deletedDate: .now, id: "4", type: .login),
+        ])
+
+        credentialIdentityFactory.createCredentialIdentitiesMocker
+            .withResult { cipher in
+                if cipher.id == "1" {
+                    [
+                        .password(
+                            PasswordCredentialIdentity(
+                                id: "1",
+                                uri: "bitwarden.com",
+                                username: "user@bitwarden.com",
+                            ),
+                        ),
+                    ]
+                } else if cipher.id == "3" {
+                    [
+                        .password(
+                            PasswordCredentialIdentity(
+                                id: "3",
+                                uri: "example.com",
+                                username: "user@example.com",
+                            ),
+                        ),
+                    ]
+                } else {
+                    []
+                }
+            }
+    }
+
+    /// Waits until the cipher changes subscription is established.
+    private func waitForCipherChangesSubscription() async throws {
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.hasCipherChangesSubscription
+        }
+        // `hasCipherChangesSubscription` is set immediately before the `for try await` loop, but the
+        // actual Combine subscription isn't registered until the iterator's first `next()` call.
+        // Wait long enough for the subscription to be established, otherwise receiving the first
+        // value from the subscription can be unreliable.
+        try? await Task.sleep(forSeconds: 0.01)
+    }
+}

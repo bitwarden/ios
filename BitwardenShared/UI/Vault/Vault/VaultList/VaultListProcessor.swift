@@ -20,6 +20,8 @@ final class VaultListProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasChangeKdfService
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasFlightRecorder
@@ -27,7 +29,9 @@ final class VaultListProcessor: StateProcessor<
         & HasPasteboardService
         & HasPolicyService
         & HasReviewPromptService
+        & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
 
@@ -45,6 +49,9 @@ final class VaultListProcessor: StateProcessor<
 
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
+
+    /// The mediator between processors and search publisher/subscription behavior.
+    private let searchProcessorMediator: SearchProcessorMediator
 
     /// The services used by this processor.
     private let services: Services
@@ -72,8 +79,10 @@ final class VaultListProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
+        searchProcessorMediator = services.searchProcessorMediatorFactory.make()
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
+
         super.init(state: state)
     }
 
@@ -93,10 +102,20 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissArchiveOnboardingActionCard:
+            state.shouldShowArchiveOnboardingActionCard = false
+            await services.stateService.setArchiveOnboardingShown(true)
         case .dismissFlightRecorderToastBanner:
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
+        case .dismissPremiumUpgradeActionCard:
+            do {
+                try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+                state.shouldShowPremiumUpgradeActionCard = false
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -114,7 +133,7 @@ final class VaultListProcessor: StateProcessor<
         case .refreshVault:
             await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
-            state.searchResults = await searchVault(for: text)
+            await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
         case .streamFlightRecorderLog:
@@ -139,12 +158,20 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .addFolder)
         case let .addItemPressed(type):
             addItem(type: type)
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
             break
         case .disappeared:
             reviewPromptTask?.cancel()
+        case .goToArchive:
+            coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
         case let .itemPressed(item):
             handleItemTapped(item)
         case .navigateToFlightRecorderSettings:
@@ -155,25 +182,26 @@ final class VaultListProcessor: StateProcessor<
             guard isSearching else {
                 state.searchText = ""
                 state.searchResults = []
+                searchProcessorMediator.stopSearching()
                 return
+            }
+            searchProcessorMediator.startSearching(mode: nil) { [weak self] data in
+                self?.searchResultsReceived(data: data)
             }
             state.profileSwitcherState.isVisible = !isSearching
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
-        case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
+            break
+        case .upgradeToPremium:
+            // TODO: PM-33849 - Navigate to upgrade to premium view
             break
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
@@ -192,9 +220,15 @@ extension VaultListProcessor {
         setProfileSwitcher(visible: false)
         switch state.vaultFilterType {
         case let .organization(organization):
-            coordinator.navigate(to: .addItem(organizationId: organization.id, type: type))
+            coordinator.navigate(
+                to: .addItem(organizationId: organization.id, type: type),
+                context: self,
+            )
         default:
-            coordinator.navigate(to: .addItem(type: type))
+            coordinator.navigate(
+                to: .addItem(type: type),
+                context: self,
+            )
         }
         reviewPromptTask?.cancel()
     }
@@ -206,6 +240,21 @@ extension VaultListProcessor {
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
         await loadItemTypesUserCanCreate()
+
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+
+        if await services.configService.getFeatureFlag(.archiveVaultItems) {
+            state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+        }
+
+        if await services.configService.getFeatureFlag(.premiumUpgradePath) {
+            let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
+            let hasEnoughItems = await (try? services.vaultRepository
+                .hasMinimumCipherCount(Constants.minimumPremiumUpgradeBannerCipherCount)) ?? false
+            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
+        } else {
+            state.shouldShowPremiumUpgradeActionCard = false
+        }
     }
 
     /// Checks if the user needs to update their KDF settings.
@@ -245,6 +294,9 @@ extension VaultListProcessor {
                 // Since the request has been handled, remove it from local storage.
                 await services.stateService.setLoginRequest(nil)
             }
+        } catch is PendingLoginRequestError {
+            // Login request no longer exists on the server (e.g., expired); clear it from state.
+            await services.stateService.setLoginRequest(nil)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -267,7 +319,6 @@ extension VaultListProcessor {
     /// Dismisses the flight recorder toast banner for the active user.
     ///
     private func dismissFlightRecorderToastBanner() async {
-        state.isFlightRecorderToastBannerVisible = false
         await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
@@ -298,7 +349,16 @@ extension VaultListProcessor {
             } else {
                 navigateToViewItem(cipherListView: cipherListView, id: item.id)
             }
-        case let .group(group, _):
+        case let .group(group, count):
+            if !state.hasPremium, group == .archive, count == 0 {
+                coordinator.showAlert(
+                    Alert.archiveUnavailable(action: { [weak self] in
+                        guard let self else { return }
+                        state.url = services.environmentService.upgradeToPremiumURL
+                    }),
+                )
+                return
+            }
             coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
         case let .totp(_, model):
             navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
@@ -327,7 +387,10 @@ extension VaultListProcessor {
     private func navigateToViewItem(cipherListView: CipherListView, id: String) {
         Task {
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
-                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+                self.coordinator.navigate(
+                    to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true),
+                    context: self,
+                )
             }
         }
     }
@@ -351,7 +414,6 @@ extension VaultListProcessor {
 
             try await services.vaultRepository.fetchSync(
                 forceSync: false,
-                filter: state.vaultFilterType,
                 isPeriodic: syncWithPeriodicCheck,
             )
 
@@ -419,27 +481,31 @@ extension VaultListProcessor {
         )
     }
 
-    /// Searches the vault using the provided string, and returns any matching results.
+    /// Function to be called when new search results are received.
+    /// - Parameters:
+    ///     - data: The new search results data.
+    ///
+    private func searchResultsReceived(data: VaultListData) {
+        let items = data.sections.first?.items ?? []
+        state.searchResults = items
+    }
+
+    /// Searches the vault using the provided string and sets to state any matching results.
     ///
     /// - Parameter searchText: The string to use when searching the vault.
-    /// - Returns: An array of `VaultListItem`s. If no results can be found, an empty array will be returned.
     ///
-    private func searchVault(for searchText: String) async -> [VaultListItem] {
+    private func searchVault(for searchText: String) async {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
+            state.searchResults = []
+            return
         }
-        do {
-            let result = try await services.vaultRepository.searchVaultListPublisher(
+
+        searchProcessorMediator.updateFilter(
+            VaultListFilter(
+                filterType: state.searchVaultFilterType,
                 searchText: searchText,
-                filter: VaultListFilter(filterType: state.searchVaultFilterType),
-            )
-            for try await ciphers in result {
-                return ciphers
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-        return []
+            ),
+        )
     }
 
     /// Sets the user's import logins progress.
@@ -497,8 +563,7 @@ extension VaultListProcessor {
     ///
     private func streamFlightRecorderLog() async {
         for await log in await services.flightRecorder.activeLogPublisher().values {
-            state.activeFlightRecorderLog = log
-            state.isFlightRecorderToastBannerVisible = !(log?.isBannerDismissed ?? true)
+            state.flightRecorderToastBanner.activeLog = log
         }
     }
 
@@ -517,7 +582,12 @@ extension VaultListProcessor {
     private func streamVaultList() async {
         do {
             for try await vaultList in try await services.vaultRepository
-                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
+                .vaultListPublisher(
+                    filter: VaultListFilter(
+                        filterType: state.vaultFilterType,
+                        options: [.addTOTPGroup, .addHiddenItemsGroup],
+                    ),
+                ) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
 
@@ -556,6 +626,10 @@ extension VaultListProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemArchived() {
+        state.toast = Toast(title: Localizations.itemMovedToArchive)
+    }
+
     func itemDeleted() {
         state.toast = Toast(title: Localizations.itemDeleted)
     }
@@ -567,12 +641,19 @@ extension VaultListProcessor: CipherItemOperationDelegate {
     func itemRestored() {
         state.toast = Toast(title: Localizations.itemRestored)
     }
+
+    func itemUnarchived() {
+        state.toast = Toast(title: Localizations.itemMovedToVault)
+    }
 }
 
 // MARK: - MoreOptionsAction
 
 /// The actions available from the More Options alert.
 enum MoreOptionsAction: Equatable {
+    /// Archives a  cipher.
+    case archive(cipherView: CipherView)
+
     /// Copy the `value` and show a toast with the `toast` string.
     case copy(
         toast: String,
@@ -590,6 +671,9 @@ enum MoreOptionsAction: Equatable {
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)
+
+    /// Unarchives a  cipher.
+    case unarchive(cipherView: CipherView)
 
     /// Navigate to view the item with the given `id`.
     case view(id: String)
@@ -641,7 +725,7 @@ extension VaultListProcessor: ProfileSwitcherHandler {
         coordinator.navigate(to: .addAccount)
     }
 
-    func showAlert(_ alert: Alert) {
+    func showAlert(_ alert: BitwardenKit.Alert) {
         coordinator.showAlert(alert)
     }
 

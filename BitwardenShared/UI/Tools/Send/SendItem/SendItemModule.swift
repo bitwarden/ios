@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SendItemModule
 
 /// An object that builds coordinators for the send item flow.

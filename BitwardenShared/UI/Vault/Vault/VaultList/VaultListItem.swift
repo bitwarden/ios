@@ -40,6 +40,10 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
     /// The identifier for the item.
     public let id: String
 
+    /// Whether the user has premium subscription.
+    /// This is only used on Archive group for now, so it's not being set for any other occassions.
+    public let hasPremium: Bool
+
     /// The type of item being displayed by this item.
     public let itemType: ItemType
 }
@@ -76,9 +80,29 @@ extension VaultListItem {
         guard let id = cipherListView.id, cipherListView.type.isLogin else { return nil }
         self.init(id: id, itemType: .cipher(cipherListView, fido2CredentialAutofillView))
     }
+
+    /// Initialize a `VaultListItem` from an ID and an `ItemType`.
+    /// - Parameters:
+    ///   - id: The ID of the item.
+    ///   - itemType: The `ItemType` of the item.
+    init(id: String, itemType: ItemType) {
+        self.init(id: id, hasPremium: false, itemType: itemType)
+    }
 }
 
 extension VaultListItem {
+    /// The accessory icon to use on the trailing side of the row.
+    var accessoryIcon: SharedImageAsset? {
+        switch itemType {
+        case let .group(group, count):
+            isPremiumSubscriptionRequired(group: group, count: count)
+                ? SharedAsset.Icons.locked24
+                : nil
+        default:
+            nil
+        }
+    }
+
     var cipherDecorativeIconDataView: CipherDecorativeIconDataView? {
         loginListView
     }
@@ -132,6 +156,8 @@ extension VaultListItem {
                 SharedAsset.Icons.clock24
             case .trash:
                 SharedAsset.Icons.trash24
+            case .archive:
+                SharedAsset.Icons.archive24
             }
         case .totp:
             SharedAsset.Icons.clock24
@@ -209,11 +235,27 @@ extension VaultListItem {
         switch itemType {
         case let .cipher(cipherView, fido2CredentialAutofillView):
             fido2CredentialAutofillView?.userNameForUi ?? cipherView.subtitle
-        case .group:
-            nil
+        case let .group(group, count):
+            isPremiumSubscriptionRequired(group: group, count: count)
+                ? Localizations.premiumSubscriptionRequired
+                : nil
         case .totp:
             nil
         }
+    }
+
+    // MARK: Private methods
+
+    /// Whether premium subscription is required
+    /// - Parameters:
+    ///   - group: The vault list group to check.
+    ///   - count: The count of the group to check.
+    /// - Returns: `true` if required, `false` otherwise.
+    func isPremiumSubscriptionRequired(group: VaultListGroup, count: Int) -> Bool {
+        if !hasPremium, group == .archive, count == 0 {
+            return true
+        }
+        return false
     }
 }
 

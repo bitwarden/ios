@@ -12,6 +12,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
     var canVerifyMasterPasswordForUserResult: Result<[String: Bool], Error> = .success([:])
     var checkSessionTimeoutCalled = false
+    var checkSessionTimeoutIsAppRestart: Bool?
+    var checkSessionTimeoutsShouldTimeoutActiveUser = false // swiftlint:disable:this identifier_name
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
@@ -59,6 +61,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var profileSwitcherState: ProfileSwitcherState?
     var requestOtpCalled = false
     var requestOtpResult: Result<Void, Error> = .success(())
+    var revokeSelfFromOrganizationCalled = false
+    var revokeSelfFromOrganizationOrganizationId: String?
+    var revokeSelfFromOrganizationResult: Result<Void, Error> = .success(())
     var sessionTimeoutAction = [String: SessionTimeoutAction]()
     var setActiveAccountId: String?
     var setActiveAccountError: Error?
@@ -144,9 +149,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         }
     }
 
-    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async {
+    func checkSessionTimeouts(isAppRestart: Bool = false, handleActiveUser: ((String) async -> Void)?) async {
         checkSessionTimeoutCalled = true
+        checkSessionTimeoutIsAppRestart = isAppRestart
         handleActiveUserClosure = handleActiveUser
+        if checkSessionTimeoutsShouldTimeoutActiveUser, let activeAccount {
+            await handleActiveUser?(activeAccount.profile.userId)
+        }
     }
 
     func clearPins() async throws {
@@ -297,6 +306,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func requestOtp() async throws {
         requestOtpCalled = true
         try requestOtpResult.get()
+    }
+
+    func revokeSelfFromOrganization(organizationId: String) async throws {
+        revokeSelfFromOrganizationCalled = true
+        revokeSelfFromOrganizationOrganizationId = organizationId
+        try revokeSelfFromOrganizationResult.get()
     }
 
     func setActiveAccount(userId: String) async throws -> Account {

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenSdk
 import Foundation
 
 @testable import BitwardenShared
@@ -6,37 +8,45 @@ class MockKeychainRepository: KeychainRepository {
     var appId: String = "mockAppId"
     var mockStorage = [String: String]()
     var securityType: SecAccessControlCreateFlags?
-    var deleteAllItemsCalled = false
-    var deleteAllItemsResult: Result<Void, Error> = .success(())
-    var deleteItemsForUserIds = [String]()
-    var deleteItemsForUserResult: Result<Void, Error> = .success(())
+
     var deleteResult: Result<Void, Error> = .success(())
     var getResult: Result<String, Error>?
     var setResult: Result<Void, Error> = .success(())
 
+    var deleteAllItemsCalled = false
+    var deleteAllItemsResult: Result<Void, Error> = .success(())
+    var deleteClientCertificateIdentityFingerprints = [String]() // swiftlint:disable:this identifier_name
+    var deleteClientCertificateIdentityResult: Result<Void, Error> = .success(())
+    var deleteItemsForUserIds = [String]()
+    var deleteItemsForUserResult: Result<Void, Error> = .success(())
+
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
-
     var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
-
+    var getClientCertificateIdentityFingerprints = [String]()
+    var getClientCertificateIdentityResult: Result<SecIdentity?, Error> = .success(nil)
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
-
-    var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
-
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
+    var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
+    var getServerCommunicationConfigResult: Result<BitwardenSdk.ServerCommunicationConfig?, Error> = .success(nil)
+    var getServerCommunicationConfigCalledHostname: String? // swiftlint:disable:this identifier_name
 
     var setAuthenticatorVaultKeyResult: Result<Void, Error> = .success(())
-
     var setAccessTokenResult: Result<Void, Error> = .success(())
-
+    var setClientCertificateIdentityFingerprints = [String]()
+    var setClientCertificateIdentityResult: Result<Void, Error> = .success(())
     var setDeviceKeyResult: Result<Void, Error> = .success(())
-
-    var setRefreshTokenResult: Result<Void, Error> = .success(())
-
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
+    var setRefreshTokenResult: Result<Void, Error> = .success(())
+    var setServerCommunicationConfigResult: Result<Void, Error> = .success(())
+    var setServerCommunicationConfigCalledConfig: BitwardenSdk.ServerCommunicationConfig?
+    var setServerCommunicationConfigCalledHostname: String? // swiftlint:disable:this identifier_name
+
+    var storedIdentities = [String: SecIdentity]()
 
     func deleteAllItems() async throws {
         deleteAllItemsCalled = true
         mockStorage.removeAll()
+        storedIdentities.removeAll()
         try deleteAllItemsResult.get()
     }
 
@@ -44,6 +54,12 @@ class MockKeychainRepository: KeychainRepository {
         try deleteResult.get()
         let formattedKey = formattedKey(for: .authenticatorVaultKey(userId: userId))
         mockStorage = mockStorage.filter { $0.key != formattedKey }
+    }
+
+    func deleteClientCertificateIdentity(fingerprint: String) async throws {
+        deleteClientCertificateIdentityFingerprints.append(fingerprint)
+        try deleteClientCertificateIdentityResult.get()
+        storedIdentities.removeValue(forKey: fingerprint)
     }
 
     func deleteItems(for userId: String) async throws {
@@ -63,7 +79,13 @@ class MockKeychainRepository: KeychainRepository {
         mockStorage = mockStorage.filter { $0.key != formattedKey }
     }
 
-    func deleteUserAuthKey(for item: KeychainItem) async throws {
+    func deleteServerCommunicationConfig(hostname: String) async throws {
+        try deleteResult.get()
+        let formattedKey = formattedKey(for: .serverCommunicationConfig(hostname: hostname))
+        mockStorage = mockStorage.filter { $0.key != formattedKey }
+    }
+
+    func deleteUserAuthKey(for item: BitwardenKeychainItem) async throws {
         try deleteResult.get()
         let formattedKey = formattedKey(for: item)
         mockStorage = mockStorage.filter { $0.key != formattedKey }
@@ -75,6 +97,12 @@ class MockKeychainRepository: KeychainRepository {
 
     func getAuthenticatorVaultKey(userId: String) async throws -> String {
         try getValue(for: .authenticatorVaultKey(userId: userId))
+    }
+
+    func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
+        getClientCertificateIdentityFingerprints.append(fingerprint)
+        _ = try getClientCertificateIdentityResult.get()
+        return storedIdentities[fingerprint]
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
@@ -89,7 +117,12 @@ class MockKeychainRepository: KeychainRepository {
         try getPendingAdminLoginRequestResult.get()
     }
 
-    func getUserAuthKeyValue(for item: KeychainItem) async throws -> String {
+    func getServerCommunicationConfig(hostname: String) async throws -> BitwardenSdk.ServerCommunicationConfig? {
+        getServerCommunicationConfigCalledHostname = hostname
+        return try getServerCommunicationConfigResult.get()
+    }
+
+    func getUserAuthKeyValue(for item: BitwardenKeychainItem) async throws -> String {
         let formattedKey = formattedKey(for: item)
         if let result = getResult {
             let value = try result.get()
@@ -98,19 +131,19 @@ class MockKeychainRepository: KeychainRepository {
         } else if let value = mockStorage[formattedKey] {
             return value
         } else {
-            throw KeychainServiceError.keyNotFound(item)
+            throw KeychainServiceError.osStatusError(errSecItemNotFound)
         }
     }
 
-    func getValue(for item: KeychainItem) throws -> String {
+    func getValue(for item: BitwardenKeychainItem) throws -> String {
         let formattedKey = formattedKey(for: item)
         guard let value = mockStorage[formattedKey] else {
-            throw KeychainServiceError.keyNotFound(item)
+            throw KeychainServiceError.osStatusError(errSecItemNotFound)
         }
         return value
     }
 
-    func formattedKey(for item: KeychainItem) -> String {
+    func formattedKey(for item: BitwardenKeychainItem) -> String {
         String(format: storageKeyFormat, appId, item.unformattedKey)
     }
 
@@ -122,6 +155,12 @@ class MockKeychainRepository: KeychainRepository {
     func setAuthenticatorVaultKey(_ value: String, userId: String) async throws {
         try setAuthenticatorVaultKeyResult.get()
         mockStorage[formattedKey(for: .authenticatorVaultKey(userId: userId))] = value
+    }
+
+    func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws {
+        setClientCertificateIdentityFingerprints.append(fingerprint)
+        try setClientCertificateIdentityResult.get()
+        storedIdentities[fingerprint] = identity
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {
@@ -138,7 +177,16 @@ class MockKeychainRepository: KeychainRepository {
         mockStorage[formattedKey(for: .pendingAdminLoginRequest(userId: userId))] = value
     }
 
-    func setUserAuthKey(for item: KeychainItem, value: String) async throws {
+    func setServerCommunicationConfig(
+        _ config: BitwardenSdk.ServerCommunicationConfig?,
+        hostname: String,
+    ) async throws {
+        setServerCommunicationConfigCalledConfig = config
+        setServerCommunicationConfigCalledHostname = hostname
+        try setServerCommunicationConfigResult.get()
+    }
+
+    func setUserAuthKey(for item: BitwardenKeychainItem, value: String) async throws {
         let formattedKey = formattedKey(for: item)
         securityType = item.accessControlFlags
         try setResult.get()

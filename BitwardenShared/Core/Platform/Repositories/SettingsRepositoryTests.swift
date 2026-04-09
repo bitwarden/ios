@@ -3,6 +3,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class SettingsRepositoryTests: BitwardenTestCase {
     // MARK: Properties

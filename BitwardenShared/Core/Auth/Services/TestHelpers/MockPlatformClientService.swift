@@ -8,6 +8,7 @@ class MockPlatformClientService: PlatformClientService {
     var fingerprintResult: Result<String, Error> = .success("a-fingerprint-phrase-string-placeholder")
     var featureFlags: [String: Bool] = [:]
     var loadFlagsError: Error?
+    var serverCommunicationConfigResult: ServerCommunicationConfigClientProtocol!
     var stateMock = MockStateClient()
     var userFingerprintCalled = false
 
@@ -24,6 +25,13 @@ class MockPlatformClientService: PlatformClientService {
             throw loadFlagsError
         }
         featureFlags = flags
+    }
+
+    func serverCommunicationConfig(
+        repository: ServerCommunicationConfigRepository,
+        platformApi: ServerCommunicationConfigPlatformApi,
+    ) -> ServerCommunicationConfigClientProtocol {
+        serverCommunicationConfigResult
     }
 
     func state() -> StateClientProtocol {

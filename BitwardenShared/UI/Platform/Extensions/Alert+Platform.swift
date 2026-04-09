@@ -1,6 +1,7 @@
-// MARK: - Alert+Account
-
+import BitwardenKit
 import BitwardenResources
+
+// MARK: - Alert+Account
 
 extension Alert {
     // MARK: Methods

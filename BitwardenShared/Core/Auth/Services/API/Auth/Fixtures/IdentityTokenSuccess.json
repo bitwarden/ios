@@ -8,7 +8,6 @@
   "Key": "KEY",
   "MasterPasswordPolicy": null,
   "ForcePasswordReset": false,
-  "ResetMasterPassword": false,
   "Kdf": 0,
   "KdfIterations": 600000,
   "KdfMemory": null,

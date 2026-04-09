@@ -88,16 +88,14 @@ struct ItemListItemRowView: View {
                     Text(accountName)
                         .styleGuide(.subheadline)
                         .lineLimit(1)
-                        .foregroundColor(
-                            Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
             } else {
                 if let accountName = accountName?.nilIfEmpty {
                     Text(accountName)
                         .styleGuide(.headline)
                         .lineLimit(1)
-                        .foregroundColor(
-                            Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 }
             }
         }

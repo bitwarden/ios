@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenResources
 import SnapshotTesting
 import XCTest
@@ -11,7 +12,7 @@ import XCTest
 class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    let copyrightText = "© Bitwarden Inc. 2015-2024"
+    let copyrightText = "© Bitwarden Inc. 2015-2024" // Copyrights with snapshot tests shouldn't be dynamic
     let version = "Version: 1.0.0 (1)"
 
     var processor: MockProcessor<SettingsState, SettingsAction, SettingsEffect>!
@@ -48,7 +49,7 @@ class SettingsViewTests: BitwardenTestCase {
     /// Tests the view renders correctly.
     @MainActor
     func disabletest_snapshot_viewRenderWithBiometricsAvailable() {
-        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
+        processor.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

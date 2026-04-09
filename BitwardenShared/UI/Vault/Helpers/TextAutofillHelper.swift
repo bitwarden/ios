@@ -31,7 +31,7 @@ protocol TextAutofillHelperDelegate: AnyObject {
     ///   - alert: The alert to show.
     ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
-    func showAlert(_ alert: Alert, onDismissed: (() -> Void)?)
+    func showAlert(_ alert: BitwardenKit.Alert, onDismissed: (() -> Void)?)
 }
 
 @MainActor

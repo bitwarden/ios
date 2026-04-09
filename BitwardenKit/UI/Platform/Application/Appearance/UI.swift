@@ -11,7 +11,7 @@ public enum UI {
     // MARK: Utilities
 
     /// App-wide flag that allows disabling UI animations for testing.
-    nonisolated(unsafe) public static var animated = true
+    public nonisolated(unsafe) static var animated = true
 
     /// The language code at initialization.
     public static var initialLanguageCode: String? {
@@ -25,7 +25,7 @@ public enum UI {
 
     #if DEBUG
     /// App-wide flag that allows overriding the OS level sizeCategory for testing.
-    nonisolated(unsafe) public static var sizeCategory: UIContentSizeCategory?
+    public nonisolated(unsafe) static var sizeCategory: UIContentSizeCategory?
     #endif
 
     // MARK: Factories
@@ -134,6 +134,21 @@ public enum UI {
         let tintedImage = image.withTintColor(SharedAsset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
         UISearchBar.appearance().setImage(SharedAsset.Icons.search16.image, for: .search, state: .normal)
+
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [
+                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(for: FontFamily.DMSans.regular.font(size: 13)),
+                .foregroundColor: SharedAsset.Colors.textSecondary.color,
+            ],
+            for: .normal,
+        )
+        UISegmentedControl.appearance().setTitleTextAttributes(
+            [
+                .font: UIFontMetrics(forTextStyle: .callout).scaledFont(for: FontFamily.DMSans.semiBold.font(size: 13)),
+                .foregroundColor: SharedAsset.Colors.textInteraction.color,
+            ],
+            for: .selected,
+        )
 
         // Adjust the appearance of `UITextView` for `BitwardenUITextField` instances on iOS 15.
         UITextView.appearance().isScrollEnabled = false

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - MasterPasswordGuidanceProcessor
 
 /// The processor used to manage state and handle actions for the master password guidance screen.
@@ -21,7 +23,7 @@ class MasterPasswordGuidanceProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
-    ///   - delegate: The delegate for the processor to notifiy saving a generated password.
+    ///   - delegate: The delegate for the processor to notify saving a generated password.
     ///
     init(
         coordinator: AnyCoordinator<AuthRoute, AuthEvent>,

@@ -2,6 +2,7 @@ import BitwardenResources
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class VaultListStateTests: BitwardenTestCase {
     // MARK: Properties

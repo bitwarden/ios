@@ -3,6 +3,7 @@ import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -30,14 +31,24 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     let maximumTimeoutPolicy = Policy.fixture(
         data: [
-            PolicyOptionType.minutes.rawValue: .int(60),
             PolicyOptionType.action.rawValue: .string("lock"),
+            PolicyOptionType.minutes.rawValue: .int(60),
+            PolicyOptionType.type.rawValue: .string("custom"),
         ],
         type: .maximumVaultTimeout,
     )
 
     let maximumTimeoutPolicyNoAction = Policy.fixture(
         data: [PolicyOptionType.minutes.rawValue: .int(60)],
+        type: .maximumVaultTimeout,
+    )
+
+    let maximumTimeoutPolicyLogout = Policy.fixture(
+        data: [
+            PolicyOptionType.action.rawValue: .string("logOut"),
+            PolicyOptionType.minutes.rawValue: .int(60),
+            PolicyOptionType.type.rawValue: .string("custom"),
+        ],
         type: .maximumVaultTimeout,
     )
 
@@ -243,7 +254,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                     data: [:],
                     type: .passwordGenerator,
                 ),
-            ])
+            ],
+        )
 
         var options = PasswordGenerationOptions()
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
@@ -325,6 +337,171 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(safePolicy.requireNumbers, false)
     }
 
+    // MARK: - getEarliestOrganizationApplyingPolicy Tests
+
+    /// `getEarliestOrganizationApplyingPolicy()` returns nil when no policies apply.
+    func test_getEarliestOrganizationApplyingPolicy_noPolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertNil(organizationId)
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` returns the organization ID when a single policy applies.
+    func test_getEarliestOrganizationApplyingPolicy_singlePolicy() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1")])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: Date(year: 2024, month: 1, day: 15),
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertEqual(organizationId, "org-1")
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` returns the organization with the earliest revision date.
+    func test_getEarliestOrganizationApplyingPolicy_multipleOrganizations_earliestFirst() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+            .fixture(id: "org-3"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: Date(year: 2024, month: 3, day: 15),
+                type: .personalOwnership,
+            ),
+            .fixture(
+                id: "policy-2",
+                organizationId: "org-2",
+                revisionDate: Date(year: 2024, month: 1, day: 10), // Earliest
+                type: .personalOwnership,
+            ),
+            .fixture(
+                id: "policy-3",
+                organizationId: "org-3",
+                revisionDate: Date(year: 2024, month: 2, day: 20),
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertEqual(organizationId, "org-2")
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` handles policies with nil revision dates.
+    func test_getEarliestOrganizationApplyingPolicy_nilRevisionDates() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: nil, // nil revision date should be treated as distant future
+                type: .personalOwnership,
+            ),
+            .fixture(
+                id: "policy-2",
+                organizationId: "org-2",
+                revisionDate: Date(year: 2024, month: 1, day: 10),
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertEqual(organizationId, "org-2")
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` returns an organization when all policies have nil revision dates.
+    func test_getEarliestOrganizationApplyingPolicy_allNilRevisionDates() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+            .fixture(id: "org-3"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: nil,
+                type: .personalOwnership,
+            ),
+            .fixture(
+                id: "policy-2",
+                organizationId: "org-2",
+                revisionDate: nil,
+                type: .personalOwnership,
+            ),
+            .fixture(
+                id: "policy-3",
+                organizationId: "org-3",
+                revisionDate: nil,
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        // When all policies have nil revisionDate (treated as distantFuture), any organization is acceptable
+        XCTAssertNotNil(organizationId)
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` returns nil when no active account.
+    func test_getEarliestOrganizationApplyingPolicy_noActiveAccount() async {
+        stateService.activeAccount = nil
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertNil(organizationId)
+    }
+
+    /// `getEarliestOrganizationApplyingPolicy()` only considers policies of the specified type.
+    func test_getEarliestOrganizationApplyingPolicy_onlyMatchingPolicyType() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "org-1"),
+            .fixture(id: "org-2"),
+        ])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(
+                id: "policy-1",
+                organizationId: "org-1",
+                revisionDate: Date(year: 2024, month: 1, day: 1), // Earlier but wrong type
+                type: .twoFactorAuthentication,
+            ),
+            .fixture(
+                id: "policy-2",
+                organizationId: "org-2",
+                revisionDate: Date(year: 2024, month: 6, day: 15),
+                type: .personalOwnership,
+            ),
+        ])
+
+        let organizationId = await subject.getEarliestOrganizationApplyingPolicy(.personalOwnership)
+
+        XCTAssertEqual(organizationId, "org-2")
+    }
+
+    // MARK: - isSendHideEmailDisabledByPolicy Tests
+
     /// `isSendHideEmailDisabledByPolicy()` returns whether the send's hide email option is disabled.
     func test_isSendHideEmailDisabledByPolicy() async {
         stateService.activeAccount = .fixture()
@@ -387,8 +564,21 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60)
-        XCTAssertEqual(policyValues?.action, .lock)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
+        XCTAssertEqual(policyValues?.timeoutAction, .lock)
+    }
+
+    /// `fetchTimeoutPolicyValues()` fetches timeout values when the policy contains data.
+    func test_fetchTimeoutPolicyValues_logout() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([maximumTimeoutPolicyLogout])
+
+        let policyValues = try await subject.fetchTimeoutPolicyValues()
+
+        XCTAssertEqual(policyValues?.timeoutAction, .logout)
+        XCTAssertEqual(policyValues?.timeoutType, .custom)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
     }
 
     /// `fetchTimeoutPolicyValues()` returns `nil` if the user is exempt from policies in the organization.
@@ -411,8 +601,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let policyValues = try await subject.fetchTimeoutPolicyValues()
 
-        XCTAssertEqual(policyValues?.value, 60)
-        XCTAssertNil(policyValues?.action)
+        XCTAssertEqual(policyValues?.timeoutValue?.rawValue, 60)
+        XCTAssertNil(policyValues?.timeoutAction)
     }
 
     /// `organizationsApplyingPolicyToUser(_:)` returns the organization IDs which apply the policy.

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - FileSelectionModule
 
 /// An object that builds coordinators for the file selection flow.

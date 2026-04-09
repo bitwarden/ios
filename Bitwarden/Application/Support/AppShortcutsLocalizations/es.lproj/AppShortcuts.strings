@@ -1,5 +1,5 @@
-"Lock all ${applicationName} accounts" = "Lock all ${applicationName} accounts";
-"Secure every ${applicationName} account" = "Secure every ${applicationName} account";
+"Lock all ${applicationName} accounts" = "Bloquear todas las cuentas de ${applicationName}";
+"Secure every ${applicationName} account" = "Proteja todas las cuentas de ${applicationName}";
 "Lock down all ${applicationName} sessions" = "Lock down all ${applicationName} sessions";
 "${applicationName}, lock all vaults" = "${applicationName}, lock all vaults";
 "Activate full lock for ${applicationName}" = "Activate full lock for ${applicationName}";

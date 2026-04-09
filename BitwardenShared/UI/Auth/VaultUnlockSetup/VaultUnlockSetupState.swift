@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 
 // MARK: - VaultUnlockSetupState
@@ -61,13 +62,13 @@ struct VaultUnlockSetupState: Equatable {
             case let .biometrics(type):
                 switch type {
                 case .faceID:
-                    Localizations.unlockWith(Localizations.faceID)
+                    Localizations.unlockWithFaceID
                 case .opticID:
-                    Localizations.unlockWith(Localizations.opticID)
+                    Localizations.unlockWithOpticID
                 case .touchID:
-                    Localizations.unlockWith(Localizations.touchID)
+                    Localizations.unlockWithTouchID
                 case .unknown:
-                    Localizations.unlockWithUnknownBiometrics
+                    Localizations.unlockWithBiometrics
                 }
             case .pin:
                 Localizations.unlockWithPIN

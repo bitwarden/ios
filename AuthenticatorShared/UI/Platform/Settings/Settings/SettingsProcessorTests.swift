@@ -14,6 +14,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     var biometricsRepository: MockBiometricsRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var flightRecorder: MockFlightRecorder!
     var pasteboardService: MockPasteboardService!
     var subject: SettingsProcessor!
 
@@ -28,7 +29,11 @@ class SettingsProcessorTests: BitwardenTestCase {
         biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator()
+        flightRecorder = MockFlightRecorder()
         pasteboardService = MockPasteboardService()
+
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .notAvailable
+
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
@@ -37,6 +42,7 @@ class SettingsProcessorTests: BitwardenTestCase {
                 authenticatorItemRepository: authItemRepository,
                 biometricsRepository: biometricsRepository,
                 configService: configService,
+                flightRecorder: flightRecorder,
                 pasteboardService: pasteboardService,
             ),
             state: SettingsState(),
@@ -52,11 +58,59 @@ class SettingsProcessorTests: BitwardenTestCase {
         biometricsRepository = nil
         configService = nil
         coordinator = nil
+        flightRecorder = nil
         pasteboardService = nil
         subject = nil
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.copyVersionInfo` copies the copyright, the version string and device
+    /// info to the pasteboard.
+    @MainActor
+    func test_perform_copyVersionInfo() async {
+        await subject.perform(.copyVersionInfo)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))
+
+            📝 Bitwarden 1.0 (1)
+            📦 Bundle: com.8bit.bitwarden
+            📱 Device: iPhone14,2
+            🍏 System: iOS 16.4
+            """,
+        )
+        XCTAssertEqual(
+            subject.state.toast?.title,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)).title,
+        )
+    }
+
+    /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(true))` navigates to the enable
+    /// flight recorder screen when toggled on.
+    @MainActor
+    func test_perform_flightRecorder_toggleFlightRecorder_on() async {
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
+
+        await subject.perform(.flightRecorder(.toggleFlightRecorder(true)))
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.enableFlightRecorder)])
+    }
+
+    /// `perform(_:)` with `.flightRecorder(.toggleFlightRecorder(false))` disables the flight
+    /// recorder when toggled off.
+    @MainActor
+    func test_perform_flightRecorder_toggleFlightRecorder_off() async throws {
+        subject.state.flightRecorderState.activeLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: .now,
+        )
+
+        await subject.perform(.flightRecorder(.toggleFlightRecorder(false)))
+
+        XCTAssertTrue(flightRecorder.disableFlightRecorderCalled)
+    }
 
     /// Performing `.loadData` sets the 'defaultSaveOption' to the current value in 'AppSettingsStore'.
     @MainActor
@@ -88,9 +142,8 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// Performing `.loadData` sets the session timeout to `.never` if biometrics are disabled.
     @MainActor
     func test_perform_loadData_vaultTimeout_biometricsDisabled() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: false, hasValidIntegrity: true),
-        )
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
         appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
         await subject.perform(.loadData)
         XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
@@ -99,9 +152,8 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// Performing `.loadData` sets the session timeout correctly when it is set in app settings..
     @MainActor
     func test_perform_loadData_vaultTimeout_fifteenMinutes() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true),
-        )
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
         appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
         await subject.perform(.loadData)
         XCTAssertEqual(subject.state.sessionTimeoutValue, .fifteenMinutes)
@@ -119,9 +171,8 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// set and biometrics is turned enabled.
     @MainActor
     func test_perform_loadData_vaultTimeout_nilWithBiometrics() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true),
-        )
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
         await subject.perform(.loadData)
         XCTAssertEqual(subject.state.sessionTimeoutValue, .onAppRestart)
     }
@@ -131,14 +182,13 @@ class SettingsProcessorTests: BitwardenTestCase {
     ///
     @MainActor
     func test_perform_sessionTimeoutValueChanged_biometricsDisabled() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true),
-        )
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: false)
         subject.state.sessionTimeoutValue = .never
         await subject.perform(.sessionTimeoutValueChanged(.fifteenMinutes))
 
-        XCTAssertNotNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertNotNil(biometricsRepository.setBiometricUnlockKeyReceivedArguments?.authKey)
         XCTAssertEqual(appSettingsStore.vaultTimeout(userId: appSettingsStore.localUserId), 15)
         XCTAssertEqual(subject.state.sessionTimeoutValue, .fifteenMinutes)
     }
@@ -146,10 +196,9 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// Receiving `.sessionTimeoutValueChanged` updates the user's `vaultTimeout` app setting.
     @MainActor
     func test_perform_sessionTimeoutValueChanged_success() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true),
-        )
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
         subject.state.sessionTimeoutValue = .oneHour
         await subject.perform(.sessionTimeoutValueChanged(.fifteenMinutes))
 
@@ -157,20 +206,39 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.sessionTimeoutValue, .fifteenMinutes)
     }
 
+    /// `perform(_:)` with `.streamFlightRecorderLog` subscribes to the active flight recorder log.
+    @MainActor
+    func test_perform_streamFlightRecorderLog() async throws {
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
+
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        let log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        flightRecorder.activeLogSubject.send(log)
+        try await waitForAsync { self.subject.state.flightRecorderState.activeLog != nil }
+        XCTAssertEqual(subject.state.flightRecorderState.activeLog, log)
+
+        flightRecorder.activeLogSubject.send(nil)
+        try await waitForAsync { self.subject.state.flightRecorderState.activeLog == nil }
+        XCTAssertNil(subject.state.flightRecorderState.activeLog)
+    }
+
     /// Performing `.toggleUnlockWithBiometrics` with a `false` value disables biometric unlock and resets the
     /// session timeout to `.never`
     @MainActor
     func test_perform_toggleUnlockWithBiometrics_off() async throws {
-        biometricsRepository.capturedUserAuthKey = "key"
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true),
-        )
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
         subject.state.sessionTimeoutValue = .fifteenMinutes
         appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
 
         await subject.perform(.toggleUnlockWithBiometrics(false))
 
-        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertTrue(biometricsRepository.setBiometricUnlockKeyCalled)
+        XCTAssertNil(biometricsRepository.setBiometricUnlockKeyReceivedArguments?.authKey)
         XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
     }
 
@@ -178,13 +246,12 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// session timeout to `.onAppRestart`.
     @MainActor
     func test_perform_toggleUnlockWithBiometrics_on() async throws {
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true, hasValidIntegrity: true),
-        )
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
+        biometricsRepository.getBiometricUnlockStatusReturnValue = biometricUnlockStatus
 
         await subject.perform(.toggleUnlockWithBiometrics(true))
 
-        XCTAssertNotNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertNotNil(biometricsRepository.setBiometricUnlockKeyReceivedArguments?.authKey)
         XCTAssertEqual(subject.state.sessionTimeoutValue, .onAppRestart)
     }
 
@@ -216,6 +283,15 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .exportItems)
     }
 
+    /// `receive(_:)` with action `.flightRecorder(.viewLogsTapped)` navigates to the view flight
+    /// recorder logs screen.
+    @MainActor
+    func test_receive_flightRecorder_viewFlightRecorderLogsTapped() {
+        subject.receive(.flightRecorder(.viewLogsTapped))
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorder(.flightRecorderLogs)])
+    }
+
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings URL to the state to
     /// navigate the user to the BWPM app's settings.
     @MainActor
@@ -234,26 +310,5 @@ class SettingsProcessorTests: BitwardenTestCase {
         subject.receive(.syncWithBitwardenAppTapped)
 
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerLink)
-    }
-
-    /// Receiving `.versionTapped` copies the copyright, the version string and device info to the pasteboard.
-    @MainActor
-    func test_receive_versionTapped() {
-        subject.receive(.versionTapped)
-        XCTAssertEqual(
-            pasteboardService.copiedString,
-            """
-            © Bitwarden Inc. 2015–2025
-
-            📝 Bitwarden 1.0 (1)
-            📦 Bundle: com.8bit.bitwarden
-            📱 Device: iPhone14,2
-            🍏 System: iOS 16.4
-            """,
-        )
-        XCTAssertEqual(
-            subject.state.toast?.title,
-            Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)).title,
-        )
     }
 }

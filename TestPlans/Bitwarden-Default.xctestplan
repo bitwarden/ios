@@ -56,6 +56,20 @@
     },
     {
       "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "0F0F8167EDD3A9370CA429CE",
+        "name" : "BitwardenKitSnapshotTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:BitwardenKit.xcodeproj",
+        "identifier" : "27C53FBF98252CF56973FD34",
+        "name" : "BitwardenKitViewInspectorTests"
+      }
+    },
+    {
+      "target" : {
         "containerPath" : "container:Bitwarden.xcodeproj",
         "identifier" : "417A98C7A214F8B5F141E702",
         "name" : "BitwardenAutoFillExtensionTests"

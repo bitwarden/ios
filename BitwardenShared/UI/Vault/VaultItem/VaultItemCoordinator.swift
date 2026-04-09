@@ -21,6 +21,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     typealias Services = AuthenticatorKeyCaptureCoordinator.Services
         & GeneratorCoordinator.Services
         & HasAPIService
+        & HasAppContextHelper
         & HasAuthRepository
         & HasConfigService
         & HasEnvironmentService
@@ -54,6 +55,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// The stack navigator that is managed by this coordinator.
     private(set) weak var stackNavigator: StackNavigator?
 
+    /// The helper to use to execute vault item actions centralized.
+    private lazy var vaultItemActionHelper = DefaultVaultItemActionHelper(
+        coordinator: asAnyCoordinator(),
+        services: services,
+    )
+
     // MARK: Initialization
 
     /// Creates a new `VaultCoordinator`.
@@ -84,7 +91,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         }
     }
 
-    func navigate(to route: VaultItemRoute, context: AnyObject?) {
+    func navigate(to route: VaultItemRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .addFolder:
             showAddFolder(delegate: context as? AddEditFolderDelegate)
@@ -121,6 +128,11 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
+        case let .migrateToMyItems(organizationId):
+            showMigrateToMyItems(
+                organizationId: organizationId,
+                delegate: context as? MigrateToMyItemsProcessorDelegate,
+            )
         case let .moveToOrganization(cipher):
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case let .passwordHistory(passwordHistory):
@@ -206,6 +218,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             delegate: delegate,
             services: services,
             state: state,
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         let store = Store(processor: processor)
         let view = AddEditItemView(store: store)
@@ -266,6 +279,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 delegate: delegate,
                 services: services,
                 state: state,
+                vaultItemActionHelper: vaultItemActionHelper,
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -311,6 +325,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 delegate: delegate,
                 services: services,
                 state: state,
+                vaultItemActionHelper: vaultItemActionHelper,
             )
             let store = Store(processor: processor)
             let view = AddEditItemView(store: store)
@@ -382,6 +397,32 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         stackNavigator?.present(navigationController)
     }
 
+    /// Shows the migrate to my items screen.
+    ///
+    /// - Parameters:
+    ///   - organizationId: The organization ID that requires the vault migration.
+    ///   - delegate: The delegate to notify of events.
+    ///
+    private func showMigrateToMyItems(
+        organizationId: String,
+        delegate: MigrateToMyItemsProcessorDelegate?,
+    ) {
+        let isExtension = services.appContextHelper.appContext == .appExtension
+        let processor = MigrateToMyItemsProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services,
+            state: MigrateToMyItemsState(
+                isExtension: isExtension,
+                organizationId: organizationId,
+                page: isExtension ? .extensionPrompt : .transfer,
+            ),
+        )
+        let view = MigrateToMyItemsView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
+    }
+
     /// Shows the move to organization screen.
     ///
     private func showMoveToOrganization(cipher: CipherView, delegate: MoveToOrganizationProcessorDelegate?) {
@@ -428,6 +469,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             itemId: id,
             services: services,
             state: ViewItemState(),
+            vaultItemActionHelper: vaultItemActionHelper,
         )
         let store = Store(processor: processor)
         let view = ViewItemView(
@@ -442,17 +484,4 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
 extension VaultItemCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
-}
-
-// MARK: - View Extension
-
-extension View {
-    @ViewBuilder var navStackWrapped: some View {
-        if #available(iOSApplicationExtension 16.0, *) {
-            NavigationStack { self }
-        } else {
-            NavigationView { self }
-                .navigationViewStyle(.stack)
-        }
-    }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - AppearanceAction
 
 /// Actions handled by the `AppearanceProcessor`.

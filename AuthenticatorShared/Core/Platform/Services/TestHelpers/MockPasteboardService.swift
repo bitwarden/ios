@@ -1,3 +1,5 @@
+import BitwardenKit
+
 @testable import AuthenticatorShared
 
 class MockPasteboardService: PasteboardService {

@@ -1,3 +1,4 @@
+import BitwardenKit
 import OSLog
 import SwiftUI
 
@@ -22,6 +23,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator, HasRouter
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
     typealias Services = HasBiometricsRepository
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
     // MARK: Properties
@@ -96,7 +98,7 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator, HasRouter
     /// - Parameters:
     ///   - account: The active account.
     ///   - animated: Whether to animate the transition.
-    ///   - attemptAutmaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
+    ///   - attemptAutomaticBiometricUnlock: Whether to the processor should attempt a biometric unlock on appear.
     ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
     ///
     private func showVaultUnlock() {
@@ -109,4 +111,10 @@ final class AuthCoordinator: NSObject, Coordinator, HasStackNavigator, HasRouter
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: true)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AuthCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ExpiredLinkProcessor
 
 /// The processor used to manage state and handle actions for the passwort hint screen.

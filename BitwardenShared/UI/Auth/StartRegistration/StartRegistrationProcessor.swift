@@ -145,7 +145,7 @@ class StartRegistrationProcessor: StateProcessor<
                 throw StartRegistrationError.emailEmpty
             }
 
-            guard email.isValidEmail else {
+            guard email.isValidEmail(useStrictValidation: false) else {
                 throw StartRegistrationError.invalidEmail
             }
 

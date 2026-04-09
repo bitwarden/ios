@@ -70,6 +70,12 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case generator(_ type: GeneratorType, emailWebsite: String? = nil)
 
+    /// A route to the migrate to my items screen.
+    ///
+    /// - Parameter organizationId: The organization ID that requires the vault migration.
+    ///
+    case migrateToMyItems(organizationId: String)
+
     /// A route to the move to organization screen.
     case moveToOrganization(CipherView)
 

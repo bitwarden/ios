@@ -14,6 +14,26 @@ protocol CipherService {
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
 
+    /// Archives a cipher for the current user both in the backend and in local storage.
+    ///
+    /// - Parameters:
+    ///  - id: The id of the cipher to be archived.
+    ///  - cipher: The cipher that the user is archiving.
+    ///
+    func archiveCipherWithServer(id: String, _ cipher: Cipher) async throws
+
+    /// Shares multiple ciphers with an organization and updates the locally stored data.
+    ///
+    /// - Parameters:
+    ///   - ciphers: The ciphers to share.
+    ///   - collectionIds: The collection IDs to associate with the ciphers.
+    ///   - encryptedFor: The user ID who encrypted the ciphers.
+    func bulkShareCiphersWithServer(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String,
+    ) async throws
+
     /// Returns the count of ciphers in the data store for the current user.
     ///
     func cipherCount() async throws -> Int
@@ -63,6 +83,14 @@ protocol CipherService {
     ///
     func fetchAllCiphers() async throws -> [Cipher]
 
+    /// Checks whether the current user has any personal ciphers (ciphers with no organization).
+    ///
+    /// This is more efficient than `fetchAllCiphers()` when you only need to check existence.
+    ///
+    /// - Returns: `true` if at least one cipher with `organizationId == nil` exists, `false` otherwise.
+    ///
+    func hasPersonalCiphers() async throws -> Bool
+
     /// Attempts to synchronize a cipher with the server.
     ///
     /// This method fetches the updated cipher value from the server and updates the value in the
@@ -111,6 +139,14 @@ protocol CipherService {
     ///
     func softDeleteCipherWithServer(id: String, _ cipher: Cipher) async throws
 
+    /// Unarchive a cipher both in the backend and in local storage.
+    ///
+    /// - Parameters:
+    ///  - id: The id of the cipher to be unarchived.
+    ///  - cipher: The cipher that the user is unarchiving.
+    ///
+    func unarchiveCipherWithServer(id: String, _ cipher: Cipher) async throws
+
     /// Updates the cipher's collections for the current user both in the backend and in local storage.
     ///
     /// - Parameter cipher: The cipher to update.
@@ -131,6 +167,12 @@ protocol CipherService {
     func updateCipherWithLocalStorage(_ cipher: Cipher) async throws
 
     // MARK: Publishers
+
+    /// A publisher that emits cipher changes (upsert, delete, replace) as they occur for the current user.
+    ///
+    /// - Returns: A publisher that emits cipher changes.
+    ///
+    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Never>
 
     /// A publisher for the list of ciphers for the current user.
     ///
@@ -197,6 +239,53 @@ extension DefaultCipherService {
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
     }
 
+    func archiveCipherWithServer(id: String, _ cipher: Cipher) async throws {
+        let userID = try await stateService.getActiveAccountId()
+
+        // Archive cipher on backend.
+        var response = try await cipherAPIService.archiveCipher(withID: id)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
+
+        // Archive cipher on local storage
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
+    }
+
+    func bulkShareCiphersWithServer(
+        _ ciphers: [Cipher],
+        collectionIds: [String],
+        encryptedFor: String,
+    ) async throws {
+        let userId = try await stateService.getActiveAccountId()
+
+        // Share the ciphers with the backend.
+        let response = try await cipherAPIService.bulkShareCiphers(
+            ciphers,
+            collectionIds: collectionIds,
+            encryptedFor: encryptedFor,
+        )
+
+        // Create a dictionary for quick lookup of original ciphers by ID.
+        let ciphersById = Dictionary(uniqueKeysWithValues: ciphers.compactMap { cipher in
+            cipher.id.map { ($0, cipher) }
+        })
+
+        // Update ciphers in local storage.
+        for cipherResponse in response.data {
+            // Find the original cipher to preserve fields not returned by the API.
+            let originalCipher = ciphersById[cipherResponse.id]
+
+            // The API doesn't return all fields, so preserve them from the original cipher.
+            let updatedCipher = Cipher(
+                cipherMiniResponseModel: cipherResponse,
+                collectionIds: collectionIds,
+                originalCipher: originalCipher,
+            )
+            try await cipherDataStore.upsertCipher(updatedCipher, userId: userId)
+        }
+    }
+
     func cipherCount() async throws -> Int {
         let userId = try await stateService.getActiveAccountId()
         return try await cipherDataStore.cipherCount(userId: userId)
@@ -257,6 +346,11 @@ extension DefaultCipherService {
     func fetchAllCiphers() async throws -> [Cipher] {
         let userId = try await stateService.getActiveAccountId()
         return try await cipherDataStore.fetchAllCiphers(userId: userId)
+    }
+
+    func hasPersonalCiphers() async throws -> Bool {
+        let userId = try await stateService.getActiveAccountId()
+        return try await cipherDataStore.hasPersonalCiphers(userId: userId)
     }
 
     func syncCipherWithServer(withId id: String) async throws {
@@ -337,6 +431,19 @@ extension DefaultCipherService {
         try await cipherDataStore.upsertCipher(cipher, userId: userId)
     }
 
+    func unarchiveCipherWithServer(id: String, _ cipher: BitwardenSdk.Cipher) async throws {
+        let userID = try await stateService.getActiveAccountId()
+
+        // Unarchive cipher from backend.
+        var response = try await cipherAPIService.unarchiveCipher(withID: id)
+
+        // The API doesn't return the collectionIds, so manually add them back.
+        response.collectionIds = cipher.collectionIds
+
+        // Unarchive cipher from local storage
+        try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userID)
+    }
+
     func updateCipherCollectionsWithServer(_ cipher: Cipher) async throws {
         let userId = try await stateService.getActiveAccountId()
 
@@ -372,8 +479,13 @@ extension DefaultCipherService {
 
     // MARK: Publishers
 
+    func cipherChangesPublisher() async throws -> AnyPublisher<CipherChange, Never> {
+        let userId = try await stateService.getActiveAccountId()
+        return cipherDataStore.cipherChangesPublisher(userId: userId)
+    }
+
     func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {
         let userId = try await stateService.getActiveAccountId()
         return cipherDataStore.cipherPublisher(userId: userId)
     }
-}
+} // swiftlint:disable:this file_length

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// An enum describing if the user should be re-prompted prior to using the cipher password.
 ///
 enum CipherRepromptType: Int, Codable {

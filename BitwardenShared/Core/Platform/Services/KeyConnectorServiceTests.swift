@@ -3,7 +3,9 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
+@MainActor
 class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -35,8 +37,8 @@ class KeyConnectorServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         client = nil
         clientService = nil

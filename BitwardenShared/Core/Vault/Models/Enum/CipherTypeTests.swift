@@ -33,6 +33,7 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(group: .login), .login)
         XCTAssertEqual(CipherType(group: .secureNote), .secureNote)
         XCTAssertEqual(CipherType(group: .sshKey), .sshKey)
+        XCTAssertNil(CipherType(group: .archive))
         XCTAssertNil(CipherType(group: .trash))
     }
 

@@ -4,6 +4,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - AppCoordinatorTests
 
@@ -81,15 +82,105 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
         subject.didCompleteAuth(rehydratableTarget: nil)
+
         XCTAssertTrue(module.vaultCoordinator.isStarted)
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
 
         appExtensionDelegate.authCompletionRoute = .extensionSetup(.extensionActivation(type: .autofillExtension))
         subject.didCompleteAuth(rehydratableTarget: nil)
-        XCTAssertTrue(module.vaultCoordinator.isStarted)
-        XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
+
+        XCTAssertTrue(module.extensionSetupCoordinator.isStarted)
+        XCTAssertEqual(
+            module.extensionSetupCoordinator.routes,
+            [.extensionActivation(type: .autofillExtension)],
+        )
 
         XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
+    }
+
+    /// `didCompleteAuth()` in app extension shows vault migration screen when migration is pending
+    /// and `canAutofill` is false (e.g., extension setup flow).
+    @MainActor
+    func test_didCompleteAuth_appExtension_vaultMigration() {
+        let syncService = MockSyncService()
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
+
+        let servicesWithMigration = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            rehydrationHelper: rehydrationHelper,
+            syncService: syncService,
+        )
+
+        // Vault migration check only happens when canAutofill is false (not in autofill flow).
+        appExtensionDelegate.canAutofill = false
+
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: appExtensionDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: servicesWithMigration,
+        )
+        rootNavigator.rootViewController = MockUIViewController()
+
+        appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        // Vault coordinator should be started first.
+        XCTAssertTrue(module.vaultCoordinator.isStarted)
+        XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
+        XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
+
+        // Wait for the async task to check migration and present the view.
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+
+        // Should show vault migration screen after navigating to vault.
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(
+            module.vaultItemCoordinator.routes.last,
+            .migrateToMyItems(organizationId: "org-123"),
+        )
+    }
+
+    /// `didCompleteAuth()` in app extension does NOT show vault migration screen when `canAutofill`
+    /// is true (autofill extension flow) to avoid interrupting the user's autofill experience.
+    @MainActor
+    func test_didCompleteAuth_appExtension_canAutofill_doesNotShowVaultMigration() async throws {
+        let syncService = MockSyncService()
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
+
+        let servicesWithMigration = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            rehydrationHelper: rehydrationHelper,
+            syncService: syncService,
+        )
+
+        // canAutofill is true by default, simulating the autofill extension flow.
+        appExtensionDelegate.canAutofill = true
+
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: appExtensionDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: servicesWithMigration,
+        )
+        rootNavigator.rootViewController = MockUIViewController()
+
+        appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        // Vault coordinator should be started.
+        XCTAssertTrue(module.vaultCoordinator.isStarted)
+        XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
+        XCTAssertTrue(appExtensionDelegate.didCompleteAuthCalled)
+
+        // Give async task time to potentially run (it shouldn't check migration).
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+
+        // Migration screen should NOT be shown because canAutofill is true.
+        XCTAssertFalse((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled ?? false)
+        XCTAssertFalse(module.vaultItemCoordinator.isStarted)
     }
 
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the auth completion route.
@@ -103,6 +194,41 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(module.tabCoordinator.isStarted)
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list), .vault(.addAccount)])
         XCTAssertNil(subject.authCompletionRoute)
+    }
+
+    /// `didCompleteAuth()` in main app shows vault migration screen when migration is pending.
+    @MainActor
+    func test_didCompleteAuth_mainApp_vaultMigration() {
+        let syncService = MockSyncService()
+        syncService.organizationIdRequiringVaultMigrationResult = .success("org-123")
+
+        let servicesWithMigration = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            rehydrationHelper: rehydrationHelper,
+            syncService: syncService,
+        )
+
+        subject = AppCoordinator(
+            appContext: .mainApp,
+            appExtensionDelegate: nil,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: servicesWithMigration,
+        )
+        rootNavigator.rootViewController = MockUIViewController()
+
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        // Wait for the async task in didCompleteAuth to complete and the view to be presented.
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+
+        // Should show vault migration screen after navigating to vault list.
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(
+            module.vaultItemCoordinator.routes.last,
+            .migrateToMyItems(organizationId: "org-123"),
+        )
     }
 
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the rehydratable target route
@@ -516,5 +642,129 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_switchToSettingsTab() {
         subject.switchToSettingsTab(route: .about)
         XCTAssertEqual(module.tabCoordinator.routes, [.settings(.about)])
+    }
+
+    // MARK: - MigrateToMyItems Tests
+
+    /// `navigate(to:)` with `.migrateToMyItems` shows the migrate to my items view.
+    @MainActor
+    func test_navigateTo_migrateToMyItems() {
+        rootNavigator.rootViewController = MockUIViewController()
+
+        // First authenticate to set up the childCoordinator (TabRoute).
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        let task = Task {
+            subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .migrateToMyItems(organizationId: "org-123"))
+    }
+
+    /// `navigate(to:)` with `.migrateToMyItems` shows the migrate to my items view in app extension context.
+    @MainActor
+    func test_navigateTo_migrateToMyItems_appExtension() {
+        subject = AppCoordinator(
+            appContext: .appExtension,
+            appExtensionDelegate: appExtensionDelegate,
+            module: module,
+            rootNavigator: rootNavigator,
+            services: services,
+        )
+        rootNavigator.rootViewController = MockUIViewController()
+
+        // First authenticate to set up the childCoordinator (VaultRoute).
+        appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
+        subject.didCompleteAuth(rehydratableTarget: nil)
+
+        let task = Task {
+            subject.navigate(to: .migrateToMyItems(organizationId: "org-123"))
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .migrateToMyItems(organizationId: "org-123"))
+    }
+
+    /// `didLeaveOrganization()` dismisses the view and shows a toast.
+    @MainActor
+    func test_didLeaveOrganization() {
+        // Set up with a view controller in the window hierarchy.
+        let viewController = UIViewController()
+        let window = UIWindow()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        rootNavigator.rootViewController = viewController
+
+        // Navigate to tab so the coordinator is authenticated.
+        subject.navigate(to: .tab(.vault(.list)))
+
+        // Test - call the delegate method.
+        // This verifies the delegate method can be called without error.
+        // The actual dismiss behavior is tested through integration since
+        // the dismiss is called on topmostViewController which requires
+        // full UIKit view hierarchy.
+        subject.didLeaveOrganization()
+
+        // Validate - toast should be shown after dismiss completes.
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
+    /// `didMigrateVault()` dismisses the view and shows a toast.
+    @MainActor
+    func test_didMigrateVault() {
+        // Set up with a view controller in the window hierarchy.
+        let viewController = UIViewController()
+        let window = UIWindow()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        rootNavigator.rootViewController = viewController
+
+        // Navigate to tab so the coordinator is authenticated.
+        subject.navigate(to: .tab(.vault(.list)))
+
+        // Test - call the delegate method.
+        // This verifies the delegate method can be called without error.
+        // The actual dismiss behavior is tested through integration since
+        // the dismiss is called on topmostViewController which requires
+        // full UIKit view hierarchy.
+        subject.didMigrateVault()
+
+        // Validate - toast should be shown after dismiss completes.
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
+    // MARK: - SyncWithBrowser Tests
+
+    /// `navigate(to:)` with `.syncWithBrowser` presents a navigation controller containing the
+    /// sync with browser view via the global modal coordinator.
+    @MainActor
+    func test_navigateTo_syncWithBrowser() {
+        // Set up.
+        rootNavigator.rootViewController = MockUIViewController()
+
+        // Test.
+        let task = Task {
+            subject.navigate(to: .syncWithBrowser)
+        }
+        waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
+        task.cancel()
+
+        // Validate.
+        XCTAssertTrue(
+            (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
+        )
+        XCTAssertTrue(module.globalModalCoordinator.isStarted)
+        XCTAssertEqual(module.globalModalCoordinator.routes.last, .syncWithBrowser)
     }
 } // swiftlint:disable:this file_length
