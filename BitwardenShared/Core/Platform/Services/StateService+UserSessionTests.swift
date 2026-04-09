@@ -35,6 +35,7 @@ class StateServiceUserSessionTests: BitwardenTestCase {
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            timeProvider: CurrentTime(),
             userSessionKeychainRepository: userSessionKeychainRepository,
         )
     }

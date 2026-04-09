@@ -23,6 +23,8 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
     let stateService: StateService
     /// Provides the present time.
     let timeProvider: TimeProvider
+    /// The service used to get time-based one time passwords.
+    let totpService: TOTPService
 
     func make() -> VaultListPreparedDataBuilder {
         DefaultVaultListPreparedDataBuilder(
@@ -31,6 +33,7 @@ struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderF
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpService: totpService,
         )
     }
 }
@@ -108,11 +111,11 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
     let stateService: StateService
     /// The service used to get the present time.
     let timeProvider: TimeProvider
+    /// The service used to get time-based one time passwords.
+    let totpService: TOTPService
 
     /// The prepared data to build.
     var preparedData = VaultListPreparedData()
-    /// Cache of whether the account has premium features access.
-    var hasPremiumFeaturesAccess: Bool?
     /// Cache of whether the user has master password.
     var userHasMasterPassword: Bool?
 
@@ -125,18 +128,21 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The service used to get the present time.
+    ///   - totpService: The service used to get time-based one time passwords.
     init(
         cipherService: CipherService,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider,
+        totpService: TOTPService,
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider
+        self.totpService = totpService
     }
 
     // MARK: Methods
@@ -226,7 +232,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         case .sshKey:
             guard cipher.type == .sshKey else { return self }
         case .totp:
-            if await shouldIncludeTOTP(cipher: cipher),
+            if await totpService.isTotpAuthorized(for: cipher),
                let totpItem = await totpItem(for: cipher) {
                 preparedData.groupItems.append(totpItem)
             }
@@ -337,7 +343,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
     }
 
     func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
-        guard await shouldIncludeTOTP(cipher: cipher) else { return self }
+        guard await totpService.isTotpAuthorized(for: cipher) else { return self }
 
         // Ensure the TOTP key is valid by generating a TOTP code. The count shouldn't be
         // incremented for invalid keys since they are filtered out from the list.
@@ -382,7 +388,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
     /// - Returns: The built `VaultListItem` for the `cipher` and `group`.
     func buildVaultListItemForGroupOrDefault(cipher: CipherListView, group: VaultListGroup?) async -> VaultListItem? {
         if case .totp = group {
-            guard await shouldIncludeTOTP(cipher: cipher) else {
+            guard await totpService.isTotpAuthorized(for: cipher) else {
                 return nil
             }
 
@@ -392,27 +398,12 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         return VaultListItem(cipherListView: cipher)
     }
 
-    private func getHasPremiumFeaturesAccess() async -> Bool {
-        guard let hasPremiumFeaturesAccess else {
-            hasPremiumFeaturesAccess = await stateService.doesActiveAccountHavePremium()
-            return hasPremiumFeaturesAccess ?? false
-        }
-        return hasPremiumFeaturesAccess
-    }
-
     private func getUserHasMasterPassword() async -> Bool {
         guard let userHasMasterPassword else {
             userHasMasterPassword = await (try? stateService.getUserHasMasterPassword()) ?? false
             return userHasMasterPassword ?? false
         }
         return userHasMasterPassword
-    }
-
-    private func shouldIncludeTOTP(cipher: CipherListView) async -> Bool {
-        let hasPremiumFeaturesAccess = await getHasPremiumFeaturesAccess()
-
-        let hasAccess = hasPremiumFeaturesAccess || cipher.organizationUseTotp
-        return hasAccess && cipher.type.loginListView?.totp != nil
     }
 
     private func totpItem(

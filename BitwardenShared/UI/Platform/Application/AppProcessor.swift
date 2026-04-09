@@ -92,54 +92,10 @@ public class AppProcessor {
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Bundle.main.preferredLocalizations.first
         UI.applyDefaultAppearances()
 
-        Task {
-            for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
-                startEventTimer()
-                await checkIfExtensionSwitchedAccounts()
-                await services.authRepository.checkSessionTimeouts { [weak self] activeUserId in
-                    // Allow the AuthCoordinator to handle the timeout for the active user
-                    // so any necessary routing can occur.
-                    await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
-                }
-                await handleNeverTimeOutAccountBecameActive()
-                await completeAutofillAccountSetupIfEnabled()
-                #if DEBUG
-                debugWillEnterForeground?()
-                #endif
-            }
-        }
-
-        Task {
-            for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
-                stopEventTimer()
-                do {
-                    let userId = try await self.services.stateService.getActiveAccountId()
-                    try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
-                } catch StateServiceError.noActiveAccount {
-                    // No-op: nothing to do if there's no active account.
-                } catch {
-                    services.errorReporter.log(error: error)
-                }
-                #if DEBUG
-                debugDidEnterBackground?()
-                #endif
-            }
-        }
-
-        // PM-19400: We need to listen to the changes on pending app intent actions
-        // so they get executed and update the navigation/UI accordingly.
-        Task {
-            for await _ in await services.stateService.pendingAppIntentActionsPublisher().values {
-                await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
-            }
-        }
-
-        Task {
-            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
-                guard hostname != nil else { continue }
-                coordinator?.navigate(to: .syncWithBrowser)
-            }
-        }
+        listenForWillEnterForeground(debugWillEnterForeground: debugWillEnterForeground)
+        listenForDidEnterBackground(debugDidEnterBackground: debugDidEnterBackground)
+        listenForPendingAppIntentActions()
+        listenForAcquireCookies()
     }
 
     // MARK: Methods
@@ -516,6 +472,87 @@ extension AppProcessor {
         }
 
         return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
+    }
+
+    /// Subscribes to the server communication cookie-acquisition publisher and navigates to the
+    /// sync-with-browser flow whenever a non-nil hostname is received.
+    ///
+    private func listenForAcquireCookies() {
+        Task {
+            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard hostname != nil else { continue }
+                coordinator?.navigate(to: .syncWithBrowser)
+            }
+        }
+    }
+
+    /// Subscribes to the did-enter-background notification and performs the necessary work
+    /// each time the app moves to the background, including stopping the event timer and
+    /// recording the last active time for the current user.
+    ///
+    /// - Parameter debugDidEnterBackground: An optional closure invoked in debug builds after
+    ///   background work completes, used for testing.
+    ///
+    private func listenForDidEnterBackground(debugDidEnterBackground: (() -> Void)?) {
+        Task {
+            for await _ in services.notificationCenterService.didEnterBackgroundPublisher() {
+                stopEventTimer()
+                do {
+                    let userId = try await self.services.stateService.getActiveAccountId()
+                    try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
+                } catch StateServiceError.noActiveAccount {
+                    // No-op: nothing to do if there's no active account.
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
+                #if DEBUG
+                debugDidEnterBackground?()
+                #endif
+            }
+        }
+    }
+
+    /// Subscribes to the pending `AppIntent` actions publisher and executes any pending actions
+    /// as they arrive, updating navigation and UI accordingly.
+    ///
+    /// This listener is required so that `AppIntent` actions enqueued while the app was inactive
+    /// are dispatched promptly once the app is ready to handle them.
+    ///
+    private func listenForPendingAppIntentActions() {
+        // PM-19400: We need to listen to the changes on pending app intent actions
+        // so they get executed and update the navigation/UI accordingly.
+        Task {
+            for await _ in await services.stateService.pendingAppIntentActionsPublisher().values {
+                await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
+            }
+        }
+    }
+
+    /// Subscribes to the will-enter-foreground notification and performs the necessary work
+    /// each time the app returns to the foreground, including restarting the event timer,
+    /// checking for extension account switches, session timeouts, never-timeout unlocks,
+    /// and autofill account setup completion.
+    ///
+    /// - Parameter debugWillEnterForeground: An optional closure invoked in debug builds after
+    ///   foreground work completes, used for testing.
+    ///
+    private func listenForWillEnterForeground(debugWillEnterForeground: (() -> Void)?) {
+        Task {
+            for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
+                startEventTimer()
+                await checkIfExtensionSwitchedAccounts()
+                await services.authRepository.checkSessionTimeouts { [weak self] activeUserId in
+                    // Allow the AuthCoordinator to handle the timeout for the active user
+                    // so any necessary routing can occur.
+                    await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
+                }
+                await handleNeverTimeOutAccountBecameActive()
+                await completeAutofillAccountSetupIfEnabled()
+                #if DEBUG
+                debugWillEnterForeground?()
+                #endif
+            }
+        }
     }
 
     /// Logs out the user automatically, if `nil` is passed as `userId` then it will act on the current user.

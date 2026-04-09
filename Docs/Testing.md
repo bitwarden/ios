@@ -136,6 +136,11 @@ Use this decision tree to determine which tests to write for a new or modified c
 - [XCTest](https://developer.apple.com/documentation/xctest) (legacy, still widely used)
 - [Swift Testing Framework](https://developer.apple.com/xcode/swift-testing/) (preferred for new tests)
 
+**Framework Selection**:
+- **New test files**: Use Swift Testing (`import Testing`, `@Test`, `#expect`)
+- **Existing XCTest files**: Keep as XCTest — do not mix frameworks in the same file
+- **Fallback to XCTest**: When the test requires `BitwardenTestCase` subclassing, ViewInspector, SnapshotTesting, or other XCTest-only features
+
 **Use for**:
 - Processors (state mutations, action handling, effects)
 - Services (business logic, data transformations)
@@ -260,6 +265,84 @@ class ExampleProcessorTests: BitwardenTestCase {
     }
 }
 ```
+
+#### Swift Testing Example
+
+```swift
+import BitwardenKit
+import BitwardenKitMocks
+import Testing
+
+@testable import BitwardenShared
+@testable import BitwardenSharedMocks
+
+// MARK: - ExampleProcessorTests
+
+@MainActor
+struct ExampleProcessorTests {
+    // MARK: Properties
+
+    let coordinator: MockCoordinator<ExampleRoute, Void>
+    let exampleRepository: MockExampleRepository
+    let subject: ExampleProcessor
+
+    // MARK: Initialization
+
+    init() {
+        coordinator = MockCoordinator()
+        exampleRepository = MockExampleRepository()
+
+        subject = ExampleProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                exampleRepository: exampleRepository,
+            ),
+            state: ExampleState(),
+        )
+    }
+
+    // MARK: Tests
+
+    /// `receive(.toggleChanged)` updates state with the new value.
+    @Test
+    func receive_toggleAction_updatesState() {
+        subject.state.isToggleOn = false
+
+        subject.receive(.toggleChanged(true))
+
+        #expect(subject.state.isToggleOn == true)
+    }
+
+    /// `perform(.loadData)` loads data and updates state on success.
+    @Test
+    func perform_loadData_success_updatesState() async {
+        exampleRepository.loadDataResult = .success("Test Data")
+
+        await subject.perform(.loadData)
+
+        #expect(subject.state.data == "Test Data")
+        #expect(subject.state.isLoading == false)
+    }
+
+    /// `perform(.loadData)` shows an error alert when loading fails.
+    @Test
+    func perform_loadData_failure_showsError() async {
+        exampleRepository.loadDataResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loadData)
+
+        #expect(subject.state.errorAlert != nil)
+    }
+}
+```
+
+**Key differences from XCTest**:
+- `struct` with `init()` instead of `class` with `setUp()`/`tearDown()` — no teardown needed, value types are discarded after each test
+- `@Test` attribute instead of `test_` prefix on function names
+- `#expect()` instead of `XCTAssert*()` — supports inline expressions with clear failure messages
+- `#require()` instead of `XCTUnwrap()` — for force-unwrapping with test failure
+- `@MainActor` on the struct rather than individual methods when all tests need it
+- No `BitwardenTestCase` subclass — Swift Testing uses structs, not class inheritance
 
 ### Testing Services
 
@@ -467,6 +550,60 @@ class ExampleCoordinatorTests: BitwardenTestCase {
 }
 ```
 
+#### Swift Testing Example
+
+```swift
+import BitwardenKit
+import BitwardenKitMocks
+import Testing
+
+@testable import BitwardenShared
+@testable import BitwardenSharedMocks
+
+// MARK: - ExampleCoordinatorTests
+
+@MainActor
+struct ExampleCoordinatorTests {
+    // MARK: Properties
+
+    let module: MockAppModule
+    let stackNavigator: MockStackNavigator
+    let subject: ExampleCoordinator
+
+    // MARK: Initialization
+
+    init() {
+        module = MockAppModule()
+        stackNavigator = MockStackNavigator()
+        subject = ExampleCoordinator(
+            module: module,
+            services: ServiceContainer.withMocks(),
+            stackNavigator: stackNavigator,
+        )
+    }
+
+    // MARK: Tests
+
+    /// `navigate(to: .someScreen)` pushes the correct view.
+    @Test
+    func navigate_someScreen_pushesView() throws {
+        subject.navigate(to: .someScreen)
+
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .pushed)
+        #expect(action.view is SomeView)
+    }
+
+    /// `navigate(to: .dismiss)` dismisses the current screen.
+    @Test
+    func navigate_dismiss_dismisses() {
+        subject.navigate(to: .dismiss)
+
+        #expect(stackNavigator.actions.last?.type == .dismissed)
+    }
+}
+```
+
 ## Common Testing Patterns
 
 ### Pattern 1: Testing Async Operations
@@ -549,6 +686,9 @@ protocol ExampleService { // sourcery: AutoMockable
 #### Generated Mock Location
 
 Mocks are generated in:
+- `AuthenticatorBridgeKit/Sourcery/Generated/AutoMockable.generated.swift`
+- `AuthenticatorShared/Sourcery/Generated/AutoMockable.generated.swift`
+- `BitwardenKit/Sourcery/Generated/AutoMockable.generated.swift`
 - `BitwardenShared/Sourcery/Generated/AutoMockable.generated.swift`
 
 #### Using Generated Mocks
@@ -902,6 +1042,8 @@ Ensure all tests pass locally before pushing to prevent CI failures.
 
 ### Common Test Patterns Quick Reference
 
+#### XCTest Patterns
+
 ```swift
 // 1. Processor Test Template
 func test_action_behavior() {
@@ -935,25 +1077,65 @@ func test_snapshot_mode() {
 }
 ```
 
+#### Swift Testing Patterns
+
+```swift
+// 1. Processor Test Template
+@Test func action_behavior() {
+    subject.receive(.action)
+    #expect(subject.state.property == expected)
+}
+
+// 2. Async Effect Test Template
+@Test func effect_behavior() async {
+    mockService.result = .success(data)
+    await subject.perform(.effect)
+    #expect(subject.state.data == data)
+}
+
+// 3. Navigation Test Template
+@Test func action_navigates() {
+    subject.receive(.action)
+    #expect(coordinator.routes.last == .expectedRoute)
+}
+
+// 4. Force-Unwrap Template (replaces XCTUnwrap)
+@Test func navigate_pushesView() throws {
+    subject.navigate(to: .someScreen)
+    let action = try #require(stackNavigator.actions.last)
+    #expect(action.view is SomeView)
+}
+```
+
 ### Test Checklist for AI Agents
 
 When writing tests for a component, ensure:
 
+**General (both frameworks)**:
 - [ ] Test file named correctly (`ComponentTests.swift`)
 - [ ] Test file in same folder as implementation
-- [ ] Inherits from `BitwardenTestCase`
-- [ ] `setUp()` creates fresh instances
-- [ ] `tearDown()` cleans up (sets to `nil`)
 - [ ] All public methods tested
 - [ ] Error cases tested
 - [ ] Edge cases tested
 - [ ] Mocks used for dependencies
 - [ ] Assertions are specific (not just "not nil")
-- [ ] Test names describe behavior (`test_action_outcome`)
 - [ ] Tests ordered by function name (see ordering guidelines below)
 - [ ] Async tests use `async`/`await`
 - [ ] Views tested with ViewInspector AND Snapshots
 - [ ] Snapshots include light/dark/accessibility modes
+
+**XCTest-specific** (existing test files, ViewInspector, snapshot tests):
+- [ ] Inherits from `BitwardenTestCase`
+- [ ] `setUp()` creates fresh instances
+- [ ] `tearDown()` cleans up (sets to `nil`)
+- [ ] Test names use `test_action_outcome` pattern
+
+**Swift Testing-specific** (new test files):
+- [ ] `struct` with `init()` for setup (no teardown needed)
+- [ ] `@Test` attribute on each test function
+- [ ] `#expect()` for assertions, `#require()` for unwrapping
+- [ ] `@MainActor` on the struct when all tests need main actor isolation
+- [ ] Test names use `action_outcome` pattern (no `test_` prefix — `@Test` provides it)
 
 ### Test Ordering Guidelines
 

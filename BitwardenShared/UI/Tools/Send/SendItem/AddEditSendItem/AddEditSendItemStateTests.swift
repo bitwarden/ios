@@ -3,29 +3,8 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AddEditSendItemStateTests: BitwardenTestCase {
+class AddEditSendItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
-
-    // MARK: availableAccessTypes
-
-    /// `availableAccessTypes` returns all options when feature flag is enabled, even without premium.
-    /// The premium restriction is handled at the processor level when the user selects "Specific People".
-    func test_availableAccessTypes_noPremium_featureFlagEnabled() {
-        let subject = AddEditSendItemState(hasPremium: false, isSendEmailVerificationEnabled: true)
-        XCTAssertEqual(subject.availableAccessTypes, SendAccessType.allCases)
-    }
-
-    /// `availableAccessTypes` returns only basic options when feature flag is disabled.
-    func test_availableAccessTypes_featureFlagDisabled() {
-        let subject = AddEditSendItemState(hasPremium: true, isSendEmailVerificationEnabled: false)
-        XCTAssertEqual(subject.availableAccessTypes, [.anyoneWithLink, .anyoneWithPassword])
-    }
-
-    /// `availableAccessTypes` returns all options when user has premium and feature flag is enabled.
-    func test_availableAccessTypes_premiumAndFeatureFlag() {
-        let subject = AddEditSendItemState(hasPremium: true, isSendEmailVerificationEnabled: true)
-        XCTAssertEqual(subject.availableAccessTypes, SendAccessType.allCases)
-    }
 
     // MARK: normalizedRecipientEmails
 

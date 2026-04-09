@@ -441,6 +441,9 @@ class DefaultAuthRepository {
     /// The service used to change the user's KDF settings.
     private let changeKdfService: ChangeKdfService
 
+    /// The service used to manage client certificates for mTLS authentication.
+    private let clientCertificateService: ClientCertificateService
+
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
@@ -496,6 +499,7 @@ class DefaultAuthRepository {
     ///   - authService: The service used that handles some of the auth logic.
     ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
     ///   - changeKdfService: The service used to change the user's KDF settings.
+    ///   - clientCertificateService: The service used to manage client certificates for mTLS authentication.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
@@ -519,6 +523,7 @@ class DefaultAuthRepository {
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
         changeKdfService: ChangeKdfService,
+        clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
@@ -540,6 +545,7 @@ class DefaultAuthRepository {
         self.authService = authService
         self.biometricsRepository = biometricsRepository
         self.changeKdfService = changeKdfService
+        self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
@@ -809,6 +815,7 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil, userId: userId)
         try await keychainService.deleteItems(for: userId)
+        try await clientCertificateService.removeCertificate(userId: userId)
         await vaultTimeoutService.remove(userId: userId)
 
         if await policyService.policyAppliesToUser(.removeUnlockWithPin) {
@@ -1132,7 +1139,8 @@ extension DefaultAuthRepository: AuthRepository {
     private func profileItem(from account: Account) async -> ProfileSwitcherItem {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
         let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) == true
-        let hasNeverLock = await (try? userSessionStateService.getVaultTimeout(userId: account.profile.userId)) == .never
+        let vaultTimeout = try? await userSessionStateService.getVaultTimeout(userId: account.profile.userId)
+        let hasNeverLock = vaultTimeout == .never
         let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(
             userId: account.profile.userId,
         )) == true

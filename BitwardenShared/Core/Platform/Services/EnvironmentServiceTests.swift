@@ -91,6 +91,18 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
     }
 
+    /// `loadURLsForActiveAccount()` loads the client certificate fingerprint from the account URLs.
+    func test_loadURLsForActiveAccount_clientCertificateFingerprint() async {
+        let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
+        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
+        stateService.activeAccount = account
+        stateService.environmentURLs = [account.profile.userId: urls]
+
+        await subject.loadURLsForActiveAccount()
+
+        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
+    }
+
     /// `loadURLsForActiveAccount()` handles EU URLs
     func test_loadURLsForActiveAccount_europe() async {
         let urls = EnvironmentURLData.defaultEU
@@ -270,5 +282,14 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, true)
+    }
+
+    /// `setPreAuthURLs(urls:)` sets the client certificate fingerprint from the pre-auth URLs.
+    func test_setPreAuthURLs_clientCertificateFingerprint() async {
+        let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
+
+        await subject.setPreAuthURLs(urls: urls)
+
+        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
     }
 }

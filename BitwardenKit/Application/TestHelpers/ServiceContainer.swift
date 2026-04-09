@@ -9,8 +9,8 @@ typealias Services = HasConfigService
     & HasErrorReporter
     & HasFlightRecorder
     & HasLanguageStateService
-    & HasTimeProvider
     & HasServerCommunicationConfigClientSingleton
+    & HasTimeProvider
 
 /// A service container used for testing processors within `BitwardenKitTests`.
 ///
