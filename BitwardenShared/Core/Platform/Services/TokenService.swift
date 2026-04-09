@@ -24,12 +24,6 @@ protocol TokenService: AnyObject {
     ///
     func getAccessTokenExpirationDate() async throws -> Date?
 
-    /// Returns the active account's user ID.
-    ///
-    /// - Returns: The active account's user ID.
-    ///
-    func getActiveAccountId() async throws -> String
-
     /// Returns whether the user is an external user.
     ///
     /// - Returns: Whether the user is an external user.
@@ -111,6 +105,10 @@ actor DefaultTokenService: TokenService {
         return try await keychainRepository.getAccessToken(userId: userId)
     }
 
+    func getAccessToken(userId: String) async throws -> String {
+        try await keychainRepository.getAccessToken(userId: userId)
+    }
+
     func getAccessTokenExpirationDate() async throws -> Date? {
         try await stateService.getAccessTokenExpirationDate()
     }
@@ -131,14 +129,6 @@ actor DefaultTokenService: TokenService {
         try await keychainRepository.setAccessToken(accessToken, userId: userId)
         try await keychainRepository.setRefreshToken(refreshToken, userId: userId)
         await stateService.setAccessTokenExpirationDate(expirationDate, userId: userId)
-    }
-
-    func getAccessToken(userId: String) async throws -> String {
-        try await keychainRepository.getAccessToken(userId: userId)
-    }
-
-    func getActiveAccountId() async throws -> String {
-        try await stateService.getActiveAccountId()
     }
 
     func getRefreshToken(userId: String) async throws -> String {

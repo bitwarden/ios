@@ -22,6 +22,9 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     /// The delegate to use for specific operations on the token provider.
     private weak var accountTokenProviderDelegate: AccountTokenProviderDelegate?
 
+    /// The provider for the active account state.
+    private let activeAccountStateProvider: ActiveAccountStateProvider
+
     /// The service used to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -48,15 +51,17 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     ///   - errorReporter: The service used to report non-fatal errors.
     ///
     init(
+        activeAccountStateProvider: ActiveAccountStateProvider,
+        errorReporter: ErrorReporter,
         httpService: HTTPService,
         timeProvider: TimeProvider = CurrentTime(),
         tokenService: TokenService,
-        errorReporter: ErrorReporter,
     ) {
+        self.activeAccountStateProvider = activeAccountStateProvider
+        self.errorReporter = errorReporter
         self.httpService = httpService
         self.timeProvider = timeProvider
         self.tokenService = tokenService
-        self.errorReporter = errorReporter
     }
 
     // MARK: Methods
@@ -87,7 +92,7 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
             defer { self.refreshTask = nil }
 
             do {
-                let expectedUserId = try await tokenService.getActiveAccountId()
+                let expectedUserId = try await activeAccountStateProvider.getActiveAccountId()
 
                 let refreshToken = try await tokenService.getRefreshToken(userId: expectedUserId)
                 let response = try await httpService.send(
@@ -95,7 +100,7 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
                 )
                 let expirationDate = timeProvider.presentTime.addingTimeInterval(TimeInterval(response.expiresIn))
 
-                let userIdAfter = try await tokenService.getActiveAccountId()
+                let userIdAfter = try await activeAccountStateProvider.getActiveAccountId()
                 guard expectedUserId == userIdAfter else {
                     let error = AccountTokenProviderError(
                         userIdBefore: expectedUserId,

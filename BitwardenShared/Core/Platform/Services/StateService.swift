@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject {
+protocol StateService: ActiveAccountStateProvider {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 

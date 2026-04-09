@@ -186,23 +186,6 @@ class TokenServiceTests: BitwardenTestCase {
         XCTAssertEqual(keychainRepository.getAccessTokenUserId, "2")
     }
 
-    /// `getActiveAccountId()` returns the active account's user ID.
-    func test_getActiveAccountId() async throws {
-        stateService.activeAccount = .fixture()
-
-        let userId = try await subject.getActiveAccountId()
-        XCTAssertEqual(userId, "1")
-    }
-
-    /// `getActiveAccountId()` throws an error if there isn't an active account.
-    func test_getActiveAccountId_noAccount() async {
-        stateService.activeAccount = nil
-
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getActiveAccountId()
-        }
-    }
-
     /// `getRefreshToken(userId:)` returns the refresh token for the specified user without calling getActiveAccountId.
     func test_getRefreshToken_withUserId() async throws {
         keychainRepository.getRefreshTokenResult = .success("USER_2_REFRESH")

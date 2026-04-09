@@ -10,13 +10,11 @@ class MockTokenService: TokenService {
     var getIsExternalResult: Result<Bool, Error> = .success(false)
     var refreshToken: String? = "REFRESH_TOKEN"
 
-    // Track which userId was used in explicit userId methods
+    var accessTokenByUserId: [String: String] = [:]
     var getAccessTokenCalledWithUserId: String?
     var getRefreshTokenCalledWithUserId: String?
-    var setTokensCalledWithUserId: String?
-    var activeAccountId: String = "1"
-    var accessTokenByUserId: [String: String] = [:]
     var refreshTokenByUserId: [String: String] = [:]
+    var setTokensCalledWithUserId: String?
 
     func getAccessToken() async throws -> String {
         guard let accessToken else { throw StateServiceError.noActiveAccount }
@@ -30,13 +28,6 @@ class MockTokenService: TokenService {
 
     func getAccessTokenExpirationDate() async throws -> Date? {
         try accessTokenExpirationDateResult.get()
-    }
-
-    func getActiveAccountId() async throws -> String {
-        if activeAccountId.isEmpty {
-            throw StateServiceError.noActiveAccount
-        }
-        return activeAccountId
     }
 
     func getIsExternal() async throws -> Bool {

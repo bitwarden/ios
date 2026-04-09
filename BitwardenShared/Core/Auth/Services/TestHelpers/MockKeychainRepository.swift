@@ -19,10 +19,12 @@ class MockKeychainRepository: KeychainRepository {
     var deleteItemsForUserResult: Result<Void, Error> = .success(())
 
     var getAccessTokenResult: Result<String, Error> = .success("ACCESS_TOKEN")
+    var getAccessTokenUserId: String?
     var getAuthenticatorVaultKeyResult: Result<String, Error> = .success("AUTHENTICATOR_VAULT_KEY")
     var getDeviceKeyResult: Result<String, Error> = .success("DEVICE_KEY")
     var getPendingAdminLoginRequestResult: Result<String, Error> = .success("PENDING_REQUEST")
     var getRefreshTokenResult: Result<String, Error> = .success("REFRESH_TOKEN")
+    var getRefreshTokenUserId: String?
     var getServerCommunicationConfigResult: Result<BitwardenSdk.ServerCommunicationConfig?, Error> = .success(nil)
     var getServerCommunicationConfigCalledHostname: String? // swiftlint:disable:this identifier_name
 
@@ -34,10 +36,6 @@ class MockKeychainRepository: KeychainRepository {
     var setServerCommunicationConfigResult: Result<Void, Error> = .success(())
     var setServerCommunicationConfigCalledConfig: BitwardenSdk.ServerCommunicationConfig?
     var setServerCommunicationConfigCalledHostname: String? // swiftlint:disable:this identifier_name
-
-    // Track which userId was passed to get/set methods for testing
-    var getAccessTokenUserId: String?
-    var getRefreshTokenUserId: String?
 
     func deleteAllItems() async throws {
         deleteAllItemsCalled = true

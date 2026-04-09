@@ -85,9 +85,10 @@ class APIService {
         )
 
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
+            activeAccountStateProvider: stateService,
+            errorReporter: errorReporter,
             httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
             tokenService: tokenService,
-            errorReporter: errorReporter,
         )
 
         apiService = httpServiceBuilder.makeService(
