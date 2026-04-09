@@ -39,15 +39,24 @@ Or run all at once via `./Scripts/bootstrap.sh`.
 
 ## Running Tests
 
+**Always read the simulator config files before running tests:**
+
+```bash
+DEVICE=$(tr -d '\n' < .test-simulator-device-name)
+OS=$(tr -d '\n' < .test-simulator-ios-version)
+```
+
+Then run tests with:
+
 ```bash
 xcodebuild test \
   -workspace Bitwarden.xcworkspace \
   -scheme Bitwarden \
   -testPlan Bitwarden-Default \
-  -destination 'platform=iOS Simulator,name=iPhone 16'
+  -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS"
 ```
 
-Simulator must match `.test-simulator-device-name` and `.test-simulator-ios-version`.
+Current values (as of last update): device `iPhone 17 Pro`, OS `26.2`. **Do not hardcode these** — always read from `.test-simulator-device-name` and `.test-simulator-ios-version` at runtime, as they change when the project upgrades its simulator target.
 
 CI runs all `-Default` test plans on PRs to `main`, commits to `main`, and release branches. Test execution order is randomized (`randomExecutionOrder: true`).
 

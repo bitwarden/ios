@@ -65,7 +65,7 @@ Xcode version requirement: see `.xcode-version` file
 
 ## Testing
 
-**You MUST follow testing guidelines in `Docs/Testing.md`** (authoritative source for test structure, naming, templates, decision matrix, running tests, and simulator configuration). Snapshot tests are currently disabled — prefix function names with `disable`.
+Follow `Docs/Testing.md` (authoritative). See `testing-ios-code` skill for test-writing workflow. Snapshot tests are currently disabled — prefix function names with `disabletest_`.
 
 ## Code Style & Standards
 
@@ -145,4 +145,24 @@ See `build-test-verify` skill for project generation, build commands, test execu
 - `Docs/Testing.md` — Testing guidelines and component-specific strategies (authoritative)
 
 **Do not duplicate information from these files — reference them instead.**
+
+## Skills & Commands
+
+| Skill | Triggers |
+|-------|---------|
+| `refining-ios-requirements` | "refine requirements", "analyze ticket", "gap analysis" |
+| `planning-ios-implementation` | "plan implementation", "design approach", "architecture plan" |
+| `implementing-ios-code` | "implement", "write code", "add screen", "create feature" |
+| `testing-ios-code` | "write tests", "add test coverage", "unit test" |
+| `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
+| `perform-ios-preflight-checklist` | "preflight", "self review", "ready to commit" |
+| `committing-ios-changes` | "commit", "stage changes", "create commit" |
+| `creating-ios-pull-request` | "create PR", "open pull request", "submit PR" |
+| `labeling-ios-changes` | "label PR", "add labels", "categorize changes" |
+| `reviewing-changes` | "review", "code review", "check PR" |
+
+| Command | Usage |
+|---------|-------|
+| `/plan-ios-work <PM-XXXXX>` | Use the `ios-architect` agent (or this command) to fetch ticket → refine requirements → design implementation approach |
+| `/work-on-ios <PM-XXXXX>` | Use the `ios-implementer` agent (or this command) for full workflow: implement → test → verify → preflight → commit → review → PR |
 
