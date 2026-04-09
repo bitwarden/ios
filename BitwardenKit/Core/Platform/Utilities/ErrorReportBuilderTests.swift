@@ -174,6 +174,20 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             """
         }
     }
+
+    func test_getUserId_returnsNilWhenAccountStateProviderThrowsError() async {
+        let mockError = BitwardenTestError.mock("test_getUserId_returnsNilWhenAccountStateProviderThrowsError")
+        activeAccountStateProvider.getActiveAccountIdThrowableError = mockError
+        let userId = await subject.getUserId()
+        XCTAssertNil(userId)
+    }
+
+    func test_getUserId_returnsValidID() async {
+        let expectation = "1234567890"
+        activeAccountStateProvider.getActiveAccountIdReturnValue = expectation
+        let userId = await subject.getUserId()
+        XCTAssertEqual(userId, expectation)
+    }
 }
 
 private extension String {

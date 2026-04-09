@@ -16,6 +16,12 @@ public protocol ErrorReportBuilder {
     ///     occurred.
     ///
     func buildShareErrorLog(for error: Error, callStack: String) async -> String
+
+    /// Gets the active account's user id.
+    ///
+    /// - Returns: An optional string containing the user id.
+    ///
+    func getUserId() async -> String?
 }
 
 // MARK: - DefaultErrorReportBuilder
@@ -111,5 +117,9 @@ extension DefaultErrorReportBuilder: ErrorReportBuilder {
         Binary images:
         \(binaryImageAddresses())
         """
+    }
+    
+    public func getUserId() async -> String? {
+        try? await activeAccountStateProvider.getActiveAccountId()
     }
 }

@@ -13,4 +13,9 @@ public class MockErrorReportBuilder: ErrorReportBuilder {
         buildShareErrorLogError = error
         return buildShareErrorLogReturnValue
     }
+
+    public var userIdReturnValue: String?
+    public func getUserId() async -> String? {
+        userIdReturnValue
+    }
 }
