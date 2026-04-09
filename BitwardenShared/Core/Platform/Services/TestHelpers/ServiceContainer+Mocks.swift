@@ -92,7 +92,7 @@ extension ServiceContainer {
             actualSearchProcessorMediatorFactory = factoryMock
         }
 
-        let container = ServiceContainer(
+        return ServiceContainer(
             apiService: APIService(
                 client: httpClient,
                 environmentService: environmentService,
@@ -163,6 +163,5 @@ extension ServiceContainer {
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService,
         )
-        return container
     }
 }
