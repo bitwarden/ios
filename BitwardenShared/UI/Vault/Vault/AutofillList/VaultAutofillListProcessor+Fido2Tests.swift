@@ -891,15 +891,9 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertFalse(appExtensionDelegate.completeAssertionRequestMocker.called)
-        fido2UserInterfaceHelper.pickedCredentialForAuthenticationMocker.assertUnwrapping { result in
-            guard case let .failure(err) = result,
-                  err as? BitwardenTestError == BitwardenTestError.example else {
-                return false
-            }
-            return true
-        }
-
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForAuthenticationMocker.called)
         XCTAssertTrue(subject.state.isAutofillingFido2List)
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsTap)
     }
@@ -984,14 +978,9 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         }
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
-        fido2UserInterfaceHelper.pickedCredentialForCreationMocker.assertUnwrapping { result in
-            guard case let .failure(err) = result,
-                  err as? BitwardenTestError == BitwardenTestError.example else {
-                return false
-            }
-            return true
-        }
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
 
     /// `perform(_:)` with `.initFido2` doesn't call `makeCredential` from the Fido2 authenticator when

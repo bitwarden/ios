@@ -637,8 +637,8 @@ extension VaultAutofillListProcessor {
 
             autofillAppExtensionDelegate.completeAssertionRequest(assertionCredential: assertionCredential)
         } catch {
-            services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(result: .failure(error))
             services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
@@ -696,8 +696,8 @@ extension VaultAutofillListProcessor {
                 return
             }
 
-            services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
             services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
