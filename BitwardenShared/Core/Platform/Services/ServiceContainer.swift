@@ -57,6 +57,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
     let autofillCredentialService: AutofillCredentialService
 
+    /// The service used by the application to manage billing operations.
+    let billingService: BillingService
+
     /// The repository to manage biometric unlock policies and access controls the user.
     let biometricsRepository: BiometricsRepository
 
@@ -312,6 +315,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         authService: AuthService,
         authenticatorSyncService: AuthenticatorSyncService,
         autofillCredentialService: AutofillCredentialService,
+        billingService: BillingService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         cameraService: CameraService,
@@ -378,6 +382,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
         self.autofillCredentialService = autofillCredentialService
+        self.billingService = billingService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.cameraService = cameraService
@@ -1089,6 +1094,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
+            billingService: DefaultBillingService(billingAPIService: apiService),
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),

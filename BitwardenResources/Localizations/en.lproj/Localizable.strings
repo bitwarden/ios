@@ -1034,3 +1034,11 @@
 "TurnOnNow" = "Turn on now";
 "AcceptTransfer" = "Accept transfer";
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";
+"PerMonth" = "/ month";
+"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
+"BuiltInAuthenticator" = "Built-in authenticator";
+"EmergencyAccess" = "Emergency access";
+"SecureFileStorage" = "Secure file storage";
+"BreachMonitoring" = "Breach monitoring";
+"UpgradeNow" = "Upgrade now";
+"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";

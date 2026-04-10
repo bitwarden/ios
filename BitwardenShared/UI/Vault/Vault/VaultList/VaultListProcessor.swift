@@ -159,11 +159,7 @@ final class VaultListProcessor: StateProcessor<
         case let .addItemPressed(type):
             addItem(type: type)
         case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
+            handleAppReviewPromptShown()
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
@@ -201,8 +197,7 @@ final class VaultListProcessor: StateProcessor<
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
         case .upgradeToPremium:
-            // TODO: PM-33849 - Navigate to upgrade to premium view
-            break
+            coordinator.navigate(to: .premiumUpgrade)
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -211,6 +206,15 @@ final class VaultListProcessor: StateProcessor<
 
 extension VaultListProcessor {
     // MARK: Private Methods
+
+    /// Handles the app review prompt shown action by updating state and clearing review data.
+    private func handleAppReviewPromptShown() {
+        state.isEligibleForAppReview = false
+        Task {
+            await services.reviewPromptService.setReviewPromptShownVersion()
+            await services.reviewPromptService.clearUserActions()
+        }
+    }
 
     /// Navigates to the add vault item screen.
     ///

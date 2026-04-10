@@ -1,0 +1,75 @@
+// swiftlint:disable:this file_name
+import BitwardenKit
+import BitwardenKitMocks
+import BitwardenResources
+import SwiftUI
+import ViewInspector
+import XCTest
+
+@testable import BitwardenShared
+
+// MARK: - PremiumUpgradeViewTests
+
+class PremiumUpgradeViewTests: BitwardenTestCase {
+    // MARK: Properties
+
+    var processor: MockProcessor<PremiumUpgradeState, PremiumUpgradeAction, PremiumUpgradeEffect>!
+    var subject: PremiumUpgradeView!
+
+    // MARK: Setup & Teardown
+
+    override func setUp() {
+        super.setUp()
+        processor = MockProcessor(state: PremiumUpgradeState())
+        let store = Store(processor: processor)
+        subject = PremiumUpgradeView(store: store)
+    }
+
+    override func tearDown() {
+        super.tearDown()
+        processor = nil
+        subject = nil
+    }
+
+    // MARK: Tests
+
+    /// Tapping the cancel button dispatches the `.cancelTapped` action.
+    @MainActor
+    func test_cancelButton_tap() throws {
+        let button = try subject.inspect().findCancelToolbarButton()
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
+    }
+
+    /// Tapping the upgrade now button dispatches the `.upgradeNowTapped` effect.
+    @MainActor
+    func test_upgradeNowButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.upgradeNow)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .upgradeNowTapped)
+    }
+
+    /// The upgrade now button is disabled when the view is loading.
+    @MainActor
+    func test_upgradeNowButton_disabled_whenLoading() throws {
+        processor.state.isLoading = true
+        let button = try subject.inspect().find(asyncButton: Localizations.upgradeNow)
+        XCTAssertTrue(button.isDisabled())
+    }
+
+    /// The upgrade now button is enabled when the view is not loading.
+    @MainActor
+    func test_upgradeNowButton_enabled_whenNotLoading() throws {
+        processor.state.isLoading = false
+        let button = try subject.inspect().find(asyncButton: Localizations.upgradeNow)
+        XCTAssertFalse(button.isDisabled())
+    }
+
+    /// The premium price text displays the value from state.
+    @MainActor
+    func test_premiumPrice_displaysStateValue() throws {
+        processor.state.premiumPrice = "$9.99"
+        let text = try subject.inspect().find(text: "$9.99")
+        XCTAssertNotNil(text)
+    }
+}
