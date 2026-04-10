@@ -50,7 +50,7 @@ struct ClientCertificateServiceTests {
     func getClientCertificateIdentity_keychainThrows_logsErrorAndReturnsNil() async {
         let error = BitwardenTestError.example
         environmentService.clientCertificateFingerprint = "some-fingerprint"
-        keychainRepository.getClientCertificateIdentityResult = .failure(error)
+        keychainRepository.getClientCertificateIdentityThrowableError = error
 
         let result = await subject.getClientCertificateIdentity()
 
@@ -80,7 +80,7 @@ struct ClientCertificateServiceTests {
 
         try await subject.removeCertificate(fingerprint: fingerprint)
 
-        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints == [fingerprint])
+        #expect(keychainRepository.deleteClientCertificateIdentityReceivedFingerprint == fingerprint)
     }
 
     /// `removeCertificate(fingerprint:)` keeps the keychain identity when another account
@@ -99,7 +99,7 @@ struct ClientCertificateServiceTests {
 
         try await subject.removeCertificate(fingerprint: fingerprint)
 
-        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
+        #expect(!keychainRepository.deleteClientCertificateIdentityCalled)
     }
 
     // MARK: Tests - removeCertificate(userId:)
@@ -123,7 +123,7 @@ struct ClientCertificateServiceTests {
 
         try await subject.removeCertificate(userId: user1)
 
-        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints == [fingerprint])
+        #expect(keychainRepository.deleteClientCertificateIdentityReceivedFingerprint == fingerprint)
     }
 
     /// `removeCertificate(userId:)` succeeds gracefully when no certificate is configured.
@@ -141,7 +141,7 @@ struct ClientCertificateServiceTests {
 
         try await subject.removeCertificate(userId: user1)
 
-        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
+        #expect(!keychainRepository.deleteClientCertificateIdentityCalled)
     }
 
     /// `removeCertificate(userId:)` keeps the keychain identity when another account references
@@ -170,7 +170,7 @@ struct ClientCertificateServiceTests {
 
         try await subject.removeCertificate(userId: user1)
 
-        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
+        #expect(!keychainRepository.deleteClientCertificateIdentityCalled)
     }
 
     /// `removeCertificate(userId:)` keeps the keychain identity when the pre-auth environment URLs
@@ -197,6 +197,6 @@ struct ClientCertificateServiceTests {
 
         try await subject.removeCertificate(userId: user1)
 
-        #expect(keychainRepository.deleteClientCertificateIdentityFingerprints.isEmpty)
+        #expect(!keychainRepository.deleteClientCertificateIdentityCalled)
     }
 }

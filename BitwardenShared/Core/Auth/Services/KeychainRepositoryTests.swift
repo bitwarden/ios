@@ -228,7 +228,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_getDeviceKey_notFound() async throws {
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
-            BitwardenKeychainItem.deviceKey(userId: "1")
+            BitwardenKeychainItem.deviceKey(userId: "1"),
         )
 
         let result = try await subject.getDeviceKey(userId: "1")
@@ -290,7 +290,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_getPendingAdminLoginRequest_notFound() async throws {
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
-            BitwardenKeychainItem.pendingAdminLoginRequest(userId: "1")
+            BitwardenKeychainItem.pendingAdminLoginRequest(userId: "1"),
         )
 
         let result = try await subject.getPendingAdminLoginRequest(userId: "1")
@@ -404,10 +404,13 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
     ///
     func test_setUserAuthKey_success() async throws {
         let item = BitwardenKeychainItem.biometrics(userId: "123")
-        try await subject.setUserAuthKey(for: item, value: "123")
+        try await subject.setUserAuthKey(for: item, value: "testValue")
 
-        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "123")
-        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey, item.unformattedKey)
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "testValue")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item as? BitwardenKeychainItem,
+            item,
+        )
     }
 
     /// `setUserAuthKey(for:value:)` rethrows errors from the facade.
@@ -416,263 +419,83 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainServiceFacade.setValueThrowableError = KeychainServiceError.osStatusError(-1)
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
-            try await subject.setUserAuthKey(for: .biometrics(userId: "123"), value: "123")
+            try await subject.setUserAuthKey(for: .biometrics(userId: "123"), value: "testValue")
         }
     }
 
-    /// `setUserAuthKey(_:)` failures rethrow.
-    ///
-    func test_setUserAuthKey_error_onSet() async {
-        let newKey = "123"
-        let item = BitwardenKeychainItem.biometrics(userId: "123")
-        let addError = KeychainServiceError.osStatusError(-1)
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                item.accessControlFlags ?? [],
-                nil,
-            )!,
+    // MARK: Tests - deleteClientCertificateIdentity(fingerprint:)
+
+    /// `deleteClientCertificateIdentity(fingerprint:)` delegates to the facade with the correct item.
+    func test_deleteClientCertificateIdentity_delegatesToFacade() async throws {
+        try await subject.deleteClientCertificateIdentity(fingerprint: "abc123")
+
+        XCTAssertEqual(
+            keychainServiceFacade.deleteIdentityReceivedItem as? BitwardenKeychainItem,
+            .clientCertificateIdentity(fingerprint: "abc123"),
         )
-        keychainService.addResult = .failure(addError)
-        await assertAsyncThrows(error: addError) {
-            _ = try await subject.setUserAuthKey(for: .biometrics(userId: "123"), value: newKey)
-        }
     }
 
-    /// `setUserAuthKey(_:)` succeeds quietly.
-    ///
-    func test_setUserAuthKey_success_biometrics() async throws {
-        let newKey = "123"
-        let item = BitwardenKeychainItem.biometrics(userId: "123")
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                item.accessControlFlags ?? [],
-                nil,
-            )!,
-        )
-        keychainService.addResult = .success(())
-        try await subject.setUserAuthKey(for: item, value: newKey)
-        XCTAssertEqual(keychainService.accessControlFlags, .biometryCurrentSet)
-        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
-        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
-    }
-
-    /// `setUserAuthKey(_:)` succeeds quietly.
-    ///
-    func test_setUserAuthKey_success_neverlock() async throws {
-        let newKey = "123"
-        let item = BitwardenKeychainItem.neverLock(userId: "123")
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                item.accessControlFlags ?? [],
-                nil,
-            )!,
-        )
-        keychainService.addResult = .success(())
-        try await subject.setUserAuthKey(for: item, value: newKey)
-        XCTAssertEqual(keychainService.accessControlFlags, [])
-        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
-        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
-    }
-
-    /// `setValue(_:for:)` attempts to update before adding when item doesn't exist.
-    ///
-    func test_setValue_addsNewItem_afterUpdateFails() async throws {
-        let newKey = "test-value"
-        let item = BitwardenKeychainItem.biometrics(userId: "123")
-        let accessControl = SecAccessControlCreateWithFlags(
-            nil,
-            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            item.accessControlFlags ?? [],
-            nil,
-        )!
-
-        keychainService.accessControlResult = .success(accessControl)
-        keychainService.updateResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
-        keychainService.addResult = .success(())
-
-        try await subject.setValue(newKey, for: item)
-
-        // Verify update was attempted first
-        let updateQuery = try XCTUnwrap(keychainService.updateQuery as? [CFString: Any])
-        let expectedFormattedKey = await subject.formattedKey(for: item)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccount] as? String), expectedFormattedKey)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessGroup] as? String), subject.appSecAttrAccessGroup)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrService] as? String), subject.appSecAttrService)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecClass] as? String), String(kSecClassGenericPassword))
-        XCTAssertNil(updateQuery[kSecValueData])
-        XCTAssertNil(updateQuery[kSecAttrAccessControl])
-
-        let updateAttributes = try XCTUnwrap(keychainService.updateAttributes as? [CFString: Any])
-        XCTAssertNotNil(updateAttributes[kSecValueData])
-        XCTAssertNotNil(updateAttributes[kSecAttrAccessControl])
-        let updateValueData = try XCTUnwrap(updateAttributes[kSecValueData] as? Data)
-        XCTAssertEqual(String(data: updateValueData, encoding: .utf8), newKey)
-        XCTAssertEqual(updateAttributes.count, 2)
-
-        // Verify add was called after update failed
-        let addAttributes = try XCTUnwrap(keychainService.addAttributes as? [CFString: Any])
-        let addValueData = try XCTUnwrap(addAttributes[kSecValueData] as? Data)
-        XCTAssertEqual(String(data: addValueData, encoding: .utf8), newKey)
-        XCTAssertNotNil(addAttributes[kSecAttrAccessControl])
-        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrAccount] as? String), expectedFormattedKey)
-        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrAccessGroup] as? String), subject.appSecAttrAccessGroup)
-        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecAttrService] as? String), subject.appSecAttrService)
-        try XCTAssertEqual(XCTUnwrap(addAttributes[kSecClass] as? String), String(kSecClassGenericPassword))
-    }
-
-    /// `setValue(_:for:)` updates an existing item without calling add.
-    ///
-    func test_setValue_updatesExistingItem() async throws {
-        let newKey = "test-value"
-        let item = BitwardenKeychainItem.biometrics(userId: "123")
-        let accessControl = SecAccessControlCreateWithFlags(
-            nil,
-            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-            item.accessControlFlags ?? [],
-            nil,
-        )!
-
-        keychainService.accessControlResult = .success(accessControl)
-        keychainService.updateResult = .success(())
-
-        try await subject.setValue(newKey, for: item)
-
-        // Verify update was called with correct query and attributes
-        let updateQuery = try XCTUnwrap(keychainService.updateQuery as? [CFString: Any])
-        let expectedFormattedKey = await subject.formattedKey(for: item)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccount] as? String), expectedFormattedKey)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrAccessGroup] as? String), subject.appSecAttrAccessGroup)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecAttrService] as? String), subject.appSecAttrService)
-        try XCTAssertEqual(XCTUnwrap(updateQuery[kSecClass] as? String), String(kSecClassGenericPassword))
-        XCTAssertNil(updateQuery[kSecValueData])
-        XCTAssertNil(updateQuery[kSecAttrAccessControl])
-
-        let updateAttributes = try XCTUnwrap(keychainService.updateAttributes as? [CFString: Any])
-        XCTAssertNotNil(updateAttributes[kSecValueData])
-        XCTAssertNotNil(updateAttributes[kSecAttrAccessControl])
-        let valueData = try XCTUnwrap(updateAttributes[kSecValueData] as? Data)
-        XCTAssertEqual(String(data: valueData, encoding: .utf8), newKey)
-        XCTAssertEqual(updateAttributes.count, 2)
-
-        // Verify add was NOT called
-        XCTAssertNil(keychainService.addAttributes)
-    }
-
-    // MARK: Client Certificate Tests
-
-    /// `deleteClientCertificateIdentity(fingerprint:)` deletes with the correct query attributes.
-    func test_deleteClientCertificateIdentity_usesCorrectQuery() async throws {
-        appIDSettingsStore.appID = "testAppID"
-        let fingerprint = "abc123"
-        let expectedLabel = await subject.formattedKey(
-            for: .clientCertificateIdentity(fingerprint: fingerprint),
-        )
-
-        try await subject.deleteClientCertificateIdentity(fingerprint: fingerprint)
-
-        let query = try XCTUnwrap(keychainService.deleteQueries.last as? [String: Any])
-        XCTAssertEqual(query[kSecClass as String] as? String, String(kSecClassIdentity))
-        XCTAssertEqual(query[kSecAttrLabel as String] as? String, expectedLabel)
-        XCTAssertEqual(query[kSecAttrAccessGroup as String] as? String, subject.appSecAttrAccessGroup)
-        XCTAssertEqual(query.count, 3)
-    }
-
-    /// `deleteClientCertificateIdentity(fingerprint:)` rethrows unexpected keychain errors.
-    func test_deleteClientCertificateIdentity_throwsError_onDeleteFailure() async {
-        keychainService.deleteResult = .failure(.osStatusError(-1))
+    /// `deleteClientCertificateIdentity(fingerprint:)` rethrows errors from the facade.
+    func test_deleteClientCertificateIdentity_throwsError() async {
+        keychainServiceFacade.deleteIdentityThrowableError = KeychainServiceError.osStatusError(-1)
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
             try await subject.deleteClientCertificateIdentity(fingerprint: "abc123")
         }
     }
 
-    /// `getClientCertificateIdentity(fingerprint:)` returns nil when the keychain search returns nil.
-    func test_getClientCertificateIdentity_returnsNil_whenNotFound() async throws {
-        keychainService.searchResult = .success(nil)
+    // MARK: Tests - getClientCertificateIdentity(fingerprint:)
+
+    /// `getClientCertificateIdentity(fingerprint:)` returns nil when the facade returns nil.
+    func test_getClientCertificateIdentity_returnsNil() async throws {
+        keychainServiceFacade.getIdentityReturnValue = nil
 
         let result = try await subject.getClientCertificateIdentity(fingerprint: "abc123")
 
         XCTAssertNil(result)
     }
 
-    /// `getClientCertificateIdentity(fingerprint:)` returns nil when the item is not in the keychain.
-    func test_getClientCertificateIdentity_returnsNil_whenItemNotFoundError() async throws {
-        keychainService.searchResult = .failure(.osStatusError(errSecItemNotFound))
+    /// `getClientCertificateIdentity(fingerprint:)` returns the identity from the facade.
+    func test_getClientCertificateIdentity_returnsIdentity() async throws {
+        let identity = try makeTestIdentity()
+        keychainServiceFacade.getIdentityReturnValue = identity
 
         let result = try await subject.getClientCertificateIdentity(fingerprint: "abc123")
 
-        XCTAssertNil(result)
+        XCTAssertNotNil(result)
+        XCTAssertEqual(
+            keychainServiceFacade.getIdentityReceivedItem as? BitwardenKeychainItem,
+            .clientCertificateIdentity(fingerprint: "abc123"),
+        )
     }
 
-    /// `getClientCertificateIdentity(fingerprint:)` rethrows unexpected keychain errors.
-    func test_getClientCertificateIdentity_throwsError_onUnexpectedSearchError() async {
-        keychainService.searchResult = .failure(.osStatusError(-1))
+    /// `getClientCertificateIdentity(fingerprint:)` rethrows errors from the facade.
+    func test_getClientCertificateIdentity_throwsError() async {
+        keychainServiceFacade.getIdentityThrowableError = KeychainServiceError.osStatusError(-1)
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {
             _ = try await subject.getClientCertificateIdentity(fingerprint: "abc123")
         }
     }
 
-    /// `getClientCertificateIdentity(fingerprint:)` searches with the correct query attributes.
-    func test_getClientCertificateIdentity_usesCorrectQuery() async throws {
-        appIDSettingsStore.appID = "testAppID"
-        keychainService.searchResult = .success(nil)
-        let fingerprint = "abc123"
-        let expectedLabel = await subject.formattedKey(
-            for: .clientCertificateIdentity(fingerprint: fingerprint),
-        )
+    // MARK: Tests - setClientCertificateIdentity(_:fingerprint:)
 
-        _ = try await subject.getClientCertificateIdentity(fingerprint: fingerprint)
-
-        let query = try XCTUnwrap(keychainService.searchQuery as? [String: Any])
-        XCTAssertEqual(query[kSecClass as String] as? String, String(kSecClassIdentity))
-        XCTAssertEqual(query[kSecAttrLabel as String] as? String, expectedLabel)
-        XCTAssertEqual(query[kSecAttrAccessGroup as String] as? String, subject.appSecAttrAccessGroup)
-        XCTAssertEqual(query[kSecReturnRef as String] as? Bool, true)
-        XCTAssertEqual(query[kSecMatchLimit as String] as? String, String(kSecMatchLimitOne))
-    }
-
-    /// `getClientCertificateIdentity(fingerprint:)` returns the identity when one is stored.
-    func test_getClientCertificateIdentity_returnsIdentity_whenPresent() async throws {
+    /// `setClientCertificateIdentity(_:fingerprint:)` delegates to the facade with the correct item.
+    func test_setClientCertificateIdentity_delegatesToFacade() async throws {
         let identity = try makeTestIdentity()
-        keychainService.searchResult = .success(identity)
 
-        let result = try await subject.getClientCertificateIdentity(fingerprint: "abc123")
+        try await subject.setClientCertificateIdentity(identity, fingerprint: "abc123")
 
-        XCTAssertNotNil(result)
-    }
-
-    /// `setClientCertificateIdentity(_:fingerprint:)` adds the identity with the correct attributes.
-    func test_setClientCertificateIdentity_addsWithCorrectAttributes() async throws {
-        appIDSettingsStore.appID = "testAppID"
-        let fingerprint = "abc123"
-        let identity = try makeTestIdentity()
-        let expectedLabel = await subject.formattedKey(
-            for: .clientCertificateIdentity(fingerprint: fingerprint),
-        )
-
-        try await subject.setClientCertificateIdentity(identity, fingerprint: fingerprint)
-
-        let addAttributes = try XCTUnwrap(keychainService.addAttributes as? [String: Any])
-        XCTAssertEqual(addAttributes[kSecClass as String] as? String, String(kSecClassIdentity))
-        XCTAssertEqual(addAttributes[kSecAttrLabel as String] as? String, expectedLabel)
-        XCTAssertEqual(addAttributes[kSecAttrAccessGroup as String] as? String, subject.appSecAttrAccessGroup)
         XCTAssertEqual(
-            addAttributes[kSecAttrAccessible as String] as? String,
-            String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly),
+            keychainServiceFacade.setIdentityReceivedArguments?.item as? BitwardenKeychainItem,
+            .clientCertificateIdentity(fingerprint: "abc123"),
         )
-        XCTAssertNotNil(addAttributes[kSecValueRef as String])
+        XCTAssertNotNil(keychainServiceFacade.setIdentityReceivedArguments?.identity)
     }
 
-    /// `setClientCertificateIdentity(_:fingerprint:)` rethrows errors from the keychain service.
-    func test_setClientCertificateIdentity_throwsError_onAddFailure() async throws {
-        keychainService.addResult = .failure(.osStatusError(-1))
+    /// `setClientCertificateIdentity(_:fingerprint:)` rethrows errors from the facade.
+    func test_setClientCertificateIdentity_throwsError() async throws {
+        keychainServiceFacade.setIdentityThrowableError = KeychainServiceError.osStatusError(-1)
         let identity = try makeTestIdentity()
 
         await assertAsyncThrows(error: KeychainServiceError.osStatusError(-1)) {

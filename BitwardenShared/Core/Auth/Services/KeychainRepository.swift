@@ -321,15 +321,9 @@ extension DefaultKeychainRepository {
     }
 
     func deleteClientCertificateIdentity(fingerprint: String) async throws {
-        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
-
-        let deleteQuery: [String: Any] = [
-            kSecClass as String: kSecClassIdentity,
-            kSecAttrLabel as String: keyLabel,
-            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
-        ]
-
-        try keychainService.delete(query: deleteQuery as CFDictionary)
+        try await keychainServiceFacade.deleteIdentity(
+            for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
+        )
     }
 
     func deleteItems(for userId: String) async throws {
@@ -375,24 +369,9 @@ extension DefaultKeychainRepository {
     }
 
     func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
-        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
-
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassIdentity,
-            kSecAttrLabel as String: keyLabel,
-            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
-            kSecReturnRef as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
-
-        do {
-            let foundItem = try keychainService.search(query: query as CFDictionary)
-            guard let foundItem else { return nil }
-            // swiftlint:disable:next force_cast
-            return (foundItem as! SecIdentity)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
-            return nil
-        }
+        try await keychainServiceFacade.getIdentity(
+            for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
+        )
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
@@ -437,18 +416,10 @@ extension DefaultKeychainRepository {
     }
 
     func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws {
-        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
-
-        let addAttributes: [String: Any] = [
-            kSecClass as String: kSecClassIdentity,
-            kSecValueRef as String: identity,
-            kSecAttrLabel as String: keyLabel,
-            kSecAttrAccessible as String: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint)
-                .protection,
-            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
-        ]
-
-        try keychainService.add(attributes: addAttributes as CFDictionary)
+        try await keychainServiceFacade.setIdentity(
+            identity,
+            for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
+        )
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {

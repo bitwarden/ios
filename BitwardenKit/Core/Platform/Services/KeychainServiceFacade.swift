@@ -1,10 +1,38 @@
 import Foundation
+import Security
 
 // MARK: - KeychainServiceFacade
 
 /// A façade layer for ``KeychainService`` that provides higher-level get, set, and delete options.
 ///
 public protocol KeychainServiceFacade { // sourcery: AutoMockable
+    // MARK: Identity
+
+    /// Deletes the identity in the keychain for the given item.
+    ///
+    /// - Parameters:
+    ///   - item: The keychain item to delete the associated identity.
+    ///
+    func deleteIdentity(for item: any KeychainItem) async throws
+
+    /// Gets the SecIdentity associated with the keychain item.
+    /// Returns `nil` if no identity exists for the given item.
+    ///
+    /// - Parameter item: The keychain item used to fetch the associated identity.
+    /// - Returns: The fetched SecIdentity, or `nil` if not found.
+    ///
+    func getIdentity(for item: any KeychainItem) async throws -> SecIdentity?
+
+    /// Stores a SecIdentity associated with a keychain item in the keychain.
+    ///
+    /// - Parameters:
+    ///   - identity: The SecIdentity to store.
+    ///   - item: The keychain item used to key the identity.
+    ///
+    func setIdentity(_ identity: SecIdentity, for item: any KeychainItem) async throws
+
+    // MARK: Value
+
     /// Deletes the value in the keychain for the given item.
     ///
     /// - Parameters:
@@ -139,7 +167,59 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
         self.namespacing = namespacing
     }
 
-    // MARK: Methods
+    // MARK: Identity Methods
+
+    public func deleteIdentity(for item: any KeychainItem) async throws {
+        let keyLabel = await formattedKey(for: item)
+
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassIdentity,
+            kSecAttrLabel as String: keyLabel,
+            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
+        ]
+
+        try keychainService.delete(query: deleteQuery as CFDictionary)
+    }
+
+    public func getIdentity(for item: any KeychainItem) async throws -> SecIdentity? {
+        let keyLabel = await formattedKey(for: item)
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassIdentity,
+            kSecAttrLabel as String: keyLabel,
+            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
+            kSecReturnRef as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+
+        do {
+            let foundItem = try keychainService.search(query: query as CFDictionary)
+            // CF types are weird, and we can't do a simple `as? SecIdentity` here, unfortunately.
+            // So we can verify with CFGetTypeID and then force cast.
+            guard let foundItem,
+                  CFGetTypeID(foundItem as CFTypeRef) == SecIdentityGetTypeID() else { return nil }
+            // swiftlint:disable:next force_cast
+            return (foundItem as! SecIdentity)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+            return nil
+        }
+    }
+
+    public func setIdentity(_ identity: SecIdentity, for item: any KeychainItem) async throws {
+        let keyLabel = await formattedKey(for: item)
+
+        let addAttributes: [String: Any] = [
+            kSecClass as String: kSecClassIdentity,
+            kSecValueRef as String: identity,
+            kSecAttrLabel as String: keyLabel,
+            kSecAttrAccessible as String: item.protection,
+            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
+        ]
+
+        try keychainService.add(attributes: addAttributes as CFDictionary)
+    }
+
+    // MARK: Value
 
     public func deleteValue(for item: any KeychainItem) async throws {
         try await keychainService.delete(

@@ -2638,7 +2638,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(setArguments?.authKey)
         XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
         XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
         XCTAssertEqual(clientCertificateService.removeCertificateUserIdReceivedUserId, account.profile.userId)
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
