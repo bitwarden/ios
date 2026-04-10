@@ -43,8 +43,8 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
 
         XCTAssertEqual(result, date)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
-            SharedKeychainItem.accountAutoLogout(userId: "1").unformattedKey,
+            keychainServiceFacade.getValueReceivedItem as? SharedKeychainItem,
+            SharedKeychainItem.accountAutoLogout(userId: "1"),
         )
     }
 
@@ -59,8 +59,8 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
 
         XCTAssertNil(result)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
-            SharedKeychainItem.accountAutoLogout(userId: "1").unformattedKey,
+            keychainServiceFacade.getValueReceivedItem as? SharedKeychainItem,
+            SharedKeychainItem.accountAutoLogout(userId: "1"),
         )
     }
 
@@ -83,9 +83,15 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
 
         XCTAssertTrue(keychainServiceFacade.setValueCalled)
         XCTAssertEqual(
-            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
-            SharedKeychainItem.accountAutoLogout(userId: "1").unformattedKey,
+            keychainServiceFacade.setValueReceivedArguments?.item as? SharedKeychainItem,
+            SharedKeychainItem.accountAutoLogout(userId: "1"),
         )
+        let valueString = try XCTUnwrap(keychainServiceFacade.setValueReceivedArguments?.value)
+        let decodedDate = try JSONDecoder.defaultDecoder.decode(
+            Date.self,
+            from: XCTUnwrap(valueString.data(using: .utf8)),
+        )
+        XCTAssertEqual(decodedDate, date)
     }
 
     /// `setAccountAutoLogoutTime()` deletes the account auto-logout time when nil is passed.
@@ -94,8 +100,8 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
         try await subject.setAccountAutoLogoutTime(nil, userId: "1")
 
         XCTAssertEqual(
-            keychainServiceFacade.deleteValueReceivedItem?.unformattedKey,
-            SharedKeychainItem.accountAutoLogout(userId: "1").unformattedKey,
+            keychainServiceFacade.deleteValueReceivedItem as? SharedKeychainItem,
+            SharedKeychainItem.accountAutoLogout(userId: "1"),
         )
     }
 
@@ -118,8 +124,8 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
         try await subject.deleteAuthenticatorKey()
 
         XCTAssertEqual(
-            keychainServiceFacade.deleteValueReceivedItem?.unformattedKey,
-            SharedKeychainItem.authenticatorKey.unformattedKey,
+            keychainServiceFacade.deleteValueReceivedItem as? SharedKeychainItem,
+            SharedKeychainItem.authenticatorKey,
         )
     }
 
@@ -146,8 +152,8 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
 
         XCTAssertEqual(result, data)
         XCTAssertEqual(
-            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
-            SharedKeychainItem.authenticatorKey.unformattedKey,
+            keychainServiceFacade.getValueReceivedItem as? SharedKeychainItem,
+            SharedKeychainItem.authenticatorKey,
         )
     }
 
@@ -172,9 +178,15 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
 
         XCTAssertTrue(keychainServiceFacade.setValueCalled)
         XCTAssertEqual(
-            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
-            SharedKeychainItem.authenticatorKey.unformattedKey,
+            keychainServiceFacade.setValueReceivedArguments?.item as? SharedKeychainItem,
+            SharedKeychainItem.authenticatorKey,
         )
+        let valueString = try XCTUnwrap(keychainServiceFacade.setValueReceivedArguments?.value)
+        let decodedData = try JSONDecoder.defaultDecoder.decode(
+            Data.self,
+            from: XCTUnwrap(valueString.data(using: .utf8)),
+        )
+        XCTAssertEqual(decodedData, data)
     }
 
     /// `setAuthenticatorKey()` rethrows errors from the facade.

@@ -124,18 +124,10 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
         try await keychainServiceFacade.deleteValue(for: SharedKeychainItem.authenticatorKey)
     }
 
-    /// Gets the authenticator key.
-    ///
-    /// - Returns: Data representing the authenticator key.
-    ///
     public func getAuthenticatorKey() async throws -> Data {
         try await keychainServiceFacade.getValue(for: SharedKeychainItem.authenticatorKey)
     }
 
-    /// Stores the access token for a user in the keychain.
-    ///
-    /// - Parameter value: The authenticator key to store.
-    ///
     public func setAuthenticatorKey(_ value: Data) async throws {
         try await keychainServiceFacade.setValue(value, for: SharedKeychainItem.authenticatorKey)
     }
