@@ -1,3 +1,4 @@
+import Foundation
 import TestHelpers
 import Testing
 
@@ -72,7 +73,7 @@ struct BillingServiceTests {
         billingAPIService.createCheckoutSessionThrowableError = URLError(.notConnectedToInternet)
 
         await #expect(throws: URLError.self) {
-            _ = try await subject.createCheckoutSession()
+            try await subject.createCheckoutSession()
         }
 
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
