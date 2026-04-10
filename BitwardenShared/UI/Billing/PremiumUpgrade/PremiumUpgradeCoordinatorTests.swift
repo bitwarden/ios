@@ -3,7 +3,6 @@ import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
-@testable import BitwardenSharedMocks
 
 class PremiumUpgradeCoordinatorTests: BitwardenTestCase {
     // MARK: Properties

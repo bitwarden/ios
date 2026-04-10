@@ -28,6 +28,7 @@ extension ServiceContainer {
         cameraService: CameraService = MockCameraService(),
         changeKdfService: ChangeKdfService = MockChangeKdfService(),
         cipherOwnershipHelper: CipherOwnershipHelper = MockCipherOwnershipHelper(),
+        clientCertificateService: ClientCertificateService = MockClientCertificateService(),
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
         deviceAuthKeyService: DeviceAuthKeyService = MockDeviceAuthKeyService(),
@@ -91,7 +92,7 @@ extension ServiceContainer {
             actualSearchProcessorMediatorFactory = factoryMock
         }
 
-        let container = ServiceContainer(
+        return ServiceContainer(
             apiService: APIService(
                 client: httpClient,
                 environmentService: environmentService,
@@ -112,6 +113,7 @@ extension ServiceContainer {
             cameraService: cameraService,
             changeKdfService: changeKdfService,
             cipherOwnershipHelper: cipherOwnershipHelper,
+            clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
             deviceAuthKeyService: deviceAuthKeyService,
@@ -161,6 +163,5 @@ extension ServiceContainer {
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService,
         )
-        return container
     }
 }

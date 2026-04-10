@@ -149,7 +149,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         }
     }
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
+    func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
         case .about:
             showAbout()

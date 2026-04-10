@@ -15,6 +15,7 @@ enum BillingError: LocalizedError {
         switch self {
         case .invalidCheckoutUrl,
              .unableToOpenCheckout:
+            // TODO: PM-33856 Handle payment errors
             nil
         }
     }

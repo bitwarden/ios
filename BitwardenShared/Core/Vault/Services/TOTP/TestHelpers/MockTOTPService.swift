@@ -22,7 +22,7 @@ class MockTOTPService: TOTPService {
         return try getTOTPConfigResult.get()
     }
 
-    func isTotpAuthorized(for cipher: BitwardenSdk.CipherView) async -> Bool {
+    func isTotpAuthorized(for cipher: any CipherWithOrgTOTPStatus) async -> Bool {
         isTotpAuthorizedResult
     }
 }
