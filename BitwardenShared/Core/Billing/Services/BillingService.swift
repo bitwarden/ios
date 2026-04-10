@@ -38,6 +38,8 @@ class DefaultBillingService: BillingService {
     func createCheckoutSession() async throws -> URL {
         let response = try await billingAPIService.createCheckoutSession()
         let url = response.checkoutSessionUrl
+        // Ensure the checkout URL uses HTTPS to prevent man-in-the-middle attacks
+        // when redirecting users to the payment provider.
         guard url.scheme == "https" else {
             throw BillingError.invalidCheckoutUrl
         }
