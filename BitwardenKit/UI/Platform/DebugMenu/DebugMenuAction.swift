@@ -13,4 +13,6 @@ enum DebugMenuAction: Equatable {
     case generateSdkErrorReport
     /// The toast was shown or hidden.
     case toastShown(Toast?)
+    /// The copy user id button was tapped.
+    case copyUserId
 }

@@ -1,6 +1,7 @@
 import BitwardenResources
 import BitwardenSdk
 import Foundation
+import UIKit
 
 // MARK: - DebugMenuProcessor
 
@@ -11,6 +12,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     typealias Services = HasConfigService
         & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasServerCommunicationConfigClientSingleton
 
@@ -57,6 +59,8 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     override func receive(_ action: DebugMenuAction) {
         switch action {
+        case .copyUserId:
+            copyUserId()
         case .dismissTapped:
             coordinator.navigate(to: .dismiss)
         case .generateCrash:
@@ -86,8 +90,6 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         switch effect {
         case .clearSsoCookies:
             await clearSsoCookies()
-        case .viewAppeared:
-            await fetchFlags()
         case .refreshFeatureFlags:
             await refreshFlags()
         case let .toggleFeatureFlag(flag, newValue):
@@ -96,6 +98,9 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
                 newValue: newValue,
             )
             state.featureFlags = await services.configService.getDebugFeatureFlags(currentFeatureFlags)
+        case .viewAppeared:
+            await fetchFlags()
+            state.userID = await services.errorReportBuilder.getUserId()
         }
     }
 
@@ -128,5 +133,16 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     /// Refreshes the feature flags by resetting their local values and fetching the latest configurations.
     private func refreshFlags() async {
         state.featureFlags = await services.configService.refreshDebugFeatureFlags(currentFeatureFlags)
+    }
+
+    /// Copies the user id to the user's clipboard. If no active  id is found, "User ID not available" is copied.
+    private func copyUserId() {
+        guard let id = state.userID else {
+            state.toast = Toast(title: Localizations.somethingWentWrong)
+            return
+        }
+
+        UIPasteboard.general.string = id
+        state.toast = Toast(title: Localizations.userIdCopiedToTheClipboard)
     }
 }

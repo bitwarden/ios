@@ -69,6 +69,12 @@ public struct DebugMenuView: View {
                 Text(Localizations.generateCrash)
             }
             .accessibilityIdentifier("GenerateCrashButton")
+            Button {
+                store.send(.copyUserId)
+            } label: {
+                Text(Localizations.copyUserId)
+            }
+            .accessibilityIdentifier("CopyUserIdToClipboardButton")
         }
     }
 

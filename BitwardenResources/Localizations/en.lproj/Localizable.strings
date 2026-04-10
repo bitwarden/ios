@@ -1034,3 +1034,5 @@
 "TurnOnNow" = "Turn on now";
 "AcceptTransfer" = "Accept transfer";
 "YourPasswordAndHintCannotBeTheSamePleaseChooseADifferentHint" = "Your password and hint cannot be the same. Please choose a different hint.";
+"UserIdCopiedToTheClipboard" = "User Id Copied to the clipboard";
+"CopyUserId" = "Copy user id";
