@@ -57,11 +57,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
     let autofillCredentialService: AutofillCredentialService
 
-    /// The repository to manage biometric unlock policies and access controls the user.
-    let biometricsRepository: BiometricsRepository
-
     /// The service used by the application to manage billing operations.
     let billingService: BillingService
+
+    /// The repository to manage biometric unlock policies and access controls the user.
+    let biometricsRepository: BiometricsRepository
 
     /// The service used to obtain device biometrics status & data.
     let biometricsService: BiometricsService
