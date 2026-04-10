@@ -189,6 +189,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
             showPendingLoginRequests()
+        case .premiumPlan:
+            showPremiumPlan()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case let .settings(presentationMode):
@@ -472,6 +474,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             state: PendingRequestsState(),
         )
         stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
+    }
+
+    /// Shows the premium plan screen.
+    ///
+    private func showPremiumPlan() {
+        let processor = PremiumPlanProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: PremiumPlanState(),
+        )
+        let view = PremiumPlanView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator?.push(viewController, navigationTitle: Localizations.plan)
     }
 
     /// Shows the select language screen.
