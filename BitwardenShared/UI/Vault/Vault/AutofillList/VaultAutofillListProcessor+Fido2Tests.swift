@@ -295,6 +295,36 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
     }
 
+    /// `receive(_:)` with `.addTapped` navigates to the add item screen when personal ownership
+    /// is disabled but no default collection is available (via cipherOwnershipHelper throwing error).
+    @MainActor
+    func test_receive_addTapped_fido2CreationEmptyViewNoDefaultCollection() throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
+        fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
+        fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
+            requirePresence: true,
+            requireVerification: .required,
+        )
+
+        cipherOwnershipHelper.createCipherViewThrowableError = CipherOwnershipHelperError.noDefaultCollection
+
+        subject.receive(.addTapped(fromFAB: false))
+
+        let expectedNewCipherOptions = NewCipherOptions(
+            name: fido2CredentialNewView.rpName,
+            uri: fido2CredentialNewView.rpId,
+            username: fido2CredentialNewView.userName,
+        )
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .addItem(group: .login, newCipherOptions: expectedNewCipherOptions, type: .login),
+        )
+        XCTAssertFalse(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
+    }
+
     /// `receive(_:)` with `.addTapped` shows an alert and logs
     /// when executed from the empty view and in the create Fido2 credential context but user verification throws.
     @MainActor

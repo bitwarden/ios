@@ -42,8 +42,7 @@ class CipherOwnershipHelperTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `createCipherView(from:)` creates a cipher with the organization but empty collectionIds
-    /// when the default collection has a nil id.
+    /// `createCipherView(from:)` throws `noDefaultCollection` when the default collection has a nil id.
     func test_createCipherView_defaultCollectionNilId() async throws {
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(
             rpId: "example.com",
@@ -66,10 +65,9 @@ class CipherOwnershipHelperTests: BitwardenTestCase {
             ),
         ])
 
-        let cipher = try await subject.createCipherView(from: fido2CredentialNewView)
-
-        XCTAssertEqual(cipher.organizationId, organizationId)
-        XCTAssertEqual(cipher.collectionIds, [])
+        await assertAsyncThrows(error: CipherOwnershipHelperError.noDefaultCollection) {
+            _ = try await subject.createCipherView(from: fido2CredentialNewView)
+        }
     }
 
     /// `createCipherView(from:)` selects the first eligible organization when multiple
@@ -111,8 +109,8 @@ class CipherOwnershipHelperTests: BitwardenTestCase {
         XCTAssertEqual(cipher.collectionIds, [collectionId1])
     }
 
-    /// `createCipherView(from:)` creates a cipher with the organization but empty collectionIds
-    /// when personal ownership is disabled but no default collection exists.
+    /// `createCipherView(from:)` throws `noDefaultCollection` when personal ownership is disabled
+    /// and an eligible organization is available but has no default collection.
     func test_createCipherView_noDefaultCollection() async throws {
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(
             rpId: "example.com",
@@ -135,11 +133,9 @@ class CipherOwnershipHelperTests: BitwardenTestCase {
             ),
         ])
 
-        let cipher = try await subject.createCipherView(from: fido2CredentialNewView)
-
-        XCTAssertEqual(cipher.organizationId, organizationId)
-        XCTAssertEqual(cipher.collectionIds, [])
-        XCTAssertEqual(cipher.name, "Example App")
+        await assertAsyncThrows(error: CipherOwnershipHelperError.noDefaultCollection) {
+            _ = try await subject.createCipherView(from: fido2CredentialNewView)
+        }
     }
 
     /// `createCipherView(from:)` throws `noEligibleOrganization` when personal ownership is disabled

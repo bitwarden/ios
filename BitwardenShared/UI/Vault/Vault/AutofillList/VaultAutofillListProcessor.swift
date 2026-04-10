@@ -190,13 +190,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                   !fromFAB,
                   let autofillAppExtensionDelegate,
                   autofillAppExtensionDelegate.isCreatingFido2Credential else {
-                coordinator.navigate(
-                    to: .addItem(
-                        group: .login,
-                        newCipherOptions: createNewCipherOptions(),
-                        type: .login,
-                    ),
-                )
+                navigateToAddNewLogin()
                 return
             }
 
@@ -343,6 +337,15 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 }
             },
         )
+    }
+
+    /// Navigates to the add item screen to create a new login.
+    private func navigateToAddNewLogin() {
+        coordinator.navigate(to: .addItem(
+            group: .login,
+            newCipherOptions: createNewCipherOptions(),
+            type: .login,
+        ))
     }
 
     /// Refreshes the vault group's TOTP Codes.
@@ -772,6 +775,10 @@ extension VaultAutofillListProcessor {
                 from: fido2CredentialNewView,
             )
             await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
+        } catch CipherOwnershipHelperError.noDefaultCollection {
+            // If there's no default collection, the Fido2 credential cannot be saved without user
+            // interaction. Redirect the user to the add login screen.
+            navigateToAddNewLogin()
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)
