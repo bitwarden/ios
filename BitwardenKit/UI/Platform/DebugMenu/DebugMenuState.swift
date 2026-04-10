@@ -9,4 +9,4 @@ struct DebugMenuState: Equatable, Sendable {
     var toast: Toast?
     /// The active user's id
     var userID: String?
-    /// The active user's ID.
+}
