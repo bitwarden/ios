@@ -65,7 +65,8 @@ struct PremiumUpgradeView: View {
 
             featuresList
         }
-        .padding(16)
+        .padding(.top, 16)
+        .padding(.horizontal, 16)
         .background(Color(asset: SharedAsset.Colors.backgroundSecondary))
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
