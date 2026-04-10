@@ -1,0 +1,64 @@
+import BitwardenKit
+
+// MARK: - PremiumPlanProcessor
+
+/// The processor used to manage state and handle actions for the premium plan screen.
+///
+final class PremiumPlanProcessor: StateProcessor<
+    PremiumPlanState,
+    PremiumPlanAction,
+    PremiumPlanEffect,
+> {
+    // MARK: Types
+
+    typealias Services = HasErrorReporter
+
+    // MARK: Private Properties
+
+    /// The `Coordinator` that handles navigation.
+    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
+
+    /// The services used by this processor.
+    private var services: Services
+
+    // MARK: Initialization
+
+    /// Creates a new `PremiumPlanProcessor`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The `Coordinator` that handles navigation.
+    ///   - services: The services used by the processor.
+    ///   - state: The initial state of the processor.
+    ///
+    init(
+        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        services: Services,
+        state: PremiumPlanState,
+    ) {
+        self.coordinator = coordinator
+        self.services = services
+        super.init(state: state)
+    }
+
+    // MARK: Methods
+
+    override func perform(_ effect: PremiumPlanEffect) async {
+        switch effect {
+        case .appeared:
+            break
+        }
+    }
+
+    override func receive(_ action: PremiumPlanAction) {
+        switch action {
+        case .managePlanPressed:
+            state.managePlanUrl = ExternalLinksConstants.managePremiumPlan
+        case .cancelPremiumPressed:
+            state.cancelPremiumUrl = ExternalLinksConstants.cancelPremiumPlan
+        case .clearManagePlanUrl:
+            state.managePlanUrl = nil
+        case .clearCancelPremiumUrl:
+            state.cancelPremiumUrl = nil
+        }
+    }
+}

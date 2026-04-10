@@ -54,4 +54,12 @@ extension ExternalLinksConstants {
 
     /// A link to Bitwarden's help page for URI match detection.
     static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
+
+    /// A link to Bitwarden's page for managing the premium plan.
+    static let managePremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription")!
+
+    /// A link to Bitwarden's page for canceling the premium plan.
+    static let cancelPremiumPlan = URL(
+        string: "https://vault.bitwarden.com/#/settings/subscription/cancel",
+    )!
 }
