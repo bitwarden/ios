@@ -135,7 +135,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         state.featureFlags = await services.configService.refreshDebugFeatureFlags(currentFeatureFlags)
     }
 
-    /// Copies the user id to the user's clipboard. If no active  id is found, "User ID not available" is copied.
+    /// Copies the user id to the user's clipboard.
     private func copyUserId() {
         guard let id = state.userID else {
             state.toast = Toast(title: Localizations.somethingWentWrong)
