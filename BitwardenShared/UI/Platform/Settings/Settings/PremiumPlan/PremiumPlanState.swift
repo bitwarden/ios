@@ -24,9 +24,9 @@ enum PremiumPlanStatus: Equatable {
         switch self {
         case .active:
             .success
-        case .canceled, .pastDue:
+        case .canceled:
             .danger
-        case .updatePayment:
+        case .pastDue, .updatePayment:
             .warning
         }
     }
@@ -56,17 +56,44 @@ struct PremiumPlanState: Equatable {
     /// The current status of the premium plan.
     var planStatus: PremiumPlanStatus = .active
 
+    // TODO: PM-34904 Replace mock values with real data from the API.
     /// The description text for the current plan status.
-    var descriptionText: String = ""
+    var descriptionText: String {
+        switch planStatus {
+        case .active:
+            Localizations.yourNextChargeIsForAmountDueOnDate(
+                "$1.00 USD",
+                "April 2, 2026",
+            )
+        case .canceled:
+            Localizations.yourSubscriptionWasCanceledOnDateResubscribeToContinueUsingPremiumFeatures(
+                "April 2, 2026",
+            )
+        case .updatePayment:
+            Localizations
+                .weCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate(
+                    "May 2, 2026",
+                )
+        case .pastDue:
+            Localizations
+                .youHaveAGracePeriodOfDaysFromYourSubscriptionExpirationDateResolveInvoicesByDate(
+                    "14 days",
+                    "Feb 2, 2026",
+                )
+        }
+    }
 
+    // TODO: PM-34904 Replace mock values with real data from the API.
     /// The billing amount label (e.g. "$1.65 / month").
-    var billingAmount: String = ""
+    var billingAmount: String = "$1.65 / month"
 
+    // TODO: PM-34904 Replace mock values with real data from the API.
     /// The storage cost label (e.g. "$0.35").
-    var storageCost: String = ""
+    var storageCost: String = "$0.35"
 
+    // TODO: PM-34904 Replace mock values with real data from the API.
     /// The discount label (e.g. "-$0.10").
-    var discount: String = ""
+    var discount: String = "-$0.10"
 
     /// The URL to open for managing the plan.
     var managePlanUrl: URL?
