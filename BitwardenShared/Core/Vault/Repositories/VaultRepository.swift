@@ -373,7 +373,7 @@ class DefaultVaultRepository {
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
-    
+
     /// The service used to retrieve TOTPs.
     private let totpService: TOTPService
 
