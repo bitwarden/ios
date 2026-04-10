@@ -2,6 +2,7 @@
 
 import AuthenticationServices
 import BitwardenSdk
+import CryptoKit
 
 // MARK: - GetAssertionRequest
 
@@ -52,6 +53,15 @@ extension GetAssertionRequest {
     }
 }
 
+// MARK: - ASAuthorizationPublicKeyCredentialPRFAssertionOutput
+
+@available(iOS 18.0, *)
+extension ASAuthorizationPublicKeyCredentialPRFAssertionOutput {
+    init(getAssertionPrfOutput prf: GetAssertionPrfOutput) {
+        self.init(first: SymmetricKey(data: prf.results.first), second: prf.results.second.map(SymmetricKey.init))
+    }
+}
+
 // MARK: - ASPasskeyAssertionCredential
 
 @available(iOS 17.0, *)
@@ -77,7 +87,46 @@ extension ASPasskeyAssertionCredential {
                 clientDataHash: clientDataHash,
                 authenticatorData: assertionResult.authenticatorData,
                 credentialID: assertionResult.credentialId,
-                extensionOutput: nil, // TODO: PM-26177 once SDK is updated for full PRF support we can include this
+                extensionOutput: ASPasskeyAssertionCredentialExtensionOutput(
+                    getAssertionExtensionsOutput: assertionResult.extensions
+                ),
+            )
+        } else {
+            self.init(
+                userHandle: assertionResult.userHandle,
+                relyingParty: rpId,
+                signature: assertionResult.signature,
+                clientDataHash: clientDataHash,
+                authenticatorData: assertionResult.authenticatorData,
+                credentialID: assertionResult.credentialId,
+            )
+        }
+    }
+
+    /// Creates a passkey assertion credential from a Bitwarden SDK device auth key assertion result.
+    ///
+    /// This convenience initializer creates an `ASPasskeyAssertionCredential` from the result
+    /// of a FIDO2 assertion operation performed by the Bitwarden SDK. It handles compatibility
+    /// across iOS versions, including extension output support on iOS 18+.
+    ///
+    /// - Parameters:
+    ///   - assertionResult: The result from the Bitwarden SDK's `assertDeviceAuthKey` operation,
+    ///                      containing the signature, authenticator data, and credential ID.
+    ///   - rpId: The relying party identifier for the credential.
+    ///   - clientDataHash: The hash of the client data JSON from the authentication request.
+    ///
+    convenience init(assertionResult: DeviceAuthKeyGetAssertionResult, rpId: String, clientDataHash: Data) {
+        if #available(iOSApplicationExtension 18.0, *) {
+            self.init(
+                userHandle: assertionResult.userHandle,
+                relyingParty: rpId,
+                signature: assertionResult.signature,
+                clientDataHash: clientDataHash,
+                authenticatorData: assertionResult.authenticatorData,
+                credentialID: assertionResult.credentialId,
+                extensionOutput: ASPasskeyAssertionCredentialExtensionOutput(
+                    getAssertionExtensionsOutput: assertionResult.extensions
+                ),
             )
         } else {
             self.init(
@@ -92,6 +141,18 @@ extension ASPasskeyAssertionCredential {
     }
 }
 
+// MARK: - ASPasskeyAssertionCredentialOutput
+
+@available(iOS 18.0, *)
+extension ASPasskeyAssertionCredentialExtensionOutput {
+    init(getAssertionExtensionsOutput extensions: GetAssertionExtensionsOutput) {
+        self.init(
+            largeBlob: nil,
+            prf: extensions.prf.map(ASAuthorizationPublicKeyCredentialPRFAssertionOutput.init),
+        )
+    }
+}
+
 // MARK: - ASPasskeyCredentialIdentity
 
 @available(iOS 17.0, *)
@@ -102,8 +163,19 @@ extension ASPasskeyCredentialIdentity {
             userName: metadata.userName,
             credentialID: metadata.credentialId,
             userHandle: metadata.userHandle,
-            recordIdentifier: metadata.cipherId,
+            recordIdentifier: metadata.recordIdentifier,
         )
+    }
+}
+
+// MARK: - MakeCredentialExtensionsInput
+
+extension BitwardenSdk.MakeCredentialExtensionsInput: @retroactive CustomDebugStringConvertible {
+    public var debugDescription: String {
+        let eval = self.prf?.eval?.debugDescription ?? "nil"
+        return [
+            "prf -> eval: \(eval)"
+        ].joined(separator: "\n")
     }
 }
 
@@ -113,7 +185,7 @@ extension BitwardenSdk.MakeCredentialRequest: @retroactive CustomDebugStringConv
     public var debugDescription: String {
         let rpName = rp.name ?? "nil"
         let excludeList = excludeList?.description ?? "nil"
-        let extensions = extensions?.description ?? "nil"
+        let extensions = extensions?.debugDescription ?? "nil"
 
         return [
             "ClientDataHash: \(clientDataHash.asHexString())",
@@ -139,6 +211,28 @@ extension BitwardenSdk.MakeCredentialResult: @retroactive CustomDebugStringConve
             "AuthenticatorData: \(authenticatorData.asHexString())",
             "AttestationObject: \(attestationObject.asHexString())",
             "CredentialId: \(credentialId.asHexString())",
+        ].joined(separator: "\n")
+    }
+}
+
+// MARK: - PrfInputValues
+
+extension BitwardenSdk.PrfInputValues: @retroactive CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return [
+            "first: \(self.first.asHexString())",
+            "second: \(self.second?.asHexString() ?? "nil")"
+        ].joined(separator: "\n")
+    }
+}
+
+// MARK: - PrfOutputValues
+
+extension BitwardenSdk.PrfOutputValues: @retroactive CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return [
+            "first: \(self.first.asHexString())",
+            "second: \(self.second?.asHexString() ?? "nil")"
         ].joined(separator: "\n")
     }
 }

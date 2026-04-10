@@ -15,6 +15,13 @@ protocol ClientFido2Service: AnyObject {
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol
 
+
+    /// Returns the `ClientDeviceAuthKeyAuthenticator` to perform Fido2 authenticator tasks using the device auth key.
+    /// - Parameters:
+    ///   - credentialStore: `DeviceAuthKeyStore` with necessary platform side logic related to credential storage.
+    /// - Returns: Returns the `ClientDeviceAuthKeyAuthenticator` to perform Fido2 authenticator tasks with the device auth key.
+    func deviceAuthKeyAuthenticator(credentialStore: DeviceAuthKeyStore) -> ClientDeviceAuthKeyAuthenticatorProtocol
+
     /// Decrypts the `CipherView` Fido2 credentials but returning an array of `Fido2CredentialAutofillView`
     /// - Parameter cipherView: `CipherView` containing the Fido2 credentials to decrypt.
     /// - Returns: An array of decrypted Fido2 credentials of type `Fido2CredentialAutofillView`.
@@ -39,6 +46,10 @@ extension ClientFido2: ClientFido2Service {
         credentialStore: Fido2CredentialStore,
     ) -> ClientFido2ClientProtocol {
         client(userInterface: userInterface, credentialStore: credentialStore) as ClientFido2Client
+    }
+
+    func deviceAuthKeyAuthenticator(credentialStore: DeviceAuthKeyStore) -> ClientDeviceAuthKeyAuthenticatorProtocol {
+        deviceAuthKeyAuthenticator(credentialStore: credentialStore) as ClientDeviceAuthKeyAuthenticator
     }
 
     func decryptFido2AutofillCredentials(cipher cipherView: CipherView) throws -> [Fido2CredentialAutofillView] {

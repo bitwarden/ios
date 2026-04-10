@@ -27,16 +27,25 @@ protocol DeviceAuthKeychainRepository { // sourcery: AutoMockable
     ///
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata?
 
-    /// Stores the device auth key and metadata for a user in the keychain.
+    /// Stores the device auth key metadata for a user in the keychain.
     ///
     /// - Parameters:
-    ///   - record: The device auth key, including the secrets, to store.
     ///   - metadata: The metadata of device auth key to store.
     ///   - userId: The user's ID, used to get back the device auth key later on.
     ///
-    func setDeviceAuthKey(
-        record: DeviceAuthKeyRecord,
+    func setDeviceAuthKeyMetadata(
         metadata: DeviceAuthKeyMetadata,
+        userId: String,
+    ) async throws
+
+    /// Stores the device auth key for a user in the keychain.
+    ///
+    /// - Parameters:
+    ///   - record: The device auth key, including the secrets, to store.
+    ///   - userId: The user's ID, used to get back the device auth key later on.
+    ///
+    func setDeviceAuthKeyRecord(
+        record: DeviceAuthKeyRecord,
         userId: String,
     ) async throws
 }
