@@ -60,10 +60,13 @@ struct PremiumPlanView: View {
 
     /// The header section with title, badge, and description.
     private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
                 Text(Localizations.premium)
-                    .styleGuide(.title)
+                    .styleGuide(
+                        .title,
+                        weight: .bold,
+                    )
 
                 PillBadgeView(
                     text: store.state.planStatus.label,
@@ -89,21 +92,22 @@ struct PremiumPlanView: View {
             billingRow(
                 label: Localizations.billingAmount,
                 value: store.state.billingAmount,
-                valueColor: Color(asset: SharedAsset.Colors.textSecondary),
+                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             )
-
+            Divider()
             billingRow(
                 label: Localizations.storageCost,
                 value: store.state.storageCost,
-                valueColor: Color(asset: SharedAsset.Colors.textSecondary),
+                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             )
-
+            Divider()
             billingRow(
                 label: Localizations.discount,
                 value: store.state.discount,
                 valueColor: SharedAsset.Colors.statusStrong.swiftUIColor,
             )
         }
+        .padding(.horizontal, 16)
     }
 
     /// The manage plan button.
@@ -159,8 +163,7 @@ struct PremiumPlanView: View {
                 .styleGuide(.body)
                 .foregroundColor(valueColor)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 20)
     }
 }
 
@@ -174,7 +177,6 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .active,
-                        descriptionText: "Your next charge is for **$1.00 USD** due on April 2, 2026.",
                         billingAmount: "$1.65 / month",
                         storageCost: "$0.35",
                         discount: "-$0.10",
@@ -192,8 +194,6 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .updatePayment,
-                        // swiftlint:disable:next line_length
-                        descriptionText: "We couldn't process your payment. Update your payment method before your subscription ends on May 2, 2026.",
                         billingAmount: "$1.65 / month",
                         storageCost: "$0.35",
                         discount: "-$0.10",
@@ -211,8 +211,6 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .pastDue,
-                        // swiftlint:disable:next line_length
-                        descriptionText: "You have a grace period of **14 days** from your subscription expiration date. Please resolve the past due invoices by Feb 2, 2026.",
                         billingAmount: "$1.65 / month",
                         storageCost: "$0.35",
                         discount: "-$0.10",
@@ -230,8 +228,6 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .canceled,
-                        // swiftlint:disable:next line_length
-                        descriptionText: "Your subscription was canceled on April 2, 2026. Resubscribe to continue using premium features.",
                     ),
                 ),
             ),
