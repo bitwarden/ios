@@ -70,7 +70,12 @@ public struct PillBadgeView: View {
 
     public var body: some View {
         Text(text)
-            .styleGuide(.subheadlineSemibold, includeLinePadding: false, includeLineSpacing: false)
+            .styleGuide(
+                .subheadlineSemibold,
+                weight: .bold,
+                includeLinePadding: false,
+                includeLineSpacing: false,
+            )
             .foregroundColor(style.textColor)
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
