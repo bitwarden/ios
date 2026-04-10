@@ -115,7 +115,7 @@ struct PremiumUpgradeView: View {
 
     /// The footer text about Stripe checkout.
     private var stripeFooter: some View {
-        Text(Localizations.youWillGoToStripeSecureCheckoutToCompleteYourPurchase)
+        Text(Localizations.youllGoToStripeSecureCheckoutToCompleteYourPurchase)
             .styleGuide(.subheadline)
             .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
             .multilineTextAlignment(.center)
