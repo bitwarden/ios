@@ -49,10 +49,7 @@ struct PremiumUpgradeView: View {
 
             stripeFooter
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color(asset: SharedAsset.Colors.backgroundPrimary))
+        .scrollView()
     }
 
     /// The premium upgrade card containing price, description, and features.
@@ -89,37 +86,13 @@ struct PremiumUpgradeView: View {
     /// The list of premium features.
     private var featuresList: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Divider().padding(.bottom, 4)
-            featureRow(Localizations.builtInAuthenticator, showDivider: true)
-            featureRow(Localizations.emergencyAccess, showDivider: true)
-            featureRow(Localizations.secureFileStorage, showDivider: true)
-            featureRow(Localizations.breachMonitoring, showDivider: false)
-        }
-    }
+            Divider()
 
-    /// A single feature row with a check icon.
-    ///
-    /// - Parameters:
-    ///   - text: The feature text to display.
-    ///   - showDivider: Whether to show a divider below this row.
-    /// - Returns: A view displaying the feature with a check icon.
-    ///
-    private func featureRow(_ text: String, showDivider: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 12) {
-                SharedAsset.Icons.checkCircle24.swiftUIImage
-                    .foregroundColor(Color(asset: SharedAsset.Colors.textInteraction))
-                    .accessibilityHidden(true)
-
-                Text(text)
-                    .styleGuide(.headline, weight: .semibold)
-                    .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
-            }
-            .padding(.top, 16)
-
-            if showDivider {
-                Divider()
-                    .padding(.top, 16)
+            ContentBlock {
+                featureRow(Localizations.builtInAuthenticator)
+                featureRow(Localizations.emergencyAccess)
+                featureRow(Localizations.secureFileStorage)
+                featureRow(Localizations.breachMonitoring)
             }
         }
     }
@@ -147,6 +120,26 @@ struct PremiumUpgradeView: View {
             .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
             .multilineTextAlignment(.center)
             .frame(maxWidth: .infinity)
+    }
+
+    // MARK: Private Methods
+
+    /// A single feature row with a check icon.
+    ///
+    /// - Parameter text: The feature text to display.
+    /// - Returns: A view displaying the feature with a check icon.
+    ///
+    private func featureRow(_ text: String) -> some View {
+        HStack(spacing: 12) {
+            SharedAsset.Icons.checkCircle24.swiftUIImage
+                .foregroundColor(Color(asset: SharedAsset.Colors.textInteraction))
+                .accessibilityHidden(true)
+
+            Text(text)
+                .styleGuide(.headline, weight: .semibold)
+                .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+        }
+        .padding(.vertical, 16)
     }
 }
 
