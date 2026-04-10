@@ -136,7 +136,7 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     ///
     /// Example: `LTZ2PFU5D6.com.8bit.bitwarden`
     ///
-    var appSecAttrAccessGroup: String
+    let appSecAttrAccessGroup: String
 
     /// The keychain service used by the repository
     ///
