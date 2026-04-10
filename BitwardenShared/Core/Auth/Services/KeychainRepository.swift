@@ -519,7 +519,7 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
                 return nil
             }
             return Date(timeIntervalSince1970: timeInterval)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
     }
