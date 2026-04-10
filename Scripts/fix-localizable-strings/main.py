@@ -16,6 +16,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 
 from delete_duplicate_strings import delete_duplicates, deduplicate
@@ -55,7 +56,6 @@ def cmd_delete_unused(args: argparse.Namespace) -> None:
     if args.dry_run:
         with open(args.strings, encoding="utf-8") as f:
             content = f.read()
-        import os
         swift_sources = []
         for swift_dir in args.swift_sources:
             for dirpath, _, filenames in os.walk(swift_dir):

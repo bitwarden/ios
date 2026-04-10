@@ -1,6 +1,7 @@
 """Tests for the delete_unused_strings module."""
 
 import os
+import shutil
 import sys
 import tempfile
 import unittest
@@ -169,7 +170,6 @@ class TestDeleteUnusedFileIO(unittest.TestCase):
             except FileNotFoundError:
                 pass
         for path in self._tmp_dirs:
-            import shutil
             shutil.rmtree(path, ignore_errors=True)
 
     def _write_strings(self, content: str) -> str:
