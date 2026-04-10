@@ -89,15 +89,6 @@ class PremiumUpgradeProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.checkoutURL)
     }
 
-    /// `receive(_:)` with `.urlOpenFailed` shows an error alert.
-    @MainActor
-    func test_receive_urlOpenFailed() async throws {
-        subject.receive(.urlOpenFailed)
-
-        try await waitForAsync { self.coordinator.errorAlertsShown.count == 1 }
-        XCTAssertEqual(coordinator.errorAlertsShown.first as? BillingError, .unableToOpenCheckout)
-    }
-
     /// `perform(_:)` with `.upgradeNowTapped` shows an error when the service returns an invalid URL error.
     @MainActor
     func test_perform_upgradeNowTapped_invalidUrl() async throws {
@@ -109,5 +100,14 @@ class PremiumUpgradeProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isLoading)
         XCTAssertEqual(errorReporter.errors.first as? BillingError, .invalidCheckoutUrl)
         XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
+    }
+
+    /// `receive(_:)` with `.urlOpenFailed` shows an error alert.
+    @MainActor
+    func test_receive_urlOpenFailed() async throws {
+        subject.receive(.urlOpenFailed)
+
+        try await waitForAsync { self.coordinator.errorAlertsShown.count == 1 }
+        XCTAssertEqual(coordinator.errorAlertsShown.first as? BillingError, .unableToOpenCheckout)
     }
 }
