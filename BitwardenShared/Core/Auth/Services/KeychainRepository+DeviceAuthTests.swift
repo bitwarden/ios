@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import BitwardenKit
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -10,7 +11,7 @@ import XCTest
 final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var keychainService: MockKeychainService!
     var subject: DefaultKeychainRepository!
 
@@ -19,11 +20,11 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
+        appIDSettingsStore = MockAppIDSettingsStore()
         keychainService = MockKeychainService()
         subject = DefaultKeychainRepository(
-            appIdService: AppIdService(
-                appSettingStore: appSettingsStore,
+            appIDService: AppIDService(
+                appIDSettingsStore: appIDSettingsStore,
             ),
             keychainService: keychainService,
         )
@@ -32,7 +33,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        appSettingsStore = nil
+        appIDSettingsStore = nil
         keychainService = nil
         subject = nil
     }
@@ -84,7 +85,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     /// `getDeviceAuthKey(userId:)` returns nil if the key is not found.
     ///
     func test_getDeviceAuthKey_notFound() async throws {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.deviceAuthKey(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.deviceAuthKey(userId: "1"))
         keychainService.searchResult = .failure(error)
 
         let result = try await subject.getDeviceAuthKey(userId: "1")
@@ -129,7 +130,7 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     /// `getDeviceAuthKeyMetadata(userId:)` returns nil if the metadata is not found.
     ///
     func test_getDeviceAuthKeyMetadata_notFound() async throws {
-        let error = KeychainServiceError.keyNotFound(KeychainItem.deviceAuthKeyMetadata(userId: "1"))
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1"))
         keychainService.searchResult = .failure(error)
 
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "1")

@@ -63,7 +63,7 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     /// `setBiometricUnlockKey` throws for a keychain error.
     func test_getBiometricUnlockKey_keychainServiceError() async throws {
         stateService.activeAccountIdResult = .success("1")
-        let mockKey = MockKeychainStorageKeyPossessing(unformattedKey: "Mock Key Biometrics: User ID 1")
+        let mockKey = MockKeychainItem(unformattedKey: "Mock Key Biometrics: User ID 1")
         let error = KeychainServiceError.keyNotFound(mockKey)
         keychainService.getUserBiometricAuthKeyThrowableError = error
         await assertAsyncThrows(error: BiometricsServiceError.getAuthKeyFailed) {

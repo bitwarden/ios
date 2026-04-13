@@ -51,9 +51,14 @@ public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNaviga
     ) {
         switch route {
         case let .dismissWithAction(onDismiss):
-            stackNavigator?.dismiss(animated: true, completion: {
-                onDismiss?.action()
-            })
+            // PM-34062 Sometimes it doesn't get dismissed because it tries to do it before coming back
+            // from the browser to the view. So we wait a bit here and execute this on
+            // main thread to handle the edge case.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+                self?.stackNavigator?.dismiss(animated: true, completion: {
+                    onDismiss?.action()
+                })
+            }
         case .syncWithBrowser:
             showSyncWithBrowser()
         }

@@ -128,7 +128,6 @@ class VaultItemSelectionProcessor: StateProcessor<
                 self?.searchResultsReceived(data: data)
             }
             state.profileSwitcherState.isVisible = false
-            dismissProfileSwitcher()
         case let .searchTextChanged(newValue):
             state.searchText = newValue
         case let .toastShown(newValue):

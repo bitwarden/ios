@@ -21,6 +21,9 @@ public class MockUIViewController: UIViewController {
     /// The view controller that was presented, if any.
     public var presentedView: UIViewController?
 
+    /// The view controllers that were presented, if any.
+    public var presentedViewControllers: [UIViewController] = []
+
     /// Indicates whether the presentation was animated.
     public var presentAnimated = false
 
@@ -146,6 +149,7 @@ public class MockUIViewController: UIViewController {
     ) {
         presentCalled = true
         presentedView = viewControllerToPresent
+        presentedViewControllers.append(viewControllerToPresent)
         presentAnimated = animated
         presentCompletion = completion
 
@@ -184,6 +188,7 @@ public class MockUIViewController: UIViewController {
     public func reset() {
         presentCalled = false
         presentedView = nil
+        presentedViewControllers = []
         presentAnimated = false
         presentCompletion = nil
 

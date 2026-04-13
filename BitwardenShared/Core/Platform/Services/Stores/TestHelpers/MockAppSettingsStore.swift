@@ -49,6 +49,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var featureFlags = [String: Bool]()
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
+    var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
     var lastSyncTimeByUserId = [String: Date]()
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
@@ -56,6 +57,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
+    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
@@ -152,6 +154,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         lastActiveTime[userId]
     }
 
+    func lastRequestToTurnOnCredentialProvider() -> Date? {
+        lastRequestToTurnOnCredentialProviderDate
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         lastSyncTimeByUserId[userId]
     }
@@ -183,6 +189,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func pinProtectedUserKeyEnvelope(userId: String) -> String? {
         pinProtectedUserKeyEnvelope[userId]
+    }
+
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool {
+        premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
@@ -285,6 +295,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         lastActiveTime[userId] = date
     }
 
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) {
+        lastRequestToTurnOnCredentialProviderDate = date
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         lastSyncTimeByUserId[userId] = date
     }
@@ -315,6 +329,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         pinProtectedUserKeyEnvelope[userId] = key
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
+        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

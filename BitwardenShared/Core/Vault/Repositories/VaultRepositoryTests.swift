@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
@@ -34,6 +35,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var subject: DefaultVaultRepository!
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
+    var totpService: MockTOTPService!
     var vaultListDirectorStrategy: MockVaultListDirectorStrategy!
     var vaultListSearchDirectorStrategy: MockVaultListSearchDirectorStrategy!
     var vaultListDirectorStrategyFactory: MockVaultListDirectorStrategyFactory!
@@ -68,6 +70,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         policyService = MockPolicyService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(now))
+        totpService = MockTOTPService()
         vaultListDirectorStrategyFactory = MockVaultListDirectorStrategyFactory()
         vaultTimeoutService = MockVaultTimeoutService()
         clientService.mockVault.clientCiphers = clientCiphers
@@ -94,6 +97,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             stateService: stateService,
             syncService: syncService,
             timeProvider: timeProvider,
+            totpService: totpService,
             vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
             vaultTimeoutService: vaultTimeoutService,
         )
@@ -120,6 +124,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService = nil
         subject = nil
         timeProvider = nil
+        totpService = nil
         vaultListDirectorStrategy = nil
         vaultListDirectorStrategyFactory = nil
         vaultTimeoutService = nil
@@ -1050,6 +1055,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(totpKey, "123")
     }
 
+    /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher has an empty TOTP key.
+    func test_getTOTPKeyIfAllowedToCopy_totpEmpty() async throws {
+        stateService.activeAccount = .fixture()
+        let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
+            login: .fixture(totp: ""),
+            organizationUseTotp: true,
+        ))
+        XCTAssertNil(totpKey)
+    }
+
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher doesn't have TOTP key.
     func test_getTOTPKeyIfAllowedToCopy_totpNil() async throws {
         stateService.activeAccount = .fixture()
@@ -1073,16 +1088,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return `nil` when cipher has TOTP key,
-    /// is enable to auto copy the TOTP and cipher organization doesn't use TOTP and active account
-    /// doesn't have premiium.
-    func test_getTOTPKeyIfAllowedToCopy_orgDoesntUseTOTPAndAccountDoesntHavePremium() async throws {
+    /// and cipher organization doesn't use TOTP and active account doesn't have premiium.
+    func test_getTOTPKeyIfAllowedToCopy_totpNotAuthorized_returnsNil() async throws {
         stateService.activeAccount = .fixture()
-        stateService.disableAutoTotpCopyByUserId["1"] = false
-        stateService.doesActiveAccountHavePremiumResult = false
+        totpService.isTotpAuthorizedResult = false
+
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
             organizationUseTotp: false,
         ))
+
         XCTAssertNil(totpKey)
     }
 
@@ -1122,6 +1137,35 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             _ = try await subject.needsSync()
         }
         XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
+    }
+
+    /// `hasMinimumCipherCount(_:)` throws an error if one occurs.
+    func test_hasMinimumCipherCount_error() async {
+        cipherService.cipherCountResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.hasMinimumCipherCount(5)
+        }
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `true` when vault has at least the specified count.
+    func test_hasMinimumCipherCount_true() async throws {
+        cipherService.cipherCountResult = .success(5)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertTrue(hasMinimum)
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `true` when vault has more than the specified count.
+    func test_hasMinimumCipherCount_moreThanMinimum() async throws {
+        cipherService.cipherCountResult = .success(6)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertTrue(hasMinimum)
+    }
+
+    /// `hasMinimumCipherCount(_:)` returns `false` when vault has fewer than the specified count.
+    func test_hasMinimumCipherCount_false() async throws {
+        cipherService.cipherCountResult = .success(4)
+        let hasMinimum = try await subject.hasMinimumCipherCount(5)
+        XCTAssertFalse(hasMinimum)
     }
 
     /// `isVaultEmpty()` throws an error if one occurs.

@@ -286,6 +286,14 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
+    /// Gets whether the premium upgrade banner has been dismissed.
+    ///
+    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///   Defaults to the active account if `nil`.
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
+
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
@@ -523,6 +531,15 @@ protocol StateService: AnyObject {
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
 
+    /// Sets whether the premium upgrade banner has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///     Defaults to the active account if `nil`.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
+
     /// Sets the clear clipboard value for an account.
     ///
     /// - Parameters:
@@ -589,6 +606,14 @@ protocol StateService: AnyObject {
     ///
     func setIntroCarouselShown(_ shown: Bool) async
 
+    /// Sets the time of the last sync for a user ID.
+    ///
+    /// - Parameters:
+    ///   - date: The time of the last sync.
+    ///   - userId: The user ID associated with the last sync time.
+    ///
+    func setLastSyncTime(_ date: Date?, userId: String?) async throws
+
     /// Sets the status of Learn generator Action Card.
     ///
     /// - Parameter status: The status of Learn generator Action Card.
@@ -600,14 +625,6 @@ protocol StateService: AnyObject {
     /// - Parameter status: The status of Learn New Login Action Card.
     ///
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async
-
-    /// Sets the time of the last sync for a user ID.
-    ///
-    /// - Parameters:
-    ///   - date: The time of the last sync.
-    ///   - userId: The user ID associated with the last sync time.
-    ///
-    func setLastSyncTime(_ date: Date?, userId: String?) async throws
 
     /// Set pending login request data from a push notification.
     ///
@@ -803,6 +820,12 @@ protocol StateService: AnyObject {
     ///
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never>
 
+    /// Whether the user should see the premium upgrade banner based on account criteria.
+    ///
+    /// - Returns: `true` if user is free, account is 7+ days old, and banner not dismissed.
+    ///
+    func shouldShowPremiumUpgradeBanner() async -> Bool
+
     /// A publisher for whether or not to show the web icons.
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
@@ -985,7 +1008,6 @@ extension StateService {
 
     /// Gets the time of the last sync for a user.
     ///
-    /// - Parameter userId: The user ID associated with the last sync time.
     /// - Returns: The user's last sync time.
     ///
     func getLastSyncTime() async throws -> Date? {
@@ -1014,6 +1036,14 @@ extension StateService {
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
         try await getPasswordGenerationOptions(userId: nil)
+    }
+
+    /// Gets whether the premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
+        try await getPremiumUpgradeBannerDismissed(userId: nil)
     }
 
     /// Gets whether Siri & Shortcuts access is enabled for the active account.
@@ -1264,6 +1294,14 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+    /// Sets whether the premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Parameter dismissed: Whether the premium upgrade banner has been dismissed.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
+        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
+    }
+
     /// Sets the app rehydration state for the active account.
     ///
     /// - Parameter rehydrationState: The app rehydration state.
@@ -1399,6 +1437,9 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     /// A service used to access data in the keychain.
     let keychainRepository: KeychainRepository
 
+    /// Provides the present time for time-based calculations.
+    private let timeProvider: TimeProvider
+
     /// A service used to access user session data in the keychain.
     private let userSessionKeychainRepository: UserSessionKeychainRepository
 
@@ -1423,18 +1464,22 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     ///  - dataStore: The data store that handles performing data requests.
     ///  - errorReporter: The service used by the application to report non-fatal errors.
     ///  - keychainRepository: A service used to access data in the keychain.
+    ///  - timeProvider: Provides the present time for time-based calculations.
+    ///  - userSessionKeychainRepository: A service used to access user session data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
+        timeProvider: TimeProvider,
         userSessionKeychainRepository: UserSessionKeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
+        self.timeProvider = timeProvider
         self.userSessionKeychainRepository = userSessionKeychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -1583,6 +1628,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     func getArchiveOnboardingShown() async -> Bool {
         appSettingsStore.archiveOnboardingShown
+    }
+
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -1931,6 +1981,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.archiveOnboardingShown = shown
     }
 
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
@@ -2135,6 +2190,22 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
+    }
+
+    func shouldShowPremiumUpgradeBanner() async -> Bool {
+        guard await !doesActiveAccountHavePremium() else { return false }
+
+        let dismissed = await ((try? getPremiumUpgradeBannerDismissed()) ?? false)
+        guard !dismissed else { return false }
+
+        // Check account age >= 7 days
+        guard let account = try? await getActiveAccount(),
+              let creationDate = account.profile.creationDate else { return false }
+        guard timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge else {
+            return false
+        }
+
+        return true
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {
@@ -2350,5 +2421,17 @@ extension DefaultStateService: UserSessionStateService {
             minutes: value.rawValue,
             userId: userId,
         )
+    }
+}
+
+// MARK: Autofill
+
+extension DefaultStateService: AutofillStateService {
+    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
+        appSettingsStore.lastRequestToTurnOnCredentialProvider()
+    }
+
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
+        appSettingsStore.setLastRequestToTurnOnCredentialProvider(date)
     }
 }

@@ -62,7 +62,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & PasswordAutoFillModule
         & SelectLanguageModule
 
-    typealias Services = HasAccountAPIService
+    typealias Services = HasASSettingsMediator
+        & HasAccountAPIService
         & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
@@ -148,7 +149,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         }
     }
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
+    func navigate(to route: SettingsRoute, context: AnyObject?) {
         switch route {
         case .about:
             showAbout()
@@ -169,9 +170,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .dismiss:
             stackNavigator?.dismiss()
         case .exportVault:
-            Task {
-                await showExportVault()
-            }
+            showExportVault()
         case .exportVaultToApp:
             showExportVaultToApp()
         case .exportVaultToFile:
@@ -187,7 +186,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .other:
             showOtherScreen()
         case .passwordAutoFill:
-            showPasswordAutoFill()
+            showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
             showPendingLoginRequests()
         case let .selectLanguage(currentLanguage: currentLanguage):
@@ -355,12 +354,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the export vault screen.
     ///
     @MainActor
-    private func showExportVault() async {
-        guard await services.configService.getFeatureFlag(.cxpExportMobile) else {
-            navigate(to: .exportVaultToFile)
-            return
-        }
-
+    private func showExportVault() {
         let processor = ExportSettingsProcessor(coordinator: asAnyCoordinator())
         let view = ExportSettingsView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
@@ -459,14 +453,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the password auto-fill screen.
     ///
-    private func showPasswordAutoFill() {
+    private func showPasswordAutoFill(delegate: PasswordAutoFillProcessorDelegate?) {
         guard let stackNavigator else { return }
         let coordinator = module.makePasswordAutoFillCoordinator(
             delegate: nil,
             stackNavigator: stackNavigator,
         )
         coordinator.start()
-        coordinator.navigate(to: .passwordAutofill(mode: .settings))
+        coordinator.navigate(to: .passwordAutofill(mode: .settings), context: delegate)
     }
 
     /// Shows the pending login requests screen.

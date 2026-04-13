@@ -9,7 +9,7 @@ import XCTest
 
 // MARK: - ServerCommunicationConfigClientSingletonTests
 
-class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientService: MockClientService!

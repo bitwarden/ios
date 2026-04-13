@@ -103,7 +103,7 @@ class MigrateToMyItemsProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(authRepository.revokeSelfFromOrganizationCalled)
         XCTAssertEqual(authRepository.revokeSelfFromOrganizationOrganizationId, "org-123")
-        XCTAssertEqual(eventService.collectEventType, .organizationItemOrganizationDeclined)
+        XCTAssertNil(eventService.collectEventType)
         XCTAssertTrue(delegate.didLeaveOrganizationCalled)
         XCTAssertTrue(coordinator.alertShown.isEmpty)
     }

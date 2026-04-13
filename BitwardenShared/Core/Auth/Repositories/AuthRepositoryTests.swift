@@ -18,6 +18,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var biometricsRepository: MockBiometricsRepository!
     var changeKdfService: MockChangeKdfService!
     var client: MockHTTPClient!
+    var clientCertificateService: MockClientCertificateService!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
@@ -101,6 +102,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         authService = MockAuthService()
         biometricsRepository = MockBiometricsRepository()
         changeKdfService = MockChangeKdfService()
+        clientCertificateService = MockClientCertificateService()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -125,6 +127,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             authService: authService,
             biometricsRepository: biometricsRepository,
             changeKdfService: changeKdfService,
+            clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -152,6 +155,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository = nil
         changeKdfService = nil
         client = nil
+        clientCertificateService = nil
         clientService = nil
         configService = nil
         environmentService = nil
@@ -993,7 +997,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getProfilesState()` can return locked accounts correctly on timeout `.never`.
-    func test_getProfilesState_lockedOnNeverLock() async {
+    func test_getProfilesState_lockedOnNeverLock() async { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -1572,7 +1576,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
     /// unlocks the vault.
-    func test_setMasterPassword_TDE() async throws {
+    func test_setMasterPassword_TDE() async throws { // swiftlint:disable:this function_body_length
         var account = Account.fixtureWithTDE()
         account.profile.userDecryptionOptions?.masterPasswordUnlock = .fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -1681,7 +1685,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.neverLock(
+                for: BitwardenKeychainItem.neverLock(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1703,7 +1707,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             keychainService.mockStorage,
             [
                 keychainService.formattedKey(
-                    for: KeychainItem.neverLock(userId: active.profile.userId),
+                    for: BitwardenKeychainItem.neverLock(userId: active.profile.userId),
                 ):
                     "pasta",
             ],
@@ -1715,7 +1719,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let active = Account.fixture()
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.neverLock(
+                for: BitwardenKeychainItem.neverLock(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1741,7 +1745,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = active
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.neverLock(
+                for: BitwardenKeychainItem.neverLock(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1769,7 +1773,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = active
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.deviceKey(
+                for: BitwardenKeychainItem.deviceKey(
                     userId: active.profile.userId,
                 ),
             ):
@@ -1797,7 +1801,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = active
         keychainService.mockStorage = [
             keychainService.formattedKey(
-                for: KeychainItem.deviceKey(
+                for: BitwardenKeychainItem.deviceKey(
                     userId: active.profile.userId,
                 ),
             ):
@@ -2674,6 +2678,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(setArguments?.userId, "1")
         XCTAssertNil(setArguments?.authKey)
         XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertEqual(clientCertificateService.removeCertificateUserIdReceivedUserId, account.profile.userId)
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")

@@ -62,10 +62,22 @@ struct MigrateToMyItemsView: View {
                 message: Localizations.xIsRequiringAllItemsToBeOwnedByTheOrganizationDescriptionLong(
                     store.state.organizationName,
                 ),
-            )
+            ) {
+                Text(LocalizedStringKey(
+                    Localizations.learnMoreLink(
+                        ExternalLinksConstants.transferOwnership,
+                    ),
+                ))
+                .styleGuide(.body, weight: .semibold)
+                .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .tint(SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor)
+                // we need this moved up a bit to look like it's continuing
+                // from the previous "message" paragraph without much space between them.
+                .padding(.top, -8)
+            }
 
             VStack(spacing: 12) {
-                AsyncButton(Localizations.accept) {
+                AsyncButton(Localizations.acceptTransfer) {
                     await store.perform(.acceptTransferTapped)
                 }
                 .buttonStyle(.primary())
@@ -73,15 +85,8 @@ struct MigrateToMyItemsView: View {
                 Button(Localizations.declineAndLeave) {
                     store.send(.declineAndLeaveTapped)
                 }
-                .buttonStyle(.secondary())
+                .buttonStyle(.bitwardenBorderless(size: .medium))
             }
-
-            Button {
-                openURL(ExternalLinksConstants.transferOwnership)
-            } label: {
-                Text(Localizations.whyAmISeeingThis)
-            }
-            .buttonStyle(.bitwardenBorderless)
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -98,10 +103,23 @@ struct MigrateToMyItemsView: View {
                 title: Localizations.areYouSureYouWantToLeave,
                 message: Localizations.byDecliningYourPersonalItemsWillStayInYourAccountDescriptionLong,
             ) {
-                Text(Localizations.contactYourAdminToRegainAccess)
-                    .styleGuide(.body)
-                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                    .padding(.top, 8)
+                VStack(spacing: 8) {
+                    Text(LocalizedStringKey(
+                        Localizations.learnMoreLink(
+                            ExternalLinksConstants.transferOwnership,
+                        ),
+                    ))
+                    .styleGuide(.body, weight: .semibold)
+                    .foregroundColor(SharedAsset.Colors.textSecondary.swiftUIColor)
+                    .tint(SharedAsset.Colors.buttonOutlinedForeground.swiftUIColor)
+
+                    Text(Localizations.contactYourAdminToRegainAccess)
+                        .styleGuide(.body)
+                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                }
+                // we need this moved up a bit to look like it's continuing
+                // from the previous "message" paragraph without much space between them.
+                .padding(.top, -8)
             }
 
             VStack(spacing: 12) {
@@ -110,13 +128,6 @@ struct MigrateToMyItemsView: View {
                 }
                 .buttonStyle(.primary(isDestructive: true))
             }
-
-            Button {
-                openURL(ExternalLinksConstants.transferOwnership)
-            } label: {
-                Text(Localizations.howToManageMyVault)
-            }
-            .buttonStyle(.bitwardenBorderless)
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)

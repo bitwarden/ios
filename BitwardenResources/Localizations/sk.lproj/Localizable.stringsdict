@@ -237,7 +237,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Nastavenie PIN kódu sa resetuje, ak sa úplne odhlásite z aplikácie.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>

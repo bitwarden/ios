@@ -90,8 +90,8 @@ class DefaultCipherOwnershipHelper: CipherOwnershipHelper {
             let collections = try await vaultRepository.fetchCollections(includeReadOnly: false)
             let collectionsForOwner = collections.filter { $0.organizationId == ownerOrgId }
 
-            if let defaultCollection = collectionsForOwner.first(where: {
-                $0.type == .defaultUserCollection
+            if let defaultCollection = collectionsForOwner.first(where: { col in
+                col.type == .defaultUserCollection
             }),
                 let defaultCollectionId = defaultCollection.id {
                 collectionIds = [defaultCollectionId]

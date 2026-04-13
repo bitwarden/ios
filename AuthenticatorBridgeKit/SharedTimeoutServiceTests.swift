@@ -38,14 +38,14 @@ final class SharedTimeoutServiceTests: BitwardenTestCase {
 
     /// `clearTimeout(:)` clears the timeout for a user.
     func test_clearTimeout() async throws {
-        sharedKeychainRepository.accountAutoLogoutTime["1"] = timeProvider.presentTime
         try await subject.clearTimeout(forUserId: "1")
-        XCTAssertNil(sharedKeychainRepository.accountAutoLogoutTime["1"])
+        XCTAssertNil(sharedKeychainRepository.setAccountAutoLogoutTimeReceivedArguments?.value)
+        XCTAssertEqual(sharedKeychainRepository.setAccountAutoLogoutTimeReceivedArguments?.userId, "1")
     }
 
     /// `clearTimeout(:)` throws errors.
     func test_clearTimeout_error() async throws {
-        sharedKeychainRepository.errorToThrow = BitwardenTestError.example
+        sharedKeychainRepository.setAccountAutoLogoutTimeThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.clearTimeout(forUserId: "1")
         }
@@ -54,15 +54,15 @@ final class SharedTimeoutServiceTests: BitwardenTestCase {
     /// `hasPassedTimeout(:)` uses the current time to determine if the timeout has passed.
     /// If the current time is the timeout, then it is considered passed.
     func test_hasPassedTimeout() async throws {
-        sharedKeychainRepository.accountAutoLogoutTime["1"] = timeProvider.presentTime.addingTimeInterval(-1)
+        sharedKeychainRepository.getAccountAutoLogoutTimeReturnValue = timeProvider.presentTime.addingTimeInterval(-1)
         var value = try await subject.hasPassedTimeout(userId: "1")
         XCTAssertTrue(value)
 
-        sharedKeychainRepository.accountAutoLogoutTime["1"] = timeProvider.presentTime
+        sharedKeychainRepository.getAccountAutoLogoutTimeReturnValue = timeProvider.presentTime
         value = try await subject.hasPassedTimeout(userId: "1")
         XCTAssertTrue(value)
 
-        sharedKeychainRepository.accountAutoLogoutTime["1"] = timeProvider.presentTime.addingTimeInterval(1)
+        sharedKeychainRepository.getAccountAutoLogoutTimeReturnValue = timeProvider.presentTime.addingTimeInterval(1)
         value = try await subject.hasPassedTimeout(userId: "1")
         XCTAssertFalse(value)
     }
@@ -75,7 +75,7 @@ final class SharedTimeoutServiceTests: BitwardenTestCase {
 
     /// `hasPassedTimeout(:)` throws errors.
     func test_hasPassedTimeout_error() async throws {
-        sharedKeychainRepository.errorToThrow = BitwardenTestError.example
+        sharedKeychainRepository.getAccountAutoLogoutTimeThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.hasPassedTimeout(userId: "1")
         }
@@ -89,21 +89,20 @@ final class SharedTimeoutServiceTests: BitwardenTestCase {
             timeoutLength: .fourHours,
         )
         XCTAssertEqual(
-            sharedKeychainRepository.accountAutoLogoutTime["1"],
+            sharedKeychainRepository.setAccountAutoLogoutTimeReceivedArguments?.value,
             timeProvider.presentTime.addingTimeInterval(TimeInterval(SessionTimeoutValue.fourHours.seconds)),
         )
     }
 
     /// `updateTimeout(:::)` clears the timeout if the date is nil.
     func test_updateTimeout_nil() async throws {
-        sharedKeychainRepository.accountAutoLogoutTime["1"] = timeProvider.presentTime
         try await subject.updateTimeout(forUserId: "1", lastActiveDate: nil, timeoutLength: .fourHours)
-        XCTAssertNil(sharedKeychainRepository.accountAutoLogoutTime["1"])
+        XCTAssertNil(sharedKeychainRepository.setAccountAutoLogoutTimeReceivedArguments?.value)
     }
 
     /// `updateTimeout(:::)` throws errors.
     func test_updateTimeout_error() async throws {
-        sharedKeychainRepository.errorToThrow = BitwardenTestError.example
+        sharedKeychainRepository.setAccountAutoLogoutTimeThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await self.subject.updateTimeout(
                 forUserId: "1",

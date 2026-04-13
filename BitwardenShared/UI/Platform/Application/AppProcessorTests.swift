@@ -195,6 +195,10 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `init()` subscribes to will enter foreground events and handles an active user timeout.
     @MainActor
     func test_init_appForeground_activeUserTimeout() {
+        // The processor checks for account timeouts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        waitFor(willEnterForegroundCalled == 1)
+
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
         let account2 = Account.fixture(profile: .fixture(userId: "2"))
         stateService.activeAccount = account1
@@ -203,7 +207,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService.shouldSessionTimeout["1"] = true
         notificationCenterService.willEnterForegroundSubject.send()
         // Wait for the checkSessionTimeouts method to be called
-        waitFor(authRepository.checkSessionTimeoutCalled)
+        waitFor(authRepository.checkSessionTimeoutCalled && authRepository.handleActiveUserClosure != nil)
 
         // Simulate calling the handleActiveUser closure
         if let handleActiveUserClosure = authRepository.handleActiveUserClosure {

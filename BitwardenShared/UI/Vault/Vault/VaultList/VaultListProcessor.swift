@@ -109,6 +109,13 @@ final class VaultListProcessor: StateProcessor<
             await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
+        case .dismissPremiumUpgradeActionCard:
+            do {
+                try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+                state.shouldShowPremiumUpgradeActionCard = false
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -152,11 +159,7 @@ final class VaultListProcessor: StateProcessor<
         case let .addItemPressed(type):
             addItem(type: type)
         case .appReviewPromptShown:
-            state.isEligibleForAppReview = false
-            Task {
-                await services.reviewPromptService.setReviewPromptShownVersion()
-                await services.reviewPromptService.clearUserActions()
-            }
+            handleAppReviewPromptShown()
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
@@ -193,6 +196,8 @@ final class VaultListProcessor: StateProcessor<
         case .totpCodeExpired:
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
+        case .upgradeToPremium:
+            coordinator.navigate(to: .premiumUpgrade)
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         }
@@ -201,6 +206,15 @@ final class VaultListProcessor: StateProcessor<
 
 extension VaultListProcessor {
     // MARK: Private Methods
+
+    /// Handles the app review prompt shown action by updating state and clearing review data.
+    private func handleAppReviewPromptShown() {
+        state.isEligibleForAppReview = false
+        Task {
+            await services.reviewPromptService.setReviewPromptShownVersion()
+            await services.reviewPromptService.clearUserActions()
+        }
+    }
 
     /// Navigates to the add vault item screen.
     ///
@@ -235,6 +249,15 @@ extension VaultListProcessor {
 
         if await services.configService.getFeatureFlag(.archiveVaultItems) {
             state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
+        }
+
+        if await services.configService.getFeatureFlag(.premiumUpgradePath) {
+            let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
+            let hasEnoughItems = await (try? services.vaultRepository
+                .hasMinimumCipherCount(Constants.minimumPremiumUpgradeBannerCipherCount)) ?? false
+            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
+        } else {
+            state.shouldShowPremiumUpgradeActionCard = false
         }
     }
 
@@ -275,6 +298,9 @@ extension VaultListProcessor {
                 // Since the request has been handled, remove it from local storage.
                 await services.stateService.setLoginRequest(nil)
             }
+        } catch is PendingLoginRequestError {
+            // Login request no longer exists on the server (e.g., expired); clear it from state.
+            await services.stateService.setLoginRequest(nil)
         } catch {
             services.errorReporter.log(error: error)
         }

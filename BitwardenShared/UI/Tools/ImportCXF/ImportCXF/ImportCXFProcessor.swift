@@ -10,8 +10,7 @@ import BitwardenSdk
 class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
         & HasImportCiphersRepository
         & HasPolicyService
         & HasStateService
@@ -67,7 +66,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
 
     /// Checks whether the CXF import feature is enabled.
     private func checkEnabled() async {
-        guard #available(iOS 26.0, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
+        guard #available(iOS 26.0, *) else {
             state.status = .failure(message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice)
             return
         }
