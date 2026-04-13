@@ -78,4 +78,42 @@ struct BillingServiceTests {
 
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
     }
+
+    /// `getPremiumPlan()` returns the premium plan from the API service.
+    @Test
+    func getPremiumPlan_success() async throws {
+        let expectedPlan = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(
+                price: 19.80,
+                provided: 0,
+                stripePriceId: "premium-annually-2026",
+            ),
+            storage: PlanPricingResponseModel(
+                price: 4,
+                provided: 5,
+                stripePriceId: "personal-storage-gb-annually",
+            ),
+        )
+        billingAPIService.getPremiumPlanReturnValue = expectedPlan
+
+        let result = try await subject.getPremiumPlan()
+
+        #expect(billingAPIService.getPremiumPlanCallsCount == 1)
+        #expect(result == expectedPlan)
+    }
+
+    /// `getPremiumPlan()` propagates errors from the API service.
+    @Test
+    func getPremiumPlan_apiError() async throws {
+        billingAPIService.getPremiumPlanThrowableError = URLError(.notConnectedToInternet)
+
+        await #expect(throws: URLError.self) {
+            try await subject.getPremiumPlan()
+        }
+
+        #expect(billingAPIService.getPremiumPlanCallsCount == 1)
+    }
 }

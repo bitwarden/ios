@@ -11,6 +11,12 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Throws: `BillingError.invalidCheckoutUrl` if the URL is invalid or not HTTPS.
     ///
     func createCheckoutSession() async throws -> URL
+
+    /// Gets the premium subscription plan details.
+    ///
+    /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
+    ///
+    func getPremiumPlan() async throws -> PremiumPlanResponseModel
 }
 
 // MARK: - DefaultBillingService
@@ -44,5 +50,9 @@ class DefaultBillingService: BillingService {
             throw BillingError.invalidCheckoutUrl
         }
         return url
+    }
+
+    func getPremiumPlan() async throws -> PremiumPlanResponseModel {
+        try await billingAPIService.getPremiumPlan()
     }
 }
