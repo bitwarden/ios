@@ -19,7 +19,7 @@ Do **NOT** convert the following; leave them in XCTest:
 | **Performance tests** | Uses `measure { ... }` or `XCTMetric` |
 | **Objective-C tests** | Cannot use Swift Testing |
 
-Stop and inform Katherine if any of these apply before proceeding.
+Stop and flag the issue before proceeding.
 
 ## Step 1: Read the File
 
