@@ -26,22 +26,6 @@ struct AppCoordinatorTests {
 
     // MARK: Tests
 
-    /// `switchToSettingsTab(route:)` navigates to the settings tab with the specified route.
-    @Test
-    func switchToSettingsTab_navigatesToSettingsTab() {
-        subject.switchToSettingsTab(route: .settings)
-
-        #expect(module.tabCoordinator.routes.last == .settings(.settings))
-    }
-
-    /// `switchToSettingsTab(route:)` navigates to the settings tab with the export items route.
-    @Test
-    func switchToSettingsTab_navigatesToExportItems() {
-        subject.switchToSettingsTab(route: .exportItems)
-
-        #expect(module.tabCoordinator.routes.last == .settings(.exportItems))
-    }
-
     /// `handleEvent(.didStart)` with biometrics enabled and a non-never vault timeout presents
     /// the auth overlay with `isModalInPresentation` set to prevent swipe-to-dismiss bypasses.
     @Test
@@ -87,5 +71,21 @@ struct AppCoordinatorTests {
         let presentedVC = (mockRootNavigator.rootViewController as? MockUIViewController)?.presentedView
         #expect(presentedVC?.isModalInPresentation == true)
         #expect(presentedVC?.modalPresentationStyle == .fullScreen)
+    }
+
+    /// `switchToSettingsTab(route:)` navigates to the settings tab with the specified route.
+    @Test
+    func switchToSettingsTab_navigatesToSettingsTab() {
+        subject.switchToSettingsTab(route: .settings)
+
+        #expect(module.tabCoordinator.routes.last == .settings(.settings))
+    }
+
+    /// `switchToSettingsTab(route:)` navigates to the settings tab with the export items route.
+    @Test
+    func switchToSettingsTab_navigatesToExportItems() {
+        subject.switchToSettingsTab(route: .exportItems)
+
+        #expect(module.tabCoordinator.routes.last == .settings(.exportItems))
     }
 }
