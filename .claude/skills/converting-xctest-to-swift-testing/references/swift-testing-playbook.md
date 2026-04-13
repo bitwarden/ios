@@ -98,6 +98,7 @@ Use this table as a cheat sheet when migrating your `XCTest` assertions.
 | `try XCTUnwrap(a)` | `try #require(a)` | The preferred, safer way to unwrap optionals. |
 | `XCTAssertThrowsError(expr)` | `#expect(throws: (any Error).self) { try expr }` | The basic form for checking any error. |
 | `XCTAssertNoThrow(try expr)` | `#expect(throws: Never.self) { try expr }` | The explicit way to assert that no error is thrown. |
+| `XCTFail("message")` | `Issue.record("message")` | Direct replacement for unconditional test failure. |
 
 ### Action Items
 - [ ] Run `grep -R "XCTAssert\|XCTUnwrap" .` to find all legacy assertions.

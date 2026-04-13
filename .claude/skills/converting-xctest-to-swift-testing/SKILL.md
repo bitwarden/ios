@@ -154,47 +154,15 @@ func perform_appeared_loadsData() async throws { ... }
 
 ## Step 6: Convert Assertions
 
-Mechanical substitution table:
+Use the assertion conversion table in `references/swift-testing-playbook.md` (Section 2) for standard `XCTAssert*` → `#expect`/`#require` substitutions.
+
+One additional Bitwarden-specific conversion not in the playbook:
 
 | XCTest | Swift Testing |
 |--------|---------------|
-| `XCTAssertEqual(a, b)` | `#expect(a == b)` |
-| `XCTAssertNotEqual(a, b)` | `#expect(a != b)` |
-| `XCTAssertNil(a)` | `#expect(a == nil)` |
-| `XCTAssertNotNil(a)` | `#expect(a != nil)` |
-| `XCTAssertTrue(a)` | `#expect(a)` |
-| `XCTAssertFalse(a)` | `#expect(!a)` |
-| `XCTAssertGreaterThan(a, b)` | `#expect(a > b)` |
-| `XCTAssertLessThan(a, b)` | `#expect(a < b)` |
-| `XCTAssertGreaterThanOrEqual(a, b)` | `#expect(a >= b)` |
-| `XCTAssertLessThanOrEqual(a, b)` | `#expect(a <= b)` |
-| `try XCTUnwrap(a)` | `try #require(a)` |
-| `try XCTUnwrap(a, "msg")` | `try #require(a)` (drop message — macro output is self-explanatory) |
-| `XCTFail("message")` | `Issue.record("message")` |
-| `XCTAssertNoThrow(try expr)` | `#expect(throws: Never.self) { try expr }` |
-| `XCTAssertThrowsError(try expr)` | `#expect(throws: (any Error).self) { try expr }` |
 | `assertAsyncThrows(error: e) { try await expr }` | `await #expect(throws: e) { try await expr }` |
 
-### Typed error assertions
-
-When a specific error value is expected:
-
-```swift
-// Before:
-XCTAssertThrowsError(try myFunc()) { error in
-    XCTAssertEqual(error as? MyError, .someCase)
-}
-
-// After:
-#expect(throws: MyError.someCase) { try myFunc() }
-```
-
-When a specific error *type* (not value) is expected:
-
-```swift
-// After:
-#expect(throws: MyError.self) { try myFunc() }
-```
+Also note: `try XCTUnwrap(a, "msg")` → `try #require(a)` — drop the message, the macro output is self-explanatory.
 
 ## Step 7: Bitwarden-Specific Patterns
 
