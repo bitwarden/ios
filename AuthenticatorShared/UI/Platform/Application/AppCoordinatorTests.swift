@@ -41,4 +41,51 @@ struct AppCoordinatorTests {
 
         #expect(module.tabCoordinator.routes.last == .settings(.exportItems))
     }
+
+    /// `handleEvent(.didStart)` with biometrics enabled and a non-never vault timeout presents
+    /// the auth overlay with `isModalInPresentation` set to prevent swipe-to-dismiss bypasses.
+    @Test
+    func handleEvent_didStart_biometricsEnabledAndTimeout_setsModalInPresentation() async {
+        let biometricsRepository = MockBiometricsRepository()
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        let stateService = MockStateService()
+        stateService.vaultTimeout = .immediately
+        let mockRootNavigator = MockRootNavigator()
+        mockRootNavigator.rootViewController = MockUIViewController()
+        let localSubject = AppCoordinator(
+            appContext: .mainApp,
+            module: MockAppModule(),
+            rootNavigator: mockRootNavigator,
+            services: ServiceContainer.withMocks(
+                biometricsRepository: biometricsRepository,
+                stateService: stateService,
+            ),
+        )
+
+        await localSubject.handleEvent(.didStart)
+
+        let presentedVC = (mockRootNavigator.rootViewController as? MockUIViewController)?.presentedView
+        #expect(presentedVC?.isModalInPresentation == true)
+        #expect(presentedVC?.modalPresentationStyle == .fullScreen)
+    }
+
+    /// `handleEvent(.vaultTimeout)` presents the auth overlay with `isModalInPresentation` set
+    /// and `modalPresentationStyle` set to `.fullScreen` to prevent swipe-to-dismiss bypasses.
+    @Test
+    func handleEvent_vaultTimeout_setsModalInPresentation() async {
+        let mockRootNavigator = MockRootNavigator()
+        mockRootNavigator.rootViewController = MockUIViewController()
+        let localSubject = AppCoordinator(
+            appContext: .mainApp,
+            module: MockAppModule(),
+            rootNavigator: mockRootNavigator,
+            services: ServiceContainer.withMocks(),
+        )
+
+        await localSubject.handleEvent(.vaultTimeout)
+
+        let presentedVC = (mockRootNavigator.rootViewController as? MockUIViewController)?.presentedView
+        #expect(presentedVC?.isModalInPresentation == true)
+        #expect(presentedVC?.modalPresentationStyle == .fullScreen)
+    }
 }
