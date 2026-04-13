@@ -44,7 +44,7 @@ struct NotificationExtensionHelperTests {
         let result = await subject.processNotification(content: content)
 
         #expect(result.title == Localizations.logInRequested)
-        #expect(result.body == Localizations.confimLogInAttempForX(email))
+        #expect(result.body == Localizations.confirmLogInAttemptForX(email))
         #expect(errorReporter.errors.isEmpty)
     }
 

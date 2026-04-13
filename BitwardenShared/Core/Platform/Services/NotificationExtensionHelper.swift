@@ -101,7 +101,7 @@ public class DefaultNotificationExtensionHelper: NotificationExtensionHelper {
         }
 
         content.title = Localizations.logInRequested
-        content.body = Localizations.confimLogInAttempForX(email)
+        content.body = Localizations.confirmLogInAttemptForX(email)
 
         return content
     }
