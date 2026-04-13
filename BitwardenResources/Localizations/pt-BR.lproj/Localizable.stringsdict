@@ -6,7 +6,7 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@vaultitems@. Copie e compartilhe este relatório de erros com o customer success para evitar a perca de dados adicionais.</string>
+      <string>%#@vaultitems@. Copie e compartilhe este relatório de erros com o suporte para evitar a perda de dados adicionais.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -23,7 +23,7 @@
     <key>MasterPasswordMustBeAtLeastXCharactersLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>A senha principal deve ter pelo menos %#@characters@.</string>
+      <string>%#@MasterPasswordMustBeAtLeastCharactersLong@</string>
       <key>MasterPasswordMustBeAtLeastCharactersLong</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -31,16 +31,16 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>A senha principal deve ter pelo menos %d caractere.</string>
+        <string>%d caractere</string>
         <key>other</key>
-        <string>A senha principal deve ter pelo menos %d caracteres.</string>
+        <string>%d caracteres</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Esta senha foi exposta %#@times@ em vazamentos de dados. Você deve alterá-la.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ Você deve alterá-la.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -193,7 +193,7 @@
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>Seu PIN deve ter pelo menos %#@characters@. Seu PIN será reconfigurado se você se desconectar do aplicativo.</string>
+      <string>Seu PIN deve ter pelo menos %#@characters@. O seu PIN será reconfigurado se você se desconectar do aplicativo.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -201,9 +201,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Seu PIN deve ter pelo menos %d caractere.</string>
+        <string>%d caractere</string>
         <key>other</key>
-        <string>Seu PIN deve ter pelo menos %d caracteres.</string>
+        <string>%d caracteres</string>
       </dict>
     </dict>
   </dict>

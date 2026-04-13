@@ -1049,3 +1049,11 @@
 "WeCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate" = "We couldn’t process your payment. Update your payment method before your subscription ends on **%1$@**.";
 "YouHaveAGracePeriodOfDaysFromYourSubscriptionExpirationDateResolveInvoicesByDate" = "You have a grace period of **%1$@** from your subscription expiration date. Please resolve the past due invoices by **%2$@**.";
 "YourSubscriptionWasCanceledOnDateResubscribeToContinueUsingPremiumFeatures" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
+"PerMonth" = "/ month";
+"UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
+"BuiltInAuthenticator" = "Built-in authenticator";
+"EmergencyAccess" = "Emergency access";
+"SecureFileStorage" = "Secure file storage";
+"BreachMonitoring" = "Breach monitoring";
+"UpgradeNow" = "Upgrade now";
+"YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You’ll go to Stripe’s secure checkout to complete your purchase.";
