@@ -45,10 +45,11 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
     /// Initialize an `AccountTokenProvider`.
     ///
     /// - Parameters:
+    ///   - activeAccountStateProvider: The provider for the active account state.
+    ///   - errorReporter: The service used to report non-fatal errors.
     ///   - httpService: The service used to make the API call to refresh the access token.
     ///   - timeProvider: The service used to get the present time.
     ///   - tokenService: The service used to get the current tokens from.
-    ///   - errorReporter: The service used to report non-fatal errors.
     ///
     init(
         activeAccountStateProvider: ActiveAccountStateProvider,
