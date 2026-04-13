@@ -41,6 +41,7 @@ class APIService {
     /// - Parameters:
     ///   - accountTokenProvider: The `AccountTokenProvider` to use. This is helpful for testing.
     ///   The default will be built by default.
+    ///   - activeAccountStateProvider: The provider for the active account state.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
@@ -54,6 +55,7 @@ class APIService {
     ///
     init(
         accountTokenProvider: AccountTokenProvider? = nil,
+        activeAccountStateProvider: ActiveAccountStateProvider,
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
@@ -85,7 +87,7 @@ class APIService {
         )
 
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
-            activeAccountStateProvider: stateService,
+            activeAccountStateProvider: activeAccountStateProvider,
             errorReporter: errorReporter,
             httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
             tokenService: tokenService,

@@ -21,7 +21,7 @@ class BillingAPIServiceTests: BitwardenTestCase {
 
         client = MockHTTPClient()
         stateService = MockStateService()
-        subject = APIService(client: client, stateService: stateService)
+        subject = APIService(activeAccountStateProvider: stateService, client: client, stateService: stateService)
     }
 
     override func tearDown() async throws {

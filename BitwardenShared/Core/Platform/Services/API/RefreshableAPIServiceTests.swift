@@ -20,6 +20,7 @@ class RefreshableAPIServiceTests: BitwardenTestCase {
         accountTokenProvider = MockAccountTokenProvider()
         subject = APIService(
             accountTokenProvider: accountTokenProvider,
+            activeAccountStateProvider: MockStateService(),
             environmentService: MockEnvironmentService(),
             errorReporter: MockErrorReporter(),
             flightRecorder: MockFlightRecorder(),
