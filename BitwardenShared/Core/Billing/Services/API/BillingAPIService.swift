@@ -9,11 +9,11 @@ protocol BillingAPIService { // sourcery: AutoMockable
     ///
     func createCheckoutSession() async throws -> CheckoutSessionResponseModel
 
-    /// Gets the list of subscription plans.
+    /// Gets the premium subscription plan.
     ///
-    /// - Returns: A `PlansResponseModel` containing the list of plans.
+    /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
     ///
-    func getPlans() async throws -> PlansResponseModel
+    func getPremiumPlan() async throws -> PremiumPlanResponseModel
 
     /// Creates a customer portal session for managing the premium subscription.
     ///
@@ -36,8 +36,8 @@ extension APIService: BillingAPIService {
         )
     }
 
-    func getPlans() async throws -> PlansResponseModel {
-        try await apiService.send(GetPlansRequest())
+    func getPremiumPlan() async throws -> PremiumPlanResponseModel {
+        try await apiService.send(GetPremiumPlanRequest())
     }
 
     func getPortalUrl() async throws -> PortalUrlResponseModel {
