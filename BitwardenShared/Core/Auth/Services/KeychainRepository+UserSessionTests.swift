@@ -49,15 +49,15 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         )
     }
 
-    /// `getLastActiveTime(userId:)` rethrows non-notFound errors.
+    /// `getLastActiveTime(userId:)` returns nil when the item is not found.
     ///
-    func test_getLastActiveTime_error() async {
+    func test_getLastActiveTime_keyNotFound() async throws {
         let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.lastActiveTime(userId: "1"))
         keychainServiceFacade.getValueThrowableError = error
 
-        await assertAsyncThrows(error: error) {
-            _ = try await subject.getLastActiveTime(userId: "1")
-        }
+        let result = try await subject.getLastActiveTime(userId: "1")
+
+        XCTAssertNil(result)
     }
 
     /// `getLastActiveTime(userId:)` returns nil when the item is not found.
@@ -68,6 +68,17 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         let result = try await subject.getLastActiveTime(userId: "1")
 
         XCTAssertNil(result)
+    }
+
+    /// `getLastActiveTime(userId:)` rethrows non-notFound errors.
+    ///
+    func test_getLastActiveTime_error() async {
+        let error = KeychainServiceError.osStatusError(errSecInvalidItemRef)
+        keychainServiceFacade.getValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getLastActiveTime(userId: "1")
+        }
     }
 
     /// `setLastActiveTime(_:userId:)` stores the timestamp string via the facade.
