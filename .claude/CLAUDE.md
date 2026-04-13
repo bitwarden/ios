@@ -146,3 +146,23 @@ See `build-test-verify` skill for project generation, build commands, test execu
 
 **Do not duplicate information from these files — reference them instead.**
 
+## Skills & Commands
+
+| Skill | Triggers |
+|-------|---------|
+| `refining-ios-requirements` | "refine requirements", "analyze ticket", "gap analysis" |
+| `planning-ios-implementation` | "plan implementation", "design approach", "architecture plan" |
+| `implementing-ios-code` | "implement", "write code", "add screen", "create feature" |
+| `testing-ios-code` | "write tests", "add test coverage", "unit test" |
+| `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
+| `perform-ios-preflight-checklist` | "preflight", "self review", "ready to commit" |
+| `committing-ios-changes` | "commit", "stage changes", "create commit" |
+| `creating-ios-pull-request` | "create PR", "open pull request", "submit PR" |
+| `labeling-ios-changes` | "label PR", "add labels", "categorize changes" |
+| `reviewing-changes` | "review", "code review", "check PR" |
+
+| Command | Usage |
+|---------|-------|
+| `/plan-ios-work <PM-XXXXX>` | Use the `ios-architect` agent (or this command) to fetch ticket → refine requirements → design implementation approach |
+| `/work-on-ios <PM-XXXXX>` | Use the `ios-implementer` agent (or this command) for full workflow: implement → test → verify → preflight → commit → review → PR |
+

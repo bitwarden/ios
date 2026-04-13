@@ -16,6 +16,7 @@ typealias Services = HasAPIService
     & HasAuthService
     & HasAutofillCredentialService
     & HasBillingAPIService
+    & HasBillingService
     & HasBiometricsRepository
     & HasCameraService
     & HasChangeKdfService
@@ -151,6 +152,13 @@ protocol HasAutofillCredentialService {
 protocol HasBillingAPIService {
     /// The service used by the application to make billing-related API requests.
     var billingAPIService: BillingAPIService { get }
+}
+
+/// Protocol for an object that provides a `BillingService`.
+///
+protocol HasBillingService {
+    /// The service used by the application to manage billing operations.
+    var billingService: BillingService { get }
 }
 
 /// Protocol for obtaining the device's biometric authentication type.

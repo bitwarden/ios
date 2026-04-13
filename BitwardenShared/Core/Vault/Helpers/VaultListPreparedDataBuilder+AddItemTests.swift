@@ -20,7 +20,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     var subject: DefaultVaultListPreparedDataBuilder!
     var timeProvider: MockTimeProvider!
     var totpService: MockTOTPService!
-    
+
     // MARK: Setup & Teardown
 
     override func setUp() {

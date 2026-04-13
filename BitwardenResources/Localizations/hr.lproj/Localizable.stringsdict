@@ -14,11 +14,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>Bitwarden nije mogao dešifrirati jednu stavku trezora.</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nije mogao dešifrirati %d stavke trezora.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>Bitwarden nije mogao dešifrirati %d stavki trezora.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -33,11 +33,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>Glavna lozinka mora imati barem jedan znak.</string>
         <key>few</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Glavna lozinka mora imati barem %d znaka.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>Glavna lozinka mora imati barem %d znakova.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
@@ -52,11 +52,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>Ova je lozinka otkrivena u jednoj povredi podataka.</string>
         <key>few</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Ova je lozinka otkrivena u %d povrede podataka.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>Ova je lozinka otkrivena u %d povreda podataka.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -71,11 +71,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>jedan znak</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d znaka</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d znakova</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -90,11 +90,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>jedan dan</string>
         <key>few</key>
-        <string>%d days</string>
+        <string>%d dana</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d dana</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -109,11 +109,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>jedan sat</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d sata</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d sati</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -128,11 +128,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>jedna stavka</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>%d stavke</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>%d stavki</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -147,11 +147,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>Jedna stavka je uspješno uvezena</string>
         <key>few</key>
-        <string>%d items successfully imported</string>
+        <string>%d stavke su uspješno uvezene</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>%d stavki je uspješno uvezeno</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -166,11 +166,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>jedna minuta</string>
         <key>few</key>
-        <string>%d minutes</string>
+        <string>%d minute</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d minuta</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -185,11 +185,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>jedna sekunda</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d sekunde</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d sekundi</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -204,18 +204,18 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>jedan tjedan</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d tjedna</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d tjedana</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ Tvoje će se postavke PIN-a resetirati ako se ikada potpuno odjaviš iz aplikacije.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -223,11 +223,11 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>PIN mora imati najmanje jedan znak.</string>
         <key>few</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>PIN mora imati najmanje %d znaka.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>PIN mora imati najmanje %d znakova.</string>
       </dict>
     </dict>
   </dict>
