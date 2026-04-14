@@ -47,16 +47,6 @@ class SettingsViewTests: BitwardenTestCase {
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
-    /// Tests the view renders correctly with the plan row visible.
-    @MainActor
-    func disabletest_snapshot_viewRender_withPlanRow() {
-        processor.state.showPlanRow = true
-        assertSnapshots(
-            of: subject.navStackWrapped,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
-        )
-    }
-
     /// Tests the view renders correctly with badges.
     @MainActor
     func disabletest_snapshot_settingsView_badges() {
@@ -65,6 +55,16 @@ class SettingsViewTests: BitwardenTestCase {
             importLoginsSetupProgress: .setUpLater,
             vaultUnlockSetupProgress: .setUpLater,
         )
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    /// Tests the view renders correctly with the plan row visible.
+    @MainActor
+    func disabletest_snapshot_viewRender_withPlanRow() {
+        processor.state.showPlanRow = true
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

@@ -148,14 +148,6 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
-    /// Receiving `.vaultPressed` navigates to the vault settings screen.
-    @MainActor
-    func test_receive_vaultPressed() {
-        subject.receive(.vaultPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .vault)
-    }
-
     /// Receiving `.planPressed` navigates to the premium plan screen.
     @MainActor
     func test_receive_planPressed() {
@@ -164,15 +156,12 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .premiumPlan)
     }
 
-    /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has premium.
+    /// Receiving `.vaultPressed` navigates to the vault settings screen.
     @MainActor
-    func test_perform_appeared_showsPlanRow() async {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        vaultRepository.doesActiveAccountHavePremiumResult = true
+    func test_receive_vaultPressed() {
+        subject.receive(.vaultPressed)
 
-        await subject.perform(.appeared)
-
-        XCTAssertTrue(subject.state.showPlanRow)
+        XCTAssertEqual(coordinator.routes.last, .vault)
     }
 
     /// `perform(.appeared)` hides the plan row when the feature flag is disabled.
@@ -195,6 +184,17 @@ class SettingsProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
 
         XCTAssertFalse(subject.state.showPlanRow)
+    }
+
+    /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has premium.
+    @MainActor
+    func test_perform_appeared_showsPlanRow() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.showPlanRow)
     }
 }
 
