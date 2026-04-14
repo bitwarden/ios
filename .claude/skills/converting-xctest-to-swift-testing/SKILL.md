@@ -222,6 +222,3 @@ Run these checks after conversion:
 
 Before proceeding, read:
 - `references/swift-testing-playbook.md` — migration cheat sheet, assertion conversions, framework overview
-
-If you need deeper API detail on a specific Swift Testing API, read:
-- `references/swift-testing_api.md` — full Apple Swift Testing API documentation
