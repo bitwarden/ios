@@ -54,6 +54,12 @@ struct PremiumPlanView: View {
 
             if store.state.showBillingDetails {
                 billingSection
+                .padding(.horizontal, 16)
+            }
+
+            if store.state.planStatus == .canceled {
+                PremiumFeaturesList()
+                .padding(.horizontal, 16)
             }
         }
     }
@@ -107,7 +113,6 @@ struct PremiumPlanView: View {
                 valueColor: SharedAsset.Colors.statusStrong.swiftUIColor,
             )
         }
-        .padding(.horizontal, 16)
     }
 
     /// The manage plan button.

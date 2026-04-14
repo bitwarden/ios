@@ -54,6 +54,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = AddEditFolderModule
         & AuthModule
+        & BillingModule
         & ExportCXFModule
         & FlightRecorderModule
         & ImportLoginsModule
@@ -479,15 +480,9 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the premium plan screen.
     ///
     private func showPremiumPlan() {
-        let processor = PremiumPlanProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: PremiumPlanState(),
-        )
-        let view = PremiumPlanView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.plan)
+        guard let stackNavigator else { return }
+        let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
+        coordinator.navigate(to: .premiumPlan)
     }
 
     /// Shows the select language screen.

@@ -16,7 +16,7 @@ final class PremiumPlanProcessor: StateProcessor<
     // MARK: Private Properties
 
     /// The `Coordinator` that handles navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
+    private let coordinator: AnyCoordinator<BillingRoute, Void>
 
     /// The services used by this processor.
     private var services: Services
@@ -31,7 +31,7 @@ final class PremiumPlanProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        coordinator: AnyCoordinator<BillingRoute, Void>,
         services: Services,
         state: PremiumPlanState,
     ) {
