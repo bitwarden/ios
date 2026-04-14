@@ -32,6 +32,39 @@ public extension APITestData {
     }
     """.utf8))
 
+    // MARK: Subscription
+
+    static let subscriptionResponse = APITestData(data: Data("""
+    {
+        "status": "active",
+        "cart": {
+            "passwordManager": {
+                "seats": {
+                    "translationKey": "premiumMembership",
+                    "quantity": 1,
+                    "cost": 19.8,
+                    "discount": null
+                },
+                "additionalStorage": null
+            },
+            "secretsManager": null,
+            "cadence": "annually",
+            "discount": null,
+            "estimatedTax": 4.55
+        },
+        "storage": {
+            "available": 5,
+            "used": 0,
+            "readableUsed": "0 Bytes"
+        },
+        "cancelAt": null,
+        "canceled": null,
+        "nextCharge": "2027-02-20T15:48:11Z",
+        "suspension": null,
+        "gracePeriod": null
+    }
+    """.utf8))
+
     // MARK: Portal URL
 
     static let portalUrl = APITestData(data: Data("""
