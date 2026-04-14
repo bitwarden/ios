@@ -4,6 +4,8 @@
 /// `organizationUserNotification` policy.
 ///
 struct OrganizationUserNotificationBannerData: Equatable {
+    // MARK: Properties
+
     /// When non-nil, display a labelled dismiss button with this text instead of the default X button.
     let buttonText: String?
 
