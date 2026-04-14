@@ -121,31 +121,31 @@ struct BillingServiceTests {
     @Test
     func getSubscription_success() async throws {
         let expectedSubscription = BitwardenSubscriptionResponseModel(
-            status: "active",
+            cancelAt: nil,
+            canceled: nil,
             cart: SubscriptionCartResponseModel(
-                passwordManager: PasswordManagerCartItemsResponseModel(
-                    seats: CartItemResponseModel(
-                        translationKey: "premiumMembership",
-                        quantity: 1,
-                        cost: 19.8,
-                        discount: nil,
-                    ),
-                    additionalStorage: nil,
-                ),
                 cadence: "annually",
                 discount: nil,
                 estimatedTax: 4.55,
+                passwordManager: PasswordManagerCartItemsResponseModel(
+                    additionalStorage: nil,
+                    seats: CartItemResponseModel(
+                        cost: 19.8,
+                        discount: nil,
+                        quantity: 1,
+                        translationKey: "premiumMembership",
+                    ),
+                ),
             ),
+            gracePeriod: nil,
+            nextCharge: nil,
+            status: "active",
             storage: SubscriptionStorageResponseModel(
                 available: 5,
-                used: 0,
                 readableUsed: "0 Bytes",
+                used: 0,
             ),
-            cancelAt: nil,
-            canceled: nil,
-            nextCharge: nil,
             suspension: nil,
-            gracePeriod: nil,
         )
         billingAPIService.getSubscriptionReturnValue = expectedSubscription
 

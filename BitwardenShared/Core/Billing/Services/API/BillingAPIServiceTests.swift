@@ -44,6 +44,19 @@ struct BillingAPIServiceTests {
         #expect(json?["platform"] as? String == "ios")
     }
 
+    /// `getPortalUrl()` performs the request with the correct method and path.
+    @Test
+    func getPortalUrl() async throws {
+        client.result = .httpSuccess(testData: .portalUrl)
+
+        _ = try await subject.getPortalUrl()
+
+        let request = try #require(client.requests.last)
+        #expect(request.method == .post)
+        #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/portal-session")
+        #expect(request.body == nil)
+    }
+
     /// `getPremiumPlan()` performs the request with the correct method and path.
     @Test
     func getPremiumPlan() async throws {
@@ -66,19 +79,6 @@ struct BillingAPIServiceTests {
         #expect(response.storage.stripePriceId == "personal-storage-gb-annually")
         #expect(response.storage.price == 4)
         #expect(response.storage.provided == 5)
-    }
-
-    /// `getPortalUrl()` performs the request with the correct method and path.
-    @Test
-    func getPortalUrl() async throws {
-        client.result = .httpSuccess(testData: .portalUrl)
-
-        _ = try await subject.getPortalUrl()
-
-        let request = try #require(client.requests.last)
-        #expect(request.method == .post)
-        #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/portal-session")
-        #expect(request.body == nil)
     }
 
     /// `getSubscription()` performs the request with the correct method and path.

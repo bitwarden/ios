@@ -8,15 +8,6 @@ import Networking
 struct BitwardenSubscriptionResponseModel: JSONResponse, Equatable, Sendable {
     // MARK: Properties
 
-    /// The status of the subscription.
-    let status: String
-
-    /// The subscription's cart, including line items, any discounts, and estimated tax.
-    let cart: SubscriptionCartResponseModel
-
-    /// The amount of storage available and used for the subscription.
-    let storage: SubscriptionStorageResponseModel?
-
     /// If the subscription is pending cancellation, the date at which the
     /// subscription will be canceled.
     let cancelAt: Date?
@@ -24,15 +15,24 @@ struct BitwardenSubscriptionResponseModel: JSONResponse, Equatable, Sendable {
     /// The date the subscription was canceled.
     let canceled: Date?
 
-    /// The date of the next charge for the subscription.
-    let nextCharge: Date?
-
-    /// The date the subscription will be or was suspended due to lack of payment.
-    let suspension: Date?
+    /// The subscription's cart, including line items, any discounts, and estimated tax.
+    let cart: SubscriptionCartResponseModel
 
     /// The number of days after the subscription goes 'past_due' the subscriber has to resolve their
     /// open invoices before the subscription is suspended.
     let gracePeriod: Int?
+
+    /// The date of the next charge for the subscription.
+    let nextCharge: Date?
+
+    /// The status of the subscription.
+    let status: String
+
+    /// The amount of storage available and used for the subscription.
+    let storage: SubscriptionStorageResponseModel?
+
+    /// The date the subscription will be or was suspended due to lack of payment.
+    let suspension: Date?
 }
 
 // MARK: - SubscriptionCartResponseModel
@@ -42,9 +42,6 @@ struct BitwardenSubscriptionResponseModel: JSONResponse, Equatable, Sendable {
 struct SubscriptionCartResponseModel: JSONResponse, Equatable, Sendable {
     // MARK: Properties
 
-    /// The Password Manager product line items.
-    let passwordManager: PasswordManagerCartItemsResponseModel?
-
     /// The billing cadence (e.g. "annually", "monthly").
     let cadence: String
 
@@ -53,6 +50,9 @@ struct SubscriptionCartResponseModel: JSONResponse, Equatable, Sendable {
 
     /// The estimated tax amount.
     let estimatedTax: Decimal
+
+    /// The Password Manager product line items.
+    let passwordManager: PasswordManagerCartItemsResponseModel?
 }
 
 // MARK: - PasswordManagerCartItemsResponseModel
@@ -62,11 +62,11 @@ struct SubscriptionCartResponseModel: JSONResponse, Equatable, Sendable {
 struct PasswordManagerCartItemsResponseModel: JSONResponse, Equatable, Sendable {
     // MARK: Properties
 
-    /// The seat line item details.
-    let seats: CartItemResponseModel
-
     /// The additional storage line item details.
     let additionalStorage: CartItemResponseModel?
+
+    /// The seat line item details.
+    let seats: CartItemResponseModel
 }
 
 // MARK: - CartItemResponseModel
@@ -76,17 +76,17 @@ struct PasswordManagerCartItemsResponseModel: JSONResponse, Equatable, Sendable 
 struct CartItemResponseModel: JSONResponse, Equatable, Sendable {
     // MARK: Properties
 
-    /// The translation key for the cart item's display name.
-    let translationKey: String
-
-    /// The quantity of this cart item.
-    let quantity: Int64
-
     /// The cost for this cart item.
     let cost: Decimal
 
     /// Any discount applied to this cart item.
     let discount: BitwardenDiscountResponseModel?
+
+    /// The quantity of this cart item.
+    let quantity: Int64
+
+    /// The translation key for the cart item's display name.
+    let translationKey: String
 }
 
 // MARK: - BitwardenDiscountResponseModel
@@ -113,9 +113,9 @@ struct SubscriptionStorageResponseModel: JSONResponse, Equatable, Sendable {
     /// The available storage in GB.
     let available: Int
 
-    /// The used storage in bytes.
-    let used: Double
-
     /// A human-readable representation of the used storage.
     let readableUsed: String
+
+    /// The used storage in bytes.
+    let used: Double
 }
