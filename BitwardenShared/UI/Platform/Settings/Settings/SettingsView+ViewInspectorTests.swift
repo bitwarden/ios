@@ -11,7 +11,7 @@ import XCTest
 class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<SettingsState, SettingsAction, Void>!
+    var processor: MockProcessor<SettingsState, SettingsAction, SettingsEffect>!
     var subject: SettingsView!
 
     // MARK: Setup & Teardown
