@@ -75,6 +75,22 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
+    /// Tapping the plan button dispatches the `.planPressed` action.
+    @MainActor
+    func test_planButton_tap() throws {
+        processor.state.showPlanRow = true
+        let button = try subject.inspect().find(button: Localizations.plan)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .planPressed)
+    }
+
+    /// The plan button is hidden when `showPlanRow` is `false`.
+    @MainActor
+    func test_planButton_hidden() throws {
+        processor.state.showPlanRow = false
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.plan))
+    }
+
     /// Tapping the other button dispatches the `.otherPressed` action.
     @MainActor
     func test_otherButton_tap() throws {
