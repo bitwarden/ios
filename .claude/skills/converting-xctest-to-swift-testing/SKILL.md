@@ -45,6 +45,8 @@ import Testing
 @testable import BitwardenShared
 ```
 
+`XCTest` implicitly re-exports `Foundation`, so removing it can cause missing-symbol build errors if the file uses Foundation types directly. If the build fails after conversion, add `import Foundation`.
+
 ### Class → Struct
 
 | Before | After |
