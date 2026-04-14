@@ -20,6 +20,12 @@ protocol BillingAPIService { // sourcery: AutoMockable
     /// - Returns: A `PortalUrlResponseModel` containing the portal URL.
     ///
     func getPortalUrl() async throws -> PortalUrlResponseModel
+
+    /// Gets the user's subscription details.
+    ///
+    /// - Returns: A `BitwardenSubscriptionResponseModel` containing the subscription details.
+    ///
+    func getSubscription() async throws -> BitwardenSubscriptionResponseModel
 }
 
 // MARK: - APIService Extension
@@ -42,5 +48,9 @@ extension APIService: BillingAPIService {
 
     func getPortalUrl() async throws -> PortalUrlResponseModel {
         try await apiService.send(GetPortalUrlRequest())
+    }
+
+    func getSubscription() async throws -> BitwardenSubscriptionResponseModel {
+        try await apiService.send(GetSubscriptionRequest())
     }
 }
