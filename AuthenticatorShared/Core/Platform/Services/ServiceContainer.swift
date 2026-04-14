@@ -215,9 +215,18 @@ public class ServiceContainer: Services {
         let keychainService = DefaultKeychainService()
         let timeProvider = CurrentTime()
 
-        let keychainRepository = DefaultKeychainRepository(
-            appIDService: appIDService,
+        let keychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.groupIdentifier,
             keychainService: keychainService,
+            namespacing: .appScoped(
+                appIDService: appIDService,
+                appSecAttrService: Bundle.main.appIdentifier,
+                storageKeyPrefix: "bwaKeychainStorage",
+            ),
+        )
+
+        let keychainRepository = DefaultKeychainRepository(
+            keychainServiceFacade: keychainServiceFacade,
         )
 
         let stateService = DefaultStateService(
@@ -301,13 +310,14 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore,
         )
 
-        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+        let sharedKeychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.sharedAppGroupIdentifier,
             keychainService: keychainService,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            namespacing: .shared,
         )
 
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage,
+            keychainServiceFacade: sharedKeychainServiceFacade,
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(

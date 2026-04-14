@@ -68,11 +68,11 @@ class StateServiceServerCommunicationConfigTests: BitwardenTestCase {
                 ),
             ),
         )
-        keychainRepository.getServerCommunicationConfigResult = .success(config)
+        keychainRepository.getServerCommunicationConfigReturnValue = config
 
         try await subject.clearServerCommunicationCookieValue(hostname: hostname)
 
-        let savedConfig = keychainRepository.setServerCommunicationConfigCalledConfig
+        let savedConfig = keychainRepository.setServerCommunicationConfigReceivedArguments?.config
         guard case let .ssoCookieVendor(savedSsoConfig) = savedConfig?.bootstrap else {
             XCTFail("Expected .ssoCookieVendor bootstrap after clearing")
             return
@@ -81,34 +81,32 @@ class StateServiceServerCommunicationConfigTests: BitwardenTestCase {
         XCTAssertEqual(savedSsoConfig.cookieName, "bwauth")
         XCTAssertEqual(savedSsoConfig.cookieDomain, "example.com")
         XCTAssertNil(savedSsoConfig.cookieValue)
-        XCTAssertEqual(keychainRepository.setServerCommunicationConfigCalledHostname, hostname)
+        XCTAssertEqual(keychainRepository.setServerCommunicationConfigReceivedArguments?.hostname, hostname)
     }
 
     /// `clearServerCommunicationCookieValue(hostname:)` does nothing when no config exists.
     func test_clearServerCommunicationCookieValue_noConfig() async throws {
-        keychainRepository.getServerCommunicationConfigResult = .success(nil)
+        keychainRepository.getServerCommunicationConfigReturnValue = nil
 
         try await subject.clearServerCommunicationCookieValue(hostname: "example.com")
 
-        XCTAssertNil(keychainRepository.setServerCommunicationConfigCalledConfig)
+        XCTAssertNil(keychainRepository.setServerCommunicationConfigReceivedArguments?.config)
     }
 
     /// `clearServerCommunicationCookieValue(hostname:)` does nothing when the stored config
     /// uses the `.direct` bootstrap (no SSO cookie to clear).
     func test_clearServerCommunicationCookieValue_directBootstrap() async throws {
-        keychainRepository.getServerCommunicationConfigResult = .success(
-            ServerCommunicationConfig(bootstrap: .direct),
-        )
+        keychainRepository.getServerCommunicationConfigReturnValue = ServerCommunicationConfig(bootstrap: .direct)
 
         try await subject.clearServerCommunicationCookieValue(hostname: "example.com")
 
-        XCTAssertNil(keychainRepository.setServerCommunicationConfigCalledConfig)
+        XCTAssertNil(keychainRepository.setServerCommunicationConfigReceivedArguments?.config)
     }
 
     /// `getServerCommunicationConfig(hostname:)` returns the stored config from the keychain.
     func test_getServerCommunicationConfig_success() async throws {
         let config = ServerCommunicationConfig(bootstrap: .direct)
-        keychainRepository.getServerCommunicationConfigResult = .success(config)
+        keychainRepository.getServerCommunicationConfigReturnValue = config
 
         let result = try await subject.getServerCommunicationConfig(hostname: "example.com")
 
@@ -117,7 +115,7 @@ class StateServiceServerCommunicationConfigTests: BitwardenTestCase {
 
     /// `getServerCommunicationConfig(hostname:)` returns `nil` when the keychain has no entry.
     func test_getServerCommunicationConfig_notFound() async throws {
-        keychainRepository.getServerCommunicationConfigResult = .success(nil)
+        keychainRepository.getServerCommunicationConfigReturnValue = nil
 
         let result = try await subject.getServerCommunicationConfig(hostname: "example.com")
 
@@ -131,8 +129,8 @@ class StateServiceServerCommunicationConfigTests: BitwardenTestCase {
 
         try await subject.setServerCommunicationConfig(config, hostname: hostname)
 
-        XCTAssertEqual(keychainRepository.setServerCommunicationConfigCalledHostname, hostname)
-        let saved = keychainRepository.setServerCommunicationConfigCalledConfig
+        XCTAssertEqual(keychainRepository.setServerCommunicationConfigReceivedArguments?.hostname, hostname)
+        let saved = keychainRepository.setServerCommunicationConfigReceivedArguments?.config
         guard case .direct = saved?.bootstrap else {
             XCTFail("Expected .direct bootstrap in saved config")
             return

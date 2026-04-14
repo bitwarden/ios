@@ -28,6 +28,9 @@ class StateServiceUserSessionTests: BitwardenTestCase {
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        keychainRepository.getUserAuthKeyValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.neverLock(userId: "1"),
+        )
         userSessionKeychainRepository = MockUserSessionKeychainRepository()
 
         subject = DefaultStateService(
@@ -141,7 +144,8 @@ class StateServiceUserSessionTests: BitwardenTestCase {
     func test_getVaultTimeout_neverLock() async throws {
         let item = BitwardenKeychainItem.vaultTimeout(userId: "1")
         userSessionKeychainRepository.getVaultTimeoutThrowableError = KeychainServiceError.keyNotFound(item)
-        keychainRepository.mockStorage[keychainRepository.formattedKey(for: .neverLock(userId: "1"))] = "NEVER_LOCK_KEY"
+        keychainRepository.getUserAuthKeyValueThrowableError = nil
+        keychainRepository.getUserAuthKeyValueReturnValue = "NEVER_LOCK_KEY"
 
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
 

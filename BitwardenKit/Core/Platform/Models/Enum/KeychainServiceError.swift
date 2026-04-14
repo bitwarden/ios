@@ -16,7 +16,7 @@ public enum KeychainServiceError: Error, Equatable, CustomNSError {
     /// When a `KeychainService` is unable to locate a value for a given storage key.
     ///
     /// - Parameters:
-    ///   - KeychainStorageKeyPossessing: The storage key for the value.
+    ///   - KeychainItem: The storage key for the value.
     ///
     case keyNotFound(any KeychainItem)
 
