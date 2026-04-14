@@ -32,15 +32,10 @@ struct PremiumPlanView: View {
         .task {
             await store.perform(.appeared)
         }
-        .onChange(of: store.state.managePlanUrl) { newValue in
+        .onChange(of: store.state.urlToOpen) { newValue in
             guard let url = newValue else { return }
             openURL(url)
-            store.send(.clearManagePlanUrl)
-        }
-        .onChange(of: store.state.cancelPremiumUrl) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearCancelPremiumUrl)
+            store.send(.clearUrl)
         }
     }
 

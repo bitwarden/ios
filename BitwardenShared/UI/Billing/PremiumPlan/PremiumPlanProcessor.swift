@@ -11,7 +11,8 @@ final class PremiumPlanProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasBillingService
+    & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -52,13 +53,11 @@ final class PremiumPlanProcessor: StateProcessor<
     override func receive(_ action: PremiumPlanAction) {
         switch action {
         case .managePlanPressed:
-            state.managePlanUrl = ExternalLinksConstants.managePremiumPlan
+            state.urlToOpen = ExternalLinksConstants.managePremiumPlan
         case .cancelPremiumPressed:
-            state.cancelPremiumUrl = ExternalLinksConstants.cancelPremiumPlan
-        case .clearManagePlanUrl:
-            state.managePlanUrl = nil
-        case .clearCancelPremiumUrl:
-            state.cancelPremiumUrl = nil
+            state.urlToOpen = ExternalLinksConstants.cancelPremiumPlan
+        case .clearUrl:
+            state.urlToOpen = nil
         }
     }
 }

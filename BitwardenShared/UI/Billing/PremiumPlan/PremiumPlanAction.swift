@@ -7,9 +7,6 @@ enum PremiumPlanAction: Equatable {
     /// The cancel premium button was pressed.
     case cancelPremiumPressed
 
-    /// The manage plan URL has been opened and should be cleared.
-    case clearManagePlanUrl
-
-    /// The cancel premium URL has been opened and should be cleared.
-    case clearCancelPremiumUrl
+    /// The URL has been opened and should be cleared.
+    case clearUrl
 }

@@ -95,11 +95,8 @@ struct PremiumPlanState: Equatable {
     /// The discount label (e.g. "-$0.10").
     var discount: String = "-$0.10"
 
-    /// The URL to open for managing the plan.
-    var managePlanUrl: URL?
-
-    /// The URL to open for canceling the plan.
-    var cancelPremiumUrl: URL?
+    /// The URL to open externally (manage plan or cancel premium).
+    var urlToOpen: URL?
 
     // MARK: Computed Properties
 
