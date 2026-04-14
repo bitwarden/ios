@@ -87,17 +87,6 @@ struct PremiumPlanStateTests {
             ))
     }
 
-    /// `descriptionText` for `.updatePayment` returns the update payment description.
-    @Test
-    func descriptionText_updatePayment() {
-        var state = PremiumPlanState()
-        state.planStatus = .updatePayment
-        #expect(state.descriptionText == Localizations
-            .weCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate(
-                "May 2, 2026",
-            ))
-    }
-
     /// `descriptionText` for `.pastDue` returns the past due description.
     @Test
     func descriptionText_pastDue() {
@@ -107,6 +96,17 @@ struct PremiumPlanStateTests {
             .youHaveAGracePeriodOfDaysFromYourSubscriptionExpirationDateResolveInvoicesByDate(
                 "14 days",
                 "Feb 2, 2026",
+            ))
+    }
+
+    /// `descriptionText` for `.updatePayment` returns the update payment description.
+    @Test
+    func descriptionText_updatePayment() {
+        var state = PremiumPlanState()
+        state.planStatus = .updatePayment
+        #expect(state.descriptionText == Localizations
+            .weCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate(
+                "May 2, 2026",
             ))
     }
 

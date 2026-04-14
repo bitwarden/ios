@@ -33,38 +33,6 @@ class PremiumPlanViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the manage plan button dispatches the `.managePlanPressed` action.
-    @MainActor
-    func test_managePlanButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.managePlan)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .managePlanPressed)
-    }
-
-    /// Tapping the cancel premium button dispatches the `.cancelPremiumPressed` action.
-    @MainActor
-    func test_cancelPremiumButton_tap() throws {
-        processor.state.planStatus = .active
-        let button = try subject.inspect().find(button: Localizations.cancelPremium)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .cancelPremiumPressed)
-    }
-
-    /// The cancel premium button is hidden when status is `.canceled`.
-    @MainActor
-    func test_cancelPremiumButton_hidden_whenCanceled() throws {
-        processor.state.planStatus = .canceled
-        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.cancelPremium))
-    }
-
-    /// The cancel premium button is visible when status is `.active`.
-    @MainActor
-    func test_cancelPremiumButton_visible_whenActive() throws {
-        processor.state.planStatus = .active
-        let button = try subject.inspect().find(button: Localizations.cancelPremium)
-        XCTAssertNotNil(button)
-    }
-
     /// The billing amount text is visible when status is `.active`.
     @MainActor
     func test_billingAmount_visible_whenActive() throws {
@@ -79,5 +47,37 @@ class PremiumPlanViewTests: BitwardenTestCase {
     func test_billingSection_hidden_whenCanceled() throws {
         processor.state.planStatus = .canceled
         XCTAssertThrowsError(try subject.inspect().find(text: Localizations.billingAmount))
+    }
+
+    /// The cancel premium button is hidden when status is `.canceled`.
+    @MainActor
+    func test_cancelPremiumButton_hidden_whenCanceled() throws {
+        processor.state.planStatus = .canceled
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.cancelPremium))
+    }
+
+    /// Tapping the cancel premium button dispatches the `.cancelPremiumPressed` action.
+    @MainActor
+    func test_cancelPremiumButton_tap() throws {
+        processor.state.planStatus = .active
+        let button = try subject.inspect().find(button: Localizations.cancelPremium)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .cancelPremiumPressed)
+    }
+
+    /// The cancel premium button is visible when status is `.active`.
+    @MainActor
+    func test_cancelPremiumButton_visible_whenActive() throws {
+        processor.state.planStatus = .active
+        let button = try subject.inspect().find(button: Localizations.cancelPremium)
+        XCTAssertNotNil(button)
+    }
+
+    /// Tapping the manage plan button dispatches the `.managePlanPressed` action.
+    @MainActor
+    func test_managePlanButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.managePlan)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .managePlanPressed)
     }
 }

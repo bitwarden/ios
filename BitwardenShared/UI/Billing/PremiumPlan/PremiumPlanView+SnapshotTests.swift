@@ -47,17 +47,17 @@ class PremiumPlanViewSnapshotTests: BitwardenTestCase {
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
-    /// Check the snapshot for the update payment state.
-    @MainActor
-    func disabletest_snapshot_updatePayment() {
-        processor.state.planStatus = .updatePayment
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
-    }
-
     /// Check the snapshot for the past due state.
     @MainActor
     func disabletest_snapshot_pastDue() {
         processor.state.planStatus = .pastDue
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// Check the snapshot for the update payment state.
+    @MainActor
+    func disabletest_snapshot_updatePayment() {
+        processor.state.planStatus = .updatePayment
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }
