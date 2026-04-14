@@ -132,7 +132,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
 
 // MARK: - KeychainRepository
 
-protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository {
+protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository { // sourcery: AutoMockable
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws
@@ -278,183 +278,27 @@ protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainReposit
     func setUserAuthKey(for item: BitwardenKeychainItem, value: String) async throws
 }
 
-extension KeychainRepository {
-    /// The format for storing a `KeychainItem`'s `unformattedKey`.
-    ///  The first value should be a unique appID from the `appIDService`.
-    ///  The second value is the `unformattedKey`
-    ///
-    ///  example: `bwKeyChainStorage:1234567890:biometric_key_98765`
-    ///
-    var storageKeyFormat: String { "bwKeyChainStorage:%@:%@" }
-}
-
 // MARK: - DefaultKeychainRepository
 
 class DefaultKeychainRepository: KeychainRepository {
     // MARK: Properties
 
-    /// A service used to provide unique app ids.
-    ///
-    let appIDService: AppIDService
-
-    /// An identifier for the keychain service used by the application and extensions.
-    ///
-    /// Example: "com.8bit.bitwarden".
-    ///
-    var appSecAttrService: String {
-        Bundle.main.appIdentifier
-    }
-
-    /// An identifier for the keychain access group used by the application group and extensions.
-    ///
-    /// Example: "LTZ2PFU5D6.com.8bit.bitwarden"
-    ///
-    var appSecAttrAccessGroup: String {
-        Bundle.main.keychainAccessGroup
-    }
-
-    /// The keychain service used by the repository
+    /// The keychain service used for bulk deletion operations not covered by the facade.
     ///
     let keychainService: KeychainService
+
+    /// The keychain service facade used by the repository.
+    ///
+    let keychainServiceFacade: KeychainServiceFacade
 
     // MARK: Initialization
 
     init(
-        appIDService: AppIDService,
         keychainService: KeychainService,
+        keychainServiceFacade: KeychainServiceFacade,
     ) {
-        self.appIDService = appIDService
         self.keychainService = keychainService
-    }
-
-    // MARK: Methods
-
-    /// Generates a formatted storage key for a keychain item.
-    ///
-    /// - Parameter item: The keychain item that needs a formatted key.
-    /// - Returns: A formatted storage key.
-    ///
-    func formattedKey(for item: BitwardenKeychainItem) async -> String {
-        let appId = await appIDService.getOrCreateAppID()
-        return String(format: storageKeyFormat, appId, item.unformattedKey)
-    }
-
-    /// Gets the value associated with the keychain item from the keychain.
-    ///
-    /// - Parameter item: The keychain item used to fetch the associated value.
-    /// - Returns: The fetched value associated with the keychain item.
-    ///
-    func getValue(for item: BitwardenKeychainItem) async throws -> String {
-        let foundItem = try await keychainService.search(
-            query: keychainQueryValues(
-                for: item,
-                adding: [
-                    kSecMatchLimit: kSecMatchLimitOne,
-                    kSecReturnData: true,
-                    kSecReturnAttributes: true,
-                ],
-            ),
-        )
-
-        if let resultDictionary = foundItem as? [String: Any],
-           let data = resultDictionary[kSecValueData as String] as? Data,
-           let string = String(data: data, encoding: .utf8) {
-            guard !string.isEmpty else {
-                throw KeychainServiceError.keyNotFound(item)
-            }
-            return string
-        }
-
-        throw KeychainServiceError.keyNotFound(item)
-    }
-
-    /// Gets the value associated with the keychain item from the keychain.
-    ///
-    /// - Parameter item: The keychain item used to fetch the associated value.
-    /// - Returns: The fetched value associated with the keychain item.
-    ///
-    func getValue<T: Codable>(for item: BitwardenKeychainItem) async throws -> T {
-        let string = try await getValue(for: item)
-
-        guard let jsonData = string.data(using: .utf8) else {
-            throw BitwardenError.dataError("JSON string contains invalid UTF-8 encoding.")
-        }
-
-        return try JSONDecoder.defaultDecoder.decode(T.self, from: jsonData)
-    }
-
-    /// The core key/value pairs for Keychain operations.
-    ///
-    /// - Parameter item: The `KeychainItem` to be queried.
-    ///
-    func keychainQueryValues(
-        for item: BitwardenKeychainItem,
-        adding additionalPairs: [CFString: Any] = [:],
-    ) async -> CFDictionary {
-        // Prepare a formatted `kSecAttrAccount` value.
-        let formattedSecAttrAccount = await formattedKey(for: item)
-
-        // Configure the base dictionary
-        var result: [CFString: Any] = [
-            kSecAttrAccount: formattedSecAttrAccount,
-            kSecAttrAccessGroup: appSecAttrAccessGroup,
-            kSecAttrService: appSecAttrService,
-            kSecClass: kSecClassGenericPassword,
-        ]
-
-        // Add the additional key value pairs.
-        additionalPairs.forEach { key, value in
-            result[key] = value
-        }
-
-        return result as CFDictionary
-    }
-
-    /// Sets a value associated with a keychain item in the keychain.
-    ///
-    /// - Parameters:
-    ///   - value: The value associated with the keychain item to set.
-    ///   - item: The keychain item used to set the associated value.
-    ///
-    func setValue(_ value: String, for item: BitwardenKeychainItem) async throws {
-        let accessControl = try keychainService.accessControl(
-            protection: item.protection,
-            for: item.accessControlFlags ?? [],
-        )
-        let baseQuery = await keychainQueryValues(for: item)
-        let updateAttributes: CFDictionary = [
-            kSecAttrAccessControl: accessControl as Any,
-            kSecValueData: Data(value.utf8),
-        ] as CFDictionary
-
-        do {
-            // Try to update first - if item exists, this avoids delete-then-add race condition
-            try keychainService.update(query: baseQuery, attributes: updateAttributes)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
-            // Item doesn't exist, so add it
-            let addAttributes = await keychainQueryValues(
-                for: item,
-                adding: [
-                    kSecAttrAccessControl: accessControl as Any,
-                    kSecValueData: Data(value.utf8),
-                ],
-            )
-            try keychainService.add(attributes: addAttributes)
-        }
-    }
-
-    /// Sets a value associated with a keychain item in the keychain.
-    ///
-    /// - Parameters:
-    ///   - value: The value associated with the keychain item to set.
-    ///   - item: The keychain item used to set the associated value.
-    ///
-    func setValue<T: Codable>(_ value: T, for item: BitwardenKeychainItem) async throws {
-        let jsonData = try JSONEncoder.defaultEncoder.encode(value)
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else {
-            throw BitwardenError.dataError("JSON data is not valid.")
-        }
-        try await setValue(jsonString, for: item)
+        self.keychainServiceFacade = keychainServiceFacade
     }
 }
 
@@ -473,21 +317,13 @@ extension DefaultKeychainRepository {
     }
 
     func deleteAuthenticatorVaultKey(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .authenticatorVaultKey(userId: userId)),
-        )
+        try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId))
     }
 
     func deleteClientCertificateIdentity(fingerprint: String) async throws {
-        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
-
-        let deleteQuery: [String: Any] = [
-            kSecClass as String: kSecClassIdentity,
-            kSecAttrLabel as String: keyLabel,
-            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
-        ]
-
-        try keychainService.delete(query: deleteQuery as CFDictionary)
+        try await keychainServiceFacade.deleteIdentity(
+            for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
+        )
     }
 
     func deleteItems(for userId: String) async throws {
@@ -506,60 +342,43 @@ extension DefaultKeychainRepository {
             // Exclude `vaultTimeout` since it should be maintained for users who log out and back in regularly.
         ]
         for keychainItem in keychainItems {
-            try await keychainService.delete(query: keychainQueryValues(for: keychainItem))
+            try await keychainServiceFacade.deleteValue(for: keychainItem)
         }
-    }
-
-    func deleteUserAuthKey(for item: BitwardenKeychainItem) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: item),
-        )
     }
 
     func deleteDeviceKey(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .deviceKey(userId: userId)),
-        )
+        try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.deviceKey(userId: userId))
     }
 
     func deletePendingAdminLoginRequest(userId: String) async throws {
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .pendingAdminLoginRequest(userId: userId)),
+        try await keychainServiceFacade.deleteValue(
+            for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId),
         )
     }
 
+    func deleteUserAuthKey(for item: BitwardenKeychainItem) async throws {
+        try await keychainServiceFacade.deleteValue(for: item)
+    }
+
     func getAccessToken(userId: String) async throws -> String {
-        try await getValue(for: .accessToken(userId: userId))
+        try await keychainServiceFacade.getValue(for: BitwardenKeychainItem.accessToken(userId: userId))
     }
 
     func getAuthenticatorVaultKey(userId: String) async throws -> String {
-        try await getValue(for: .authenticatorVaultKey(userId: userId))
+        try await keychainServiceFacade.getValue(for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId))
     }
 
     func getClientCertificateIdentity(fingerprint: String) async throws -> SecIdentity? {
-        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
-
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassIdentity,
-            kSecAttrLabel as String: keyLabel,
-            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
-            kSecReturnRef as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-        ]
-
-        do {
-            let foundItem = try keychainService.search(query: query as CFDictionary)
-            guard let foundItem else { return nil }
-            // swiftlint:disable:next force_cast
-            return (foundItem as! SecIdentity)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
-            return nil
-        }
+        try await keychainServiceFacade.getIdentity(
+            for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
+        )
     }
 
     func getDeviceKey(userId: String) async throws -> String? {
         do {
-            let value: String = try await getValue(for: .deviceKey(userId: userId))
+            let value: String = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.deviceKey(userId: userId),
+            )
             return value
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
@@ -567,12 +386,14 @@ extension DefaultKeychainRepository {
     }
 
     func getRefreshToken(userId: String) async throws -> String {
-        try await getValue(for: .refreshToken(userId: userId))
+        try await keychainServiceFacade.getValue(for: BitwardenKeychainItem.refreshToken(userId: userId))
     }
 
     func getPendingAdminLoginRequest(userId: String) async throws -> String? {
         do {
-            let value: String = try await getValue(for: .pendingAdminLoginRequest(userId: userId))
+            let value: String = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId),
+            )
             return value
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
@@ -580,46 +401,44 @@ extension DefaultKeychainRepository {
     }
 
     func getUserAuthKeyValue(for item: BitwardenKeychainItem) async throws -> String {
-        try await getValue(for: item)
+        try await keychainServiceFacade.getValue(for: item)
     }
 
     func setAccessToken(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .accessToken(userId: userId))
+        try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.accessToken(userId: userId))
     }
 
     func setAuthenticatorVaultKey(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .authenticatorVaultKey(userId: userId))
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.authenticatorVaultKey(userId: userId),
+        )
     }
 
     func setClientCertificateIdentity(_ identity: SecIdentity, fingerprint: String) async throws {
-        let keyLabel = await formattedKey(for: .clientCertificateIdentity(fingerprint: fingerprint))
-
-        let addAttributes: [String: Any] = [
-            kSecClass as String: kSecClassIdentity,
-            kSecValueRef as String: identity,
-            kSecAttrLabel as String: keyLabel,
-            kSecAttrAccessible as String: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint)
-                .protection,
-            kSecAttrAccessGroup as String: appSecAttrAccessGroup,
-        ]
-
-        try keychainService.add(attributes: addAttributes as CFDictionary)
+        try await keychainServiceFacade.setIdentity(
+            identity,
+            for: BitwardenKeychainItem.clientCertificateIdentity(fingerprint: fingerprint),
+        )
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .deviceKey(userId: userId))
+        try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.deviceKey(userId: userId))
     }
 
     func setRefreshToken(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .refreshToken(userId: userId))
+        try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.refreshToken(userId: userId))
     }
 
     func setPendingAdminLoginRequest(_ value: String, userId: String) async throws {
-        try await setValue(value, for: .pendingAdminLoginRequest(userId: userId))
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.pendingAdminLoginRequest(userId: userId),
+        )
     }
 
     func setUserAuthKey(for item: BitwardenKeychainItem, value: String) async throws {
-        try await setValue(value, for: item)
+        try await keychainServiceFacade.setValue(value, for: item)
     }
 }
 
@@ -627,18 +446,15 @@ extension DefaultKeychainRepository {
 
 extension DefaultKeychainRepository: BiometricsKeychainRepository {
     func deleteUserBiometricAuthKey(userId: String) async throws {
-        let key = BitwardenKeychainItem.biometrics(userId: userId)
-        try await deleteUserAuthKey(for: key)
+        try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.biometrics(userId: userId))
     }
 
     func getUserBiometricAuthKey(userId: String) async throws -> String {
-        let key = BitwardenKeychainItem.biometrics(userId: userId)
-        return try await getUserAuthKeyValue(for: key)
+        try await keychainServiceFacade.getValue(for: BitwardenKeychainItem.biometrics(userId: userId))
     }
 
     func setUserBiometricAuthKey(userId: String, value: String) async throws {
-        let key = BitwardenKeychainItem.biometrics(userId: userId)
-        try await setUserAuthKey(for: key, value: value)
+        try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.biometrics(userId: userId))
     }
 }
 
@@ -648,17 +464,17 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     func deleteDeviceAuthKey(userId: String) async throws {
         // We want to delete metadata first because that's what's used to determine if we're in a
         // consistent state.
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .deviceAuthKeyMetadata(userId: userId)),
+        try await keychainServiceFacade.deleteValue(
+            for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
         )
-        try await keychainService.delete(
-            query: keychainQueryValues(for: .deviceAuthKey(userId: userId)),
-        )
+        try await keychainServiceFacade.deleteValue(for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
     }
 
     func getDeviceAuthKey(userId: String) async throws -> DeviceAuthKeyRecord? {
         do {
-            return try await getValue(for: .deviceAuthKey(userId: userId))
+            return try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.deviceAuthKey(userId: userId),
+            )
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
@@ -666,7 +482,9 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
 
     func getDeviceAuthKeyMetadata(userId: String) async throws -> DeviceAuthKeyMetadata? {
         do {
-            return try await getValue(for: .deviceAuthKeyMetadata(userId: userId))
+            return try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
+            )
         } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
@@ -679,8 +497,11 @@ extension DefaultKeychainRepository: DeviceAuthKeychainRepository {
     ) async throws {
         // We want to set metadata last because that's what's used to determine if we're in a
         // consistent state.
-        try await setValue(record, for: .deviceAuthKey(userId: userId))
-        try await setValue(metadata, for: .deviceAuthKeyMetadata(userId: userId))
+        try await keychainServiceFacade.setValue(record, for: BitwardenKeychainItem.deviceAuthKey(userId: userId))
+        try await keychainServiceFacade.setValue(
+            metadata,
+            for: BitwardenKeychainItem.deviceAuthKeyMetadata(userId: userId),
+        )
     }
 }
 
@@ -691,42 +512,51 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
 
     func getLastActiveTime(userId: String) async throws -> Date? {
         do {
-            let stored = try await getValue(for: .lastActiveTime(userId: userId))
+            let stored = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.lastActiveTime(userId: userId),
+            )
             guard let timeInterval = TimeInterval(stored) else {
                 return nil
             }
             return Date(timeIntervalSince1970: timeInterval)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) async throws {
         let value = date.map { String($0.timeIntervalSince1970) } ?? ""
-        try await setValue(value, for: .lastActiveTime(userId: userId))
+        try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.lastActiveTime(userId: userId))
     }
 
     // MARK: Unsuccessful Unlock Attempts
 
     func getUnsuccessfulUnlockAttempts(userId: String) async throws -> Int? {
-        let stored = try await getValue(for: .unsuccessfulUnlockAttempts(userId: userId))
+        let stored = try await keychainServiceFacade.getValue(
+            for: BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: userId),
+        )
         return Int(stored)
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) async throws {
         let value = String(attempts)
-        try await setValue(value, for: .unsuccessfulUnlockAttempts(userId: userId))
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: userId),
+        )
     }
 
     // MARK: Vault Timeout
 
     func getVaultTimeout(userId: String) async throws -> Int? {
-        let stored = try await getValue(for: .vaultTimeout(userId: userId))
+        let stored = try await keychainServiceFacade.getValue(
+            for: BitwardenKeychainItem.vaultTimeout(userId: userId),
+        )
         return Int(stored)
     }
 
     func setVaultTimeout(minutes: Int, userId: String) async throws {
         let value = String(minutes)
-        try await setValue(value, for: .vaultTimeout(userId: userId))
+        try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.vaultTimeout(userId: userId))
     }
 }

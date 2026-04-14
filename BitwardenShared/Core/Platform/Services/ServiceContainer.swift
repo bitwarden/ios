@@ -480,9 +480,18 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let keychainService = DefaultKeychainService()
 
-        let keychainRepository = DefaultKeychainRepository(
-            appIDService: appIDService,
+        let keychainRepositoryFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.keychainAccessGroup,
             keychainService: keychainService,
+            namespacing: .appScoped(
+                appIDService: appIDService,
+                appSecAttrService: Bundle.main.appIdentifier,
+                storageKeyPrefix: "bwKeyChainStorage",
+            ),
+        )
+        let keychainRepository = DefaultKeychainRepository(
+            keychainService: keychainService,
+            keychainServiceFacade: keychainRepositoryFacade,
         )
         let timeProvider = CurrentTime()
 
@@ -678,13 +687,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             tokenService: tokenService,
         )
 
-        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+        let sharedKeychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.sharedAppGroupIdentifier,
             keychainService: keychainService,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            namespacing: .shared,
         )
 
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage,
+            keychainServiceFacade: sharedKeychainServiceFacade,
         )
 
         let sharedTimeoutService = DefaultSharedTimeoutService(

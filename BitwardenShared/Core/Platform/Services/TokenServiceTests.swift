@@ -20,6 +20,8 @@ class TokenServiceTests: BitwardenTestCase {
 
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        keychainRepository.getAccessTokenReturnValue = "ACCESS_TOKEN"
+        keychainRepository.getRefreshTokenReturnValue = "REFRESH_TOKEN"
         stateService = MockStateService()
 
         subject = DefaultTokenService(
@@ -47,7 +49,7 @@ class TokenServiceTests: BitwardenTestCase {
         let accessToken: String = try await subject.getAccessToken()
         XCTAssertEqual(accessToken, "ACCESS_TOKEN")
 
-        keychainRepository.getAccessTokenResult = .success("🔑")
+        keychainRepository.getAccessTokenReturnValue = "🔑"
 
         let updatedAccessToken: String = try await subject.getAccessToken()
         XCTAssertEqual(updatedAccessToken, "🔑")
@@ -90,7 +92,7 @@ class TokenServiceTests: BitwardenTestCase {
     func test_getIsExternal_false() async throws {
         // swiftlint:disable:next line_length
         let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM"
-        keychainRepository.getAccessTokenResult = .success(token)
+        keychainRepository.getAccessTokenReturnValue = token
         stateService.activeAccount = .fixture()
 
         let isExternal = try await subject.getIsExternal()
@@ -101,7 +103,7 @@ class TokenServiceTests: BitwardenTestCase {
     func test_getIsExternal_true() async throws {
         // swiftlint:disable:next line_length
         let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJleHRlcm5hbCJdfQ.POnwEWm09reMUfiHKZP-PIW_fvIl-ZzXs9pLZJVYf9A"
-        keychainRepository.getAccessTokenResult = .success(token)
+        keychainRepository.getAccessTokenReturnValue = token
         stateService.activeAccount = .fixture()
 
         let isExternal = try await subject.getIsExternal()
@@ -117,7 +119,7 @@ class TokenServiceTests: BitwardenTestCase {
 
     /// `getIsExternal()` throws an error if fetching the user's access token fails.
     func test_getIsExternal_tokenError() async throws {
-        keychainRepository.getAccessTokenResult = .failure(BitwardenTestError.example)
+        keychainRepository.getAccessTokenThrowableError = BitwardenTestError.example
         stateService.activeAccount = .fixture()
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -127,7 +129,7 @@ class TokenServiceTests: BitwardenTestCase {
 
     /// `getIsExternal()` throws an error if fetching the user's access token fails.
     func test_getIsExternal_tokenParsingError() async throws {
-        keychainRepository.getAccessTokenResult = .success("token")
+        keychainRepository.getAccessTokenReturnValue = "token"
         stateService.activeAccount = .fixture()
 
         await assertAsyncThrows(error: TokenParserError.invalidToken) {
@@ -142,7 +144,7 @@ class TokenServiceTests: BitwardenTestCase {
         let refreshToken = try await subject.getRefreshToken()
         XCTAssertEqual(refreshToken, "REFRESH_TOKEN")
 
-        keychainRepository.getRefreshTokenResult = .success("🔒")
+        keychainRepository.getRefreshTokenReturnValue = "🔒"
 
         let updatedRefreshToken = try await subject.getRefreshToken()
         XCTAssertEqual(updatedRefreshToken, "🔒")
@@ -164,14 +166,8 @@ class TokenServiceTests: BitwardenTestCase {
         let expirationDate = Date(year: 2025, month: 10, day: 1)
         try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒", expirationDate: expirationDate)
 
-        XCTAssertEqual(
-            keychainRepository.mockStorage[keychainRepository.formattedKey(for: .accessToken(userId: "1"))],
-            "🔑",
-        )
-        XCTAssertEqual(
-            keychainRepository.mockStorage[keychainRepository.formattedKey(for: .refreshToken(userId: "1"))],
-            "🔒",
-        )
+        XCTAssertEqual(keychainRepository.setAccessTokenReceivedArguments?.value, "🔑")
+        XCTAssertEqual(keychainRepository.setRefreshTokenReceivedArguments?.value, "🔒")
         XCTAssertEqual(stateService.accessTokenExpirationDateByUserId["1"], expirationDate)
     }
 }

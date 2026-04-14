@@ -11,8 +11,7 @@ import XCTest
 final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appIDSettingsStore: MockAppIDSettingsStore!
-    var keychainService: MockKeychainService!
+    var keychainServiceFacade: MockKeychainServiceFacade!
     var subject: DefaultKeychainRepository!
 
     // MARK: Setup & Teardown
@@ -20,49 +19,43 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appIDSettingsStore = MockAppIDSettingsStore()
-        keychainService = MockKeychainService()
+        keychainServiceFacade = MockKeychainServiceFacade()
         subject = DefaultKeychainRepository(
-            appIDService: AppIDService(
-                appIDSettingsStore: appIDSettingsStore,
-            ),
-            keychainService: keychainService,
+            keychainService: MockKeychainService(),
+            keychainServiceFacade: keychainServiceFacade,
         )
     }
 
     override func tearDown() {
         super.tearDown()
 
-        appIDSettingsStore = nil
-        keychainService = nil
+        keychainServiceFacade = nil
         subject = nil
     }
 
     // MARK: Tests - Device Auth Key
 
-    /// `deleteDeviceAuthKey(userId:)` deletes the device auth key and metadata from the keychain.
+    /// `deleteDeviceAuthKey(userId:)` deletes metadata first, then the auth key, via the facade.
     ///
     func test_deleteDeviceAuthKey() async throws {
+        var deletedKeys: [String] = []
+        keychainServiceFacade.deleteValueClosure = { item in
+            deletedKeys.append(item.unformattedKey)
+        }
+
         try await subject.deleteDeviceAuthKey(userId: "1")
 
-        XCTAssertEqual(keychainService.deleteQueries.count, 2)
-
-        let metadataQuery = keychainService.deleteQueries[0] as NSDictionary
-        let metadataAccount = metadataQuery[kSecAttrAccount] as? String
-        let metadataKey = await subject.formattedKey(for: .deviceAuthKeyMetadata(userId: "1"))
-        XCTAssertEqual(metadataAccount, metadataKey)
-
-        let recordQuery = keychainService.deleteQueries[1] as NSDictionary
-        let recordAccount = recordQuery[kSecAttrAccount] as? String
-        let recordKey = await subject.formattedKey(for: .deviceAuthKey(userId: "1"))
-        XCTAssertEqual(recordAccount, recordKey)
+        XCTAssertEqual(deletedKeys.count, 2)
+        XCTAssertEqual(deletedKeys[0], BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1").unformattedKey)
+        XCTAssertEqual(deletedKeys[1], BitwardenKeychainItem.deviceAuthKey(userId: "1").unformattedKey)
     }
 
-    /// `deleteDeviceAuthKey(userId:)` throws an error if one occurs.
+    /// `deleteDeviceAuthKey(userId:)` rethrows errors from the facade.
     ///
     func test_deleteDeviceAuthKey_error() async {
         let error = KeychainServiceError.osStatusError(-1)
-        keychainService.deleteResult = .failure(error)
+        keychainServiceFacade.deleteValueThrowableError = error
+
         await assertAsyncThrows(error: error) {
             try await subject.deleteDeviceAuthKey(userId: "1")
         }
@@ -72,42 +65,44 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     ///
     func test_getDeviceAuthKey() async throws {
         let record = DeviceAuthKeyRecord.fixture()
-
         let recordData = try JSONEncoder.defaultEncoder.encode(record)
-        let recordString = String(data: recordData, encoding: .utf8)!
+        keychainServiceFacade.getValueReturnValue = String(data: recordData, encoding: .utf8)!
 
-        keychainService.setSearchResultData(string: recordString)
         let result = try await subject.getDeviceAuthKey(userId: "1")
 
         XCTAssertEqual(result, record)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.deviceAuthKey(userId: "1").unformattedKey,
+        )
     }
 
-    /// `getDeviceAuthKey(userId:)` returns nil if the key is not found.
+    /// `getDeviceAuthKey(userId:)` returns nil when the key is not found.
     ///
     func test_getDeviceAuthKey_notFound() async throws {
-        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.deviceAuthKey(userId: "1"))
-        keychainService.searchResult = .failure(error)
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.deviceAuthKey(userId: "1"),
+        )
 
         let result = try await subject.getDeviceAuthKey(userId: "1")
 
         XCTAssertNil(result)
     }
 
-    /// `getDeviceAuthKey(userId:)` returns nil if the key is not found.
+    /// `getDeviceAuthKey(userId:)` returns nil when the OS status indicates not found.
     ///
     func test_getDeviceAuthKey_notFound_osStatus() async throws {
-        let error = KeychainServiceError.osStatusError(errSecItemNotFound)
-        keychainService.searchResult = .failure(error)
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
         let result = try await subject.getDeviceAuthKey(userId: "1")
 
         XCTAssertNil(result)
     }
 
-    /// `getDeviceAuthKey(userId:)` throws an error if the data is invalid.
+    /// `getDeviceAuthKey(userId:)` rethrows when the stored data is invalid JSON.
     ///
-    func test_getDeviceAuthKey_invalidData() async throws {
-        keychainService.setSearchResultData(string: "invalid-json")
+    func test_getDeviceAuthKey_invalidData() async {
+        keychainServiceFacade.getValueReturnValue = "invalid-json"
 
         await assertAsyncThrows {
             _ = try await subject.getDeviceAuthKey(userId: "1")
@@ -119,94 +114,90 @@ final class KeychainRepositoryDeviceAuthTests: BitwardenTestCase {
     func test_getDeviceAuthKeyMetadata() async throws {
         let metadata = DeviceAuthKeyMetadata.fixture()
         let metadataData = try JSONEncoder.defaultEncoder.encode(metadata)
-        let metadataString = String(data: metadataData, encoding: .utf8)!
+        keychainServiceFacade.getValueReturnValue = String(data: metadataData, encoding: .utf8)!
 
-        keychainService.setSearchResultData(string: metadataString)
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "1")
 
         XCTAssertEqual(result, metadata)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1").unformattedKey,
+        )
     }
 
-    /// `getDeviceAuthKeyMetadata(userId:)` returns nil if the metadata is not found.
+    /// `getDeviceAuthKeyMetadata(userId:)` returns nil when the metadata is not found.
     ///
     func test_getDeviceAuthKeyMetadata_notFound() async throws {
-        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1"))
-        keychainService.searchResult = .failure(error)
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1"),
+        )
 
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "1")
 
         XCTAssertNil(result)
     }
 
-    /// `getDeviceAuthKeyMetadata(userId:)` returns nil if the metadata is not found.
+    /// `getDeviceAuthKeyMetadata(userId:)` returns nil when the OS status indicates not found.
     ///
     func test_getDeviceAuthKeyMetadata_notFound_osStatus() async throws {
-        let error = KeychainServiceError.osStatusError(errSecItemNotFound)
-        keychainService.searchResult = .failure(error)
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
         let result = try await subject.getDeviceAuthKeyMetadata(userId: "1")
 
         XCTAssertNil(result)
     }
 
-    /// `getDeviceAuthKeyMetadata(userId:)` throws an error if the data is invalid.
+    /// `getDeviceAuthKeyMetadata(userId:)` rethrows when the stored data is invalid JSON.
     ///
-    func test_getDeviceAuthKeyMetadata_invalidData() async throws {
-        keychainService.setSearchResultData(string: "invalid-json")
+    func test_getDeviceAuthKeyMetadata_invalidData() async {
+        keychainServiceFacade.getValueReturnValue = "invalid-json"
 
         await assertAsyncThrows {
             _ = try await subject.getDeviceAuthKeyMetadata(userId: "1")
         }
     }
 
-    /// `setDeviceAuthKey(record:metadata:userId:)` stores the device auth key and metadata in the keychain.
+    /// `setDeviceAuthKey(record:metadata:userId:)` stores the record first, then metadata, via the facade.
     ///
     func test_setDeviceAuthKey() async throws {
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                [],
-                nil,
-            )!,
-        )
+        var setArgs: [(value: String, key: String)] = []
+        keychainServiceFacade.setValueClosure = { value, item in
+            setArgs.append((value: value, key: item.unformattedKey))
+        }
 
         let record = DeviceAuthKeyRecord.fixture()
         let metadata = DeviceAuthKeyMetadata.fixture()
-
         try await subject.setDeviceAuthKey(record: record, metadata: metadata, userId: "1")
 
-        // Verify the record was stored
-        XCTAssertEqual(keychainService.addCalls.count, 2)
-        let recordAttributes = try XCTUnwrap(keychainService.addCalls[0]) as Dictionary
-        let recordData = try XCTUnwrap(recordAttributes[kSecValueData] as? Data)
+        XCTAssertEqual(setArgs.count, 2)
+        XCTAssertEqual(setArgs[0].key, BitwardenKeychainItem.deviceAuthKey(userId: "1").unformattedKey)
+        XCTAssertEqual(setArgs[1].key, BitwardenKeychainItem.deviceAuthKeyMetadata(userId: "1").unformattedKey)
+
         let decodedRecord = try JSONDecoder.defaultDecoder.decode(
             DeviceAuthKeyRecord.self,
-            from: recordData,
+            from: XCTUnwrap(setArgs[0].value.data(using: .utf8)),
         )
         XCTAssertEqual(decodedRecord, record)
 
-        // Verify the metadata was stored
-        let metadataAttributes = try XCTUnwrap(keychainService.addCalls[1]) as Dictionary
-        let metadataData = try XCTUnwrap(metadataAttributes[kSecValueData] as? Data)
         let decodedMetadata = try JSONDecoder.defaultDecoder.decode(
             DeviceAuthKeyMetadata.self,
-            from: metadataData,
+            from: XCTUnwrap(setArgs[1].value.data(using: .utf8)),
         )
         XCTAssertEqual(decodedMetadata, metadata)
     }
 
-    /// `setDeviceAuthKey(record:metadata:userId:)` throws an error if one occurs.
+    /// `setDeviceAuthKey(record:metadata:userId:)` rethrows errors from the facade.
     ///
-    func test_setDeviceAuthKey_accessControlError() async {
+    func test_setDeviceAuthKey_error() async {
         let error = KeychainServiceError.accessControlFailed(nil)
-        keychainService.accessControlResult = .failure(error)
-
-        let record = DeviceAuthKeyRecord.fixture()
-        let metadata = DeviceAuthKeyMetadata.fixture()
+        keychainServiceFacade.setValueThrowableError = error
 
         await assertAsyncThrows(error: error) {
-            try await subject.setDeviceAuthKey(record: record, metadata: metadata, userId: "1")
+            try await subject.setDeviceAuthKey(
+                record: DeviceAuthKeyRecord.fixture(),
+                metadata: DeviceAuthKeyMetadata.fixture(),
+                userId: "1",
+            )
         }
     }
 }
