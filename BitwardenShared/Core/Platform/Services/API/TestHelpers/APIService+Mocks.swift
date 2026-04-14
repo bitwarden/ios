@@ -7,7 +7,7 @@ import Networking
 extension APIService {
     convenience init(
         accountTokenProvider: AccountTokenProvider? = nil,
-        activeAccountStateProvider: ActiveAccountStateProvider = MockStateService(),
+        activeAccountStateProvider: MockActiveAccountStateProvider = MockActiveAccountStateProvider(),
         client: HTTPClient,
         environmentService: EnvironmentService = MockEnvironmentService(),
         errorReporter: ErrorReporter = MockErrorReporter(),
