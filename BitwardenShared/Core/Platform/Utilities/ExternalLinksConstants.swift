@@ -49,17 +49,17 @@ extension ExternalLinksConstants {
     /// A markdown link to Bitwarden's marketing email preferences.
     static let unsubscribeFromMarketingEmails = URL(string: "https://bitwarden.com/email-preferences/")!
 
-    /// A link to Bitwarden's help page for showing website icons.
-    static let websiteIconsHelp = URL(string: "https://bitwarden.com/help/website-icons/")!
-
-    /// A link to Bitwarden's help page for URI match detection.
-    static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
+    // TODO: PM-35101 to be refactored in update to premium payment flow
+    /// A link to Bitwarden's page for canceling the premium plan.
+    static let cancelPremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription/cancel")!
 
     // TODO: PM-35101 to be refactored in update to premium payment flow
     /// A link to Bitwarden's page for managing the premium plan.
     static let managePremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription")!
 
-    // TODO: PM-35101 to be refactored in update to premium payment flow
-    /// A link to Bitwarden's page for canceling the premium plan.
-    static let cancelPremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription/cancel")!
+    /// A link to Bitwarden's help page for URI match detection.
+    static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
+
+    /// A link to Bitwarden's help page for showing website icons.
+    static let websiteIconsHelp = URL(string: "https://bitwarden.com/help/website-icons/")!
 }
