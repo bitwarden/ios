@@ -70,7 +70,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & ImportCXFModule
         & ImportLoginsModule
         & NavigatorBuilderModule
-        & PremiumUpgradeModule
+        & BillingModule
         & ProfileSwitcherModule
         & VaultItemModule
 
@@ -416,8 +416,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     ///
     private func showPremiumUpgrade() {
         let navigationController = module.makeNavigationController()
-        let coordinator = module.makePremiumUpgradeCoordinator(stackNavigator: navigationController)
-        coordinator.start()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgrade)
         stackNavigator?.present(navigationController)
     }
 

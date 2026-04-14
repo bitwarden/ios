@@ -17,7 +17,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
-    private let coordinator: AnyCoordinator<PremiumUpgradeRoute, Void>
+    private let coordinator: AnyCoordinator<BillingRoute, Void>
 
     /// The services used by this processor.
     private let services: Services
@@ -32,7 +32,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<PremiumUpgradeRoute, Void>,
+        coordinator: AnyCoordinator<BillingRoute, Void>,
         services: Services,
         state: PremiumUpgradeState,
     ) {

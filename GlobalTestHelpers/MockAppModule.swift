@@ -23,7 +23,7 @@ class MockAppModule:
     NavigatorBuilderModule,
     PasswordAutoFillModule,
     PasswordHistoryModule,
-    PremiumUpgradeModule,
+    BillingModule,
     ProfileSwitcherModule,
     SelectLanguageModule,
     SendModule,
@@ -53,7 +53,7 @@ class MockAppModule:
     // swiftlint:disable:next weak_navigator identifier_name
     var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
-    var premiumUpgradeCoordinator = MockCoordinator<PremiumUpgradeRoute, Void>()
+    var billingCoordinator = MockCoordinator<BillingRoute, Void>()
     var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
     var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
     // swiftlint:disable:next weak_navigator
@@ -174,10 +174,10 @@ class MockAppModule:
         passwordHistoryCoordinator.asAnyCoordinator()
     }
 
-    func makePremiumUpgradeCoordinator(
+    func makeBillingCoordinator(
         stackNavigator _: StackNavigator,
-    ) -> AnyCoordinator<PremiumUpgradeRoute, Void> {
-        premiumUpgradeCoordinator.asAnyCoordinator()
+    ) -> AnyCoordinator<BillingRoute, Void> {
+        billingCoordinator.asAnyCoordinator()
     }
 
     func makeProfileSwitcherCoordinator(
