@@ -66,11 +66,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     // MARK: Types
 
     typealias Module = AddEditFolderModule
+        & BillingModule
         & GeneratorModule
         & ImportCXFModule
         & ImportLoginsModule
         & NavigatorBuilderModule
-        & BillingModule
         & ProfileSwitcherModule
         & VaultItemModule
 
