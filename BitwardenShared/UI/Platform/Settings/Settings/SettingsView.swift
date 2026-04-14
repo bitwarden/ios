@@ -114,6 +114,16 @@ struct SettingsView: View {
         .accessibilityIdentifier("AutofillSettingsButton")
     }
 
+    /// The other settings row.
+    private var otherRow: some View {
+        SettingsListItem(Localizations.other, icon: SharedAsset.Icons.other) {
+            store.send(.otherPressed)
+        } trailingContent: {
+            chevron
+        }
+        .accessibilityIdentifier("OtherSettingsButton")
+    }
+
     /// The plan settings row.
     private var planRow: some View {
         SettingsListItem(
@@ -125,16 +135,6 @@ struct SettingsView: View {
             chevron
         }
         .accessibilityIdentifier("PlanSettingsButton")
-    }
-
-    /// The other settings row.
-    private var otherRow: some View {
-        SettingsListItem(Localizations.other, icon: SharedAsset.Icons.other) {
-            store.send(.otherPressed)
-        } trailingContent: {
-            chevron
-        }
-        .accessibilityIdentifier("OtherSettingsButton")
     }
 
     /// The vault settings row.
