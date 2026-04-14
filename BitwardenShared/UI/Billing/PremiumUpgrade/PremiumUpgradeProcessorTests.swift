@@ -37,19 +37,6 @@ struct PremiumUpgradeProcessorTests {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.upgradeNowTapped` sets the checkout URL on success.
-    @Test
-    func perform_upgradeNowTapped_success() async throws {
-        let expectedURL = URL(string: "https://checkout.stripe.com/session")!
-        billingService.createCheckoutSessionReturnValue = expectedURL
-
-        await subject.perform(.upgradeNowTapped)
-
-        #expect(billingService.createCheckoutSessionCallsCount == 1)
-        #expect(subject.state.checkoutURL == expectedURL)
-        #expect(subject.state.isLoading == false)
-    }
-
     /// `perform(_:)` with `.upgradeNowTapped` logs the error and shows an error alert on failure.
     @Test
     func perform_upgradeNowTapped_failure() async throws {
@@ -62,6 +49,32 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.isLoading == false)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.errorAlertsShown.count == 1)
+    }
+
+    /// `perform(_:)` with `.upgradeNowTapped` shows an error when the service returns an invalid URL error.
+    @Test
+    func perform_upgradeNowTapped_invalidUrl() async throws {
+        billingService.createCheckoutSessionThrowableError = BillingError.invalidCheckoutUrl
+
+        await subject.perform(.upgradeNowTapped)
+
+        #expect(subject.state.checkoutURL == nil)
+        #expect(subject.state.isLoading == false)
+        #expect(errorReporter.errors.first as? BillingError == .invalidCheckoutUrl)
+        #expect(coordinator.errorAlertsShown.count == 1)
+    }
+
+    /// `perform(_:)` with `.upgradeNowTapped` sets the checkout URL on success.
+    @Test
+    func perform_upgradeNowTapped_success() async throws {
+        let expectedURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = expectedURL
+
+        await subject.perform(.upgradeNowTapped)
+
+        #expect(billingService.createCheckoutSessionCallsCount == 1)
+        #expect(subject.state.checkoutURL == expectedURL)
+        #expect(subject.state.isLoading == false)
     }
 
     /// `receive(_:)` with `.cancelTapped` navigates to dismiss.
@@ -80,19 +93,6 @@ struct PremiumUpgradeProcessorTests {
         subject.receive(.clearURL)
 
         #expect(subject.state.checkoutURL == nil)
-    }
-
-    /// `perform(_:)` with `.upgradeNowTapped` shows an error when the service returns an invalid URL error.
-    @Test
-    func perform_upgradeNowTapped_invalidUrl() async throws {
-        billingService.createCheckoutSessionThrowableError = BillingError.invalidCheckoutUrl
-
-        await subject.perform(.upgradeNowTapped)
-
-        #expect(subject.state.checkoutURL == nil)
-        #expect(subject.state.isLoading == false)
-        #expect(errorReporter.errors.first as? BillingError == .invalidCheckoutUrl)
-        #expect(coordinator.errorAlertsShown.count == 1)
     }
 
     /// `receive(_:)` with `.urlOpenFailed` shows an error alert.

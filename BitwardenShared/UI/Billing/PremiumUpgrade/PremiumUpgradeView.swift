@@ -84,6 +84,15 @@ struct PremiumUpgradeView: View {
         }
     }
 
+    /// The footer text about Stripe checkout.
+    private var stripeFooter: some View {
+        Text(Localizations.youllGoToStripeSecureCheckoutToCompleteYourPurchase)
+            .styleGuide(.subheadline)
+            .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity)
+    }
+
     /// The upgrade button.
     private var upgradeButton: some View {
         AsyncButton {
@@ -99,16 +108,6 @@ struct PremiumUpgradeView: View {
         .buttonStyle(.primary())
         .disabled(store.state.isLoading)
     }
-
-    /// The footer text about Stripe checkout.
-    private var stripeFooter: some View {
-        Text(Localizations.youllGoToStripeSecureCheckoutToCompleteYourPurchase)
-            .styleGuide(.subheadline)
-            .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-    }
-
 }
 
 // MARK: - Previews
