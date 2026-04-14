@@ -41,52 +41,6 @@ struct PremiumPlanView: View {
 
     // MARK: Private Views
 
-    /// The content block containing the header and billing details.
-    private var planContentBlock: some View {
-        ContentBlock {
-            headerSection
-                .padding(16)
-
-            if store.state.showBillingDetails {
-                billingSection
-                .padding(.horizontal, 16)
-            }
-
-            if store.state.planStatus == .canceled {
-                PremiumFeaturesList()
-                .padding(.horizontal, 16)
-            }
-        }
-    }
-
-    /// The header section with title, badge, and description.
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 8) {
-                Text(Localizations.premium)
-                    .styleGuide(
-                        .title,
-                        weight: .bold,
-                    )
-
-                PillBadgeView(
-                    text: store.state.planStatus.label,
-                    style: store.state.planStatus.badgeStyle,
-                )
-            }
-
-            descriptionText
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    /// The description text with inline bold formatting via markdown.
-    private var descriptionText: some View {
-        Text(LocalizedStringKey(store.state.descriptionText))
-            .styleGuide(.callout)
-            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
-    }
-
     /// The billing details section with rows for billing amount, storage cost, and discount.
     private var billingSection: some View {
         VStack(spacing: 0) {
@@ -110,6 +64,48 @@ struct PremiumPlanView: View {
         }
     }
 
+    /// The cancel premium button.
+    private var cancelPremiumButton: some View {
+        Button {
+            store.send(.cancelPremiumPressed)
+        } label: {
+            HStack(spacing: 8) {
+                Image(asset: SharedAsset.Icons.externalLink24)
+                Text(Localizations.cancelPremium)
+            }
+        }
+        .buttonStyle(.secondary())
+        .accessibilityIdentifier("CancelPremiumButton")
+    }
+
+    /// The description text with inline bold formatting via markdown.
+    private var descriptionText: some View {
+        Text(LocalizedStringKey(store.state.descriptionText))
+            .styleGuide(.callout)
+            .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+    }
+
+    /// The header section with title, badge, and description.
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 8) {
+                Text(Localizations.premium)
+                    .styleGuide(
+                        .title,
+                        weight: .bold,
+                    )
+
+                PillBadgeView(
+                    text: store.state.planStatus.label,
+                    style: store.state.planStatus.badgeStyle,
+                )
+            }
+
+            descriptionText
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     /// The manage plan button.
     private var managePlanButton: some View {
         Button {
@@ -124,18 +120,22 @@ struct PremiumPlanView: View {
         .accessibilityIdentifier("ManagePlanButton")
     }
 
-    /// The cancel premium button.
-    private var cancelPremiumButton: some View {
-        Button {
-            store.send(.cancelPremiumPressed)
-        } label: {
-            HStack(spacing: 8) {
-                Image(asset: SharedAsset.Icons.externalLink24)
-                Text(Localizations.cancelPremium)
+    /// The content block containing the header and billing details.
+    private var planContentBlock: some View {
+        ContentBlock {
+            headerSection
+                .padding(16)
+
+            if store.state.showBillingDetails {
+                billingSection
+                .padding(.horizontal, 16)
+            }
+
+            if store.state.planStatus == .canceled {
+                PremiumFeaturesList()
+                .padding(.horizontal, 16)
             }
         }
-        .buttonStyle(.secondary())
-        .accessibilityIdentifier("CancelPremiumButton")
     }
 
     // MARK: Private Methods

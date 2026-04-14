@@ -52,12 +52,12 @@ final class PremiumPlanProcessor: StateProcessor<
 
     override func receive(_ action: PremiumPlanAction) {
         switch action {
-        case .managePlanPressed:
-            state.urlToOpen = ExternalLinksConstants.managePremiumPlan
         case .cancelPremiumPressed:
             state.urlToOpen = ExternalLinksConstants.cancelPremiumPlan
         case .clearUrl:
             state.urlToOpen = nil
+        case .managePlanPressed:
+            state.urlToOpen = ExternalLinksConstants.managePremiumPlan
         }
     }
 }

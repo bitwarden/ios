@@ -13,11 +13,11 @@ enum PremiumPlanStatus: Equatable {
     /// The plan has been canceled.
     case canceled
 
-    /// The plan requires a payment method update.
-    case updatePayment
-
     /// The plan is past due.
     case pastDue
+
+    /// The plan requires a payment method update.
+    case updatePayment
 
     /// The pill badge style for this status.
     var badgeStyle: PillBadgeStyle {
@@ -26,7 +26,8 @@ enum PremiumPlanStatus: Equatable {
             .success
         case .canceled:
             .danger
-        case .pastDue, .updatePayment:
+        case .pastDue,
+             .updatePayment:
             .warning
         }
     }
@@ -53,8 +54,25 @@ enum PremiumPlanStatus: Equatable {
 struct PremiumPlanState: Equatable {
     // MARK: Properties
 
+    // TODO: PM-35100 Replace mock values with real data from the API.
+    /// The billing amount label (e.g. "$1.65 / month").
+    var billingAmount: String = "$1.65 / month"
+
+    // TODO: PM-35100 Replace mock values with real data from the API.
+    /// The discount label (e.g. "-$0.10").
+    var discount: String = "-$0.10"
+
     /// The current status of the premium plan.
     var planStatus: PremiumPlanStatus = .active
+
+    // TODO: PM-35100 Replace mock values with real data from the API.
+    /// The storage cost label (e.g. "$0.35").
+    var storageCost: String = "$0.35"
+
+    /// The URL to open externally (manage plan or cancel premium).
+    var urlToOpen: URL?
+
+    // MARK: Computed Properties
 
     // TODO: PM-35100 Replace mock values with real data from the API.
     /// The description text for the current plan status.
@@ -69,36 +87,19 @@ struct PremiumPlanState: Equatable {
             Localizations.yourSubscriptionWasCanceledOnDateResubscribeToContinueUsingPremiumFeatures(
                 "April 2, 2026",
             )
-        case .updatePayment:
-            Localizations
-                .weCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate(
-                    "May 2, 2026",
-                )
         case .pastDue:
             Localizations
                 .youHaveAGracePeriodOfDaysFromYourSubscriptionExpirationDateResolveInvoicesByDate(
                     "14 days",
                     "Feb 2, 2026",
                 )
+        case .updatePayment:
+            Localizations
+                .weCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate(
+                    "May 2, 2026",
+                )
         }
     }
-
-    // TODO: PM-35100 Replace mock values with real data from the API.
-    /// The billing amount label (e.g. "$1.65 / month").
-    var billingAmount: String = "$1.65 / month"
-
-    // TODO: PM-35100 Replace mock values with real data from the API.
-    /// The storage cost label (e.g. "$0.35").
-    var storageCost: String = "$0.35"
-
-    // TODO: PM-35100 Replace mock values with real data from the API.
-    /// The discount label (e.g. "-$0.10").
-    var discount: String = "-$0.10"
-
-    /// The URL to open externally (manage plan or cancel premium).
-    var urlToOpen: URL?
-
-    // MARK: Computed Properties
 
     /// Whether the billing details section should be shown.
     var showBillingDetails: Bool {
