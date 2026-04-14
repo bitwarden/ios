@@ -55,11 +55,11 @@ extension ExternalLinksConstants {
     /// A link to Bitwarden's help page for URI match detection.
     static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
 
+    // TODO: PM-35101 to be refactored in update to premium payment flow
     /// A link to Bitwarden's page for managing the premium plan.
     static let managePremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription")!
 
+    // TODO: PM-35101 to be refactored in update to premium payment flow
     /// A link to Bitwarden's page for canceling the premium plan.
-    static let cancelPremiumPlan = URL(
-        string: "https://vault.bitwarden.com/#/settings/subscription/cancel",
-    )!
+    static let cancelPremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription/cancel")!
 }
