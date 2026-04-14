@@ -16,7 +16,7 @@ public enum PillBadgeStyle {
     case warning
 
     /// The background color for the pill badge.
-    var backgroundColor: Color {
+    public var backgroundColor: Color {
         switch self {
         case .success:
             SharedAsset.Colors.badgeSuccessBackground.swiftUIColor
@@ -28,7 +28,7 @@ public enum PillBadgeStyle {
     }
 
     /// The text color for the pill badge.
-    var textColor: Color {
+    public var textColor: Color {
         switch self {
         case .success:
             SharedAsset.Colors.badgeSuccessText.swiftUIColor
@@ -40,7 +40,7 @@ public enum PillBadgeStyle {
     }
 
     /// The border color for the pill badge.
-    var borderColor: Color {
+    public var borderColor: Color {
         switch self {
         case .success:
             SharedAsset.Colors.badgeSuccessBorder.swiftUIColor
