@@ -14,7 +14,23 @@ public extension APITestData {
 
     // MARK: Plans
 
-    static let plansResponse = loadFromJsonBundle(resource: "plansResponse")
+    static let premiumPlanResponse = APITestData(data: Data("""
+    {
+        "name": "Premium",
+        "legacyYear": null,
+        "available": true,
+        "seat": {
+            "stripePriceId": "premium-annually-2026",
+            "price": 19.80,
+            "provided": 0
+        },
+        "storage": {
+            "stripePriceId": "personal-storage-gb-annually",
+            "price": 4,
+            "provided": 5
+        }
+    }
+    """.utf8))
 
     // MARK: Portal URL
 
