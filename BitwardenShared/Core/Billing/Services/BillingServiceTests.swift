@@ -116,4 +116,54 @@ struct BillingServiceTests {
 
         #expect(billingAPIService.getPremiumPlanCallsCount == 1)
     }
+
+    /// `getSubscription()` returns the subscription from the API service.
+    @Test
+    func getSubscription_success() async throws {
+        let expectedSubscription = BitwardenSubscriptionResponseModel(
+            status: "active",
+            cart: SubscriptionCartResponseModel(
+                passwordManager: PasswordManagerCartItemsResponseModel(
+                    seats: CartItemResponseModel(
+                        translationKey: "premiumMembership",
+                        quantity: 1,
+                        cost: 19.8,
+                        discount: nil,
+                    ),
+                    additionalStorage: nil,
+                ),
+                cadence: "annually",
+                discount: nil,
+                estimatedTax: 4.55,
+            ),
+            storage: SubscriptionStorageResponseModel(
+                available: 5,
+                used: 0,
+                readableUsed: "0 Bytes",
+            ),
+            cancelAt: nil,
+            canceled: nil,
+            nextCharge: nil,
+            suspension: nil,
+            gracePeriod: nil,
+        )
+        billingAPIService.getSubscriptionReturnValue = expectedSubscription
+
+        let result = try await subject.getSubscription()
+
+        #expect(billingAPIService.getSubscriptionCallsCount == 1)
+        #expect(result == expectedSubscription)
+    }
+
+    /// `getSubscription()` propagates errors from the API service.
+    @Test
+    func getSubscription_apiError() async throws {
+        billingAPIService.getSubscriptionThrowableError = URLError(.notConnectedToInternet)
+
+        await #expect(throws: URLError.self) {
+            try await subject.getSubscription()
+        }
+
+        #expect(billingAPIService.getSubscriptionCallsCount == 1)
+    }
 }
