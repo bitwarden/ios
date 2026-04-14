@@ -6,11 +6,11 @@ import SwiftUI
 /// The visual style of a `PillBadgeView`, determining the color scheme.
 ///
 public enum PillBadgeStyle {
-    /// A success style with green colors.
-    case success
-
     /// A danger style with red colors.
     case danger
+
+    /// A success style with green colors.
+    case success
 
     /// A warning style with orange colors.
     case warning
@@ -18,36 +18,36 @@ public enum PillBadgeStyle {
     /// The background color for the pill badge.
     public var backgroundColor: Color {
         switch self {
-        case .success:
-            SharedAsset.Colors.badgeSuccessBackground.swiftUIColor
         case .danger:
             SharedAsset.Colors.badgeDangerBackground.swiftUIColor
+        case .success:
+            SharedAsset.Colors.badgeSuccessBackground.swiftUIColor
         case .warning:
             SharedAsset.Colors.badgeWarningBackground.swiftUIColor
-        }
-    }
-
-    /// The text color for the pill badge.
-    public var textColor: Color {
-        switch self {
-        case .success:
-            SharedAsset.Colors.badgeSuccessText.swiftUIColor
-        case .danger:
-            SharedAsset.Colors.badgeDangerText.swiftUIColor
-        case .warning:
-            SharedAsset.Colors.badgeWarningText.swiftUIColor
         }
     }
 
     /// The border color for the pill badge.
     public var borderColor: Color {
         switch self {
-        case .success:
-            SharedAsset.Colors.badgeSuccessBorder.swiftUIColor
         case .danger:
             SharedAsset.Colors.badgeDangerBorder.swiftUIColor
+        case .success:
+            SharedAsset.Colors.badgeSuccessBorder.swiftUIColor
         case .warning:
             SharedAsset.Colors.badgeWarningBorder.swiftUIColor
+        }
+    }
+
+    /// The text color for the pill badge.
+    public var textColor: Color {
+        switch self {
+        case .danger:
+            SharedAsset.Colors.badgeDangerText.swiftUIColor
+        case .success:
+            SharedAsset.Colors.badgeSuccessText.swiftUIColor
+        case .warning:
+            SharedAsset.Colors.badgeWarningText.swiftUIColor
         }
     }
 }
@@ -108,7 +108,7 @@ public struct PillBadgeView: View {
     VStack(spacing: 16) {
         PillBadgeView(text: "Active", style: .success)
         PillBadgeView(text: "Canceled", style: .danger)
-        PillBadgeView(text: "Past due", style: .danger)
+        PillBadgeView(text: "Past due", style: .warning)
         PillBadgeView(text: "Update payment", style: .warning)
     }
     .padding()
