@@ -10,7 +10,7 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasBillingService
-        & HasErrorAlertServices.ErrorAlertServices
+        & HasErrorReportBuilder
         & HasErrorReporter
 
     // MARK: Properties
