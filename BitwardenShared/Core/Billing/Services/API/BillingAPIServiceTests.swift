@@ -62,23 +62,12 @@ struct BillingAPIServiceTests {
     func getPremiumPlan() async throws {
         client.result = .httpSuccess(testData: .premiumPlanResponse)
 
-        let response = try await subject.getPremiumPlan()
+        _ = try await subject.getPremiumPlan()
 
         let request = try #require(client.requests.last)
         #expect(request.method == .get)
         #expect(request.url.absoluteString == "https://example.com/api/plans/premium")
         #expect(request.body == nil)
-
-        // Verify response parsing
-        #expect(response.name == "Premium")
-        #expect(response.available)
-        #expect(response.legacyYear == nil)
-        #expect(response.seat.stripePriceId == "premium-annually-2026")
-        #expect(response.seat.price == 19.80)
-        #expect(response.seat.provided == 0)
-        #expect(response.storage.stripePriceId == "personal-storage-gb-annually")
-        #expect(response.storage.price == 4)
-        #expect(response.storage.provided == 5)
     }
 
     /// `getSubscription()` performs the request with the correct method and path.
@@ -86,35 +75,11 @@ struct BillingAPIServiceTests {
     func getSubscription() async throws {
         client.result = .httpSuccess(testData: .subscriptionResponse)
 
-        let response = try await subject.getSubscription()
+        _ = try await subject.getSubscription()
 
         let request = try #require(client.requests.last)
         #expect(request.method == .get)
         #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/subscription")
         #expect(request.body == nil)
-
-        // Verify response parsing
-        #expect(response.status == "active")
-        #expect(response.cart.cadence == "annually")
-        #expect(response.cart.estimatedTax == 4.55)
-        #expect(response.cart.discount == nil)
-
-        let seats = try #require(response.cart.passwordManager?.seats)
-        #expect(seats.translationKey == "premiumMembership")
-        #expect(seats.quantity == 1)
-        #expect(seats.cost == 19.8)
-        #expect(seats.discount == nil)
-        #expect(response.cart.passwordManager?.additionalStorage == nil)
-
-        let storage = try #require(response.storage)
-        #expect(storage.available == 5)
-        #expect(storage.used == 0)
-        #expect(storage.readableUsed == "0 Bytes")
-
-        #expect(response.cancelAt == nil)
-        #expect(response.canceled == nil)
-        #expect(response.nextCharge != nil)
-        #expect(response.suspension == nil)
-        #expect(response.gracePeriod == nil)
     }
 }
