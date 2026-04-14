@@ -351,6 +351,16 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userInitiated)
     }
 
+    /// `navigate(to:)` with `.premiumUpgrade` presents the premium upgrade view via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgrade() throws {
+        subject.navigate(to: .premiumUpgrade)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.
     @MainActor
     func test_navigateTo_switchAccount() throws {
