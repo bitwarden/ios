@@ -56,7 +56,7 @@ struct PremiumPlanState: Equatable {
     /// The current status of the premium plan.
     var planStatus: PremiumPlanStatus = .active
 
-    // TODO: PM-34904 Replace mock values with real data from the API.
+    // TODO: PM-35100 Replace mock values with real data from the API.
     /// The description text for the current plan status.
     var descriptionText: String {
         switch planStatus {
@@ -83,15 +83,15 @@ struct PremiumPlanState: Equatable {
         }
     }
 
-    // TODO: PM-34904 Replace mock values with real data from the API.
+    // TODO: PM-35100 Replace mock values with real data from the API.
     /// The billing amount label (e.g. "$1.65 / month").
     var billingAmount: String = "$1.65 / month"
 
-    // TODO: PM-34904 Replace mock values with real data from the API.
+    // TODO: PM-35100 Replace mock values with real data from the API.
     /// The storage cost label (e.g. "$0.35").
     var storageCost: String = "$0.35"
 
-    // TODO: PM-34904 Replace mock values with real data from the API.
+    // TODO: PM-35100 Replace mock values with real data from the API.
     /// The discount label (e.g. "-$0.10").
     var discount: String = "-$0.10"
 
