@@ -178,7 +178,7 @@ struct ErrorReportBuilderTests {
         #expect(userId == nil)
     }
 
-    @Test("getUserID() returns a valid user id when one exists")
+    @Test("getUserID() returns a valid user ID when one exists")
     func getUserID_returnsValidID() async {
         let expectation = "1234567890"
         activeAccountStateProvider.getActiveAccountIdReturnValue = expectation

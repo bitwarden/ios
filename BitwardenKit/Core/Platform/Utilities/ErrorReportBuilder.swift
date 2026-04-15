@@ -17,9 +17,9 @@ public protocol ErrorReportBuilder { // sourcery: AutoMockable
     ///
     func buildShareErrorLog(for error: Error, callStack: String) async -> String
 
-    /// Gets the active account's user id.
+    /// Gets the active account's user ID.
     ///
-    /// - Returns: An optional string containing the user id.
+    /// - Returns: An optional string containing the user ID.
     ///
     func getUserID() async -> String?
 }
