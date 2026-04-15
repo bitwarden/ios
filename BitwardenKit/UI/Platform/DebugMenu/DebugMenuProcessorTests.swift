@@ -12,6 +12,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     var configService: MockConfigService!
     var coordinator: MockCoordinator<DebugMenuRoute, Void>!
     var environmentService: MockEnvironmentService!
+    var errorReportBuilder: MockErrorReportBuilder!
     var errorReporter: MockErrorReporter!
     var serverCommunicationConfigClientSingleton: MockServerCommunicationConfigClientSingleton!
     var subject: DebugMenuProcessor!
@@ -24,12 +25,14 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         configService = MockConfigService()
         coordinator = MockCoordinator<DebugMenuRoute, Void>()
         environmentService = MockEnvironmentService()
+        errorReportBuilder = MockErrorReportBuilder()
         errorReporter = MockErrorReporter()
         serverCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton()
         subject = DebugMenuProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 configService: configService,
+                errorReportBuilder: errorReportBuilder,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
@@ -44,6 +47,7 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         configService = nil
         coordinator = nil
         environmentService = nil
+        errorReportBuilder = nil
         errorReporter = nil
         serverCommunicationConfigClientSingleton = nil
         subject = nil
@@ -73,6 +77,17 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         await subject.perform(.viewAppeared)
 
         XCTAssertTrue(subject.state.featureFlags.contains(flag))
+    }
+
+    /// `perform(.viewAppeared)` loads the user ID.
+    @MainActor
+    func test_perform_appeared_loadsUserId() async {
+        XCTAssertNil(subject.state.userID)
+
+        errorReportBuilder.getUserIDReturnValue = "12345"
+        await subject.perform(.viewAppeared)
+
+        XCTAssertEqual(subject.state.userID, "12345")
     }
 
     /// `perform(.clearSsoCookies)` clears the SSO cookie and shows a success toast.
@@ -108,6 +123,43 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertTrue(configService.clearServerCommCookieValueCalled)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `receive(.copyUserID)` copies the user ID to the clipboard.
+    @MainActor
+    func test_receive_copyUserId_setsUserIdIfAvailable() async {
+        let expectedId = "1234567890"
+        XCTAssertNil(subject.state.userID)
+
+        errorReportBuilder.getUserIDReturnValue = expectedId
+        await subject.perform(.viewAppeared)
+        subject.receive(.copyUserID)
+
+        XCTAssertEqual(subject.state.userID, expectedId)
+    }
+
+    /// `receive(.copyUserID)` shows a "User id copied to the clipboard" toast if user ID available
+    @MainActor
+    func test_receive_copyUserId_showsToastIfUserIdAvailable() async {
+        XCTAssertNil(subject.state.toast)
+
+        errorReportBuilder.getUserIDReturnValue = "1234567890"
+        await subject.perform(.viewAppeared)
+        subject.receive(.copyUserID)
+
+        XCTAssertEqual(subject.state.toast?.title, Localizations.userIDCopiedToTheClipboard)
+    }
+
+    /// `receive(.copyUserID)` shows a "Something went wrong" toast if no user ID available.
+    @MainActor
+    func test_receive_copyUserId_showsToastIfUserIdNotAvailable() async {
+        XCTAssertNil(subject.state.toast)
+
+        errorReportBuilder.getUserIDReturnValue = nil
+        await subject.perform(.viewAppeared)
+        subject.receive(.copyUserID)
+
+        XCTAssertEqual(subject.state.toast?.title, Localizations.somethingWentWrong)
     }
 
     /// `perform(.refreshFeatureFlags)` refreshes the current feature flags.

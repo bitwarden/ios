@@ -7,4 +7,6 @@ struct DebugMenuState: Equatable, Sendable {
     var featureFlags: [DebugMenuFeatureFlag] = []
     /// A toast message to show in the view.
     var toast: Toast?
+    /// The active user's ID.
+    var userID: String?
 }
