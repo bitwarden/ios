@@ -124,7 +124,7 @@ struct BillingServiceTests {
             cancelAt: nil,
             canceled: nil,
             cart: SubscriptionCartResponseModel(
-                cadence: "annually",
+                cadence: .annually,
                 discount: nil,
                 estimatedTax: 4.55,
                 passwordManager: PasswordManagerCartItemsResponseModel(

@@ -42,8 +42,8 @@ struct BitwardenSubscriptionResponseModel: JSONResponse, Equatable, Sendable {
 struct SubscriptionCartResponseModel: JSONResponse, Equatable, Sendable {
     // MARK: Properties
 
-    /// The billing cadence (e.g. "annually", "monthly").
-    let cadence: String
+    /// The billing cadence (e.g. annually, monthly).
+    let cadence: PlanCadenceType
 
     /// Any discount applied to the cart.
     let discount: BitwardenDiscountResponseModel?
