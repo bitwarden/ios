@@ -170,4 +170,35 @@ class TokenServiceTests: BitwardenTestCase {
         XCTAssertEqual(keychainRepository.setRefreshTokenReceivedArguments?.value, "🔒")
         XCTAssertEqual(stateService.accessTokenExpirationDateByUserId["1"], expirationDate)
     }
+
+    // MARK: Tests - Explicit userId Methods
+
+    /// `getAccessToken(userId:)` returns the access token for the specified user without calling getActiveAccountId.
+    func test_getAccessToken_withUserId() async throws {
+        keychainRepository.getAccessTokenReturnValue = "USER_2_TOKEN"
+
+        let accessToken = try await subject.getAccessToken(userId: "2")
+        XCTAssertEqual(accessToken, "USER_2_TOKEN")
+        XCTAssertEqual(keychainRepository.getAccessTokenReceivedUserId, "2")
+    }
+
+    /// `getRefreshToken(userId:)` returns the refresh token for the specified user without calling getActiveAccountId.
+    func test_getRefreshToken_withUserId() async throws {
+        keychainRepository.getRefreshTokenReturnValue = "USER_2_REFRESH"
+
+        let refreshToken = try await subject.getRefreshToken(userId: "2")
+        XCTAssertEqual(refreshToken, "USER_2_REFRESH")
+        XCTAssertEqual(keychainRepository.getRefreshTokenReceivedUserId, "2")
+    }
+
+    /// `setTokens(accessToken:refreshToken:expirationDate:userId:)` sets tokens for the specified user
+    /// without calling getActiveAccountId.
+    func test_setTokens_withUserId() async throws {
+        let expirationDate = Date(year: 2025, month: 10, day: 1)
+        try await subject.setTokens(accessToken: "🔑", refreshToken: "🔒", expirationDate: expirationDate, userId: "2")
+
+        XCTAssertEqual(keychainRepository.setAccessTokenReceivedArguments?.value, "🔑")
+        XCTAssertEqual(keychainRepository.setRefreshTokenReceivedArguments?.value, "🔒")
+        XCTAssertEqual(stateService.accessTokenExpirationDateByUserId["2"], expirationDate)
+    }
 }

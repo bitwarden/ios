@@ -1391,6 +1391,39 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.errorAlertsShown as? [ServerError], [error])
     }
 
+    /// `perform(_:)` with `.savePressed` logs a `BitwardenError.generalError` when saving
+    /// fails with a `ServerError.error` carrying the targeted cipher-encryption message,
+    /// allowing it to reach Crashlytics despite `ServerError` being a `NonLoggableError`.
+    @MainActor
+    func test_perform_savePressed_serverError_logsGeneralError() async throws {
+        let body = #"{"Message":"Cipher was not encrypted for the current user","Object":"error"}"#
+        let response = HTTPResponse.failure(statusCode: 400, body: Data(body.utf8))
+        let error = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        vaultRepository.addCipherResult = .failure(error)
+        subject.state.name = "vault item"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let generalError = try XCTUnwrap(errorReporter.errors.last as? NSError)
+        XCTAssertEqual(generalError.domain, "General Error: Save item failed")
+    }
+
+    /// `perform(_:)` with `.savePressed` does not wrap the error in a `BitwardenError.generalError`
+    /// when a `ServerError.error` carries a message other than the targeted cipher-encryption
+    /// message. The raw `ServerError` is still sent to the reporter via the generic catch-all log.
+    @MainActor
+    func test_perform_savePressed_serverError_otherMessage_doesNotLog() async throws {
+        let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
+        let error = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        vaultRepository.addCipherResult = .failure(error)
+        subject.state.name = "vault item"
+
+        await subject.perform(.savePressed)
+
+        XCTAssertEqual(errorReporter.errors.count, 1)
+    }
+
     /// `perform(_:)` with `.savePressed` saves the item.
     @MainActor
     func test_perform_savePressed_secureNote() async {

@@ -696,6 +696,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         } catch UserVerificationError.cancelled {
             return
+        } catch let error as ServerError
+            where error.message.contains("Cipher was not encrypted for the current user") {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: BitwardenError.generalError(
+                type: "Save item failed",
+                message: error.message,
+                error: error,
+            ))
+            return
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
