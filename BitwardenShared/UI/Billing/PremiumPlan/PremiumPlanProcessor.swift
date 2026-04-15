@@ -1,4 +1,6 @@
 import BitwardenKit
+import BitwardenResources
+import Foundation
 
 // MARK: - PremiumPlanProcessor
 
@@ -46,7 +48,7 @@ final class PremiumPlanProcessor: StateProcessor<
     override func perform(_ effect: PremiumPlanEffect) async {
         switch effect {
         case .appeared:
-            break
+            await loadPremiumPlan()
         }
     }
 
@@ -58,6 +60,48 @@ final class PremiumPlanProcessor: StateProcessor<
             state.urlToOpen = nil
         case .managePlanTapped:
             state.urlToOpen = ExternalLinksConstants.managePremiumPlan
+        }
+    }
+
+    // MARK: Private Methods
+
+    /// Formats a decimal price as a US dollar currency string.
+    ///
+    /// - Parameter price: The price to format.
+    /// - Returns: A formatted currency string (e.g. "$1.65").
+    ///
+    private func formatCurrency(_ price: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        // Currently this will only be used in the US market
+        formatter.currencyCode = "USD"
+        return formatter.string(from: price as NSDecimalNumber) ?? "$0.00"
+    }
+
+    /// Loads the premium plan details from the billing service and updates the state.
+    ///
+    private func loadPremiumPlan() async {
+        do {
+            let plan = try await services.billingService.getPremiumPlan()
+            guard plan.available else {
+                coordinator.showAlert(
+                    .defaultAlert(
+                        title: Localizations.anErrorHasOccurred,
+                        message: Localizations.premiumPlanNotAvailable,
+                    ),
+                    onDismissed: { [weak self] in
+                        self?.coordinator.navigate(to: .dismiss)
+                    },
+                )
+                return
+            }
+            let monthlyBillingAmount = plan.seat.price / 12
+            let monthlyStorageCost = plan.storage.price / 12
+            state.billingAmount = "\(formatCurrency(monthlyBillingAmount)) \(Localizations.perMonth)"
+            state.storageCost = formatCurrency(monthlyStorageCost)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

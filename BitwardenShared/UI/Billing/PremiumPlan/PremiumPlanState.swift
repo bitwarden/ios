@@ -9,20 +9,17 @@ import Foundation
 struct PremiumPlanState: Equatable {
     // MARK: Properties
 
-    // TODO: PM-35100 Replace mock values with real data from the API.
     /// The billing amount label (e.g. "$1.65 / month").
-    var billingAmount: String = "$1.65 / month"
+    var billingAmount: String = ""
 
-    // TODO: PM-35100 Replace mock values with real data from the API.
     /// The discount label (e.g. "-$0.10").
     var discount: String = "-$0.10"
 
     /// The current status of the premium plan.
     var planStatus: PremiumPlanStatus = .active
 
-    // TODO: PM-35100 Replace mock values with real data from the API.
     /// The storage cost label (e.g. "$0.35").
-    var storageCost: String = "$0.35"
+    var storageCost: String = ""
 
     /// The URL to open externally (manage plan or cancel premium).
     var urlToOpen: URL?

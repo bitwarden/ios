@@ -1050,6 +1050,7 @@
 "YouHaveAGracePeriodOfXFromYourSubscriptionDescriptionLong" = "You have a grace period of **%1$@** from your subscription expiration date. Please resolve the past due invoices by **%2$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
 "PerMonth" = "/ month";
+"PremiumPlanNotAvailable" = "At the moment premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
 "EmergencyAccess" = "Emergency access";
