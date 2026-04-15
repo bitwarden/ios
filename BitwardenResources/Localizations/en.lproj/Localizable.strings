@@ -1042,5 +1042,5 @@
 "BreachMonitoring" = "Breach monitoring";
 "UpgradeNow" = "Upgrade now";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
-"UserIdCopiedToTheClipboard" = "User Id copied to the clipboard";
-"CopyUserId" = "Copy user Id";
+"UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
+"UserID" = "User ID";

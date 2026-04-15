@@ -69,12 +69,8 @@ public struct DebugMenuView: View {
                 Text(Localizations.generateCrash)
             }
             .accessibilityIdentifier("GenerateCrashButton")
-            Button {
-                store.send(.copyUserId)
-            } label: {
-                Text(Localizations.copyUserId)
-            }
-            .accessibilityIdentifier("CopyUserIdToClipboardButton")
+
+            userIDField
         }
     }
 
@@ -116,6 +112,23 @@ public struct DebugMenuView: View {
             Text(Localizations.clearSsoCookies)
         }
         .accessibilityIdentifier("ClearSsoCookiesButton")
+    }
+
+    private var userIDField: some View {
+        HStack {
+            Text("\(Localizations.userID): \(store.state.userID ?? Localizations.somethingWentWrong)")
+                .font(.body)
+                .foregroundStyle(.gray)
+                .truncationMode(.middle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
+            Button {
+                store.send(.copyUserID)
+            } label: {
+                Text(Localizations.copy)
+            }
+            .accessibilityIdentifier("CopyUserIdToClipboardButton")
+        }
     }
 }
 

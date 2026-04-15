@@ -59,8 +59,8 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     override func receive(_ action: DebugMenuAction) {
         switch action {
-        case .copyUserId:
-            copyUserId()
+        case .copyUserID:
+            copyUserID()
         case .dismissTapped:
             coordinator.navigate(to: .dismiss)
         case .generateCrash:
@@ -100,7 +100,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
             state.featureFlags = await services.configService.getDebugFeatureFlags(currentFeatureFlags)
         case .viewAppeared:
             await fetchFlags()
-            state.userID = await services.errorReportBuilder.getUserId()
+            state.userID = await services.errorReportBuilder.getUserID()
         }
     }
 
@@ -135,14 +135,14 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         state.featureFlags = await services.configService.refreshDebugFeatureFlags(currentFeatureFlags)
     }
 
-    /// Copies the user id to the user's clipboard.
-    private func copyUserId() {
+    /// Copies the user ID to the user's clipboard.
+    private func copyUserID() {
         guard let id = state.userID else {
             state.toast = Toast(title: Localizations.somethingWentWrong)
             return
         }
 
         UIPasteboard.general.string = id
-        state.toast = Toast(title: Localizations.userIdCopiedToTheClipboard)
+        state.toast = Toast(title: Localizations.userIDCopiedToTheClipboard)
     }
 }

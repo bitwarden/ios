@@ -12,8 +12,8 @@ class DebugMenuProcessorTests: BitwardenTestCase {
     var configService: MockConfigService!
     var coordinator: MockCoordinator<DebugMenuRoute, Void>!
     var environmentService: MockEnvironmentService!
-    var errorReporter: MockErrorReporter!
     var errorReportBuilder: MockErrorReportBuilder!
+    var errorReporter: MockErrorReporter!
     var serverCommunicationConfigClientSingleton: MockServerCommunicationConfigClientSingleton!
     var subject: DebugMenuProcessor!
 
@@ -25,8 +25,8 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         configService = MockConfigService()
         coordinator = MockCoordinator<DebugMenuRoute, Void>()
         environmentService = MockEnvironmentService()
-        errorReporter = MockErrorReporter()
         errorReportBuilder = MockErrorReportBuilder()
+        errorReporter = MockErrorReporter()
         serverCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton()
         subject = DebugMenuProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -47,8 +47,8 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         configService = nil
         coordinator = nil
         environmentService = nil
-        errorReporter = nil
         errorReportBuilder = nil
+        errorReporter = nil
         serverCommunicationConfigClientSingleton = nil
         subject = nil
     }
@@ -79,12 +79,12 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.featureFlags.contains(flag))
     }
 
-    /// `perform(.viewAppeared)` loads the user id.
+    /// `perform(.viewAppeared)` loads the user ID.
     @MainActor
     func test_perform_appeared_loadsUserId() async {
         XCTAssertNil(subject.state.userID)
 
-        errorReportBuilder.userIdReturnValue = "12345"
+        errorReportBuilder.getUserIDReturnValue = "12345"
         await subject.perform(.viewAppeared)
 
         XCTAssertEqual(subject.state.userID, "12345")
@@ -125,39 +125,39 @@ class DebugMenuProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `receive(.copyUserId)` copies the user id to the clipboard.
+    /// `receive(.copyUserID)` copies the user ID to the clipboard.
     @MainActor
     func test_receive_copyUserId_setsUserIdIfAvailable() async {
         let expectedId = "1234567890"
         XCTAssertNil(subject.state.userID)
 
-        errorReportBuilder.userIdReturnValue = expectedId
+        errorReportBuilder.getUserIDReturnValue = expectedId
         await subject.perform(.viewAppeared)
-        subject.receive(.copyUserId)
+        subject.receive(.copyUserID)
 
         XCTAssertEqual(subject.state.userID, expectedId)
     }
 
-    /// `receive(.copyUserId)` shows a "User id copied to the clipboard" toast if user id available
+    /// `receive(.copyUserID)` shows a "User id copied to the clipboard" toast if user ID available
     @MainActor
     func test_receive_copyUserId_showsToastIfUserIdAvailable() async {
         XCTAssertNil(subject.state.toast)
 
-        errorReportBuilder.userIdReturnValue = "1234567890"
+        errorReportBuilder.getUserIDReturnValue = "1234567890"
         await subject.perform(.viewAppeared)
-        subject.receive(.copyUserId)
+        subject.receive(.copyUserID)
 
-        XCTAssertEqual(subject.state.toast?.title, Localizations.userIdCopiedToTheClipboard)
+        XCTAssertEqual(subject.state.toast?.title, Localizations.userIDCopiedToTheClipboard)
     }
 
-    /// `receive(.copyUserId)` shows a "Something went wrong" toast if no user id available.
+    /// `receive(.copyUserID)` shows a "Something went wrong" toast if no user ID available.
     @MainActor
     func test_receive_copyUserId_showsToastIfUserIdNotAvailable() async {
         XCTAssertNil(subject.state.toast)
 
-        errorReportBuilder.userIdReturnValue = nil
+        errorReportBuilder.getUserIDReturnValue = nil
         await subject.perform(.viewAppeared)
-        subject.receive(.copyUserId)
+        subject.receive(.copyUserID)
 
         XCTAssertEqual(subject.state.toast?.title, Localizations.somethingWentWrong)
     }

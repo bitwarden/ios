@@ -76,7 +76,7 @@ class CoordinatorTests: BitwardenTestCase {
             stackNavigator.alerts,
             [Alert.networkResponseError(BitwardenTestError.example, shareErrorDetails: {})],
         )
-
+        errorReportBuilder.buildShareErrorLogReturnValue = ""
         let alert = try XCTUnwrap(stackNavigator.alerts.first)
         try await alert.tapAction(title: Localizations.shareErrorDetails)
 
@@ -84,8 +84,8 @@ class CoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view as? UIViewController is UIActivityViewController)
 
-        XCTAssertEqual(errorReportBuilder.buildShareErrorLogError as? BitwardenTestError, .example)
-        XCTAssertEqual(errorReportBuilder.buildShareErrorLogCallStack?.isEmpty, false)
+        XCTAssertEqual(errorReportBuilder.buildShareErrorLogReceivedArguments?.error as? BitwardenTestError, .example)
+        XCTAssertNotEqual(errorReportBuilder.buildShareErrorLogCallsCount, 0)
     }
 
     /// `showErrorAlert(error:tryAgain:onDismissed:)` builds an alert to show for an error with an
