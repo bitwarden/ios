@@ -100,7 +100,7 @@ struct PremiumUpgradeProcessorTests {
     func receive_urlOpenFailed() async throws {
         subject.receive(.urlOpenFailed)
 
-        try await waitForAsync { self.coordinator.errorAlertsShown.count == 1 }
+        try await waitForAsync { coordinator.errorAlertsShown.count == 1 }
         #expect(coordinator.errorAlertsShown.first as? BillingError == .unableToOpenCheckout)
     }
 }
