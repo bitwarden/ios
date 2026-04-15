@@ -41,6 +41,19 @@ class EnvironmentServiceTests: XCTestCase {
 
     // MARK: Tests
 
+    /// Concurrent reads and writes to environment properties should not produce a data race.
+    func test_concurrentReadWrite_noDataRace() async {
+        let urls = EnvironmentURLData(base: .example)
+
+        await withTaskGroup(of: Void.self) { group in
+            for _ in 0 ..< 50 {
+                group.addTask { await self.subject.setPreAuthURLs(urls: urls) }
+                group.addTask { _ = self.subject.apiURL }
+                group.addTask { _ = self.subject.clientCertificateFingerprint }
+            }
+        }
+    }
+
     /// The default US URLs are returned if the URLs haven't been loaded.
     func test_defaultUrls() {
         XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
