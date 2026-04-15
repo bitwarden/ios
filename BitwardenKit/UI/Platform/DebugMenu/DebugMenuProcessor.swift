@@ -141,7 +141,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
             state.toast = Toast(title: Localizations.somethingWentWrong)
             return
         }
-        
+
         // TODO: PM-21029 - Inject & replace UIPasteboard with PasteboardService
         UIPasteboard.general.string = id
         state.toast = Toast(title: Localizations.userIDCopiedToTheClipboard)
