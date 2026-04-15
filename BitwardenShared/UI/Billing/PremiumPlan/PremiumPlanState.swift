@@ -2,51 +2,6 @@ import BitwardenKit
 import BitwardenResources
 import Foundation
 
-// MARK: - PremiumPlanStatus
-
-/// The status of the user's premium plan.
-///
-enum PremiumPlanStatus: Equatable {
-    /// The plan is active.
-    case active
-
-    /// The plan has been canceled.
-    case canceled
-
-    /// The plan is past due.
-    case pastDue
-
-    /// The plan requires a payment method update.
-    case updatePayment
-
-    /// The pill badge style for this status.
-    var badgeStyle: PillBadgeStyle {
-        switch self {
-        case .active:
-            .success
-        case .canceled:
-            .danger
-        case .pastDue,
-             .updatePayment:
-            .warning
-        }
-    }
-
-    /// The localized label for this status.
-    var label: String {
-        switch self {
-        case .active:
-            Localizations.active
-        case .canceled:
-            Localizations.canceled
-        case .pastDue:
-            Localizations.pastDue
-        case .updatePayment:
-            Localizations.updatePayment
-        }
-    }
-}
-
 // MARK: - PremiumPlanState
 
 /// An object that defines the current state of a `PremiumPlanView`.
@@ -79,25 +34,23 @@ struct PremiumPlanState: Equatable {
     var descriptionText: String {
         switch planStatus {
         case .active:
-            Localizations.yourNextChargeIsForAmountDueOnDate(
+            Localizations.yourNextChargeIsForXDueOnY(
                 "$1.00 USD",
                 "April 2, 2026",
             )
         case .canceled:
-            Localizations.yourSubscriptionWasCanceledOnDateResubscribeToContinueUsingPremiumFeatures(
+            Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
                 "April 2, 2026",
             )
         case .pastDue:
-            Localizations
-                .youHaveAGracePeriodOfDaysFromYourSubscriptionExpirationDateResolveInvoicesByDate(
-                    "14 days",
-                    "Feb 2, 2026",
-                )
+            Localizations.youHaveAGracePeriodOfXFromYourSubscriptionDescriptionLong(
+                "14 days",
+                "Feb 2, 2026",
+            )
         case .updatePayment:
-            Localizations
-                .weCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate(
-                    "May 2, 2026",
-                )
+            Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
+                "May 2, 2026",
+            )
         }
     }
 

@@ -4,62 +4,6 @@ import Testing
 
 @testable import BitwardenShared
 
-// MARK: - PremiumPlanStatusTests
-
-struct PremiumPlanStatusTests {
-    // MARK: Tests - badgeStyle
-
-    /// `badgeStyle` for `.active` returns `.success`.
-    @Test
-    func badgeStyle_active() {
-        #expect(PremiumPlanStatus.active.badgeStyle == .success)
-    }
-
-    /// `badgeStyle` for `.canceled` returns `.danger`.
-    @Test
-    func badgeStyle_canceled() {
-        #expect(PremiumPlanStatus.canceled.badgeStyle == .danger)
-    }
-
-    /// `badgeStyle` for `.pastDue` returns `.warning`.
-    @Test
-    func badgeStyle_pastDue() {
-        #expect(PremiumPlanStatus.pastDue.badgeStyle == .warning)
-    }
-
-    /// `badgeStyle` for `.updatePayment` returns `.warning`.
-    @Test
-    func badgeStyle_updatePayment() {
-        #expect(PremiumPlanStatus.updatePayment.badgeStyle == .warning)
-    }
-
-    // MARK: Tests - label
-
-    /// `label` for `.active` returns the active localization.
-    @Test
-    func label_active() {
-        #expect(PremiumPlanStatus.active.label == Localizations.active)
-    }
-
-    /// `label` for `.canceled` returns the canceled localization.
-    @Test
-    func label_canceled() {
-        #expect(PremiumPlanStatus.canceled.label == Localizations.canceled)
-    }
-
-    /// `label` for `.pastDue` returns the past due localization.
-    @Test
-    func label_pastDue() {
-        #expect(PremiumPlanStatus.pastDue.label == Localizations.pastDue)
-    }
-
-    /// `label` for `.updatePayment` returns the update payment localization.
-    @Test
-    func label_updatePayment() {
-        #expect(PremiumPlanStatus.updatePayment.label == Localizations.updatePayment)
-    }
-}
-
 // MARK: - PremiumPlanStateTests
 
 struct PremiumPlanStateTests {
@@ -70,7 +14,7 @@ struct PremiumPlanStateTests {
     func descriptionText_active() {
         var state = PremiumPlanState()
         state.planStatus = .active
-        #expect(state.descriptionText == Localizations.yourNextChargeIsForAmountDueOnDate(
+        #expect(state.descriptionText == Localizations.yourNextChargeIsForXDueOnY(
             "$1.00 USD",
             "April 2, 2026",
         ))
@@ -81,8 +25,7 @@ struct PremiumPlanStateTests {
     func descriptionText_canceled() {
         var state = PremiumPlanState()
         state.planStatus = .canceled
-        #expect(state.descriptionText == Localizations
-            .yourSubscriptionWasCanceledOnDateResubscribeToContinueUsingPremiumFeatures(
+        #expect(state.descriptionText == Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
                 "April 2, 2026",
             ))
     }
@@ -92,11 +35,10 @@ struct PremiumPlanStateTests {
     func descriptionText_pastDue() {
         var state = PremiumPlanState()
         state.planStatus = .pastDue
-        #expect(state.descriptionText == Localizations
-            .youHaveAGracePeriodOfDaysFromYourSubscriptionExpirationDateResolveInvoicesByDate(
-                "14 days",
-                "Feb 2, 2026",
-            ))
+        #expect(state.descriptionText == Localizations.youHaveAGracePeriodOfXFromYourSubscriptionDescriptionLong(
+            "14 days",
+            "Feb 2, 2026",
+        ))
     }
 
     /// `descriptionText` for `.updatePayment` returns the update payment description.
@@ -104,10 +46,9 @@ struct PremiumPlanStateTests {
     func descriptionText_updatePayment() {
         var state = PremiumPlanState()
         state.planStatus = .updatePayment
-        #expect(state.descriptionText == Localizations
-            .weCouldntProcessYourPaymentUpdateYourPaymentMethodBeforeSubscriptionEndsOnDate(
-                "May 2, 2026",
-            ))
+        #expect(state.descriptionText == Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
+            "May 2, 2026",
+        ))
     }
 
     // MARK: Tests - showBillingDetails
