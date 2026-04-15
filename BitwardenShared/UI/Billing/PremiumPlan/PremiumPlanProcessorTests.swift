@@ -37,10 +37,10 @@ struct PremiumPlanProcessorTests {
         await subject.perform(.appeared)
     }
 
-    /// `receive(_:)` with `.cancelPremiumPressed` sets the URL to open.
+    /// `receive(_:)` with `.cancelPremiumTapped` sets the URL to open.
     @Test
-    func receive_cancelPremiumPressed() {
-        subject.receive(.cancelPremiumPressed)
+    func receive_cancelPremiumTapped() {
+        subject.receive(.cancelPremiumTapped)
 
         #expect(subject.state.urlToOpen == ExternalLinksConstants.cancelPremiumPlan)
     }
@@ -55,10 +55,10 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.urlToOpen == nil)
     }
 
-    /// `receive(_:)` with `.managePlanPressed` sets the URL to open.
+    /// `receive(_:)` with `.managePlanTapped` sets the URL to open.
     @Test
-    func receive_managePlanPressed() {
-        subject.receive(.managePlanPressed)
+    func receive_managePlanTapped() {
+        subject.receive(.managePlanTapped)
 
         #expect(subject.state.urlToOpen == ExternalLinksConstants.managePremiumPlan)
     }

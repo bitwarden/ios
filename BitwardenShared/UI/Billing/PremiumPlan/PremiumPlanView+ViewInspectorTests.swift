@@ -56,13 +56,13 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.cancelPremium))
     }
 
-    /// Tapping the cancel premium button dispatches the `.cancelPremiumPressed` action.
+    /// Tapping the cancel premium button dispatches the `.cancelPremiumTapped` action.
     @MainActor
     func test_cancelPremiumButton_tap() throws {
         processor.state.planStatus = .active
         let button = try subject.inspect().find(button: Localizations.cancelPremium)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .cancelPremiumPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .cancelPremiumTapped)
     }
 
     /// The cancel premium button is visible when status is `.active`.
@@ -73,11 +73,11 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertNotNil(button)
     }
 
-    /// Tapping the manage plan button dispatches the `.managePlanPressed` action.
+    /// Tapping the manage plan button dispatches the `.managePlanTapped` action.
     @MainActor
     func test_managePlanButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.managePlan)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .managePlanPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .managePlanTapped)
     }
 }

@@ -67,7 +67,7 @@ struct PremiumPlanView: View {
     /// The cancel premium button.
     private var cancelPremiumButton: some View {
         Button {
-            store.send(.cancelPremiumPressed)
+            store.send(.cancelPremiumTapped)
         } label: {
             HStack(spacing: 8) {
                 Image(asset: SharedAsset.Icons.externalLink24)
@@ -109,7 +109,7 @@ struct PremiumPlanView: View {
     /// The manage plan button.
     private var managePlanButton: some View {
         Button {
-            store.send(.managePlanPressed)
+            store.send(.managePlanTapped)
         } label: {
             HStack(spacing: 8) {
                 Image(asset: SharedAsset.Icons.externalLink24)
