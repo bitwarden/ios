@@ -25,9 +25,9 @@ public struct DebugMenuView: View {
             } header: {
                 Text("SSO cookies")
             }
-            
+
             userIDSection
-            
+
             Section {
                 errorReportSection
             } header: {
