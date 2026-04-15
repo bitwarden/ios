@@ -42,7 +42,11 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: BillingRoute, context: AnyObject?) {
         switch route {
         case .dismiss:
-            stackNavigator?.dismiss()
+            if stackNavigator?.isPresenting == false {
+                stackNavigator?.pop()
+            } else {
+                stackNavigator?.dismiss()
+            }
         case .premiumPlan:
             showPremiumPlan()
         case .premiumUpgrade:
