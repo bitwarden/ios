@@ -18,7 +18,7 @@ struct BitwardenSubscriptionResponseModel: JSONResponse, Equatable, Sendable {
     /// The subscription's cart, including line items, any discounts, and estimated tax.
     let cart: SubscriptionCartResponseModel
 
-    /// The number of days after the subscription goes 'past_due' the subscriber has to resolve their
+    /// The number of days after the subscription goes past due the subscriber has to resolve their
     /// open invoices before the subscription is suspended.
     let gracePeriod: Int?
 
@@ -83,7 +83,7 @@ struct CartItemResponseModel: JSONResponse, Equatable, Sendable {
     let discount: BitwardenDiscountResponseModel?
 
     /// The quantity of this cart item.
-    let quantity: Int64
+    let quantity: Int
 
     /// The translation key for the cart item's display name.
     let translationKey: String
@@ -111,7 +111,7 @@ struct SubscriptionStorageResponseModel: JSONResponse, Equatable, Sendable {
     // MARK: Properties
 
     /// The available storage in GB.
-    let available: Int
+    let available: Double
 
     /// A human-readable representation of the used storage.
     let readableUsed: String

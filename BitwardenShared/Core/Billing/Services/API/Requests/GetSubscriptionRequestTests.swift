@@ -18,6 +18,12 @@ struct GetSubscriptionRequestTests {
 
     // MARK: Tests
 
+    /// `body` returns nil for requests without a payload.
+    @Test
+    func body() {
+        #expect(subject.body == nil)
+    }
+
     /// `method` returns the method of the request.
     @Test
     func method() {
