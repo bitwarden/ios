@@ -25,6 +25,9 @@ public struct DebugMenuView: View {
             } header: {
                 Text("SSO cookies")
             }
+            
+            userIDSection
+            
             Section {
                 errorReportSection
             } header: {
@@ -69,8 +72,6 @@ public struct DebugMenuView: View {
                 Text(Localizations.generateCrash)
             }
             .accessibilityIdentifier("GenerateCrashButton")
-
-            userIDField
         }
     }
 
@@ -114,20 +115,20 @@ public struct DebugMenuView: View {
         .accessibilityIdentifier("ClearSsoCookiesButton")
     }
 
-    private var userIDField: some View {
-        HStack {
-            Text("\(Localizations.userID): \(store.state.userID ?? Localizations.somethingWentWrong)")
-                .font(.body)
-                .foregroundStyle(.gray)
-                .truncationMode(.middle)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .lineLimit(1)
+    /// The section displaying the user ID
+    private var userIDSection: some View {
+        Section {
             Button {
                 store.send(.copyUserID)
             } label: {
-                Text(Localizations.copy)
+                Text(Localizations.copyUserID)
             }
             .accessibilityIdentifier("CopyUserIdToClipboardButton")
+        } header: {
+            Text("\(Localizations.userID): \(store.state.userID ?? Localizations.userIDUnavailable)")
+                .truncationMode(.middle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
         }
     }
 }

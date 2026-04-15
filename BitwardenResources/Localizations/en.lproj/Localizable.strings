@@ -1044,3 +1044,5 @@
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
 "UserID" = "User ID";
+"CopyUserID" = "Copy user ID";
+"UserIDUnavailable" = "User ID unavailable";
