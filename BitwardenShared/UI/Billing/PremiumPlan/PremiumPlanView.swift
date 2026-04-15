@@ -176,10 +176,10 @@ struct PremiumPlanView: View {
             store: Store(
                 processor: StateProcessor(
                     state: PremiumPlanState(
-                        planStatus: .active,
                         billingAmount: "$1.65 / month",
-                        storageCost: "$0.35",
                         discount: "-$0.10",
+                        planStatus: .active,
+                        storageCost: "$0.35",
                     ),
                 ),
             ),
@@ -193,10 +193,10 @@ struct PremiumPlanView: View {
             store: Store(
                 processor: StateProcessor(
                     state: PremiumPlanState(
-                        planStatus: .updatePayment,
                         billingAmount: "$1.65 / month",
-                        storageCost: "$0.35",
                         discount: "-$0.10",
+                        planStatus: .updatePayment,
+                        storageCost: "$0.35",
                     ),
                 ),
             ),
@@ -210,10 +210,10 @@ struct PremiumPlanView: View {
             store: Store(
                 processor: StateProcessor(
                     state: PremiumPlanState(
-                        planStatus: .pastDue,
                         billingAmount: "$1.65 / month",
-                        storageCost: "$0.35",
                         discount: "-$0.10",
+                        planStatus: .pastDue,
+                        storageCost: "$0.35",
                     ),
                 ),
             ),
