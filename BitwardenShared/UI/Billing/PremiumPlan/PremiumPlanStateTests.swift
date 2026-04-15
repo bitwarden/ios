@@ -9,113 +9,68 @@ import Testing
 struct PremiumPlanStateTests {
     // MARK: Tests - descriptionText
 
-    /// `descriptionText` for `.active` returns the next charge description.
-    @Test
-    func descriptionText_active() {
-        var state = PremiumPlanState()
-        state.planStatus = .active
-        #expect(state.descriptionText == Localizations.yourNextChargeIsForXDueOnY(
-            "$1.00 USD",
-            "April 2, 2026",
-        ))
-    }
-
-    /// `descriptionText` for `.canceled` returns the canceled description.
-    @Test
-    func descriptionText_canceled() {
-        var state = PremiumPlanState()
-        state.planStatus = .canceled
-        #expect(state.descriptionText == Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
+    /// `descriptionText` returns the expected value for each plan status.
+    @Test(arguments: [
+        (
+            PremiumPlanStatus.active,
+            Localizations.yourNextChargeIsForXDueOnY(
+                "$1.00 USD",
                 "April 2, 2026",
-            ))
-    }
-
-    /// `descriptionText` for `.pastDue` returns the past due description.
-    @Test
-    func descriptionText_pastDue() {
+            ),
+        ),
+        (
+            PremiumPlanStatus.canceled,
+            Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
+                "April 2, 2026",
+            ),
+        ),
+        (
+            PremiumPlanStatus.pastDue,
+            Localizations.youHaveAGracePeriodOfXFromYourSubscriptionDescriptionLong(
+                "14 days",
+                "Feb 2, 2026",
+            ),
+        ),
+        (
+            PremiumPlanStatus.updatePayment,
+            Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
+                "May 2, 2026",
+            ),
+        ),
+    ])
+    func descriptionText(planStatus: PremiumPlanStatus, expected: String) {
         var state = PremiumPlanState()
-        state.planStatus = .pastDue
-        #expect(state.descriptionText == Localizations.youHaveAGracePeriodOfXFromYourSubscriptionDescriptionLong(
-            "14 days",
-            "Feb 2, 2026",
-        ))
-    }
-
-    /// `descriptionText` for `.updatePayment` returns the update payment description.
-    @Test
-    func descriptionText_updatePayment() {
-        var state = PremiumPlanState()
-        state.planStatus = .updatePayment
-        #expect(state.descriptionText == Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
-            "May 2, 2026",
-        ))
+        state.planStatus = planStatus
+        #expect(state.descriptionText == expected)
     }
 
     // MARK: Tests - showBillingDetails
 
-    /// `showBillingDetails` returns `true` when status is `.active`.
-    @Test
-    func showBillingDetails_active() {
+    /// `showBillingDetails` returns the expected value for each plan status.
+    @Test(arguments: [
+        (PremiumPlanStatus.active, true),
+        (PremiumPlanStatus.canceled, false),
+        (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.updatePayment, true),
+    ])
+    func showBillingDetails(planStatus: PremiumPlanStatus, expected: Bool) {
         var state = PremiumPlanState()
-        state.planStatus = .active
-        #expect(state.showBillingDetails)
-    }
-
-    /// `showBillingDetails` returns `false` when status is `.canceled`.
-    @Test
-    func showBillingDetails_canceled() {
-        var state = PremiumPlanState()
-        state.planStatus = .canceled
-        #expect(!state.showBillingDetails)
-    }
-
-    /// `showBillingDetails` returns `true` when status is `.pastDue`.
-    @Test
-    func showBillingDetails_pastDue() {
-        var state = PremiumPlanState()
-        state.planStatus = .pastDue
-        #expect(state.showBillingDetails)
-    }
-
-    /// `showBillingDetails` returns `true` when status is `.updatePayment`.
-    @Test
-    func showBillingDetails_updatePayment() {
-        var state = PremiumPlanState()
-        state.planStatus = .updatePayment
-        #expect(state.showBillingDetails)
+        state.planStatus = planStatus
+        #expect(state.showBillingDetails == expected)
     }
 
     // MARK: Tests - showCancelButton
 
-    /// `showCancelButton` returns `true` when status is `.active`.
-    @Test
-    func showCancelButton_active() {
+    /// `showCancelButton` returns the expected value for each plan status.
+    @Test(arguments: [
+        (PremiumPlanStatus.active, true),
+        (PremiumPlanStatus.canceled, false),
+        (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.updatePayment, true),
+    ])
+    func showCancelButton(planStatus: PremiumPlanStatus, expected: Bool) {
         var state = PremiumPlanState()
-        state.planStatus = .active
-        #expect(state.showCancelButton)
-    }
-
-    /// `showCancelButton` returns `false` when status is `.canceled`.
-    @Test
-    func showCancelButton_canceled() {
-        var state = PremiumPlanState()
-        state.planStatus = .canceled
-        #expect(!state.showCancelButton)
-    }
-
-    /// `showCancelButton` returns `true` when status is `.pastDue`.
-    @Test
-    func showCancelButton_pastDue() {
-        var state = PremiumPlanState()
-        state.planStatus = .pastDue
-        #expect(state.showCancelButton)
-    }
-
-    /// `showCancelButton` returns `true` when status is `.updatePayment`.
-    @Test
-    func showCancelButton_updatePayment() {
-        var state = PremiumPlanState()
-        state.planStatus = .updatePayment
-        #expect(state.showCancelButton)
+        state.planStatus = planStatus
+        #expect(state.showCancelButton == expected)
     }
 }
