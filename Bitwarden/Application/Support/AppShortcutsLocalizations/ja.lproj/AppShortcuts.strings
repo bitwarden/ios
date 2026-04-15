@@ -32,7 +32,7 @@
 "Take me to ${applicationName}'s generator" = "Take me to ${applicationName}'s generator";
 "Begin generating passwords with ${applicationName}" = "Begin generating passwords with ${applicationName}";
 "Generate passphrase using ${applicationName}" = "Generate passphrase using ${applicationName}";
-"Create a ${applicationName} passphrase" = "Create a ${applicationName} passphrase";
+"Create a ${applicationName} passphrase" = "${applicationName} パスフレーズを作成";
 "${applicationName}, make a secure passphrase" = "${applicationName}, make a secure passphrase";
 "Build a new passphrase with ${applicationName}" = "Build a new passphrase with ${applicationName}";
 "Produce a ${applicationName} password phrase" = "Produce a ${applicationName} password phrase";

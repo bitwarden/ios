@@ -1,82 +1,91 @@
 import BitwardenKit
 import BitwardenKitMocks
+import Foundation
 import TestHelpers
-import XCTest
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
+// MARK: - BillingAPIServiceTests
+
 @MainActor
-class BillingAPIServiceTests: BitwardenTestCase {
+struct BillingAPIServiceTests {
     // MARK: Properties
 
+    var activeAccountStateProvider: MockActiveAccountStateProvider!
     var client: MockHTTPClient!
     var stateService: MockStateService!
     var subject: BillingAPIService!
 
-    // MARK: Setup & Teardown
+    // MARK: Initialization
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
+        activeAccountStateProvider = MockActiveAccountStateProvider()
         client = MockHTTPClient()
         stateService = MockStateService()
-        subject = APIService(client: client, stateService: stateService)
-    }
-
-    override func tearDown() async throws {
-        try await super.tearDown()
-
-        client = nil
-        stateService = nil
-        subject = nil
+        subject = APIService(
+            activeAccountStateProvider: activeAccountStateProvider,
+            client: client,
+            stateService: stateService,
+        )
     }
 
     // MARK: Tests
 
     /// `createCheckoutSession()` performs the request with the correct method, path, and body.
-    func test_createCheckoutSession() async throws {
+    @Test
+    func createCheckoutSession() async throws {
         client.result = .httpSuccess(testData: .checkoutSession)
 
         _ = try await subject.createCheckoutSession()
 
-        let request = try XCTUnwrap(client.requests.last)
-        XCTAssertEqual(request.method, .post)
-        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/account/billing/vnext/premium/checkout")
-        XCTAssertNotNil(request.body)
+        let request = try #require(client.requests.last)
+        #expect(request.method == .post)
+        #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/premium/checkout")
+        #expect(request.body != nil)
 
-        let body = try XCTUnwrap(request.body)
+        let body = try #require(request.body)
         let json = try JSONSerialization.jsonObject(with: body) as? [String: Any]
-        XCTAssertEqual(json?["platform"] as? String, "ios")
-    }
-
-    /// `getPlans()` performs the request with the correct method and path.
-    func test_getPlans() async throws {
-        client.result = .httpSuccess(testData: .plansResponse)
-
-        let response = try await subject.getPlans()
-
-        let request = try XCTUnwrap(client.requests.last)
-        XCTAssertEqual(request.method, .get)
-        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/plans")
-        XCTAssertNil(request.body)
-
-        // Verify response parsing
-        XCTAssertEqual(response.data.count, 3)
-        XCTAssertEqual(response.data[0].type, .free)
-        XCTAssertEqual(response.data[1].type, .familiesAnnually)
-        XCTAssertEqual(response.data[2].type, .teamsAnnually)
+        #expect(json?["platform"] as? String == "ios")
     }
 
     /// `getPortalUrl()` performs the request with the correct method and path.
-    func test_getPortalUrl() async throws {
+    @Test
+    func getPortalUrl() async throws {
         client.result = .httpSuccess(testData: .portalUrl)
 
         _ = try await subject.getPortalUrl()
 
-        let request = try XCTUnwrap(client.requests.last)
-        XCTAssertEqual(request.method, .post)
-        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/account/billing/vnext/portal-session")
-        XCTAssertNil(request.body)
+        let request = try #require(client.requests.last)
+        #expect(request.method == .post)
+        #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/portal-session")
+        #expect(request.body == nil)
+    }
+
+    /// `getPremiumPlan()` performs the request with the correct method and path.
+    @Test
+    func getPremiumPlan() async throws {
+        client.result = .httpSuccess(testData: .premiumPlanResponse)
+
+        _ = try await subject.getPremiumPlan()
+
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/api/plans/premium")
+        #expect(request.body == nil)
+    }
+
+    /// `getSubscription()` performs the request with the correct method and path.
+    @Test
+    func getSubscription() async throws {
+        client.result = .httpSuccess(testData: .subscriptionResponse)
+
+        _ = try await subject.getSubscription()
+
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/subscription")
+        #expect(request.body == nil)
     }
 }

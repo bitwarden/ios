@@ -7,8 +7,10 @@ import Networking
 extension APIService {
     convenience init(
         accountTokenProvider: AccountTokenProvider? = nil,
+        activeAccountStateProvider: MockActiveAccountStateProvider = MockActiveAccountStateProvider(),
         client: HTTPClient,
         environmentService: EnvironmentService = MockEnvironmentService(),
+        errorReporter: ErrorReporter = MockErrorReporter(),
         flightRecorder: FlightRecorder = MockFlightRecorder(),
         // swiftlint:disable:next line_length
         serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
@@ -16,8 +18,10 @@ extension APIService {
     ) {
         self.init(
             accountTokenProvider: accountTokenProvider,
+            activeAccountStateProvider: activeAccountStateProvider,
             client: client,
             environmentService: environmentService,
+            errorReporter: errorReporter,
             flightRecorder: flightRecorder,
             serverCommunicationConfigClientSingleton: { serverCommunicationConfigClientSingleton },
             stateService: stateService,

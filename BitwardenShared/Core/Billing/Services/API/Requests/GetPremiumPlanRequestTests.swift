@@ -3,17 +3,17 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GetPlansRequestTests: BitwardenTestCase {
+class GetPremiumPlanRequestTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: GetPlansRequest!
+    var subject: GetPremiumPlanRequest!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = GetPlansRequest()
+        subject = GetPremiumPlanRequest()
     }
 
     override func tearDown() {
@@ -36,6 +36,6 @@ class GetPlansRequestTests: BitwardenTestCase {
 
     /// `path` returns the path of the request.
     func test_path() {
-        XCTAssertEqual(subject.path, "/plans")
+        XCTAssertEqual(subject.path, "/plans/premium")
     }
 }

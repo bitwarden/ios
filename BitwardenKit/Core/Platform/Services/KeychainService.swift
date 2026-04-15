@@ -4,7 +4,7 @@ import Foundation
 
 /// A Service to provide a wrapper around the device Keychain.
 ///
-public protocol KeychainService: AnyObject {
+public protocol KeychainService: AnyObject { // sourcery: AutoMockable
     /// Creates an access control for a given set of flags.
     ///
     /// - Parameters:
@@ -30,10 +30,10 @@ public protocol KeychainService: AnyObject {
     ///
     func delete(query: CFDictionary) throws
 
-    /// Searches for a query.
+    /// Searches the keychain based on a query.
     ///
-    /// - Parameter query: Query for the delete.
-    /// - Returns: The search results.
+    /// - Parameter query: Query to search the keychain for.
+    /// - Returns: The keychain items searched for. `nil` if none were found.
     ///
     func search(query: CFDictionary) throws -> AnyObject?
 
@@ -90,8 +90,16 @@ public class DefaultKeychainService: KeychainService {
 
     public func search(query: CFDictionary) throws -> AnyObject? {
         var foundItem: AnyObject?
-        try resolve(SecItemCopyMatching(query, &foundItem))
-        return foundItem
+        let status = SecItemCopyMatching(query, &foundItem)
+
+        switch status {
+        case errSecSuccess:
+            return foundItem
+        case errSecItemNotFound:
+            return nil
+        default:
+            throw KeychainServiceError.osStatusError(status)
+        }
     }
 
     public func update(query: CFDictionary, attributes: CFDictionary) throws {

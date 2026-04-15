@@ -11,6 +11,18 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Throws: `BillingError.invalidCheckoutUrl` if the URL is invalid or not HTTPS.
     ///
     func createCheckoutSession() async throws -> URL
+
+    /// Gets the premium subscription plan details.
+    ///
+    /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
+    ///
+    func getPremiumPlan() async throws -> PremiumPlanResponseModel
+
+    /// Gets the user's subscription details.
+    ///
+    /// - Returns: A `BitwardenSubscriptionResponseModel` containing the subscription details.
+    ///
+    func getSubscription() async throws -> BitwardenSubscriptionResponseModel
 }
 
 // MARK: - DefaultBillingService
@@ -44,5 +56,13 @@ class DefaultBillingService: BillingService {
             throw BillingError.invalidCheckoutUrl
         }
         return url
+    }
+
+    func getPremiumPlan() async throws -> PremiumPlanResponseModel {
+        try await billingAPIService.getPremiumPlan()
+    }
+
+    func getSubscription() async throws -> BitwardenSubscriptionResponseModel {
+        try await billingAPIService.getSubscription()
     }
 }

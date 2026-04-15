@@ -11,8 +11,7 @@ import XCTest
 final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appIDSettingsStore: MockAppIDSettingsStore!
-    var keychainService: MockKeychainService!
+    var keychainServiceFacade: MockKeychainServiceFacade!
     var subject: DefaultKeychainRepository!
 
     // MARK: Setup & Teardown
@@ -20,21 +19,17 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appIDSettingsStore = MockAppIDSettingsStore()
-        keychainService = MockKeychainService()
+        keychainServiceFacade = MockKeychainServiceFacade()
         subject = DefaultKeychainRepository(
-            appIDService: AppIDService(
-                appIDSettingsStore: appIDSettingsStore,
-            ),
-            keychainService: keychainService,
+            keychainService: MockKeychainService(),
+            keychainServiceFacade: keychainServiceFacade,
         )
     }
 
     override func tearDown() {
         super.tearDown()
 
-        appIDSettingsStore = nil
-        keychainService = nil
+        keychainServiceFacade = nil
         subject = nil
     }
 
@@ -43,57 +38,67 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     /// `getLastActiveTime(userId:)` returns the stored last active time.
     ///
     func test_getLastActiveTime() async throws {
-        keychainService.setSearchResultData(string: "1234567890")
-        let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
-        XCTAssertEqual(lastActiveTime, Date(timeIntervalSince1970: 1_234_567_890))
+        keychainServiceFacade.getValueReturnValue = "1234567890"
+
+        let result = try await subject.getLastActiveTime(userId: "1")
+
+        XCTAssertEqual(result, Date(timeIntervalSince1970: 1_234_567_890))
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.lastActiveTime(userId: "1").unformattedKey,
+        )
     }
 
-    /// `getLastActiveTime(userId:)` throws an error if one occurs.
+    /// `getLastActiveTime(userId:)` returns nil when the item is not found.
+    ///
+    func test_getLastActiveTime_keyNotFound() async throws {
+        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.lastActiveTime(userId: "1"))
+        keychainServiceFacade.getValueThrowableError = error
+
+        let result = try await subject.getLastActiveTime(userId: "1")
+
+        XCTAssertNil(result)
+    }
+
+    /// `getLastActiveTime(userId:)` returns nil when the item is not found.
+    ///
+    func test_getLastActiveTime_itemNotFound() async throws {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+
+        let result = try await subject.getLastActiveTime(userId: "1")
+
+        XCTAssertNil(result)
+    }
+
+    /// `getLastActiveTime(userId:)` rethrows non-notFound errors.
     ///
     func test_getLastActiveTime_error() async {
-        let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.lastActiveTime(userId: "1"))
-        keychainService.searchResult = .failure(error)
+        let error = KeychainServiceError.osStatusError(errSecInvalidItemRef)
+        keychainServiceFacade.getValueThrowableError = error
+
         await assertAsyncThrows(error: error) {
             _ = try await subject.getLastActiveTime(userId: "1")
         }
     }
 
-    /// `getLastActiveTime(userId:)` returns nil when the time has never been set.
-    func test_getLastActiveTime_itemNotFound() async throws {
-        let error = KeychainServiceError.osStatusError(errSecItemNotFound)
-        keychainService.searchResult = .failure(error)
-        let lastActiveTime = try await subject.getLastActiveTime(userId: "1")
-        XCTAssertNil(lastActiveTime)
-    }
-
-    /// `setLastActiveTime(_:userId:)` stores the last active time with correct attributes.
+    /// `setLastActiveTime(_:userId:)` stores the timestamp string via the facade.
     ///
     func test_setLastActiveTime() async throws {
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                [],
-                nil,
-            )!,
-        )
-        keychainService.setSearchResultData(string: "1234567890")
         try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1_234_567_890), userId: "1")
 
-        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
-        try XCTAssertEqual(
-            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
-            "1234567890.0",
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "1234567890.0")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.lastActiveTime(userId: "1").unformattedKey,
         )
-        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
-        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 
-    /// `setLastActiveTime(_:userId:)` throws an error if one occurs.
+    /// `setLastActiveTime(_:userId:)` rethrows errors from the facade.
     ///
     func test_setLastActiveTime_error() async {
         let error = KeychainServiceError.accessControlFailed(nil)
-        keychainService.accessControlResult = .failure(error)
+        keychainServiceFacade.setValueThrowableError = error
+
         await assertAsyncThrows(error: error) {
             try await subject.setLastActiveTime(Date(timeIntervalSince1970: 1_234_567_890), userId: "1")
         }
@@ -101,44 +106,41 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
 
     // MARK: Tests - Unsuccessful Unlock Attempts
 
-    /// `getUnsuccessfulUnlockAttempts(userId:)` returns the stored value of unsuccessful unlock attempts.
+    /// `getUnsuccessfulUnlockAttempts(userId:)` returns the stored unlock attempt count.
+    ///
     func test_getUnsuccessfulUnlockAttempts() async throws {
-        keychainService.setSearchResultData(string: "4")
-        let attempts = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
-        XCTAssertEqual(attempts, 4)
+        keychainServiceFacade.getValueReturnValue = "4"
+
+        let result = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
+
+        XCTAssertEqual(result, 4)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1").unformattedKey,
+        )
     }
 
-    /// `getUnsuccessfulUnlockAttempts(userId:)` throws an error if one occurs.
+    /// `getUnsuccessfulUnlockAttempts(userId:)` rethrows errors from the facade.
     ///
     func test_getUnsuccessfulUnlockAttempts_error() async {
         let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1"))
-        keychainService.searchResult = .failure(error)
+        keychainServiceFacade.getValueThrowableError = error
+
         await assertAsyncThrows(error: error) {
             _ = try await subject.getUnsuccessfulUnlockAttempts(userId: "1")
         }
     }
 
-    /// `setUnsuccessfulUnlockAttempts(_:userId:)` stores the number of unsuccessful unlock attempts.
+    /// `setUnsuccessfulUnlockAttempts(_:userId:)` stores the count as a string via the facade.
     ///
     func test_setUnsuccessfulUnlockAttempts() async throws {
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                [],
-                nil,
-            )!,
-        )
-        keychainService.setSearchResultData(string: "2")
         try await subject.setUnsuccessfulUnlockAttempts(3, userId: "1")
 
-        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
-        try XCTAssertEqual(
-            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
-            "3",
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "3")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.unsuccessfulUnlockAttempts(userId: "1").unformattedKey,
         )
-        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
-        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 
     // MARK: Tests - Vault Timeout
@@ -146,49 +148,46 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     /// `getVaultTimeout(userId:)` returns the stored vault timeout.
     ///
     func test_getVaultTimeout() async throws {
-        keychainService.setSearchResultData(string: "15")
-        let vaultTimeout = try await subject.getVaultTimeout(userId: "1")
-        XCTAssertEqual(vaultTimeout, 15)
+        keychainServiceFacade.getValueReturnValue = "15"
+
+        let result = try await subject.getVaultTimeout(userId: "1")
+
+        XCTAssertEqual(result, 15)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.vaultTimeout(userId: "1").unformattedKey,
+        )
     }
 
-    /// `getVaultTimeout(userId:)` throws an error if one occurs.
+    /// `getVaultTimeout(userId:)` rethrows errors from the facade.
     ///
     func test_getVaultTimeout_error() async {
         let error = KeychainServiceError.keyNotFound(BitwardenKeychainItem.vaultTimeout(userId: "1"))
-        keychainService.searchResult = .failure(error)
+        keychainServiceFacade.getValueThrowableError = error
+
         await assertAsyncThrows(error: error) {
             _ = try await subject.getVaultTimeout(userId: "1")
         }
     }
 
-    /// `setVaultTimeout(_:userId:)` stores the vault timeout with correct attributes.
+    /// `setVaultTimeout(minutes:userId:)` stores the timeout as a string via the facade.
     ///
     func test_setVaultTimeout() async throws {
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                [],
-                nil,
-            )!,
-        )
-        keychainService.setSearchResultData(string: "30")
         try await subject.setVaultTimeout(minutes: 30, userId: "1")
 
-        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
-        try XCTAssertEqual(
-            String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
-            "30",
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "30")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.vaultTimeout(userId: "1").unformattedKey,
         )
-        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
-        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 
-    /// `setVaultTimeout(_:userId:)` throws an error if one occurs.
+    /// `setVaultTimeout(minutes:userId:)` rethrows errors from the facade.
     ///
-    func test_setVaultTimeout_accessControlError() async {
+    func test_setVaultTimeout_error() async {
         let error = KeychainServiceError.accessControlFailed(nil)
-        keychainService.accessControlResult = .failure(error)
+        keychainServiceFacade.setValueThrowableError = error
+
         await assertAsyncThrows(error: error) {
             try await subject.setVaultTimeout(minutes: 30, userId: "1")
         }
