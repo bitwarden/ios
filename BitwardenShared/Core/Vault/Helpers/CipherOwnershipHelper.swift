@@ -5,11 +5,11 @@ import BitwardenSdk
 
 /// Errors thrown by `CipherOwnershipHelper`.
 enum CipherOwnershipHelperError: Error, Equatable {
-    /// No eligible organization is available for cipher ownership when personal ownership is disabled.
-    case noEligibleOrganization
-
     /// No default collection is available for the organization when personal ownership is disabled.
     case noDefaultCollection
+
+    /// No eligible organization is available for cipher ownership when personal ownership is disabled.
+    case noEligibleOrganization
 }
 
 // MARK: - CipherOwnershipHelper
