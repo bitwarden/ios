@@ -26,8 +26,8 @@ struct PremiumPlanStateTests {
         var state = PremiumPlanState()
         state.planStatus = .canceled
         #expect(state.descriptionText == Localizations.yourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong(
-                "April 2, 2026",
-            ))
+            "April 2, 2026",
+        ))
     }
 
     /// `descriptionText` for `.pastDue` returns the past due description.
