@@ -595,8 +595,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let clientBuilder = DefaultClientBuilder(
-            errorReporter: errorReporter,
+            appIDService: appIDService,
+            environmentService: environmentService,
             tokenProvider: tokenService,
+            userAgentBuilder: userAgentBuilder,
         )
         let sdkRepositoryFactory = DefaultSdkRepositoryFactory(
             cipherDataStore: dataStore,

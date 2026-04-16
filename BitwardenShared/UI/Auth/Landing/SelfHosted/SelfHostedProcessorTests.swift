@@ -334,7 +334,7 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(
             alert,
             .inputValidationAlert(error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.alias)
+                message: Localizations.validationFieldRequired(Localizations.alias),
             )),
         )
     }
@@ -351,7 +351,7 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(
             alert,
             .inputValidationAlert(error: InputValidationError(
-                message: Localizations.validationFieldRequired(Localizations.password)
+                message: Localizations.validationFieldRequired(Localizations.password),
             )),
         )
     }

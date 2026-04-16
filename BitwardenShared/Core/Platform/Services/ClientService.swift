@@ -152,9 +152,6 @@ actor DefaultClientService: ClientService {
     /// The factory to create SDK repositories.
     private let sdkRepositoryFactory: SdkRepositoryFactory
 
-    /// Basic client behavior settings.
-    private let settings: ClientSettings?
-
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -170,7 +167,6 @@ actor DefaultClientService: ClientService {
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - sdkRepositoryFactory: The factory to create SDK repositories.
-    ///   - settings: The settings to apply to the client. Defaults to `nil`.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
@@ -178,14 +174,12 @@ actor DefaultClientService: ClientService {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         sdkRepositoryFactory: SdkRepositoryFactory,
-        settings: ClientSettings? = nil,
         stateService: StateService,
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService
         self.errorReporter = errorReporter
         self.sdkRepositoryFactory = sdkRepositoryFactory
-        self.settings = settings
         self.stateService = stateService
 
         Task {
@@ -254,7 +248,7 @@ actor DefaultClientService: ClientService {
         guard !isPreAuth else {
             // If this client is being used for a new user prior to authentication, a user ID doesn't
             // exist for the user to map the client to, so return a new client.
-            return clientBuilder.buildClient()
+            return await clientBuilder.buildClient()
         }
 
         do {
@@ -281,7 +275,7 @@ actor DefaultClientService: ClientService {
                         "set in this scenario.",
                 ),
             )
-            return clientBuilder.buildClient()
+            return await clientBuilder.buildClient()
         }
     }
 
@@ -304,8 +298,7 @@ actor DefaultClientService: ClientService {
     /// - Parameter userId: A user ID that the new client is being mapped to.
     ///
     private func createAndMapClient(for userId: String) async -> BitwardenSdkClient {
-        let client = clientBuilder.buildClient()
-
+        let client = await clientBuilder.buildClient()
         userClientArray.updateValue(client, forKey: userId)
         return client
     }
@@ -329,58 +322,6 @@ actor DefaultClientService: ClientService {
         } catch {
             errorReporter.log(error: error)
         }
-    }
-}
-
-// MARK: - ClientBuilder
-
-/// A protocol for creating a new `BitwardenSdkClient`.
-///
-protocol ClientBuilder {
-    /// Creates a `BitwardenSdkClient`.
-    /// - Returns: A new `BitwardenSdkClient`.
-    ///
-    func buildClient() -> BitwardenSdkClient
-}
-
-// MARK: DefaultClientBuilder
-
-/// A default `ClientBuilder` implementation.
-///
-class DefaultClientBuilder: ClientBuilder {
-    // MARK: Properties
-
-    /// The service used by the application to report non-fatal errors.
-    private let errorReporter: ErrorReporter
-
-    /// The settings applied to the client.
-    private let settings: ClientSettings?
-
-    /// The token provider to pass to the SDK.
-    private let tokenProvider: ClientManagedTokens
-
-    // MARK: Initialization
-
-    /// Initializes a new client.
-    ///
-    /// - Parameters:
-    ///   - errorReporter: The service used by the application to report non-fatal errors.
-    ///   - settings: The settings applied to the client.
-    ///   - tokenProvider: The token provider to pass to the SDK.
-    init(
-        errorReporter: ErrorReporter,
-        settings: ClientSettings? = nil,
-        tokenProvider: ClientManagedTokens,
-    ) {
-        self.errorReporter = errorReporter
-        self.settings = settings
-        self.tokenProvider = tokenProvider
-    }
-
-    // MARK: Methods
-
-    func buildClient() -> BitwardenSdkClient {
-        Client(tokenProvider: tokenProvider, settings: settings)
     }
 }
 
@@ -441,4 +382,4 @@ extension Client: BitwardenSdkClient {
     func vault() -> VaultClientService {
         vault() as VaultClient
     }
-} // swiftlint:disable:this file_length
+}
