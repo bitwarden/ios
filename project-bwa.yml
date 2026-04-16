@@ -11,7 +11,7 @@ options:
     "icon":
       file: true 
 settings:
-  MARKETING_VERSION: 2024.6.1
+  MARKETING_VERSION: 2026.4.0
   CURRENT_PROJECT_VERSION: 1
 packages:
   SwiftProtobuf:
