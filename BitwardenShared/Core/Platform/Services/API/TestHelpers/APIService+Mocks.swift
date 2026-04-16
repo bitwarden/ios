@@ -15,6 +15,11 @@ extension APIService {
         // swiftlint:disable:next line_length
         serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton = MockServerCommunicationConfigClientSingleton(),
         stateService: StateService = MockStateService(),
+        userAgentBuilder: UserAgentBuilder = UserAgentBuilder(
+            appName: "TestApp",
+            appVersion: "1.0",
+            systemDevice: MockSystemDevice(),
+        ),
     ) {
         self.init(
             accountTokenProvider: accountTokenProvider,
@@ -26,6 +31,7 @@ extension APIService {
             serverCommunicationConfigClientSingleton: { serverCommunicationConfigClientSingleton },
             stateService: stateService,
             tokenService: MockTokenService(),
+            userAgentBuilder: userAgentBuilder,
         )
     }
 }
