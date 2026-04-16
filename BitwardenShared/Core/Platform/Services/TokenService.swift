@@ -141,14 +141,3 @@ actor DefaultTokenService: TokenService {
         await stateService.setAccessTokenExpirationDate(expirationDate, userId: userId)
     }
 }
-
-// MARK: ClientManagedTokens (SDK)
-
-extension DefaultTokenService: ClientManagedTokens {
-    /// Gets the access token for the SDK, nil if any errors are thrown.
-    func getAccessToken() async -> String? {
-        // TODO: PM-21846 Returning `nil` temporarily until we add validation
-        // given that the SDK expects non-expired token.
-        nil
-    }
-}
