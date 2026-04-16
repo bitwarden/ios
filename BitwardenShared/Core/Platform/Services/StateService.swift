@@ -1814,7 +1814,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
             return false
         } catch StateServiceError.noAccounts {
             return false
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return false
         }
     }
