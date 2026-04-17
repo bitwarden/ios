@@ -37,8 +37,21 @@ class PremiumPlanViewTests: BitwardenTestCase {
     @MainActor
     func test_billingAmount_visible_whenActive() throws {
         processor.state.planStatus = .active
-        processor.state.billingAmount = "$1.65 / month"
-        let text = try subject.inspect().find(text: "$1.65 / month")
+        processor.state.subscription = PremiumSubscription(
+            cadence: .monthly,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 0,
+            gracePeriod: nil,
+            nextCharge: nil,
+            seatsCost: Decimal(string: "1.65")!,
+            status: .active,
+            storageCost: 0,
+            suspension: nil
+        )
+        let billingAmount = processor.state.billingAmount
+        let text = try subject.inspect().find(text: billingAmount)
         XCTAssertNotNil(text)
     }
 
