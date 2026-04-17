@@ -26,9 +26,13 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     /// A flag indicating if the text field is currently focused.
     @FocusState private var isTextFieldFocused
 
+    /// Local buffer decoupling the native text field from the external binding, so iOS autofill's
+    /// post-fill verification doesn't see a binding-driven re-evaluation as a rejection.
+    @State private var localText: String = ""
+
     /// Whether the placeholder text should be shown in the text field.
     private var showPlaceholder: Bool {
-        !isFocused && text.isEmpty
+        !isFocused && localText.isEmpty
     }
 
     // MARK: Properties
@@ -82,6 +86,13 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
+        .onChange(of: localText) { newValue in
+            text = newValue
+        }
+        .onChange(of: text) { newValue in
+            guard newValue != localText else { return }
+            localText = newValue
+        }
         .onTapGesture {
             let isPassword = isPasswordVisible != nil || canViewPassword == false
             let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
@@ -158,7 +169,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                 let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
                 let isPasswordMasked = !isPasswordVisible && isPassword
-                TextField("", text: $text)
+                TextField("", text: $localText)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     // After some investigation, we found that .accessibilityIdentifier(..)
@@ -180,7 +191,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     )
                     .disabled(isTextFieldDisabled)
                 if isPasswordMasked {
-                    SecureField("", text: $text)
+                    SecureField("", text: $localText)
                         .focused($isSecureFieldFocused)
                         .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
@@ -238,6 +249,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         self.trailingContent = trailingContent()
     }
@@ -277,6 +289,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         self.trailingContent = trailingContent()
     }
@@ -318,6 +331,7 @@ public extension BitwardenTextField where TrailingContent == EmptyView {
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         trailingContent = nil
     }
@@ -357,6 +371,7 @@ public extension BitwardenTextField where FooterContent == EmptyView, TrailingCo
         self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
+        _localText = State(initialValue: text.wrappedValue)
         self.title = title
         trailingContent = nil
     }
