@@ -117,6 +117,101 @@ struct BillingServiceTests {
         #expect(billingAPIService.getPremiumPlanCallsCount == 1)
     }
 
+    /// `getSubscription()` propagates errors from the API service.
+    @Test
+    func getSubscription_apiError() async throws {
+        billingAPIService.getSubscriptionThrowableError = URLError(.notConnectedToInternet)
+
+        await #expect(throws: URLError.self) {
+            try await subject.getSubscription()
+        }
+
+        #expect(billingAPIService.getSubscriptionCallsCount == 1)
+    }
+
+    /// `getSubscription()` maps canceled status correctly.
+    @Test
+    func getSubscription_canceled() async throws {
+        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
+            cancelAt: nil,
+            canceled: Date(timeIntervalSince1970: 1_800_000_000),
+            cart: SubscriptionCartResponseModel(
+                cadence: .annually,
+                discount: nil,
+                estimatedTax: 0,
+                passwordManager: nil,
+            ),
+            gracePeriod: nil,
+            nextCharge: nil,
+            status: "canceled",
+            storage: nil,
+            suspension: nil,
+        )
+
+        let result = try await subject.getSubscription()
+
+        #expect(result.status == .canceled)
+        #expect(result.canceled != nil)
+    }
+
+    /// `getSubscription()` includes cart-level discount in the total discount.
+    @Test
+    func getSubscription_cartDiscount() async throws {
+        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
+            cancelAt: nil,
+            canceled: nil,
+            cart: SubscriptionCartResponseModel(
+                cadence: .annually,
+                discount: BitwardenDiscountResponseModel(type: .amountOff, value: 5),
+                estimatedTax: 0,
+                passwordManager: PasswordManagerCartItemsResponseModel(
+                    additionalStorage: nil,
+                    seats: CartItemResponseModel(
+                        cost: 20,
+                        discount: nil,
+                        quantity: 1,
+                        translationKey: "premiumMembership"
+                    )
+                )
+            ),
+            gracePeriod: nil,
+            nextCharge: nil,
+            status: "active",
+            storage: nil,
+            suspension: nil
+        )
+
+        let result = try await subject.getSubscription()
+
+        #expect(result.discount == 5)
+    }
+
+    /// `getSubscription()` maps past_due status correctly.
+    @Test
+    func getSubscription_pastDue() async throws {
+        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
+            cancelAt: nil,
+            canceled: nil,
+            cart: SubscriptionCartResponseModel(
+                cadence: .annually,
+                discount: nil,
+                estimatedTax: 0,
+                passwordManager: nil,
+            ),
+            gracePeriod: 14,
+            nextCharge: nil,
+            status: "past_due",
+            storage: nil,
+            suspension: Date(timeIntervalSince1970: 1_803_219_691),
+        )
+
+        let result = try await subject.getSubscription()
+
+        #expect(result.status == .pastDue)
+        #expect(result.gracePeriod == 14)
+        #expect(result.suspension != nil)
+    }
+
     /// `getSubscription()` maps the API response to a `PremiumSubscription` domain model.
     @Test
     func getSubscription_success() async throws {
@@ -162,57 +257,6 @@ struct BillingServiceTests {
         #expect(result.nextCharge != nil)
     }
 
-    /// `getSubscription()` maps canceled status correctly.
-    @Test
-    func getSubscription_canceled() async throws {
-        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
-            cancelAt: nil,
-            canceled: Date(timeIntervalSince1970: 1_800_000_000),
-            cart: SubscriptionCartResponseModel(
-                cadence: .annually,
-                discount: nil,
-                estimatedTax: 0,
-                passwordManager: nil,
-            ),
-            gracePeriod: nil,
-            nextCharge: nil,
-            status: "canceled",
-            storage: nil,
-            suspension: nil,
-        )
-
-        let result = try await subject.getSubscription()
-
-        #expect(result.status == .canceled)
-        #expect(result.canceled != nil)
-    }
-
-    /// `getSubscription()` maps past_due status correctly.
-    @Test
-    func getSubscription_pastDue() async throws {
-        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
-            cancelAt: nil,
-            canceled: nil,
-            cart: SubscriptionCartResponseModel(
-                cadence: .annually,
-                discount: nil,
-                estimatedTax: 0,
-                passwordManager: nil,
-            ),
-            gracePeriod: 14,
-            nextCharge: nil,
-            status: "past_due",
-            storage: nil,
-            suspension: Date(timeIntervalSince1970: 1_803_219_691),
-        )
-
-        let result = try await subject.getSubscription()
-
-        #expect(result.status == .pastDue)
-        #expect(result.gracePeriod == 14)
-        #expect(result.suspension != nil)
-    }
-
     /// `getSubscription()` maps unpaid status to updatePayment.
     @Test
     func getSubscription_unpaid() async throws {
@@ -236,17 +280,5 @@ struct BillingServiceTests {
 
         #expect(result.status == .updatePayment)
         #expect(result.cancelAt != nil)
-    }
-
-    /// `getSubscription()` propagates errors from the API service.
-    @Test
-    func getSubscription_apiError() async throws {
-        billingAPIService.getSubscriptionThrowableError = URLError(.notConnectedToInternet)
-
-        await #expect(throws: URLError.self) {
-            try await subject.getSubscription()
-        }
-
-        #expect(billingAPIService.getSubscriptionCallsCount == 1)
     }
 }
