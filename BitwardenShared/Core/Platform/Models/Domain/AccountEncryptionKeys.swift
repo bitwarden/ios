@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 /// Domain model that contains the encryption keys for an account.
 ///
 struct AccountEncryptionKeys: Equatable {
@@ -31,5 +33,39 @@ extension AccountEncryptionKeys {
             encryptedPrivateKey: privateKey,
             encryptedUserKey: responseModel.key,
         )
+    }
+
+    /// Initializes an `AccountEncryptionKeys` from a `WrappedAccountCryptographicState`.
+    ///
+    /// - Parameters:
+    ///   - accountCryptographicState: The SDK's wrapped account cryptographic state.
+    ///   - encryptedUserKey: An optional encrypted user key to store alongside the cryptographic state.
+    ///
+    init(accountCryptographicState: WrappedAccountCryptographicState, encryptedUserKey: String? = nil) {
+        switch accountCryptographicState {
+        case let .v1(privateKey):
+            self.init(
+                accountKeys: nil,
+                encryptedPrivateKey: privateKey,
+                encryptedUserKey: encryptedUserKey,
+            )
+        case let .v2(privateKey, signedPublicKey, signingKey, securityState):
+            self.init(
+                accountKeys: PrivateKeysResponseModel(
+                    publicKeyEncryptionKeyPair: PublicKeyEncryptionKeyPairResponseModel(
+                        publicKey: "", // Not returned by SDK at registration; will populate on next sync.
+                        signedPublicKey: signedPublicKey,
+                        wrappedPrivateKey: privateKey,
+                    ),
+                    signatureKeyPair: SignatureKeyPairResponseModel(
+                        wrappedSigningKey: signingKey,
+                        verifyingKey: "", // Not returned by SDK at registration; will populate on next sync.
+                    ),
+                    securityState: SecurityStateResponseModel(securityState: securityState),
+                ),
+                encryptedPrivateKey: privateKey,
+                encryptedUserKey: encryptedUserKey,
+            )
+        }
     }
 }
