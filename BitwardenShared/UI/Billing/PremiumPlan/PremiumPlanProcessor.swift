@@ -65,25 +65,16 @@ final class PremiumPlanProcessor: StateProcessor<
 
     // MARK: Private Methods
 
-    /// Formats a decimal price as a US dollar currency string.
-    ///
-    /// - Parameter price: The price to format.
-    /// - Returns: A formatted currency string (e.g. "$1.65").
-    ///
-    private func formatCurrency(_ price: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        // Currently this will only be used in the US market
-        formatter.currencyCode = "USD"
-        return formatter.string(from: price as NSDecimalNumber) ?? "$0.00"
-    }
-
     /// Loads the premium plan details from the billing service and updates the state.
     ///
     private func loadPremiumPlan() async {
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+
         do {
             let plan = try await services.billingService.getPremiumPlan()
             guard plan.available else {
+                coordinator.hideLoadingOverlay()
                 coordinator.showAlert(
                     .defaultAlert(
                         title: Localizations.anErrorHasOccurred,
@@ -95,10 +86,10 @@ final class PremiumPlanProcessor: StateProcessor<
                 )
                 return
             }
-            let monthlyBillingAmount = plan.seat.price / 12
-            let monthlyStorageCost = plan.storage.price / 12
-            state.billingAmount = "\(formatCurrency(monthlyBillingAmount)) \(Localizations.perMonth)"
-            state.storageCost = formatCurrency(monthlyStorageCost)
+
+            let subscription = try await services.billingService.getSubscription()
+            state.subscription = subscription
+            state.planStatus = subscription.status
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)

@@ -36,30 +36,101 @@ struct PremiumPlanProcessorTests {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` loads the premium plan and updates state.
+    /// `perform(_:)` with `.appeared` loads the subscription and updates state.
     @Test
     func perform_appeared_success() async {
         billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
             available: true,
             legacyYear: nil,
             name: "Premium",
-            seat: PlanPricingResponseModel(
-                price: 12,
-                provided: 1,
-                stripePriceId: "personal-premium-annually",
-            ),
-            storage: PlanPricingResponseModel(
-                price: 4.80,
-                provided: 1,
-                stripePriceId: "personal-storage-gb-annually",
-            ),
+            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
+        )
+        billingService.getSubscriptionReturnValue = PremiumSubscription(
+            cadence: .annually,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 4.55,
+            gracePeriod: nil,
+            nextCharge: Date(timeIntervalSince1970: 1_803_219_691),
+            seatsCost: 19.8,
+            status: .active,
+            storageCost: 0,
+            suspension: nil,
         )
 
         await subject.perform(.appeared)
 
         #expect(billingService.getPremiumPlanCallsCount == 1)
-        #expect(subject.state.billingAmount.contains("$1.00"))
-        #expect(subject.state.storageCost.contains("$0.40"))
+        #expect(billingService.getSubscriptionCallsCount == 1)
+        #expect(subject.state.planStatus == .active)
+        #expect(subject.state.subscription != nil)
+        #expect(subject.state.billingAmount.contains("$19.80"))
+        #expect(subject.state.nextChargeAmount.contains("$24.35"))
+        #expect(!subject.state.nextChargeDate.isEmpty)
+        #expect(!subject.state.showStorageCost)
+    }
+
+    /// `perform(_:)` with `.appeared` loads subscription with canceled status.
+    @Test
+    func perform_appeared_canceled() async {
+        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
+        )
+        billingService.getSubscriptionReturnValue = PremiumSubscription(
+            cadence: .annually,
+            cancelAt: nil,
+            canceled: Date(timeIntervalSince1970: 1_800_000_000),
+            discount: 0,
+            estimatedTax: 0,
+            gracePeriod: nil,
+            nextCharge: nil,
+            seatsCost: 0,
+            status: .canceled,
+            storageCost: 0,
+            suspension: nil,
+        )
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.planStatus == .canceled)
+        #expect(!subject.state.canceledDate.isEmpty)
+    }
+
+    /// `perform(_:)` with `.appeared` loads subscription with past due status.
+    @Test
+    func perform_appeared_pastDue() async {
+        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
+            available: true,
+            legacyYear: nil,
+            name: "Premium",
+            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
+        )
+        billingService.getSubscriptionReturnValue = PremiumSubscription(
+            cadence: .annually,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 0,
+            gracePeriod: 14,
+            nextCharge: nil,
+            seatsCost: 0,
+            status: .pastDue,
+            storageCost: 0,
+            suspension: Date(timeIntervalSince1970: 1_803_219_691),
+        )
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.planStatus == .pastDue)
+        #expect(subject.state.gracePeriod.contains("14"))
+        #expect(!subject.state.subscriptionEndDate.isEmpty)
     }
 
     /// `perform(_:)` with `.appeared` shows an alert and dismisses when the plan is not available.
@@ -69,16 +140,8 @@ struct PremiumPlanProcessorTests {
             available: false,
             legacyYear: nil,
             name: "Premium",
-            seat: PlanPricingResponseModel(
-                price: 12,
-                provided: 1,
-                stripePriceId: "personal-premium-annually",
-            ),
-            storage: PlanPricingResponseModel(
-                price: 4.80,
-                provided: 1,
-                stripePriceId: "personal-storage-gb-annually",
-            ),
+            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
+            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
         )
 
         await subject.perform(.appeared)
@@ -86,8 +149,7 @@ struct PremiumPlanProcessorTests {
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(coordinator.alertShown.count == 1)
         #expect(coordinator.alertShown.first?.message == Localizations.premiumPlanNotAvailable)
-        #expect(subject.state.billingAmount == "")
-        #expect(subject.state.storageCost == "")
+        #expect(subject.state.subscription == nil)
 
         coordinator.alertOnDismissed?()
         #expect(coordinator.routes.last == .dismiss)
@@ -103,8 +165,7 @@ struct PremiumPlanProcessorTests {
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.errorAlertsShown.count == 1)
-        #expect(subject.state.billingAmount == "")
-        #expect(subject.state.storageCost == "")
+        #expect(subject.state.subscription == nil)
     }
 
     /// `receive(_:)` with `.cancelPremiumTapped` sets the URL to open.
