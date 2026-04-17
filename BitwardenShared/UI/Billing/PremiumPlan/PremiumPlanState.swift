@@ -7,6 +7,17 @@ import Foundation
 /// An object that defines the current state of a `PremiumPlanView`.
 ///
 struct PremiumPlanState: Equatable {
+    // MARK: Private Properties
+
+    /// A cached formatter for US dollar currency strings.
+    private static let usdCurrencyFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+
     // MARK: Properties
 
     /// The current status of the premium plan.
@@ -68,16 +79,19 @@ struct PremiumPlanState: Equatable {
         return formatCurrency(subscription.estimatedTax)
     }
 
-    /// The grace period duration, formatted for display (e.g. "14 days").
+    /// The grace period duration as a string (e.g. "14").
     var gracePeriod: String {
         guard let gracePeriod = subscription?.gracePeriod else { return "" }
-        return "\(gracePeriod) \(Localizations.days)"
+        return "\(gracePeriod)"
     }
 
     /// The next charge amount with currency, formatted for display (e.g. "$24.35 USD").
     var nextChargeAmount: String {
         guard let subscription, subscription.nextCharge != nil else { return "" }
-        let total = subscription.seatsCost + subscription.storageCost + subscription.estimatedTax
+        let total = max(
+            0,
+            subscription.seatsCost + subscription.storageCost + subscription.estimatedTax - subscription.discount,
+        )
         return "\(formatCurrency(total)) USD"
     }
 
@@ -109,7 +123,7 @@ struct PremiumPlanState: Equatable {
 
     /// Whether the storage cost row should be shown.
     var showStorageCost: Bool {
-        subscription?.storageCost ?? 0 > 0
+        (subscription?.storageCost ?? 0) > 0
     }
 
     /// The storage cost label (e.g. "$4.00").
@@ -136,10 +150,7 @@ struct PremiumPlanState: Equatable {
     /// - Returns: A formatted currency string (e.g. "$1.65").
     ///
     private func formatCurrency(_ price: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: price as NSDecimalNumber) ?? "$0.00"
+        Self.usdCurrencyFormatter.string(from: price as NSDecimalNumber) ?? "$0.00"
     }
 
     /// Formats a date for display using the long date style (e.g. "April 2, 2026").

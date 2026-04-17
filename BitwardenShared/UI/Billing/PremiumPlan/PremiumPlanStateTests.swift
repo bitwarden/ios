@@ -57,7 +57,7 @@ struct PremiumPlanStateTests {
     @Test
     func billingAmount_nil() {
         let state = PremiumPlanState()
-        #expect(state.billingAmount == "")
+        #expect(state.billingAmount.isEmpty)
     }
 
     // MARK: Tests - descriptionText
@@ -135,7 +135,7 @@ struct PremiumPlanStateTests {
     func discount_noDiscount() {
         var state = PremiumPlanState()
         state.subscription = makeSubscription(discount: 0)
-        #expect(state.discount == "")
+        #expect(state.discount.isEmpty)
     }
 
     // MARK: Tests - estimatedTax
@@ -153,7 +153,7 @@ struct PremiumPlanStateTests {
     func estimatedTax_zero() {
         var state = PremiumPlanState()
         state.subscription = makeSubscription(estimatedTax: 0)
-        #expect(state.estimatedTax == "")
+        #expect(state.estimatedTax.isEmpty)
     }
 
     // MARK: Tests - showBillingDetails
@@ -255,7 +255,7 @@ struct PremiumPlanStateTests {
     func storageCostLabel_noStorage() {
         var state = PremiumPlanState()
         state.subscription = makeSubscription(storageCost: 0)
-        #expect(state.storageCostLabel == "")
+        #expect(state.storageCostLabel.isEmpty)
     }
 
     // MARK: Tests - subscriptionEndDate
@@ -281,6 +281,6 @@ struct PremiumPlanStateTests {
     func subscriptionEndDate_empty() {
         var state = PremiumPlanState()
         state.subscription = makeSubscription()
-        #expect(state.subscriptionEndDate == "")
+        #expect(state.subscriptionEndDate.isEmpty)
     }
 }
