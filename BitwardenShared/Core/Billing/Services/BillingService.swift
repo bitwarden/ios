@@ -98,8 +98,10 @@ class DefaultBillingService: BillingService {
         let seatsCost = (seats?.cost ?? 0) * Decimal(seats?.quantity ?? 0)
         let storageCost = (storage?.cost ?? 0) * Decimal(storage?.quantity ?? 0)
 
+        let itemTotal = seatsCost + storageCost
         let seatDiscount = discountAmount(seats?.discount, on: seatsCost)
         let storageDiscount = discountAmount(storage?.discount, on: storageCost)
+        let cartDiscount = discountAmount(response.cart.discount, on: itemTotal)
 
         let status: PremiumPlanStatus = switch response.status {
         case "canceled": .canceled
@@ -112,7 +114,7 @@ class DefaultBillingService: BillingService {
             cadence: response.cart.cadence,
             cancelAt: response.cancelAt,
             canceled: response.canceled,
-            discount: seatDiscount + storageDiscount,
+            discount: seatDiscount + storageDiscount + cartDiscount,
             estimatedTax: response.cart.estimatedTax,
             gracePeriod: response.gracePeriod,
             nextCharge: response.nextCharge,
