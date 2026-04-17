@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - PremiumSubscription
 
-/// A domain model representing the user's premium subscription details,.
+/// A domain model representing the user's premium subscription details.
 ///
 struct PremiumSubscription: Equatable {
     // MARK: Properties
