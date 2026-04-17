@@ -78,7 +78,7 @@ final class PremiumPlanProcessor: StateProcessor<
                 coordinator.showAlert(
                     .defaultAlert(
                         title: Localizations.anErrorHasOccurred,
-                        message: Localizations.premiumPlanNotAvailable,
+                        message: Localizations.atTheMomentPremiumPlanIsNotAvailableDescriptionLong,
                     ),
                     onDismissed: { [weak self] in
                         self?.coordinator.navigate(to: .dismiss)

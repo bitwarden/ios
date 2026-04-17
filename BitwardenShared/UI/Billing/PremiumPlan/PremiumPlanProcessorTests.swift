@@ -148,7 +148,9 @@ struct PremiumPlanProcessorTests {
 
         #expect(billingService.getPremiumPlanCallsCount == 1)
         #expect(coordinator.alertShown.count == 1)
-        #expect(coordinator.alertShown.first?.message == Localizations.premiumPlanNotAvailable)
+        #expect(
+            coordinator.alertShown.first?.message == Localizations.atTheMomentPremiumPlanIsNotAvailableDescriptionLong,
+        )
         #expect(subject.state.subscription == nil)
 
         coordinator.alertOnDismissed?()

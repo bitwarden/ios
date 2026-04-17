@@ -1052,7 +1052,7 @@
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
 "PerMonth" = "/ month";
 "PerYear" = "/ year";
-"PremiumPlanNotAvailable" = "At the moment premium plan is not available, please try again later.";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
 "Days" = "days";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
