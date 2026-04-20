@@ -155,13 +155,11 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
     ///   - password: The password entered by the user.
     ///
     private func handleCertificateInfoSubmitted(alias: String, password: String) {
-        guard !password.trimmingCharacters(in: .whitespaces).isEmpty else {
-            state.dialog = .error(message: Localizations.validationFieldRequired(Localizations.password))
-            return
-        }
-
-        guard !alias.trimmingCharacters(in: .whitespaces).isEmpty else {
-            state.dialog = .error(message: Localizations.validationFieldRequired(Localizations.alias))
+        do {
+            try EmptyInputValidator(fieldName: Localizations.password).validate(input: password)
+            try EmptyInputValidator(fieldName: Localizations.alias).validate(input: alias)
+        } catch {
+            coordinator.showAlert(.inputValidationAlert(error: error))
             return
         }
 
