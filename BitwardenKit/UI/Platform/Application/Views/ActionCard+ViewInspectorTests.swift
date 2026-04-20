@@ -40,6 +40,19 @@ final class ActionCardTests: BitwardenTestCase {
         XCTAssertTrue(dismissButtonTapped)
     }
 
+    /// The title is hidden when it is nil.
+    @MainActor
+    func test_nilTitle_hidesTitle() throws {
+        let subject = ActionCard(
+            message: "Message only",
+        )
+
+        // Only the message text should be found, no title.
+        let texts = subject.inspect().findAll(ViewType.Text.self)
+        let textStrings = texts.compactMap { try? $0.string() }
+        XCTAssertEqual(textStrings, ["Message only"])
+    }
+
     /// Tapping the secondary button should call the secondary button state's action closure.
     @MainActor
     func test_secondaryButton_tap() async throws {
