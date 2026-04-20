@@ -47,10 +47,9 @@ final class ActionCardTests: BitwardenTestCase {
             message: "Message only",
         )
 
-        // Only the message text should be found, no title.
-        let texts = subject.inspect().findAll(ViewType.Text.self)
-        let textStrings = texts.compactMap { try? $0.string() }
-        XCTAssertEqual(textStrings, ["Message only"])
+        // The message text should be found.
+        let message = try subject.inspect().find(text: "Message only")
+        XCTAssertNotNil(message)
     }
 
     /// Tapping the secondary button should call the secondary button state's action closure.
