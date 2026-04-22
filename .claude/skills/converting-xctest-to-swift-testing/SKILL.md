@@ -18,6 +18,8 @@ Do **NOT** convert the following; leave them in XCTest:
 | **UI automation tests** | Uses `XCUIApplication` |
 | **Performance tests** | Uses `measure { ... }` or `XCTMetric` |
 | **Objective-C tests** | Cannot use Swift Testing |
+| **Tests asserting on alert display** | Uses `coordinator.alertShown`; alert presentation requires `UI.animated = false`, which `BitwardenTestCase.setUp()` sets |
+| **Tests asserting on loading overlay display** | Uses `coordinator.loadingOverlaysShown`; same dependency on `UI.animated = false` |
 
 Stop and flag the issue before proceeding.
 
