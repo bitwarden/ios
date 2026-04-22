@@ -1,7 +1,10 @@
 import BitwardenShared
 import Foundation
+import SafariServices
 
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
+    private let requestProcessor = SafariExtensionRequestProcessor()
+
     func beginRequest(with context: NSExtensionContext) {
         let inputItems = context.inputItems as? [NSExtensionItem] ?? []
         let responseItems = inputItems.compactMap { item in
@@ -11,43 +14,28 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     }
 
     func makeResponseItem(from userInfo: [String: Any]) -> NSExtensionItem? {
-        guard let bridgeRequest = SafariWebExtensionBridge.decodeRequest(from: userInfo),
-              let response = makeResponse(for: bridgeRequest.request) else {
+        let rawMessage = userInfo[bridgeMessageUserInfoKey] ?? userInfo[SafariWebExtensionBridge.legacyMessageUserInfoKey]
+        guard let bridgeRequest = SafariExtensionBridgeCodec.decodeRequest(from: rawMessage),
+              let response = requestProcessor.makeResponse(for: bridgeRequest.request) else {
             return nil
         }
 
-        return try? SafariWebExtensionBridge.makeResponseItem(
-            for: bridgeRequest,
+        guard let message = try? SafariExtensionBridgeCodec.encodeResponse(
+            requestID: bridgeRequest.id,
             response: response,
-        )
+        ) else {
+            return nil
+        }
+
+        let item = NSExtensionItem()
+        item.userInfo = [bridgeMessageUserInfoKey: message]
+        return item
     }
 
-    private func makeResponse(for request: SafariExtensionRequest) -> SafariExtensionResponse? {
-        switch request.kind {
-        case .generatePassword:
-            return try? SafariExtensionResponse.generatedPassword("generated-password", for: request)
-        case .setup:
-            return SafariExtensionResponse(
-                request: request,
-                suggestionAction: .none,
-                submissionAction: .none,
-                matchedLogin: nil,
-                fillScriptJSON: nil,
-                generatedPassword: nil,
-                userMessage: "Safari Web Extension setup",
-            )
-        case .fill, .saveLogin, .changePassword:
-            let suggestionAction = SafariExtensionSuggestionAction.from(request)
-            let submissionAction = SafariExtensionSubmissionAction.classify(request, matchedLogin: nil)
-            return SafariExtensionResponse(
-                request: request,
-                suggestionAction: suggestionAction,
-                submissionAction: submissionAction,
-                matchedLogin: nil,
-                fillScriptJSON: nil,
-                generatedPassword: nil,
-                userMessage: submissionAction == .none ? nil : suggestionAction.rawValue,
-            )
+    private var bridgeMessageUserInfoKey: String {
+        if #available(iOS 15.0, macOS 11.0, *) {
+            return SFExtensionMessageKey
         }
+        return SafariWebExtensionBridge.legacyMessageUserInfoKey
     }
 }
