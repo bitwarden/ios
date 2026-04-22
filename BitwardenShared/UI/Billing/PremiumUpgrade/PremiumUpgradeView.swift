@@ -88,19 +88,6 @@ struct PremiumUpgradeView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
-    /// The self-hosted info banner displayed above the premium card.
-    private var selfHostedBanner: some View {
-        ActionCard(
-            message: Localizations.toManageYourPremiumSubscriptionPleaseLogInToYourWebVaultOnAComputer,
-            dismissButtonState: ActionCard.ButtonState(title: Localizations.close) {
-                store.send(.dismissBannerTapped)
-            }
-        ) {
-            SharedAsset.Icons.informationCircle24.swiftUIImage
-                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
-        }
-    }
-
     /// The price display section.
     private var priceSection: some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
@@ -111,6 +98,19 @@ struct PremiumUpgradeView: View {
             Text(Localizations.perMonth)
                 .styleGuide(.body)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+        }
+    }
+
+    /// The self-hosted info banner displayed above the premium card.
+    private var selfHostedBanner: some View {
+        ActionCard(
+            message: Localizations.toManageYourPremiumSubscriptionDescriptionLong,
+            dismissButtonState: ActionCard.ButtonState(title: Localizations.close) {
+                store.send(.dismissBannerTapped)
+            },
+        ) {
+            SharedAsset.Icons.informationCircle24.swiftUIImage
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
         }
     }
 

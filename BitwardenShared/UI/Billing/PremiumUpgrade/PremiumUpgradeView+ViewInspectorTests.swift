@@ -78,7 +78,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     func test_selfHostedBanner_visible() throws {
         processor.state.isSelfHosted = true
         let text = try subject.inspect().find(
-            text: Localizations.toManageYourPremiumSubscriptionPleaseLogInToYourWebVaultOnAComputer,
+            text: Localizations.toManageYourPremiumSubscriptionDescriptionLong,
         )
         XCTAssertNotNil(text)
     }
@@ -90,7 +90,7 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         processor.state.isBannerDismissed = true
         XCTAssertThrowsError(
             try subject.inspect().find(
-                text: Localizations.toManageYourPremiumSubscriptionPleaseLogInToYourWebVaultOnAComputer,
+                text: Localizations.toManageYourPremiumSubscriptionDescriptionLong,
             ),
         )
     }
