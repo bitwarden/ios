@@ -3,7 +3,7 @@ import Foundation
 // MARK: - SafariExtensionRequestKind
 
 /// The high-level action requested by the Safari extension host/content bridge.
-enum SafariExtensionRequestKind: String, Codable, Equatable {
+public enum SafariExtensionRequestKind: String, Codable, Equatable {
     case setup
     case fill
     case saveLogin
@@ -14,9 +14,9 @@ enum SafariExtensionRequestKind: String, Codable, Equatable {
 // MARK: - SafariExtensionRequest
 
 /// A shared Codable payload for Safari extension requests flowing between web/native layers.
-struct SafariExtensionRequest: Codable, Equatable {
+public struct SafariExtensionRequest: Codable, Equatable {
     /// The requested action type.
-    var kind: SafariExtensionRequestKind
+    public var kind: SafariExtensionRequestKind
 
     /// The login title extracted from the page, if any.
     var loginTitle: String?
@@ -43,23 +43,37 @@ struct SafariExtensionRequest: Codable, Equatable {
     var username: String?
 
     /// Whether this request can drive page-aware autofill.
-    var canAutofill: Bool {
+    public var canAutofill: Bool {
         kind == .fill && pageDetails?.hasPasswordField == true
     }
 
     /// Whether this request contains enough information to save a login.
-    var canSaveLogin: Bool {
+    public var canSaveLogin: Bool {
         kind == .saveLogin && !(username?.isEmpty ?? true) && !(password?.isEmpty ?? true)
     }
 
     /// Whether this request contains enough information to update a password.
-    var canChangePassword: Bool {
+    public var canChangePassword: Bool {
         kind == .changePassword && !(oldPassword?.isEmpty ?? true) && !(password?.isEmpty ?? true)
     }
 
     /// Whether this request can drive password generation UI.
-    var canGeneratePassword: Bool {
+    public var canGeneratePassword: Bool {
         kind == .generatePassword
+    }
+
+    public init(kind: SafariExtensionRequestKind) {
+        self.init(
+            kind: kind,
+            loginTitle: nil,
+            notes: nil,
+            oldPassword: nil,
+            pageDetails: nil,
+            password: nil,
+            passwordOptions: nil,
+            urlString: nil,
+            username: nil,
+        )
     }
 
     init(

@@ -1,1 +1,17 @@
-// Reserved for future page classification and fill/save/update bridge logic.
+(() => {
+  function bitwardenBuildRequest(kind) {
+    return {
+      id: crypto.randomUUID(),
+      request: { kind },
+    };
+  }
+
+  async function bitwardenGeneratePassword() {
+    return browser.runtime.sendMessage({ type: "bitwarden:generate-password" });
+  }
+
+  window.bitwardenSafariWebExtension = {
+    buildRequest: bitwardenBuildRequest,
+    generatePassword: bitwardenGeneratePassword,
+  };
+})();

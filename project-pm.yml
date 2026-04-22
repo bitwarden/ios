@@ -48,6 +48,7 @@ schemes:
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
+        - BitwardenSafariWebExtensionTests
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
         - BitwardenSharedSnapshotTests
@@ -116,6 +117,19 @@ schemes:
     build:
       targets:
         BitwardenSafariWebExtension: all
+        BitwardenSafariWebExtensionTests: [test]
+    test:
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      language: en
+      region: US
+      targets:
+        - BitwardenSafariWebExtensionTests
+      testPlans:
+        - path: TestPlans/Bitwarden-Default.xctestplan
+          defaultPlan: true
+        - path: TestPlans/Bitwarden-Unit.xctestplan
   BitwardenShared:
     build:
       targets:
@@ -351,6 +365,23 @@ targets:
       sourcesPath: BitwardenSafariWebExtension
     dependencies:
       - target: BitwardenShared
+  BitwardenSafariWebExtensionTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenSafariWebExtension/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenSafariWebExtension
+    sources:
+      - path: GlobalTestHelpers
+    dependencies:
+      - target: BitwardenSafariWebExtension
+      - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
+    randomExecutionOrder: true
 
   BitwardenShared:
     type: framework

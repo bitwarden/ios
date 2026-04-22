@@ -1,7 +1,7 @@
 // MARK: - SafariExtensionMatchedLogin
 
 /// A lightweight snapshot of an existing matching login item.
-struct SafariExtensionMatchedLogin: Codable, Equatable {
+public struct SafariExtensionMatchedLogin: Codable, Equatable {
     var id: String
     var username: String?
     var password: String?
@@ -11,7 +11,7 @@ struct SafariExtensionMatchedLogin: Codable, Equatable {
 // MARK: - SafariExtensionSubmissionAction
 
 /// The action the native layer should take when deciding between save/update flows.
-enum SafariExtensionSubmissionAction: String, Codable, Equatable {
+public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
     case none
     case fill
     case saveNewLogin
@@ -19,7 +19,7 @@ enum SafariExtensionSubmissionAction: String, Codable, Equatable {
     case updatePassword
     case generatePassword
 
-    static func classify(
+    public static func classify(
         _ request: SafariExtensionRequest,
         matchedLogin: SafariExtensionMatchedLogin?,
     ) -> Self {

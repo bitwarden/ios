@@ -3,7 +3,7 @@ import Foundation
 // MARK: - SafariExtensionResponse
 
 /// A shared Codable payload returned from the native Safari extension layer back to the web bridge/UI.
-struct SafariExtensionResponse: Codable, Equatable {
+public struct SafariExtensionResponse: Codable, Equatable {
     /// The originating request.
     var request: SafariExtensionRequest
 
@@ -26,17 +26,36 @@ struct SafariExtensionResponse: Codable, Equatable {
     var userMessage: String?
 
     /// Whether the response includes a fill script that can be finalized into the page.
-    var canFinalizeWithScript: Bool {
+    public var canFinalizeWithScript: Bool {
         submissionAction == .fill && !(fillScriptJSON?.isEmpty ?? true)
     }
 
     /// Whether the response includes a generated password payload.
-    var hasGeneratedPassword: Bool {
+    public var hasGeneratedPassword: Bool {
         !(generatedPassword?.isEmpty ?? true)
     }
 
     /// Build a response for page fill flows.
-    static func fill(
+    public init(
+        request: SafariExtensionRequest,
+        suggestionAction: SafariExtensionSuggestionAction,
+        submissionAction: SafariExtensionSubmissionAction,
+        matchedLogin: SafariExtensionMatchedLogin?,
+        fillScriptJSON: String?,
+        generatedPassword: String?,
+        userMessage: String?,
+    ) {
+        self.request = request
+        self.suggestionAction = suggestionAction
+        self.submissionAction = submissionAction
+        self.matchedLogin = matchedLogin
+        self.fillScriptJSON = fillScriptJSON
+        self.generatedPassword = generatedPassword
+        self.userMessage = userMessage
+    }
+
+    /// Build a response for page fill flows.
+    public static func fill(
         request: SafariExtensionRequest,
         username: String,
         password: String,
@@ -69,7 +88,7 @@ struct SafariExtensionResponse: Codable, Equatable {
     }
 
     /// Build a response for password generation flows.
-    static func generatedPassword(_ generatedPassword: String, for request: SafariExtensionRequest) throws -> Self {
+    public static func generatedPassword(_ generatedPassword: String, for request: SafariExtensionRequest) throws -> Self {
         guard request.canGeneratePassword else {
             throw CocoaError(.coderInvalidValue)
         }
