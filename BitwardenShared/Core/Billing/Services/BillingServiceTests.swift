@@ -143,7 +143,7 @@ struct BillingServiceTests {
             ),
             gracePeriod: nil,
             nextCharge: nil,
-            status: "canceled",
+            status: .canceled,
             storage: nil,
             suspension: nil,
         )
@@ -170,15 +170,15 @@ struct BillingServiceTests {
                         cost: 20,
                         discount: nil,
                         quantity: 1,
-                        translationKey: "premiumMembership"
-                    )
-                )
+                        translationKey: "premiumMembership",
+                    ),
+                ),
             ),
             gracePeriod: nil,
             nextCharge: nil,
-            status: "active",
+            status: .active,
             storage: nil,
-            suspension: nil
+            suspension: nil,
         )
 
         let result = try await subject.getSubscription()
@@ -200,7 +200,7 @@ struct BillingServiceTests {
             ),
             gracePeriod: 14,
             nextCharge: nil,
-            status: "past_due",
+            status: .pastDue,
             storage: nil,
             suspension: Date(timeIntervalSince1970: 1_803_219_691),
         )
@@ -239,7 +239,7 @@ struct BillingServiceTests {
             ),
             gracePeriod: 14,
             nextCharge: Date(timeIntervalSince1970: 1_803_219_691),
-            status: "active",
+            status: .active,
             storage: nil,
             suspension: nil,
         )
@@ -271,7 +271,7 @@ struct BillingServiceTests {
             ),
             gracePeriod: nil,
             nextCharge: nil,
-            status: "unpaid",
+            status: .unpaid,
             storage: nil,
             suspension: nil,
         )
