@@ -1,14 +1,14 @@
 // MARK: - SafariExtensionSuggestionAction
 
 /// The primary action the Safari extension UI should suggest for a given request.
-enum SafariExtensionSuggestionAction: String, Codable, Equatable {
+public enum SafariExtensionSuggestionAction: String, Codable, Equatable {
     case none
     case fill
     case saveLogin
     case updatePassword
     case generatePassword
 
-    static func from(_ request: SafariExtensionRequest) -> Self {
+    public static func from(_ request: SafariExtensionRequest) -> Self {
         if request.canAutofill {
             return .fill
         }
