@@ -130,6 +130,26 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UIActivityViewController)
     }
 
+    /// `navigate(to:)` with `.safariExtension` pushes the safari extension view onto the stack navigator.
+    @MainActor
+    func test_navigateTo_safariExtension() throws {
+        subject.navigate(to: .safariExtension)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<SafariExtensionView>)
+    }
+
+    /// `navigate(to:)` with `.safariExtensionSetup` presents the safari extension setup flow.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup() throws {
+        subject.navigate(to: .safariExtensionSetup)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UIActivityViewController)
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     @MainActor
     func test_navigateTo_autoFill() throws {

@@ -170,6 +170,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAppExtensionSetup(delegate: context as? AppExtensionSetupDelegate)
         case .autoFill:
             showAutoFill()
+        case .safariExtension:
+            showSafariExtension()
+        case .safariExtensionSetup:
+            showSafariExtensionSetup(delegate: context as? SafariExtensionSetupDelegate)
         case .deleteAccount:
             showDeleteAccount()
         case let .dismiss(action):
@@ -346,6 +350,34 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let viewController = UIHostingController(rootView: view)
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.autofill)
+    }
+
+    /// Shows the Safari extension screen.
+    private func showSafariExtension() {
+        let processor = SafariExtensionProcessor(
+            coordinator: asAnyCoordinator(),
+            state: SafariExtensionState(),
+        )
+        let view = SafariExtensionView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator?.push(viewController, navigationTitle: "Safari Extension")
+    }
+
+    /// Shows the Safari extension setup screen.
+    private func showSafariExtensionSetup(delegate: SafariExtensionSetupDelegate?) {
+        let extensionItem = NSExtensionItem()
+        extensionItem.attachments = [
+            NSItemProvider(
+                item: "" as NSString,
+                typeIdentifier: Constants.UTType.appExtensionSetup,
+            ),
+        ]
+        let viewController = UIActivityViewController(activityItems: [extensionItem], applicationActivities: nil)
+        viewController.completionWithItemsHandler = { _, completed, _, _ in
+            delegate?.didDismissSafariExtensionSetup(enabled: completed)
+        }
+        stackNavigator?.present(viewController)
     }
 
     /// Shows the delete account screen.
