@@ -42,37 +42,32 @@ struct PremiumPlanView: View {
     // MARK: Private Views
 
     /// The billing details section with rows for billing amount, storage cost, and discount.
-    private var billingSection: some View {
-        VStack(spacing: 0) {
+    @ViewBuilder private var billingSection: some View {
+        billingRow(
+            label: Localizations.billingAmount,
+            value: store.state.billingAmount,
+            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+        )
+        if store.state.showStorageCost {
             billingRow(
-                label: Localizations.billingAmount,
-                value: store.state.billingAmount,
+                label: Localizations.storageCost,
+                value: store.state.storageCostLabel,
                 valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             )
-            if store.state.showStorageCost {
-                Divider()
-                billingRow(
-                    label: Localizations.storageCost,
-                    value: store.state.storageCostLabel,
-                    valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-                )
-            }
-            if store.state.showDiscount {
-                Divider()
-                billingRow(
-                    label: Localizations.discount,
-                    value: store.state.discount,
-                    valueColor: SharedAsset.Colors.statusStrong.swiftUIColor,
-                )
-            }
-            if store.state.showEstimatedTax {
-                Divider()
-                billingRow(
-                    label: Localizations.estimatedTax,
-                    value: store.state.estimatedTax,
-                    valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-                )
-            }
+        }
+        if store.state.showDiscount {
+            billingRow(
+                label: Localizations.discount,
+                value: store.state.discount,
+                valueColor: SharedAsset.Colors.statusStrong.swiftUIColor,
+            )
+        }
+        if store.state.showEstimatedTax {
+            billingRow(
+                label: Localizations.estimatedTax,
+                value: store.state.estimatedTax,
+                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+            )
         }
     }
 
@@ -182,22 +177,6 @@ struct PremiumPlanView: View {
 // MARK: - Previews
 
 #if DEBUG
-private extension PremiumSubscription {
-    static let previewActive = PremiumSubscription(
-        cadence: .annually,
-        cancelAt: nil,
-        canceled: nil,
-        discount: 1.98,
-        estimatedTax: 4.55,
-        gracePeriod: nil,
-        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
-        seatsCost: 19.8,
-        status: .active,
-        storageCost: 4,
-        suspension: nil,
-    )
-}
-
 #Preview("Active") {
     NavigationView {
         PremiumPlanView(
@@ -205,7 +184,19 @@ private extension PremiumSubscription {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .active,
-                        subscription: .previewActive,
+                        subscription: PremiumSubscription(
+                            cadence: .annually,
+                            cancelAt: nil,
+                            canceled: nil,
+                            discount: 1.98,
+                            estimatedTax: 4.55,
+                            gracePeriod: nil,
+                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+                            seatsCost: 19.8,
+                            status: .active,
+                            storageCost: 4,
+                            suspension: nil,
+                        ),
                     ),
                 ),
             ),
@@ -220,7 +211,19 @@ private extension PremiumSubscription {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .updatePayment,
-                        subscription: .previewActive,
+                        subscription: PremiumSubscription(
+                            cadence: .annually,
+                            cancelAt: nil,
+                            canceled: nil,
+                            discount: 1.98,
+                            estimatedTax: 4.55,
+                            gracePeriod: nil,
+                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+                            seatsCost: 19.8,
+                            status: .active,
+                            storageCost: 4,
+                            suspension: nil,
+                        ),
                     ),
                 ),
             ),
@@ -235,7 +238,19 @@ private extension PremiumSubscription {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .pastDue,
-                        subscription: .previewActive,
+                        subscription: PremiumSubscription(
+                            cadence: .annually,
+                            cancelAt: nil,
+                            canceled: nil,
+                            discount: 1.98,
+                            estimatedTax: 4.55,
+                            gracePeriod: nil,
+                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+                            seatsCost: 19.8,
+                            status: .active,
+                            storageCost: 4,
+                            suspension: nil,
+                        ),
                     ),
                 ),
             ),
@@ -250,7 +265,19 @@ private extension PremiumSubscription {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .canceled,
-                        subscription: .previewActive,
+                        subscription: PremiumSubscription(
+                            cadence: .annually,
+                            cancelAt: nil,
+                            canceled: nil,
+                            discount: 1.98,
+                            estimatedTax: 4.55,
+                            gracePeriod: nil,
+                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+                            seatsCost: 19.8,
+                            status: .active,
+                            storageCost: 4,
+                            suspension: nil,
+                        ),
                     ),
                 ),
             ),
