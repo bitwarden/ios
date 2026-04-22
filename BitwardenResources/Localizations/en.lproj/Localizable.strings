@@ -1048,7 +1048,6 @@
 "CancelPremium" = "Cancel Premium";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
-"YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong" = "You have a grace period of **%1$@ days** from your subscription expiration date. Please resolve the past due invoices by **%2$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
 "PerMonth" = "/ month";
 "PerYear" = "/ year";

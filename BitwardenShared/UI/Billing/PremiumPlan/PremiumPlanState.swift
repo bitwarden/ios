@@ -57,7 +57,7 @@ struct PremiumPlanState: Equatable {
             )
         case .pastDue:
             Localizations.youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
-                gracePeriod,
+                subscription?.gracePeriod ?? 0,
                 subscriptionEndDate,
             )
         case .updatePayment:
@@ -77,12 +77,6 @@ struct PremiumPlanState: Equatable {
     var estimatedTax: String {
         guard let subscription, subscription.estimatedTax > 0 else { return "" }
         return formatCurrency(subscription.estimatedTax)
-    }
-
-    /// The grace period duration as a string (e.g. "14").
-    var gracePeriod: String {
-        guard let gracePeriod = subscription?.gracePeriod else { return "" }
-        return "\(gracePeriod)"
     }
 
     /// The next charge amount with currency, formatted for display (e.g. "$24.35 USD").

@@ -75,7 +75,7 @@ struct PremiumPlanStateTests {
         )
         #expect(state.descriptionText == Localizations
             .youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
-                state.gracePeriod,
+                state.subscription?.gracePeriod ?? 0,
                 state.subscriptionEndDate,
             ))
     }

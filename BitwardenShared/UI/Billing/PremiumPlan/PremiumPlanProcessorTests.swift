@@ -93,7 +93,7 @@ struct PremiumPlanProcessorTests {
         await subject.perform(.appeared)
 
         #expect(subject.state.planStatus == .pastDue)
-        #expect(subject.state.gracePeriod.contains("14"))
+        #expect(subject.state.subscription?.gracePeriod == 14)
         #expect(!subject.state.subscriptionEndDate.isEmpty)
     }
 
