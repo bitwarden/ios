@@ -246,8 +246,8 @@ Use this table as a cheat sheet when migrating your `XCTest` assertions.
 | Typed `XCTAssertThrowsError(expr)` | `#expect(throws: BitwardenTestError.self)` | Ensures an error of a specific *type* is thrown. |
 | Specific Error `XCTAssertThrowsError(expr)` | `#expect(throws: BitwardenTestError.example)` | Validates a specific error *value* is thrown. |
 | `XCTAssertNoThrow(try expr)` | `#expect(throws: Never.self) { try expr }` | The explicit way to assert that no error is thrown. |
+| `assertAsyncThrows(error: e) { try await expr }` | `await #expect(throws: e) { try await expr }` | Bitwarden-specific helper; note that `await` moves to the front of `#expect` for async closures. |
 | `XCTFail("message")` | `Issue.record("message")` | Direct replacement for unconditional test failure. |
-| `assertAsyncThrows(error: e) { try await expr }` | `await #expect(throws: e) { try await expr }` |
 
 ### Action Items
 - [ ] Run `grep -R "XCTAssert\|XCTUnwrap" .` to find all legacy assertions.
