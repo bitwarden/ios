@@ -31,9 +31,27 @@ async function bitwardenSendNativeRequest(request) {
   return bitwardenParseNativeResponse(nativeResponse);
 }
 
+function bitwardenMessageToRequest(message) {
+  switch (message?.type) {
+    case "bitwarden:change-password":
+      return { kind: "changePassword" };
+    case "bitwarden:fill":
+      return { kind: "fill" };
+    case "bitwarden:generate-password":
+      return { kind: "generatePassword" };
+    case "bitwarden:save-login":
+      return { kind: "saveLogin" };
+    case "bitwarden:setup":
+      return { kind: "setup" };
+    default:
+      return null;
+  }
+}
+
 browser.runtime.onMessage.addListener((message) => {
-  if (message?.type === "bitwarden:generate-password") {
-    return bitwardenSendNativeRequest({ kind: "generatePassword" });
+  const request = bitwardenMessageToRequest(message);
+  if (request) {
+    return bitwardenSendNativeRequest(request);
   }
 
   if (message?.type === "bitwarden:ping") {
