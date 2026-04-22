@@ -177,6 +177,22 @@ struct PremiumPlanView: View {
 // MARK: - Previews
 
 #if DEBUG
+private extension PremiumSubscription {
+    static let previewActive = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 1.98,
+        estimatedTax: 4.55,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .active,
+        storageCost: 4,
+        suspension: nil,
+    )
+}
+
 #Preview("Active") {
     NavigationView {
         PremiumPlanView(
@@ -184,19 +200,7 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .active,
-                        subscription: PremiumSubscription(
-                            cadence: .annually,
-                            cancelAt: nil,
-                            canceled: nil,
-                            discount: 1.98,
-                            estimatedTax: 4.55,
-                            gracePeriod: nil,
-                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
-                            seatsCost: 19.8,
-                            status: .active,
-                            storageCost: 4,
-                            suspension: nil,
-                        ),
+                        subscription: .previewActive,
                     ),
                 ),
             ),
@@ -211,19 +215,7 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .updatePayment,
-                        subscription: PremiumSubscription(
-                            cadence: .annually,
-                            cancelAt: nil,
-                            canceled: nil,
-                            discount: 1.98,
-                            estimatedTax: 4.55,
-                            gracePeriod: nil,
-                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
-                            seatsCost: 19.8,
-                            status: .active,
-                            storageCost: 4,
-                            suspension: nil,
-                        ),
+                        subscription: .previewActive,
                     ),
                 ),
             ),
@@ -238,19 +230,7 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .pastDue,
-                        subscription: PremiumSubscription(
-                            cadence: .annually,
-                            cancelAt: nil,
-                            canceled: nil,
-                            discount: 1.98,
-                            estimatedTax: 4.55,
-                            gracePeriod: nil,
-                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
-                            seatsCost: 19.8,
-                            status: .active,
-                            storageCost: 4,
-                            suspension: nil,
-                        ),
+                        subscription: .previewActive,
                     ),
                 ),
             ),
@@ -265,19 +245,7 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .canceled,
-                        subscription: PremiumSubscription(
-                            cadence: .annually,
-                            cancelAt: nil,
-                            canceled: nil,
-                            discount: 1.98,
-                            estimatedTax: 4.55,
-                            gracePeriod: nil,
-                            nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
-                            seatsCost: 19.8,
-                            status: .active,
-                            storageCost: 4,
-                            suspension: nil,
-                        ),
+                        subscription: .previewActive,
                     ),
                 ),
             ),
