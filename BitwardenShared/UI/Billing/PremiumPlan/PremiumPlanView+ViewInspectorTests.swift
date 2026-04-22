@@ -48,7 +48,7 @@ class PremiumPlanViewTests: BitwardenTestCase {
             seatsCost: Decimal(string: "1.65")!,
             status: .active,
             storageCost: 0,
-            suspension: nil
+            suspension: nil,
         )
         let billingAmount = processor.state.billingAmount
         let text = try subject.inspect().find(text: billingAmount)

@@ -48,18 +48,10 @@ struct PremiumPlanProcessorTests {
             seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
             storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
         )
-        billingService.getSubscriptionReturnValue = PremiumSubscription(
-            cadence: .annually,
-            cancelAt: nil,
+        billingService.getSubscriptionReturnValue = .fixture(
             canceled: Date(timeIntervalSince1970: 1_800_000_000),
-            discount: 0,
-            estimatedTax: 0,
-            gracePeriod: nil,
-            nextCharge: nil,
             seatsCost: 0,
             status: .canceled,
-            storageCost: 0,
-            suspension: nil,
         )
 
         await subject.perform(.appeared)
@@ -91,17 +83,10 @@ struct PremiumPlanProcessorTests {
             seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
             storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
         )
-        billingService.getSubscriptionReturnValue = PremiumSubscription(
-            cadence: .annually,
-            cancelAt: nil,
-            canceled: nil,
-            discount: 0,
-            estimatedTax: 0,
+        billingService.getSubscriptionReturnValue = .fixture(
             gracePeriod: 14,
-            nextCharge: nil,
             seatsCost: 0,
             status: .pastDue,
-            storageCost: 0,
             suspension: Date(timeIntervalSince1970: 1_803_219_691),
         )
 
@@ -146,18 +131,9 @@ struct PremiumPlanProcessorTests {
             seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
             storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
         )
-        billingService.getSubscriptionReturnValue = PremiumSubscription(
-            cadence: .annually,
-            cancelAt: nil,
-            canceled: nil,
-            discount: 0,
+        billingService.getSubscriptionReturnValue = .fixture(
             estimatedTax: 4.55,
-            gracePeriod: nil,
             nextCharge: Date(timeIntervalSince1970: 1_803_219_691),
-            seatsCost: 19.8,
-            status: .active,
-            storageCost: 0,
-            suspension: nil,
         )
 
         await subject.perform(.appeared)
