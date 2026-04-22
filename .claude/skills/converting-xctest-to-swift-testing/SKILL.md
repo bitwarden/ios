@@ -184,7 +184,7 @@ Unlike `XCTAssert`, which often only reports that a comparison failed, `#expect`
 **Code:**
 ```swift
 @Test("User count meets minimum requirement")
-func testUserCount_minimum() {
+func userCount_minimum() {
     let userCount = 5
     // This check will fail
     #expect(userCount > 10)
@@ -289,7 +289,7 @@ func test_flavorChocolate_containsNoNuts() {
     [Flavor.vanilla, .pistachio, .chocolate],
     [false, true, false]
 ))
-func testFlavorContainsNuts(flavor: Flavor, expected: Bool) {
+func flavor_containsNuts(flavor: Flavor, expected: Bool) {
     #expect(flavor.containsNuts == expected)
 }
 ```
@@ -362,7 +362,7 @@ Dynamically control which tests run based on feature flags, environment, or know
 | Trait | What It Does & How to Use It |
 |---|---|
 | **`.disabled("Reason")`** | **Unconditionally skips a test.** The test is not run, but it is still compiled. Always provide a descriptive reason for CI visibility (e.g., `"Flaky on CI, see FB12345"`). |
-| **`.enabled(if: condition)`** | **Conditionally runs a test.** The test only runs if the boolean `condition` is `true`. This is perfect for tests tied to feature flags or specific environments. <br> ```swift @Test(.enabled(if: FeatureFlags.isNewAPIEnabled)) func testNewAPI() { /* ... */ } ``` |
+| **`.enabled(if: condition)`** | **Conditionally runs a test.** The test only runs if the boolean `condition` is `true`. This is perfect for tests tied to feature flags or specific environments. <br> ```swift @Test(.enabled(if: FeatureFlags.isNewAPIEnabled)) func newAPI() { /* ... */ } ``` |
 | **`@available(...)`** | **OS Version-Specific Tests.** Apply this attribute directly to the test function. It's better than a runtime `#available` check because it allows the test runner to know the test is skipped for platform reasons, which is cleaner in test reports. |
 
 ### Writing Assertions with Standard Swift
@@ -400,7 +400,7 @@ Tags associate tests with common characteristics (e.g., `.network`, `.ui`, `.reg
     ```swift
     // Apply to a test or suite
     @Test("Username validation", .tags(.fast, .regression))
-    func testUsername() { /* ... */ }
+    func username_validation() { /* ... */ }
 
     // Run from CLI
     // swift test --filter .fast
@@ -425,7 +425,7 @@ Xcode deeply integrates with tags, turning them into a powerful organizational t
 
 ```swift
 @Test("Delegate is notified 3 times")
-func testDelegateNotifications() async {
+func delegate_notifications() async {
     // The test operation is wrapped in an `await confirmation` call.
     // It will automatically wait or fail if the count isn't met in time.
     await confirmation("delegate.didUpdate was called", expectedCount: 3) { confirm in
@@ -448,7 +448,7 @@ Use a confirmation with `expectedCount: 0` to verify that a callback or delegate
 
 ```swift
 @Test("Logging out does not trigger a data sync")
-func testLogoutDoesNotSync() async {
+func logout_doesNotSync() async {
     await confirmation("data sync was triggered", expectedCount: 0) { confirm in
         let mockSyncEngine = MockSyncEngine {
             // If this is ever called, the test will automatically fail.
@@ -469,7 +469,7 @@ func legacyFetch(completion: @escaping (Result<Data, Error>) -> Void) {
     // ... legacy async code ...
 }
 
-@Test func testLegacyFetch() async throws {
+@Test func legacyFetch() async throws {
     let data = try await withCheckedThrowingContinuation { continuation in
         legacyFetch { result in
             continuation.resume(with: result)
