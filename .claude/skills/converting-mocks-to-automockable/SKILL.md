@@ -1,0 +1,145 @@
+---
+name: converting-mocks-to-automockable
+description: Convert a hand-written bespoke mock to a Sourcery AutoMockable-generated mock. Use this skill whenever the user says "convert this mock", "migrate mock to AutoMockable", "replace bespoke mock", "use Sourcery for this mock", or mentions wanting to convert a Mock*.swift file to use `// sourcery: AutoMockable`. Also use this skill proactively when you notice a new protocol being created without the annotation, or when an existing bespoke mock is being modified and AutoMockable would be sufficient.
+---
+
+# Converting Bespoke Mocks to AutoMockable
+
+This skill guides you through assessing whether a hand-written mock can be replaced with a Sourcery-generated one, performing the migration, and updating affected tests.
+
+## Step 1: Read and Assess the Candidate
+
+Read the bespoke mock file and locate its corresponding protocol. Understand what the mock currently does.
+
+### Good candidates for AutoMockable
+
+- Protocol methods that return values, throw errors, or return async results
+- Mocks that only track whether methods were called and with what arguments
+- Mocks whose "behavior" is just returning a stubbed value
+
+### Poor candidates — keep as bespoke
+
+These patterns require custom behavior that AutoMockable can't express:
+
+| Pattern | Why it can't be auto-generated |
+|---------|-------------------------------|
+| Mock executes passed-in closure parameters (e.g., runs a `() async throws -> T` argument) | Closures passed as arguments are non-escaping; Sourcery stubs these with `fatalError` |
+| Mock accumulates all calls into a combined array (e.g., `var alerts: [Alert]`) | AutoMockable stores last call's args, not a merged collection across overloads |
+| Methods with overloaded signatures that share state | Each overload gets a separate mock; shared logic must be bespoke |
+| Mock is a class/struct, not a protocol implementation | AutoMockable only works on protocols |
+
+When in doubt, check the Sourcery template behavior: non-escaping closure parameters will be noted with a `fatalError("…")` stub in the generated output.
+
+## Step 2: Annotate the Protocol
+
+Add `// sourcery: AutoMockable` as a **trailing comment on the protocol's opening line**. Do not put it on the line above.
+
+```swift
+// Before
+protocol FeatureService: AnyObject {
+
+// After
+protocol FeatureService: AnyObject { // sourcery: AutoMockable
+```
+
+If the protocol already has a comment on that line (e.g., `// sourcery: AutoMockable` is already there), skip this step.
+
+## Step 3: Map the API — Bespoke to Generated
+
+The generated mock's property names follow deterministic patterns. Use this table to translate test code:
+
+| Bespoke pattern | Generated equivalent |
+|-----------------|----------------------|
+| `var fooResult: Result<T, Error> = .success(x)` | `var fooReturnValue: T! = x` (for the value) |
+| `var fooResult: Result<T, Error> = .failure(e)` | `var fooThrowableError: (any Error)? = e` |
+| `var fooCalled: Bool = false` | `var fooCalled: Bool { fooCallsCount > 0 }` — same name, same semantics, no change needed in tests |
+| `var fooCalledCount: Int = 0` | `var fooCallsCount = 0` — note the naming difference (`Calls` not `Called`) |
+| `var fooParam: T?` (captures single arg) | `var fooReceivedArguments: T?` (1 param) or `var fooReceivedArguments: (param1: T1, param2: T2)?` (multiple) |
+| Custom closure to inject behavior | `var fooClosure: ((ArgTypes) -> ReturnType)?` |
+
+### Throwing methods
+
+```swift
+// Bespoke
+var loadItemsResult: Result<[Item], Error> = .success([])
+func loadItems() async throws -> [Item] {
+    return try loadItemsResult.get()
+}
+
+// Generated equivalent — two separate properties
+mockService.loadItemsReturnValue = []          // set return value
+mockService.loadItemsThrowableError = someErr  // or set error to throw
+```
+
+When both are set, the generated mock checks for `ThrowableError` first and throws it, ignoring `ReturnValue`.
+
+### Void-return throwing methods
+
+```swift
+// Bespoke
+var deleteItemCalled = false
+var deleteItemError: Error?
+func deleteItem() async throws {
+    deleteItemCalled = true
+    if let error = deleteItemError { throw error }
+}
+
+// Generated equivalent
+mockService.deleteItemThrowableError = someErr  // nil by default (no throw)
+// deleteItemCalled still works (computed from deleteItemCallsCount)
+```
+
+### Methods with return values (non-throwing)
+
+```swift
+// Bespoke
+var isEnabledResult: Bool = false
+func isEnabled() -> Bool { isEnabledResult }
+
+// Generated equivalent
+mockService.isEnabledReturnValue = false  // note: implicitly unwrapped optional, crashes if not set
+```
+
+Always set `ReturnValue` before the test exercises that method — it's `T!`, not `T?`.
+
+## Step 4: Delete the Bespoke Mock
+
+Remove the bespoke mock:
+- If it's a standalone file (`MockFoo.swift`), delete the entire file.
+- If it's defined inside another file, remove the class definition.
+
+Check that no other code imports or references the bespoke mock class directly.
+
+## Step 5: Regenerate Mocks
+
+Run Sourcery manually to generate the new mock before updating tests, so you can see exactly what was generated:
+
+```bash
+# Match to the framework where the protocol lives
+mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
+mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
+mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
+mint run sourcery --config AuthenticatorBridgeKit/Sourcery/sourcery.yml
+```
+
+After running, find the new `Mock<ProtocolName>` block in the appropriate `Sourcery/Generated/AutoMockable.generated.swift` and read it to confirm the property names before updating tests.
+
+## Step 6: Update Tests
+
+With the generated mock's actual property names in hand, update each test that used the bespoke mock. Translate according to the mapping in Step 3.
+
+Common things to change:
+- Replace `Result`-based setup with `ReturnValue`/`ThrowableError`
+- Replace explicit `fooCalled = false` resets (not needed; generated mocks start fresh)
+- Replace bespoke parameter capture properties with `ReceivedArguments`
+
+## Step 7: Verify
+
+Build and run the affected tests:
+
+```bash
+mint run swiftformat .
+mint run swiftlint
+```
+
+Then build the project (Sourcery also runs as a pre-build phase, so a clean build confirms end-to-end generation). Fix any compile errors from the API translation.
