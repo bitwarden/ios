@@ -56,7 +56,7 @@ struct PremiumPlanState: Equatable {
                 canceledDate,
             )
         case .pastDue:
-            Localizations.youHaveAGracePeriodOfXFromYourSubscriptionDescriptionLong(
+            Localizations.youHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong(
                 gracePeriod,
                 subscriptionEndDate,
             )
@@ -88,11 +88,7 @@ struct PremiumPlanState: Equatable {
     /// The next charge amount with currency, formatted for display (e.g. "$24.35 USD").
     var nextChargeAmount: String {
         guard let subscription, subscription.nextCharge != nil else { return "" }
-        let total = max(
-            0,
-            subscription.seatsCost + subscription.storageCost + subscription.estimatedTax - subscription.discount,
-        )
-        return "\(formatCurrency(total)) USD"
+        return "\(formatCurrency(subscription.totalAmount)) USD"
     }
 
     /// The next charge date, formatted for display.
