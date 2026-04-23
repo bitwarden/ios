@@ -300,6 +300,48 @@
     }
   }
 
+  function bitwardenRemoveActionPanel(document = window.document) {
+    const existingPanel = document.body?.querySelector?.('[data-bitwarden-action-panel]');
+    if (existingPanel && typeof existingPanel.remove === "function") {
+      existingPanel.remove();
+    }
+  }
+
+  function bitwardenNeedsActionPanel(submissionAction) {
+    return ["saveNewLogin", "updateExistingLogin", "updatePassword"].includes(submissionAction);
+  }
+
+  function bitwardenPresentActionPanel(nativeResponse, document = window.document) {
+    const response = nativeResponse?.response;
+    if (!document?.body || !response || !bitwardenNeedsActionPanel(response.submissionAction)) {
+      return null;
+    }
+
+    bitwardenRemoveActionPanel(document);
+
+    const panel = document.createElement('div');
+    panel.dataset.bitwardenActionPanel = 'true';
+    panel.dataset.bitwardenActionKind = response.submissionAction;
+    panel.role = 'dialog';
+    panel.textContent = response.userMessage || '';
+    panel.style.position = 'fixed';
+    panel.style.top = '16px';
+    panel.style.left = '16px';
+    panel.style.right = '16px';
+    panel.style.zIndex = '2147483647';
+    panel.style.padding = '16px';
+    panel.style.borderRadius = '18px';
+    panel.style.background = 'rgba(255, 255, 255, 0.96)';
+    panel.style.color = '#111';
+    panel.style.fontSize = '14px';
+    panel.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
+    panel.style.boxShadow = '0 16px 40px rgba(0, 0, 0, 0.16)';
+    panel.style.backdropFilter = 'blur(20px)';
+    panel.style.border = '1px solid rgba(60, 60, 67, 0.12)';
+    document.body.appendChild(panel);
+    return panel;
+  }
+
   function bitwardenPresentStatusBanner(message, document = window.document) {
     if (!document?.body || typeof message !== "string" || message.length === 0) {
       return null;
@@ -366,6 +408,8 @@
       bitwardenPresentStatusBanner(response.userMessage);
     }
 
+    bitwardenPresentActionPanel(nativeResponse);
+
     bitwardenDispatchStatusEvent(nativeResponse);
     return nativeResponse;
   }
@@ -382,6 +426,7 @@
     applyGeneratedPassword: bitwardenApplyGeneratedPassword,
     applyFillScript: bitwardenApplyFillScript,
     applyNativeResponse: bitwardenApplyNativeResponse,
+    presentActionPanel: bitwardenPresentActionPanel,
     presentStatusBanner: bitwardenPresentStatusBanner,
     buildRequest: bitwardenBuildRequest,
     buildChangePasswordRequest: bitwardenBuildChangePasswordRequest,
