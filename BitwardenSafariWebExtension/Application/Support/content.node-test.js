@@ -449,9 +449,11 @@ function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
 
 function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   const loginUsername = createInput({ id: 'login-email', name: 'email', type: 'email', value: 'user@example.com' });
+  loginUsername.placeholder = 'Email';
   const loginPassword = createInput({ id: 'login-password', name: 'password', type: 'password', value: 'secret' });
+  loginPassword.placeholder = 'Password';
   let ctx = makeEnvironment([loginUsername, loginPassword]);
-  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
 
   const signupEmail = createInput({ id: 'signup-email', name: 'email', type: 'email', value: 'user@example.com' });
   const signupPassword = createInput({ id: 'signup-password', name: 'password', type: 'password', value: 'secret' });
@@ -473,11 +475,22 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
 
 async function testTriggerSuggestedAction_sendsActionSpecificRequest() {
   const loginUsername = createInput({ id: 'login-email', name: 'email', type: 'email', value: 'user@example.com' });
+  loginUsername.placeholder = 'Email';
   const loginPassword = createInput({ id: 'login-password', name: 'password', type: 'password', value: 'secret' });
+  loginPassword.placeholder = 'Password';
   let ctx = makeEnvironment([loginUsername, loginPassword]);
   await ctx.window.bitwardenSafariWebExtension.triggerSuggestedAction();
-  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:save-login');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:fill');
   assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.trigger, 'suggestedAction');
+
+  const signupEmail = createInput({ id: 'signup-email', name: 'email', type: 'email', value: 'user@example.com' });
+  const signupPassword = createInput({ id: 'signup-password', name: 'password', type: 'password', value: 'secret' });
+  signupPassword.placeholder = 'Create password';
+  const signupConfirm = createInput({ id: 'signup-confirm', name: 'confirmPassword', type: 'password', value: 'secret' });
+  signupConfirm.placeholder = 'Confirm password';
+  ctx = makeEnvironment([signupEmail, signupPassword, signupConfirm]);
+  await ctx.window.bitwardenSafariWebExtension.triggerSuggestedAction();
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:save-login');
 
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
   currentPassword.placeholder = 'Current password';
