@@ -132,20 +132,9 @@ struct BillingServiceTests {
     /// `getSubscription()` maps canceled status correctly.
     @Test
     func getSubscription_canceled() async throws {
-        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
-            cancelAt: nil,
+        billingAPIService.getSubscriptionReturnValue = .fixture(
             canceled: Date(timeIntervalSince1970: 1_800_000_000),
-            cart: SubscriptionCartResponseModel(
-                cadence: .annually,
-                discount: nil,
-                estimatedTax: 0,
-                passwordManager: nil,
-            ),
-            gracePeriod: nil,
-            nextCharge: nil,
             status: .canceled,
-            storage: nil,
-            suspension: nil,
         )
 
         let result = try await subject.getSubscription()
@@ -157,13 +146,9 @@ struct BillingServiceTests {
     /// `getSubscription()` includes cart-level discount in the total discount.
     @Test
     func getSubscription_cartDiscount() async throws {
-        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
-            cancelAt: nil,
-            canceled: nil,
-            cart: SubscriptionCartResponseModel(
-                cadence: .annually,
+        billingAPIService.getSubscriptionReturnValue = .fixture(
+            cart: .fixture(
                 discount: BitwardenDiscountResponseModel(type: .amountOff, value: 5),
-                estimatedTax: 0,
                 passwordManager: PasswordManagerCartItemsResponseModel(
                     additionalStorage: nil,
                     seats: CartItemResponseModel(
@@ -174,11 +159,6 @@ struct BillingServiceTests {
                     ),
                 ),
             ),
-            gracePeriod: nil,
-            nextCharge: nil,
-            status: .active,
-            storage: nil,
-            suspension: nil,
         )
 
         let result = try await subject.getSubscription()
@@ -189,19 +169,9 @@ struct BillingServiceTests {
     /// `getSubscription()` maps past_due status correctly.
     @Test
     func getSubscription_pastDue() async throws {
-        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
-            cancelAt: nil,
-            canceled: nil,
-            cart: SubscriptionCartResponseModel(
-                cadence: .annually,
-                discount: nil,
-                estimatedTax: 0,
-                passwordManager: nil,
-            ),
+        billingAPIService.getSubscriptionReturnValue = .fixture(
             gracePeriod: 14,
-            nextCharge: nil,
             status: .pastDue,
-            storage: nil,
             suspension: Date(timeIntervalSince1970: 1_803_219_691),
         )
 
@@ -215,12 +185,8 @@ struct BillingServiceTests {
     /// `getSubscription()` maps the API response to a `PremiumSubscription` domain model.
     @Test
     func getSubscription_success() async throws {
-        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
-            cancelAt: nil,
-            canceled: nil,
-            cart: SubscriptionCartResponseModel(
-                cadence: .annually,
-                discount: nil,
+        billingAPIService.getSubscriptionReturnValue = .fixture(
+            cart: .fixture(
                 estimatedTax: 4.55,
                 passwordManager: PasswordManagerCartItemsResponseModel(
                     additionalStorage: CartItemResponseModel(
@@ -239,9 +205,6 @@ struct BillingServiceTests {
             ),
             gracePeriod: 14,
             nextCharge: Date(timeIntervalSince1970: 1_803_219_691),
-            status: .active,
-            storage: nil,
-            suspension: nil,
         )
 
         let result = try await subject.getSubscription()
@@ -260,20 +223,9 @@ struct BillingServiceTests {
     /// `getSubscription()` maps unpaid status to updatePayment.
     @Test
     func getSubscription_unpaid() async throws {
-        billingAPIService.getSubscriptionReturnValue = BitwardenSubscriptionResponseModel(
+        billingAPIService.getSubscriptionReturnValue = .fixture(
             cancelAt: Date(timeIntervalSince1970: 1_803_219_691),
-            canceled: nil,
-            cart: SubscriptionCartResponseModel(
-                cadence: .annually,
-                discount: nil,
-                estimatedTax: 0,
-                passwordManager: nil,
-            ),
-            gracePeriod: nil,
-            nextCharge: nil,
             status: .unpaid,
-            storage: nil,
-            suspension: nil,
         )
 
         let result = try await subject.getSubscription()
