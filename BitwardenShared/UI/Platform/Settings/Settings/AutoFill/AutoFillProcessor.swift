@@ -72,6 +72,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             state.url = ExternalLinksConstants.autofillHelp
         case .passwordAutoFillTapped:
             coordinator.navigate(to: .passwordAutoFill, context: self)
+        case .safariExtensionTapped:
+            coordinator.navigate(to: .safariExtension)
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
             Task {
