@@ -181,8 +181,11 @@
     });
   }
 
-  async function bitwardenSendMessage(type) {
-    return browser.runtime.sendMessage({ type });
+  async function bitwardenSendBuiltRequest(type, requestBuilder) {
+    return browser.runtime.sendMessage({
+      type,
+      request: requestBuilder().request,
+    });
   }
 
   window.bitwardenSafariWebExtension = {
@@ -193,10 +196,10 @@
     buildSaveLoginRequest: bitwardenBuildSaveLoginRequest,
     buildSetupRequest: bitwardenBuildSetupRequest,
     collectPageDetails: bitwardenCollectPageDetails,
-    generatePassword: () => bitwardenSendMessage("bitwarden:generate-password"),
-    requestFill: () => bitwardenSendMessage("bitwarden:fill"),
-    requestSaveLogin: () => bitwardenSendMessage("bitwarden:save-login"),
-    requestChangePassword: () => bitwardenSendMessage("bitwarden:change-password"),
-    requestSetup: () => bitwardenSendMessage("bitwarden:setup"),
+    generatePassword: () => bitwardenSendBuiltRequest("bitwarden:generate-password", bitwardenBuildGeneratePasswordRequest),
+    requestFill: () => bitwardenSendBuiltRequest("bitwarden:fill", bitwardenBuildFillRequest),
+    requestSaveLogin: () => bitwardenSendBuiltRequest("bitwarden:save-login", bitwardenBuildSaveLoginRequest),
+    requestChangePassword: () => bitwardenSendBuiltRequest("bitwarden:change-password", bitwardenBuildChangePasswordRequest),
+    requestSetup: () => bitwardenSendBuiltRequest("bitwarden:setup", bitwardenBuildSetupRequest),
   };
 })();
