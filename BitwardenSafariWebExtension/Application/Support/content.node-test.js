@@ -31,10 +31,24 @@ function createInput({ id, name, type, value = '', visible = true }) {
 
 function makeEnvironment(elements) {
   const dispatchedEvents = [];
+  const bannerContainer = {
+    children: [],
+    appendChild(node) {
+      this.children.push(node);
+      return node;
+    },
+    querySelector(selector) {
+      if (selector === '[data-bitwarden-status-banner]') {
+        return this.children.find((child) => child.dataset?.bitwardenStatusBanner === 'true') || null;
+      }
+      return null;
+    },
+  };
   const document = {
     title: 'Example',
     location: { href: 'https://example.com/login' },
     documentElement: { dataset: {} },
+    body: bannerContainer,
     querySelectorAll(selector) {
       if (selector === 'form') return [];
       if (selector === 'input, select, textarea, button') return elements;
@@ -43,6 +57,18 @@ function makeEnvironment(elements) {
     },
     createEvent() {
       return { initEvent() {}, initKeyEvent() {} };
+    },
+    createElement(tagName) {
+      return {
+        tagName,
+        dataset: {},
+        style: {},
+        textContent: '',
+        role: null,
+        remove() {
+          bannerContainer.children = bannerContainer.children.filter((child) => child !== this);
+        },
+      };
     },
     elementFromPoint() {
       return null;
@@ -72,7 +98,7 @@ function makeEnvironment(elements) {
     browser,
     crypto: { randomUUID: () => 'uuid-1' },
     console,
-    setTimeout(fn) { fn(); return 0; },
+    setTimeout() { return 0; },
     clearTimeout() {},
     Event: function Event(type) { this.type = type; },
     CustomEvent: function CustomEvent(type, init = {}) { this.type = type; this.detail = init.detail; },
@@ -98,6 +124,22 @@ async function testApplyStatusEvent() {
   assert.ok(statusEvent);
   assert.equal(statusEvent.detail.response.submissionAction, 'updatePassword');
   assert.equal(statusEvent.detail.response.userMessage, 'Password updated for this login.');
+}
+
+async function testApplyStatusBanner() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password' });
+  const ctx = makeEnvironment([password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'saveNewLogin',
+      userMessage: 'Save this login to Bitwarden.',
+    },
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Save this login to Bitwarden.');
+  assert.equal(banner.role, 'status');
 }
 
 async function testApplyGeneratedPassword() {
@@ -138,6 +180,7 @@ async function testApplyFillScript() {
   await testApplyGeneratedPassword();
   await testApplyFillScript();
   await testApplyStatusEvent();
+  await testApplyStatusBanner();
   console.log('content node tests passed');
 })().catch((error) => {
   console.error(error);

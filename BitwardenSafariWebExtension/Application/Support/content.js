@@ -286,6 +286,45 @@
     return bitwardenSetElementValue(targetField, generatedPassword);
   }
 
+  function bitwardenRemoveStatusBanner(document = window.document) {
+    const existingBanner = document.body?.querySelector?.('[data-bitwarden-status-banner]');
+    if (existingBanner && typeof existingBanner.remove === "function") {
+      existingBanner.remove();
+    }
+  }
+
+  function bitwardenPresentStatusBanner(message, document = window.document) {
+    if (!document?.body || typeof message !== "string" || message.length === 0) {
+      return null;
+    }
+
+    bitwardenRemoveStatusBanner(document);
+
+    const banner = document.createElement('div');
+    banner.dataset.bitwardenStatusBanner = 'true';
+    banner.role = 'status';
+    banner.textContent = message;
+    banner.style.position = 'fixed';
+    banner.style.left = '16px';
+    banner.style.right = '16px';
+    banner.style.bottom = '16px';
+    banner.style.zIndex = '2147483647';
+    banner.style.padding = '12px 16px';
+    banner.style.borderRadius = '14px';
+    banner.style.background = 'rgba(28, 28, 30, 0.92)';
+    banner.style.color = '#fff';
+    banner.style.fontSize = '14px';
+    banner.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
+    banner.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.2)';
+    document.body.appendChild(banner);
+    setTimeout(() => {
+      if (typeof banner.remove === "function") {
+        banner.remove();
+      }
+    }, 4000);
+    return banner;
+  }
+
   function bitwardenDispatchStatusEvent(nativeResponse) {
     const detail = nativeResponse;
     const event = typeof CustomEvent === "function"
@@ -316,6 +355,10 @@
       bitwardenApplyGeneratedPassword(response.generatedPassword);
     }
 
+    if (typeof response.userMessage === "string" && response.userMessage.length > 0) {
+      bitwardenPresentStatusBanner(response.userMessage);
+    }
+
     bitwardenDispatchStatusEvent(nativeResponse);
     return nativeResponse;
   }
@@ -332,6 +375,7 @@
     applyGeneratedPassword: bitwardenApplyGeneratedPassword,
     applyFillScript: bitwardenApplyFillScript,
     applyNativeResponse: bitwardenApplyNativeResponse,
+    presentStatusBanner: bitwardenPresentStatusBanner,
     buildRequest: bitwardenBuildRequest,
     buildChangePasswordRequest: bitwardenBuildChangePasswordRequest,
     buildFillRequest: bitwardenBuildFillRequest,
