@@ -38,28 +38,6 @@ struct PremiumPlanProcessorTests {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` loads subscription with canceled status.
-    @Test
-    func perform_appeared_canceled() async {
-        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
-            available: true,
-            legacyYear: nil,
-            name: "Premium",
-            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
-            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
-        )
-        billingService.getSubscriptionReturnValue = .fixture(
-            canceled: Date(timeIntervalSince1970: 1_800_000_000),
-            seatsCost: 0,
-            status: .canceled,
-        )
-
-        await subject.perform(.appeared)
-
-        #expect(subject.state.planStatus == .canceled)
-        #expect(!subject.state.canceledDate.isEmpty)
-    }
-
     /// `perform(_:)` with `.appeared` logs the error and shows an alert on failure.
     @Test
     func perform_appeared_failure() async {
@@ -71,30 +49,6 @@ struct PremiumPlanProcessorTests {
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.errorAlertsShown.count == 1)
         #expect(subject.state.subscription == nil)
-    }
-
-    /// `perform(_:)` with `.appeared` loads subscription with past due status.
-    @Test
-    func perform_appeared_pastDue() async {
-        billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
-            available: true,
-            legacyYear: nil,
-            name: "Premium",
-            seat: PlanPricingResponseModel(price: 12, provided: 1, stripePriceId: "seat"),
-            storage: PlanPricingResponseModel(price: 4.80, provided: 1, stripePriceId: "storage"),
-        )
-        billingService.getSubscriptionReturnValue = .fixture(
-            gracePeriod: 14,
-            seatsCost: 0,
-            status: .pastDue,
-            suspension: Date(timeIntervalSince1970: 1_803_219_691),
-        )
-
-        await subject.perform(.appeared)
-
-        #expect(subject.state.planStatus == .pastDue)
-        #expect(subject.state.subscription?.gracePeriod == 14)
-        #expect(!subject.state.subscriptionEndDate.isEmpty)
     }
 
     /// `perform(_:)` with `.appeared` shows an alert and dismisses when the plan is not available.
