@@ -181,14 +181,140 @@
     });
   }
 
+  function bitwardenElements(document = window.document) {
+    return Array.from(document.querySelectorAll("input, select, textarea, button"));
+  }
+
+  function bitwardenElementByOpid(opid, document = window.document) {
+    if (!opid) {
+      return null;
+    }
+
+    const elements = bitwardenElements(document);
+    const exactMatch = elements.find((element) => element.dataset.bitwardenOpid === opid);
+    if (exactMatch) {
+      return exactMatch;
+    }
+
+    const index = Number.parseInt(String(opid).split("__").at(-1), 10);
+    return Number.isNaN(index) ? null : elements[index] || null;
+  }
+
+  function bitwardenDispatchInputEvents(element) {
+    if (!element || typeof element.dispatchEvent !== "function") {
+      return;
+    }
+
+    element.dispatchEvent({ type: "input", target: element });
+    element.dispatchEvent({ type: "change", target: element });
+  }
+
+  function bitwardenSetElementValue(element, value) {
+    if (!element || element.disabled || element.readOnly || typeof value !== "string") {
+      return false;
+    }
+
+    if (typeof element.focus === "function") {
+      element.focus();
+    }
+    element.value = value;
+    bitwardenDispatchInputEvents(element);
+    return true;
+  }
+
+  function bitwardenParseFillScript(fillScriptJSON) {
+    if (typeof fillScriptJSON !== "string" || fillScriptJSON.length === 0) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(fillScriptJSON);
+    } catch {
+      return null;
+    }
+  }
+
+  function bitwardenApplyFillScript(fillScriptJSON, document = window.document) {
+    const fillScript = bitwardenParseFillScript(fillScriptJSON);
+    if (!fillScript || !Array.isArray(fillScript.script)) {
+      return false;
+    }
+
+    let applied = false;
+    for (const step of fillScript.script) {
+      if (!Array.isArray(step) || step.length === 0) {
+        continue;
+      }
+
+      const [operation, opid, value] = step;
+      const element = bitwardenElementByOpid(opid, document);
+      if (!element) {
+        continue;
+      }
+
+      switch (operation) {
+        case "click_on_opid":
+          if (typeof element.click === "function") {
+            element.click();
+          }
+          break;
+        case "fill_by_opid":
+          applied = bitwardenSetElementValue(element, value) || applied;
+          break;
+        case "focus_by_opid":
+          if (typeof element.focus === "function") {
+            element.focus();
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    return applied;
+  }
+
+  function bitwardenApplyGeneratedPassword(generatedPassword, document = window.document) {
+    if (typeof generatedPassword !== "string" || generatedPassword.length === 0) {
+      return false;
+    }
+
+    const passwordFields = bitwardenElements(document).filter(
+      (field) => bitwardenFieldType(field) === "password" && !field.disabled && !field.readOnly,
+    );
+    const targetField = passwordFields.at(-1) || null;
+    return bitwardenSetElementValue(targetField, generatedPassword);
+  }
+
+  async function bitwardenApplyNativeResponse(nativeResponse) {
+    const response = nativeResponse?.response;
+    if (!response || typeof response !== "object") {
+      return nativeResponse;
+    }
+
+    if (response.submissionAction === "fill" && typeof response.fillScriptJSON === "string") {
+      bitwardenApplyFillScript(response.fillScriptJSON);
+    }
+
+    if (typeof response.generatedPassword === "string" && response.generatedPassword.length > 0) {
+      bitwardenApplyGeneratedPassword(response.generatedPassword);
+    }
+
+    return nativeResponse;
+  }
+
   async function bitwardenSendBuiltRequest(type, requestBuilder) {
-    return browser.runtime.sendMessage({
+    const nativeResponse = await browser.runtime.sendMessage({
       type,
       request: requestBuilder().request,
     });
+    return bitwardenApplyNativeResponse(nativeResponse);
   }
 
   window.bitwardenSafariWebExtension = {
+    applyGeneratedPassword: bitwardenApplyGeneratedPassword,
+    applyFillScript: bitwardenApplyFillScript,
+    applyNativeResponse: bitwardenApplyNativeResponse,
     buildRequest: bitwardenBuildRequest,
     buildChangePasswordRequest: bitwardenBuildChangePasswordRequest,
     buildFillRequest: bitwardenBuildFillRequest,
