@@ -77,6 +77,9 @@ function makeEnvironment(elements) {
           if (selector === '[data-bitwarden-action-dismiss]') {
             return this.children.find((child) => child.dataset?.bitwardenActionDismiss === 'true') || null;
           }
+          if (selector === '[data-bitwarden-action-primary]') {
+            return this.children.find((child) => child.dataset?.bitwardenActionPrimary === 'true') || null;
+          }
           return null;
         },
         remove() {
@@ -161,7 +164,31 @@ async function testApplyStatusBanner() {
   assert.equal(actionPanel.role, 'dialog');
   assert.match(actionPanel.textContent, /Save login/);
   assert.match(actionPanel.textContent, /Save this login to Bitwarden\./);
+  assert.match(actionPanel.textContent, /Save in Bitwarden/);
   assert.match(actionPanel.textContent, /Not now/);
+}
+
+async function testActionPanelPrimaryDispatchesConfirmEvent() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password' });
+  const ctx = makeEnvironment([password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'saveNewLogin',
+      userMessage: 'Save this login to Bitwarden.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
+  assert.ok(primaryButton);
+  primaryButton.onclick();
+
+  const confirmEvent = ctx.window.dispatchedEvents.find((event) => event.type === 'bitwarden:safari-extension-action');
+  assert.ok(confirmEvent);
+  assert.equal(confirmEvent.detail.action, 'saveNewLogin');
+  assert.equal(confirmEvent.detail.confirmed, true);
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
 async function testUpdatePasswordPanelShowsSpecificTitle() {
@@ -239,6 +266,7 @@ async function testApplyFillScript() {
   await testApplyFillScript();
   await testApplyStatusEvent();
   await testApplyStatusBanner();
+  await testActionPanelPrimaryDispatchesConfirmEvent();
   await testUpdatePasswordPanelShowsSpecificTitle();
   await testActionPanelDismissRemovesPanel();
   console.log('content node tests passed');
