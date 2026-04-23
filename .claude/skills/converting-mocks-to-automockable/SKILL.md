@@ -54,6 +54,8 @@ The generated mock's property names follow deterministic patterns. Use this tabl
 | `var fooResult: Result<T, Error> = .failure(e)` | `var fooThrowableError: (any Error)? = e` |
 | `var fooCalled: Bool = false` | `var fooCalled: Bool { fooCallsCount > 0 }` — same name, same semantics, no change needed in tests |
 | `var fooCalledCount: Int = 0` | `var fooCallsCount = 0` — note the naming difference (`Calls` not `Called`) |
+| `fooBarCalled = false` (mid-test reset between assertions) | `fooBarCallsCount = 0` — `fooCalled` is computed, so it can't be assigned; reset the underlying count instead |
+| `var fooHandler: (() -> Void)?` (side-effect hook, no args) | `var fooClosure: ((ArgTypes) async throws -> ReturnType)?` — generated closure takes the method's arguments; use `_, _` if the handler doesn't need them |
 | `var fooParam: T?` (captures single arg) | `var fooReceivedArguments: T?` (1 param) or `var fooReceivedArguments: (param1: T1, param2: T2)?` (multiple) |
 | `var fooValue: T = default` (stored property returned by a method named `getBar`) | `var getBarReturnValue: T!` — derives from the **method** name, not the stored property name |
 | Custom closure to inject behavior | `var fooClosure: ((ArgTypes) -> ReturnType)?` |
@@ -231,6 +233,15 @@ Remove the bespoke mock:
 - If it's defined inside another file, remove the class definition.
 
 Check that no other code imports or references the bespoke mock class directly.
+
+After deleting a standalone file, regenerate the Xcode project so the stale file reference is removed — otherwise the build will fail with "Build input file cannot be found":
+
+```bash
+# Match to the framework where the mock lived
+mint run xcodegen --spec project-pm.yml
+mint run xcodegen --spec project-bwa.yml
+mint run xcodegen --spec project-bwk.yml
+```
 
 ## Step 5: Regenerate Mocks
 
