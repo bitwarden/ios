@@ -408,7 +408,8 @@
     const primaryButton = document.createElement('button');
     primaryButton.dataset.bitwardenActionPrimary = 'true';
     primaryButton.textContent = content.primaryLabel;
-    primaryButton.onclick = () => {
+    primaryButton.onclick = async () => {
+      await bitwardenTriggerSubmissionAction(response.submissionAction);
       bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: true });
       if (typeof panel.remove === 'function') {
         panel.remove();
@@ -548,6 +549,20 @@
     }
   }
 
+  async function bitwardenTriggerSubmissionAction(submissionAction) {
+    switch (submissionAction) {
+      case 'saveNewLogin':
+      case 'updateExistingLogin':
+        return bitwardenSendBuiltRequest('bitwarden:save-login', bitwardenBuildSaveLoginRequest);
+      case 'updatePassword':
+        return bitwardenSendBuiltRequest('bitwarden:change-password', bitwardenBuildChangePasswordRequest);
+      case 'fill':
+        return bitwardenSendBuiltRequest('bitwarden:fill', bitwardenBuildFillRequest);
+      default:
+        return null;
+    }
+  }
+
   window.bitwardenSafariWebExtension = {
     applyGeneratedPassword: bitwardenApplyGeneratedPassword,
     applyFillScript: bitwardenApplyFillScript,
@@ -563,6 +578,7 @@
     collectPageDetails: bitwardenCollectPageDetails,
     suggestPageAction: bitwardenSuggestPageAction,
     triggerSuggestedAction: bitwardenTriggerSuggestedAction,
+    triggerSubmissionAction: bitwardenTriggerSubmissionAction,
     generatePassword: () => bitwardenSendBuiltRequest("bitwarden:generate-password", bitwardenBuildGeneratePasswordRequest),
     requestFill: () => bitwardenSendBuiltRequest("bitwarden:fill", bitwardenBuildFillRequest),
     requestSaveLogin: () => bitwardenSendBuiltRequest("bitwarden:save-login", bitwardenBuildSaveLoginRequest),
