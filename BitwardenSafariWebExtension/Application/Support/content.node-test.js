@@ -29,7 +29,7 @@ function createInput({ id, name, type, value = '', visible = true }) {
   return element;
 }
 
-function makeEnvironment(elements) {
+function makeEnvironment(elements, options = {}) {
   const dispatchedEvents = [];
   const bannerContainer = {
     children: [],
@@ -113,6 +113,9 @@ function makeEnvironment(elements) {
       sentMessages: [],
       sendMessage: async (message) => {
         browser.runtime.sentMessages.push(message);
+        if (typeof options.sendMessage === 'function') {
+          return options.sendMessage(message, browser);
+        }
         return {};
       },
     },
@@ -306,6 +309,38 @@ async function testActionPanelPrimaryDispatchesConfirmEvent() {
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
+async function testActionPanelPrimaryShowsPendingBannerWhileSaving() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'secret' });
+  let resolveSendMessage;
+  const sendMessagePromise = new Promise((resolve) => {
+    resolveSendMessage = resolve;
+  });
+  const ctx = makeEnvironment([password], {
+    sendMessage: () => sendMessagePromise,
+  });
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'saveNewLogin',
+      userMessage: 'Save this login to Bitwarden.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
+  assert.ok(primaryButton);
+
+  const clickPromise = primaryButton.onclick();
+  const pendingBanner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(pendingBanner);
+  assert.equal(pendingBanner.textContent, 'Saving login to Bitwarden…');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.submissionAction, 'saveNewLogin');
+
+  resolveSendMessage({ response: { submissionAction: 'saveNewLogin', userMessage: 'Saved login to Bitwarden.' } });
+  await clickPromise;
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-status-banner]').textContent, 'Saved login to Bitwarden.');
+}
+
 async function testUpdatePasswordPanelShowsSpecificTitle() {
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
   currentPassword.placeholder = 'Current password';
@@ -480,6 +515,7 @@ async function testApplyFillScript() {
   await testApplyGeneratedPassword_showsSaveLoginFollowUpPanel();
   await testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel();
   await testActionPanelPrimaryDispatchesConfirmEvent();
+  await testActionPanelPrimaryShowsPendingBannerWhileSaving();
   await testUpdatePasswordPanelShowsSpecificTitle();
   await testActionPanelDismissRemovesPanel();
   console.log('content node tests passed');
