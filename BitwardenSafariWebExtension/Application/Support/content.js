@@ -282,8 +282,15 @@
     const passwordFields = bitwardenElements(document).filter(
       (field) => bitwardenFieldType(field) === "password" && !field.disabled && !field.readOnly,
     );
-    const targetField = passwordFields.at(-1) || null;
-    return bitwardenSetElementValue(targetField, generatedPassword);
+    if (passwordFields.length === 0) {
+      return false;
+    }
+
+    let applied = false;
+    for (const field of passwordFields) {
+      applied = bitwardenSetElementValue(field, generatedPassword) || applied;
+    }
+    return applied;
   }
 
   function bitwardenRemoveStatusBanner(document = window.document) {
