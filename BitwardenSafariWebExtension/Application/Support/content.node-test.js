@@ -241,6 +241,24 @@ function testBuildChangePasswordRequest_usesCurrentAndNewPasswordHeuristics() {
   assert.equal(built.request.password, 'new-secret');
 }
 
+function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
+  const username = createInput({ id: 'username', name: 'username', type: 'text', value: 'display-name' });
+  username.placeholder = 'Username';
+  const email = createInput({ id: 'email', name: 'email', type: 'email', value: 'user@example.com' });
+  email.placeholder = 'Email address';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: 'confirm-secret' });
+  confirmPassword.placeholder = 'Confirm password';
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'signup-secret' });
+  password.placeholder = 'Create password';
+
+  const ctx = makeEnvironment([username, email, confirmPassword, password]);
+  const built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.kind, 'saveLogin');
+  assert.equal(built.request.username, 'user@example.com');
+  assert.equal(built.request.password, 'signup-secret');
+}
+
 async function testApplyGeneratedPassword() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const confirmPassword = createInput({ id: 'confirm-password', name: 'confirm-password', type: 'password' });
@@ -279,6 +297,7 @@ async function testApplyFillScript() {
 
 (async () => {
   testBuildChangePasswordRequest_usesCurrentAndNewPasswordHeuristics();
+  testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword();
   await testApplyGeneratedPassword();
   await testApplyFillScript();
   await testApplyStatusEvent();
