@@ -129,6 +129,32 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(response.userMessage, "Update the existing Bitwarden login with these changes.")
     }
 
+    func test_makeResponse_saveLoginConfirmed_persistsCredentialAndReturnsCompletionMessage() async throws {
+        let request = SafariExtensionRequest(
+            kind: .saveLogin,
+            requestContext: SafariExtensionRequestContext(
+                trigger: .actionPanelPrimary,
+                submissionAction: .saveNewLogin
+            ),
+            password: "secret",
+            urlString: "https://example.com/login",
+            username: "user@example.com"
+        )
+        let credentialStore = MockSafariExtensionCredentialStore()
+        let subject = SafariExtensionRequestProcessor(
+            credentialStore: credentialStore
+        )
+
+        let maybeResponse = await subject.makeResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertEqual(credentialStore.savedRequests.count, 1)
+        XCTAssertEqual(credentialStore.savedRequests.first?.request.username, "user@example.com")
+        XCTAssertEqual(credentialStore.savedRequests.first?.submissionAction, .saveNewLogin)
+        XCTAssertEqual(response.submissionAction, .saveNewLogin)
+        XCTAssertEqual(response.userMessage, "Saved login to Bitwarden.")
+    }
+
     private func makePageDetails() -> PageDetails {
         PageDetails(
             collectedTimestamp: Date(timeIntervalSince1970: 1_715_000_000),
@@ -195,5 +221,17 @@ private struct MockSafariExtensionMatchedLoginResolver: SafariExtensionMatchedLo
 
     func resolveMatchedLogin(for request: SafariExtensionRequest) async throws -> SafariExtensionMatchedLogin? {
         matchedLogin
+    }
+}
+
+private final class MockSafariExtensionCredentialStore: SafariExtensionCredentialStoring {
+    var savedRequests: [(request: SafariExtensionRequest, matchedLogin: SafariExtensionMatchedLogin?, submissionAction: SafariExtensionSubmissionAction)] = []
+
+    func saveCredential(
+        for request: SafariExtensionRequest,
+        matchedLogin: SafariExtensionMatchedLogin?,
+        submissionAction: SafariExtensionSubmissionAction
+    ) async throws {
+        savedRequests.append((request, matchedLogin, submissionAction))
     }
 }
