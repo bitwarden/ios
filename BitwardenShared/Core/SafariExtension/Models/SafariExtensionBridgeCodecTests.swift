@@ -3,6 +3,22 @@ import XCTest
 @testable import BitwardenShared
 
 class SafariExtensionBridgeCodecTests: BitwardenTestCase {
+    func test_decodeRequestFromLegacyWrappedDictionary_parsesBridgeEnvelope() throws {
+        let message: [String: Any] = [
+            "message": [
+                "id": "req-legacy",
+                "request": [
+                    "kind": "setup",
+                ],
+            ],
+        ]
+
+        let subject = try XCTUnwrap(SafariExtensionBridgeCodec.decodeRequest(from: message["message"]))
+
+        XCTAssertEqual(subject.id, "req-legacy")
+        XCTAssertEqual(subject.request, SafariExtensionRequest(kind: .setup))
+    }
+
     func test_decodeRequestFromJSONString_parsesBridgeEnvelope() throws {
         let message = """
         {

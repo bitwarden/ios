@@ -1,5 +1,7 @@
 // MARK: - SafariExtensionRequestProcessor
 
+import BitwardenKit
+
 public struct SafariExtensionRequestProcessor {
     private let matchedLoginResolver: (any SafariExtensionMatchedLoginResolving)?
     private let passwordGenerator: (PasswordGenerationOptions?) -> String
@@ -7,6 +9,29 @@ public struct SafariExtensionRequestProcessor {
     public init() {
         matchedLoginResolver = nil
         passwordGenerator = { _ in "generated-password" }
+    }
+
+    @MainActor
+    public static func liveForAppExtension(errorReporter: ErrorReporter) -> Self {
+        live(services: ServiceContainer(appContext: .appExtension, errorReporter: errorReporter))
+    }
+
+    @MainActor
+    static func live(services: ServiceContainer) -> Self {
+        let matchedLoginResolver = SafariExtensionMatchedLoginResolver(
+            cipherMatchingHelperFactory: DefaultCipherMatchingHelperFactory(
+                settingsService: services.settingsService,
+                stateService: services.stateService,
+            ),
+            ciphersClientWrapperService: DefaultCiphersClientWrapperService(
+                clientService: services.clientService,
+                errorReporter: services.errorReporter,
+            ),
+            cipherService: services.cipherService,
+            stateService: services.stateService,
+        )
+
+        return Self(matchedLoginResolver: matchedLoginResolver)
     }
 
     init(
