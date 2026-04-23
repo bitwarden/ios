@@ -149,6 +149,24 @@
       || null;
   }
 
+  function bitwardenSuggestPageAction(document = window.document) {
+    const pageDetails = bitwardenCollectPageDetails(document);
+    const passwordFields = pageDetails.fields.filter((field) => field.type === 'password' && field.viewable);
+    const hasCurrentPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'current');
+    const hasNewPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'new');
+    const hasConfirmPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'confirm');
+
+    if (hasCurrentPassword && (hasNewPassword || hasConfirmPassword)) {
+      return 'changePassword';
+    }
+
+    if (bitwardenPreferredUsernameField(pageDetails.fields) && bitwardenPreferredSavePasswordField(pageDetails.fields)) {
+      return 'saveLogin';
+    }
+
+    return 'fill';
+  }
+
   function bitwardenBuildRequest(kind, overrides = {}) {
     return {
       id: bitwardenUUID(),
@@ -532,6 +550,7 @@
     buildSaveLoginRequest: bitwardenBuildSaveLoginRequest,
     buildSetupRequest: bitwardenBuildSetupRequest,
     collectPageDetails: bitwardenCollectPageDetails,
+    suggestPageAction: bitwardenSuggestPageAction,
     generatePassword: () => bitwardenSendBuiltRequest("bitwarden:generate-password", bitwardenBuildGeneratePasswordRequest),
     requestFill: () => bitwardenSendBuiltRequest("bitwarden:fill", bitwardenBuildFillRequest),
     requestSaveLogin: () => bitwardenSendBuiltRequest("bitwarden:save-login", bitwardenBuildSaveLoginRequest),
