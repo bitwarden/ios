@@ -393,6 +393,21 @@
     return bitwardenNeedsActionPanel(response?.submissionAction) && trigger !== 'actionPanelPrimary';
   }
 
+  function bitwardenActionPendingMessage(submissionAction) {
+    switch (submissionAction) {
+      case 'saveNewLogin':
+        return 'Saving login to Bitwarden…';
+      case 'updateExistingLogin':
+        return 'Updating login in Bitwarden…';
+      case 'updatePassword':
+        return 'Updating password in Bitwarden…';
+      case 'fill':
+        return 'Filling login from Bitwarden…';
+      default:
+        return null;
+    }
+  }
+
   function bitwardenFollowUpResponseForGeneratedPassword(document = window.document) {
     const suggestedAction = bitwardenSuggestPageAction(document);
     switch (suggestedAction) {
@@ -437,6 +452,10 @@
     primaryButton.dataset.bitwardenActionPrimary = 'true';
     primaryButton.textContent = content.primaryLabel;
     primaryButton.onclick = async () => {
+      const pendingMessage = bitwardenActionPendingMessage(response.submissionAction);
+      if (typeof pendingMessage === 'string' && pendingMessage.length > 0) {
+        bitwardenPresentStatusBanner(pendingMessage, document);
+      }
       await bitwardenTriggerSubmissionAction(response.submissionAction);
       bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: true });
       if (typeof panel.remove === 'function') {
