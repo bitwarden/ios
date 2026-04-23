@@ -4,12 +4,40 @@ import XCTest
 
 class SafariExtensionRequestProcessorTests: BitwardenTestCase {
     func test_makeResponse_generatePassword_returnsGeneratedPasswordResponse() throws {
-        let subject = SafariExtensionRequestProcessor()
+        let subject = SafariExtensionRequestProcessor(
+            passwordGenerator: { _ in "generated-secret" }
+        )
 
         let response = try XCTUnwrap(subject.makeResponse(for: SafariExtensionRequest(kind: .generatePassword)))
 
-        XCTAssertEqual(response.generatedPassword, "generated-password")
+        XCTAssertEqual(response.generatedPassword, "generated-secret")
         XCTAssertEqual(response.submissionAction, .generatePassword)
+    }
+
+    func test_makeResponse_changePasswordWithMatchedLogin_returnsUpdatePasswordMessage() async throws {
+        let request = SafariExtensionRequest(
+            kind: .changePassword,
+            oldPassword: "old-secret",
+            password: "new-secret",
+            urlString: "https://example.com/change-password"
+        )
+        let subject = SafariExtensionRequestProcessor(
+            matchedLoginResolver: MockSafariExtensionMatchedLoginResolver(
+                matchedLogin: SafariExtensionMatchedLogin(
+                    id: "cipher-1",
+                    username: "user@example.com",
+                    password: "old-secret",
+                    urlString: "https://example.com/login"
+                )
+            )
+        )
+
+        let maybeResponse = await subject.makeResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertEqual(response.suggestionAction, .updatePassword)
+        XCTAssertEqual(response.submissionAction, .updatePassword)
+        XCTAssertEqual(response.userMessage, "updatePassword")
     }
 
     func test_makeResponse_setup_returnsSetupMessage() throws {
