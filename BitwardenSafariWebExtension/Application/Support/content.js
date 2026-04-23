@@ -387,9 +387,15 @@
     }
   }
 
+  function bitwardenShouldPresentActionPanel(nativeResponse) {
+    const response = nativeResponse?.response;
+    const trigger = response?.request?.requestContext?.trigger;
+    return bitwardenNeedsActionPanel(response?.submissionAction) && trigger !== 'actionPanelPrimary';
+  }
+
   function bitwardenPresentActionPanel(nativeResponse, document = window.document) {
     const response = nativeResponse?.response;
-    if (!document?.body || !response || !bitwardenNeedsActionPanel(response.submissionAction)) {
+    if (!document?.body || !response || !bitwardenShouldPresentActionPanel(nativeResponse)) {
       return null;
     }
 
@@ -588,6 +594,7 @@
     applyNativeResponse: bitwardenApplyNativeResponse,
     presentActionPanel: bitwardenPresentActionPanel,
     presentStatusBanner: bitwardenPresentStatusBanner,
+    shouldPresentActionPanel: bitwardenShouldPresentActionPanel,
     buildRequest: bitwardenBuildRequest,
     buildChangePasswordRequest: bitwardenBuildChangePasswordRequest,
     buildFillRequest: bitwardenBuildFillRequest,

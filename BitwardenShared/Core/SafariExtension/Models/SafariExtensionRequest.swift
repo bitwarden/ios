@@ -11,6 +11,22 @@ public enum SafariExtensionRequestKind: String, Codable, Equatable {
     case generatePassword
 }
 
+// MARK: - SafariExtensionRequestTrigger
+
+/// The originating UX trigger for a Safari extension request.
+public enum SafariExtensionRequestTrigger: String, Codable, Equatable {
+    case suggestedAction
+    case actionPanelPrimary
+}
+
+// MARK: - SafariExtensionRequestContext
+
+/// Additional product-level context about how a Safari extension request was initiated.
+public struct SafariExtensionRequestContext: Codable, Equatable {
+    var trigger: SafariExtensionRequestTrigger
+    var submissionAction: SafariExtensionSubmissionAction?
+}
+
 // MARK: - SafariExtensionRequest
 
 /// A shared Codable payload for Safari extension requests flowing between web/native layers.
@@ -26,6 +42,9 @@ public struct SafariExtensionRequest: Codable, Equatable {
 
     /// The previous password for change-password flows.
     var oldPassword: String?
+
+    /// Additional metadata about how the request was initiated.
+    var requestContext: SafariExtensionRequestContext?
 
     /// Parsed page details for page-aware fill/save/update flows.
     var pageDetails: PageDetails?
@@ -68,6 +87,7 @@ public struct SafariExtensionRequest: Codable, Equatable {
             loginTitle: nil,
             notes: nil,
             oldPassword: nil,
+            requestContext: nil,
             pageDetails: nil,
             password: nil,
             passwordOptions: nil,
@@ -81,6 +101,7 @@ public struct SafariExtensionRequest: Codable, Equatable {
         loginTitle: String? = nil,
         notes: String? = nil,
         oldPassword: String? = nil,
+        requestContext: SafariExtensionRequestContext? = nil,
         pageDetails: PageDetails? = nil,
         password: String? = nil,
         passwordOptions: PasswordGenerationOptions? = nil,
@@ -91,6 +112,7 @@ public struct SafariExtensionRequest: Codable, Equatable {
         self.loginTitle = loginTitle
         self.notes = notes
         self.oldPassword = oldPassword
+        self.requestContext = requestContext
         self.pageDetails = pageDetails
         self.password = password
         self.passwordOptions = passwordOptions

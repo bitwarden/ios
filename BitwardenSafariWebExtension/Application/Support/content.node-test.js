@@ -176,6 +176,29 @@ async function testApplyStatusBanner() {
   assert.match(actionPanel.textContent, /Not now/);
 }
 
+async function testApplyStatusBanner_doesNotReopenPanelForConfirmedAction() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password' });
+  const ctx = makeEnvironment([password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      request: {
+        kind: 'saveLogin',
+        requestContext: {
+          trigger: 'actionPanelPrimary',
+          submissionAction: 'saveNewLogin',
+        },
+      },
+      submissionAction: 'saveNewLogin',
+      userMessage: 'Save this login to Bitwarden.',
+    },
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Save this login to Bitwarden.');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
 async function testActionPanelPrimaryDispatchesConfirmEvent() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const ctx = makeEnvironment([password]);
@@ -370,6 +393,7 @@ async function testApplyFillScript() {
   await testApplyFillScript();
   await testApplyStatusEvent();
   await testApplyStatusBanner();
+  await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
   await testActionPanelPrimaryDispatchesConfirmEvent();
   await testUpdatePasswordPanelShowsSpecificTitle();
   await testActionPanelDismissRemovesPanel();
