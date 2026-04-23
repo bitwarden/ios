@@ -108,7 +108,15 @@ function makeEnvironment(elements) {
       return { display: 'block', visibility: 'visible' };
     },
   };
-  const browser = { runtime: { sendMessage: async () => ({}) } };
+  const browser = {
+    runtime: {
+      sentMessages: [],
+      sendMessage: async (message) => {
+        browser.runtime.sentMessages.push(message);
+        return {};
+      },
+    },
+  };
   const context = {
     window,
     document,
@@ -283,6 +291,24 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'changePassword');
 }
 
+async function testTriggerSuggestedAction_sendsActionSpecificRequest() {
+  const loginUsername = createInput({ id: 'login-email', name: 'email', type: 'email', value: 'user@example.com' });
+  const loginPassword = createInput({ id: 'login-password', name: 'password', type: 'password', value: 'secret' });
+  let ctx = makeEnvironment([loginUsername, loginPassword]);
+  await ctx.window.bitwardenSafariWebExtension.triggerSuggestedAction();
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:save-login');
+
+  const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
+  currentPassword.placeholder = 'Current password';
+  const newPassword = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: 'new-secret' });
+  newPassword.placeholder = 'New password';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: 'new-secret' });
+  confirmPassword.placeholder = 'Confirm password';
+  ctx = makeEnvironment([currentPassword, newPassword, confirmPassword]);
+  await ctx.window.bitwardenSafariWebExtension.triggerSuggestedAction();
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:change-password');
+}
+
 async function testApplyGeneratedPassword() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const confirmPassword = createInput({ id: 'confirm-password', name: 'confirm-password', type: 'password' });
@@ -323,6 +349,7 @@ async function testApplyFillScript() {
   testBuildChangePasswordRequest_usesCurrentAndNewPasswordHeuristics();
   testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword();
   testSuggestPageAction_detectsLoginSignupAndPasswordChange();
+  await testTriggerSuggestedAction_sendsActionSpecificRequest();
   await testApplyGeneratedPassword();
   await testApplyFillScript();
   await testApplyStatusEvent();
