@@ -2,13 +2,19 @@
 
 public struct SafariExtensionRequestProcessor {
     private let matchedLoginResolver: (any SafariExtensionMatchedLoginResolving)?
+    private let passwordGenerator: (PasswordGenerationOptions?) -> String
 
     public init() {
         matchedLoginResolver = nil
+        passwordGenerator = { _ in "generated-password" }
     }
 
-    init(matchedLoginResolver: (any SafariExtensionMatchedLoginResolving)? = nil) {
+    init(
+        matchedLoginResolver: (any SafariExtensionMatchedLoginResolving)? = nil,
+        passwordGenerator: @escaping (PasswordGenerationOptions?) -> String = { _ in "generated-password" }
+    ) {
         self.matchedLoginResolver = matchedLoginResolver
+        self.passwordGenerator = passwordGenerator
     }
 
     public func makeResponse(for request: SafariExtensionRequest) -> SafariExtensionResponse? {
@@ -26,7 +32,7 @@ public struct SafariExtensionRequestProcessor {
     ) -> SafariExtensionResponse? {
         switch request.kind {
         case .generatePassword:
-            return try? SafariExtensionResponse.generatedPassword("generated-password", for: request)
+            return try? SafariExtensionResponse.generatedPassword(passwordGenerator(request.passwordOptions), for: request)
         case .setup:
             return SafariExtensionResponse(
                 request: request,
