@@ -20,21 +20,54 @@ struct SafariExtensionView: View {
         return "Set up the Safari extension to fill, save, update, and generate credentials with Bitwarden."
     }
 
+    private var progressLabel: String {
+        store.state.extensionEnabled ? "Step 2 of 2" : (store.state.extensionActivated ? "Step 2 of 2" : "Step 1 of 2")
+    }
+
+    private var statusLabel: String {
+        store.state.extensionEnabled ? "Enabled" : "Not enabled"
+    }
+
+    private var nextStepMessage: String {
+        if store.state.extensionEnabled {
+            return "Ready to fill, save, update, and generate credentials in Safari."
+        }
+
+        return "Open Safari settings and allow Bitwarden for Safari."
+    }
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 16) {
                 Spacer(minLength: 0)
 
-                VStack(spacing: 12) {
-                    Text("Safari Extension")
-                        .styleGuide(.title)
-                        .multilineTextAlignment(.center)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text(progressLabel)
+                            .styleGuide(.caption2)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        Spacer()
+                        Text(statusLabel)
+                            .styleGuide(.caption2)
+                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+                            .clipShape(Capsule())
+                    }
 
-                    Text(statusMessage)
-                        .styleGuide(.body)
-                        .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
+                    VStack(spacing: 12) {
+                        Text("Safari Extension")
+                            .styleGuide(.title)
+                            .multilineTextAlignment(.center)
+
+                        Text(statusMessage)
+                            .styleGuide(.body)
+                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
                 .padding(24)
                 .contentBlock()
@@ -43,6 +76,17 @@ struct SafariExtensionView: View {
                     featureRow(title: "Fill", subtitle: "Use page-aware fill suggestions for websites in Safari.")
                     featureRow(title: "Save & Update", subtitle: "Capture new logins and password changes from the current page.")
                     featureRow(title: "Generate", subtitle: "Create strong passwords while staying in the browser flow.")
+                }
+                .padding(24)
+                .contentBlock()
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Next step")
+                        .styleGuide(.headline)
+                    Text(nextStepMessage)
+                        .styleGuide(.body)
+                        .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .padding(24)
                 .contentBlock()
