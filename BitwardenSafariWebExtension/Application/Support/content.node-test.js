@@ -190,18 +190,24 @@ async function testActionPanelPrimaryDispatchesConfirmEvent() {
   assert.ok(actionPanel);
   const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
   assert.ok(primaryButton);
-  primaryButton.onclick();
+  await primaryButton.onclick();
 
   const confirmEvent = ctx.window.dispatchedEvents.find((event) => event.type === 'bitwarden:safari-extension-action');
   assert.ok(confirmEvent);
   assert.equal(confirmEvent.detail.action, 'saveNewLogin');
   assert.equal(confirmEvent.detail.confirmed, true);
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:save-login');
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
 async function testUpdatePasswordPanelShowsSpecificTitle() {
-  const password = createInput({ id: 'password', name: 'password', type: 'password' });
-  const ctx = makeEnvironment([password]);
+  const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
+  currentPassword.placeholder = 'Current password';
+  const newPassword = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: 'new-secret' });
+  newPassword.placeholder = 'New password';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: 'new-secret' });
+  confirmPassword.placeholder = 'Confirm password';
+  const ctx = makeEnvironment([currentPassword, newPassword, confirmPassword]);
   await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
     response: {
       submissionAction: 'updatePassword',
@@ -213,6 +219,11 @@ async function testUpdatePasswordPanelShowsSpecificTitle() {
   assert.ok(actionPanel);
   assert.match(actionPanel.textContent, /Update password/);
   assert.match(actionPanel.textContent, /Update the password for this Bitwarden login\./);
+
+  const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
+  assert.ok(primaryButton);
+  await primaryButton.onclick();
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:change-password');
 }
 
 async function testActionPanelDismissRemovesPanel() {
