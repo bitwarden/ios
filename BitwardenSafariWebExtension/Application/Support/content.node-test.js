@@ -30,6 +30,7 @@ function createInput({ id, name, type, value = '', visible = true }) {
 }
 
 function makeEnvironment(elements) {
+  const dispatchedEvents = [];
   const document = {
     title: 'Example',
     location: { href: 'https://example.com/login' },
@@ -46,11 +47,20 @@ function makeEnvironment(elements) {
     elementFromPoint() {
       return null;
     },
+    dispatchEvent(event) {
+      dispatchedEvents.push(event);
+      return true;
+    },
   };
   elements.forEach((element) => { element.ownerDocument = document; });
   const window = {
     location: { href: 'https://example.com/login' },
     document,
+    dispatchedEvents,
+    dispatchEvent(event) {
+      dispatchedEvents.push(event);
+      return true;
+    },
     getComputedStyle() {
       return { display: 'block', visibility: 'visible' };
     },
@@ -64,12 +74,30 @@ function makeEnvironment(elements) {
     console,
     setTimeout(fn) { fn(); return 0; },
     clearTimeout() {},
-    Event: function Event() {},
+    Event: function Event(type) { this.type = type; },
+    CustomEvent: function CustomEvent(type, init = {}) { this.type = type; this.detail = init.detail; },
   };
   vm.createContext(context);
   const source = fs.readFileSync('BitwardenSafariWebExtension/Application/Support/content.js', 'utf8');
   vm.runInContext(source, context);
   return context;
+}
+
+async function testApplyStatusEvent() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password' });
+  const ctx = makeEnvironment([password]);
+  const nativeResponse = {
+    response: {
+      submissionAction: 'updatePassword',
+      userMessage: 'Password updated for this login.',
+    },
+  };
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse(nativeResponse);
+  assert.equal(ctx.window.bitwardenSafariWebExtension.lastNativeResponse, nativeResponse);
+  const statusEvent = ctx.window.dispatchedEvents.find((event) => event.type === 'bitwarden:safari-extension-response');
+  assert.ok(statusEvent);
+  assert.equal(statusEvent.detail.response.submissionAction, 'updatePassword');
+  assert.equal(statusEvent.detail.response.userMessage, 'Password updated for this login.');
 }
 
 async function testApplyGeneratedPassword() {
@@ -109,6 +137,7 @@ async function testApplyFillScript() {
 (async () => {
   await testApplyGeneratedPassword();
   await testApplyFillScript();
+  await testApplyStatusEvent();
   console.log('content node tests passed');
 })().catch((error) => {
   console.error(error);

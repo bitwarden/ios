@@ -39,7 +39,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(response.suggestionAction, .updatePassword)
         XCTAssertEqual(response.submissionAction, .updatePassword)
-        XCTAssertEqual(response.userMessage, "updatePassword")
+        XCTAssertEqual(response.userMessage, "Update the password for this Bitwarden login.")
     }
 
     @MainActor
@@ -76,7 +76,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(response.suggestionAction, .saveLogin)
         XCTAssertEqual(response.submissionAction, .saveNewLogin)
-        XCTAssertEqual(response.userMessage, "saveLogin")
+        XCTAssertEqual(response.userMessage, "Save this login to Bitwarden.")
     }
 
     func test_makeResponse_fillWithMatchedLogin_returnsFillScriptResponse() async throws {
@@ -126,7 +126,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(response.submissionAction, .updateExistingLogin)
-        XCTAssertEqual(response.userMessage, "updateExistingLogin")
+        XCTAssertEqual(response.userMessage, "Update the existing Bitwarden login with these changes.")
     }
 
     private func makePageDetails() -> PageDetails {

@@ -110,11 +110,11 @@ public struct SafariExtensionRequestProcessor {
         case .none, .fill:
             return nil
         case .saveNewLogin:
-            return "saveLogin"
+            return "Save this login to Bitwarden."
         case .updateExistingLogin:
-            return "updateExistingLogin"
+            return "Update the existing Bitwarden login with these changes."
         case .updatePassword:
-            return "updatePassword"
+            return "Update the password for this Bitwarden login."
         case .generatePassword:
             return nil
         }

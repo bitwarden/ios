@@ -286,11 +286,27 @@
     return bitwardenSetElementValue(targetField, generatedPassword);
   }
 
+  function bitwardenDispatchStatusEvent(nativeResponse) {
+    const detail = nativeResponse;
+    const event = typeof CustomEvent === "function"
+      ? new CustomEvent("bitwarden:safari-extension-response", { detail })
+      : { type: "bitwarden:safari-extension-response", detail };
+
+    if (typeof window.dispatchEvent === "function") {
+      window.dispatchEvent(event);
+    }
+    if (typeof document.dispatchEvent === "function") {
+      document.dispatchEvent(event);
+    }
+  }
+
   async function bitwardenApplyNativeResponse(nativeResponse) {
     const response = nativeResponse?.response;
     if (!response || typeof response !== "object") {
       return nativeResponse;
     }
+
+    window.bitwardenSafariWebExtension.lastNativeResponse = nativeResponse;
 
     if (response.submissionAction === "fill" && typeof response.fillScriptJSON === "string") {
       bitwardenApplyFillScript(response.fillScriptJSON);
@@ -300,6 +316,7 @@
       bitwardenApplyGeneratedPassword(response.generatedPassword);
     }
 
+    bitwardenDispatchStatusEvent(nativeResponse);
     return nativeResponse;
   }
 
