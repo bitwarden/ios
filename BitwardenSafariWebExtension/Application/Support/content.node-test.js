@@ -167,13 +167,13 @@ async function testApplyFillResponse_showsCompletionBannerWithoutPanel() {
           ['fill_by_opid', 'field__1', 'secret'],
         ],
       }),
-      userMessage: 'Filled login from Bitwarden.',
+      userMessage: 'Filled user@example.com from Bitwarden.',
     },
   });
 
   const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
   assert.ok(banner);
-  assert.equal(banner.textContent, 'Filled login from Bitwarden.');
+  assert.equal(banner.textContent, 'Filled user@example.com from Bitwarden.');
   assert.equal(banner.dataset.bitwardenStatusTone, 'success');
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
