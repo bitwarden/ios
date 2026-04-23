@@ -196,7 +196,7 @@ Always set `ReturnValue` before the test exercises that method — it's `T!`, no
 
 ### Watch out: bespoke defaults vs. generated nil
 
-Bespoke mocks often supply safe default return values (e.g. `var userNeedsMigrationResult: Result<Bool, Error> = .success(false)`). Every test that calls through to that method was silently relying on that default. The generated mock starts with `userNeedsMigrationReturnValue: Bool!` — `nil` — and will crash at runtime the first time a test exercises that path without setting it first.
+Bespoke mocks often supply safe default return values (e.g. `var isEnabledResult: Result<Bool, Error> = .success(false)`). Every test that calls through to that method was silently relying on that default. The generated mock starts with `isEnabledReturnValue: Bool!` — `nil` — and will crash at runtime the first time a test exercises that path without setting it first.
 
 **After converting, look for this pattern:** any test in the file that calls the subject under test but does *not* set `*ReturnValue` for a method that returns a non-optional. Check both:
 - The test body itself
