@@ -191,6 +191,48 @@ private extension PremiumSubscription {
         storageCost: 4,
         suspension: nil,
     )
+
+    static let previewCanceled = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: Date().addingTimeInterval(-60 * 60 * 24 * 14),
+        discount: 0,
+        estimatedTax: 0,
+        gracePeriod: nil,
+        nextCharge: nil,
+        seatsCost: 19.8,
+        status: .canceled,
+        storageCost: 0,
+        suspension: nil,
+    )
+
+    static let previewPastDue = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 1.98,
+        estimatedTax: 4.55,
+        gracePeriod: 30,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .pastDue,
+        storageCost: 4,
+        suspension: Date().addingTimeInterval(60 * 60 * 24 * 30),
+    )
+
+    static let previewUpdatePayment = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 14),
+        canceled: nil,
+        discount: 1.98,
+        estimatedTax: 4.55,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .updatePayment,
+        storageCost: 4,
+        suspension: nil,
+    )
 }
 
 #Preview("Active") {
@@ -215,7 +257,7 @@ private extension PremiumSubscription {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .updatePayment,
-                        subscription: .previewActive,
+                        subscription: .previewUpdatePayment,
                     ),
                 ),
             ),
@@ -230,7 +272,7 @@ private extension PremiumSubscription {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .pastDue,
-                        subscription: .previewActive,
+                        subscription: .previewPastDue,
                     ),
                 ),
             ),
@@ -245,7 +287,7 @@ private extension PremiumSubscription {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .canceled,
-                        subscription: .previewActive,
+                        subscription: .previewCanceled,
                     ),
                 ),
             ),
