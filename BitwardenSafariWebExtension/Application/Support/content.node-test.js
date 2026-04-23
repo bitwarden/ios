@@ -144,7 +144,8 @@ async function testApplyStatusBanner() {
 
 async function testApplyGeneratedPassword() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
-  const ctx = makeEnvironment([password]);
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirm-password', type: 'password' });
+  const ctx = makeEnvironment([password, confirmPassword]);
   assert.equal(typeof ctx.window.bitwardenSafariWebExtension.applyNativeResponse, 'function');
   await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
     response: {
@@ -153,6 +154,7 @@ async function testApplyGeneratedPassword() {
     },
   });
   assert.equal(password.value, 'generated-secret');
+  assert.equal(confirmPassword.value, 'generated-secret');
 }
 
 async function testApplyFillScript() {
