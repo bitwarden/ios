@@ -110,13 +110,26 @@ Bespoke mocks often supply safe default return values (e.g. `var userNeedsMigrat
 - The test body itself
 - Any shared `setUp()` that might need a default added
 
-The fix is to set a sensible default in `setUp()` once, covering all tests that don't care about that method's return value:
+The fix is to set a sensible default in the shared setup, covering all tests that don't care about that method's return value. The pattern differs by test framework:
 
+**XCTest:**
 ```swift
 override func setUp() {
     super.setUp()
     mockService = MockFooService()
     mockService.isEnabledReturnValue = false  // safe default for tests that don't configure it
+}
+```
+
+**Swift Testing:**
+```swift
+struct FooTests {
+    var mockService: MockFooService
+
+    init() {
+        mockService = MockFooService()
+        mockService.isEnabledReturnValue = false  // safe default for tests that don't configure it
+    }
 }
 ```
 
@@ -152,6 +165,20 @@ Common things to change:
 - Replace `Result`-based setup with `ReturnValue`/`ThrowableError`
 - Replace explicit `fooCalled = false` resets (not needed; generated mocks start fresh)
 - Replace bespoke parameter capture properties with `ReceivedArguments`
+
+### Adding the import
+
+Generated mocks live in `BitwardenSharedMocks` (or `AuthenticatorSharedMocks`, etc.), not in the test target directly. Any test file that references the generated mock class needs:
+
+```swift
+@testable import BitwardenSharedMocks
+```
+
+This applies to:
+- Test files (`*Tests.swift`) that declare or use the mock
+- `TestHelpers/` files that reference the mock class (e.g., factories that return a mock as a fallback)
+
+If you see `cannot find type 'MockFoo' in scope` after deleting a bespoke mock, a missing import is almost always the cause. Check every file that previously had access to the bespoke mock via co-location.
 
 ## Step 7: Verify
 
