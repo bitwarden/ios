@@ -1,3 +1,5 @@
+import BitwardenKitMocks
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -38,6 +40,18 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(response.suggestionAction, .updatePassword)
         XCTAssertEqual(response.submissionAction, .updatePassword)
         XCTAssertEqual(response.userMessage, "updatePassword")
+    }
+
+    @MainActor
+    func test_liveProcessor_withMockServices_makeResponse_generatePasswordReturnsResponse() async throws {
+        let subject = SafariExtensionRequestProcessor.live(services: ServiceContainer.withMocks())
+
+        let maybeResponse = await subject.makeResponse(for: SafariExtensionRequest(kind: .generatePassword))
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertEqual(response.submissionAction, .generatePassword)
+        XCTAssertNotNil(response.generatedPassword)
+        XCTAssertFalse(response.generatedPassword?.isEmpty ?? true)
     }
 
     func test_makeResponse_setup_returnsSetupMessage() throws {

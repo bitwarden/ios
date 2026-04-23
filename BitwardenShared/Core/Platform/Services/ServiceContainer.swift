@@ -75,6 +75,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// A helper to create cipher views with proper ownership based on policies.
     let cipherOwnershipHelper: CipherOwnershipHelper
 
+    /// The service used by the application to manage cipher data.
+    let cipherService: CipherService
+
     /// The service used by the application to manage client certificates for mTLS authentication.
     let clientCertificateService: ClientCertificateService
 
@@ -174,6 +177,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The repository used by the application to manage data for the UI layer.
     let settingsRepository: SettingsRepository
+
+    /// The service used by the application to manage settings data.
+    let settingsService: SettingsService
 
     /// The service that manages account timeout between apps.
     public let sharedTimeoutService: SharedTimeoutService
@@ -321,6 +327,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         cameraService: CameraService,
         changeKdfService: ChangeKdfService,
         cipherOwnershipHelper: CipherOwnershipHelper,
+        cipherService: CipherService,
         clientCertificateService: ClientCertificateService,
         clientService: ClientService,
         configService: ConfigService,
@@ -354,6 +361,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         serverCommunicationConfigAPIService: ServerCommunicationConfigAPIService,
         serverCommunicationConfigClientSingleton: ServerCommunicationConfigClientSingleton,
         settingsRepository: SettingsRepository,
+        settingsService: SettingsService,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         syncService: SyncService,
@@ -388,6 +396,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.cameraService = cameraService
         self.changeKdfService = changeKdfService
         self.cipherOwnershipHelper = cipherOwnershipHelper
+        self.cipherService = cipherService
         self.clientCertificateService = clientCertificateService
         self.clientService = clientService
         self.configService = configService
@@ -421,6 +430,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.serverCommunicationConfigAPIService = serverCommunicationConfigAPIService
         self.serverCommunicationConfigClientSingleton = serverCommunicationConfigClientSingleton
         self.settingsRepository = settingsRepository
+        self.settingsService = settingsService
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
         self.syncService = syncService
@@ -1118,6 +1128,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             cameraService: DefaultCameraService(),
             changeKdfService: changeKdfService,
             cipherOwnershipHelper: cipherOwnershipHelper,
+            cipherService: cipherService,
             clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
@@ -1151,6 +1162,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
             serverCommunicationConfigClientSingleton: serverCommunicationConfigClientSingleton,
             settingsRepository: settingsRepository,
+            settingsService: settingsService,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             syncService: syncService,
