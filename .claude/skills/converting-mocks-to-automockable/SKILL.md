@@ -110,6 +110,14 @@ Bespoke mocks often supply safe default return values (e.g. `var userNeedsMigrat
 - The test body itself
 - Any shared `setUp()` that might need a default added
 
+**Don't just look at the test files — look at the production code too.** A test might not reference a mock method directly, yet still exercise it indirectly through the subject under test. For each non-optional-returning method on the protocol, search the production implementations of the subjects that use this mock:
+
+```bash
+grep -rn "<mockPropertyName>\." <path/to/subject/implementation>
+```
+
+If the subject calls any of those methods anywhere in its implementation, every test that exercises that code path will crash without a default. Add the appropriate defaults to `setUp()` to cover the whole suite.
+
 The fix is to set a sensible default in the shared setup, covering all tests that don't care about that method's return value. The pattern differs by test framework:
 
 **XCTest:**
