@@ -151,6 +151,29 @@ async function testApplyStatusEvent() {
   assert.equal(statusEvent.detail.response.userMessage, 'Password updated for this login.');
 }
 
+async function testApplyFillResponse_showsCompletionBannerWithoutPanel() {
+  const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'fill',
+      fillScriptJSON: JSON.stringify({
+        script: [
+          ['fill_by_opid', 'field__0', 'user@example.com'],
+          ['fill_by_opid', 'field__1', 'secret'],
+        ],
+      }),
+      userMessage: 'Filled login from Bitwarden.',
+    },
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Filled login from Bitwarden.');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
 async function testApplyNoMatchFillMessage_showsBannerWithoutPanel() {
   const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
   const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
@@ -450,6 +473,7 @@ async function testApplyFillScript() {
   await testApplyGeneratedPassword();
   await testApplyFillScript();
   await testApplyStatusEvent();
+  await testApplyFillResponse_showsCompletionBannerWithoutPanel();
   await testApplyNoMatchFillMessage_showsBannerWithoutPanel();
   await testApplyStatusBanner();
   await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
