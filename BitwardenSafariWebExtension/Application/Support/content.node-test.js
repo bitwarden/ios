@@ -148,7 +148,25 @@ async function testApplyStatusBanner() {
   assert.ok(actionPanel);
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
   assert.equal(actionPanel.role, 'dialog');
+  assert.match(actionPanel.textContent, /Save login/);
   assert.match(actionPanel.textContent, /Save this login to Bitwarden\./);
+  assert.match(actionPanel.textContent, /Not now/);
+}
+
+async function testUpdatePasswordPanelShowsSpecificTitle() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password' });
+  const ctx = makeEnvironment([password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'updatePassword',
+      userMessage: 'Update the password for this Bitwarden login.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  assert.match(actionPanel.textContent, /Update password/);
+  assert.match(actionPanel.textContent, /Update the password for this Bitwarden login\./);
 }
 
 async function testApplyGeneratedPassword() {
@@ -192,6 +210,7 @@ async function testApplyFillScript() {
   await testApplyFillScript();
   await testApplyStatusEvent();
   await testApplyStatusBanner();
+  await testUpdatePasswordPanelShowsSpecificTitle();
   console.log('content node tests passed');
 })().catch((error) => {
   console.error(error);
