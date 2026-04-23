@@ -96,11 +96,11 @@ public struct SafariExtensionRequestProcessor {
                 return SafariExtensionResponse(
                     request: request,
                     suggestionAction: SafariExtensionSuggestionAction.from(request),
-                    submissionAction: SafariExtensionSubmissionAction.classify(request, matchedLogin: matchedLogin),
+                    submissionAction: .none,
                     matchedLogin: matchedLogin,
                     fillScriptJSON: nil,
                     generatedPassword: nil,
-                    userMessage: makeUserMessage(for: SafariExtensionSubmissionAction.classify(request, matchedLogin: matchedLogin)),
+                    userMessage: "No matching Bitwarden login found for this page.",
                 )
             }
 
