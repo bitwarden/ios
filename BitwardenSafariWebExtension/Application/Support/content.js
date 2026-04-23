@@ -354,6 +354,17 @@
     panel.dataset.bitwardenActionKind = response.submissionAction;
     panel.role = 'dialog';
     panel.textContent = `${content.title}\n${content.subtitle}\n${content.dismissLabel}`;
+    const dismissButton = document.createElement('button');
+    dismissButton.dataset.bitwardenActionDismiss = 'true';
+    dismissButton.textContent = content.dismissLabel;
+    dismissButton.onclick = () => {
+      if (typeof panel.remove === 'function') {
+        panel.remove();
+      }
+    };
+    if (typeof panel.appendChild === 'function') {
+      panel.appendChild(dismissButton);
+    }
     panel.style.position = 'fixed';
     panel.style.top = '16px';
     panel.style.left = '16px';

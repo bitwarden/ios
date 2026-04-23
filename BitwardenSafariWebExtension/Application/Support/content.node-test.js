@@ -68,6 +68,17 @@ function makeEnvironment(elements) {
         style: {},
         textContent: '',
         role: null,
+        children: [],
+        appendChild(child) {
+          this.children.push(child);
+          return child;
+        },
+        querySelector(selector) {
+          if (selector === '[data-bitwarden-action-dismiss]') {
+            return this.children.find((child) => child.dataset?.bitwardenActionDismiss === 'true') || null;
+          }
+          return null;
+        },
         remove() {
           bannerContainer.children = bannerContainer.children.filter((child) => child !== this);
         },
@@ -169,6 +180,24 @@ async function testUpdatePasswordPanelShowsSpecificTitle() {
   assert.match(actionPanel.textContent, /Update the password for this Bitwarden login\./);
 }
 
+async function testActionPanelDismissRemovesPanel() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password' });
+  const ctx = makeEnvironment([password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'saveNewLogin',
+      userMessage: 'Save this login to Bitwarden.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  const dismissButton = actionPanel.querySelector('[data-bitwarden-action-dismiss]');
+  assert.ok(dismissButton);
+  dismissButton.onclick();
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
 async function testApplyGeneratedPassword() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const confirmPassword = createInput({ id: 'confirm-password', name: 'confirm-password', type: 'password' });
@@ -211,6 +240,7 @@ async function testApplyFillScript() {
   await testApplyStatusEvent();
   await testApplyStatusBanner();
   await testUpdatePasswordPanelShowsSpecificTitle();
+  await testActionPanelDismissRemovesPanel();
   console.log('content node tests passed');
 })().catch((error) => {
   console.error(error);
