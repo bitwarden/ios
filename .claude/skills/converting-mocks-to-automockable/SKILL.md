@@ -57,6 +57,54 @@ The generated mock's property names follow deterministic patterns. Use this tabl
 | `var fooParam: T?` (captures single arg) | `var fooReceivedArguments: T?` (1 param) or `var fooReceivedArguments: (param1: T1, param2: T2)?` (multiple) |
 | Custom closure to inject behavior | `var fooClosure: ((ArgTypes) -> ReturnType)?` |
 
+### Multi-parameter capture
+
+Bespoke mocks often spread a method's arguments across several named properties. The generated mock collapses them into a single labeled tuple. Recognise this pattern and update all the individual property accesses to go through the tuple:
+
+```swift
+// Bespoke — separate property per argument
+var doThingName: String?
+var doThingCount: Int?
+var doThingEnabled: Bool?
+
+func doThing(name: String, count: Int, enabled: Bool) async {
+    doThingName = name
+    doThingCount = count
+    doThingEnabled = enabled
+}
+
+// Generated — one tuple property, labeled with the parameter names
+var doThingReceivedArguments: (name: String, count: Int, enabled: Bool)?
+```
+
+**XCTest:**
+```swift
+// Before
+XCTAssertEqual(mockService.doThingName, "hello")
+XCTAssertEqual(mockService.doThingCount, 3)
+XCTAssertTrue(mockService.doThingEnabled ?? false)
+
+// After
+XCTAssertEqual(mockService.doThingReceivedArguments?.name, "hello")
+XCTAssertEqual(mockService.doThingReceivedArguments?.count, 3)
+XCTAssertTrue(mockService.doThingReceivedArguments?.enabled ?? false)
+```
+
+**Swift Testing:**
+```swift
+// Before
+#expect(mockService.doThingName == "hello")
+#expect(mockService.doThingCount == 3)
+#expect(mockService.doThingEnabled == true)
+
+// After
+#expect(mockService.doThingReceivedArguments?.name == "hello")
+#expect(mockService.doThingReceivedArguments?.count == 3)
+#expect(mockService.doThingReceivedArguments?.enabled == true)
+```
+
+Nil checks via optional chaining preserve the original semantics: `mockService.doThingReceivedArguments?.name` is nil both when the method was never called (whole tuple is nil) and when it was called with a nil argument — matching what the bespoke `mockService.doThingName` would have been.
+
 ### Throwing methods
 
 ```swift
