@@ -134,6 +134,21 @@
     return 'unknown';
   }
 
+  function bitwardenPreferredUsernameField(fields) {
+    return fields.find((field) => field.type === 'email' && field.viewable)
+      || fields.find((field) => field.type === 'text' && field.viewable)
+      || fields.find((field) => field.type === 'tel' && field.viewable)
+      || null;
+  }
+
+  function bitwardenPreferredSavePasswordField(fields) {
+    const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
+    return passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'new')
+      || passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'unknown')
+      || passwordFields.find((field) => bitwardenPasswordFieldRole(field) !== 'confirm')
+      || null;
+  }
+
   function bitwardenBuildRequest(kind, overrides = {}) {
     return {
       id: bitwardenUUID(),
@@ -153,21 +168,15 @@
 
   function bitwardenBuildSaveLoginRequest() {
     const pageDetails = bitwardenCollectPageDetails();
-    const username = bitwardenFirstFieldValue(
-      pageDetails,
-      (field) => ["email", "text", "tel"].includes(field.type) && field.viewable,
-    );
-    const password = bitwardenFirstFieldValue(
-      pageDetails,
-      (field) => field.type === "password" && field.viewable,
-    );
+    const usernameField = bitwardenPreferredUsernameField(pageDetails.fields);
+    const passwordField = bitwardenPreferredSavePasswordField(pageDetails.fields);
 
     return bitwardenBuildRequest("saveLogin", {
       loginTitle: document.title || null,
       pageDetails,
-      password,
+      password: passwordField?.value || null,
       urlString: bitwardenCurrentURL(),
-      username,
+      username: usernameField?.value || null,
     });
   }
 
