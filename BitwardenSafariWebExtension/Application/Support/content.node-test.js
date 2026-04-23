@@ -225,6 +225,22 @@ async function testActionPanelDismissRemovesPanel() {
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
+function testBuildChangePasswordRequest_usesCurrentAndNewPasswordHeuristics() {
+  const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
+  currentPassword.placeholder = 'Current password';
+  const newPassword = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: 'new-secret' });
+  newPassword.placeholder = 'New password';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: 'confirm-secret' });
+  confirmPassword.placeholder = 'Confirm password';
+
+  const ctx = makeEnvironment([currentPassword, newPassword, confirmPassword]);
+  const built = ctx.window.bitwardenSafariWebExtension.buildChangePasswordRequest();
+
+  assert.equal(built.request.kind, 'changePassword');
+  assert.equal(built.request.oldPassword, 'old-secret');
+  assert.equal(built.request.password, 'new-secret');
+}
+
 async function testApplyGeneratedPassword() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const confirmPassword = createInput({ id: 'confirm-password', name: 'confirm-password', type: 'password' });
@@ -262,6 +278,7 @@ async function testApplyFillScript() {
 }
 
 (async () => {
+  testBuildChangePasswordRequest_usesCurrentAndNewPasswordHeuristics();
   await testApplyGeneratedPassword();
   await testApplyFillScript();
   await testApplyStatusEvent();

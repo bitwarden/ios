@@ -116,6 +116,24 @@
     return field?.value || null;
   }
 
+  function bitwardenPasswordFieldRole(field) {
+    const source = [field.htmlID, field.htmlName, field['label-tag'], field['label-left'], field.placeholder]
+      .filter((value) => typeof value === 'string' && value.length > 0)
+      .join(' ')
+      .toLowerCase();
+
+    if (/(current|old)/.test(source)) {
+      return 'current';
+    }
+    if (/(confirm|verification|verify|repeat|again)/.test(source)) {
+      return 'confirm';
+    }
+    if (/(new|create|choose|set)/.test(source)) {
+      return 'new';
+    }
+    return 'unknown';
+  }
+
   function bitwardenBuildRequest(kind, overrides = {}) {
     return {
       id: bitwardenUUID(),
@@ -156,14 +174,17 @@
   function bitwardenBuildChangePasswordRequest() {
     const pageDetails = bitwardenCollectPageDetails();
     const passwordFields = pageDetails.fields.filter((field) => field.type === "password");
-    const oldPassword = passwordFields.at(0)?.value || null;
-    const password = passwordFields.at(-1)?.value || null;
+    const currentPasswordField = passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'current') || passwordFields.at(0) || null;
+    const newPasswordField = passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'new')
+      || passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'unknown' && field !== currentPasswordField)
+      || passwordFields.at(-1)
+      || null;
 
     return bitwardenBuildRequest("changePassword", {
       loginTitle: document.title || null,
-      oldPassword,
+      oldPassword: currentPasswordField?.value || null,
       pageDetails,
-      password,
+      password: newPasswordField?.value || null,
       urlString: bitwardenCurrentURL(),
     });
   }
