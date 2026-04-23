@@ -32,6 +32,10 @@ async function bitwardenSendNativeRequest(request) {
 }
 
 function bitwardenMessageToRequest(message) {
+  if (message?.request && typeof message.request === "object") {
+    return message.request;
+  }
+
   switch (message?.type) {
     case "bitwarden:change-password":
       return { kind: "changePassword" };
