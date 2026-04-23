@@ -102,6 +102,26 @@ mockService.isEnabledReturnValue = false  // note: implicitly unwrapped optional
 
 Always set `ReturnValue` before the test exercises that method — it's `T!`, not `T?`.
 
+### Watch out: bespoke defaults vs. generated nil
+
+Bespoke mocks often supply safe default return values (e.g. `var userNeedsMigrationResult: Result<Bool, Error> = .success(false)`). Every test that calls through to that method was silently relying on that default. The generated mock starts with `userNeedsMigrationReturnValue: Bool!` — `nil` — and will crash at runtime the first time a test exercises that path without setting it first.
+
+**After converting, look for this pattern:** any test in the file that calls the subject under test but does *not* set `*ReturnValue` for a method that returns a non-optional. Check both:
+- The test body itself
+- Any shared `setUp()` that might need a default added
+
+The fix is to set a sensible default in `setUp()` once, covering all tests that don't care about that method's return value:
+
+```swift
+override func setUp() {
+    super.setUp()
+    mockService = MockFooService()
+    mockService.isEnabledReturnValue = false  // safe default for tests that don't configure it
+}
+```
+
+Tests that need a specific value override it in their own body as before.
+
 ## Step 4: Delete the Bespoke Mock
 
 Remove the bespoke mock:
