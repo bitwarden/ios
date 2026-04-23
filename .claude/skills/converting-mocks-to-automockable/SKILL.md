@@ -56,7 +56,8 @@ The generated mock's property names follow deterministic patterns. Use this tabl
 | `var fooCalledCount: Int = 0` | `var fooCallsCount = 0` — note the naming difference (`Calls` not `Called`) |
 | `fooBarCalled = false` (mid-test reset between assertions) | `fooBarCallsCount = 0` — `fooCalled` is computed, so it can't be assigned; reset the underlying count instead |
 | `var fooHandler: (() -> Void)?` (side-effect hook, no args) | `var fooClosure: ((ArgTypes) async throws -> ReturnType)?` — generated closure takes the method's arguments; use `_, _` if the handler doesn't need them |
-| `var fooParam: T?` (captures single arg) | `var fooReceivedArguments: T?` (1 param) or `var fooReceivedArguments: (param1: T1, param2: T2)?` (multiple) |
+| `var fooParam: T?` (captures a single named arg, e.g. `foo(name: String)`) | `var fooReceivedName: (String)?` — uses the **parameter label**, not `ReceivedArguments` |
+| `var fooParam1: T1?` + `var fooParam2: T2?` (captures multiple args) | `var fooReceivedArguments: (param1: T1, param2: T2)?` — collapses all args into a labeled tuple |
 | `var fooValue: T = default` (stored property returned by a method named `getBar`) | `var getBarReturnValue: T!` — derives from the **method** name, not the stored property name |
 | Custom closure to inject behavior | `var fooClosure: ((ArgTypes) -> ReturnType)?` |
 
@@ -92,9 +93,17 @@ mockService.getWidgetStatusReturnValue = .active
 
 The generated property name comes from the **method** (`getWidgetStatus` + `ReturnValue`), not from the old stored property name (`widgetStatus`). They'll often differ — always read the generated output to confirm the exact name rather than guessing from the bespoke property.
 
-### Multi-parameter capture
+### Parameter capture: single vs. multiple
 
-Bespoke mocks often spread a method's arguments across several named properties. The generated mock collapses them into a single labeled tuple. Recognise this pattern and update all the individual property accesses to go through the tuple:
+For a method with **one named parameter**, Sourcery generates a property named `{methodName}Received{Label}` — using the parameter's label, not a generic `ReceivedArguments`:
+
+```swift
+// Protocol: func doThing(name: String) async throws
+// Generated:
+var doThingReceivedName: (String)?
+```
+
+For a method with **multiple parameters**, Sourcery collapses them into a single labeled tuple named `ReceivedArguments`. Bespoke mocks often spread these across several named properties — update all of them to go through the tuple:
 
 ```swift
 // Bespoke — separate property per argument
@@ -264,7 +273,7 @@ With the generated mock's actual property names in hand, update each test that u
 Common things to change:
 - Replace `Result`-based setup with `ReturnValue`/`ThrowableError`
 - Replace explicit `fooCalled = false` resets (not needed; generated mocks start fresh)
-- Replace bespoke parameter capture properties with `ReceivedArguments`
+- Replace bespoke parameter capture properties with `Received{Label}` (single param) or `ReceivedArguments` tuple (multiple params)
 
 ### Adding the import
 
