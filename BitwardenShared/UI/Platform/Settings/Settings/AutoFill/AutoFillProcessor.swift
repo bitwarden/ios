@@ -78,6 +78,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             Task {
                 await updateFillAssistEnabled(isOn)
             }
+        case .safariExtensionTapped:
+            coordinator.navigate(to: .safariExtension)
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
             Task {
