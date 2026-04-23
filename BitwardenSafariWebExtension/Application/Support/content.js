@@ -408,6 +408,23 @@
     }
   }
 
+  function bitwardenStatusTone(nativeResponse) {
+    const response = nativeResponse?.response;
+    const message = response?.userMessage;
+    if (typeof message === 'string' && /no matching bitwarden login found/i.test(message)) {
+      return 'warning';
+    }
+    switch (response?.submissionAction) {
+      case 'fill':
+      case 'saveNewLogin':
+      case 'updateExistingLogin':
+      case 'updatePassword':
+        return 'success';
+      default:
+        return 'info';
+    }
+  }
+
   function bitwardenFollowUpResponseForGeneratedPassword(document = window.document) {
     const suggestedAction = bitwardenSuggestPageAction(document);
     switch (suggestedAction) {
@@ -454,7 +471,7 @@
     primaryButton.onclick = async () => {
       const pendingMessage = bitwardenActionPendingMessage(response.submissionAction);
       if (typeof pendingMessage === 'string' && pendingMessage.length > 0) {
-        bitwardenPresentStatusBanner(pendingMessage, document);
+        bitwardenPresentStatusBanner(pendingMessage, document, { tone: 'progress' });
       }
       await bitwardenTriggerSubmissionAction(response.submissionAction);
       bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: true });
@@ -492,7 +509,7 @@
     return panel;
   }
 
-  function bitwardenPresentStatusBanner(message, document = window.document) {
+  function bitwardenPresentStatusBanner(message, document = window.document, options = {}) {
     if (!document?.body || typeof message !== "string" || message.length === 0) {
       return null;
     }
@@ -501,7 +518,9 @@
 
     const banner = document.createElement('div');
     banner.dataset.bitwardenStatusBanner = 'true';
+    banner.dataset.bitwardenStatusTone = options.tone || 'info';
     banner.role = 'status';
+    banner.ariaLive = options.tone === 'warning' ? 'assertive' : 'polite';
     banner.textContent = message;
     banner.style.position = 'fixed';
     banner.style.left = '16px';
@@ -510,11 +529,28 @@
     banner.style.zIndex = '2147483647';
     banner.style.padding = '12px 16px';
     banner.style.borderRadius = '14px';
-    banner.style.background = 'rgba(28, 28, 30, 0.92)';
-    banner.style.color = '#fff';
     banner.style.fontSize = '14px';
     banner.style.fontFamily = '-apple-system, BlinkMacSystemFont, sans-serif';
     banner.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.2)';
+    banner.style.border = '1px solid rgba(255, 255, 255, 0.12)';
+    switch (banner.dataset.bitwardenStatusTone) {
+      case 'success':
+        banner.style.background = 'rgba(33, 118, 61, 0.96)';
+        banner.style.color = '#fff';
+        break;
+      case 'warning':
+        banner.style.background = 'rgba(176, 86, 0, 0.96)';
+        banner.style.color = '#fff';
+        break;
+      case 'progress':
+        banner.style.background = 'rgba(24, 84, 186, 0.96)';
+        banner.style.color = '#fff';
+        break;
+      default:
+        banner.style.background = 'rgba(28, 28, 30, 0.92)';
+        banner.style.color = '#fff';
+        break;
+    }
     document.body.appendChild(banner);
     setTimeout(() => {
       if (typeof banner.remove === "function") {
@@ -568,7 +604,7 @@
     }
 
     if (typeof response.userMessage === "string" && response.userMessage.length > 0) {
-      bitwardenPresentStatusBanner(response.userMessage);
+      bitwardenPresentStatusBanner(response.userMessage, window.document, { tone: bitwardenStatusTone(nativeResponse) });
     }
 
     const followUpResponse = response.submissionAction === 'generatePassword'

@@ -174,6 +174,7 @@ async function testApplyFillResponse_showsCompletionBannerWithoutPanel() {
   const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
   assert.ok(banner);
   assert.equal(banner.textContent, 'Filled login from Bitwarden.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'success');
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
@@ -191,6 +192,7 @@ async function testApplyNoMatchFillMessage_showsBannerWithoutPanel() {
   const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
   assert.ok(banner);
   assert.equal(banner.textContent, 'No matching Bitwarden login found for this page.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'warning');
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
@@ -334,6 +336,7 @@ async function testActionPanelPrimaryShowsPendingBannerWhileSaving() {
   const pendingBanner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
   assert.ok(pendingBanner);
   assert.equal(pendingBanner.textContent, 'Saving login to Bitwarden…');
+  assert.equal(pendingBanner.dataset.bitwardenStatusTone, 'progress');
   assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.submissionAction, 'saveNewLogin');
 
   resolveSendMessage({ response: { submissionAction: 'saveNewLogin', userMessage: 'Saved login to Bitwarden.' } });
