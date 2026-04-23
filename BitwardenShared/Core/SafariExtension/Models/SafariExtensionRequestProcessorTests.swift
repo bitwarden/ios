@@ -105,6 +105,29 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(response.userMessage, "Filled user@example.com from Bitwarden.")
     }
 
+    func test_makeResponse_fillWithMatchedLoginWithoutUsername_fallsBackToSiteHost() async throws {
+        let request = SafariExtensionRequest(
+            kind: .fill,
+            pageDetails: makePageDetails(),
+            urlString: "https://accounts.example.com/login"
+        )
+        let subject = SafariExtensionRequestProcessor(
+            matchedLoginResolver: MockSafariExtensionMatchedLoginResolver(
+                matchedLogin: SafariExtensionMatchedLogin(
+                    id: "cipher-2",
+                    username: "",
+                    password: "secret",
+                    urlString: "https://accounts.example.com/login"
+                )
+            )
+        )
+
+        let maybeResponse = await subject.makeResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertEqual(response.userMessage, "Filled login for accounts.example.com from Bitwarden.")
+    }
+
     func test_makeResponse_fillWithoutMatchedLogin_returnsNoMatchMessage() async throws {
         let request = SafariExtensionRequest(
             kind: .fill,

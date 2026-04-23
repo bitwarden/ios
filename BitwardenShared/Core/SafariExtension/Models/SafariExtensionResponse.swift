@@ -83,10 +83,23 @@ public struct SafariExtensionResponse: Codable, Equatable {
             matchedLogin: matchedLogin,
             fillScriptJSON: fillScriptJSON,
             generatedPassword: nil,
-            userMessage: matchedLogin?.username.flatMap { username in
-                username.isEmpty ? nil : "Filled \(username) from Bitwarden."
-            } ?? "Filled login from Bitwarden.",
+            userMessage: fillCompletionMessage(request: request, matchedLogin: matchedLogin),
         )
+    }
+
+    private static func fillCompletionMessage(
+        request: SafariExtensionRequest,
+        matchedLogin: SafariExtensionMatchedLogin?
+    ) -> String {
+        if let username = matchedLogin?.username, !username.isEmpty {
+            return "Filled \(username) from Bitwarden."
+        }
+        let host = matchedLogin?.urlString.flatMap { URL(string: $0)?.host }
+            ?? request.urlString.flatMap { URL(string: $0)?.host }
+        if let host, !host.isEmpty {
+            return "Filled login for \(host) from Bitwarden."
+        }
+        return "Filled login from Bitwarden."
     }
 
     /// Build a response for password generation flows.
