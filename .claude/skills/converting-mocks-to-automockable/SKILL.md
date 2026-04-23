@@ -55,7 +55,40 @@ The generated mock's property names follow deterministic patterns. Use this tabl
 | `var fooCalled: Bool = false` | `var fooCalled: Bool { fooCallsCount > 0 }` — same name, same semantics, no change needed in tests |
 | `var fooCalledCount: Int = 0` | `var fooCallsCount = 0` — note the naming difference (`Calls` not `Called`) |
 | `var fooParam: T?` (captures single arg) | `var fooReceivedArguments: T?` (1 param) or `var fooReceivedArguments: (param1: T1, param2: T2)?` (multiple) |
+| `var fooValue: T = default` (stored property returned by a method named `getBar`) | `var getBarReturnValue: T!` — derives from the **method** name, not the stored property name |
 | Custom closure to inject behavior | `var fooClosure: ((ArgTypes) -> ReturnType)?` |
+
+### Stored-property return values
+
+Some bespoke mocks expose a plain stored property that a method simply returns:
+
+```swift
+// Bespoke
+var widgetStatus: WidgetStatus = .idle
+
+func getWidgetStatus(_ context: SomeContext?) -> WidgetStatus {
+    widgetStatus
+}
+```
+
+Tests write directly to the stored property:
+```swift
+mockService.widgetStatus = .active
+```
+
+The generated mock drops the stored property and routes through `ReturnValue` named after the **method**:
+
+```swift
+// Generated
+var getWidgetStatusReturnValue: WidgetStatus!
+```
+
+Tests update to:
+```swift
+mockService.getWidgetStatusReturnValue = .active
+```
+
+The generated property name comes from the **method** (`getWidgetStatus` + `ReturnValue`), not from the old stored property name (`widgetStatus`). They'll often differ — always read the generated output to confirm the exact name rather than guessing from the bespoke property.
 
 ### Multi-parameter capture
 
