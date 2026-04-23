@@ -178,6 +178,29 @@ async function testApplyFillResponse_showsCompletionBannerWithoutPanel() {
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
+async function testApplyFillResponse_withoutUsername_usesSiteHostCopy() {
+  const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'fill',
+      fillScriptJSON: JSON.stringify({
+        script: [
+          ['fill_by_opid', 'field__0', 'user@example.com'],
+          ['fill_by_opid', 'field__1', 'secret'],
+        ],
+      }),
+      userMessage: 'Filled login for accounts.example.com from Bitwarden.',
+    },
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Filled login for accounts.example.com from Bitwarden.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'success');
+}
+
 async function testApplyNoMatchFillMessage_showsBannerWithoutPanel() {
   const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
   const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
@@ -512,6 +535,7 @@ async function testApplyFillScript() {
   await testApplyFillScript();
   await testApplyStatusEvent();
   await testApplyFillResponse_showsCompletionBannerWithoutPanel();
+  await testApplyFillResponse_withoutUsername_usesSiteHostCopy();
   await testApplyNoMatchFillMessage_showsBannerWithoutPanel();
   await testApplyStatusBanner();
   await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
