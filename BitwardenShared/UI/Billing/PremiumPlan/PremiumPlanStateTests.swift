@@ -99,7 +99,7 @@ struct PremiumPlanStateTests {
     func discount_withDiscount() {
         var state = PremiumPlanState()
         state.subscription = .fixture(discount: 2)
-        #expect(state.discount == "-$2.00")
+        #expect(state.discount == Localizations.negativeX("$2.00"))
     }
 
     /// `discount` returns empty when discount is zero.
@@ -135,6 +135,7 @@ struct PremiumPlanStateTests {
         (PremiumPlanStatus.active, true),
         (PremiumPlanStatus.canceled, false),
         (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.unknown, false),
         (PremiumPlanStatus.updatePayment, true),
     ])
     func showBillingDetails(planStatus: PremiumPlanStatus, expected: Bool) {
@@ -150,6 +151,7 @@ struct PremiumPlanStateTests {
         (PremiumPlanStatus.active, true),
         (PremiumPlanStatus.canceled, false),
         (PremiumPlanStatus.pastDue, true),
+        (PremiumPlanStatus.unknown, false),
         (PremiumPlanStatus.updatePayment, true),
     ])
     func showCancelButton(planStatus: PremiumPlanStatus, expected: Bool) {
