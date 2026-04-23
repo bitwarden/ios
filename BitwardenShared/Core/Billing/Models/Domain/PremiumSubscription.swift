@@ -65,13 +65,6 @@ struct PremiumSubscription: Equatable {
         let storageDiscount = Self.discountAmount(storage?.discount, on: storageCost)
         let cartDiscount = Self.discountAmount(response.cart.discount, on: itemTotal)
 
-        let status: PremiumPlanStatus = switch response.status {
-        case .active: .active
-        case .canceled: .canceled
-        case .pastDue: .pastDue
-        case .unpaid: .updatePayment
-        }
-
         cadence = response.cart.cadence
         cancelAt = response.cancelAt
         canceled = response.canceled
@@ -80,7 +73,7 @@ struct PremiumSubscription: Equatable {
         gracePeriod = response.gracePeriod
         nextCharge = response.nextCharge
         self.seatsCost = seatsCost
-        self.status = status
+        self.status = PremiumPlanStatus(response.status)
         self.storageCost = storageCost
         suspension = response.suspension
     }

@@ -14,13 +14,16 @@ enum SubscriptionStatus: String, Codable, Equatable, Sendable {
     /// The subscription is past due.
     case pastDue = "past_due"
 
+    /// An unknown status not yet supported by the app.
+    case unknown
+
     /// The subscription is unpaid.
     case unpaid
 
-    /// Decodes a `SubscriptionStatus` from the API, defaulting to `.active` for unknown values.
+    /// Decodes a `SubscriptionStatus` from the API, defaulting to `.unknown` for unrecognized values.
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawValue = try container.decode(String.self)
-        self = SubscriptionStatus(rawValue: rawValue) ?? .active
+        self = SubscriptionStatus(rawValue: rawValue) ?? .unknown
     }
 }
