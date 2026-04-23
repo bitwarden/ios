@@ -83,7 +83,9 @@ public struct SafariExtensionResponse: Codable, Equatable {
             matchedLogin: matchedLogin,
             fillScriptJSON: fillScriptJSON,
             generatedPassword: nil,
-            userMessage: "Filled login from Bitwarden.",
+            userMessage: matchedLogin?.username.flatMap { username in
+                username.isEmpty ? nil : "Filled \(username) from Bitwarden."
+            } ?? "Filled login from Bitwarden.",
         )
     }
 
