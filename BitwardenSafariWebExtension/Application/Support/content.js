@@ -311,9 +311,39 @@
     return ["saveNewLogin", "updateExistingLogin", "updatePassword"].includes(submissionAction);
   }
 
+  function bitwardenActionPanelContent(response) {
+    switch (response?.submissionAction) {
+      case "saveNewLogin":
+        return {
+          title: "Save login",
+          subtitle: response.userMessage || "Save this login to Bitwarden.",
+          dismissLabel: "Not now",
+        };
+      case "updateExistingLogin":
+        return {
+          title: "Update login",
+          subtitle: response.userMessage || "Update the existing Bitwarden login with these changes.",
+          dismissLabel: "Not now",
+        };
+      case "updatePassword":
+        return {
+          title: "Update password",
+          subtitle: response.userMessage || "Update the password for this Bitwarden login.",
+          dismissLabel: "Not now",
+        };
+      default:
+        return null;
+    }
+  }
+
   function bitwardenPresentActionPanel(nativeResponse, document = window.document) {
     const response = nativeResponse?.response;
     if (!document?.body || !response || !bitwardenNeedsActionPanel(response.submissionAction)) {
+      return null;
+    }
+
+    const content = bitwardenActionPanelContent(response);
+    if (!content) {
       return null;
     }
 
@@ -323,7 +353,7 @@
     panel.dataset.bitwardenActionPanel = 'true';
     panel.dataset.bitwardenActionKind = response.submissionAction;
     panel.role = 'dialog';
-    panel.textContent = response.userMessage || '';
+    panel.textContent = `${content.title}\n${content.subtitle}\n${content.dismissLabel}`;
     panel.style.position = 'fixed';
     panel.style.top = '16px';
     panel.style.left = '16px';
