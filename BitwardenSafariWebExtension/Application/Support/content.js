@@ -317,18 +317,21 @@
         return {
           title: "Save login",
           subtitle: response.userMessage || "Save this login to Bitwarden.",
+          primaryLabel: "Save in Bitwarden",
           dismissLabel: "Not now",
         };
       case "updateExistingLogin":
         return {
           title: "Update login",
           subtitle: response.userMessage || "Update the existing Bitwarden login with these changes.",
+          primaryLabel: "Update in Bitwarden",
           dismissLabel: "Not now",
         };
       case "updatePassword":
         return {
           title: "Update password",
           subtitle: response.userMessage || "Update the password for this Bitwarden login.",
+          primaryLabel: "Update in Bitwarden",
           dismissLabel: "Not now",
         };
       default:
@@ -353,7 +356,16 @@
     panel.dataset.bitwardenActionPanel = 'true';
     panel.dataset.bitwardenActionKind = response.submissionAction;
     panel.role = 'dialog';
-    panel.textContent = `${content.title}\n${content.subtitle}\n${content.dismissLabel}`;
+    panel.textContent = `${content.title}\n${content.subtitle}\n${content.primaryLabel}\n${content.dismissLabel}`;
+    const primaryButton = document.createElement('button');
+    primaryButton.dataset.bitwardenActionPrimary = 'true';
+    primaryButton.textContent = content.primaryLabel;
+    primaryButton.onclick = () => {
+      bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: true });
+      if (typeof panel.remove === 'function') {
+        panel.remove();
+      }
+    };
     const dismissButton = document.createElement('button');
     dismissButton.dataset.bitwardenActionDismiss = 'true';
     dismissButton.textContent = content.dismissLabel;
@@ -363,6 +375,7 @@
       }
     };
     if (typeof panel.appendChild === 'function') {
+      panel.appendChild(primaryButton);
       panel.appendChild(dismissButton);
     }
     panel.style.position = 'fixed';
@@ -413,6 +426,19 @@
       }
     }, 4000);
     return banner;
+  }
+
+  function bitwardenDispatchActionEvent(detail) {
+    const event = typeof CustomEvent === "function"
+      ? new CustomEvent("bitwarden:safari-extension-action", { detail })
+      : { type: "bitwarden:safari-extension-action", detail };
+
+    if (typeof window.dispatchEvent === "function") {
+      window.dispatchEvent(event);
+    }
+    if (typeof document.dispatchEvent === "function") {
+      document.dispatchEvent(event);
+    }
   }
 
   function bitwardenDispatchStatusEvent(nativeResponse) {
