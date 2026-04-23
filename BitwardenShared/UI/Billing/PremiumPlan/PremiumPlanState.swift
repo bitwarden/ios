@@ -7,17 +7,6 @@ import Foundation
 /// An object that defines the current state of a `PremiumPlanView`.
 ///
 struct PremiumPlanState: Equatable {
-    // MARK: Private Properties
-
-    /// A cached formatter for US dollar currency strings.
-    private static let usdCurrencyFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        formatter.locale = Locale(identifier: "en_US")
-        return formatter
-    }()
-
     // MARK: Properties
 
     /// The current status of the premium plan.
@@ -34,7 +23,10 @@ struct PremiumPlanState: Equatable {
     /// The billing amount label (e.g. "$19.80 / year").
     var billingAmount: String {
         guard let subscription else { return "" }
-        return "\(formatCurrency(subscription.seatsCost)) \(subscription.cadence.label)"
+        return Localizations.xAmountPerCadence(
+            formatCurrency(subscription.seatsCost),
+            subscription.cadence.label,
+        )
     }
 
     /// The date the subscription was canceled, formatted for display.
@@ -60,6 +52,8 @@ struct PremiumPlanState: Equatable {
                 subscription?.gracePeriod ?? 0,
                 subscriptionEndDate,
             )
+        case .unknown:
+            Localizations.yourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong
         case .updatePayment:
             Localizations.weCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong(
                 subscriptionEndDate,
@@ -70,7 +64,7 @@ struct PremiumPlanState: Equatable {
     /// The discount label (e.g. "-$0.10").
     var discount: String {
         guard let subscription, subscription.discount > 0 else { return "" }
-        return "-\(formatCurrency(subscription.discount))"
+        return Localizations.negativeX(formatCurrency(subscription.discount))
     }
 
     /// The estimated tax label (e.g. "$4.55").
@@ -93,12 +87,12 @@ struct PremiumPlanState: Equatable {
 
     /// Whether the billing details section should be shown.
     var showBillingDetails: Bool {
-        planStatus != .canceled
+        planStatus != .canceled && planStatus != .unknown
     }
 
     /// Whether the cancel premium button should be shown.
     var showCancelButton: Bool {
-        planStatus != .canceled
+        planStatus != .canceled && planStatus != .unknown
     }
 
     /// Whether the discount row should be shown.
@@ -140,7 +134,7 @@ struct PremiumPlanState: Equatable {
     /// - Returns: A formatted currency string (e.g. "$1.65").
     ///
     private func formatCurrency(_ price: Decimal) -> String {
-        Self.usdCurrencyFormatter.string(from: price as NSDecimalNumber) ?? "$0.00"
+        NumberFormatter.usdCurrency.string(from: price as NSDecimalNumber) ?? "--"
     }
 
     /// Formats a date for display using the long date style (e.g. "April 2, 2026").
