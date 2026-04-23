@@ -54,6 +54,89 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertFalse(response.generatedPassword?.isEmpty ?? true)
     }
 
+    @MainActor
+    func test_liveProcessor_withMockServices_makeResponse_generatePassword_usesRequestPasswordOptions() async throws {
+        let generatorRepository = MockGeneratorRepository()
+        generatorRepository.passwordResult = .success("generated-from-options")
+        let subject = SafariExtensionRequestProcessor.live(
+            services: ServiceContainer.withMocks(generatorRepository: generatorRepository)
+        )
+        let request = SafariExtensionRequest(
+            kind: .generatePassword,
+            passwordOptions: PasswordGenerationOptions(
+                allowAmbiguousChar: false,
+                capitalize: nil,
+                includeNumber: nil,
+                length: 20,
+                lowercase: true,
+                minLowercase: 2,
+                minNumber: 3,
+                minSpecial: nil,
+                minUppercase: nil,
+                number: true,
+                numWords: nil,
+                special: false,
+                type: .password,
+                uppercase: false,
+                wordSeparator: nil,
+                overridePasswordType: nil
+            )
+        )
+
+        let maybeResponse = await subject.makeResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+        let passwordRequest = try XCTUnwrap(generatorRepository.passwordGeneratorRequest)
+
+        XCTAssertEqual(response.generatedPassword, "generated-from-options")
+        XCTAssertEqual(passwordRequest.length, 20)
+        XCTAssertEqual(passwordRequest.lowercase, true)
+        XCTAssertEqual(passwordRequest.numbers, true)
+        XCTAssertEqual(passwordRequest.special, false)
+        XCTAssertEqual(passwordRequest.uppercase, false)
+        XCTAssertEqual(passwordRequest.avoidAmbiguous, true)
+        XCTAssertEqual(passwordRequest.minLowercase, 2)
+        XCTAssertEqual(passwordRequest.minNumber, 3)
+    }
+
+    @MainActor
+    func test_liveProcessor_withMockServices_makeResponse_generatePassword_usesSavedPassphraseOptionsWhenRequestDoesNotProvideAny() async throws {
+        let generatorRepository = MockGeneratorRepository()
+        generatorRepository.passphraseResult = .success("correct-horse-battery-staple")
+        generatorRepository.getPasswordGenerationOptionsResult = .success(
+            PasswordGenerationOptions(
+                allowAmbiguousChar: nil,
+                capitalize: true,
+                includeNumber: true,
+                length: nil,
+                lowercase: nil,
+                minLowercase: nil,
+                minNumber: nil,
+                minSpecial: nil,
+                minUppercase: nil,
+                number: nil,
+                numWords: 4,
+                special: nil,
+                type: .passphrase,
+                uppercase: nil,
+                wordSeparator: "-",
+                overridePasswordType: nil
+            )
+        )
+        let subject = SafariExtensionRequestProcessor.live(
+            services: ServiceContainer.withMocks(generatorRepository: generatorRepository)
+        )
+
+        let maybeResponse = await subject.makeResponse(for: SafariExtensionRequest(kind: .generatePassword))
+        let response = try XCTUnwrap(maybeResponse)
+        let passphraseRequest = try XCTUnwrap(generatorRepository.passphraseGeneratorRequest)
+
+        XCTAssertEqual(response.generatedPassword, "correct-horse-battery-staple")
+        XCTAssertEqual(passphraseRequest.numWords, 4)
+        XCTAssertEqual(passphraseRequest.wordSeparator, "-")
+        XCTAssertEqual(passphraseRequest.capitalize, true)
+        XCTAssertEqual(passphraseRequest.includeNumber, true)
+    }
+
     func test_makeResponse_setup_returnsSetupMessage() throws {
         let subject = SafariExtensionRequestProcessor()
 

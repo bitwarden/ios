@@ -1,16 +1,19 @@
 // MARK: - SafariExtensionRequestProcessor
 
 import BitwardenKit
+import BitwardenSdk
 
 public struct SafariExtensionRequestProcessor {
     private let matchedLoginResolver: (any SafariExtensionMatchedLoginResolving)?
     private let credentialStore: (any SafariExtensionCredentialStoring)?
     private let passwordGenerator: (PasswordGenerationOptions?) -> String
+    private let generatedPasswordProducer: ((PasswordGenerationOptions?) async -> String?)?
 
     public init() {
         matchedLoginResolver = nil
         credentialStore = nil
         passwordGenerator = { _ in "generated-password" }
+        generatedPasswordProducer = nil
     }
 
     @MainActor
@@ -37,17 +40,25 @@ public struct SafariExtensionRequestProcessor {
             clientService: services.clientService,
         )
 
-        return Self(matchedLoginResolver: matchedLoginResolver, credentialStore: credentialStore)
+        return Self(
+            matchedLoginResolver: matchedLoginResolver,
+            credentialStore: credentialStore,
+            generatedPasswordProducer: { options in
+                try? await Self.generatePassword(using: services.generatorRepository, options: options)
+            }
+        )
     }
 
     init(
         matchedLoginResolver: (any SafariExtensionMatchedLoginResolving)? = nil,
         credentialStore: (any SafariExtensionCredentialStoring)? = nil,
-        passwordGenerator: @escaping (PasswordGenerationOptions?) -> String = { _ in "generated-password" }
+        passwordGenerator: @escaping (PasswordGenerationOptions?) -> String = { _ in "generated-password" },
+        generatedPasswordProducer: ((PasswordGenerationOptions?) async -> String?)? = nil
     ) {
         self.matchedLoginResolver = matchedLoginResolver
         self.credentialStore = credentialStore
         self.passwordGenerator = passwordGenerator
+        self.generatedPasswordProducer = generatedPasswordProducer
     }
 
     public func makeResponse(for request: SafariExtensionRequest) -> SafariExtensionResponse? {
@@ -55,6 +66,11 @@ public struct SafariExtensionRequestProcessor {
     }
 
     func makeResponse(for request: SafariExtensionRequest) async -> SafariExtensionResponse? {
+        if request.kind == .generatePassword,
+           let generatedPassword = await makeGeneratedPassword(for: request) {
+            return try? SafariExtensionResponse.generatedPassword(generatedPassword, for: request)
+        }
+
         let matchedLogin = try? await matchedLoginResolver?.resolveMatchedLogin(for: request)
 
         if request.requestContext?.trigger == .actionPanelPrimary {
@@ -124,6 +140,15 @@ public struct SafariExtensionRequestProcessor {
                 userMessage: makeUserMessage(for: submissionAction),
             )
         }
+    }
+
+    private func makeGeneratedPassword(for request: SafariExtensionRequest) async -> String? {
+        if let generatedPasswordProducer,
+           let generatedPassword = await generatedPasswordProducer(request.passwordOptions) {
+            return generatedPassword
+        }
+
+        return passwordGenerator(request.passwordOptions)
     }
 
     private func makePersistedResponse(
@@ -203,5 +228,71 @@ public struct SafariExtensionRequestProcessor {
         case .generatePassword:
             return nil
         }
+    }
+
+    private static func generatePassword(
+        using generatorRepository: GeneratorRepository,
+        options: PasswordGenerationOptions?
+    ) async throws -> String {
+        let resolvedOptions = try await generatorOptions(using: generatorRepository, options: options)
+
+        switch resolvedOptions.type ?? .password {
+        case .passphrase:
+            return try await generatorRepository.generatePassphrase(
+                settings: makePassphraseGeneratorRequest(from: resolvedOptions)
+            )
+        case .password:
+            return try await generatorRepository.generatePassword(
+                settings: makePasswordGeneratorRequest(from: resolvedOptions)
+            )
+        }
+    }
+
+    private static func generatorOptions(
+        using generatorRepository: GeneratorRepository,
+        options: PasswordGenerationOptions?
+    ) async throws -> PasswordGenerationOptions {
+        if let options {
+            return options
+        }
+
+        return try await generatorRepository.getPasswordGenerationOptions()
+    }
+
+    private static func makePassphraseGeneratorRequest(from options: PasswordGenerationOptions) -> PassphraseGeneratorRequest {
+        PassphraseGeneratorRequest(
+            numWords: clampedUInt8(options.numWords ?? 3),
+            wordSeparator: options.wordSeparator ?? "-",
+            capitalize: options.capitalize ?? false,
+            includeNumber: options.includeNumber ?? false
+        )
+    }
+
+    private static func makePasswordGeneratorRequest(from options: PasswordGenerationOptions) -> PasswordGeneratorRequest {
+        var lowercase = options.lowercase ?? true
+        var uppercase = options.uppercase ?? true
+        var numbers = options.number ?? true
+        var special = options.special ?? true
+
+        if !lowercase, !uppercase, !numbers, !special {
+            lowercase = true
+        }
+
+        return PasswordGeneratorRequest(
+            lowercase: lowercase,
+            uppercase: uppercase,
+            numbers: numbers,
+            special: special,
+            length: clampedUInt8(options.length ?? 14),
+            avoidAmbiguous: !(options.allowAmbiguousChar ?? true),
+            minLowercase: options.minLowercase.map(clampedUInt8),
+            minUppercase: options.minUppercase.map(clampedUInt8),
+            minNumber: options.minNumber.map(clampedUInt8),
+            minSpecial: options.minSpecial.map(clampedUInt8)
+        )
+    }
+
+    private static func clampedUInt8(_ value: Int) -> UInt8 {
+        UInt8(max(1, min(value, Int(UInt8.max))))
     }
 }
