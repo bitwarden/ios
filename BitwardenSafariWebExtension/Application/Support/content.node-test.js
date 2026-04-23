@@ -197,6 +197,8 @@ async function testActionPanelPrimaryDispatchesConfirmEvent() {
   assert.equal(confirmEvent.detail.action, 'saveNewLogin');
   assert.equal(confirmEvent.detail.confirmed, true);
   assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:save-login');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.trigger, 'actionPanelPrimary');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.submissionAction, 'saveNewLogin');
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
@@ -224,6 +226,8 @@ async function testUpdatePasswordPanelShowsSpecificTitle() {
   assert.ok(primaryButton);
   await primaryButton.onclick();
   assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:change-password');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.trigger, 'actionPanelPrimary');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.submissionAction, 'updatePassword');
 }
 
 async function testActionPanelDismissRemovesPanel() {
@@ -308,6 +312,7 @@ async function testTriggerSuggestedAction_sendsActionSpecificRequest() {
   let ctx = makeEnvironment([loginUsername, loginPassword]);
   await ctx.window.bitwardenSafariWebExtension.triggerSuggestedAction();
   assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:save-login');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.trigger, 'suggestedAction');
 
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
   currentPassword.placeholder = 'Current password';

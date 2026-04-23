@@ -530,10 +530,11 @@
     return nativeResponse;
   }
 
-  async function bitwardenSendBuiltRequest(type, requestBuilder) {
+  async function bitwardenSendBuiltRequest(type, requestBuilder, requestContext = null) {
     const nativeResponse = await browser.runtime.sendMessage({
       type,
       request: requestBuilder().request,
+      requestContext,
     });
     return bitwardenApplyNativeResponse(nativeResponse);
   }
@@ -541,11 +542,20 @@
   async function bitwardenTriggerSuggestedAction(document = window.document) {
     switch (bitwardenSuggestPageAction(document)) {
       case 'changePassword':
-        return bitwardenSendBuiltRequest('bitwarden:change-password', bitwardenBuildChangePasswordRequest);
+        return bitwardenSendBuiltRequest('bitwarden:change-password', bitwardenBuildChangePasswordRequest, {
+          trigger: 'suggestedAction',
+          submissionAction: 'updatePassword',
+        });
       case 'saveLogin':
-        return bitwardenSendBuiltRequest('bitwarden:save-login', bitwardenBuildSaveLoginRequest);
+        return bitwardenSendBuiltRequest('bitwarden:save-login', bitwardenBuildSaveLoginRequest, {
+          trigger: 'suggestedAction',
+          submissionAction: 'saveNewLogin',
+        });
       default:
-        return bitwardenSendBuiltRequest('bitwarden:fill', bitwardenBuildFillRequest);
+        return bitwardenSendBuiltRequest('bitwarden:fill', bitwardenBuildFillRequest, {
+          trigger: 'suggestedAction',
+          submissionAction: 'fill',
+        });
     }
   }
 
@@ -553,11 +563,20 @@
     switch (submissionAction) {
       case 'saveNewLogin':
       case 'updateExistingLogin':
-        return bitwardenSendBuiltRequest('bitwarden:save-login', bitwardenBuildSaveLoginRequest);
+        return bitwardenSendBuiltRequest('bitwarden:save-login', bitwardenBuildSaveLoginRequest, {
+          trigger: 'actionPanelPrimary',
+          submissionAction,
+        });
       case 'updatePassword':
-        return bitwardenSendBuiltRequest('bitwarden:change-password', bitwardenBuildChangePasswordRequest);
+        return bitwardenSendBuiltRequest('bitwarden:change-password', bitwardenBuildChangePasswordRequest, {
+          trigger: 'actionPanelPrimary',
+          submissionAction,
+        });
       case 'fill':
-        return bitwardenSendBuiltRequest('bitwarden:fill', bitwardenBuildFillRequest);
+        return bitwardenSendBuiltRequest('bitwarden:fill', bitwardenBuildFillRequest, {
+          trigger: 'actionPanelPrimary',
+          submissionAction,
+        });
       default:
         return null;
     }
