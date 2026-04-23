@@ -32,7 +32,17 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
         }
 
         if request.canChangePassword {
-            return matchedLogin == nil ? .none : .updatePassword
+            guard let matchedLogin else {
+                return .none
+            }
+
+            let normalizedOldPassword = request.oldPassword?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let normalizedMatchedPassword = matchedLogin.password?.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard normalizedOldPassword == normalizedMatchedPassword else {
+                return .none
+            }
+
+            return .updatePassword
         }
 
         if request.canSaveLogin {
@@ -45,7 +55,11 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
             let normalizedRequestPassword = request.password?.trimmingCharacters(in: .whitespacesAndNewlines)
             let normalizedMatchedPassword = matchedLogin.password?.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            if normalizedRequestUsername != normalizedMatchedUsername || normalizedRequestPassword != normalizedMatchedPassword {
+            if normalizedRequestUsername != normalizedMatchedUsername {
+                return .saveNewLogin
+            }
+
+            if normalizedRequestPassword != normalizedMatchedPassword {
                 return .updateExistingLogin
             }
 
