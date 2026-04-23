@@ -537,6 +537,17 @@
     return bitwardenApplyNativeResponse(nativeResponse);
   }
 
+  async function bitwardenTriggerSuggestedAction(document = window.document) {
+    switch (bitwardenSuggestPageAction(document)) {
+      case 'changePassword':
+        return bitwardenSendBuiltRequest('bitwarden:change-password', bitwardenBuildChangePasswordRequest);
+      case 'saveLogin':
+        return bitwardenSendBuiltRequest('bitwarden:save-login', bitwardenBuildSaveLoginRequest);
+      default:
+        return bitwardenSendBuiltRequest('bitwarden:fill', bitwardenBuildFillRequest);
+    }
+  }
+
   window.bitwardenSafariWebExtension = {
     applyGeneratedPassword: bitwardenApplyGeneratedPassword,
     applyFillScript: bitwardenApplyFillScript,
@@ -551,6 +562,7 @@
     buildSetupRequest: bitwardenBuildSetupRequest,
     collectPageDetails: bitwardenCollectPageDetails,
     suggestPageAction: bitwardenSuggestPageAction,
+    triggerSuggestedAction: bitwardenTriggerSuggestedAction,
     generatePassword: () => bitwardenSendBuiltRequest("bitwarden:generate-password", bitwardenBuildGeneratePasswordRequest),
     requestFill: () => bitwardenSendBuiltRequest("bitwarden:fill", bitwardenBuildFillRequest),
     requestSaveLogin: () => bitwardenSendBuiltRequest("bitwarden:save-login", bitwardenBuildSaveLoginRequest),
