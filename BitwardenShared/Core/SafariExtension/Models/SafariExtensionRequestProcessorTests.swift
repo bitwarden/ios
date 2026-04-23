@@ -104,6 +104,26 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertTrue(response.canFinalizeWithScript)
     }
 
+    func test_makeResponse_fillWithoutMatchedLogin_returnsNoMatchMessage() async throws {
+        let request = SafariExtensionRequest(
+            kind: .fill,
+            pageDetails: makePageDetails(),
+            urlString: "https://example.com/login"
+        )
+        let subject = SafariExtensionRequestProcessor(
+            matchedLoginResolver: MockSafariExtensionMatchedLoginResolver(
+                matchedLogin: nil
+            )
+        )
+
+        let maybeResponse = await subject.makeResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertEqual(response.submissionAction, .none)
+        XCTAssertEqual(response.userMessage, "No matching Bitwarden login found for this page.")
+        XCTAssertFalse(response.canFinalizeWithScript)
+    }
+
     func test_makeResponse_saveLoginWithMatchedLogin_returnsUpdateExistingLoginMessage() async throws {
         let request = SafariExtensionRequest(
             kind: .saveLogin,

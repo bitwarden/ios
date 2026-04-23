@@ -151,6 +151,23 @@ async function testApplyStatusEvent() {
   assert.equal(statusEvent.detail.response.userMessage, 'Password updated for this login.');
 }
 
+async function testApplyNoMatchFillMessage_showsBannerWithoutPanel() {
+  const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'none',
+      userMessage: 'No matching Bitwarden login found for this page.',
+    },
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'No matching Bitwarden login found for this page.');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
 async function testApplyStatusBanner() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const ctx = makeEnvironment([password]);
@@ -433,6 +450,7 @@ async function testApplyFillScript() {
   await testApplyGeneratedPassword();
   await testApplyFillScript();
   await testApplyStatusEvent();
+  await testApplyNoMatchFillMessage_showsBannerWithoutPanel();
   await testApplyStatusBanner();
   await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
   await testApplyGeneratedPassword_showsSaveLoginFollowUpPanel();
