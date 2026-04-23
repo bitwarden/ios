@@ -322,29 +322,37 @@ class SelfHostedProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
     }
 
-    /// Receiving `.certificateInfoSubmitted` with empty alias shows error dialog.
+    /// Receiving `.certificateInfoSubmitted` with empty alias shows an alert via coordinator.
     @MainActor
-    func test_receive_certificateInfoSubmitted_emptyAlias() {
+    func test_receive_certificateInfoSubmitted_emptyAlias() throws {
         subject.state.pendingCertificateData = Data([0x01])
 
         subject.receive(.certificateInfoSubmitted(alias: "", password: "pass123"))
 
+        XCTAssertNil(subject.state.dialog)
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(
-            subject.state.dialog,
-            .error(message: Localizations.validationFieldRequired(Localizations.alias)),
+            alert,
+            .inputValidationAlert(error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.alias),
+            )),
         )
     }
 
-    /// Receiving `.certificateInfoSubmitted` with empty password shows error dialog.
+    /// Receiving `.certificateInfoSubmitted` with empty password shows an alert via coordinator.
     @MainActor
-    func test_receive_certificateInfoSubmitted_emptyPassword() {
+    func test_receive_certificateInfoSubmitted_emptyPassword() throws {
         subject.state.pendingCertificateData = Data([0x01])
 
         subject.receive(.certificateInfoSubmitted(alias: "test", password: ""))
 
+        XCTAssertNil(subject.state.dialog)
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(
-            subject.state.dialog,
-            .error(message: Localizations.validationFieldRequired(Localizations.password)),
+            alert,
+            .inputValidationAlert(error: InputValidationError(
+                message: Localizations.validationFieldRequired(Localizations.password),
+            )),
         )
     }
 

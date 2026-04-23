@@ -25,7 +25,7 @@
 "Show the ${applicationName} generator" = "显示 ${applicationName} 生成器";
 "Access password maker in ${applicationName}" = "访问 ${applicationName} 中的密码制作器";
 "${applicationName}, open generator tool" = "${applicationName}，打开生成器工具";
-"Go to password generator in ${applicationName}" = "转到 ${applicationName} 中的密码生成器";
+"Go to password generator in ${applicationName}" = "前往 ${applicationName} 中的密码生成器";
 "Start ${applicationName} password builder" = "启动 ${applicationName} 密码构建器";
 "Open up the ${applicationName} generator" = "打开 ${applicationName} 生成器";
 "Load the password creator in ${applicationName}" = "加载 ${applicationName} 中的密码创建器";

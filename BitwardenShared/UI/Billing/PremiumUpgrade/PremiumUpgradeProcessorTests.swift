@@ -15,6 +15,7 @@ struct PremiumUpgradeProcessorTests {
 
     let billingService: MockBillingService
     let coordinator: MockCoordinator<BillingRoute, Void>
+    let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let subject: PremiumUpgradeProcessor
 
@@ -23,9 +24,11 @@ struct PremiumUpgradeProcessorTests {
     init() {
         billingService = MockBillingService()
         coordinator = MockCoordinator<BillingRoute, Void>()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         let services = ServiceContainer.withMocks(
             billingService: billingService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
         )
         subject = PremiumUpgradeProcessor(
@@ -36,6 +39,26 @@ struct PremiumUpgradeProcessorTests {
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `true` when the environment is self-hosted.
+    @Test
+    func perform_appeared_selfHosted() async {
+        environmentService.region = .selfHosted
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.isSelfHosted == true)
+    }
+
+    /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `false` when the environment is not self-hosted.
+    @Test
+    func perform_appeared_notSelfHosted() async {
+        environmentService.region = .unitedStates
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.isSelfHosted == false)
+    }
 
     /// `perform(_:)` with `.upgradeNowTapped` logs the error and shows an error alert on failure.
     @Test
@@ -83,6 +106,18 @@ struct PremiumUpgradeProcessorTests {
         subject.receive(.cancelTapped)
 
         #expect(coordinator.routes.last == .dismiss)
+    }
+
+    /// `receive(_:)` with `.dismissBannerTapped` sets `isBannerDismissed` to `true`.
+    @Test
+    func receive_dismissBannerTapped() {
+        subject.state.isSelfHosted = true
+        #expect(subject.state.showSelfHostedBanner == true)
+
+        subject.receive(.dismissBannerTapped)
+
+        #expect(subject.state.isBannerDismissed == true)
+        #expect(subject.state.showSelfHostedBanner == false)
     }
 
     /// `receive(_:)` with `.clearURL` clears the checkout URL.

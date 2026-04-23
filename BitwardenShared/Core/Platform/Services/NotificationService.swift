@@ -269,7 +269,8 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
                 break
-            case .policyChanged:
+            case .policyChanged,
+                 .premiumStatusChanged:
                 try await syncService.fetchSync(forceSync: false)
             }
         } catch {

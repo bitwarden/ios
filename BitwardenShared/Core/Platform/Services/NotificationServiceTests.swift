@@ -427,6 +427,23 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(syncService.didFetchSync)
     }
 
+    /// `messageReceived(_:notificationDismissed:notificationTapped:)` performs a sync when
+    /// receiving a premium status changed notification.
+    func test_messageReceived_premiumStatusChanged() async throws {
+        stateService.setIsAuthenticated()
+        appIDSettingsStore.appID = "10"
+        let message: [AnyHashable: Any] = [
+            "data": [
+                "type": NotificationType.premiumStatusChanged.rawValue,
+                "payload": "anything",
+            ],
+        ]
+
+        await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
+
+        XCTAssertTrue(syncService.didFetchSync)
+    }
+
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs to the flight recorder
     /// when a login request push notification is received for an account that doesn't exist.
     @MainActor
