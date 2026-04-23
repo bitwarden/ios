@@ -1051,6 +1051,10 @@
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
 "PerMonth" = "/ month";
 "PerYear" = "/ year";
+"XAmountPerCadence" = "%1$@ %2$@";
+"NegativeX" = "-%1$@";
+"UnknownStatus" = "Unknown";
+"YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
 "AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Unlock more advanced features with a Premium plan.";
 "BuiltInAuthenticator" = "Built-in authenticator";
