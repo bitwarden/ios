@@ -31,25 +31,47 @@ async function bitwardenSendNativeRequest(request) {
   return bitwardenParseNativeResponse(nativeResponse);
 }
 
+function bitwardenMergeRequestContext(request, requestContext) {
+  if (!request || typeof request !== "object") {
+    return request;
+  }
+  if (!requestContext || typeof requestContext !== "object") {
+    return request;
+  }
+  return {
+    ...request,
+    requestContext,
+  };
+}
+
 function bitwardenMessageToRequest(message) {
   if (message?.request && typeof message.request === "object") {
-    return message.request;
+    return bitwardenMergeRequestContext(message.request, message.requestContext);
   }
 
+  let request = null;
   switch (message?.type) {
     case "bitwarden:change-password":
-      return { kind: "changePassword" };
+      request = { kind: "changePassword" };
+      break;
     case "bitwarden:fill":
-      return { kind: "fill" };
+      request = { kind: "fill" };
+      break;
     case "bitwarden:generate-password":
-      return { kind: "generatePassword" };
+      request = { kind: "generatePassword" };
+      break;
     case "bitwarden:save-login":
-      return { kind: "saveLogin" };
+      request = { kind: "saveLogin" };
+      break;
     case "bitwarden:setup":
-      return { kind: "setup" };
+      request = { kind: "setup" };
+      break;
     default:
-      return null;
+      request = null;
+      break;
   }
+
+  return bitwardenMergeRequestContext(request, message?.requestContext);
 }
 
 browser.runtime.onMessage.addListener((message) => {
