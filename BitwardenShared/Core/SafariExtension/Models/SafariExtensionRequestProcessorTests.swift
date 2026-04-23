@@ -102,6 +102,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(response.submissionAction, .fill)
         XCTAssertEqual(response.matchedLogin?.id, "cipher-1")
         XCTAssertTrue(response.canFinalizeWithScript)
+        XCTAssertEqual(response.userMessage, "Filled login from Bitwarden.")
     }
 
     func test_makeResponse_fillWithoutMatchedLogin_returnsNoMatchMessage() async throws {
