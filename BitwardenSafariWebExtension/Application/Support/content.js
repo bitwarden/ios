@@ -149,6 +149,24 @@
       || null;
   }
 
+  function bitwardenFieldText(field) {
+    return [field.htmlID, field.htmlName, field['label-tag'], field['label-left'], field.placeholder]
+      .filter((value) => typeof value === 'string' && value.length > 0)
+      .join(' ')
+      .toLowerCase();
+  }
+
+  function bitwardenLooksLikeSignupPage(fields) {
+    const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
+    const hasConfirmPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'confirm');
+    const hasNewPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'new');
+    if (hasConfirmPassword || hasNewPassword) {
+      return true;
+    }
+
+    return fields.some((field) => /(sign[ -]?up|create|register|join|new account)/.test(bitwardenFieldText(field)));
+  }
+
   function bitwardenSuggestPageAction(document = window.document) {
     const pageDetails = bitwardenCollectPageDetails(document);
     const passwordFields = pageDetails.fields.filter((field) => field.type === 'password' && field.viewable);
@@ -160,7 +178,9 @@
       return 'changePassword';
     }
 
-    if (bitwardenPreferredUsernameField(pageDetails.fields) && bitwardenPreferredSavePasswordField(pageDetails.fields)) {
+    if (bitwardenLooksLikeSignupPage(pageDetails.fields)
+      && bitwardenPreferredUsernameField(pageDetails.fields)
+      && bitwardenPreferredSavePasswordField(pageDetails.fields)) {
       return 'saveLogin';
     }
 
