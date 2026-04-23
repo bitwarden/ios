@@ -393,6 +393,28 @@
     return bitwardenNeedsActionPanel(response?.submissionAction) && trigger !== 'actionPanelPrimary';
   }
 
+  function bitwardenFollowUpResponseForGeneratedPassword(document = window.document) {
+    const suggestedAction = bitwardenSuggestPageAction(document);
+    switch (suggestedAction) {
+      case 'saveLogin':
+        return {
+          response: {
+            submissionAction: 'saveNewLogin',
+            userMessage: 'Save this login to Bitwarden.',
+          },
+        };
+      case 'changePassword':
+        return {
+          response: {
+            submissionAction: 'updatePassword',
+            userMessage: 'Update the password for this Bitwarden login.',
+          },
+        };
+      default:
+        return null;
+    }
+  }
+
   function bitwardenPresentActionPanel(nativeResponse, document = window.document) {
     const response = nativeResponse?.response;
     if (!document?.body || !response || !bitwardenShouldPresentActionPanel(nativeResponse)) {
@@ -530,7 +552,11 @@
       bitwardenPresentStatusBanner(response.userMessage);
     }
 
-    bitwardenPresentActionPanel(nativeResponse);
+    const followUpResponse = response.submissionAction === 'generatePassword'
+      ? bitwardenFollowUpResponseForGeneratedPassword(window.document)
+      : null;
+
+    bitwardenPresentActionPanel(followUpResponse || nativeResponse);
 
     bitwardenDispatchStatusEvent(nativeResponse);
     return nativeResponse;

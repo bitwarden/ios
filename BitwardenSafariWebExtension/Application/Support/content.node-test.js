@@ -199,6 +199,47 @@ async function testApplyStatusBanner_doesNotReopenPanelForConfirmedAction() {
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
+async function testApplyGeneratedPassword_showsSaveLoginFollowUpPanel() {
+  const email = createInput({ id: 'email', name: 'email', type: 'email', value: 'user@example.com' });
+  const password = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: '' });
+  password.placeholder = 'New password';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: '' });
+  confirmPassword.placeholder = 'Confirm password';
+  const ctx = makeEnvironment([email, password, confirmPassword]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'generatePassword',
+      generatedPassword: 'generated-secret',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
+  assert.match(actionPanel.textContent, /Save login/);
+}
+
+async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
+  const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
+  currentPassword.placeholder = 'Current password';
+  const newPassword = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: '' });
+  newPassword.placeholder = 'New password';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: '' });
+  confirmPassword.placeholder = 'Confirm password';
+  const ctx = makeEnvironment([currentPassword, newPassword, confirmPassword]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'generatePassword',
+      generatedPassword: 'generated-secret',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  assert.equal(actionPanel.dataset.bitwardenActionKind, 'updatePassword');
+  assert.match(actionPanel.textContent, /Update password/);
+}
+
 async function testActionPanelPrimaryDispatchesConfirmEvent() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const ctx = makeEnvironment([password]);
@@ -394,6 +435,8 @@ async function testApplyFillScript() {
   await testApplyStatusEvent();
   await testApplyStatusBanner();
   await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
+  await testApplyGeneratedPassword_showsSaveLoginFollowUpPanel();
+  await testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel();
   await testActionPanelPrimaryDispatchesConfirmEvent();
   await testUpdatePasswordPanelShowsSpecificTitle();
   await testActionPanelDismissRemovesPanel();
