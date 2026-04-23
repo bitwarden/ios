@@ -41,6 +41,9 @@ function makeEnvironment(elements) {
       if (selector === '[data-bitwarden-status-banner]') {
         return this.children.find((child) => child.dataset?.bitwardenStatusBanner === 'true') || null;
       }
+      if (selector === '[data-bitwarden-action-panel]') {
+        return this.children.find((child) => child.dataset?.bitwardenActionPanel === 'true') || null;
+      }
       return null;
     },
   };
@@ -140,6 +143,12 @@ async function testApplyStatusBanner() {
   assert.ok(banner);
   assert.equal(banner.textContent, 'Save this login to Bitwarden.');
   assert.equal(banner.role, 'status');
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
+  assert.equal(actionPanel.role, 'dialog');
+  assert.match(actionPanel.textContent, /Save this login to Bitwarden\./);
 }
 
 async function testApplyGeneratedPassword() {
