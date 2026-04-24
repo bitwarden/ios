@@ -36,6 +36,10 @@ struct SafariExtensionView: View {
         return "Open Safari settings and allow Bitwarden for Safari."
     }
 
+    private var activateButtonTitle: String {
+        store.state.extensionActivated ? "Open Safari Settings" : "Activate Safari Extension"
+    }
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 16) {
@@ -92,7 +96,7 @@ struct SafariExtensionView: View {
                 .contentBlock()
 
                 if !store.state.extensionEnabled {
-                    Button("Activate Safari Extension") {
+                    Button(activateButtonTitle) {
                         store.send(.activateButtonTapped)
                     }
                     .buttonStyle(.secondary())
