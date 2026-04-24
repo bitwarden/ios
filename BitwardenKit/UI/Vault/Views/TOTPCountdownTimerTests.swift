@@ -30,32 +30,72 @@ struct TOTPCountdownTimerTests {
     /// `Constants.totpUrgentCountdownThreshold` seconds remain.
     @Test
     func timerColor_normal() {
-        // 10 seconds remain: timeIntervalSinceReferenceDate=20, period=30 → 30-20=10 > 7
+        let period = 30
+        let secondsRemaining = Constants.totpUrgentCountdownThreshold + 3
         let subject = TOTPCountdownTimer(
-            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: 20))),
+            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
             timerInterval: 60,
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                period: 30,
+                period: UInt32(period),
             ),
             onExpiration: nil,
         )
         #expect(subject.timerColor() == SharedAsset.Colors.tintPrimary.swiftUIColor)
     }
 
-    /// `timerColor()` returns the urgent (error) color when
-    /// `Constants.totpUrgentCountdownThreshold` or fewer seconds remain.
+    /// `timerColor()` returns the normal (tintPrimary) color when exactly one second above
+    /// `Constants.totpUrgentCountdownThreshold` remains (boundary).
     @Test
-    func timerColor_urgent() {
-        // 5 seconds remain: timeIntervalSinceReferenceDate=25, period=30 → 30-25=5 <= 7
+    func timerColor_oneAboveThreshold() {
+        let period = 30
+        let secondsRemaining = Constants.totpUrgentCountdownThreshold + 1
         let subject = TOTPCountdownTimer(
-            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: 25))),
+            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
             timerInterval: 60,
             totpCode: .init(
                 code: "123456",
                 codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                period: 30,
+                period: UInt32(period),
+            ),
+            onExpiration: nil,
+        )
+        #expect(subject.timerColor() == SharedAsset.Colors.tintPrimary.swiftUIColor)
+    }
+
+    /// `timerColor()` returns the urgent (error) color at exactly
+    /// `Constants.totpUrgentCountdownThreshold` seconds remaining (boundary).
+    @Test
+    func timerColor_atThreshold() {
+        let period = 30
+        let secondsRemaining = Constants.totpUrgentCountdownThreshold
+        let subject = TOTPCountdownTimer(
+            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
+            timerInterval: 60,
+            totpCode: .init(
+                code: "123456",
+                codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                period: UInt32(period),
+            ),
+            onExpiration: nil,
+        )
+        #expect(subject.timerColor() == SharedAsset.Colors.error.swiftUIColor)
+    }
+
+    /// `timerColor()` returns the urgent (error) color when well below
+    /// `Constants.totpUrgentCountdownThreshold` seconds remain.
+    @Test
+    func timerColor_urgent() {
+        let period = 30
+        let secondsRemaining = Constants.totpUrgentCountdownThreshold - 2
+        let subject = TOTPCountdownTimer(
+            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
+            timerInterval: 60,
+            totpCode: .init(
+                code: "123456",
+                codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                period: UInt32(period),
             ),
             onExpiration: nil,
         )
