@@ -71,7 +71,7 @@ Service tests typically do not need `@MainActor` — do NOT add it unless the se
 
 ## Step 3: Convert Properties
 
-Change `var ... !` optional properties to `let` non-optionals:
+Change force-unwrapped `var` properties (those ending in `!`) to `let` non-optionals:
 
 ```swift
 // Before:
@@ -349,7 +349,7 @@ Run these checks after conversion:
 
 1. **No XCTest remnants**: grep for `XCTAssert`, `setUp`, `tearDown`, `XCTestCase`, `import XCTest` — all should be gone.
 2. **All tests annotated**: every former `test_` function has `@Test`.
-3. **No forced optionals**: no `var ... !` properties remain.
+3. **No forced optionals**: no force-unwrapped `var` properties remain.
 4. **Build passes**: run `mint run swiftformat .` and build the target.
 5. **Tests pass**: run the converted test file.
 
