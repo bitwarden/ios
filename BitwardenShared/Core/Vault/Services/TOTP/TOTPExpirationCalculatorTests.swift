@@ -1,14 +1,16 @@
 import BitwardenKit
 import BitwardenKitMocks
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-final class TOTPExpirationCalculatorTests: BitwardenTestCase {
+struct TOTPExpirationCalculatorTests {
     // MARK: Tests
 
-    func test_listItemsByExpiration() {
+    @Test
+    func listItemsByExpiration() {
         let expired = VaultListItem.fixtureTOTP(
             totp: .fixture(
                 totpCode: .init(
@@ -35,9 +37,8 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                 current,
             ],
         ]
-        XCTAssertEqual(
-            expectation,
-            TOTPExpirationCalculator.listItemsByExpiration(
+        #expect(
+            expectation == TOTPExpirationCalculator.listItemsByExpiration(
                 [current, expired],
                 timeProvider: MockTimeProvider(
                     .mockTime(
@@ -49,7 +50,7 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                         ),
                     ),
                 ),
-            ),
+            )
         )
     }
 }

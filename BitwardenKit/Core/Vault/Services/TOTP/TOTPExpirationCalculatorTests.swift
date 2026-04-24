@@ -1,13 +1,15 @@
 import BitwardenKitMocks
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenKit
 
-final class TOTPExpirationCalculatorTests: BitwardenTestCase {
+struct TOTPExpirationCalculatorTests {
     // MARK: Tests
 
-    func test_hasCodeExpired_codesOlderThanPeriod() {
-        XCTAssertTrue(
+    @Test
+    func hasCodeExpired_codesOlderThanPeriod() {
+        #expect(
             TOTPExpirationCalculator.hasCodeExpired(
                 .init(
                     code: "",
@@ -15,12 +17,13 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                     period: 30,
                 ),
                 timeProvider: MockTimeProvider(.currentTime),
-            ),
+            )
         )
     }
 
-    func test_hasCodeExpired_recentCodesPastExpiration() {
-        XCTAssertTrue(
+    @Test
+    func hasCodeExpired_recentCodesPastExpiration() {
+        #expect(
             TOTPExpirationCalculator.hasCodeExpired(
                 .init(
                     code: "",
@@ -28,9 +31,9 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                     period: 30,
                 ),
                 timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 30))),
-            ),
+            )
         )
-        XCTAssertTrue(
+        #expect(
             TOTPExpirationCalculator.hasCodeExpired(
                 .init(
                     code: "",
@@ -38,40 +41,41 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                     period: 30,
                 ),
                 timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 31))),
-            ),
+            )
         )
     }
 
-    func test_hasCodeExpired_currentCodes() {
-        XCTAssertFalse(
-            TOTPExpirationCalculator.hasCodeExpired(
+    @Test
+    func hasCodeExpired_currentCodes() {
+        #expect(
+            !TOTPExpirationCalculator.hasCodeExpired(
                 .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 15),
                     period: 30,
                 ),
                 timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 15))),
-            ),
+            )
         )
-        XCTAssertFalse(
-            TOTPExpirationCalculator.hasCodeExpired(
+        #expect(
+            !TOTPExpirationCalculator.hasCodeExpired(
                 .init(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 0),
                     period: 30,
                 ),
                 timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 29))),
-            ),
+            )
         )
     }
 
-    func test_remainingSeconds_roundsUp() {
-        XCTAssertEqual(
+    @Test
+    func remainingSeconds_roundsUp() {
+        #expect(
             TOTPExpirationCalculator.remainingSeconds(
                 for: Date(year: 2024, month: 1, day: 1, second: 29, nanosecond: 90_000_000),
                 using: 30,
-            ),
-            1,
+            ) == 1
         )
     }
 }
