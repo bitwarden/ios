@@ -858,11 +858,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `fetchFolder(withId:)` fetches and decrypts the folder with the specified id.
     func test_fetchFolder() async throws {
-        folderService.fetchFolderResult = .success(.fixture(id: "1"))
-        let expectedResult = FolderView.fixture(id: "1")
-        clientService.mockVault.clientFolders.decryptFolderResult = .success(expectedResult)
+        let folder = Folder.fixture(id: "1")
+        folderService.fetchFolderResult = .success(folder)
         let result = try await subject.fetchFolder(withId: "1")
-        XCTAssertEqual(result, expectedResult)
+        XCTAssertEqual(result, FolderView(folder: folder))
     }
 
     /// `fetchFolder(withId:)` returns `nil` when can't be fetched.
@@ -883,7 +882,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `fetchFolder(withId:)` throws when attempting to decrypt the folder.
     func test_fetchFolder_throwsDecrypting() async throws {
         folderService.fetchFolderResult = .success(.fixture(id: "1"))
-        clientService.mockVault.clientFolders.decryptFolderResult = .failure(BitwardenTestError.example)
+        clientService.mockVault.clientFolders.decryptThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.fetchFolder(withId: "1")
         }
@@ -906,7 +905,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 .fixture(id: "1", name: "Other Folder", revisionDate: Date(year: 2023, month: 12, day: 1)),
             ],
         )
-        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, folders)
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptListReceivedFolders, folders)
     }
 
     /// `fetchOrganization(withId:)` fetches the organization by its id.

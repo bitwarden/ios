@@ -10,7 +10,14 @@ class MockVaultClientService: VaultClientService {
     var clientAttachments = MockAttachmentsClientProtocol()
     var clientCiphers = MockClientCiphers()
     var clientCollections = MockClientCollections()
-    var clientFolders = MockClientFolders()
+    var clientFolders: MockFoldersClientProtocol = {
+        let mock = MockFoldersClientProtocol()
+        mock.decryptClosure = { FolderView(folder: $0) }
+        mock.decryptListClosure = { $0.map(FolderView.init) }
+        mock.encryptClosure = { Folder(folderView: $0) }
+        return mock
+    }()
+
     var clientPasswordHistory: MockPasswordHistoryClientProtocol = {
         let mock = MockPasswordHistoryClientProtocol()
         mock.encryptClosure = { PasswordHistory(passwordHistoryView: $0) }
@@ -141,36 +148,6 @@ class MockClientCollections: CollectionsClientProtocol {
     func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
         getCollectionTreeReceivedCollection = collections
         return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noHandle: .init())
-    }
-}
-
-// MARK: - MockClientFolders
-
-class MockClientFolders: FoldersClientProtocol {
-    var decryptFolderValueToDecrypt: Folder?
-    var decryptFolderResult: Result<FolderView?, Error> = .success(nil)
-
-    var decryptedFolders = [Folder]()
-
-    var encryptError: Error?
-    var encryptedFolders = [FolderView]()
-
-    func decrypt(folder: Folder) throws -> FolderView {
-        decryptFolderValueToDecrypt = folder
-        return try decryptFolderResult.get() ?? FolderView(folder: folder)
-    }
-
-    func decryptList(folders: [Folder]) throws -> [FolderView] {
-        decryptedFolders = folders
-        return folders.map(FolderView.init)
-    }
-
-    func encrypt(folder: FolderView) throws -> Folder {
-        encryptedFolders.append(folder)
-        if let encryptError {
-            throw encryptError
-        }
-        return Folder(folderView: folder)
     }
 }
 
