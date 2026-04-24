@@ -28,6 +28,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// The date the cipher was deleted.
     let deletedDate: Date?
 
+    /// Driver's license data if the cipher is a driver's license.
+    let driversLicense: CipherDriversLicenseModel?
+
     /// Whether the cipher can be edited.
     let edit: Bool
 

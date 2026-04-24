@@ -28,6 +28,9 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     /// The date the cipher was deleted.
     let deletedDate: Date?
 
+    /// Driver's license data if the cipher is a driver's license.
+    let driversLicense: CipherDriversLicenseModel?
+
     /// The cipher's list of user-defined fields.
     let fields: [CipherFieldModel]?
 

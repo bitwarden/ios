@@ -14,12 +14,14 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.secureNote.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.sshKey.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.bankAccount.allowedFieldTypes, [.text, .hidden, .boolean])
+        XCTAssertEqual(CipherType.driversLicense.allowedFieldTypes, [.text, .hidden, .boolean])
     }
 
     /// `localizedName` returns the correct values.
     func test_localizedName() {
         XCTAssertEqual(CipherType.bankAccount.localizedName, Localizations.bankAccount)
         XCTAssertEqual(CipherType.card.localizedName, Localizations.typeCard)
+        XCTAssertEqual(CipherType.driversLicense.localizedName, Localizations.driversLicense)
         XCTAssertEqual(CipherType.identity.localizedName, Localizations.typeIdentity)
         XCTAssertEqual(CipherType.login.localizedName, Localizations.typeLogin)
         XCTAssertEqual(CipherType.secureNote.localizedName, Localizations.typeSecureNote)

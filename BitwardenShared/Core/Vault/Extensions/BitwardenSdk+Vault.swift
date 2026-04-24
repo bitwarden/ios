@@ -74,6 +74,23 @@ extension CipherCardModel {
     }
 }
 
+extension CipherDriversLicenseModel {
+    init(driversLicense: BitwardenSdk.DriversLicense) {
+        self.init(
+            expirationDay: driversLicense.expirationDay,
+            expirationMonth: driversLicense.expirationMonth,
+            expirationYear: driversLicense.expirationYear,
+            firstName: driversLicense.firstName,
+            issuingCountry: driversLicense.issuingCountry,
+            issuingState: driversLicense.issuingState,
+            lastName: driversLicense.lastName,
+            licenseClass: driversLicense.licenseClass,
+            licenseNumber: driversLicense.licenseNumber,
+            middleName: driversLicense.middleName,
+        )
+    }
+}
+
 extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
@@ -85,6 +102,7 @@ extension CipherDetailsResponseModel {
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
+            driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -241,6 +259,8 @@ extension CipherType {
             self = .bankAccount
         case .card:
             self = .card
+        case .driversLicense:
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -258,6 +278,8 @@ extension CipherType {
             self = .bankAccount
         case .card:
             self = .card
+        case .driversLicense:
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -531,6 +553,8 @@ extension BitwardenSdk.CipherType {
             self = .sshKey
         case .bankAccount:
             self = .bankAccount
+        case .driversLicense:
+            self = .driversLicense
         }
     }
 }
