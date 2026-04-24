@@ -9,9 +9,14 @@ final class MockSdkCipherRepository: BitwardenSdk.CipherRepository {
     var listResult: Result<[BitwardenSdk.Cipher], Error> = .success([])
     var removeResult: Result<Void, Error> = .success(())
     var removeReceivedId: String?
+    var removeBulkReceivedKeys: [String]?
+    var removeBulkResult: Result<Void, Error> = .success(())
+    var removeAllResult: Result<Void, Error> = .success(())
     var setReceivedId: String?
     var setReceivedCipher: Cipher?
     var setResult: Result<Void, Error> = .success(())
+    var setBulkReceivedValues: [String: BitwardenSdk.Cipher]?
+    var setBulkResult: Result<Void, Error> = .success(())
 
     func get(id: String) async throws -> BitwardenSdk.Cipher? {
         try getResult.get()
@@ -34,5 +39,19 @@ final class MockSdkCipherRepository: BitwardenSdk.CipherRepository {
         setReceivedId = id
         setReceivedCipher = value
         try setResult.get()
+    }
+
+    func setBulk(values: [String: BitwardenSdk.Cipher]) async throws {
+        setBulkReceivedValues = values
+        try setBulkResult.get()
+    }
+
+    func removeBulk(keys: [String]) async throws {
+        removeBulkReceivedKeys = keys
+        try removeBulkResult.get()
+    }
+
+    func removeAll() async throws {
+        try removeAllResult.get()
     }
 }

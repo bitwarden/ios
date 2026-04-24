@@ -42,10 +42,36 @@ final class SdkCipherRepository: BitwardenSdk.CipherRepository {
         try await cipherDataStore.deleteCipher(id: id, userId: userId)
     }
 
+    func removeAll() async throws {
+        try await cipherDataStore.deleteAllCiphers(userId: userId)
+    }
+
+    func removeBulk(keys: [String]) async throws {
+        for key in keys {
+            try await cipherDataStore.deleteCipher(id: key, userId: userId)
+        }
+    }
+
     func set(id: String, value: BitwardenSdk.Cipher) async throws {
         guard id == value.id else {
             throw BitwardenError.dataError("CipherRepository: Trying to update a cipher with mismatch IDs")
         }
         try await cipherDataStore.upsertCipher(value, userId: userId)
+    }
+
+    func setBulk(values: [String: BitwardenSdk.Cipher]) async throws {
+        let validEntries = values.filter { id, cipher in
+            guard id == cipher.id else {
+                errorReporter.log(error: BitwardenError.dataError(
+                    "CipherRepository: Trying to update a cipher with mismatch IDs",
+                ))
+                return false
+            }
+            return true
+        }
+        guard !validEntries.isEmpty else { return }
+        for cipher in validEntries.values {
+            try await cipherDataStore.upsertCipher(cipher, userId: userId)
+        }
     }
 }
