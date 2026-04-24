@@ -230,7 +230,7 @@
     const accountSetupSource = [bitwardenFormsText(forms), bitwardenPageText(document)]
       .filter((value) => typeof value === 'string' && value.length > 0)
       .join(' ');
-    return /(accept invitation|activate account|set password|complete account)/.test(accountSetupSource);
+    return /(accept invitation|activate( your)? account|set password|complete( your)? account)/.test(accountSetupSource);
   }
 
   function bitwardenLooksLikePasswordResetPage(fields, document = window.document, forms = {}) {
