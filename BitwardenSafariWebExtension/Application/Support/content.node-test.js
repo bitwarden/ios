@@ -110,6 +110,9 @@ function makeEnvironment(elements, options = {}) {
           if (selector === '[data-bitwarden-action-title]') {
             return findChild((child) => child.dataset?.bitwardenActionTitle === 'true');
           }
+          if (selector === '[data-bitwarden-action-eyebrow]') {
+            return findChild((child) => child.dataset?.bitwardenActionEyebrow === 'true');
+          }
           if (selector === '[data-bitwarden-action-subtitle]') {
             return findChild((child) => child.dataset?.bitwardenActionSubtitle === 'true');
           }
@@ -317,11 +320,14 @@ async function testApplyStatusBanner() {
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
   assert.equal(actionPanel.role, 'dialog');
   const title = actionPanel.querySelector('[data-bitwarden-action-title]');
+  const eyebrow = actionPanel.querySelector('[data-bitwarden-action-eyebrow]');
   const subtitle = actionPanel.querySelector('[data-bitwarden-action-subtitle]');
   const buttons = actionPanel.querySelector('[data-bitwarden-action-buttons]');
   assert.ok(title);
+  assert.ok(eyebrow);
   assert.ok(subtitle);
   assert.ok(buttons);
+  assert.equal(eyebrow.textContent, 'Review before saving');
   assert.equal(title.textContent, 'Save login');
   assert.equal(subtitle.textContent, 'Save this login to Bitwarden.');
   const primary = buttons.querySelector('[data-bitwarden-action-primary]');
@@ -401,6 +407,7 @@ async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
   const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
   assert.ok(actionPanel);
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'updatePassword');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').textContent, 'Review before updating');
   assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update password');
 }
 
