@@ -87,6 +87,18 @@ class SafariExtensionRequestTests: BitwardenTestCase {
         XCTAssertFalse(subject.canSaveLogin)
     }
 
+    func test_canChangePassword_allowsResetFlowWithoutOldPassword() {
+        let subject = SafariExtensionRequest(
+            kind: .changePassword,
+            oldPassword: nil,
+            password: "new-secret",
+            urlString: "https://example.com/reset-password",
+        )
+
+        XCTAssertTrue(subject.canChangePassword)
+        XCTAssertFalse(subject.canSaveLogin)
+    }
+
     func test_canGeneratePassword_trueForGenerateRequest() {
         let subject = SafariExtensionRequest(kind: .generatePassword)
 
