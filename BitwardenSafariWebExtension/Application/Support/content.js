@@ -498,20 +498,36 @@
     const primaryButton = document.createElement('button');
     primaryButton.dataset.bitwardenActionPrimary = 'true';
     primaryButton.textContent = content.primaryLabel;
+    primaryButton.disabled = false;
     primaryButton.onclick = async () => {
+      if (primaryButton.disabled) {
+        return;
+      }
+      primaryButton.disabled = true;
+      dismissButton.disabled = true;
       const pendingMessage = bitwardenActionPendingMessage(response.submissionAction);
       if (typeof pendingMessage === 'string' && pendingMessage.length > 0) {
         bitwardenPresentStatusBanner(pendingMessage, document, { tone: 'progress' });
       }
-      await bitwardenTriggerSubmissionAction(response.submissionAction);
-      bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: true });
-      if (typeof panel.remove === 'function') {
-        panel.remove();
+      try {
+        await bitwardenTriggerSubmissionAction(response.submissionAction);
+        bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: true });
+        if (typeof panel.remove === 'function') {
+          panel.remove();
+        }
+      } catch (error) {
+        const errorMessage = error && typeof error.message === 'string' && error.message.length > 0
+          ? error.message
+          : 'Couldn’t complete the Bitwarden action.';
+        bitwardenPresentStatusBanner(errorMessage, document, { tone: 'warning' });
+        primaryButton.disabled = false;
+        dismissButton.disabled = false;
       }
     };
     const dismissButton = document.createElement('button');
     dismissButton.dataset.bitwardenActionDismiss = 'true';
     dismissButton.textContent = content.dismissLabel;
+    dismissButton.disabled = false;
     dismissButton.onclick = () => {
       if (typeof panel.remove === 'function') {
         panel.remove();
