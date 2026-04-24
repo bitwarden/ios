@@ -485,26 +485,38 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.bankAccountState.swiftCode = value
         case let .toggleAccountNumberVisibilityChanged(isVisible):
             state.bankAccountState.isAccountNumberVisible = isVisible
-            if isVisible, !state.configuration.isAdding {
-                let cipherId = state.cipher.id
-                Task {
-                    await services.eventService.collect(
-                        eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: cipherId,
-                    )
-                }
-            }
+            collectHiddenFieldVisibilityEventIfNeeded(isVisible: isVisible, in: state)
         case let .togglePinVisibilityChanged(isVisible):
             state.bankAccountState.isPinVisible = isVisible
-            if isVisible, !state.configuration.isAdding {
-                let cipherId = state.cipher.id
-                Task {
-                    await services.eventService.collect(
-                        eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: cipherId,
-                    )
-                }
-            }
+            collectHiddenFieldVisibilityEventIfNeeded(isVisible: isVisible, in: state)
+        }
+    }
+
+    /// Emits the `.cipherClientToggledHiddenFieldVisible` event when a hidden field is
+    /// revealed on an existing cipher. Suppressed while the user is creating a new
+    /// cipher (the cipher has no server-side ID yet) and when the field is being
+    /// hidden rather than revealed.
+    ///
+    /// Extracted to avoid duplicating the same five-line `Task { eventService.collect
+    /// }` block at each hidden-field toggle site. PR 2 (Driver's License) and PR 3
+    /// (Passport) will reuse this helper for their own hidden fields.
+    ///
+    /// - Parameters:
+    ///   - isVisible: Whether the field was revealed (`true`) or hidden (`false`).
+    ///   - state: The current add/edit state; used only to read the cipher id and
+    ///     configuration.
+    ///
+    private func collectHiddenFieldVisibilityEventIfNeeded(
+        isVisible: Bool,
+        in state: AddEditItemState,
+    ) {
+        guard isVisible, !state.configuration.isAdding else { return }
+        let cipherId = state.cipher.id
+        Task {
+            await services.eventService.collect(
+                eventType: .cipherClientToggledHiddenFieldVisible,
+                cipherId: cipherId,
+            )
         }
     }
 
@@ -733,6 +745,29 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     message: Localizations.selectOneCollection,
                 ),
             )
+            return
+        }
+
+        // Fail-closed guard for PM-32009: reject saves for cipher types whose SDK
+        // representation is not yet available. Without this, `newCipherView()` falls
+        // back to `.secureNote` on the SDK conversion, which would silently persist
+        // the item as an empty Secure Note. The `newItemTypes` feature flag should
+        // already prevent reaching this code path until the SDK is ready, but this
+        // belt-and-suspenders guard makes the invariant explicit.
+        if state.type == .bankAccount, !NewItemTypesSdkBridge.isBankAccountAvailable {
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.anErrorHasOccurred,
+                ),
+            )
+            services.errorReporter.log(error: BitwardenError.generalError(
+                type: "Save item blocked",
+                message: "Attempted to save a Bank Account cipher before SDK support is available " +
+                    "(PM-32009). The newItemTypes feature flag should not be enabled until the " +
+                    "BitwardenSdk dependency is bumped and " +
+                    "NewItemTypesSdkBridge.isBankAccountAvailable is set to true.",
+            ))
             return
         }
 

@@ -200,7 +200,13 @@ extension CipherView {
             key: key,
             name: addEditState.name,
             notes: addEditState.notes.nilIfEmpty,
-            type: BitwardenSdk.CipherType(addEditState.type),
+            // Fails closed when `addEditState.type` is not yet supported by the SDK
+            // (e.g., `.bankAccount` before PM-32009 SDK work lands). The save
+            // flow in `AddEditItemProcessor` must reject those types before
+            // reaching this builder; the `.secureNote` fallback is defensive
+            // only and `BitwardenSdk.CipherType.init?(_:)` trips an assertion
+            // in Debug if hit.
+            type: BitwardenSdk.CipherType(addEditState.type) ?? .secureNote,
             login: (addEditState.type == .login) ? .init(loginView: login, loginState: loginState) : nil,
             identity: (addEditState.type == .identity) ? addEditState.identityState.identityView : nil,
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,

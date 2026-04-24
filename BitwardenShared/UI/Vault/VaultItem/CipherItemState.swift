@@ -369,12 +369,14 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     }
 
     init(cloneItem cipherView: CipherView, hasPremium: Bool) {
+        // Unknown SDK types fall back to `.secureNote` during clone (PM-32813 will
+        // formalize the "Unknown" display story).
         self.init(
             accountHasPremium: hasPremium,
             configuration: .add,
             iconBaseURL: nil,
             showWebIcons: false,
-            type: .init(type: cipherView.type),
+            type: CipherType(type: cipherView.type) ?? .secureNote,
         )
         apply(
             cipherView: cipherView,
@@ -390,12 +392,14 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         showWebIcons: Bool = true,
     ) {
         guard cipherView.id != nil else { return nil }
+        // Unknown SDK types fall back to `.secureNote` when editing an existing cipher
+        // (PM-32813 will formalize the "Unknown" display story).
         self.init(
             accountHasPremium: hasPremium,
             configuration: .existing(cipherView: cipherView),
             iconBaseURL: iconBaseURL,
             showWebIcons: showWebIcons,
-            type: .init(type: cipherView.type),
+            type: CipherType(type: cipherView.type) ?? .secureNote,
         )
         apply(cipherView: cipherView)
     }
@@ -445,7 +449,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         overrideLoginItemState: LoginItemState? = nil,
         overrideTOTPState: LoginTOTPState? = nil,
     ) {
-        let type = CipherType(type: cipherView.type)
+        // TODO: PM-32813 When the SDK adds cases the app has not mapped, `CipherType(type:)`
+        // returns `nil`. Handle that properly (e.g., "Unknown" display) as part of the
+        // backward-compat PR; for now fall back to `.secureNote` to preserve existing
+        // behavior on the never-reached-today path.
+        let type = CipherType(type: cipherView.type) ?? .secureNote
 
         if case .existing = configuration {
             configuration = .existing(cipherView: cipherView)
@@ -565,24 +573,13 @@ extension CipherItemState: ViewVaultItemState {
     }
 
     var icon: SharedImageAsset {
-        switch type {
-        case .bankAccount:
-            // TODO: PM-34128 Swap to the final bank account asset when icon design ships.
-            return SharedAsset.Icons.card24
-        case .card:
-            guard case let .custom(brand) = cardItemState.brand else {
-                return SharedAsset.Icons.card24
-            }
+        // Card still has a brand-specific icon; every other type routes through the
+        // centralized `CipherType.iconPlaceholder` helper so the PM-34128 final-asset
+        // swap is a single-file change.
+        if case .card = type, case let .custom(brand) = cardItemState.brand {
             return brand.icon
-        case .identity:
-            return SharedAsset.Icons.idCard24
-        case .login:
-            return SharedAsset.Icons.globe24
-        case .secureNote:
-            return SharedAsset.Icons.stickyNote24
-        case .sshKey:
-            return SharedAsset.Icons.key24
         }
+        return type.iconPlaceholder
     }
 
     var iconAccessibilityId: String {
@@ -649,6 +646,10 @@ extension CipherItemState {
     /// - Note: Bank account data cannot currently round-trip through `CipherView` because
     ///   `BitwardenSdk.CipherView` does not yet expose a `bankAccount: BankAccountView?` property.
     ///   Once the SDK adds it (tracked in PM-32009 SDK work), wire `bankAccountState` through.
+    /// - Important: `AddEditItemProcessor.saveItem()` must reject saves for
+    ///   `.bankAccount` before calling this method while the SDK is unavailable; the
+    ///   `.secureNote` fallback on the SDK type conversion below is defensive only and
+    ///   will trip an `assertionFailure` in Debug.
     func newCipherView(creationDate: Date = .now) -> CipherView {
         // TODO: PM-32009 Blocked on SDK — add `bankAccount: type == .bankAccount ?
         // bankAccountState.bankAccountView : nil` once `CipherView.init` accepts a
@@ -661,7 +662,7 @@ extension CipherItemState {
             key: nil,
             name: name,
             notes: notes.nilIfEmpty,
-            type: BitwardenSdk.CipherType(type),
+            type: BitwardenSdk.CipherType(type) ?? .secureNote,
             login: type == .login ? loginState.loginView : nil,
             identity: type == .identity ? identityState.identityView : nil,
             card: type == .card ? cardItemState.cardView : nil,

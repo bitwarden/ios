@@ -697,7 +697,10 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func getItemTypesUserCanCreate() async -> [CipherType] {
-        let itemTypes: [CipherType] = CipherType.canCreateCases.reversed()
+        let isNewItemTypesEnabled = await configService.getFeatureFlag(FeatureFlag.newItemTypes)
+        let itemTypes = CipherType.canCreateCases(
+            isNewItemTypesEnabled: isNewItemTypesEnabled,
+        ).reversed().map(\.self)
         let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
         if !restrictItemTypesOrgIds.isEmpty {
             return itemTypes.filter { $0 != .card }

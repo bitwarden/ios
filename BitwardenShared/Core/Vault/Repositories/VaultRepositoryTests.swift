@@ -1015,6 +1015,31 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
     }
 
+    /// `getItemTypesUserCanCreate()` includes Bank Account when the new item types feature
+    /// flag is enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesFlagOn() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = true
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(result, [.bankAccount, .secureNote, .identity, .card, .login])
+    }
+
+    /// `getItemTypesUserCanCreate()` excludes Bank Account when the new item types feature
+    /// flag is disabled (default behavior).
+    @MainActor
+    func test_getItemTypesUserCanCreate_newItemTypesFlagOff() async throws {
+        stateService.activeAccount = .fixture()
+        policyService.policyAppliesToUserPolicies = []
+        configService.featureFlagsBool[.newItemTypes] = false
+
+        let result = await subject.getItemTypesUserCanCreate()
+        XCTAssertFalse(result.contains(.bankAccount))
+        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
+    }
+
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
     /// is enable to auto copy the TOTP and cipher organization uses TOTP.
     func test_getTOTPKeyIfAllowedToCopy_orgUsesTOTP() async throws {
