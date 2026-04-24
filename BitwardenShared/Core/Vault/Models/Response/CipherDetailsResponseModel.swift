@@ -13,6 +13,16 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// The cipher's list of attachments.
     let attachments: [AttachmentResponseModel]?
 
+    // swiftlint:disable orphaned_doc_comment
+    /// Bank account data if the cipher is a bank account. Declared as `var` with an
+    /// explicit `nil` default so the synthesized memberwise init exposes
+    /// `bankAccount:` as an optional parameter, keeping pre-PM-32009 test call sites
+    /// that construct `CipherDetailsResponseModel` with the legacy field list
+    /// source-compatible.
+    // swiftlint:enable orphaned_doc_comment
+    // swiftlint:disable:next implicit_optional_initialization
+    var bankAccount: CipherBankAccountModel? = nil // swiftformat:disable:this redundantNilInit
+
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
 

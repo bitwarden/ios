@@ -221,9 +221,14 @@ class DefaultExportVaultService: ExportVaultService {
                 return false
             }
 
-            // Apply organization and restricted type filters
-            return cipher.organizationId == nil
-                && !restrictedTypes.contains(BitwardenShared.CipherType(type: cipher.type))
+            // Apply organization and restricted type filters. If the SDK type cannot
+            // be mapped to an app-layer `CipherType` (unknown/future case), treat it
+            // as unrestricted so export doesn't silently drop it — PM-32813
+            // backward-compat will formalize unknown-type handling. Cascade fix for
+            // PM-32009 Part 1/3 making `CipherType(type:)` failable.
+            let isRestricted = BitwardenShared.CipherType(type: cipher.type)
+                .map { restrictedTypes.contains($0) } ?? false
+            return cipher.organizationId == nil && !isRestricted
         }
     }
 

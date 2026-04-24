@@ -359,12 +359,15 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     }
 
     init(cloneItem cipherView: CipherView, hasPremium: Bool) {
+        // Unknown SDK cipher types fall back to `.secureNote` on clone
+        // (PM-32009 Part 1/3 made `CipherType(type:)` failable; PM-32813 will
+        // formalize the "Unknown" display story).
         self.init(
             accountHasPremium: hasPremium,
             configuration: .add,
             iconBaseURL: nil,
             showWebIcons: false,
-            type: .init(type: cipherView.type),
+            type: CipherType(type: cipherView.type) ?? .secureNote,
         )
         apply(
             cipherView: cipherView,
@@ -380,12 +383,14 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         showWebIcons: Bool = true,
     ) {
         guard cipherView.id != nil else { return nil }
+        // Unknown SDK cipher types fall back to `.secureNote` when opening an existing
+        // cipher (PM-32009 Part 1/3; PM-32813 will formalize "Unknown").
         self.init(
             accountHasPremium: hasPremium,
             configuration: .existing(cipherView: cipherView),
             iconBaseURL: iconBaseURL,
             showWebIcons: showWebIcons,
-            type: .init(type: cipherView.type),
+            type: CipherType(type: cipherView.type) ?? .secureNote,
         )
         apply(cipherView: cipherView)
     }
@@ -435,7 +440,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         overrideLoginItemState: LoginItemState? = nil,
         overrideTOTPState: LoginTOTPState? = nil,
     ) {
-        let type = CipherType(type: cipherView.type)
+        // `CipherType(type:)` is failable as of PM-32009 Part 1/3; unknown SDK cases
+        // fall back to `.secureNote` to preserve today's behavior. PM-32813 backward-
+        // compat will formalize the "Unknown" display story.
+        let type = CipherType(type: cipherView.type) ?? .secureNote
 
         if case .existing = configuration {
             configuration = .existing(cipherView: cipherView)
@@ -470,6 +478,7 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
+            case .bankAccount: Localizations.newItem
             case .card: Localizations.newCard
             case .identity: Localizations.newIdentity
             case .login: Localizations.newLogin
@@ -478,6 +487,10 @@ extension CipherItemState: AddEditItemState {
             }
         case .existing:
             switch type {
+            // TODO: PM-32809 Part 3/3 wires `.editBankAccount` here; Part 1 uses the
+            // generic `Edit` string as a placeholder so the switch stays exhaustive
+            // now that `CipherType.bankAccount` exists.
+            case .bankAccount: Localizations.edit
             case .card: Localizations.editCard
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
@@ -631,7 +644,13 @@ extension CipherItemState {
             key: nil,
             name: name,
             notes: notes.nilIfEmpty,
-            type: BitwardenSdk.CipherType(type),
+            // `BitwardenSdk.CipherType(_:)` is failable as of PM-32009 Part 1/3.
+            // The `.secureNote` fallback is defensive only: no call site in Part 1
+            // constructs a `CipherItemState` with `.type == .bankAccount`. Part 3
+            // introduces the bank account state/UI and will add the
+            // `guardSDKReady()` save-path guard that prevents this fallback from
+            // ever being reached with `.bankAccount` while the SDK is blocked.
+            type: BitwardenSdk.CipherType(type) ?? .secureNote,
             login: type == .login ? loginState.loginView : nil,
             identity: type == .identity ? identityState.identityView : nil,
             card: type == .card ? cardItemState.cardView : nil,

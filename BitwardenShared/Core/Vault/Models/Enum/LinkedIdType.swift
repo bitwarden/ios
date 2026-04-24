@@ -158,6 +158,11 @@ extension LinkedIdType {
     ///
     static func getLinkedIdType(for cipherType: CipherType) -> [LinkedIdType] {
         switch cipherType {
+        case .bankAccount:
+            // TODO: PM-32009 Populate linked-id types for bank account fields once the
+            // SDK / server define the canonical `LinkedIdType` values for the new
+            // cipher type. MVP has no linked fields for Bank Account (US-1.1).
+            []
         case .card:
             [
                 .cardCardholderName,
