@@ -1,4 +1,7 @@
 import BitwardenKit
+import BitwardenResources
+import Combine
+import Foundation
 
 // MARK: - PremiumUpgradeProcessor
 
@@ -18,6 +21,12 @@ final class PremiumUpgradeProcessor: StateProcessor<
 
     /// The coordinator used to manage navigation.
     private let coordinator: AnyCoordinator<BillingRoute, Void>
+
+    /// The last checkout URL returned by the billing service, used to reopen Stripe if canceled.
+    private var lastCheckoutURL: URL?
+
+    /// Cancellable for the premium checkout status subscription.
+    private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The services used by this processor.
     private let services: Services
@@ -65,18 +74,49 @@ final class PremiumUpgradeProcessor: StateProcessor<
 
     // MARK: Private Methods
 
+    /// Subscribes to premium checkout status updates and reacts accordingly.
+    ///
+    private func subscribeToPremiumCheckoutStatus() {
+        premiumStatusChangedCancellable = services.billingService
+            .premiumCheckoutStatusPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let self else { return }
+                switch status {
+                case .canceled:
+                    premiumStatusChangedCancellable = nil
+                    coordinator.showAlert(.paymentNotReceivedYet {
+                        self.state.checkoutURL = self.lastCheckoutURL
+                    })
+                case .confirmed,
+                     .pending:
+                    premiumStatusChangedCancellable = nil
+                    coordinator.navigate(to: .dismiss)
+                case .syncing:
+                    break
+                }
+            }
+    }
+
     /// Creates a checkout session by calling the billing service.
     ///
     private func createCheckoutSession() async {
         do {
             state.isLoading = true
+            coordinator.showLoadingOverlay(title: Localizations.openingCheckout)
             let url = try await services.billingService.createCheckoutSession()
+            coordinator.hideLoadingOverlay()
             state.isLoading = false
+            lastCheckoutURL = url
+            subscribeToPremiumCheckoutStatus()
             state.checkoutURL = url
         } catch {
+            coordinator.hideLoadingOverlay()
             state.isLoading = false
             services.errorReporter.log(error: error)
-            await coordinator.showErrorAlert(error: error)
+            coordinator.showAlert(.secureCheckoutDidntLoad {
+                await self.createCheckoutSession()
+            })
         }
     }
 }
