@@ -547,6 +547,25 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
 
+  const customDocument = {
+    ...ctx.document,
+    title: 'Create your account',
+    location: { href: 'https://example.com/account/create' },
+  };
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(customDocument), 'saveLogin');
+
+  ctx = makeEnvironment([loginUsername, loginPassword], {
+    title: 'Join meeting',
+    href: 'https://example.com/join',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
+
+  ctx = makeEnvironment([loginUsername, loginPassword], {
+    title: 'Register device',
+    href: 'https://example.com/register-device',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
+
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
   currentPassword.placeholder = 'Current password';
   const newPassword = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: 'new-secret' });
