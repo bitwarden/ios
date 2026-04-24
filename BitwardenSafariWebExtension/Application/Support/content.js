@@ -156,7 +156,14 @@
       .toLowerCase();
   }
 
-  function bitwardenLooksLikeSignupPage(fields) {
+  function bitwardenPageText(document = window.document) {
+    return [document?.title, document?.location?.href, window?.location?.href]
+      .filter((value) => typeof value === 'string' && value.length > 0)
+      .join(' ')
+      .toLowerCase();
+  }
+
+  function bitwardenLooksLikeSignupPage(fields, document = window.document) {
     const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
     const hasConfirmPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'confirm');
     const hasNewPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'new');
@@ -164,7 +171,11 @@
       return true;
     }
 
-    return fields.some((field) => /(sign[ -]?up|create|register|join|new account)/.test(bitwardenFieldText(field)));
+    if (fields.some((field) => /(sign[ -]?up|create|register|join|new account)/.test(bitwardenFieldText(field)))) {
+      return true;
+    }
+
+    return /(sign[ -]?up|create( your)? account|register|join|new account)/.test(bitwardenPageText(document));
   }
 
   function bitwardenSuggestPageAction(document = window.document) {

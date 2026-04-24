@@ -31,6 +31,8 @@ function createInput({ id, name, type, value = '', visible = true }) {
 
 function makeEnvironment(elements, options = {}) {
   const dispatchedEvents = [];
+  const title = options.title || 'Example';
+  const href = options.href || 'https://example.com/login';
   const bannerContainer = {
     children: [],
     appendChild(node) {
@@ -48,8 +50,8 @@ function makeEnvironment(elements, options = {}) {
     },
   };
   const document = {
-    title: 'Example',
-    location: { href: 'https://example.com/login' },
+    title,
+    location: { href },
     documentElement: { dataset: {} },
     body: bannerContainer,
     querySelectorAll(selector) {
@@ -97,7 +99,7 @@ function makeEnvironment(elements, options = {}) {
   };
   elements.forEach((element) => { element.ownerDocument = document; });
   const window = {
-    location: { href: 'https://example.com/login' },
+    location: { href },
     document,
     dispatchedEvents,
     dispatchEvent(event) {
@@ -537,6 +539,12 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   const signupConfirm = createInput({ id: 'signup-confirm', name: 'confirmPassword', type: 'password', value: 'secret' });
   signupConfirm.placeholder = 'Confirm password';
   ctx = makeEnvironment([signupEmail, signupPassword, signupConfirm]);
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
+  ctx = makeEnvironment([loginUsername, loginPassword], {
+    title: 'Create your account',
+    href: 'https://example.com/account/create',
+  });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
 
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
