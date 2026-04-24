@@ -86,6 +86,23 @@ class SafariExtensionSubmissionActionTests: BitwardenTestCase {
         XCTAssertEqual(SafariExtensionSubmissionAction.classify(request, matchedLogin: matchedLogin), .updatePassword)
     }
 
+    func test_classify_changePasswordWithoutOldPassword_withMatchedLogin_returnsUpdatePassword() {
+        let request = SafariExtensionRequest(
+            kind: .changePassword,
+            oldPassword: nil,
+            password: "new-secret",
+            urlString: "https://example.com/reset-password",
+        )
+        let matchedLogin = SafariExtensionMatchedLogin(
+            id: "cipher-1",
+            username: "user@example.com",
+            password: "old-secret",
+            urlString: "https://example.com/login",
+        )
+
+        XCTAssertEqual(SafariExtensionSubmissionAction.classify(request, matchedLogin: matchedLogin), .updatePassword)
+    }
+
     func test_classify_saveLogin_withMatchedLoginAndDifferentUsername_returnsSaveNewLogin() {
         let request = SafariExtensionRequest(
             kind: .saveLogin,

@@ -63,6 +63,17 @@ class SafariExtensionSuggestionActionTests: BitwardenTestCase {
         XCTAssertEqual(SafariExtensionSuggestionAction.from(request), .updatePassword)
     }
 
+    func test_from_changePasswordRequestWithoutOldPassword_returnsUpdatePassword() {
+        let request = SafariExtensionRequest(
+            kind: .changePassword,
+            oldPassword: nil,
+            password: "new-secret",
+            urlString: "https://example.com/reset-password",
+        )
+
+        XCTAssertEqual(SafariExtensionSuggestionAction.from(request), .updatePassword)
+    }
+
     func test_from_generatePasswordRequest_returnsGeneratePassword() {
         let request = SafariExtensionRequest(kind: .generatePassword)
 

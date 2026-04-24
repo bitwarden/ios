@@ -73,7 +73,7 @@ public struct SafariExtensionRequest: Codable, Equatable {
 
     /// Whether this request contains enough information to update a password.
     public var canChangePassword: Bool {
-        kind == .changePassword && !(oldPassword?.isEmpty ?? true) && !(password?.isEmpty ?? true)
+        kind == .changePassword && !(password?.isEmpty ?? true)
     }
 
     /// Whether this request can drive password generation UI.

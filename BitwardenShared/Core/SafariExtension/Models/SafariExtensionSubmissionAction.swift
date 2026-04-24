@@ -37,9 +37,11 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
             }
 
             let normalizedOldPassword = request.oldPassword?.trimmingCharacters(in: .whitespacesAndNewlines)
-            let normalizedMatchedPassword = matchedLogin.password?.trimmingCharacters(in: .whitespacesAndNewlines)
-            guard normalizedOldPassword == normalizedMatchedPassword else {
-                return .none
+            if let normalizedOldPassword {
+                let normalizedMatchedPassword = matchedLogin.password?.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard normalizedOldPassword == normalizedMatchedPassword else {
+                    return .none
+                }
             }
 
             return .updatePassword
