@@ -66,9 +66,20 @@ public struct SafariExtensionRequestProcessor {
     }
 
     func makeResponse(for request: SafariExtensionRequest) async -> SafariExtensionResponse? {
-        if request.kind == .generatePassword,
-           let generatedPassword = await makeGeneratedPassword(for: request) {
-            return try? SafariExtensionResponse.generatedPassword(generatedPassword, for: request)
+        if request.kind == .generatePassword {
+            if let generatedPassword = await makeGeneratedPassword(for: request) {
+                return try? SafariExtensionResponse.generatedPassword(generatedPassword, for: request)
+            }
+
+            return SafariExtensionResponse(
+                request: request,
+                suggestionAction: SafariExtensionSuggestionAction.from(request),
+                submissionAction: .none,
+                matchedLogin: nil,
+                fillScriptJSON: nil,
+                generatedPassword: nil,
+                userMessage: "Couldn’t generate a password in Bitwarden.",
+            )
         }
 
         let matchedLogin = try? await matchedLoginResolver?.resolveMatchedLogin(for: request)
@@ -143,9 +154,8 @@ public struct SafariExtensionRequestProcessor {
     }
 
     private func makeGeneratedPassword(for request: SafariExtensionRequest) async -> String? {
-        if let generatedPasswordProducer,
-           let generatedPassword = await generatedPasswordProducer(request.passwordOptions) {
-            return generatedPassword
+        if let generatedPasswordProducer {
+            return await generatedPasswordProducer(request.passwordOptions)
         }
 
         return passwordGenerator(request.passwordOptions)

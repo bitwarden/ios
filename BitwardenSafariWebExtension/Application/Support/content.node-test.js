@@ -308,6 +308,27 @@ async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
   assert.match(actionPanel.textContent, /Update password/);
 }
 
+async function testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel() {
+  const email = createInput({ id: 'email', name: 'email', type: 'email', value: 'user@example.com' });
+  const password = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: '' });
+  password.placeholder = 'New password';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: '' });
+  confirmPassword.placeholder = 'Confirm password';
+  const ctx = makeEnvironment([email, password, confirmPassword]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'generatePassword',
+      userMessage: 'Couldn’t generate a password in Bitwarden.',
+    },
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Couldn’t generate a password in Bitwarden.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'info');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
 async function testActionPanelPrimaryDispatchesConfirmEvent() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const ctx = makeEnvironment([password]);
@@ -554,6 +575,7 @@ async function testApplyFillScript() {
   await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
   await testApplyGeneratedPassword_showsSaveLoginFollowUpPanel();
   await testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel();
+  await testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel();
   await testActionPanelPrimaryDispatchesConfirmEvent();
   await testActionPanelPrimaryShowsPendingBannerWhileSaving();
   await testUpdatePasswordPanelShowsSpecificTitle();
