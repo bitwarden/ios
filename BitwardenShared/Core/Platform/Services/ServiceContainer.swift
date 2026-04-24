@@ -837,10 +837,18 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             userSessionStateService: stateService,
         )
 
+        let billingService = DefaultBillingService(
+            billingAPIService: apiService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            syncService: syncService,
+        )
+
         let notificationService = DefaultNotificationService(
             appIDService: appIDService,
             authRepository: authRepository,
             authService: authService,
+            billingService: billingService,
             configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
@@ -1106,7 +1114,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
-            billingService: DefaultBillingService(billingAPIService: apiService),
+            billingService: billingService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),

@@ -1,3 +1,5 @@
+import BitwardenKitMocks
+import Combine
 import Foundation
 import TestHelpers
 import Testing
@@ -12,13 +14,24 @@ struct BillingServiceTests {
     // MARK: Properties
 
     var billingAPIService: MockBillingAPIService!
+    var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
+    var syncService: MockSyncService!
     var subject: DefaultBillingService!
 
     // MARK: Initialization
 
     init() {
         billingAPIService = MockBillingAPIService()
-        subject = DefaultBillingService(billingAPIService: billingAPIService)
+        errorReporter = MockErrorReporter()
+        stateService = MockStateService()
+        syncService = MockSyncService()
+        subject = DefaultBillingService(
+            billingAPIService: billingAPIService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            syncService: syncService,
+        )
     }
 
     // MARK: Tests
@@ -139,7 +152,7 @@ struct BillingServiceTests {
             ),
             gracePeriod: nil,
             nextCharge: nil,
-            status: "active",
+            status: .active,
             storage: SubscriptionStorageResponseModel(
                 available: 5,
                 readableUsed: "0 Bytes",
@@ -165,5 +178,63 @@ struct BillingServiceTests {
         }
 
         #expect(billingAPIService.getSubscriptionCallsCount == 1)
+    }
+
+    /// `premiumStatusChanged()` publishes `.syncing` then `.confirmed` when the user has premium.
+    @Test
+    func premiumStatusChanged_confirmed() async throws {
+        stateService.doesActiveAccountHavePremiumResult = true
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        await subject.premiumStatusChanged()
+
+        #expect(statuses == [.syncing, .confirmed])
+        #expect(syncService.didFetchSync)
+        _ = cancellable
+    }
+
+    /// `premiumStatusChanged()` publishes `.syncing` then `.pending` when the user does not have premium.
+    @Test
+    func premiumStatusChanged_pending() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        await subject.premiumStatusChanged()
+
+        #expect(statuses == [.syncing, .pending])
+        #expect(syncService.didFetchSync)
+        _ = cancellable
+    }
+
+    /// `premiumStatusChanged()` reports the error and publishes `.pending` when sync fails.
+    @Test
+    func premiumStatusChanged_syncError() async throws {
+        syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        await subject.premiumStatusChanged()
+
+        #expect(statuses == [.syncing, .pending])
+        #expect(errorReporter.errors.first is URLError)
+        _ = cancellable
+    }
+
+    /// `premiumCheckoutCanceled()` publishes `.canceled`.
+    @Test
+    func premiumCheckoutCanceled() {
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        subject.premiumCheckoutCanceled()
+
+        #expect(statuses == [.canceled])
+        _ = cancellable
     }
 }

@@ -1,3 +1,5 @@
+import BitwardenKit
+import Combine
 import Foundation
 
 // MARK: - BillingService
@@ -23,6 +25,20 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     /// - Returns: A `BitwardenSubscriptionResponseModel` containing the subscription details.
     ///
     func getSubscription() async throws -> BitwardenSubscriptionResponseModel
+
+    /// Notifies that the user canceled the Stripe checkout without completing payment,
+    /// and publishes a `.canceled` status update.
+    ///
+    func premiumCheckoutCanceled()
+
+    /// A publisher that emits the status of the premium checkout sync process.
+    ///
+    func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never>
+
+    /// Notifies that a premium status change was detected (via deep link or push notification),
+    /// triggers a sync, and publishes status updates.
+    ///
+    func premiumStatusChanged() async
 }
 
 // MARK: - DefaultBillingService
@@ -35,14 +51,38 @@ class DefaultBillingService: BillingService {
     /// The API service used for billing requests.
     private let billingAPIService: BillingAPIService
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
+    /// Subject that emits the premium checkout sync status.
+    private let premiumCheckoutStatusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+
+    /// The service used to manage the app's state.
+    private let stateService: StateService
+
+    /// The service used to handle syncing vault data with the API.
+    private let syncService: SyncService
+
     // MARK: Initialization
 
     /// Creates a new `DefaultBillingService`.
     ///
-    /// - Parameter billingAPIService: The API service used for billing requests.
+    /// - Parameters:
+    ///   - billingAPIService: The API service used for billing requests.
+    ///   - errorReporter: The service used to report non-fatal errors.
+    ///   - stateService: The service used to manage the app's state.
+    ///   - syncService: The service used to handle syncing vault data with the API.
     ///
-    init(billingAPIService: BillingAPIService) {
+    init(
+        billingAPIService: BillingAPIService,
+        errorReporter: ErrorReporter,
+        stateService: StateService,
+        syncService: SyncService,
+    ) {
         self.billingAPIService = billingAPIService
+        self.errorReporter = errorReporter
+        self.stateService = stateService
+        self.syncService = syncService
     }
 
     // MARK: Methods
@@ -64,5 +104,24 @@ class DefaultBillingService: BillingService {
 
     func getSubscription() async throws -> BitwardenSubscriptionResponseModel {
         try await billingAPIService.getSubscription()
+    }
+
+    func premiumCheckoutCanceled() {
+        premiumCheckoutStatusSubject.send(.canceled)
+    }
+
+    func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
+        premiumCheckoutStatusSubject.eraseToAnyPublisher()
+    }
+
+    func premiumStatusChanged() async {
+        premiumCheckoutStatusSubject.send(.syncing)
+        do {
+            try await syncService.fetchSync(forceSync: false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+        let hasPremium = await stateService.doesActiveAccountHavePremium()
+        premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
     }
 }
