@@ -142,12 +142,20 @@
       || fields.find((field) => field.type === 'tel' && field.viewable)
       || null;
 
-    if (preferredField || !includeHiddenEmail) {
+    if (preferredField || !includeHiddenEmail || !bitwardenCanUseHiddenEmailUsername(fields)) {
       return preferredField;
     }
 
     return fields.find((field) => field.type === 'email')
       || null;
+  }
+
+  function bitwardenCanUseHiddenEmailUsername(fields) {
+    const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
+    return passwordFields.some((field) => {
+      const role = bitwardenPasswordFieldRole(field);
+      return role === 'new' || role === 'confirm';
+    });
   }
 
   function bitwardenPreferredSavePasswordField(fields) {

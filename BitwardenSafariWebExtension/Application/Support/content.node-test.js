@@ -648,6 +648,17 @@ function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
   built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
 
   assert.equal(built.request.username, null);
+
+  const hiddenLoginEmail = createInput({ id: 'login-email-hidden', name: 'email', type: 'email', value: 'returning-user@example.com', visible: false });
+  const hiddenLoginPassword = createInput({ id: 'login-password-visible', name: 'password', type: 'password', value: 'login-secret' });
+  hiddenLoginPassword.placeholder = 'Password';
+  ctx = makeEnvironment([hiddenLoginEmail, hiddenLoginPassword], {
+    title: 'Sign in',
+    href: 'https://example.com/login/password',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.username, null);
 }
 
 function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
@@ -676,6 +687,15 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
     href: 'https://example.com/account/create/password',
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
+  const hiddenLoginEmail = createInput({ id: 'hidden-login-email', name: 'email', type: 'email', value: 'returning-user@example.com', visible: false });
+  const hiddenLoginPassword = createInput({ id: 'hidden-login-password', name: 'password', type: 'password', value: 'secret' });
+  hiddenLoginPassword.placeholder = 'Password';
+  ctx = makeEnvironment([hiddenLoginEmail, hiddenLoginPassword], {
+    title: 'Sign in',
+    href: 'https://example.com/login/password',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
 
   ctx = makeEnvironment([loginUsername, loginPassword], {
     title: 'Create your account',
