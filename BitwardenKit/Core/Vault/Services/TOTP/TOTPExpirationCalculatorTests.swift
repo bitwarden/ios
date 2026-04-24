@@ -7,6 +7,7 @@ import Testing
 struct TOTPExpirationCalculatorTests {
     // MARK: Tests
 
+    /// `hasCodeExpired` returns `true` when the code's generation date is in the distant past.
     @Test
     func hasCodeExpired_codesOlderThanPeriod() {
         #expect(
@@ -21,6 +22,7 @@ struct TOTPExpirationCalculatorTests {
         )
     }
 
+    /// `hasCodeExpired` returns `true` when the current time is past the code's expiration window.
     @Test
     func hasCodeExpired_recentCodesPastExpiration() {
         #expect(
@@ -45,6 +47,7 @@ struct TOTPExpirationCalculatorTests {
         )
     }
 
+    /// `hasCodeExpired` returns `false` when the current time is still within the code's validity window.
     @Test
     func hasCodeExpired_currentCodes() {
         #expect(
@@ -69,6 +72,8 @@ struct TOTPExpirationCalculatorTests {
         )
     }
 
+    /// `remainingSeconds` rounds up fractional seconds so that a code with any time remaining
+    /// displays at least 1 second rather than 0.
     @Test
     func remainingSeconds_roundsUp() {
         #expect(

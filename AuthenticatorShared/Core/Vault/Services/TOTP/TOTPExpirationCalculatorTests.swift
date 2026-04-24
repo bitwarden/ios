@@ -9,6 +9,7 @@ import Testing
 struct TOTPExpirationCalculatorTests {
     // MARK: Tests
 
+    /// `listItemsByExpiration` correctly partitions items into expired and current groups.
     @Test
     func listItemsByExpiration() {
         let expiredTotp = TOTPCodeModel(
