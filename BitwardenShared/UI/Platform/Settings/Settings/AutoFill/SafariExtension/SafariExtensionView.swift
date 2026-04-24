@@ -41,7 +41,11 @@ struct SafariExtensionView: View {
             return "Ready to fill, save, update, and generate credentials in Safari."
         }
 
-        return "Open Safari settings and allow Bitwarden for Safari."
+        if store.state.extensionActivated {
+            return "Open Safari settings and turn on Bitwarden for Safari."
+        }
+
+        return "Activate Bitwarden, then allow it in Safari settings."
     }
 
     private var activateButtonTitle: String {
