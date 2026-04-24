@@ -517,7 +517,18 @@
     panel.dataset.bitwardenActionPanel = 'true';
     panel.dataset.bitwardenActionKind = response.submissionAction;
     panel.role = 'dialog';
-    panel.textContent = `${content.title}\n${content.subtitle}\n${content.primaryLabel}\n${content.dismissLabel}`;
+
+    const title = document.createElement('div');
+    title.dataset.bitwardenActionTitle = 'true';
+    title.textContent = content.title;
+
+    const subtitle = document.createElement('div');
+    subtitle.dataset.bitwardenActionSubtitle = 'true';
+    subtitle.textContent = content.subtitle;
+
+    const buttons = document.createElement('div');
+    buttons.dataset.bitwardenActionButtons = 'true';
+
     const primaryButton = document.createElement('button');
     primaryButton.dataset.bitwardenActionPrimary = 'true';
     primaryButton.textContent = content.primaryLabel;
@@ -557,8 +568,11 @@
       }
     };
     if (typeof panel.appendChild === 'function') {
-      panel.appendChild(primaryButton);
-      panel.appendChild(dismissButton);
+      buttons.appendChild(primaryButton);
+      buttons.appendChild(dismissButton);
+      panel.appendChild(title);
+      panel.appendChild(subtitle);
+      panel.appendChild(buttons);
     }
     panel.style.position = 'fixed';
     panel.style.top = '16px';

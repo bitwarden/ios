@@ -87,11 +87,34 @@ function makeEnvironment(elements, options = {}) {
           return child;
         },
         querySelector(selector) {
+          const findChild = (predicate) => {
+            for (const child of this.children) {
+              if (predicate(child)) {
+                return child;
+              }
+              if (typeof child.querySelector === 'function') {
+                const nested = child.querySelector(selector);
+                if (nested) {
+                  return nested;
+                }
+              }
+            }
+            return null;
+          };
           if (selector === '[data-bitwarden-action-dismiss]') {
-            return this.children.find((child) => child.dataset?.bitwardenActionDismiss === 'true') || null;
+            return findChild((child) => child.dataset?.bitwardenActionDismiss === 'true');
           }
           if (selector === '[data-bitwarden-action-primary]') {
-            return this.children.find((child) => child.dataset?.bitwardenActionPrimary === 'true') || null;
+            return findChild((child) => child.dataset?.bitwardenActionPrimary === 'true');
+          }
+          if (selector === '[data-bitwarden-action-title]') {
+            return findChild((child) => child.dataset?.bitwardenActionTitle === 'true');
+          }
+          if (selector === '[data-bitwarden-action-subtitle]') {
+            return findChild((child) => child.dataset?.bitwardenActionSubtitle === 'true');
+          }
+          if (selector === '[data-bitwarden-action-buttons]') {
+            return findChild((child) => child.dataset?.bitwardenActionButtons === 'true');
           }
           return null;
         },
@@ -293,10 +316,16 @@ async function testApplyStatusBanner() {
   assert.ok(actionPanel);
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
   assert.equal(actionPanel.role, 'dialog');
-  assert.match(actionPanel.textContent, /Save login/);
-  assert.match(actionPanel.textContent, /Save this login to Bitwarden\./);
-  assert.match(actionPanel.textContent, /Save in Bitwarden/);
-  assert.match(actionPanel.textContent, /Not now/);
+  const title = actionPanel.querySelector('[data-bitwarden-action-title]');
+  const subtitle = actionPanel.querySelector('[data-bitwarden-action-subtitle]');
+  const buttons = actionPanel.querySelector('[data-bitwarden-action-buttons]');
+  assert.ok(title);
+  assert.ok(subtitle);
+  assert.ok(buttons);
+  assert.equal(title.textContent, 'Save login');
+  assert.equal(subtitle.textContent, 'Save this login to Bitwarden.');
+  assert.equal(buttons.querySelector('[data-bitwarden-action-primary]').textContent, 'Save in Bitwarden');
+  assert.equal(buttons.querySelector('[data-bitwarden-action-dismiss]').textContent, 'Not now');
 }
 
 async function testApplyStatusBanner_doesNotReopenPanelForConfirmedAction() {
@@ -345,7 +374,7 @@ async function testApplyGeneratedPassword_showsSaveLoginFollowUpPanel() {
   const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
   assert.ok(actionPanel);
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
-  assert.match(actionPanel.textContent, /Save login/);
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Save login');
 }
 
 async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
@@ -366,7 +395,7 @@ async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
   const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
   assert.ok(actionPanel);
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'updatePassword');
-  assert.match(actionPanel.textContent, /Update password/);
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update password');
 }
 
 async function testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel() {
@@ -473,8 +502,8 @@ async function testUpdatePasswordPanelShowsSpecificTitle() {
 
   const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
   assert.ok(actionPanel);
-  assert.match(actionPanel.textContent, /Update password/);
-  assert.match(actionPanel.textContent, /Update the password for this Bitwarden login\./);
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-subtitle]').textContent, 'Update the password for this Bitwarden login.');
 
   const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
   assert.ok(primaryButton);
