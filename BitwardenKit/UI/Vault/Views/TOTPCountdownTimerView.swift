@@ -59,7 +59,7 @@ public struct TOTPCountdownTimerView: View {
         onExpiration: (() -> Void)?,
     ) {
         self.totpCode = totpCode
-        timer = .init(
+        timer = TOTPCountdownTimer(
             timeProvider: timeProvider,
             timerInterval: TOTPCountdownTimerView.timerInterval,
             totpCode: totpCode,
