@@ -11,14 +11,15 @@ struct TOTPCountdownTimerTests {
     @Test @MainActor
     func onExpiration_oldDate() async throws {
         try await confirmation("onExpiration was called") { confirm in
+            let expiredCode = TOTPCodeModel(
+                code: "123456",
+                codeGenerationDate: .distantPast,
+                period: 3,
+            )
             let subject = TOTPCountdownTimer(
                 timeProvider: CurrentTime(),
                 timerInterval: 0.1,
-                totpCode: TOTPCodeModel(
-                    code: "123456",
-                    codeGenerationDate: .distantPast,
-                    period: 3,
-                ),
+                totpCode: expiredCode,
                 onExpiration: { confirm() },
             )
             try await Task.sleep(nanoseconds: 1_000_000_000)
@@ -32,16 +33,9 @@ struct TOTPCountdownTimerTests {
     func timerColor_normal() {
         let period = 30
         let secondsRemaining = Constants.totpUrgentCountdownThreshold + 3
-        let subject = TOTPCountdownTimer(
-            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
-            timerInterval: 60,
-            totpCode: TOTPCodeModel(
-                code: "123456",
-                codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                period: UInt32(period),
-            ),
-            onExpiration: nil,
-        )
+        let mockTime = Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining))
+        let subject = makeSubject(period: period, mockTime: mockTime)
+
         #expect(subject.timerColor() == SharedAsset.Colors.tintPrimary.swiftUIColor)
     }
 
@@ -51,16 +45,9 @@ struct TOTPCountdownTimerTests {
     func timerColor_oneAboveThreshold() {
         let period = 30
         let secondsRemaining = Constants.totpUrgentCountdownThreshold + 1
-        let subject = TOTPCountdownTimer(
-            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
-            timerInterval: 60,
-            totpCode: TOTPCodeModel(
-                code: "123456",
-                codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                period: UInt32(period),
-            ),
-            onExpiration: nil,
-        )
+        let mockTime = Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining))
+        let subject = makeSubject(period: period, mockTime: mockTime)
+
         #expect(subject.timerColor() == SharedAsset.Colors.tintPrimary.swiftUIColor)
     }
 
@@ -70,16 +57,9 @@ struct TOTPCountdownTimerTests {
     func timerColor_atThreshold() {
         let period = 30
         let secondsRemaining = Constants.totpUrgentCountdownThreshold
-        let subject = TOTPCountdownTimer(
-            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
-            timerInterval: 60,
-            totpCode: TOTPCodeModel(
-                code: "123456",
-                codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
-                period: UInt32(period),
-            ),
-            onExpiration: nil,
-        )
+        let mockTime = Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining))
+        let subject = makeSubject(period: period, mockTime: mockTime)
+
         #expect(subject.timerColor() == SharedAsset.Colors.error.swiftUIColor)
     }
 
@@ -89,8 +69,27 @@ struct TOTPCountdownTimerTests {
     func timerColor_urgent() {
         let period = 30
         let secondsRemaining = Constants.totpUrgentCountdownThreshold - 2
-        let subject = TOTPCountdownTimer(
-            timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
+        let mockTime = Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining))
+        let subject = makeSubject(period: period, mockTime: mockTime)
+
+        #expect(subject.timerColor() == SharedAsset.Colors.error.swiftUIColor)
+    }
+
+    // MARK: Private Methods
+
+    /// Creates a `TOTPCountdownTimer` with a frozen clock set to the given `mockTime`
+    /// and a code generated at the reference date start.
+    ///
+    /// - Parameters:
+    ///   - period: The TOTP period in seconds.
+    ///   - mockTime: The time the clock is frozen at for the test.
+    ///
+    /// - Returns: A configured `TOTPCountdownTimer` with a long timer interval so it
+    ///   won't fire during the test.
+    ///
+    private func makeSubject(period: Int, mockTime: Date) -> TOTPCountdownTimer {
+        TOTPCountdownTimer(
+            timeProvider: MockTimeProvider(.mockTime(mockTime)),
             timerInterval: 60,
             totpCode: TOTPCodeModel(
                 code: "123456",
@@ -99,6 +98,5 @@ struct TOTPCountdownTimerTests {
             ),
             onExpiration: nil,
         )
-        #expect(subject.timerColor() == SharedAsset.Colors.error.swiftUIColor)
     }
 }
