@@ -15,7 +15,7 @@ struct TOTPCountdownTimerTests {
             let subject = TOTPCountdownTimer(
                 timeProvider: CurrentTime(),
                 timerInterval: 0.1,
-                totpCode: .init(
+                totpCode: TOTPCodeModel(
                     code: "123456",
                     codeGenerationDate: .distantPast,
                     period: 3,
@@ -36,7 +36,7 @@ struct TOTPCountdownTimerTests {
         let subject = TOTPCountdownTimer(
             timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
             timerInterval: 60,
-            totpCode: .init(
+            totpCode: TOTPCodeModel(
                 code: "123456",
                 codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
                 period: UInt32(period),
@@ -55,7 +55,7 @@ struct TOTPCountdownTimerTests {
         let subject = TOTPCountdownTimer(
             timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
             timerInterval: 60,
-            totpCode: .init(
+            totpCode: TOTPCodeModel(
                 code: "123456",
                 codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
                 period: UInt32(period),
@@ -74,7 +74,7 @@ struct TOTPCountdownTimerTests {
         let subject = TOTPCountdownTimer(
             timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
             timerInterval: 60,
-            totpCode: .init(
+            totpCode: TOTPCodeModel(
                 code: "123456",
                 codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
                 period: UInt32(period),
@@ -93,7 +93,7 @@ struct TOTPCountdownTimerTests {
         let subject = TOTPCountdownTimer(
             timeProvider: MockTimeProvider(.mockTime(Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining)))),
             timerInterval: 60,
-            totpCode: .init(
+            totpCode: TOTPCodeModel(
                 code: "123456",
                 codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
                 period: UInt32(period),

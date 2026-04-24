@@ -11,7 +11,7 @@ struct TOTPExpirationCalculatorTests {
     func hasCodeExpired_codesOlderThanPeriod() {
         #expect(
             TOTPExpirationCalculator.hasCodeExpired(
-                .init(
+                TOTPCodeModel(
                     code: "",
                     codeGenerationDate: .distantPast,
                     period: 30,
@@ -25,7 +25,7 @@ struct TOTPExpirationCalculatorTests {
     func hasCodeExpired_recentCodesPastExpiration() {
         #expect(
             TOTPExpirationCalculator.hasCodeExpired(
-                .init(
+                TOTPCodeModel(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
                     period: 30,
@@ -35,7 +35,7 @@ struct TOTPExpirationCalculatorTests {
         )
         #expect(
             TOTPExpirationCalculator.hasCodeExpired(
-                .init(
+                TOTPCodeModel(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
                     period: 30,
@@ -49,7 +49,7 @@ struct TOTPExpirationCalculatorTests {
     func hasCodeExpired_currentCodes() {
         #expect(
             !TOTPExpirationCalculator.hasCodeExpired(
-                .init(
+                TOTPCodeModel(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 15),
                     period: 30,
@@ -59,7 +59,7 @@ struct TOTPExpirationCalculatorTests {
         )
         #expect(
             !TOTPExpirationCalculator.hasCodeExpired(
-                .init(
+                TOTPCodeModel(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 0),
                     period: 30,
