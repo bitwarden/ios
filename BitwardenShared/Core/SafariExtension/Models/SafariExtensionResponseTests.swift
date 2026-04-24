@@ -32,6 +32,7 @@ class SafariExtensionResponseTests: BitwardenTestCase {
         XCTAssertEqual(subject.suggestionAction, .generatePassword)
         XCTAssertEqual(subject.submissionAction, .generatePassword)
         XCTAssertEqual(subject.generatedPassword, "generated-secret")
+        XCTAssertEqual(subject.userMessage, "Generated password with Bitwarden.")
         XCTAssertTrue(subject.hasGeneratedPassword)
         XCTAssertFalse(subject.canFinalizeWithScript)
     }

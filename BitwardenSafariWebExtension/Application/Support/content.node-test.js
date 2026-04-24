@@ -278,8 +278,14 @@ async function testApplyGeneratedPassword_showsSaveLoginFollowUpPanel() {
     response: {
       submissionAction: 'generatePassword',
       generatedPassword: 'generated-secret',
+      userMessage: 'Generated password with Bitwarden.',
     },
   });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Generated password with Bitwarden.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'success');
 
   const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
   assert.ok(actionPanel);
@@ -317,7 +323,7 @@ async function testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUp
   const ctx = makeEnvironment([email, password, confirmPassword]);
   await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
     response: {
-      submissionAction: 'generatePassword',
+      submissionAction: 'none',
       userMessage: 'Couldn’t generate a password in Bitwarden.',
     },
   });

@@ -439,6 +439,7 @@
       case 'saveNewLogin':
       case 'updateExistingLogin':
       case 'updatePassword':
+      case 'generatePassword':
         return 'success';
       default:
         return 'info';

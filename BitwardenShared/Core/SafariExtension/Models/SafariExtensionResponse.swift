@@ -115,7 +115,7 @@ public struct SafariExtensionResponse: Codable, Equatable {
             matchedLogin: nil,
             fillScriptJSON: nil,
             generatedPassword: generatedPassword,
-            userMessage: nil,
+            userMessage: "Generated password with Bitwarden.",
         )
     }
 }
