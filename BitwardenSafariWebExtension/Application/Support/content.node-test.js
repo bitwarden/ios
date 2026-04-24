@@ -423,6 +423,8 @@ async function testActionPanelPrimaryShowsPendingBannerWhileSaving() {
   assert.ok(actionPanel);
   const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
   assert.ok(primaryButton);
+  const dismissButton = actionPanel.querySelector('[data-bitwarden-action-dismiss]');
+  assert.ok(dismissButton);
 
   const clickPromise = primaryButton.onclick();
   const pendingBanner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
@@ -430,6 +432,11 @@ async function testActionPanelPrimaryShowsPendingBannerWhileSaving() {
   assert.equal(pendingBanner.textContent, 'Saving login to Bitwarden…');
   assert.equal(pendingBanner.dataset.bitwardenStatusTone, 'progress');
   assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.submissionAction, 'saveNewLogin');
+  assert.equal(primaryButton.disabled, true);
+  assert.equal(dismissButton.disabled, true);
+
+  await primaryButton.onclick();
+  assert.equal(ctx.browser.runtime.sentMessages.length, 1);
 
   resolveSendMessage({ response: { submissionAction: 'saveNewLogin', userMessage: 'Saved login to Bitwarden.' } });
   await clickPromise;
@@ -608,6 +615,36 @@ async function testApplyFillScript() {
   assert.equal(password.value, 'secret');
 }
 
+async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'secret' });
+  const ctx = makeEnvironment([password], {
+    sendMessage: async () => {
+      throw new Error('Bridge request failed');
+    },
+  });
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'saveNewLogin',
+      userMessage: 'Save this login to Bitwarden.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
+  const dismissButton = actionPanel.querySelector('[data-bitwarden-action-dismiss]');
+
+  await primaryButton.onclick();
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Bridge request failed');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'warning');
+  assert.equal(primaryButton.disabled, false);
+  assert.equal(dismissButton.disabled, false);
+  assert.ok(ctx.document.body.querySelector('[data-bitwarden-action-panel]'));
+}
+
 (async () => {
   testBuildChangePasswordRequest_usesCurrentAndNewPasswordHeuristics();
   testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword();
@@ -628,6 +665,7 @@ async function testApplyFillScript() {
   await testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel();
   await testActionPanelPrimaryDispatchesConfirmEvent();
   await testActionPanelPrimaryShowsPendingBannerWhileSaving();
+  await testActionPanelPrimaryFailure_restoresPanelInteractivity();
   await testUpdatePasswordPanelShowsSpecificTitle();
   await testActionPanelDismissRemovesPanel();
   console.log('content node tests passed');
