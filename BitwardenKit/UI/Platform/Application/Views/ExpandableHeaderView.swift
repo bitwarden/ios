@@ -86,9 +86,21 @@ public struct ExpandableHeaderView<Content: View>: View {
 
     /// Initialize an `ExpandableHeaderView` whose expansion state is owned by the view itself.
     ///
-    /// The view creates an internal `@State` that starts in the expanded (`true`) state and is
-    /// reset whenever the view's identity changes. Use this initializer when the caller does not
-    /// need to persist or share the expansion state.
+    /// The view creates an internal `@State` that is reset whenever the view's identity changes.
+    /// Use this initializer when the caller does not need to persist or share the expansion
+    /// state.
+    ///
+    /// The internal state defaults to expanded (`true`). This default is part of the public
+    /// contract — callers that need "collapsed by default" behavior should use
+    /// ``init(title:count:buttonAccessibilityIdentifier:isExpanded:content:)`` with a
+    /// pre-initialized `Binding<Bool>` set to `false`.
+    ///
+    /// - Important: A given call site should commit to one initializer variant. Switching
+    ///   between the no-binding and binding initializer at runtime (for example, inside a
+    ///   conditional branch that flips its predicate) is undefined: both initializers produce
+    ///   the same ``ExpandableHeaderView`` type, so SwiftUI preserves the view's identity and
+    ///   reuses the internal `@State` cell, but whichever storage is no longer populated on the
+    ///   new render will be silently abandoned.
     ///
     /// - Parameters:
     ///   - title: The title of the button used to expand or collapse the content.
@@ -115,6 +127,10 @@ public struct ExpandableHeaderView<Content: View>: View {
     /// recreation — typically because it is persisted to a store and rehydrated on view appear
     /// (PM-35398). The caller is responsible for providing a `Binding<Bool>` whose storage
     /// outlives the view.
+    ///
+    /// - Important: A given call site should commit to one initializer variant. Switching
+    ///   between the binding and no-binding initializer at runtime is undefined; see the
+    ///   companion discussion on ``init(title:count:buttonAccessibilityIdentifier:content:)``.
     ///
     /// - Parameters:
     ///   - title: The title of the button used to expand or collapse the content.
@@ -144,11 +160,29 @@ public struct ExpandableHeaderView<Content: View>: View {
 
 #if DEBUG
 @available(iOS 17, *)
-#Preview {
+#Preview("Internal state") {
+    VStack {
+        ExpandableHeaderView(title: Localizations.localCodes, count: 3) {
+            BitwardenTextValueField(value: "Option 1")
+            BitwardenTextValueField(value: "Option 2")
+            BitwardenTextValueField(value: "Option 3")
+        }
+    }
+    .padding()
+    .frame(maxHeight: .infinity, alignment: .top)
+    .background(SharedAsset.Colors.backgroundPrimary.swiftUIColor)
+}
+
+@available(iOS 17, *)
+#Preview("Caller-owned binding") {
     @Previewable @SwiftUI.State var isExpanded = false
 
     VStack {
-        ExpandableHeaderView(title: Localizations.localCodes, count: 3) {
+        ExpandableHeaderView(
+            title: Localizations.localCodes,
+            count: 3,
+            isExpanded: $isExpanded,
+        ) {
             BitwardenTextValueField(value: "Option 1")
             BitwardenTextValueField(value: "Option 2")
             BitwardenTextValueField(value: "Option 3")

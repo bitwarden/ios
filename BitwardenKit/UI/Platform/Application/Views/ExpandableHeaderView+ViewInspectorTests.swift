@@ -66,4 +66,33 @@ final class ExpandableHeaderViewTests: BitwardenTestCase {
             "Tapping the header should write the toggled value through the caller-supplied binding",
         )
     }
+
+    /// Exercising the header repeatedly must keep the caller's binding coherent across toggles —
+    /// i.e. the computed `isExpanded: Binding<Bool>` must continue to resolve to the
+    /// `externalIsExpanded` storage on every render, including renders that observe a previously
+    /// written value. This guards against regressions where the `withAnimation`-wrapped write
+    /// stops propagating after the first toggle (e.g. a future refactor to two disjoint storages
+    /// that accidentally captures `externalIsExpanded` by value).
+    @MainActor
+    func test_init_withBinding_roundTripsAcrossMultipleToggles() throws {
+        var isExpanded = true
+        let binding = Binding(get: { isExpanded }, set: { isExpanded = $0 })
+        let subject = ExpandableHeaderView(
+            title: "Title",
+            count: 3,
+            isExpanded: binding,
+        ) {
+            Text("Child")
+        }
+
+        for expectedAfterTap in [false, true, false] {
+            let button = try subject.inspect().find(ViewType.Button.self)
+            try button.tap()
+            XCTAssertEqual(
+                isExpanded,
+                expectedAfterTap,
+                "Each tap must write back through the caller-supplied binding; expected \(expectedAfterTap)",
+            )
+        }
+    }
 }
