@@ -29,10 +29,21 @@ function createInput({ id, name, type, value = '', visible = true }) {
   return element;
 }
 
+function createForm({ id, name, action, method = 'post' }) {
+  return {
+    id,
+    name,
+    action,
+    method,
+    dataset: {},
+  };
+}
+
 function makeEnvironment(elements, options = {}) {
   const dispatchedEvents = [];
   const title = options.title || 'Example';
   const href = options.href || 'https://example.com/login';
+  const forms = options.forms || [];
   const bannerContainer = {
     children: [],
     appendChild(node) {
@@ -55,7 +66,7 @@ function makeEnvironment(elements, options = {}) {
     documentElement: { dataset: {} },
     body: bannerContainer,
     querySelectorAll(selector) {
-      if (selector === 'form') return [];
+      if (selector === 'form') return forms;
       if (selector === 'input, select, textarea, button') return elements;
       if (selector === 'input[type="password"]') return elements.filter((e) => e.type === 'password');
       return [];
@@ -565,6 +576,20 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
     href: 'https://example.com/register-device',
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
+
+  const signupForm = createForm({
+    id: 'signup-form',
+    name: 'signup',
+    action: 'https://example.com/users/sign_up',
+  });
+  loginUsername.form = signupForm;
+  loginPassword.form = signupForm;
+  ctx = makeEnvironment([loginUsername, loginPassword], {
+    forms: [signupForm],
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+  loginUsername.form = null;
+  loginPassword.form = null;
 
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
   currentPassword.placeholder = 'Current password';
