@@ -36,6 +36,18 @@ struct SafariExtensionView: View {
         return "Not enabled"
     }
 
+    private var nextStepTitle: String {
+        if store.state.extensionEnabled {
+            return "You’re ready"
+        }
+
+        if store.state.extensionActivated {
+            return "Finish setup"
+        }
+
+        return "Get started"
+    }
+
     private var nextStepMessage: String {
         if store.state.extensionEnabled {
             return "Ready to fill, save, update, and generate credentials in Safari."
@@ -97,7 +109,7 @@ struct SafariExtensionView: View {
                 .contentBlock()
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Next step")
+                    Text(nextStepTitle)
                         .styleGuide(.headline)
                     Text(nextStepMessage)
                         .styleGuide(.body)
