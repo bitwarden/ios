@@ -1,9 +1,8 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import Foundation
 import Testing
-
-@testable import BitwardenKit
 
 struct TOTPCountdownTimerTests {
     // MARK: Tests

@@ -6,8 +6,8 @@ import SwiftUI
 /// A countdown timer for a TOTP code.
 ///     Used to manage the state for a `TOTPCountdownTimerView`.
 ///
-class TOTPCountdownTimer: ObservableObject {
-    // MARK: Public Properties
+public class TOTPCountdownTimer: ObservableObject {
+    // MARK: Properties
 
     /// A `@Published` string representing the number of seconds remaining for a TOTP code.
     ///
@@ -71,7 +71,7 @@ class TOTPCountdownTimer: ObservableObject {
     ///   - totpCode: The code used to calculate the time remaining.
     ///   - onExpiration: A closure to call on timer expiration.
     ///
-    init(
+    public init(
         timeProvider: any TimeProvider,
         timerInterval: TimeInterval,
         totpCode: TOTPCodeModel,
@@ -107,7 +107,7 @@ class TOTPCountdownTimer: ObservableObject {
 
     /// Returns the color to use for the countdown circle based on seconds remaining.
     ///
-    func timerColor() -> Color {
+    public func timerColor() -> Color {
         secondsRemaining <= Constants.totpUrgentCountdownThreshold
             ? SharedAsset.Colors.error.swiftUIColor
             : SharedAsset.Colors.tintPrimary.swiftUIColor

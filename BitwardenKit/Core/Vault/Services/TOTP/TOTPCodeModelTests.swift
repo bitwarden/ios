@@ -1,7 +1,6 @@
+import BitwardenKit
 import Foundation
 import Testing
-
-@testable import BitwardenKit
 
 struct TOTPCodeModelTests {
     // MARK: Tests
