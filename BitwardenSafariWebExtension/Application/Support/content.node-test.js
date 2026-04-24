@@ -219,6 +219,48 @@ async function testApplyNoMatchFillMessage_showsBannerWithoutPanel() {
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
+async function testApplyNativeErrorMessage_showsWarningBannerWithoutPanel() {
+  const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    errorMessage: 'Native bridge failed.',
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Native bridge failed.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'warning');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
+async function testApplyNativeErrorMessage_withResponse_prefersResponseHandling() {
+  const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    errorMessage: 'Native bridge failed.',
+    response: {
+      submissionAction: 'fill',
+      fillScriptJSON: JSON.stringify({
+        script: [
+          ['fill_by_opid', 'field__0', 'user@example.com'],
+          ['fill_by_opid', 'field__1', 'secret'],
+        ],
+      }),
+      userMessage: 'Filled user@example.com from Bitwarden.',
+    },
+  });
+
+  assert.equal(username.value, 'user@example.com');
+  assert.equal(password.value, 'secret');
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Filled user@example.com from Bitwarden.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'success');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
 async function testApplyStatusBanner() {
   const password = createInput({ id: 'password', name: 'password', type: 'password' });
   const ctx = makeEnvironment([password]);
@@ -577,6 +619,8 @@ async function testApplyFillScript() {
   await testApplyFillResponse_showsCompletionBannerWithoutPanel();
   await testApplyFillResponse_withoutUsername_usesSiteHostCopy();
   await testApplyNoMatchFillMessage_showsBannerWithoutPanel();
+  await testApplyNativeErrorMessage_showsWarningBannerWithoutPanel();
+  await testApplyNativeErrorMessage_withResponse_prefersResponseHandling();
   await testApplyStatusBanner();
   await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
   await testApplyGeneratedPassword_showsSaveLoginFollowUpPanel();
