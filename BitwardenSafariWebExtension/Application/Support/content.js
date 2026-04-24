@@ -256,6 +256,10 @@
       return true;
     }
 
+    if (passwordFields.length > 0 && bitwardenLooksLikeAccountSetupPage(document, signupSignals.forms)) {
+      return true;
+    }
+
     if (signupSignals.fields.some((field) => /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenSignupFieldText(field)))) {
       return true;
     }
