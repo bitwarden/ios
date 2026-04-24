@@ -671,6 +671,17 @@ function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
 
   assert.equal(built.request.username, 'invited-user@example.com');
   assert.equal(built.request.password, 'invite-secret');
+
+  const activationEmail = createInput({ id: 'activation-email-hidden', name: 'email', type: 'email', value: 'member@example.com', visible: false });
+  const activationPassword = createInput({ id: 'activation-password-visible', name: 'password', type: 'password', value: 'activation-secret' });
+  activationPassword.placeholder = 'Password';
+  ctx = makeEnvironment([activationEmail, activationPassword], {
+    title: 'Activation required',
+    href: 'https://example.com/activation/check',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.username, null);
 }
 
 function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
@@ -717,6 +728,15 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
     href: 'https://example.com/invite/accept',
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
+  const activationEmail = createInput({ id: 'activation-email', name: 'email', type: 'email', value: 'member@example.com', visible: false });
+  const activationPassword = createInput({ id: 'activation-password', name: 'password', type: 'password', value: 'secret' });
+  activationPassword.placeholder = 'Password';
+  ctx = makeEnvironment([activationEmail, activationPassword], {
+    title: 'Activation required',
+    href: 'https://example.com/activation/check',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
 
   ctx = makeEnvironment([loginUsername, loginPassword], {
     title: 'Create your account',
