@@ -1,11 +1,12 @@
 import BitwardenKit
+import BitwardenSdk
 import Foundation
 import Networking
 
 // MARK: - AccountTokenProvider
 
 /// A more specific `TokenProvider` protocol to use and ease testing.
-protocol AccountTokenProvider: TokenProvider {
+protocol AccountTokenProvider: TokenProvider, ClientManagedTokens {
     /// Sets the delegate to use in this token provider.
     /// - Parameter delegate: The delegate to use.
     func setDelegate(delegate: AccountTokenProviderDelegate) async
@@ -153,6 +154,21 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
         return expirationDate <= refreshThreshold
     }
 }
+
+// MARK: - ClientManagedTokens (SDK)
+
+extension DefaultAccountTokenProvider: ClientManagedTokens {
+    func getAccessToken() async -> String? {
+        do {
+            return try await getToken()
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
+    }
+}
+
+// MARK: - AccountTokenProviderDelegate
 
 /// Delegate to be used by the `AccountTokenProvider`.
 protocol AccountTokenProviderDelegate: AnyObject {
