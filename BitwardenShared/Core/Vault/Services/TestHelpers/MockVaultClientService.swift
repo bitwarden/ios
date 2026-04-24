@@ -9,7 +9,13 @@ import Foundation
 class MockVaultClientService: VaultClientService {
     var clientAttachments = MockAttachmentsClientProtocol()
     var clientCiphers = MockClientCiphers()
-    var clientCollections = MockClientCollections()
+    var clientCollections: MockCollectionsClientProtocol = {
+        let mock = MockCollectionsClientProtocol()
+        mock.decryptClosure = { CollectionView(collection: $0) }
+        mock.decryptListClosure = { $0.map(CollectionView.init) }
+        return mock
+    }()
+
     var clientFolders: MockFoldersClientProtocol = {
         let mock = MockFoldersClientProtocol()
         mock.decryptClosure = { FolderView(folder: $0) }
@@ -161,35 +167,6 @@ class MockClientCiphers: CiphersClientProtocol {
         prepareCiphersForBulkShareOrganizationId = organizationId
         prepareCiphersForBulkShareCollectionIds = collectionIds
         return try prepareCiphersForBulkShareResult.get()
-    }
-}
-
-// MARK: - MockClientCollections
-
-class MockClientCollections: CollectionsClientProtocol {
-    var decryptListError: Error?
-
-    var decryptResult: (Collection) throws -> CollectionView = { collection in
-        CollectionView(collection: collection)
-    }
-
-    var getCollectionTreeReceivedCollection = [BitwardenSdk.CollectionView]()
-    var getCollectionTreeReturnValue: BitwardenSdk.CollectionViewTree?
-
-    func decrypt(collection: Collection) throws -> CollectionView {
-        try decryptResult(collection)
-    }
-
-    func decryptList(collections: [Collection]) throws -> [CollectionView] {
-        if let decryptListError {
-            throw decryptListError
-        }
-        return collections.map(CollectionView.init)
-    }
-
-    func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
-        getCollectionTreeReceivedCollection = collections
-        return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noHandle: .init())
     }
 }
 
