@@ -515,6 +515,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = beeAccount
         stateService.timeoutAction = [anneAccount.profile.userId: .lock]
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
         await subject.checkSessionTimeouts(handleActiveUser: nil)
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
     }
@@ -526,6 +527,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.timeoutAction = [anneAccount.profile.userId: .logout]
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
         vaultTimeoutService.sessionTimeoutAction[anneAccount.profile.userId] = .logout
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
         await subject.checkSessionTimeouts(handleActiveUser: nil)
         XCTAssertTrue(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
         XCTAssertTrue(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
@@ -543,15 +545,18 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `checkSessionTimeout()` calls `handleActiveUser` closure when the active account is timed out.
-    /// closure is nil.
     func test_checkSessionTimeout_timedOut_activeAccount_handleActiveUser() async {
         stateService.accounts = [anneAccount, beeAccount]
         stateService.activeAccount = beeAccount
         stateService.timeoutAction = [beeAccount.profile.userId: .lock]
         vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        stateService.isAuthenticated[beeAccount.profile.userId] = true
+        var handleActiveUserCalled = false
         await subject.checkSessionTimeouts { [beeAccount] userId in
             XCTAssertEqual(userId, beeAccount.profile.userId)
+            handleActiveUserCalled = true
         }
+        XCTAssertTrue(handleActiveUserCalled)
     }
 
     /// `checkSessionTimeout()` takes no action to an active account is not timed out.
@@ -626,6 +631,24 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Should NOT attempt to log out an already logged out account
         XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
         XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeouts()` does not invoke `handleActiveUser` for an active account that is
+    /// already soft-logged-out, even when the time-based timeout condition is met.
+    func test_checkSessionTimeout_timedOut_alreadyLoggedOut_activeAccount_skipsTimeout() async {
+        stateService.accounts = [beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .logout]
+        // Simulate Immediate timeout condition (time elapsed >= 0 seconds).
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        // Account is already soft-logged-out (no access token in keychain).
+        stateService.isAuthenticated[beeAccount.profile.userId] = false
+
+        await subject.checkSessionTimeouts { _ in
+            XCTFail("handleActiveUser must not be called for an already-logged-out account")
+        }
+
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(beeAccount.profile.userId))
     }
 
     /// `checkSessionTimeout()` doesn't log out an inactive account that is unlocked.
