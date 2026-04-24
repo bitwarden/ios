@@ -5,23 +5,18 @@ import BitwardenSdk
 final class SdkCipherRepository: BitwardenSdk.CipherRepository {
     /// The data store for managing the persisted ciphers for the user.
     let cipherDataStore: CipherDataStore
-    /// The service used by the application to report non-fatal errors.
-    let errorReporter: ErrorReporter
     /// The user ID of the SDK instance this repository belongs to.
     let userId: String
 
     /// Initializes a `SdkCipherRepository`.
     /// - Parameters:
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
-    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - userId: The user ID of the SDK instance this repository belongs to
     init(
         cipherDataStore: CipherDataStore,
-        errorReporter: ErrorReporter,
         userId: String,
     ) {
         self.cipherDataStore = cipherDataStore
-        self.errorReporter = errorReporter
         self.userId = userId
     }
 
@@ -47,6 +42,7 @@ final class SdkCipherRepository: BitwardenSdk.CipherRepository {
     }
 
     func removeBulk(keys: [String]) async throws {
+        // TODO: PM-35829
         for key in keys {
             try await cipherDataStore.deleteCipher(id: key, userId: userId)
         }
@@ -60,17 +56,13 @@ final class SdkCipherRepository: BitwardenSdk.CipherRepository {
     }
 
     func setBulk(values: [String: BitwardenSdk.Cipher]) async throws {
-        let validEntries = values.filter { id, cipher in
+        // TODO: PM-35829
+        for (id, cipher) in values {
             guard id == cipher.id else {
-                errorReporter.log(error: BitwardenError.dataError(
-                    "CipherRepository: Trying to update a cipher with mismatch IDs",
-                ))
-                return false
+                throw BitwardenError.dataError("CipherRepository: Trying to update a cipher with mismatch IDs")
             }
-            return true
         }
-        guard !validEntries.isEmpty else { return }
-        for cipher in validEntries.values {
+        for cipher in values.values {
             try await cipherDataStore.upsertCipher(cipher, userId: userId)
         }
     }

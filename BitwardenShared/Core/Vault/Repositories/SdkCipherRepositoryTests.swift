@@ -10,7 +10,6 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var cipherDataStore: MockCipherDataStore!
-    var errorReporter: MockErrorReporter!
     var subject: SdkCipherRepository!
     let expectedUserId = "1"
 
@@ -20,10 +19,8 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         cipherDataStore = MockCipherDataStore()
-        errorReporter = MockErrorReporter()
         subject = SdkCipherRepository(
             cipherDataStore: cipherDataStore,
-            errorReporter: errorReporter,
             userId: expectedUserId,
         )
     }
@@ -32,7 +29,6 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         super.tearDown()
 
         cipherDataStore = nil
-        errorReporter = nil
         subject = nil
     }
 
@@ -125,18 +121,20 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(cipherDataStore.upsertCipherUserId, expectedUserId)
     }
 
-    /// `setBulk(values:)` skips entries whose key doesn't match the cipher's ID and logs an error.
+    /// `setBulk(values:)` throws when any entry's key doesn't match the cipher's ID.
     func test_setBulk_withMismatch() async throws {
-        try await subject.setBulk(values: ["1": .fixture(id: "1"), "2": .fixture(id: "99")])
-        XCTAssertEqual(cipherDataStore.upsertCipherValues.compactMap(\.id), ["1"])
-        XCTAssertEqual(errorReporter.errors.count, 1)
+        await assertAsyncThrows {
+            try await subject.setBulk(values: ["1": .fixture(id: "1"), "2": .fixture(id: "99")])
+        }
+        XCTAssertTrue(cipherDataStore.upsertCipherValues.isEmpty)
     }
 
-    /// `setBulk(values:)` performs no upserts when all entries have mismatched IDs.
+    /// `setBulk(values:)` throws when all entries have mismatched IDs.
     func test_setBulk_allMismatched() async throws {
-        try await subject.setBulk(values: ["1": .fixture(id: "99"), "2": .fixture(id: "98")])
+        await assertAsyncThrows {
+            try await subject.setBulk(values: ["1": .fixture(id: "99")])
+        }
         XCTAssertTrue(cipherDataStore.upsertCipherValues.isEmpty)
-        XCTAssertEqual(errorReporter.errors.count, 2)
     }
 
     /// `setBulk(values:)` with an empty map performs no upserts.
