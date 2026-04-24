@@ -411,6 +411,26 @@ async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
   assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update password');
 }
 
+async function testApplyUpdateExistingLogin_showsStructuredPanelCopy() {
+  const email = createInput({ id: 'email', name: 'email', type: 'email', value: 'user@example.com' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'secret' });
+  const ctx = makeEnvironment([email, password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'updateExistingLogin',
+      userMessage: 'Update the existing Bitwarden login with these changes.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  assert.equal(actionPanel.dataset.bitwardenActionKind, 'updateExistingLogin');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').textContent, 'Review before updating');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update login');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-subtitle]').textContent, 'Update the existing Bitwarden login with these changes.');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-primary]').textContent, 'Update in Bitwarden');
+}
+
 async function testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel() {
   const email = createInput({ id: 'email', name: 'email', type: 'email', value: 'user@example.com' });
   const password = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: '' });
@@ -760,6 +780,7 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testApplyStatusBanner_doesNotReopenPanelForConfirmedAction();
   await testApplyGeneratedPassword_showsSaveLoginFollowUpPanel();
   await testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel();
+  await testApplyUpdateExistingLogin_showsStructuredPanelCopy();
   await testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel();
   await testActionPanelPrimaryDispatchesConfirmEvent();
   await testActionPanelPrimaryShowsPendingBannerWhileSaving();
