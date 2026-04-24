@@ -659,6 +659,18 @@ function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
   built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
 
   assert.equal(built.request.username, null);
+
+  const inviteEmail = createInput({ id: 'invite-email-hidden', name: 'email', type: 'email', value: 'invited-user@example.com', visible: false });
+  const invitePassword = createInput({ id: 'invite-password-visible', name: 'password', type: 'password', value: 'invite-secret' });
+  invitePassword.placeholder = 'Password';
+  ctx = makeEnvironment([inviteEmail, invitePassword], {
+    title: 'Accept invitation',
+    href: 'https://example.com/invite/accept',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.username, 'invited-user@example.com');
+  assert.equal(built.request.password, 'invite-secret');
 }
 
 function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
@@ -696,6 +708,15 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
     href: 'https://example.com/login/password',
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
+
+  const inviteEmail = createInput({ id: 'invite-email', name: 'email', type: 'email', value: 'invited-user@example.com', visible: false });
+  const invitePassword = createInput({ id: 'invite-password', name: 'password', type: 'password', value: 'secret' });
+  invitePassword.placeholder = 'Password';
+  ctx = makeEnvironment([inviteEmail, invitePassword], {
+    title: 'Accept invitation',
+    href: 'https://example.com/invite/accept',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
 
   ctx = makeEnvironment([loginUsername, loginPassword], {
     title: 'Create your account',
