@@ -150,7 +150,18 @@
   }
 
   function bitwardenFieldText(field) {
-    return [field.htmlID, field.htmlName, field['label-tag'], field['label-left'], field.placeholder, field.value]
+    return [field.htmlID, field.htmlName, field['label-tag'], field['label-left'], field.placeholder]
+      .filter((value) => typeof value === 'string' && value.length > 0)
+      .join(' ')
+      .toLowerCase();
+  }
+
+  function bitwardenSignupFieldText(field) {
+    const supplementalText = field.viewable && /^(submit|button)$/i.test(field.type || '')
+      ? [field.value]
+      : [];
+
+    return [bitwardenFieldText(field), ...supplementalText]
       .filter((value) => typeof value === 'string' && value.length > 0)
       .join(' ')
       .toLowerCase();
@@ -179,7 +190,7 @@
       return true;
     }
 
-    if (fields.some((field) => /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenFieldText(field)))) {
+    if (fields.some((field) => /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenSignupFieldText(field)))) {
       return true;
     }
 

@@ -647,6 +647,10 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   ctx = makeEnvironment([loginUsername, loginPassword, signupButton]);
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
 
+  const hiddenSignupMarker = createInput({ id: 'flow', name: 'flow', type: 'hidden', value: 'Create account' });
+  ctx = makeEnvironment([loginUsername, loginPassword, hiddenSignupMarker]);
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
+
   const signupForm = createForm({
     id: 'signup-form',
     name: 'signup',
