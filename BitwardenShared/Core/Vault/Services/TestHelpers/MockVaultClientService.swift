@@ -1,12 +1,13 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import Foundation
 
 @testable import BitwardenShared
 
 class MockVaultClientService: VaultClientService {
-    var clientAttachments = MockClientAttachments()
+    var clientAttachments = MockAttachmentsClientProtocol()
     var clientCiphers = MockClientCiphers()
     var clientCollections = MockClientCollections()
     var clientFolders = MockClientFolders()
@@ -56,46 +57,6 @@ class MockVaultClientService: VaultClientService {
 
     func passwordHistory() -> PasswordHistoryClientProtocol {
         clientPasswordHistory
-    }
-}
-
-// MARK: - MockClientAttachments
-
-class MockClientAttachments: AttachmentsClientProtocol {
-    var encryptedFilePaths = [String]()
-    var decryptedBuffers = [Data]()
-    var encryptedBuffers = [Data]()
-
-    func decryptBuffer(cipher _: Cipher, attachment _: AttachmentView, buffer: Data) throws -> Data {
-        decryptedBuffers.append(buffer)
-        return buffer
-    }
-
-    func decryptFile(
-        cipher _: Cipher,
-        attachment _: AttachmentView,
-        encryptedFilePath: String,
-        decryptedFilePath _: String,
-    ) throws {
-        encryptedFilePaths.append(encryptedFilePath)
-    }
-
-    func encryptBuffer(
-        cipher _: Cipher,
-        attachment: AttachmentView,
-        buffer: Data,
-    ) throws -> AttachmentEncryptResult {
-        encryptedBuffers.append(buffer)
-        return AttachmentEncryptResult(attachment: Attachment(attachmentView: attachment), contents: buffer)
-    }
-
-    func encryptFile(
-        cipher _: Cipher,
-        attachment: AttachmentView,
-        decryptedFilePath _: String,
-        encryptedFilePath _: String,
-    ) throws -> Attachment {
-        Attachment(attachmentView: attachment)
     }
 }
 

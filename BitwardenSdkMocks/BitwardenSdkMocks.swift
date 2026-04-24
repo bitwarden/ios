@@ -8,4 +8,5 @@
 
 import BitwardenSdk
 
+extension AttachmentsClientProtocol {}
 extension ClientManagedTokens {}

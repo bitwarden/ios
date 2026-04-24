@@ -246,6 +246,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let decryptUrl = attachmentsUrl.appendingPathComponent("file.txt")
         try Data("🗂️".utf8).write(to: decryptUrl)
 
+        clientService.mockVault.clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(),
+            contents: Data(),
+        )
+
         let encryptionContexts = [
             EncryptionContext(encryptedFor: "1", cipher: cipherAfterAttachmentDelete),
         ]
@@ -727,7 +732,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
         XCTAssertEqual(cipherService.fetchCipherId, cipher.id)
-        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
+        XCTAssertEqual(
+            clientService.mockVault.clientAttachments.decryptFileReceivedArguments?.encryptedFilePath,
+            downloadUrl.path,
+        )
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 
@@ -1378,7 +1386,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `shareCipher()` migrates any attachments without an attachment key.
-    func test_shareCipher_attachmentMigration() async throws {
+    func test_shareCipher_attachmentMigration() async throws { // swiftlint:disable:this function_body_length
         let account = Account.fixtureAccountLogin()
         stateService.activeAccount = account
 
@@ -1426,6 +1434,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try FileManager.default.createDirectory(at: attachmentsUrl, withIntermediateDirectories: true)
         let decryptUrl = attachmentsUrl.appendingPathComponent("file.txt")
         try Data("🗂️".utf8).write(to: decryptUrl)
+
+        clientService.mockVault.clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(),
+            contents: Data(),
+        )
 
         try await subject.shareCipher(cipherViewOriginal, newOrganizationId: "5", newCollectionIds: ["6", "7"])
 
@@ -1677,17 +1690,27 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
     func test_saveAttachment() async throws {
         cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
+        clientService.mockVault.clientAttachments.encryptBufferReturnValue = AttachmentEncryptResult(
+            attachment: .fixture(),
+            contents: Data("encrypted".utf8),
+        )
 
         let cipherView = CipherView.fixture()
+        let attachmentData = Data("unencrypted".utf8)
         let updatedCipher = try await subject.saveAttachment(
             cipherView: cipherView,
-            fileData: Data(),
+            fileData: attachmentData,
             fileName: "Pineapple on pizza",
         )
 
         // Ensure all the steps completed as expected.
         XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipherView)
-        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedBuffers, [Data()])
+        let encryptBufferReceivedArguments = clientService.mockVault.clientAttachments.encryptBufferReceivedArguments
+        XCTAssertEqual(
+            encryptBufferReceivedArguments?.attachment,
+            .fixture(fileName: "Pineapple on pizza", id: nil, size: "\(attachmentData.count)"),
+        )
+        XCTAssertEqual(encryptBufferReceivedArguments?.buffer, attachmentData)
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, Cipher(cipherView: cipherView))
         XCTAssertEqual(updatedCipher.id, "42")
     }
