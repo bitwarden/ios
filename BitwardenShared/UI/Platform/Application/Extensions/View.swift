@@ -90,7 +90,7 @@ extension View {
     ///
     func addVaultItemFloatingActionMenu(
         hidden: Bool = false,
-        availableItemTypes: [CipherType] = CipherType.canCreateCasesBase,
+        availableItemTypes: [CipherType] = CipherType.canCreateCases,
         addItem: @escaping (CipherType) -> Void,
         addFolder: (() -> Void)? = nil,
     ) -> some View {

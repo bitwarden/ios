@@ -330,12 +330,6 @@ private extension AddEditItemView {
     /// The specific fields for the type of item being created or updated.
     @ViewBuilder private var itemTypeSection: some View {
         switch store.state.type {
-        // TODO: PM-32809 Part 3/3 wires `AddEditBankAccountItemView` here. Part 1
-        // renders an empty view so the exhaustive switch compiles now that
-        // `CipherType.bankAccount` exists; creation is flag-gated upstream so this
-        // branch is unreachable until Part 3 ships.
-        case .bankAccount:
-            EmptyView()
         case .card:
             cardItems
         case .login:

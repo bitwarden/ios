@@ -31,11 +31,7 @@ struct VaultListState: Equatable {
     var isPersonalOwnershipDisabled: Bool = false
 
     /// List of available item type for creation.
-    ///
-    /// Seeded with the flag-off baseline; the processor replaces this from
-    /// `VaultRepository.getItemTypesUserCanCreate()` on appearance, which reads the
-    /// `newItemTypes` feature flag (wired in PM-32809 Part 2/3).
-    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCasesBase
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
 
     /// The loading state of the My Vault screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)

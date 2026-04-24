@@ -184,11 +184,7 @@ extension CipherView {
             key: key,
             name: addEditState.name,
             notes: addEditState.notes.nilIfEmpty,
-            // `BitwardenSdk.CipherType(_:)` is failable as of PM-32009 Part 1/3.
-            // The `.secureNote` fallback is defensive only; Part 3 adds the
-            // save-path guard in `AddEditItemProcessor` that rejects bank account
-            // saves while the SDK is blocked.
-            type: BitwardenSdk.CipherType(addEditState.type) ?? .secureNote,
+            type: BitwardenSdk.CipherType(addEditState.type),
             login: (addEditState.type == .login) ? .init(loginView: login, loginState: loginState) : nil,
             identity: (addEditState.type == .identity) ? addEditState.identityState.identityView : nil,
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,

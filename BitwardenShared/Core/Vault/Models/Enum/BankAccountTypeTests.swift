@@ -1,26 +1,28 @@
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenShared
 
-class BankAccountTypeTests: BitwardenTestCase {
+class BankAccountTypeTests {
     // MARK: Tests
 
-    /// Each case has a distinct raw value matching the cross-platform contract.
-    func test_rawValues_matchContract() {
-        XCTAssertEqual(BankAccountType.checking.rawValue, 0)
-        XCTAssertEqual(BankAccountType.savings.rawValue, 1)
-        XCTAssertEqual(BankAccountType.certificateOfDeposit.rawValue, 2)
-        XCTAssertEqual(BankAccountType.lineOfCredit.rawValue, 3)
-        XCTAssertEqual(BankAccountType.investmentBrokerage.rawValue, 4)
-        XCTAssertEqual(BankAccountType.moneyMarket.rawValue, 5)
-        XCTAssertEqual(BankAccountType.other.rawValue, 6)
+    /// Raw values match the server contract.
+    @Test
+    func rawValues_matchServerContract() {
+        #expect(BankAccountType.checking.rawValue == "checking")
+        #expect(BankAccountType.savings.rawValue == "savings")
+        #expect(BankAccountType.certificateOfDeposit.rawValue == "certificateOfDeposit")
+        #expect(BankAccountType.lineOfCredit.rawValue == "lineOfCredit")
+        #expect(BankAccountType.investmentBrokerage.rawValue == "investmentBrokerage")
+        #expect(BankAccountType.moneyMarket.rawValue == "moneyMarket")
+        #expect(BankAccountType.other.rawValue == "other")
     }
 
-    /// `allCases` exposes all seven account types in stable order.
-    func test_allCases_ordering() {
-        XCTAssertEqual(
-            BankAccountType.allCases,
-            [
+    /// `allCases` exposes every account type in declaration order.
+    @Test
+    func allCases_declarationOrder() {
+        #expect(
+            BankAccountType.allCases == [
                 .checking,
                 .savings,
                 .certificateOfDeposit,
@@ -32,16 +34,14 @@ class BankAccountTypeTests: BitwardenTestCase {
         )
     }
 
-    /// Raw values round-trip through JSON encoding.
-    ///
-    /// - Note: `Menuable` conformance (and the associated `localizedName`
-    ///   coverage) is added in PM-32809 Part 3/3; localized-name assertions will
-    ///   be layered on there.
-    func test_codable_roundTrip() throws {
+    /// Each case round-trips through JSON as its raw string value.
+    @Test
+    func codable_roundTrip() throws {
         for bankAccountType in BankAccountType.allCases {
             let encoded = try JSONEncoder().encode(bankAccountType)
             let decoded = try JSONDecoder().decode(BankAccountType.self, from: encoded)
-            XCTAssertEqual(decoded, bankAccountType)
+            #expect(decoded == bankAccountType)
+            #expect(String(data: encoded, encoding: .utf8) == "\"\(bankAccountType.rawValue)\"")
         }
     }
 }

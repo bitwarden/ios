@@ -1086,9 +1086,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
-
-/* PM-32009: New Item Types — Bank Account (Part 1/3 type-level keys)
-   Field labels, account-type display names, and processor alert strings are added
-   in PM-32809 Part 2/3 and Part 3/3 as the UI surfaces that consume them land. */
-"TypeBankAccount" = "Bank account";
-"ViewBankAccount" = "View bank account";
+"BankAccount" = "Bank account";

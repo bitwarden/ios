@@ -107,11 +107,7 @@ extension CipherRequestModel {
             reprompt: CipherRepromptType(type: cipher.reprompt),
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
-            // Unknown SDK cipher types fall back to `.secureNote` on this outbound
-            // request mapping. PM-32813 backward-compat work will formalize the
-            // unknown-type handling (e.g., block the save or surface a clear error
-            // before reaching this point).
-            type: CipherType(type: cipher.type) ?? .secureNote,
+            type: CipherType(type: cipher.type),
         )
     }
 }
