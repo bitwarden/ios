@@ -563,6 +563,7 @@
     dismissButton.textContent = content.dismissLabel;
     dismissButton.disabled = false;
     dismissButton.onclick = () => {
+      bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: false });
       if (typeof panel.remove === 'function') {
         panel.remove();
       }

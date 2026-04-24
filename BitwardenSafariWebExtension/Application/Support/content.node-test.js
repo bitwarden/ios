@@ -528,6 +528,10 @@ async function testActionPanelDismissRemovesPanel() {
   const dismissButton = actionPanel.querySelector('[data-bitwarden-action-dismiss]');
   assert.ok(dismissButton);
   dismissButton.onclick();
+  const dismissEvent = ctx.window.dispatchedEvents.find((event) => event.type === 'bitwarden:safari-extension-action' && event.detail?.confirmed === false);
+  assert.ok(dismissEvent);
+  assert.equal(dismissEvent.detail.action, 'saveNewLogin');
+  assert.equal(dismissEvent.detail.confirmed, false);
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
