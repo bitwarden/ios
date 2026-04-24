@@ -20,6 +20,9 @@ enum VaultListEffect: Equatable {
     /// The user tapped the dismiss button on the Premium Upgrade action card.
     case dismissPremiumUpgradeActionCard
 
+    /// The user tapped the dismiss button on the Upgraded to Premium action card.
+    case dismissUpgradedToPremiumActionCard
+
     /// The more button on an item in the vault group was tapped.
     ///
     /// - Parameter item: The item associated with the more button that was tapped.
@@ -46,6 +49,9 @@ enum VaultListEffect: Equatable {
 
     /// Stream the list of organizations for the user.
     case streamOrganizations
+
+    /// Stream the premium checkout status updates.
+    case streamPremiumCheckoutStatus
 
     /// Stream the show web icons setting.
     case streamShowWebIcons

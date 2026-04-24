@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import InlineSnapshotTesting
 import TestHelpers
 import XCTest
@@ -19,6 +20,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var application: MockApplication!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
+    var billingService: MockBillingService!
     var changeKdfService: MockChangeKdfService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
@@ -50,6 +52,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         application = MockApplication()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
+        billingService = MockBillingService()
         errorReporter = MockErrorReporter()
         changeKdfService = MockChangeKdfService()
         configService = MockConfigService()
@@ -76,6 +79,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             application: application,
             authRepository: authRepository,
             authService: authService,
+            billingService: billingService,
             changeKdfService: changeKdfService,
             configService: configService,
             errorReporter: errorReporter,
@@ -105,6 +109,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         authRepository = nil
         authService = nil
+        billingService = nil
         changeKdfService = nil
         configService = nil
         coordinator = nil
@@ -678,6 +683,83 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
         XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
+    }
+
+    /// `perform(_:)` with `.streamPremiumCheckoutStatus` shows a loading overlay on `.syncing`.
+    @MainActor
+    func test_perform_streamPremiumCheckoutStatus_syncing() async throws {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        let subject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = subject.eraseToAnyPublisher()
+
+        let task = Task {
+            await self.subject.perform(.streamPremiumCheckoutStatus)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { self.billingService.premiumCheckoutStatusPublisherCalled }
+        subject.send(.syncing)
+        try await waitForAsync { self.coordinator.isLoadingOverlayShowing == true }
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.confirmingYourUpgrade)
+    }
+
+    /// `perform(_:)` with `.streamPremiumCheckoutStatus` hides the action card and reloads on `.confirmed`.
+    @MainActor
+    func test_perform_streamPremiumCheckoutStatus_confirmed() async throws {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        let subject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = subject.eraseToAnyPublisher()
+        stateService.doesActiveAccountHavePremiumResult = true
+        self.subject.state.shouldShowPremiumUpgradeActionCard = true
+
+        let task = Task {
+            await self.subject.perform(.streamPremiumCheckoutStatus)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { self.billingService.premiumCheckoutStatusPublisherCalled }
+        subject.send(.confirmed)
+        try await waitForAsync { self.subject.state.shouldShowUpgradedToPremiumActionCard == true }
+        XCTAssertFalse(self.subject.state.shouldShowPremiumUpgradeActionCard)
+        XCTAssertTrue(self.subject.state.hasPremium)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+    }
+
+    /// `perform(_:)` with `.streamPremiumCheckoutStatus` shows the pending alert on `.pending`.
+    @MainActor
+    func test_perform_streamPremiumCheckoutStatus_pending() async throws {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        let subject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = subject.eraseToAnyPublisher()
+
+        let task = Task {
+            await self.subject.perform(.streamPremiumCheckoutStatus)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { self.billingService.premiumCheckoutStatusPublisherCalled }
+        subject.send(.pending)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+    }
+
+    /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to premium card.
+    @MainActor
+    func test_perform_dismissUpgradedToPremiumActionCard() async {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+
+        await subject.perform(.dismissUpgradedToPremiumActionCard)
+
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
+    }
+
+    /// `receive(_:)` with `.viewPlanDetails` navigates to the view plan details route.
+    @MainActor
+    func test_receive_viewPlanDetails() {
+        subject.receive(.viewPlanDetails)
+
+        XCTAssertEqual(coordinator.routes.last, .viewPlanDetails)
     }
 
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
@@ -2204,15 +2286,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state, initialState)
     }
 
-    /// `receive(_:)` with `.upgradeToPremium` does nothing (placeholder for PM-33849).
+    /// `receive(_:)` with `.upgradeToPremium` navigates to the premium upgrade route.
     @MainActor
     func test_receive_upgradeToPremium() {
-        let initialState = subject.state
-
         subject.receive(.upgradeToPremium)
 
-        // Currently a no-op, will navigate to upgrade view in PM-33849
-        XCTAssertEqual(subject.state, initialState)
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.

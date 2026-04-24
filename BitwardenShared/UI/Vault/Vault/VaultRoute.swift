@@ -89,6 +89,9 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
 
+    /// A route to view the premium plan details from the settings tab.
+    case viewPlanDetails
+
     /// A route to display the profile switcher.
     ///
     case viewProfileSwitcher

@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import SwiftUI
 
 // swiftlint:disable file_length
@@ -19,6 +20,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasBillingService
         & HasChangeKdfService
         & HasConfigService
         & HasEnvironmentService
@@ -116,6 +118,8 @@ final class VaultListProcessor: StateProcessor<
             } catch {
                 services.errorReporter.log(error: error)
             }
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -134,6 +138,8 @@ final class VaultListProcessor: StateProcessor<
             await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
             await searchVault(for: text)
+        case .streamPremiumCheckoutStatus:
+            await streamPremiumCheckoutStatus()
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
         case .streamFlightRecorderLog:
@@ -200,6 +206,8 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .premiumUpgrade)
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
+        case .viewPlanDetails:
+            coordinator.navigate(to: .viewPlanDetails)
         }
     }
 }
@@ -547,6 +555,34 @@ extension VaultListProcessor {
                 // Task was cancelled, no need to handle this error
             } catch {
                 services.errorReporter.log(error: error)
+            }
+        }
+    }
+
+    /// Streams premium checkout status updates. On `.confirmed`, reloads the vault list
+    /// to update the premium state. On `.pending`, shows an upgrade pending alert.
+    ///
+    private func streamPremiumCheckoutStatus() async {
+        guard await services.configService.getFeatureFlag(.premiumUpgradePath) else { return }
+        for await status in services.billingService.premiumCheckoutStatusPublisher().values {
+            switch status {
+            case .canceled:
+                break
+            case .confirmed:
+                coordinator.hideLoadingOverlay()
+                await refreshVault(syncWithPeriodicCheck: false)
+                state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+                state.shouldShowPremiumUpgradeActionCard = false
+                state.shouldShowUpgradedToPremiumActionCard = true
+            case .pending:
+                coordinator.hideLoadingOverlay()
+                coordinator.showAlert(.upgradePending {
+                    await self.services.billingService.premiumStatusChanged()
+                })
+            case .syncing:
+                coordinator.showLoadingOverlay(
+                    title: Localizations.confirmingYourUpgrade,
+                )
             }
         }
     }
