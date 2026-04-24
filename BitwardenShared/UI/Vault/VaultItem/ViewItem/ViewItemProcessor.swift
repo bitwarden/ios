@@ -391,25 +391,39 @@ private extension ViewItemProcessor {
         case let .toggleAccountNumberVisibilityChanged(isVisible):
             cipherState.bankAccountState.isAccountNumberVisible = isVisible
             state.loadingState = .data(cipherState)
-            if isVisible {
-                Task {
-                    await services.eventService.collect(
-                        eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: cipherState.cipher.id,
-                    )
-                }
-            }
+            collectHiddenFieldVisibilityEventIfNeeded(
+                isVisible: isVisible,
+                cipherId: cipherState.cipher.id,
+            )
         case let .togglePinVisibilityChanged(isVisible):
             cipherState.bankAccountState.isPinVisible = isVisible
             state.loadingState = .data(cipherState)
-            if isVisible {
-                Task {
-                    await services.eventService.collect(
-                        eventType: .cipherClientToggledHiddenFieldVisible,
-                        cipherId: cipherState.cipher.id,
-                    )
-                }
-            }
+            collectHiddenFieldVisibilityEventIfNeeded(
+                isVisible: isVisible,
+                cipherId: cipherState.cipher.id,
+            )
+        }
+    }
+
+    /// Emits the `.cipherClientToggledHiddenFieldVisible` telemetry event when a
+    /// hidden field is revealed in the view state. Suppressed when the field is being
+    /// hidden rather than revealed.
+    ///
+    /// Extracted to avoid duplicating the same five-line `Task { eventService.collect
+    /// }` block at each hidden-field visibility toggle site. PR 2 (Driver's License)
+    /// and PR 3 (Passport) will reuse this helper.
+    ///
+    /// - Parameters:
+    ///   - isVisible: Whether the field was revealed (`true`) or hidden (`false`).
+    ///   - cipherId: The id of the cipher whose hidden field was toggled, if any.
+    ///
+    private func collectHiddenFieldVisibilityEventIfNeeded(isVisible: Bool, cipherId: String?) {
+        guard isVisible else { return }
+        Task {
+            await services.eventService.collect(
+                eventType: .cipherClientToggledHiddenFieldVisible,
+                cipherId: cipherId,
+            )
         }
     }
 

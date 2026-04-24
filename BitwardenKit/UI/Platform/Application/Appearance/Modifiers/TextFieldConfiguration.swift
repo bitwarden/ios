@@ -62,6 +62,16 @@ public extension TextFieldConfiguration {
         textInputAutocapitalization: .never,
     )
 
+    /// A `TextFieldConfiguration` for applying common properties to numeric text fields
+    /// where no AutoFill content-type hint should be applied (e.g., secret PINs where
+    /// iOS should not offer SMS one-time-code AutoFill suggestions).
+    static let numericNoContentType = TextFieldConfiguration(
+        isAutocorrectionDisabled: true,
+        keyboardType: .numberPad,
+        textContentType: nil,
+        textInputAutocapitalization: .never,
+    )
+
     /// A `TextFieldConfiguration` for applying common properties to numeric text fields.
     static func numeric(_ textContentType: UITextContentType) -> TextFieldConfiguration {
         TextFieldConfiguration(

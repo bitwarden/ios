@@ -124,7 +124,9 @@ struct AddEditBankAccountItemView: View {
                         send: AddEditBankAccountItemAction.togglePinVisibilityChanged,
                     ),
                 )
-                .textFieldConfiguration(.numeric(.oneTimeCode))
+                // Use the no-AutoFill-hint numeric configuration so iOS doesn't
+                // offer SMS one-time-code suggestions on the bank account PIN field.
+                .textFieldConfiguration(.numericNoContentType)
                 .focused($focusedField, equals: .pin)
                 .onSubmit { focusNextField($focusedField) }
 

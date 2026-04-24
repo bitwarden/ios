@@ -114,4 +114,72 @@ class BankAccountItemStateTests: BitwardenTestCase {
         XCTAssertFalse(subject.isAccountNumberVisible)
         XCTAssertFalse(subject.isPinVisible)
     }
+
+    /// Account number visibility toggles independently of the PIN visibility.
+    func test_visibilityFlags_accountNumberIndependentOfPin() {
+        var subject = BankAccountItemState()
+        subject.isAccountNumberVisible = true
+        XCTAssertTrue(subject.isAccountNumberVisible)
+        XCTAssertFalse(subject.isPinVisible)
+
+        subject.isPinVisible = true
+        XCTAssertTrue(subject.isAccountNumberVisible)
+        XCTAssertTrue(subject.isPinVisible)
+    }
+
+    /// Every text field can be set and read back as a simple mutation.
+    func test_fieldSetters_roundTrip() {
+        var subject = BankAccountItemState()
+
+        subject.bankName = "Bitwarden Bank"
+        subject.nameOnAccount = "Bitwarden User"
+        subject.accountType = .custom(.other)
+        subject.accountNumber = "9876543210"
+        subject.routingNumber = "021000021"
+        subject.branchNumber = "200"
+        subject.pin = "4321"
+        subject.swiftCode = "CHASUS33"
+        subject.iban = "DE89370400440532013000"
+        subject.bankPhone = "555-0199"
+
+        XCTAssertEqual(subject.bankName, "Bitwarden Bank")
+        XCTAssertEqual(subject.nameOnAccount, "Bitwarden User")
+        XCTAssertEqual(subject.accountType, .custom(.other))
+        XCTAssertEqual(subject.accountNumber, "9876543210")
+        XCTAssertEqual(subject.routingNumber, "021000021")
+        XCTAssertEqual(subject.branchNumber, "200")
+        XCTAssertEqual(subject.pin, "4321")
+        XCTAssertEqual(subject.swiftCode, "CHASUS33")
+        XCTAssertEqual(subject.iban, "DE89370400440532013000")
+        XCTAssertEqual(subject.bankPhone, "555-0199")
+    }
+
+    /// A fully-populated state round-trips through `apiModel` and back to an
+    /// equivalent state via `fromAPIModel(_:)`.
+    func test_stateRoundTripThroughAPIModel() {
+        var original = BankAccountItemState()
+        original.bankName = "Bitwarden Bank"
+        original.nameOnAccount = "Bitwarden User"
+        original.accountType = .custom(.savings)
+        original.accountNumber = "1234567890"
+        original.routingNumber = "011000015"
+        original.branchNumber = "100"
+        original.pin = "1234"
+        original.swiftCode = "BTCBUS33"
+        original.iban = "GB82WEST12345698765432"
+        original.bankPhone = "555-0100"
+
+        let recreated = BankAccountItemState.fromAPIModel(original.apiModel)
+
+        XCTAssertEqual(recreated.bankName, original.bankName)
+        XCTAssertEqual(recreated.nameOnAccount, original.nameOnAccount)
+        XCTAssertEqual(recreated.accountType, original.accountType)
+        XCTAssertEqual(recreated.accountNumber, original.accountNumber)
+        XCTAssertEqual(recreated.routingNumber, original.routingNumber)
+        XCTAssertEqual(recreated.branchNumber, original.branchNumber)
+        XCTAssertEqual(recreated.pin, original.pin)
+        XCTAssertEqual(recreated.swiftCode, original.swiftCode)
+        XCTAssertEqual(recreated.iban, original.iban)
+        XCTAssertEqual(recreated.bankPhone, original.bankPhone)
+    }
 }
