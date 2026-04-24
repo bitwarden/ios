@@ -445,7 +445,11 @@
     }
   }
 
-  function bitwardenFollowUpResponseForGeneratedPassword(document = window.document) {
+  function bitwardenFollowUpResponseForGeneratedPassword(document = window.document, generatedPassword = null) {
+    if (typeof generatedPassword !== 'string' || generatedPassword.length === 0) {
+      return null;
+    }
+
     const suggestedAction = bitwardenSuggestPageAction(document);
     switch (suggestedAction) {
       case 'saveLogin':
@@ -628,7 +632,7 @@
     }
 
     const followUpResponse = response.submissionAction === 'generatePassword'
-      ? bitwardenFollowUpResponseForGeneratedPassword(window.document)
+      ? bitwardenFollowUpResponseForGeneratedPassword(window.document, response.generatedPassword)
       : null;
 
     bitwardenPresentActionPanel(followUpResponse || nativeResponse);

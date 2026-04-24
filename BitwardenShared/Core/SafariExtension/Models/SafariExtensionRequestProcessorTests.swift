@@ -137,6 +137,28 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(passphraseRequest.includeNumber, true)
     }
 
+    @MainActor
+    func test_liveProcessor_withMockServices_makeResponse_generatePassword_whenGeneratorFails_returnsFailureMessageWithoutDummyPassword() async throws {
+        struct GeneratePasswordError: Error, Equatable {}
+
+        let generatorRepository = MockGeneratorRepository()
+        generatorRepository.passwordResult = .failure(GeneratePasswordError())
+        let subject = SafariExtensionRequestProcessor.live(
+            services: ServiceContainer.withMocks(generatorRepository: generatorRepository)
+        )
+        let request = SafariExtensionRequest(
+            kind: .generatePassword,
+            passwordOptions: PasswordGenerationOptions(type: .password)
+        )
+
+        let maybeResponse = await subject.makeResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertNil(response.generatedPassword)
+        XCTAssertEqual(response.submissionAction, .none)
+        XCTAssertEqual(response.userMessage, "Couldn’t generate a password in Bitwarden.")
+    }
+
     func test_makeResponse_setup_returnsSetupMessage() throws {
         let subject = SafariExtensionRequestProcessor()
 
