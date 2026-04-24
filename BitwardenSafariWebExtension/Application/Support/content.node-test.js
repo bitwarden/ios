@@ -680,6 +680,27 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   loginUsername.form = null;
   loginPassword.form = null;
 
+  const loginForm = createForm({
+    id: 'login-form',
+    name: 'login',
+    action: 'https://example.com/session',
+  });
+  const separateSignupForm = createForm({
+    id: 'separate-signup-form',
+    name: 'signup',
+    action: 'https://example.com/users/sign_up',
+  });
+  loginUsername.form = loginForm;
+  loginPassword.form = loginForm;
+  signupButton.form = separateSignupForm;
+  ctx = makeEnvironment([loginUsername, loginPassword, signupButton], {
+    forms: [loginForm, separateSignupForm],
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
+  loginUsername.form = null;
+  loginPassword.form = null;
+  signupButton.form = null;
+
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
   currentPassword.placeholder = 'Current password';
   const newPassword = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: 'new-secret' });
