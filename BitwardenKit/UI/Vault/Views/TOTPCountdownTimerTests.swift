@@ -93,7 +93,7 @@ struct TOTPCountdownTimerTests {
             timerInterval: 60,
             totpCode: TOTPCodeModel(
                 code: "123456",
-                codeGenerationDate: Date(timeIntervalSinceReferenceDate: 0),
+                codeGenerationDate: .distantPast,
                 period: UInt32(period),
             ),
             onExpiration: nil,
