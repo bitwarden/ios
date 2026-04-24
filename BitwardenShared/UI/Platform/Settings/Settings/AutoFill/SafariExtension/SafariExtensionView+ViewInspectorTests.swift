@@ -52,6 +52,8 @@ class SafariExtensionViewTests: BitwardenTestCase {
 
         XCTAssertNoThrow(try subject.inspect().find(text: "Finish enabling the Safari extension in Safari settings."))
         XCTAssertNoThrow(try subject.inspect().find(text: "Step 2 of 2"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Almost done"))
+        XCTAssertThrowsError(try subject.inspect().find(text: "Not enabled"))
     }
 
     @MainActor
