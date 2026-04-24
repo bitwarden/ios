@@ -171,11 +171,11 @@
       return true;
     }
 
-    if (fields.some((field) => /(sign[ -]?up|create|register|join|new account)/.test(bitwardenFieldText(field)))) {
+    if (fields.some((field) => /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenFieldText(field)))) {
       return true;
     }
 
-    return /(sign[ -]?up|create( your)? account|register|join|new account)/.test(bitwardenPageText(document));
+    return /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenPageText(document));
   }
 
   function bitwardenSuggestPageAction(document = window.document) {
@@ -189,7 +189,7 @@
       return 'changePassword';
     }
 
-    if (bitwardenLooksLikeSignupPage(pageDetails.fields)
+    if (bitwardenLooksLikeSignupPage(pageDetails.fields, document)
       && bitwardenPreferredUsernameField(pageDetails.fields)
       && bitwardenPreferredSavePasswordField(pageDetails.fields)) {
       return 'saveLogin';
