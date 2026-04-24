@@ -430,7 +430,12 @@
 
   function bitwardenStatusTone(nativeResponse) {
     const response = nativeResponse?.response;
-    const message = response?.userMessage;
+    const message = response?.userMessage || nativeResponse?.errorMessage;
+    if ((!response || typeof response !== 'object')
+      && typeof nativeResponse?.errorMessage === 'string'
+      && nativeResponse.errorMessage.length > 0) {
+      return 'warning';
+    }
     if (typeof message === 'string' && /no matching bitwarden login found/i.test(message)) {
       return 'warning';
     }
@@ -614,11 +619,20 @@
 
   async function bitwardenApplyNativeResponse(nativeResponse) {
     const response = nativeResponse?.response;
-    if (!response || typeof response !== "object") {
+    const errorMessage = typeof nativeResponse?.errorMessage === 'string' ? nativeResponse.errorMessage : null;
+
+    window.bitwardenSafariWebExtension.lastNativeResponse = nativeResponse;
+
+    if ((!response || typeof response !== "object") && !errorMessage) {
       return nativeResponse;
     }
 
-    window.bitwardenSafariWebExtension.lastNativeResponse = nativeResponse;
+    if (errorMessage && (!response || typeof response !== "object")) {
+      bitwardenPresentStatusBanner(errorMessage, window.document, { tone: bitwardenStatusTone(nativeResponse) });
+      bitwardenRemoveActionPanel(window.document);
+      bitwardenDispatchStatusEvent(nativeResponse);
+      return nativeResponse;
+    }
 
     if (response.submissionAction === "fill" && typeof response.fillScriptJSON === "string") {
       bitwardenApplyFillScript(response.fillScriptJSON);
