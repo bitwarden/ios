@@ -1,5 +1,4 @@
 import BitwardenKit
-import BitwardenResources
 
 // MARK: - BankAccountType
 

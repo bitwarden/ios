@@ -300,6 +300,12 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var itemInformationSection: some View {
         // check for type
         switch store.state.type {
+        // TODO: PM-32809 Part 3/3 wires `ViewBankAccountItemView` here. Part 1
+        // renders an empty view so the exhaustive switch compiles now that
+        // `CipherType.bankAccount` exists; bank account ciphers are flag-gated
+        // upstream, so this branch is unreachable until Part 3 ships.
+        case .bankAccount:
+            EmptyView()
         case .card:
             ViewCardItemView(
                 store: store.child(

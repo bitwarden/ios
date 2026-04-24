@@ -478,6 +478,9 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
+            // TODO: PM-32809 Part 3/3 wires `.newBankAccount` here; Part 1 uses the
+            // generic `NewItem` string as a placeholder so the switch stays
+            // exhaustive now that `CipherType.bankAccount` exists.
             case .bankAccount: Localizations.newItem
             case .card: Localizations.newCard
             case .identity: Localizations.newIdentity
