@@ -21,12 +21,12 @@ Read the bespoke mock file and locate its corresponding protocol. Understand wha
 
 These patterns require custom behavior that AutoMockable can't express:
 
-| Pattern | Why it can't be auto-generated |
-|---------|-------------------------------|
+| Pattern                                                                                   | Why it can't be auto-generated                                                        |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | Mock executes passed-in closure parameters (e.g., runs a `() async throws -> T` argument) | Closures passed as arguments are non-escaping; Sourcery stubs these with `fatalError` |
-| Mock accumulates all calls into a combined array (e.g., `var alerts: [Alert]`) | AutoMockable stores last call's args, not a merged collection across overloads |
-| Methods with overloaded signatures that share state | Each overload gets a separate mock; shared logic must be bespoke |
-| Mock is a class/struct, not a protocol implementation | AutoMockable only works on protocols |
+| Mock accumulates all calls into a combined array (e.g., `var alerts: [Alert]`)            | AutoMockable stores last call's args, not a merged collection across overloads        |
+| Methods with overloaded signatures that share state                                       | Each overload gets a separate mock; shared logic must be bespoke                      |
+| Mock is a class/struct, not a protocol implementation                                     | AutoMockable only works on protocols                                                  |
 
 When in doubt, check the Sourcery template behavior: non-escaping closure parameters will be noted with a `fatalError("…")` stub in the generated output.
 
@@ -48,18 +48,18 @@ If the protocol already has a comment on that line (e.g., `// sourcery: AutoMock
 
 The generated mock's property names follow deterministic patterns. Use this table to translate test code:
 
-| Bespoke pattern | Generated equivalent |
-|-----------------|----------------------|
-| `var fooResult: Result<T, Error> = .success(x)` | `var fooReturnValue: T! = x` (for the value) |
-| `var fooResult: Result<T, Error> = .failure(e)` | `var fooThrowableError: (any Error)? = e` |
-| `var fooCalled: Bool = false` | `var fooCalled: Bool { fooCallsCount > 0 }` — same name, same semantics, no change needed in tests |
-| `var fooCalledCount: Int = 0` | `var fooCallsCount = 0` — note the naming difference (`Calls` not `Called`) |
-| `fooBarCalled = false` (mid-test reset between assertions) | `fooBarCallsCount = 0` — `fooCalled` is computed, so it can't be assigned; reset the underlying count instead |
-| `var fooHandler: (() -> Void)?` (side-effect hook, no args) | `var fooClosure: ((ArgTypes) async throws -> ReturnType)?` — generated closure takes the method's arguments; use `_, _` if the handler doesn't need them |
-| `var fooParam: T?` (captures a single named arg, e.g. `foo(name: String)`) | `var fooReceivedName: (String)?` — uses the **parameter label**, not `ReceivedArguments` |
-| `var fooParam1: T1?` + `var fooParam2: T2?` (captures multiple args) | `var fooReceivedArguments: (param1: T1, param2: T2)?` — collapses all args into a labeled tuple |
-| `var fooValue: T = default` (stored property returned by a method named `getBar`) | `var getBarReturnValue: T!` — derives from the **method** name, not the stored property name |
-| Custom closure to inject behavior | `var fooClosure: ((ArgTypes) -> ReturnType)?` |
+| Bespoke pattern                                                                   | Generated equivalent                                                                                                                                     |
+| --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `var fooResult: Result<T, Error> = .success(x)`                                   | `var fooReturnValue: T! = x` (for the value)                                                                                                             |
+| `var fooResult: Result<T, Error> = .failure(e)`                                   | `var fooThrowableError: (any Error)? = e`                                                                                                                |
+| `var fooCalled: Bool = false`                                                     | `var fooCalled: Bool { fooCallsCount > 0 }` — same name, same semantics, no change needed in tests                                                       |
+| `var fooCalledCount: Int = 0`                                                     | `var fooCallsCount = 0` — note the naming difference (`Calls` not `Called`)                                                                              |
+| `fooBarCalled = false` (mid-test reset between assertions)                        | `fooBarCallsCount = 0` — `fooCalled` is computed, so it can't be assigned; reset the underlying count instead                                            |
+| `var fooHandler: (() -> Void)?` (side-effect hook, no args)                       | `var fooClosure: ((ArgTypes) async throws -> ReturnType)?` — generated closure takes the method's arguments; use `_, _` if the handler doesn't need them |
+| `var fooParam: T?` (captures a single named arg, e.g. `foo(name: String)`)        | `var fooReceivedName: (String)?` — uses the **parameter label**, not `ReceivedArguments`                                                                 |
+| `var fooParam1: T1?` + `var fooParam2: T2?` (captures multiple args)              | `var fooReceivedArguments: (param1: T1, param2: T2)?` — collapses all args into a labeled tuple                                                          |
+| `var fooValue: T = default` (stored property returned by a method named `getBar`) | `var getBarReturnValue: T!` — derives from the **method** name, not the stored property name                                                             |
+| Custom closure to inject behavior                                                 | `var fooClosure: ((ArgTypes) -> ReturnType)?`                                                                                                            |
 
 ### Stored-property return values
 
@@ -75,6 +75,7 @@ func getWidgetStatus(_ context: SomeContext?) -> WidgetStatus {
 ```
 
 Tests write directly to the stored property:
+
 ```swift
 mockService.widgetStatus = .active
 ```
@@ -87,6 +88,7 @@ var getWidgetStatusReturnValue: WidgetStatus!
 ```
 
 Tests update to:
+
 ```swift
 mockService.getWidgetStatusReturnValue = .active
 ```
@@ -122,6 +124,7 @@ var doThingReceivedArguments: (name: String, count: Int, enabled: Bool)?
 ```
 
 **XCTest:**
+
 ```swift
 // Before
 XCTAssertEqual(mockService.doThingName, "hello")
@@ -135,6 +138,7 @@ XCTAssertTrue(mockService.doThingReceivedArguments?.enabled ?? false)
 ```
 
 **Swift Testing:**
+
 ```swift
 // Before
 #expect(mockService.doThingName == "hello")
@@ -198,7 +202,8 @@ Always set `ReturnValue` before the test exercises that method — it's `T!`, no
 
 Bespoke mocks often supply safe default return values (e.g. `var isEnabledResult: Result<Bool, Error> = .success(false)`). Every test that calls through to that method was silently relying on that default. The generated mock starts with `isEnabledReturnValue: Bool!` — `nil` — and will crash at runtime the first time a test exercises that path without setting it first.
 
-**After converting, look for this pattern:** any test in the file that calls the subject under test but does *not* set `*ReturnValue` for a method that returns a non-optional. Check both:
+**After converting, look for this pattern:** any test in the file that calls the subject under test but does _not_ set `*ReturnValue` for a method that returns a non-optional. Check both:
+
 - The test body itself
 - Any shared `setUp()` that might need a default added
 
@@ -213,6 +218,7 @@ If the subject calls any of those methods anywhere in its implementation, every 
 The fix is to set a sensible default in the shared setup, covering all tests that don't care about that method's return value. The pattern differs by test framework:
 
 **XCTest:**
+
 ```swift
 override func setUp() {
     super.setUp()
@@ -222,6 +228,7 @@ override func setUp() {
 ```
 
 **Swift Testing:**
+
 ```swift
 struct FooTests {
     var mockService: MockFooService
@@ -238,6 +245,7 @@ Tests that need a specific value override it in their own body as before.
 ## Step 4: Delete the Bespoke Mock
 
 Remove the bespoke mock:
+
 - If it's a standalone file (`MockFoo.swift`), delete the entire file.
 - If it's defined inside another file, remove the class definition.
 
@@ -271,6 +279,7 @@ After running, find the new `Mock<ProtocolName>` block in the appropriate `Sourc
 With the generated mock's actual property names in hand, update each test that used the bespoke mock. Translate according to the mapping in Step 3.
 
 Common things to change:
+
 - Replace `Result`-based setup with `ReturnValue`/`ThrowableError`
 - Replace explicit `fooCalled = false` resets (not needed; generated mocks start fresh)
 - Replace bespoke parameter capture properties with `Received{Label}` (single param) or `ReceivedArguments` tuple (multiple params)
@@ -284,6 +293,7 @@ Generated mocks live in `BitwardenSharedMocks` (or `AuthenticatorSharedMocks`, e
 ```
 
 This applies to:
+
 - Test files (`*Tests.swift`) that declare or use the mock
 - `TestHelpers/` files that reference the mock class (e.g., factories that return a mock as a fallback)
 
