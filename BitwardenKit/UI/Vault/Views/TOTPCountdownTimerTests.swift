@@ -9,8 +9,8 @@ struct TOTPCountdownTimerTests {
 
     /// `onExpiration` is called when the timer fires for a code whose generation date is in the past.
     @Test @MainActor
-    func onExpiration_oldDate() async {
-        await confirmation("onExpiration was called") { confirm in
+    func onExpiration_oldDate() async throws {
+        try await confirmation("onExpiration was called") { confirm in
             let subject = TOTPCountdownTimer(
                 timeProvider: CurrentTime(),
                 timerInterval: 0.1,
@@ -21,7 +21,7 @@ struct TOTPCountdownTimerTests {
                 ),
                 onExpiration: { confirm() },
             )
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            try await Task.sleep(nanoseconds: 1_000_000_000)
             _ = subject
         }
     }
