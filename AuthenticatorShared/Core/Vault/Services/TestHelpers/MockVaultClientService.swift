@@ -11,7 +11,13 @@ class MockVaultClientService: VaultClientService {
     var clientCiphers = MockClientCiphers()
     var clientCollections = MockClientCollections()
     var clientFolders = MockClientFolders()
-    var clientPasswordHistory = MockClientPasswordHistory()
+    var clientPasswordHistory: MockPasswordHistoryClientProtocol = {
+        let mock = MockPasswordHistoryClientProtocol()
+        mock.encryptClosure = { PasswordHistory(passwordHistoryView: $0) }
+        mock.decryptListClosure = { $0.map(PasswordHistoryView.init) }
+        return mock
+    }()
+
     var generateTOTPCodeResult: Result<String, Error> = .success("123456")
     var timeProvider = MockTimeProvider(.currentTime)
     var totpPeriod: UInt32 = 30
@@ -165,21 +171,6 @@ class MockClientFolders: FoldersClientProtocol {
             throw encryptError
         }
         return Folder(folderView: folder)
-    }
-}
-
-// MARK: - MockClientPasswordHistory
-
-class MockClientPasswordHistory: PasswordHistoryClientProtocol {
-    var encryptedPasswordHistory = [PasswordHistoryView]()
-
-    func decryptList(list: [PasswordHistory]) throws -> [PasswordHistoryView] {
-        list.map(PasswordHistoryView.init)
-    }
-
-    func encrypt(passwordHistory: PasswordHistoryView) throws -> PasswordHistory {
-        encryptedPasswordHistory.append(passwordHistory)
-        return PasswordHistory(passwordHistoryView: passwordHistory)
     }
 }
 

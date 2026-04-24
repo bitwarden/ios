@@ -10,3 +10,4 @@ import BitwardenSdk
 
 extension AttachmentsClientProtocol {}
 extension ClientManagedTokens {}
+extension PasswordHistoryClientProtocol {}
