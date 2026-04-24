@@ -163,7 +163,15 @@
       .toLowerCase();
   }
 
-  function bitwardenLooksLikeSignupPage(fields, document = window.document) {
+  function bitwardenFormsText(forms) {
+    return Object.values(forms || {})
+      .flatMap((form) => [form?.htmlAction, form?.htmlName, form?.htmlID])
+      .filter((value) => typeof value === 'string' && value.length > 0)
+      .join(' ')
+      .toLowerCase();
+  }
+
+  function bitwardenLooksLikeSignupPage(fields, document = window.document, forms = {}) {
     const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
     const hasConfirmPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'confirm');
     const hasNewPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'new');
@@ -172,6 +180,10 @@
     }
 
     if (fields.some((field) => /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenFieldText(field)))) {
+      return true;
+    }
+
+    if (/(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenFormsText(forms))) {
       return true;
     }
 
@@ -189,7 +201,7 @@
       return 'changePassword';
     }
 
-    if (bitwardenLooksLikeSignupPage(pageDetails.fields, document)
+    if (bitwardenLooksLikeSignupPage(pageDetails.fields, document, pageDetails.forms)
       && bitwardenPreferredUsernameField(pageDetails.fields)
       && bitwardenPreferredSavePasswordField(pageDetails.fields)) {
       return 'saveLogin';
