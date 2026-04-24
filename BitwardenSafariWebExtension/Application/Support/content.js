@@ -206,6 +206,20 @@
     };
   }
 
+  function bitwardenLooksLikePasswordResetPage(fields, document = window.document, forms = {}) {
+    const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
+    const hasNewPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'new');
+    const hasConfirmPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'confirm');
+    if (!(hasNewPassword || hasConfirmPassword)) {
+      return false;
+    }
+
+    const resetSource = [bitwardenFormsText(forms), bitwardenPageText(document)]
+      .filter((value) => typeof value === 'string' && value.length > 0)
+      .join(' ');
+    return /(reset|forgot|recover).{0,20}password|password.{0,20}(reset|forgot|recover)/.test(resetSource);
+  }
+
   function bitwardenLooksLikeSignupPage(fields, document = window.document, forms = {}, candidates = []) {
     const signupSignals = bitwardenRelevantSignupSignals(fields, forms, candidates);
     const passwordFields = signupSignals.fields.filter((field) => field.type === 'password' && field.viewable);
@@ -234,6 +248,10 @@
     const hasConfirmPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'confirm');
 
     if (hasCurrentPassword && (hasNewPassword || hasConfirmPassword)) {
+      return 'changePassword';
+    }
+
+    if (bitwardenLooksLikePasswordResetPage(pageDetails.fields, document, pageDetails.forms)) {
       return 'changePassword';
     }
 
@@ -288,7 +306,9 @@
   function bitwardenBuildChangePasswordRequest() {
     const pageDetails = bitwardenCollectPageDetails();
     const passwordFields = pageDetails.fields.filter((field) => field.type === "password");
-    const currentPasswordField = passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'current') || passwordFields.at(0) || null;
+    const explicitCurrentPasswordField = passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'current') || null;
+    const resetPasswordFlow = bitwardenLooksLikePasswordResetPage(pageDetails.fields, document, pageDetails.forms);
+    const currentPasswordField = explicitCurrentPasswordField || (resetPasswordFlow ? null : passwordFields.at(0) || null);
     const newPasswordField = passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'new')
       || passwordFields.find((field) => bitwardenPasswordFieldRole(field) === 'unknown' && field !== currentPasswordField)
       || passwordFields.at(-1)

@@ -583,12 +583,28 @@ function testBuildChangePasswordRequest_usesCurrentAndNewPasswordHeuristics() {
   const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: 'confirm-secret' });
   confirmPassword.placeholder = 'Confirm password';
 
-  const ctx = makeEnvironment([currentPassword, newPassword, confirmPassword]);
-  const built = ctx.window.bitwardenSafariWebExtension.buildChangePasswordRequest();
+  let ctx = makeEnvironment([currentPassword, newPassword, confirmPassword]);
+  let built = ctx.window.bitwardenSafariWebExtension.buildChangePasswordRequest();
 
   assert.equal(built.request.kind, 'changePassword');
   assert.equal(built.request.oldPassword, 'old-secret');
   assert.equal(built.request.password, 'new-secret');
+
+  const resetEmail = createInput({ id: 'reset-email', name: 'email', type: 'email', value: 'user@example.com' });
+  const resetPassword = createInput({ id: 'reset-password', name: 'newPassword', type: 'password', value: 'reset-secret' });
+  resetPassword.placeholder = 'New password';
+  const resetConfirm = createInput({ id: 'reset-confirm', name: 'confirmPassword', type: 'password', value: 'reset-secret' });
+  resetConfirm.placeholder = 'Confirm password';
+
+  ctx = makeEnvironment([resetEmail, resetPassword, resetConfirm], {
+    title: 'Reset your password',
+    href: 'https://example.com/reset-password',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildChangePasswordRequest();
+
+  assert.equal(built.request.kind, 'changePassword');
+  assert.equal(built.request.oldPassword, null);
+  assert.equal(built.request.password, 'reset-secret');
 }
 
 function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
@@ -712,6 +728,17 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
   signupButton.form = null;
+
+  const resetEmail = createInput({ id: 'reset-email', name: 'email', type: 'email', value: 'user@example.com' });
+  const resetPassword = createInput({ id: 'reset-password', name: 'newPassword', type: 'password', value: 'new-secret' });
+  resetPassword.placeholder = 'New password';
+  const resetConfirm = createInput({ id: 'reset-confirm', name: 'confirmPassword', type: 'password', value: 'new-secret' });
+  resetConfirm.placeholder = 'Confirm password';
+  ctx = makeEnvironment([resetEmail, resetPassword, resetConfirm], {
+    title: 'Reset your password',
+    href: 'https://example.com/reset-password',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'changePassword');
 
   const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
   currentPassword.placeholder = 'Current password';
