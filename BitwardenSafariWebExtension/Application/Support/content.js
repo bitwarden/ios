@@ -528,10 +528,20 @@
 
     const buttons = document.createElement('div');
     buttons.dataset.bitwardenActionButtons = 'true';
+    buttons.style.display = 'flex';
+    buttons.style.gap = '10px';
+    buttons.style.marginTop = '16px';
 
     const primaryButton = document.createElement('button');
     primaryButton.dataset.bitwardenActionPrimary = 'true';
     primaryButton.textContent = content.primaryLabel;
+    primaryButton.style.background = 'rgba(0, 122, 255, 1)';
+    primaryButton.style.color = '#fff';
+    primaryButton.style.border = 'none';
+    primaryButton.style.borderRadius = '12px';
+    primaryButton.style.padding = '12px 16px';
+    primaryButton.style.fontWeight = '600';
+    primaryButton.style.flex = '1';
     primaryButton.disabled = false;
     primaryButton.onclick = async () => {
       if (primaryButton.disabled) {
@@ -561,6 +571,12 @@
     const dismissButton = document.createElement('button');
     dismissButton.dataset.bitwardenActionDismiss = 'true';
     dismissButton.textContent = content.dismissLabel;
+    dismissButton.style.background = 'rgba(120, 120, 128, 0.12)';
+    dismissButton.style.color = '#111';
+    dismissButton.style.border = 'none';
+    dismissButton.style.borderRadius = '12px';
+    dismissButton.style.padding = '12px 16px';
+    dismissButton.style.fontWeight = '500';
     dismissButton.disabled = false;
     dismissButton.onclick = () => {
       bitwardenDispatchActionEvent({ action: response.submissionAction, confirmed: false });
