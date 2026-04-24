@@ -135,10 +135,18 @@
     return 'unknown';
   }
 
-  function bitwardenPreferredUsernameField(fields) {
-    return fields.find((field) => field.type === 'email' && field.viewable)
+  function bitwardenPreferredUsernameField(fields, options = {}) {
+    const includeHiddenEmail = options.includeHiddenEmail || false;
+    const preferredField = fields.find((field) => field.type === 'email' && field.viewable)
       || fields.find((field) => field.type === 'text' && field.viewable)
       || fields.find((field) => field.type === 'tel' && field.viewable)
+      || null;
+
+    if (preferredField || !includeHiddenEmail) {
+      return preferredField;
+    }
+
+    return fields.find((field) => field.type === 'email')
       || null;
   }
 
@@ -255,7 +263,7 @@
       return 'changePassword';
     }
 
-    const preferredUsernameField = bitwardenPreferredUsernameField(pageDetails.fields);
+    const preferredUsernameField = bitwardenPreferredUsernameField(pageDetails.fields, { includeHiddenEmail: true });
     const preferredSavePasswordField = bitwardenPreferredSavePasswordField(pageDetails.fields);
 
     if (bitwardenLooksLikeSignupPage(
@@ -291,7 +299,7 @@
 
   function bitwardenBuildSaveLoginRequest() {
     const pageDetails = bitwardenCollectPageDetails();
-    const usernameField = bitwardenPreferredUsernameField(pageDetails.fields);
+    const usernameField = bitwardenPreferredUsernameField(pageDetails.fields, { includeHiddenEmail: true });
     const passwordField = bitwardenPreferredSavePasswordField(pageDetails.fields);
 
     return bitwardenBuildRequest("saveLogin", {

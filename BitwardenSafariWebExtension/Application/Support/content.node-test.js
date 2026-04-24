@@ -617,12 +617,37 @@ function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
   const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'signup-secret' });
   password.placeholder = 'Create password';
 
-  const ctx = makeEnvironment([username, email, confirmPassword, password]);
-  const built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+  let ctx = makeEnvironment([username, email, confirmPassword, password]);
+  let built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
 
   assert.equal(built.request.kind, 'saveLogin');
   assert.equal(built.request.username, 'user@example.com');
   assert.equal(built.request.password, 'signup-secret');
+
+  const hiddenEmail = createInput({ id: 'hidden-email', name: 'email', type: 'email', value: 'hidden-user@example.com', visible: false });
+  const hiddenSignupPassword = createInput({ id: 'signup-password', name: 'password', type: 'password', value: 'hidden-signup-secret' });
+  hiddenSignupPassword.placeholder = 'Create password';
+  const hiddenSignupConfirm = createInput({ id: 'signup-confirm', name: 'confirmPassword', type: 'password', value: 'hidden-signup-secret' });
+  hiddenSignupConfirm.placeholder = 'Confirm password';
+
+  ctx = makeEnvironment([hiddenEmail, hiddenSignupPassword, hiddenSignupConfirm], {
+    title: 'Create your account',
+    href: 'https://example.com/account/create/password',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.kind, 'saveLogin');
+  assert.equal(built.request.username, 'hidden-user@example.com');
+  assert.equal(built.request.password, 'hidden-signup-secret');
+
+  const hiddenText = createInput({ id: 'hidden-referral', name: 'referralCode', type: 'text', value: 'invite-code', visible: false });
+  ctx = makeEnvironment([hiddenText, hiddenSignupPassword, hiddenSignupConfirm], {
+    title: 'Create your account',
+    href: 'https://example.com/account/create/password',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.username, null);
 }
 
 function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
@@ -639,6 +664,17 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   const signupConfirm = createInput({ id: 'signup-confirm', name: 'confirmPassword', type: 'password', value: 'secret' });
   signupConfirm.placeholder = 'Confirm password';
   ctx = makeEnvironment([signupEmail, signupPassword, signupConfirm]);
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
+  const hiddenSignupEmail = createInput({ id: 'hidden-signup-email', name: 'email', type: 'email', value: 'hidden-user@example.com', visible: false });
+  const hiddenSignupPassword = createInput({ id: 'hidden-signup-password', name: 'password', type: 'password', value: 'secret' });
+  hiddenSignupPassword.placeholder = 'Create password';
+  const hiddenSignupConfirm = createInput({ id: 'hidden-signup-confirm', name: 'confirmPassword', type: 'password', value: 'secret' });
+  hiddenSignupConfirm.placeholder = 'Confirm password';
+  ctx = makeEnvironment([hiddenSignupEmail, hiddenSignupPassword, hiddenSignupConfirm], {
+    title: 'Create your account',
+    href: 'https://example.com/account/create/password',
+  });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
 
   ctx = makeEnvironment([loginUsername, loginPassword], {
