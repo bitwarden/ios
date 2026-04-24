@@ -55,6 +55,9 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     /// Whether the organization for the cipher supports TOTP.
     let organizationUseTotp: Bool
 
+    /// Passport data if the cipher is a passport.
+    let passport: CipherPassportModel?
+
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?
 

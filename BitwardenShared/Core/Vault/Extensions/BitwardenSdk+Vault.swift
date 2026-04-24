@@ -97,6 +97,7 @@ extension CipherDetailsResponseModel {
             notes: cipher.notes,
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
+            passport: cipher.passport.map(CipherPassportModel.init),
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
@@ -189,6 +190,29 @@ extension CipherLoginUriModel {
     }
 }
 
+extension CipherPassportModel {
+    init(passport: BitwardenSdk.Passport) {
+        self.init(
+            dobDay: passport.dobDay,
+            dobMonth: passport.dobMonth,
+            dobYear: passport.dobYear,
+            expirationDay: passport.expirationDay,
+            expirationMonth: passport.expirationMonth,
+            expirationYear: passport.expirationYear,
+            givenName: passport.givenName,
+            issueDay: passport.issueDay,
+            issueMonth: passport.issueMonth,
+            issueYear: passport.issueYear,
+            issuingAuthority: passport.issuingAuthority,
+            issuingCountry: passport.issuingCountry,
+            nationality: passport.nationality,
+            passportNumber: passport.passportNumber,
+            passportType: passport.passportType,
+            surname: passport.surname,
+        )
+    }
+}
+
 extension CipherPasswordHistoryModel {
     init(passwordHistory: BitwardenSdk.PasswordHistory) {
         self.init(
@@ -245,6 +269,8 @@ extension CipherType {
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -262,6 +288,8 @@ extension CipherType {
             self = .identity
         case .login:
             self = .login
+        case .passport:
+            self = .passport
         case .secureNote:
             self = .secureNote
         case .sshKey:
@@ -531,6 +559,8 @@ extension BitwardenSdk.CipherType {
             self = .sshKey
         case .bankAccount:
             self = .bankAccount
+        case .passport:
+            self = .passport
         }
     }
 }

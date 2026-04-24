@@ -14,6 +14,7 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.secureNote.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.sshKey.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.bankAccount.allowedFieldTypes, [.text, .hidden, .boolean])
+        XCTAssertEqual(CipherType.passport.allowedFieldTypes, [.text, .hidden, .boolean])
     }
 
     /// `localizedName` returns the correct values.
@@ -22,6 +23,7 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.card.localizedName, Localizations.typeCard)
         XCTAssertEqual(CipherType.identity.localizedName, Localizations.typeIdentity)
         XCTAssertEqual(CipherType.login.localizedName, Localizations.typeLogin)
+        XCTAssertEqual(CipherType.passport.localizedName, Localizations.passport)
         XCTAssertEqual(CipherType.secureNote.localizedName, Localizations.typeSecureNote)
         XCTAssertEqual(CipherType.sshKey.localizedName, Localizations.sshKey)
     }
