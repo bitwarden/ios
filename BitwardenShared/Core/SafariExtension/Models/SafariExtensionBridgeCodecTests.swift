@@ -84,7 +84,19 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
         let decoded = try JSONDecoder().decode(SafariExtensionBridgeResponse.self, from: XCTUnwrap(encoded.data(using: .utf8)))
 
         XCTAssertEqual(decoded.id, "req-1")
-        XCTAssertEqual(decoded.response.generatedPassword, "generated-secret")
+        XCTAssertEqual(decoded.response?.generatedPassword, "generated-secret")
         XCTAssertNil(decoded.errorMessage)
+    }
+
+    func test_encodeErrorResponse_returnsErrorOnlyJSONStringEnvelope() throws {
+        let encoded = try SafariExtensionBridgeCodec.encodeErrorResponse(
+            requestID: "req-error",
+            errorMessage: "Invalid native request payload."
+        )
+        let decoded = try JSONDecoder().decode(SafariExtensionBridgeResponse.self, from: XCTUnwrap(encoded.data(using: .utf8)))
+
+        XCTAssertEqual(decoded.id, "req-error")
+        XCTAssertNil(decoded.response)
+        XCTAssertEqual(decoded.errorMessage, "Invalid native request payload.")
     }
 }

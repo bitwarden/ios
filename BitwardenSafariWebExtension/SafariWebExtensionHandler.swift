@@ -22,15 +22,30 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     @MainActor
     func makeResponseItem(from userInfo: [String: Any]) async -> NSExtensionItem? {
         let rawMessage = userInfo[bridgeMessageUserInfoKey] ?? userInfo[SafariWebExtensionBridge.legacyMessageUserInfoKey]
-        guard let bridgeRequest = SafariExtensionBridgeCodec.decodeRequest(from: rawMessage),
-              let response = await requestProcessor.makeResponse(for: bridgeRequest.request) else {
-            return nil
+        let fallbackRequestID = (rawMessage as? [String: Any]).flatMap { $0["id"] as? String } ?? "invalid-request"
+
+        guard let bridgeRequest = SafariExtensionBridgeCodec.decodeRequest(from: rawMessage) else {
+            return makeBridgeItem(from: try? SafariExtensionBridgeCodec.encodeErrorResponse(
+                requestID: fallbackRequestID,
+                errorMessage: "Invalid native request payload.",
+            ))
         }
 
-        guard let message = try? SafariExtensionBridgeCodec.encodeResponse(
+        guard let response = await requestProcessor.makeAsyncResponse(for: bridgeRequest.request) else {
+            return makeBridgeItem(from: try? SafariExtensionBridgeCodec.encodeErrorResponse(
+                requestID: bridgeRequest.id,
+                errorMessage: "Couldn’t process Safari extension request.",
+            ))
+        }
+
+        return makeBridgeItem(from: try? SafariExtensionBridgeCodec.encodeResponse(
             requestID: bridgeRequest.id,
             response: response,
-        ) else {
+        ))
+    }
+
+    private func makeBridgeItem(from message: String?) -> NSExtensionItem? {
+        guard let message else {
             return nil
         }
 
