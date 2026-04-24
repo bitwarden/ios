@@ -184,7 +184,15 @@
   }
 
   function bitwardenRelevantSignupSignals(fields, forms, candidates = []) {
-    const candidateFormIDs = [...new Set(candidates.map((field) => field?.form).filter(Boolean))];
+    const candidateFields = candidates.filter(Boolean);
+    const candidateFormIDs = [...new Set(candidateFields.map((field) => field?.form).filter(Boolean))];
+    if (candidateFields.length > 0 && candidateFormIDs.length === 0) {
+      return {
+        fields: fields.filter((field) => !field.form),
+        forms: {},
+      };
+    }
+
     if (candidateFormIDs.length === 0) {
       return {
         fields,
