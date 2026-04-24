@@ -8,6 +8,7 @@ import Testing
 struct TOTPCountdownTimerTests {
     // MARK: Tests
 
+    /// `onExpiration` is called when the timer fires for a code whose generation date is in the past.
     @Test @MainActor
     func onExpiration_oldDate() async {
         await confirmation("onExpiration was called") { confirm in
