@@ -142,7 +142,7 @@
       || fields.find((field) => field.type === 'tel' && field.viewable)
       || null;
 
-    if (preferredField || !includeHiddenEmail || !bitwardenCanUseHiddenEmailUsername(fields)) {
+    if (preferredField || !includeHiddenEmail || !bitwardenCanUseHiddenEmailUsername(fields, options.document, options.forms)) {
       return preferredField;
     }
 
@@ -150,12 +150,16 @@
       || null;
   }
 
-  function bitwardenCanUseHiddenEmailUsername(fields) {
+  function bitwardenCanUseHiddenEmailUsername(fields, document = window.document, forms = {}) {
     const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
-    return passwordFields.some((field) => {
+    if (passwordFields.some((field) => {
       const role = bitwardenPasswordFieldRole(field);
       return role === 'new' || role === 'confirm';
-    });
+    })) {
+      return true;
+    }
+
+    return passwordFields.length > 0 && bitwardenLooksLikeAccountSetupPage(document, forms);
   }
 
   function bitwardenPreferredSavePasswordField(fields) {
@@ -222,6 +226,13 @@
     };
   }
 
+  function bitwardenLooksLikeAccountSetupPage(document = window.document, forms = {}) {
+    const accountSetupSource = [bitwardenFormsText(forms), bitwardenPageText(document)]
+      .filter((value) => typeof value === 'string' && value.length > 0)
+      .join(' ');
+    return /(accept invitation|invitation|activate account|activation|set password)/.test(accountSetupSource);
+  }
+
   function bitwardenLooksLikePasswordResetPage(fields, document = window.document, forms = {}) {
     const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
     const hasNewPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'new');
@@ -271,7 +282,11 @@
       return 'changePassword';
     }
 
-    const preferredUsernameField = bitwardenPreferredUsernameField(pageDetails.fields, { includeHiddenEmail: true });
+    const preferredUsernameField = bitwardenPreferredUsernameField(pageDetails.fields, {
+      includeHiddenEmail: true,
+      document,
+      forms: pageDetails.forms,
+    });
     const preferredSavePasswordField = bitwardenPreferredSavePasswordField(pageDetails.fields);
 
     if (bitwardenLooksLikeSignupPage(
@@ -307,7 +322,11 @@
 
   function bitwardenBuildSaveLoginRequest() {
     const pageDetails = bitwardenCollectPageDetails();
-    const usernameField = bitwardenPreferredUsernameField(pageDetails.fields, { includeHiddenEmail: true });
+    const usernameField = bitwardenPreferredUsernameField(pageDetails.fields, {
+      includeHiddenEmail: true,
+      document,
+      forms: pageDetails.forms,
+    });
     const passwordField = bitwardenPreferredSavePasswordField(pageDetails.fields);
 
     return bitwardenBuildRequest("saveLogin", {
