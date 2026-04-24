@@ -643,6 +643,10 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
 
+  const signupButton = createInput({ id: 'create-account', name: 'createAccount', type: 'submit', value: 'Create account' });
+  ctx = makeEnvironment([loginUsername, loginPassword, signupButton]);
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
   const signupForm = createForm({
     id: 'signup-form',
     name: 'signup',

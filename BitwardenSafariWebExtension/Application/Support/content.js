@@ -150,7 +150,7 @@
   }
 
   function bitwardenFieldText(field) {
-    return [field.htmlID, field.htmlName, field['label-tag'], field['label-left'], field.placeholder]
+    return [field.htmlID, field.htmlName, field['label-tag'], field['label-left'], field.placeholder, field.value]
       .filter((value) => typeof value === 'string' && value.length > 0)
       .join(' ')
       .toLowerCase();
