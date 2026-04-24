@@ -1062,3 +1062,28 @@
 "CopyUserID" = "Copy user ID";
 "UserIDUnavailable" = "User ID unavailable";
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
+
+/* PM-32009: New Item Types — Bank Account */
+"TypeBankAccount" = "Bank account";
+"NewBankAccount" = "New bank account";
+"EditBankAccount" = "Edit bank account";
+"ViewBankAccount" = "View bank account";
+"BankAccounts" = "Bank accounts";
+"BankAccountDetails" = "Bank account details";
+"BankName" = "Bank name";
+"NameOnAccount" = "Name on account";
+"AccountType" = "Account type";
+"AccountNumber" = "Account number";
+"RoutingNumber" = "Routing number";
+"BranchNumber" = "Branch number";
+"SwiftCode" = "SWIFT code";
+"Iban" = "IBAN";
+"BankContactPhone" = "Bank contact phone";
+
+/* Bank account types */
+"Checking" = "Checking";
+"Savings" = "Savings";
+"CertificateOfDeposit" = "Certificate of deposit (CD)";
+"LineOfCredit" = "Line of credit";
+"InvestmentBrokerage" = "Investment / brokerage";
+"MoneyMarket" = "Money market";

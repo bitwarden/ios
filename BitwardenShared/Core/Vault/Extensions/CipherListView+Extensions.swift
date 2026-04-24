@@ -40,6 +40,10 @@ extension CipherListView {
         switch group {
         case .archive:
             archivedDate != nil
+        case .bankAccount:
+            // TODO: PM-32009 Blocked on SDK — match `type == .bankAccount` (using
+            // `BitwardenSdk.CipherListViewType.bankAccount`) once the SDK exposes it.
+            false
         case .card:
             type.isCard
         case let .collection(id, _, _):

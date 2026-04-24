@@ -60,9 +60,13 @@ extension CipherCardModel {
 extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
+        // TODO: PM-32009 Blocked on SDK — map cipher.bankAccount to CipherBankAccountModel once
+        // BitwardenSdk.Cipher exposes a `bankAccount: BankAccount?` property.
+        let bankAccount: CipherBankAccountModel? = nil
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
+            bankAccount: bankAccount,
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
@@ -218,6 +222,8 @@ extension CipherSSHKeyModel {
 
 extension CipherType {
     init(type: BitwardenSdk.CipherType) {
+        // TODO: PM-32009 Blocked on SDK — add a `case .bankAccount` arm once
+        // BitwardenSdk.CipherType exposes `bankAccount`.
         switch type {
         case .card:
             self = .card
@@ -233,6 +239,8 @@ extension CipherType {
     }
 
     init(_ type: BitwardenSdk.CipherListViewType) {
+        // TODO: PM-32009 Blocked on SDK — add a `case .bankAccount` arm once
+        // BitwardenSdk.CipherListViewType exposes `bankAccount`.
         switch type {
         case .card:
             self = .card
@@ -507,6 +515,13 @@ extension BitwardenSdk.CipherType {
             self = .identity
         case .sshKey:
             self = .sshKey
+        case .bankAccount:
+            // TODO: PM-32009 Blocked on SDK — map `.bankAccount` to the corresponding
+            // `BitwardenSdk.CipherType.bankAccount` case once the SDK exposes it. Until then,
+            // this path is unreachable in practice because the `newItemTypes` feature flag is
+            // off by default and gates creation of bank account ciphers. Fallback mapping to
+            // `.secureNote` is defensive only.
+            self = .secureNote
         }
     }
 }

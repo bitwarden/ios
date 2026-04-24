@@ -17,6 +17,11 @@ extension Cipher {
         switch group {
         case .archive:
             archivedDate != nil
+        case .bankAccount:
+            // TODO: PM-32009 Blocked on SDK — match `type == .bankAccount` (using
+            // `BitwardenSdk.CipherType.bankAccount`) once the SDK exposes it. Until then, no
+            // encrypted ciphers report as bank accounts.
+            false
         case .card:
             type == .card
         case let .collection(id, _, _):
