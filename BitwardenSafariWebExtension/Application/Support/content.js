@@ -88,6 +88,7 @@
         opid,
         placeholder: bitwardenTrimmedValue(element.getAttribute("placeholder")),
         readOnly: element.readOnly || false,
+        text: bitwardenTrimmedValue(element.innerText || element.textContent),
         type: bitwardenFieldType(element),
         value: bitwardenTrimmedValue(element.value),
         viewable: bitwardenIsVisible(element),
@@ -157,8 +158,8 @@
   }
 
   function bitwardenSignupFieldText(field) {
-    const supplementalText = field.viewable && /^(submit|button)$/i.test(field.type || '')
-      ? [field.value]
+    const supplementalText = field.viewable && /^submit$/i.test(field.type || '')
+      ? [field.value, field.text]
       : [];
 
     return [bitwardenFieldText(field), ...supplementalText]

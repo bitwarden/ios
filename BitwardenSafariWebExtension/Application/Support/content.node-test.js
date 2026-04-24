@@ -39,6 +39,13 @@ function createForm({ id, name, action, method = 'post' }) {
   };
 }
 
+function createButton({ id, name, type = 'submit', textContent = '', value = '', visible = true }) {
+  const element = createInput({ id, name, type, value, visible });
+  element.textContent = textContent;
+  element.innerText = textContent;
+  return element;
+}
+
 function makeEnvironment(elements, options = {}) {
   const dispatchedEvents = [];
   const title = options.title || 'Example';
@@ -646,6 +653,14 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
   const signupButton = createInput({ id: 'create-account', name: 'createAccount', type: 'submit', value: 'Create account' });
   ctx = makeEnvironment([loginUsername, loginPassword, signupButton]);
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
+  const signupButtonElement = createButton({ id: 'create-account-button', name: 'createAccountButton', textContent: 'Create account' });
+  ctx = makeEnvironment([loginUsername, loginPassword, signupButtonElement]);
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
+  const accountCtaButton = createButton({ id: 'account-cta', name: 'accountCta', type: 'button', textContent: 'Create account' });
+  ctx = makeEnvironment([loginUsername, loginPassword, accountCtaButton]);
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
 
   const hiddenSignupMarker = createInput({ id: 'flow', name: 'flow', type: 'hidden', value: 'Create account' });
   ctx = makeEnvironment([loginUsername, loginPassword, hiddenSignupMarker]);
