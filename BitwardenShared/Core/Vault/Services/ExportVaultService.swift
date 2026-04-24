@@ -233,9 +233,9 @@ class DefaultExportVaultService: ExportVaultService {
             // be mapped to an app-layer `CipherType` (unknown/future case), treat it
             // as unrestricted so export doesn't silently drop it — PM-32813
             // backward-compat will formalize unknown-type handling.
-            let appType = BitwardenShared.CipherType(type: cipher.type)
-            return cipher.organizationId == nil
-                && (appType == nil || !restrictedTypes.contains(appType!))
+            let isRestricted = BitwardenShared.CipherType(type: cipher.type)
+                .map { restrictedTypes.contains($0) } ?? false
+            return cipher.organizationId == nil && !isRestricted
         }
     }
 

@@ -748,28 +748,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
-        // Fail-closed guard for PM-32009: reject saves for cipher types whose SDK
-        // representation is not yet available. Without this, `newCipherView()` falls
-        // back to `.secureNote` on the SDK conversion, which would silently persist
-        // the item as an empty Secure Note. The `newItemTypes` feature flag should
-        // already prevent reaching this code path until the SDK is ready, but this
-        // belt-and-suspenders guard makes the invariant explicit.
-        if state.type == .bankAccount, !NewItemTypesSdkBridge.isBankAccountAvailable {
-            coordinator.showAlert(
-                .defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: Localizations.anErrorHasOccurred,
-                ),
-            )
-            services.errorReporter.log(error: BitwardenError.generalError(
-                type: "Save item blocked",
-                message: "Attempted to save a Bank Account cipher before SDK support is available " +
-                    "(PM-32009). The newItemTypes feature flag should not be enabled until the " +
-                    "BitwardenSdk dependency is bumped and " +
-                    "NewItemTypesSdkBridge.isBankAccountAvailable is set to true.",
-            ))
-            return
-        }
+        guard guardSDKReady() else { return }
 
         defer { coordinator.hideLoadingOverlay() }
         do {
@@ -803,6 +782,39 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Fail-closed guard for PM-32009: blocks saves for cipher types whose SDK
+    /// representation is not yet available. Without this, `newCipherView()` falls
+    /// back to `.secureNote` on the SDK conversion, which would silently persist the
+    /// item as an empty Secure Note. The `newItemTypes` feature flag should already
+    /// prevent reaching this code path until the SDK is ready; this belt-and-
+    /// suspenders guard makes the invariant explicit. The alert body uses a distinct
+    /// localization key so tests and debuggers can tell this failure apart from
+    /// generic errors.
+    ///
+    /// - Returns: `true` when the SDK supports the current `state.type` and the save
+    ///   may proceed; `false` when the save was rejected and an alert + telemetry
+    ///   entry were dispatched.
+    ///
+    private func guardSDKReady() -> Bool {
+        guard state.type == .bankAccount, !NewItemTypesSdkBridge.isBankAccountAvailable else {
+            return true
+        }
+        coordinator.showAlert(
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thisItemTypeIsNotYetAvailableTryAgainInALaterVersion,
+            ),
+        )
+        services.errorReporter.log(error: BitwardenError.generalError(
+            type: "Save item blocked",
+            message: "Attempted to save a Bank Account cipher before SDK support is available " +
+                "(PM-32009). The newItemTypes feature flag should not be enabled until the " +
+                "BitwardenSdk dependency is bumped and " +
+                "NewItemTypesSdkBridge.isBankAccountAvailable is set to true.",
+        ))
+        return false
     }
 
     /// Adds the item currently in `state`.

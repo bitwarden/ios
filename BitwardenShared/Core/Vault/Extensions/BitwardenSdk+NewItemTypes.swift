@@ -1,7 +1,6 @@
 // swiftlint:disable:this file_name
 
 import BitwardenSdk
-import Foundation
 
 // MARK: - NewItemTypesSdkBridge
 
@@ -49,8 +48,7 @@ enum NewItemTypesSdkBridge {
     static func sdkCipherTypeForBankAccount() -> BitwardenSdk.CipherType? {
         // TODO: PM-32009 Blocked on SDK — return `.bankAccount` once BitwardenSdk ships
         // the case. Until then, return nil so callers fail closed.
-        guard isBankAccountAvailable else { return nil }
-        return nil
+        nil
     }
 
     /// Maps a `BitwardenSdk.CipherType` to the app-layer `CipherType.bankAccount` if

@@ -1080,6 +1080,12 @@
 "Iban" = "IBAN";
 "BankContactPhone" = "Bank contact phone";
 
+/* Displayed when a save is attempted for a cipher type that is not yet supported by
+   the current build — e.g., a Bank Account save while the BitwardenSdk dependency has
+   not yet been bumped. Distinct from `AnErrorHasOccurred` so tests and debuggers can
+   tell the failure apart from generic errors. */
+"ThisItemTypeIsNotYetAvailableTryAgainInALaterVersion" = "This item type is not yet available. Try again in a later version of Bitwarden.";
+
 /* Bank account types */
 "Checking" = "Checking";
 "Savings" = "Savings";
