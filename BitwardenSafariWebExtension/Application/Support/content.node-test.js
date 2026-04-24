@@ -324,8 +324,14 @@ async function testApplyStatusBanner() {
   assert.ok(buttons);
   assert.equal(title.textContent, 'Save login');
   assert.equal(subtitle.textContent, 'Save this login to Bitwarden.');
-  assert.equal(buttons.querySelector('[data-bitwarden-action-primary]').textContent, 'Save in Bitwarden');
-  assert.equal(buttons.querySelector('[data-bitwarden-action-dismiss]').textContent, 'Not now');
+  const primary = buttons.querySelector('[data-bitwarden-action-primary]');
+  const dismiss = buttons.querySelector('[data-bitwarden-action-dismiss]');
+  assert.equal(primary.textContent, 'Save in Bitwarden');
+  assert.equal(dismiss.textContent, 'Not now');
+  assert.equal(buttons.style.display, 'flex');
+  assert.equal(primary.style.background, 'rgba(0, 122, 255, 1)');
+  assert.equal(primary.style.color, '#fff');
+  assert.equal(dismiss.style.background, 'rgba(120, 120, 128, 0.12)');
 }
 
 async function testApplyStatusBanner_doesNotReopenPanelForConfirmedAction() {
