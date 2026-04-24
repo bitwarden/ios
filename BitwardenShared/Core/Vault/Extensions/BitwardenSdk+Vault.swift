@@ -74,6 +74,24 @@ extension CipherCardModel {
     }
 }
 
+extension CipherDriversLicenseModel {
+    init(driversLicense: BitwardenSdk.DriversLicense) {
+        self.init(
+            dateOfBirth: driversLicense.dateOfBirth,
+            expirationDate: driversLicense.expirationDate,
+            firstName: driversLicense.firstName,
+            issueDate: driversLicense.issueDate,
+            issuingAuthority: driversLicense.issuingAuthority,
+            issuingCountry: driversLicense.issuingCountry,
+            issuingState: driversLicense.issuingState,
+            lastName: driversLicense.lastName,
+            licenseClass: driversLicense.licenseClass,
+            licenseNumber: driversLicense.licenseNumber,
+            middleName: driversLicense.middleName,
+        )
+    }
+}
+
 extension CipherDetailsResponseModel {
     init(cipher: BitwardenSdk.Cipher) throws {
         guard let id = cipher.id else { throw DataMappingError.invalidData }
@@ -85,7 +103,7 @@ extension CipherDetailsResponseModel {
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
-            driversLicense: nil, // TODO: PM-32807
+            driversLicense: cipher.driversLicense.map(CipherDriversLicenseModel.init),
             edit: cipher.edit,
             favorite: cipher.favorite,
             fields: cipher.fields?.map(CipherFieldModel.init),
@@ -244,8 +262,7 @@ extension CipherType {
         case .card:
             self = .card
         case .driversLicense:
-            // TODO: PM-32807
-            self = .identity
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -267,8 +284,7 @@ extension CipherType {
         case .card:
             self = .card
         case .driversLicense:
-            // TODO: PM-32807
-            self = .identity
+            self = .driversLicense
         case .identity:
             self = .identity
         case .login:
@@ -554,6 +570,8 @@ extension BitwardenSdk.CipherType {
             self = .sshKey
         case .bankAccount:
             self = .bankAccount
+        case .driversLicense:
+            self = .driversLicense
         }
     }
 }
