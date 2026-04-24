@@ -610,7 +610,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try assertInlineSnapshot(of: XCTUnwrap(publishedSections).dump(), as: .lines) {
             """
             Section[]: 
-              - TOTP: 2 Example 123 456 
+              - TOTP: 2 Example 123 456
             """
         }
     }

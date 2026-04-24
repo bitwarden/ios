@@ -1,7 +1,6 @@
-import Foundation
 import XCTest
 
-@testable import AuthenticatorShared
+@testable import BitwardenKit
 
 final class TOTPCodeModelTests: BitwardenTestCase {
     // MARK: Tests

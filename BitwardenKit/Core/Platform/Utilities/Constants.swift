@@ -27,6 +27,10 @@ public enum Constants {
     /// The search debounce time in nanoseconds.
     public static let searchDebounceTimeInNS: UInt64 = 200_000_000 // 200ms
 
+    /// The number of seconds remaining on a TOTP code at which the countdown
+    /// circle transitions from its normal color to the urgent color.
+    public static let totpUrgentCountdownThreshold = 7
+
     /// The default file name when the file name cannot be determined.
     public static let unknownFileName = "unknown_file_name"
 }

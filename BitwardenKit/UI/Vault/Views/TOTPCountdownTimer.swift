@@ -1,9 +1,9 @@
-import BitwardenKit
+import BitwardenResources
 import SwiftUI
 
 // MARK: - TOTPCountdownTimer
 
-/// A countdown timer for a TOTP Code.
+/// A countdown timer for a TOTP code.
 ///     Used to manage the state for a `TOTPCountdownTimerView`.
 ///
 class TOTPCountdownTimer: ObservableObject {
@@ -13,7 +13,7 @@ class TOTPCountdownTimer: ObservableObject {
     ///
     @Published var displayTime: String?
 
-    /// A closure to call on expiration
+    /// A closure to call on expiration.
     ///
     var onExpiration: (() -> Void)?
 
@@ -60,9 +60,11 @@ class TOTPCountdownTimer: ObservableObject {
         TOTPExpirationCalculator.remainingSeconds(for: timeProvider.presentTime, using: period)
     }
 
-    /// Initializes a new countdown timer
+    // MARK: Initialization
+
+    /// Initializes a new countdown timer.
     ///
-    /// - Parameters
+    /// - Parameters:
     ///   - timeProvider: A protocol providing the present time as a `Date`.
     ///         Used to calculate time remaining for a present TOTP code.
     ///   - timerInterval: The interval for the timer to check for expirations.
@@ -94,12 +96,24 @@ class TOTPCountdownTimer: ObservableObject {
         cleanup()
     }
 
+    // MARK: Methods
+
     /// Invalidates and removes the timer for expiration management.
     ///
     func cleanup() {
         timer?.invalidate()
         timer = nil
     }
+
+    /// Returns the color to use for the countdown circle based on seconds remaining.
+    ///
+    func timerColor() -> Color {
+        secondsRemaining <= Constants.totpUrgentCountdownThreshold
+            ? SharedAsset.Colors.error.swiftUIColor
+            : SharedAsset.Colors.tintPrimary.swiftUIColor
+    }
+
+    // MARK: Private Methods
 
     /// Updates the countdown timer value.
     ///
