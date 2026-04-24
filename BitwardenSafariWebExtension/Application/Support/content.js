@@ -406,6 +406,7 @@
     switch (response?.submissionAction) {
       case "saveNewLogin":
         return {
+          eyebrow: 'Review before saving',
           title: "Save login",
           subtitle: response.userMessage || "Save this login to Bitwarden.",
           primaryLabel: "Save in Bitwarden",
@@ -413,6 +414,7 @@
         };
       case "updateExistingLogin":
         return {
+          eyebrow: 'Review before updating',
           title: "Update login",
           subtitle: response.userMessage || "Update the existing Bitwarden login with these changes.",
           primaryLabel: "Update in Bitwarden",
@@ -420,6 +422,7 @@
         };
       case "updatePassword":
         return {
+          eyebrow: 'Review before updating',
           title: "Update password",
           subtitle: response.userMessage || "Update the password for this Bitwarden login.",
           primaryLabel: "Update in Bitwarden",
@@ -518,6 +521,10 @@
     panel.dataset.bitwardenActionKind = response.submissionAction;
     panel.role = 'dialog';
 
+    const eyebrow = document.createElement('div');
+    eyebrow.dataset.bitwardenActionEyebrow = 'true';
+    eyebrow.textContent = content.eyebrow || '';
+
     const title = document.createElement('div');
     title.dataset.bitwardenActionTitle = 'true';
     title.textContent = content.title;
@@ -587,6 +594,7 @@
     if (typeof panel.appendChild === 'function') {
       buttons.appendChild(primaryButton);
       buttons.appendChild(dismissButton);
+      panel.appendChild(eyebrow);
       panel.appendChild(title);
       panel.appendChild(subtitle);
       panel.appendChild(buttons);
