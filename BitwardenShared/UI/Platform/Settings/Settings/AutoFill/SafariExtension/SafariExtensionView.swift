@@ -25,7 +25,15 @@ struct SafariExtensionView: View {
     }
 
     private var statusLabel: String {
-        store.state.extensionEnabled ? "Enabled" : "Not enabled"
+        if store.state.extensionEnabled {
+            return "Enabled"
+        }
+
+        if store.state.extensionActivated {
+            return "Almost done"
+        }
+
+        return "Not enabled"
     }
 
     private var nextStepMessage: String {
