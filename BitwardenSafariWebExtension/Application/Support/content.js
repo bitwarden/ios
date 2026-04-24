@@ -183,19 +183,35 @@
       .toLowerCase();
   }
 
-  function bitwardenLooksLikeSignupPage(fields, document = window.document, forms = {}) {
-    const passwordFields = fields.filter((field) => field.type === 'password' && field.viewable);
+  function bitwardenRelevantSignupSignals(fields, forms, candidates = []) {
+    const candidateFormIDs = [...new Set(candidates.map((field) => field?.form).filter(Boolean))];
+    if (candidateFormIDs.length === 0) {
+      return {
+        fields,
+        forms,
+      };
+    }
+
+    return {
+      fields: fields.filter((field) => candidateFormIDs.includes(field.form)),
+      forms: Object.fromEntries(Object.entries(forms || {}).filter(([, form]) => candidateFormIDs.includes(form?.opid))),
+    };
+  }
+
+  function bitwardenLooksLikeSignupPage(fields, document = window.document, forms = {}, candidates = []) {
+    const signupSignals = bitwardenRelevantSignupSignals(fields, forms, candidates);
+    const passwordFields = signupSignals.fields.filter((field) => field.type === 'password' && field.viewable);
     const hasConfirmPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'confirm');
     const hasNewPassword = passwordFields.some((field) => bitwardenPasswordFieldRole(field) === 'new');
     if (hasConfirmPassword || hasNewPassword) {
       return true;
     }
 
-    if (fields.some((field) => /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenSignupFieldText(field)))) {
+    if (signupSignals.fields.some((field) => /(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenSignupFieldText(field)))) {
       return true;
     }
 
-    if (/(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenFormsText(forms))) {
+    if (/(sign[ -]?up|create( your)? account|register account|join bitwarden|new account)/.test(bitwardenFormsText(signupSignals.forms))) {
       return true;
     }
 
@@ -213,9 +229,17 @@
       return 'changePassword';
     }
 
-    if (bitwardenLooksLikeSignupPage(pageDetails.fields, document, pageDetails.forms)
-      && bitwardenPreferredUsernameField(pageDetails.fields)
-      && bitwardenPreferredSavePasswordField(pageDetails.fields)) {
+    const preferredUsernameField = bitwardenPreferredUsernameField(pageDetails.fields);
+    const preferredSavePasswordField = bitwardenPreferredSavePasswordField(pageDetails.fields);
+
+    if (bitwardenLooksLikeSignupPage(
+      pageDetails.fields,
+      document,
+      pageDetails.forms,
+      [preferredUsernameField, preferredSavePasswordField],
+    )
+      && preferredUsernameField
+      && preferredSavePasswordField) {
       return 'saveLogin';
     }
 
