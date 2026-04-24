@@ -682,6 +682,30 @@ function testBuildSaveLoginRequest_prefersEmailAndIgnoresConfirmPassword() {
   built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
 
   assert.equal(built.request.username, null);
+
+  const activateAccountEmail = createInput({ id: 'activate-account-email-hidden', name: 'email', type: 'email', value: 'activate-user@example.com', visible: false });
+  const activateAccountPassword = createInput({ id: 'activate-account-password-visible', name: 'password', type: 'password', value: 'activate-secret' });
+  activateAccountPassword.placeholder = 'Password';
+  ctx = makeEnvironment([activateAccountEmail, activateAccountPassword], {
+    title: 'Activate your account',
+    href: 'https://example.com/account/activate',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.username, 'activate-user@example.com');
+  assert.equal(built.request.password, 'activate-secret');
+
+  const completeAccountEmail = createInput({ id: 'complete-account-email-hidden', name: 'email', type: 'email', value: 'complete-user@example.com', visible: false });
+  const completeAccountPassword = createInput({ id: 'complete-account-password-visible', name: 'password', type: 'password', value: 'complete-secret' });
+  completeAccountPassword.placeholder = 'Password';
+  ctx = makeEnvironment([completeAccountEmail, completeAccountPassword], {
+    title: 'Complete your account',
+    href: 'https://example.com/account/complete',
+  });
+  built = ctx.window.bitwardenSafariWebExtension.buildSaveLoginRequest();
+
+  assert.equal(built.request.username, 'complete-user@example.com');
+  assert.equal(built.request.password, 'complete-secret');
 }
 
 function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
@@ -737,6 +761,24 @@ function testSuggestPageAction_detectsLoginSignupAndPasswordChange() {
     href: 'https://example.com/activation/check',
   });
   assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'fill');
+
+  const activateAccountEmail = createInput({ id: 'activate-account-email', name: 'email', type: 'email', value: 'activate-user@example.com', visible: false });
+  const activateAccountPassword = createInput({ id: 'activate-account-password', name: 'password', type: 'password', value: 'secret' });
+  activateAccountPassword.placeholder = 'Password';
+  ctx = makeEnvironment([activateAccountEmail, activateAccountPassword], {
+    title: 'Activate your account',
+    href: 'https://example.com/account/activate',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
+
+  const completeAccountEmail = createInput({ id: 'complete-account-email', name: 'email', type: 'email', value: 'complete-user@example.com', visible: false });
+  const completeAccountPassword = createInput({ id: 'complete-account-password', name: 'password', type: 'password', value: 'secret' });
+  completeAccountPassword.placeholder = 'Password';
+  ctx = makeEnvironment([completeAccountEmail, completeAccountPassword], {
+    title: 'Complete your account',
+    href: 'https://example.com/account/complete',
+  });
+  assert.equal(ctx.window.bitwardenSafariWebExtension.suggestPageAction(), 'saveLogin');
 
   ctx = makeEnvironment([loginUsername, loginPassword], {
     title: 'Create your account',
