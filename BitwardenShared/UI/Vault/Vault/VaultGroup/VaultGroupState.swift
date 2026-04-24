@@ -76,7 +76,11 @@ struct VaultGroupState: Equatable, Sendable {
     var iconBaseURL: URL?
 
     /// List of available item type for creation.
-    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
+    ///
+    /// Seeded with the flag-off baseline; the processor replaces this from
+    /// `VaultRepository.getItemTypesUserCanCreate()` on appearance, which reads the
+    /// `newItemTypes` feature flag.
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCasesBase
 
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false

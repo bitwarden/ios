@@ -13,6 +13,7 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.identity.allowedFieldTypes, [.text, .hidden, .boolean, .linked])
         XCTAssertEqual(CipherType.secureNote.allowedFieldTypes, [.text, .hidden, .boolean])
         XCTAssertEqual(CipherType.sshKey.allowedFieldTypes, [.text, .hidden, .boolean])
+        XCTAssertEqual(CipherType.bankAccount.allowedFieldTypes, [.text, .hidden, .boolean])
     }
 
     /// `localizedName` returns the correct values.
@@ -22,6 +23,7 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType.login.localizedName, Localizations.typeLogin)
         XCTAssertEqual(CipherType.secureNote.localizedName, Localizations.typeSecureNote)
         XCTAssertEqual(CipherType.sshKey.localizedName, Localizations.sshKey)
+        XCTAssertEqual(CipherType.bankAccount.localizedName, Localizations.typeBankAccount)
     }
 
     /// `init` with a `VaultListGroup` produces the correct value.
@@ -33,12 +35,44 @@ class CipherTypeTests: BitwardenTestCase {
         XCTAssertEqual(CipherType(group: .login), .login)
         XCTAssertEqual(CipherType(group: .secureNote), .secureNote)
         XCTAssertEqual(CipherType(group: .sshKey), .sshKey)
+        XCTAssertEqual(CipherType(group: .bankAccount), .bankAccount)
         XCTAssertNil(CipherType(group: .archive))
         XCTAssertNil(CipherType(group: .trash))
     }
 
-    /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
-    func test_canCreateCases() {
-        XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote])
+    /// `canCreateCasesBase` preserves today's flag-off creation set.
+    func test_canCreateCasesBase() {
+        XCTAssertEqual(CipherType.canCreateCasesBase, [.login, .card, .identity, .secureNote])
+    }
+
+    /// `canCreateCasesWithNewItemTypes` extends the base set with the PM-32009 types.
+    func test_canCreateCasesWithNewItemTypes() {
+        XCTAssertEqual(
+            CipherType.canCreateCasesWithNewItemTypes,
+            [.login, .card, .identity, .secureNote, .bankAccount],
+        )
+    }
+
+    /// `canCreateCases(isNewItemTypesEnabled:)` returns the base set when the flag is off and
+    /// adds Bank Account when the flag is on.
+    func test_canCreateCases_withFlag() {
+        XCTAssertEqual(
+            CipherType.canCreateCases(isNewItemTypesEnabled: false),
+            [.login, .card, .identity, .secureNote],
+        )
+        XCTAssertEqual(
+            CipherType.canCreateCases(isNewItemTypesEnabled: true),
+            [.login, .card, .identity, .secureNote, .bankAccount],
+        )
+        // The flag-off list never contains `.bankAccount`.
+        XCTAssertFalse(CipherType.canCreateCases(isNewItemTypesEnabled: false).contains(.bankAccount))
+    }
+
+    /// `allCases` returns every app-layer cipher type in a stable order.
+    func test_allCases() {
+        XCTAssertEqual(
+            CipherType.allCases,
+            [.login, .card, .identity, .secureNote, .sshKey, .bankAccount],
+        )
     }
 }

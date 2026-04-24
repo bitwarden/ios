@@ -89,7 +89,10 @@ extension CipherDetailsResponseModel {
             revisionDate: cipher.revisionDate,
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
             sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
-            type: BitwardenShared.CipherType(type: cipher.type),
+            // Unknown SDK cipher types fall back to `.secureNote` on decode so
+            // pre-PM-32813 users see an opaque item rather than a crash. The
+            // backward-compat PR formalizes the "Unknown" display story.
+            type: BitwardenShared.CipherType(type: cipher.type) ?? .secureNote,
             viewPassword: cipher.viewPassword,
         )
     }
@@ -221,9 +224,16 @@ extension CipherSSHKeyModel {
 }
 
 extension CipherType {
-    init(type: BitwardenSdk.CipherType) {
-        // TODO: PM-32009 Blocked on SDK — add a `case .bankAccount` arm once
-        // BitwardenSdk.CipherType exposes `bankAccount`.
+    /// Creates an app-layer `CipherType` from a `BitwardenSdk.CipherType`.
+    ///
+    /// Fails (`nil`) when the SDK value is unknown to the app — either a future SDK case
+    /// not yet mapped (e.g., `.bankAccount` while PM-32009 SDK work is pending) or a
+    /// later SDK bump that adds unmapped cases. Callers must handle `nil` rather than
+    /// assume an exhaustive mapping.
+    ///
+    /// - Parameter type: The SDK cipher type to bridge into the app layer.
+    ///
+    init?(type: BitwardenSdk.CipherType) {
         switch type {
         case .card:
             self = .card
@@ -235,12 +245,26 @@ extension CipherType {
             self = .secureNote
         case .sshKey:
             self = .sshKey
+        @unknown default:
+            // Route through the centralized bridge so PM-32009 and future new-type
+            // PRs flip a single switch (`NewItemTypesSdkBridge.isBankAccountAvailable`
+            // et al.) rather than updating call sites.
+            if let mapped = NewItemTypesSdkBridge.appCipherTypeForBankAccount(type) {
+                self = mapped
+                return
+            }
+            return nil
         }
     }
 
-    init(_ type: BitwardenSdk.CipherListViewType) {
-        // TODO: PM-32009 Blocked on SDK — add a `case .bankAccount` arm once
-        // BitwardenSdk.CipherListViewType exposes `bankAccount`.
+    /// Creates an app-layer `CipherType` from a `BitwardenSdk.CipherListViewType`.
+    ///
+    /// Fails (`nil`) when the SDK value is unknown — see `init?(type:)` above for
+    /// rationale.
+    ///
+    /// - Parameter type: The SDK list view type to bridge into the app layer.
+    ///
+    init?(_ type: BitwardenSdk.CipherListViewType) {
         switch type {
         case .card:
             self = .card
@@ -252,6 +276,12 @@ extension CipherType {
             self = .secureNote
         case .sshKey:
             self = .sshKey
+        @unknown default:
+            if NewItemTypesSdkBridge.isBankAccountListViewType(type) {
+                self = .bankAccount
+                return
+            }
+            return nil
         }
     }
 }
@@ -344,7 +374,12 @@ extension BitwardenSdk.Cipher {
             key: model.key,
             name: model.name,
             notes: model.notes,
-            type: BitwardenSdk.CipherType(model.type),
+            // Fails closed when the app-layer `model.type` is not yet supported by
+            // the SDK (e.g., `.bankAccount` before PM-32009 SDK readiness). The
+            // `.secureNote` fallback is defensive only — the repository / save flow
+            // must reject unsupported types upstream; an `assertionFailure` in
+            // `BitwardenSdk.CipherType.init?(_:)` trips in Debug if reached.
+            type: BitwardenSdk.CipherType(model.type) ?? .secureNote,
             login: model.login.map(Login.init),
             identity: model.identity.map(Identity.init),
             card: model.card.map(Card.init),
@@ -389,7 +424,12 @@ extension BitwardenSdk.Cipher {
             key: model.key,
             name: model.name,
             notes: model.notes,
-            type: BitwardenSdk.CipherType(model.type),
+            // Fails closed when the app-layer `model.type` is not yet supported by
+            // the SDK (e.g., `.bankAccount` before PM-32009 SDK readiness). The
+            // `.secureNote` fallback is defensive only — the repository / save flow
+            // must reject unsupported types upstream; an `assertionFailure` in
+            // `BitwardenSdk.CipherType.init?(_:)` trips in Debug if reached.
+            type: BitwardenSdk.CipherType(model.type) ?? .secureNote,
             login: model.login.map(Login.init),
             identity: model.identity.map(Identity.init),
             card: model.card.map(Card.init),
@@ -503,7 +543,19 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiabl
 }
 
 extension BitwardenSdk.CipherType {
-    init(_ cipherType: CipherType) {
+    /// Creates a `BitwardenSdk.CipherType` from an app-layer `CipherType`.
+    ///
+    /// Fails (`nil`) when the app-layer value cannot be represented in the SDK yet —
+    /// currently `.bankAccount`, until PM-32009 SDK work lands. This initializer
+    /// **never** silently coerces an unsupported app type to another SDK case; silent
+    /// coercion would cause data loss on save.
+    ///
+    /// Call sites must handle `nil` (fail the save, surface a clear error) rather than
+    /// treat this as infallible.
+    ///
+    /// - Parameter cipherType: The app-layer type to bridge.
+    ///
+    init?(_ cipherType: CipherType) {
         switch cipherType {
         case .login:
             self = .login
@@ -516,12 +568,25 @@ extension BitwardenSdk.CipherType {
         case .sshKey:
             self = .sshKey
         case .bankAccount:
-            // TODO: PM-32009 Blocked on SDK — map `.bankAccount` to the corresponding
-            // `BitwardenSdk.CipherType.bankAccount` case once the SDK exposes it. Until then,
-            // this path is unreachable in practice because the `newItemTypes` feature flag is
-            // off by default and gates creation of bank account ciphers. Fallback mapping to
-            // `.secureNote` is defensive only.
-            self = .secureNote
+            // Route through the centralized bridge. When the SDK lands support,
+            // `NewItemTypesSdkBridge.sdkCipherTypeForBankAccount()` returns the real
+            // SDK case and this branch succeeds. Until then, it returns `nil` and we
+            // fail closed — no silent coercion.
+            guard let mapped = NewItemTypesSdkBridge.sdkCipherTypeForBankAccount() else {
+                // Tripwire: in Debug builds, surface accidental enabling of the
+                // feature flag before SDK readiness so the divergence is caught in
+                // development rather than producing corrupted saves. Release builds
+                // fail closed via `return nil` immediately below.
+                assertionFailure(
+                    "BitwardenSdk.CipherType.init(_:) called with .bankAccount before the SDK " +
+                        "exposes BankAccount support. Did the newItemTypes feature flag get " +
+                        "enabled ahead of SDK readiness? Fix: keep the flag off until the SDK " +
+                        "dependency is bumped and NewItemTypesSdkBridge.isBankAccountAvailable " +
+                        "is set to true. See PM-32009.",
+                )
+                return nil
+            }
+            self = mapped
         }
     }
 }

@@ -14,7 +14,15 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     let attachments: [AttachmentResponseModel]?
 
     /// Bank account data if the cipher is a bank account.
-    let bankAccount: CipherBankAccountModel?
+    ///
+    /// Declared as `var` with an explicit `nil` default so the synthesized memberwise
+    /// init exposes `bankAccount:` as an optional parameter. This keeps pre-PM-32009
+    /// test call sites that construct `CipherDetailsResponseModel` with the legacy
+    /// field list source-compatible. Do not let swiftformat strip the `= nil` — the
+    /// compiler only includes the default in the synthesized memberwise init when it
+    /// is present at the declaration.
+    // swiftformat:disable:next redundantNilInit
+    var bankAccount: CipherBankAccountModel? = nil
 
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
