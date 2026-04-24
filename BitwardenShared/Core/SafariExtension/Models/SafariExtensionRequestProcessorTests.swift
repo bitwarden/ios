@@ -34,7 +34,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             )
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(response.suggestionAction, .updatePassword)
@@ -46,12 +46,13 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
     func test_liveProcessor_withMockServices_makeResponse_generatePasswordReturnsResponse() async throws {
         let subject = SafariExtensionRequestProcessor.live(services: ServiceContainer.withMocks())
 
-        let maybeResponse = await subject.makeResponse(for: SafariExtensionRequest(kind: .generatePassword))
+        let maybeResponse = await subject.makeAsyncResponse(for: SafariExtensionRequest(kind: .generatePassword))
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(response.submissionAction, .generatePassword)
         XCTAssertNotNil(response.generatedPassword)
         XCTAssertFalse(response.generatedPassword?.isEmpty ?? true)
+        XCTAssertEqual(response.userMessage, "Generated password with Bitwarden.")
     }
 
     @MainActor
@@ -83,7 +84,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             )
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
         let passwordRequest = try XCTUnwrap(generatorRepository.passwordGeneratorRequest)
 
@@ -126,7 +127,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(generatorRepository: generatorRepository)
         )
 
-        let maybeResponse = await subject.makeResponse(for: SafariExtensionRequest(kind: .generatePassword))
+        let maybeResponse = await subject.makeAsyncResponse(for: SafariExtensionRequest(kind: .generatePassword))
         let response = try XCTUnwrap(maybeResponse)
         let passphraseRequest = try XCTUnwrap(generatorRepository.passphraseGeneratorRequest)
 
@@ -151,7 +152,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             passwordOptions: PasswordGenerationOptions(type: .password)
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertNil(response.generatedPassword)
@@ -201,7 +202,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             )
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(response.submissionAction, .fill)
@@ -227,7 +228,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             )
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(response.userMessage, "Filled login for accounts.example.com from Bitwarden.")
@@ -245,7 +246,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             )
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(response.submissionAction, .none)
@@ -271,7 +272,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             )
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(response.submissionAction, .updateExistingLogin)
@@ -294,7 +295,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
             credentialStore: credentialStore
         )
 
-        let maybeResponse = await subject.makeResponse(for: request)
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
         let response = try XCTUnwrap(maybeResponse)
 
         XCTAssertEqual(credentialStore.savedRequests.count, 1)

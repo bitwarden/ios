@@ -16,10 +16,10 @@ public struct SafariExtensionBridgeRequest: Codable, Equatable {
 
 public struct SafariExtensionBridgeResponse: Codable, Equatable {
     public var id: String
-    public var response: SafariExtensionResponse
+    public var response: SafariExtensionResponse?
     public var errorMessage: String?
 
-    public init(id: String, response: SafariExtensionResponse, errorMessage: String?) {
+    public init(id: String, response: SafariExtensionResponse?, errorMessage: String?) {
         self.id = id
         self.response = response
         self.errorMessage = errorMessage
@@ -49,11 +49,29 @@ public enum SafariExtensionBridgeCodec {
         response: SafariExtensionResponse,
         errorMessage: String? = nil,
     ) throws -> String {
-        let bridgeResponse = SafariExtensionBridgeResponse(
-            id: requestID,
-            response: response,
-            errorMessage: errorMessage,
+        try encodeBridgeResponse(
+            SafariExtensionBridgeResponse(
+                id: requestID,
+                response: response,
+                errorMessage: errorMessage,
+            )
         )
+    }
+
+    public static func encodeErrorResponse(
+        requestID: String,
+        errorMessage: String,
+    ) throws -> String {
+        try encodeBridgeResponse(
+            SafariExtensionBridgeResponse(
+                id: requestID,
+                response: nil,
+                errorMessage: errorMessage,
+            )
+        )
+    }
+
+    private static func encodeBridgeResponse(_ bridgeResponse: SafariExtensionBridgeResponse) throws -> String {
         let data = try JSONEncoder().encode(bridgeResponse)
         guard let message = String(data: data, encoding: .utf8) else {
             throw CocoaError(.coderInvalidValue)

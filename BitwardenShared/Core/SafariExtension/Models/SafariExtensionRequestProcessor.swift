@@ -65,6 +65,10 @@ public struct SafariExtensionRequestProcessor {
         makeResponse(for: request, matchedLogin: nil)
     }
 
+    public func makeAsyncResponse(for request: SafariExtensionRequest) async -> SafariExtensionResponse? {
+        await makeResponse(for: request)
+    }
+
     func makeResponse(for request: SafariExtensionRequest) async -> SafariExtensionResponse? {
         if request.kind == .generatePassword {
             if let generatedPassword = await makeGeneratedPassword(for: request) {
