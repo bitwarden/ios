@@ -297,6 +297,21 @@ private extension AddEditItemView {
 }
 
 private extension AddEditItemView {
+    /// Specific fields for a bank account item.
+    @ViewBuilder private var bankAccountItems: some View {
+        AddEditBankAccountItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.bankAccountState
+                },
+                mapAction: { action in
+                    .bankAccountFieldChanged(action)
+                },
+                mapEffect: { $0 },
+            ),
+        )
+    }
+
     /// Specific fields for a card item.
     @ViewBuilder private var cardItems: some View {
         AddEditCardItemView(
@@ -330,6 +345,8 @@ private extension AddEditItemView {
     /// The specific fields for the type of item being created or updated.
     @ViewBuilder private var itemTypeSection: some View {
         switch store.state.type {
+        case .bankAccount:
+            bankAccountItems
         case .card:
             cardItems
         case .login:

@@ -11,6 +11,9 @@ protocol AddEditItemState: Sendable {
     /// The info text to display when item is archived.
     var archiveInfoText: String { get }
 
+    /// The bank account item state.
+    var bankAccountState: BankAccountItemState { get set }
+
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
@@ -70,6 +73,10 @@ protocol AddEditItemState: Sendable {
 
     /// Whether archive vault items feature flag is enabled.
     var isArchiveVaultItemsFFEnabled: Bool { get set }
+
+    /// Whether the new item types (Bank Account, Driver's License, Passport) feature flag is
+    /// enabled. Gates visibility and creation of the new cipher types per PM-32009.
+    var isNewItemTypesFFEnabled: Bool { get set }
 
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }

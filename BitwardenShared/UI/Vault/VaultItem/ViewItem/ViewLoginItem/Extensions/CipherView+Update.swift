@@ -13,6 +13,19 @@ extension CipherView {
 
     // MARK: Methods
 
+    /// Creates a `BankAccountItemState` representation of the cipher.
+    ///
+    /// - Returns: A `BankAccountItemState` representing the bank account information of the
+    ///   cipher. Currently returns an empty state because `BitwardenSdk.CipherView` does not yet
+    ///   expose a bank account property.
+    ///
+    func bankAccountItemState() -> BankAccountItemState {
+        // TODO: PM-32009 Blocked on SDK — return `BankAccountItemState.fromAPIModel(...)`
+        // populated from `self.bankAccount` (or equivalent) once the SDK exposes it on
+        // `CipherView`.
+        BankAccountItemState()
+    }
+
     /// Creates a `CardItemState` representation of the cipher.
     ///
     /// This function converts the `card` information of the cipher into a `CardItemState`, which
@@ -175,6 +188,9 @@ extension CipherView {
         // Cap the size of the password history list to 5.
         passwordHistory = passwordHistory?.suffix(5)
 
+        // TODO: PM-32009 Blocked on SDK — pass `bankAccount: (addEditState.type == .bankAccount)
+        // ? addEditState.bankAccountState.bankAccountView : nil` once `CipherView.init` accepts
+        // a `bankAccount:` parameter.
         // Return the updated cipher.
         return CipherView(
             id: id,

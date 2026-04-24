@@ -6,6 +6,9 @@ import BitwardenResources
 
 /// Actions that can be processed by a `ViewItemProcessor`.
 enum ViewItemAction: Equatable, Sendable {
+    /// A bank account item action.
+    case bankAccountItemAction(ViewBankAccountItemAction)
+
     /// A card item action
     case cardItemAction(ViewCardItemAction)
 
@@ -56,6 +59,33 @@ enum ViewItemAction: Equatable, Sendable {
 /// The text fields within the `ViewItemView` that can be copied.
 ///
 enum CopyableField {
+    /// The bank account number field.
+    case bankAccountNumber
+
+    /// The bank branch number field.
+    case bankBranchNumber
+
+    /// The bank IBAN field.
+    case bankIban
+
+    /// The bank name field.
+    case bankName
+
+    /// The name-on-account field.
+    case bankNameOnAccount
+
+    /// The bank contact phone number.
+    case bankPhone
+
+    /// The bank account PIN field.
+    case bankPin
+
+    /// The bank routing number field.
+    case bankRoutingNumber
+
+    /// The bank SWIFT / BIC code field.
+    case bankSwiftCode
+
     /// The card number field.
     case cardNumber
 
@@ -119,7 +149,7 @@ enum CopyableField {
     /// The event to collect when copying the field.
     var eventOnCopy: EventType? {
         switch self {
-        case .customHiddenField:
+        case .bankAccountNumber, .bankPin, .customHiddenField:
             .cipherClientCopiedHiddenField
         case .password:
             .cipherClientCopiedPassword
@@ -134,6 +164,24 @@ enum CopyableField {
     /// The localized name for each field.
     var localizedName: String? {
         switch self {
+        case .bankAccountNumber:
+            Localizations.accountNumber
+        case .bankBranchNumber:
+            Localizations.branchNumber
+        case .bankIban:
+            Localizations.iban
+        case .bankName:
+            Localizations.bankName
+        case .bankNameOnAccount:
+            Localizations.nameOnAccount
+        case .bankPhone:
+            Localizations.bankContactPhone
+        case .bankPin:
+            Localizations.pin
+        case .bankRoutingNumber:
+            Localizations.routingNumber
+        case .bankSwiftCode:
+            Localizations.swiftCode
         case .cardNumber:
             Localizations.number
         case .customHiddenField,

@@ -93,6 +93,12 @@ protocol VaultListPreparedDataBuilder { // sourcery: AutoMockable
     /// Prepares the sections with restricted organization IDs.
     @discardableResult
     func prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder
+
+    /// Records whether the new item types feature flag is enabled on the prepared data.
+    /// - Parameter isEnabled: Whether the flag is enabled.
+    /// - Returns: This same instance builder for fluent coding.
+    @discardableResult
+    func setNewItemTypesFFEnabled(_ isEnabled: Bool) -> VaultListPreparedDataBuilder
 }
 
 // MARK: - DefaultVaultListPreparedDataBuilder
@@ -221,6 +227,12 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
         }
 
         switch group {
+        case .bankAccount:
+            // TODO: PM-32009 Blocked on SDK — match `cipher.type == .bankAccount` (using
+            // `BitwardenSdk.CipherListViewType.bankAccount`) once the SDK exposes it. Until
+            // then, no ciphers match this group at runtime, which aligns with the flag-off
+            // default state.
+            return self
         case .card:
             guard cipher.type.isCard else { return self }
         case .identity:
@@ -376,6 +388,12 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder { // swi
     @discardableResult
     func prepareRestrictItemsPolicyOrganizations(restrictedOrganizationIds: [String]) -> VaultListPreparedDataBuilder {
         preparedData.restrictedOrganizationIds = restrictedOrganizationIds
+        return self
+    }
+
+    @discardableResult
+    func setNewItemTypesFFEnabled(_ isEnabled: Bool) -> VaultListPreparedDataBuilder {
+        preparedData.isNewItemTypesFFEnabled = isEnabled
         return self
     }
 

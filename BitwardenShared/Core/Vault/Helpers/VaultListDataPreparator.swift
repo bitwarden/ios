@@ -269,6 +269,8 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
         let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
+        let newItemTypesFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.newItemTypes)
+        preparedDataBuilder = preparedDataBuilder.setNewItemTypesFFEnabled(newItemTypesFeatureFlagEnabled)
 
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,

@@ -300,6 +300,14 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var itemInformationSection: some View {
         // check for type
         switch store.state.type {
+        case .bankAccount:
+            ViewBankAccountItemView(
+                store: store.child(
+                    state: { _ in store.state.bankAccountItemViewState },
+                    mapAction: { $0 },
+                    mapEffect: nil,
+                ),
+            )
         case .card:
             ViewCardItemView(
                 store: store.child(

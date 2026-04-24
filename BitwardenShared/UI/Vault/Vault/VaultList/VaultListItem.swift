@@ -137,6 +137,9 @@ extension VaultListItem {
             }
         case let .group(group, _):
             switch group {
+            case .bankAccount:
+                // TODO: PM-34128 Swap to the final bank account asset when icon design ships.
+                SharedAsset.Icons.card24
             case .card:
                 SharedAsset.Icons.card24
             case .collection:

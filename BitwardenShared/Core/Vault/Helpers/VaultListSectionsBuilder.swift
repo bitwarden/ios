@@ -432,6 +432,15 @@ class DefaultVaultListSectionsBuilder: VaultListSectionsBuilder { // swiftlint:d
             ],
         )
 
+        if preparedData.isNewItemTypesFFEnabled {
+            types.append(
+                VaultListItem(
+                    id: "Types.BankAccounts",
+                    itemType: .group(.bankAccount, preparedData.countPerCipherType[.bankAccount, default: 0]),
+                ),
+            )
+        }
+
         vaultListData.sections.append(VaultListSection(id: "Types", items: types, name: Localizations.types))
         return self
     }
@@ -464,12 +473,17 @@ struct VaultListPreparedData {
 
     /// A dictionary mapping cipher types to their counts in the vault.
     var countPerCipherType: [CipherType: Int] = [
+        .bankAccount: 0,
         .card: 0,
         .identity: 0,
         .login: 0,
         .secureNote: 0,
         .sshKey: 0,
     ]
+
+    /// Whether the new item types (Bank Account, Driver's License, Passport) feature flag is
+    /// enabled for the current user. Gates inclusion of Bank Account rows in the "Types" section.
+    var isNewItemTypesFFEnabled: Bool = false
 
     /// Vault list items that exactly match the search criteria.
     var exactMatchItems: [VaultListItem] = []

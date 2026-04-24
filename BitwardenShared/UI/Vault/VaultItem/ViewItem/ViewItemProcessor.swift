@@ -28,6 +28,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         /// An action that requires data has been performed while loading.
         case dataNotLoaded(String)
 
+        /// An error for bank account action handling on a non-bank-account type.
+        case nonBankAccountTypeToggle(String)
+
         /// An error for card action handling
         case nonCardTypeToggle(String)
 
@@ -139,6 +142,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     override func receive(_ action: ViewItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .bankAccountItemAction(bankAccountAction):
+            handleBankAccountAction(bankAccountAction)
         case let .cardItemAction(cardAction):
             handleCardAction(cardAction)
         case .clearURL:
@@ -363,6 +368,51 @@ private extension ViewItemProcessor {
         }
     }
 
+    /// Handles `ViewBankAccountItemAction` events.
+    ///
+    /// - Parameter bankAccountAction: The action to handle.
+    ///
+    private func handleBankAccountAction(_ bankAccountAction: ViewBankAccountItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle bank account action without loaded data"),
+            )
+            return
+        }
+        guard case .bankAccount = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonBankAccountTypeToggle(
+                    "Cannot handle bank account action on non-bank-account type",
+                ),
+            )
+            return
+        }
+        switch bankAccountAction {
+        case let .toggleAccountNumberVisibilityChanged(isVisible):
+            cipherState.bankAccountState.isAccountNumberVisible = isVisible
+            state.loadingState = .data(cipherState)
+            if isVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: cipherState.cipher.id,
+                    )
+                }
+            }
+        case let .togglePinVisibilityChanged(isVisible):
+            cipherState.bankAccountState.isPinVisible = isVisible
+            state.loadingState = .data(cipherState)
+            if isVisible {
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: cipherState.cipher.id,
+                    )
+                }
+            }
+        }
+    }
+
     /// Handles `ViewCardItemAction` events.
     ///
     /// - Parameter cardAction: The action to handle.
@@ -574,6 +624,7 @@ private extension ViewItemProcessor {
                 }
 
                 let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
+                let isNewItemTypesFFEnabled: Bool = await services.configService.getFeatureFlag(.newItemTypes)
 
                 guard var newState = ViewItemState(
                     cipherView: cipher,
@@ -589,6 +640,7 @@ private extension ViewItemProcessor {
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
                     itemState.isArchiveVaultItemsFFEnabled = isArchiveVaultItemsFFEnabled
+                    itemState.isNewItemTypesFFEnabled = isNewItemTypesFFEnabled
 
                     newState.loadingState = .data(itemState)
                 }

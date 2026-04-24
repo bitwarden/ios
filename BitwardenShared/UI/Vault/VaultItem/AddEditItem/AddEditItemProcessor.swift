@@ -189,6 +189,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .addFolder, context: self)
         case let .authKeyVisibilityTapped(newValue):
             state.loginState.isAuthKeyVisible = newValue
+        case let .bankAccountFieldChanged(bankAccountFieldAction):
+            updateBankAccountState(&state, for: bankAccountFieldAction)
         case let .cardFieldChanged(cardFieldAction):
             updateCardState(&state, for: cardFieldAction)
         case .clearUrl:
@@ -447,6 +449,63 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Loads the feature flags required for this processor.
     private func loadFeatureFlags() async {
         state.isArchiveVaultItemsFFEnabled = await services.configService.getFeatureFlag(.archiveVaultItems)
+        state.isNewItemTypesFFEnabled = await services.configService.getFeatureFlag(.newItemTypes)
+    }
+
+    /// Receives an `AddEditBankAccountItemAction` from the `AddEditBankAccountItemView` and
+    /// mutates the underlying `BankAccountItemState` on the processor's state.
+    ///
+    /// - Parameters:
+    ///   - state: The parent `AddEditItemState` to be updated.
+    ///   - action: The `AddEditBankAccountItemAction` received.
+    private func updateBankAccountState(
+        _ state: inout AddEditItemState,
+        for action: AddEditBankAccountItemAction,
+    ) {
+        switch action {
+        case let .accountNumberChanged(value):
+            state.bankAccountState.accountNumber = value
+        case let .accountTypeChanged(type):
+            state.bankAccountState.accountType = type
+        case let .bankNameChanged(value):
+            state.bankAccountState.bankName = value
+        case let .bankPhoneChanged(value):
+            state.bankAccountState.bankPhone = value
+        case let .branchNumberChanged(value):
+            state.bankAccountState.branchNumber = value
+        case let .ibanChanged(value):
+            state.bankAccountState.iban = value
+        case let .nameOnAccountChanged(value):
+            state.bankAccountState.nameOnAccount = value
+        case let .pinChanged(value):
+            state.bankAccountState.pin = value
+        case let .routingNumberChanged(value):
+            state.bankAccountState.routingNumber = value
+        case let .swiftCodeChanged(value):
+            state.bankAccountState.swiftCode = value
+        case let .toggleAccountNumberVisibilityChanged(isVisible):
+            state.bankAccountState.isAccountNumberVisible = isVisible
+            if isVisible, !state.configuration.isAdding {
+                let cipherId = state.cipher.id
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: cipherId,
+                    )
+                }
+            }
+        case let .togglePinVisibilityChanged(isVisible):
+            state.bankAccountState.isPinVisible = isVisible
+            if isVisible, !state.configuration.isAdding {
+                let cipherId = state.cipher.id
+                Task {
+                    await services.eventService.collect(
+                        eventType: .cipherClientToggledHiddenFieldVisible,
+                        cipherId: cipherId,
+                    )
+                }
+            }
+        }
     }
 
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates

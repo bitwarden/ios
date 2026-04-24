@@ -36,6 +36,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// A flag indicating if this account has premium features.
     var accountHasPremium: Bool
 
+    /// The bank account item state.
+    var bankAccountState = BankAccountItemState()
+
     /// The card item state.
     var cardItemState = CardItemState()
 
@@ -80,6 +83,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether archive vault items feature flag is enabled.
     var isArchiveVaultItemsFFEnabled = false
+
+    /// Whether the new item types (Bank Account, Driver's License, Passport) feature flag is
+    /// enabled. Gates visibility and creation of the new cipher types per PM-32009.
+    var isNewItemTypesFFEnabled = false
 
     /// A flag indicating if this item is favorited.
     var isFavoriteOn = false
@@ -444,6 +451,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration = .existing(cipherView: cipherView)
         }
 
+        // TODO: PM-32009 Blocked on SDK — populate from `cipherView.bankAccount` once the SDK
+        // exposes a `BankAccountView?` on `CipherView`. Until then, bank account state remains
+        // the default empty state when loading an existing cipher.
+        bankAccountState = cipherView.bankAccountItemState()
         cardItemState = cipherView.cardItemState()
         collectionIds = cipherView.collectionIds
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: cipherView.customFields)
@@ -473,6 +484,7 @@ extension CipherItemState: AddEditItemState {
         switch configuration {
         case .add:
             switch type {
+            case .bankAccount: Localizations.newBankAccount
             case .card: Localizations.newCard
             case .identity: Localizations.newIdentity
             case .login: Localizations.newLogin
@@ -481,6 +493,7 @@ extension CipherItemState: AddEditItemState {
             }
         case .existing:
             switch type {
+            case .bankAccount: Localizations.editBankAccount
             case .card: Localizations.editCard
             case .identity: Localizations.editIdentity
             case .login: Localizations.editLogin
@@ -530,6 +543,10 @@ extension CipherItemState: ViewVaultItemState {
         cipher.archivedDate != nil && cipher.deletedDate == nil
     }
 
+    var bankAccountItemViewState: any ViewBankAccountItemState {
+        bankAccountState
+    }
+
     var cardItemViewState: any ViewCardItemState {
         cardItemState
     }
@@ -548,7 +565,10 @@ extension CipherItemState: ViewVaultItemState {
     }
 
     var icon: SharedImageAsset {
-        switch cipher.type {
+        switch type {
+        case .bankAccount:
+            // TODO: PM-34128 Swap to the final bank account asset when icon design ships.
+            return SharedAsset.Icons.card24
         case .card:
             guard case let .custom(brand) = cardItemState.brand else {
                 return SharedAsset.Icons.card24
@@ -625,7 +645,14 @@ extension CipherItemState: ViewVaultItemState {
 
 extension CipherItemState {
     /// Returns a `CipherView` based on the properties of the `CipherItemState`.
+    ///
+    /// - Note: Bank account data cannot currently round-trip through `CipherView` because
+    ///   `BitwardenSdk.CipherView` does not yet expose a `bankAccount: BankAccountView?` property.
+    ///   Once the SDK adds it (tracked in PM-32009 SDK work), wire `bankAccountState` through.
     func newCipherView(creationDate: Date = .now) -> CipherView {
+        // TODO: PM-32009 Blocked on SDK — add `bankAccount: type == .bankAccount ?
+        // bankAccountState.bankAccountView : nil` once `CipherView.init` accepts a
+        // `bankAccount:` parameter.
         CipherView(
             id: nil,
             organizationId: organizationId,
