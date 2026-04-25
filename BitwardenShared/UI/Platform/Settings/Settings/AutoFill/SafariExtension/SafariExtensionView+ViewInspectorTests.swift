@@ -32,11 +32,12 @@ class SafariExtensionViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_activatedState_showsOpenSafariSettingsButton() throws {
+    func test_activatedState_showsContinueSafariSetupButton() throws {
         processor.state.extensionActivated = true
 
-        XCTAssertNoThrow(try subject.inspect().find(button: "Open Safari Settings"))
+        XCTAssertNoThrow(try subject.inspect().find(button: "Continue Safari Setup"))
         XCTAssertThrowsError(try subject.inspect().find(button: "Activate Safari Extension"))
+        XCTAssertThrowsError(try subject.inspect().find(button: "Open Safari Settings"))
     }
 
     @MainActor
