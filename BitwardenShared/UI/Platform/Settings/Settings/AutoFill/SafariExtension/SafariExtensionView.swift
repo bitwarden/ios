@@ -69,7 +69,7 @@ struct SafariExtensionView: View {
             return "Open the Safari setup sheet again, then turn on Bitwarden for Safari."
         }
 
-        return "Activate Bitwarden, then allow it in Safari settings."
+        return "Start the Safari setup flow in Bitwarden, then turn on the extension in Safari."
     }
 
     private var activateButtonTitle: String {

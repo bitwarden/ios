@@ -84,7 +84,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: "Setup checklist"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
-        XCTAssertNoThrow(try subject.inspect().find(text: "Activate Bitwarden, then allow it in Safari settings."))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Start the Safari setup flow in Bitwarden, then turn on the extension in Safari."))
         XCTAssertThrowsError(try subject.inspect().find(text: "Get started"))
         let summaryTexts = try subject.inspect().findAll(ViewType.Text.self)
             .compactMap { try? $0.string() }
