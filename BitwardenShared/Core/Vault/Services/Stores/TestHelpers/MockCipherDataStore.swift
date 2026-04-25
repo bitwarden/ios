@@ -13,6 +13,7 @@ class MockCipherDataStore: CipherDataStore {
     var deleteAllCiphersUserId: String?
 
     var deleteCipherId: String?
+    var deleteCipherIds: [String] = []
     var deleteCipherUserId: String?
 
     var fetchAllCiphersUserId: String?
@@ -29,6 +30,7 @@ class MockCipherDataStore: CipherDataStore {
     var replaceCiphersUserId: String?
 
     var upsertCipherValue: Cipher?
+    var upsertCipherValues: [Cipher] = []
     var upsertCipherUserId: String?
 
     func cipherCount(userId: String) async throws -> Int {
@@ -62,6 +64,7 @@ class MockCipherDataStore: CipherDataStore {
 
     func deleteCipher(id: String, userId: String) async throws {
         deleteCipherId = id
+        deleteCipherIds.append(id)
         deleteCipherUserId = userId
     }
 
@@ -88,6 +91,7 @@ class MockCipherDataStore: CipherDataStore {
 
     func upsertCipher(_ cipher: Cipher, userId: String) async throws {
         upsertCipherValue = cipher
+        upsertCipherValues.append(cipher)
         upsertCipherUserId = userId
     }
 }

@@ -10,7 +10,6 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
     var cipherDataStore: MockCipherDataStore!
-    var errorReporter: MockErrorReporter!
     var subject: SdkCipherRepository!
     let expectedUserId = "1"
 
@@ -20,10 +19,8 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         super.setUp()
 
         cipherDataStore = MockCipherDataStore()
-        errorReporter = MockErrorReporter()
         subject = SdkCipherRepository(
             cipherDataStore: cipherDataStore,
-            errorReporter: errorReporter,
             userId: expectedUserId,
         )
     }
@@ -32,7 +29,6 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         super.tearDown()
 
         cipherDataStore = nil
-        errorReporter = nil
         subject = nil
     }
 
@@ -97,5 +93,53 @@ class SdkCipherRepositoryTests: BitwardenTestCase {
         }
 
         XCTAssertNil(cipherDataStore.upsertCipherValue)
+    }
+
+    /// `removeAll()` deletes all ciphers for the user ID.
+    func test_removeAll() async throws {
+        try await subject.removeAll()
+        XCTAssertEqual(cipherDataStore.deleteAllCiphersUserId, expectedUserId)
+    }
+
+    /// `removeBulk(keys:)` deletes each cipher by ID for the user.
+    func test_removeBulk() async throws {
+        try await subject.removeBulk(keys: ["1", "2", "3"])
+        XCTAssertEqual(cipherDataStore.deleteCipherIds, ["1", "2", "3"])
+        XCTAssertEqual(cipherDataStore.deleteCipherUserId, expectedUserId)
+    }
+
+    /// `removeBulk(keys:)` with an empty list performs no deletions.
+    func test_removeBulk_empty() async throws {
+        try await subject.removeBulk(keys: [])
+        XCTAssertTrue(cipherDataStore.deleteCipherIds.isEmpty)
+    }
+
+    /// `setBulk(values:)` upserts all ciphers whose key matches the cipher's ID.
+    func test_setBulk() async throws {
+        try await subject.setBulk(values: ["1": .fixture(id: "1"), "2": .fixture(id: "2")])
+        XCTAssertEqual(cipherDataStore.upsertCipherValues.compactMap(\.id).sorted(), ["1", "2"])
+        XCTAssertEqual(cipherDataStore.upsertCipherUserId, expectedUserId)
+    }
+
+    /// `setBulk(values:)` throws when any entry's key doesn't match the cipher's ID.
+    func test_setBulk_withMismatch() async throws {
+        await assertAsyncThrows {
+            try await subject.setBulk(values: ["1": .fixture(id: "1"), "2": .fixture(id: "99")])
+        }
+        XCTAssertTrue(cipherDataStore.upsertCipherValues.isEmpty)
+    }
+
+    /// `setBulk(values:)` throws when all entries have mismatched IDs.
+    func test_setBulk_allMismatched() async throws {
+        await assertAsyncThrows {
+            try await subject.setBulk(values: ["1": .fixture(id: "99")])
+        }
+        XCTAssertTrue(cipherDataStore.upsertCipherValues.isEmpty)
+    }
+
+    /// `setBulk(values:)` with an empty map performs no upserts.
+    func test_setBulk_empty() async throws {
+        try await subject.setBulk(values: [:])
+        XCTAssertTrue(cipherDataStore.upsertCipherValues.isEmpty)
     }
 }
