@@ -55,6 +55,8 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: "Continue the Safari setup flow to finish enabling the extension."))
         XCTAssertNoThrow(try subject.inspect().find(text: "Step 2 of 2"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Almost done"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Status"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Progress"))
         XCTAssertNoThrow(try subject.inspect().find(text: "What you can do"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Setup checklist"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
@@ -70,6 +72,8 @@ class SafariExtensionViewTests: BitwardenTestCase {
     func test_defaultState_showsStepOneAndStatusLabel() throws {
         XCTAssertNoThrow(try subject.inspect().find(text: "Step 1 of 2"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Not enabled"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Status"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Progress"))
         XCTAssertNoThrow(try subject.inspect().find(text: "What you can do"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Setup checklist"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
@@ -101,6 +105,8 @@ class SafariExtensionViewTests: BitwardenTestCase {
         processor.state.extensionEnabled = true
 
         XCTAssertNoThrow(try subject.inspect().find(text: "Enabled"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Status"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Progress"))
         XCTAssertNoThrow(try subject.inspect().find(text: "What you can do"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Setup checklist"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
