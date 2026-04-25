@@ -92,7 +92,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertEqual(summaryTexts.filter { $0 == "Not enabled" }.count, 1)
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Current step"))
-        XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari Settings"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Up next"))
         XCTAssertThrowsError(try subject.inspect().find(text: "Done"))
     }
@@ -102,7 +102,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
         processor.state.extensionActivated = true
 
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
-        XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari Settings"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari"))
         let doneTexts = try subject.inspect().findAll(ViewType.Text.self)
             .compactMap { try? $0.string() }
             .filter { $0 == "Done" }
