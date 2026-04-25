@@ -42,7 +42,7 @@ struct SafariExtensionView: View {
         }
 
         if store.state.extensionActivated {
-            return "Finish setup"
+            return "Continue in Safari"
         }
 
         return "Get started"
@@ -54,7 +54,7 @@ struct SafariExtensionView: View {
         }
 
         if store.state.extensionActivated {
-            return "Open Safari settings and turn on Bitwarden for Safari."
+            return "Open the Safari setup sheet again, then turn on Bitwarden for Safari."
         }
 
         return "Activate Bitwarden, then allow it in Safari settings."
