@@ -24,11 +24,22 @@ async function bitwardenSendNativeRequest(request) {
     id: crypto.randomUUID(),
     request,
   };
-  const nativeResponse = await browser.runtime.sendNativeMessage("bitwarden", {
-    message: JSON.stringify(bridgeRequest),
-  });
 
-  return bitwardenParseNativeResponse(nativeResponse);
+  try {
+    const nativeResponse = await browser.runtime.sendNativeMessage("bitwarden", {
+      message: JSON.stringify(bridgeRequest),
+    });
+
+    return bitwardenParseNativeResponse(nativeResponse);
+  } catch (error) {
+    return {
+      id: bridgeRequest.id,
+      response: null,
+      errorMessage: error && typeof error.message === 'string' && error.message.length > 0
+        ? error.message
+        : 'Couldn’t reach the Bitwarden native host.',
+    };
+  }
 }
 
 function bitwardenMergeRequestContext(request, requestContext) {

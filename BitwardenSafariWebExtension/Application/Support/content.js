@@ -837,13 +837,35 @@
     return nativeResponse;
   }
 
-  async function bitwardenSendBuiltRequest(type, requestBuilder, requestContext = null) {
-    const nativeResponse = await browser.runtime.sendMessage({
-      type,
-      request: requestBuilder().request,
-      requestContext,
-    });
-    return bitwardenApplyNativeResponse(nativeResponse);
+  function bitwardenBridgeFailureResponse(error) {
+    return {
+      response: null,
+      errorMessage: error && typeof error.message === 'string' && error.message.length > 0
+        ? error.message
+        : 'Couldn’t reach Bitwarden in Safari.',
+    };
+  }
+
+  async function bitwardenSendBuiltRequest(type, requestBuilder, requestContext = null, options = {}) {
+    try {
+      const nativeResponse = await browser.runtime.sendMessage({
+        type,
+        request: requestBuilder().request,
+        requestContext,
+      });
+      if (options.rethrowBridgeFailure
+        && (!nativeResponse?.response || typeof nativeResponse.response !== 'object')
+        && typeof nativeResponse?.errorMessage === 'string'
+        && nativeResponse.errorMessage.length > 0) {
+        throw new Error(nativeResponse.errorMessage);
+      }
+      return bitwardenApplyNativeResponse(nativeResponse);
+    } catch (error) {
+      if (options.rethrowBridgeFailure) {
+        throw error;
+      }
+      return bitwardenApplyNativeResponse(bitwardenBridgeFailureResponse(error));
+    }
   }
 
   async function bitwardenTriggerSuggestedAction(document = window.document) {
@@ -873,16 +895,22 @@
         return bitwardenSendBuiltRequest('bitwarden:save-login', bitwardenBuildSaveLoginRequest, {
           trigger: 'actionPanelPrimary',
           submissionAction,
+        }, {
+          rethrowBridgeFailure: true,
         });
       case 'updatePassword':
         return bitwardenSendBuiltRequest('bitwarden:change-password', bitwardenBuildChangePasswordRequest, {
           trigger: 'actionPanelPrimary',
           submissionAction,
+        }, {
+          rethrowBridgeFailure: true,
         });
       case 'fill':
         return bitwardenSendBuiltRequest('bitwarden:fill', bitwardenBuildFillRequest, {
           trigger: 'actionPanelPrimary',
           submissionAction,
+        }, {
+          rethrowBridgeFailure: true,
         });
       default:
         return null;
