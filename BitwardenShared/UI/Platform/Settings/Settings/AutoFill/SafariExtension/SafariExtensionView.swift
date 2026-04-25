@@ -61,7 +61,7 @@ struct SafariExtensionView: View {
     }
 
     private var activateButtonTitle: String {
-        store.state.extensionActivated ? "Open Safari Settings" : "Activate Safari Extension"
+        store.state.extensionActivated ? "Continue Safari Setup" : "Activate Safari Extension"
     }
 
     private var stepOneStatus: String {

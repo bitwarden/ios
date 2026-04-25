@@ -55,4 +55,14 @@ class SafariExtensionProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .safariExtensionSetup)
         XCTAssertIdentical(coordinator.contexts.last as? SafariExtensionProcessor, subject)
     }
+
+    @MainActor
+    func test_receive_activateButtonTapped_extensionActivated_continuesSafariSetupFlow() {
+        subject.state.extensionActivated = true
+
+        subject.receive(.activateButtonTapped)
+
+        XCTAssertEqual(coordinator.routes.last, .safariExtensionSetup)
+        XCTAssertIdentical(coordinator.contexts.last as? SafariExtensionProcessor, subject)
+    }
 }
