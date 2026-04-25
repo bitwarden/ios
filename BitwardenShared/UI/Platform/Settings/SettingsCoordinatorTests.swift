@@ -150,6 +150,41 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UIActivityViewController)
     }
 
+    /// `navigate(to:)` with `.safariExtensionSetup` only marks Safari as enabled when the
+    /// Safari extension activity completed.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup_completionWithNonSafariActivity_marksDisabled() throws {
+        let delegate = MockSafariExtensionSetupDelegate()
+        subject.navigate(to: .safariExtensionSetup, context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        let activityViewController = try XCTUnwrap(action.view as? UIActivityViewController)
+        let completionHandler = try XCTUnwrap(activityViewController.completionWithItemsHandler)
+
+        completionHandler(UIActivity.ActivityType(rawValue: "com.apple.UIKit.activity.CopyToPasteboard"), true, nil, nil)
+
+        XCTAssertEqual(delegate.enabledValues, [false])
+    }
+
+    /// `navigate(to:)` with `.safariExtensionSetup` marks Safari as enabled when the Safari
+    /// extension activity completed.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup_completionWithSafariActivity_marksEnabled() throws {
+        let delegate = MockSafariExtensionSetupDelegate()
+        subject.navigate(to: .safariExtensionSetup, context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        let activityViewController = try XCTUnwrap(action.view as? UIActivityViewController)
+        let completionHandler = try XCTUnwrap(activityViewController.completionWithItemsHandler)
+        let safariActivity = UIActivity.ActivityType(
+            rawValue: "\(try XCTUnwrap(Bundle.main.bundleIdentifier)).safari-web-extension",
+        )
+
+        completionHandler(safariActivity, true, nil, nil)
+
+        XCTAssertEqual(delegate.enabledValues, [true])
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     @MainActor
     func test_navigateTo_autoFill() throws {
@@ -464,3 +499,12 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(stackNavigator.rootViewController?.tabBarItem.badgeValue)
     }
 } // swiftlint:disable:this file_length
+
+@MainActor
+private final class MockSafariExtensionSetupDelegate: SafariExtensionSetupDelegate {
+    var enabledValues: [Bool] = []
+
+    func didDismissSafariExtensionSetup(enabled: Bool) {
+        enabledValues.append(enabled)
+    }
+}
