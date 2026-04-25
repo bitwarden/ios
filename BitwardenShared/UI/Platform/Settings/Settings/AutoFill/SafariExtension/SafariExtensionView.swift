@@ -54,10 +54,10 @@ struct SafariExtensionView: View {
         }
 
         if store.state.extensionActivated {
-            return "Continue in Safari"
+            return "Turn on in Safari"
         }
 
-        return "Get started"
+        return "Activate in Bitwarden"
     }
 
     private var nextStepMessage: String {
