@@ -62,6 +62,10 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: "Setup checklist"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Continue in Safari"))
+        let summaryTexts = try subject.inspect().findAll(ViewType.Text.self)
+            .compactMap { try? $0.string() }
+        XCTAssertEqual(summaryTexts.filter { $0 == "Step 2 of 2" }.count, 1)
+        XCTAssertEqual(summaryTexts.filter { $0 == "Almost done" }.count, 1)
         XCTAssertNoThrow(try subject.inspect().find(text: "Open the Safari setup sheet again, then turn on Bitwarden for Safari."))
         XCTAssertThrowsError(try subject.inspect().find(text: "Not enabled"))
         XCTAssertThrowsError(try subject.inspect().find(text: "Get started"))
@@ -81,6 +85,10 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Get started"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate Bitwarden, then allow it in Safari settings."))
+        let summaryTexts = try subject.inspect().findAll(ViewType.Text.self)
+            .compactMap { try? $0.string() }
+        XCTAssertEqual(summaryTexts.filter { $0 == "Step 1 of 2" }.count, 1)
+        XCTAssertEqual(summaryTexts.filter { $0 == "Not enabled" }.count, 1)
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Current step"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari Settings"))
@@ -114,6 +122,10 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: "Setup checklist"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
         XCTAssertNoThrow(try subject.inspect().find(text: "You’re ready"))
+        let summaryTexts = try subject.inspect().findAll(ViewType.Text.self)
+            .compactMap { try? $0.string() }
+        XCTAssertEqual(summaryTexts.filter { $0 == "Step 2 of 2" }.count, 1)
+        XCTAssertEqual(summaryTexts.filter { $0 == "Enabled" }.count, 1)
         XCTAssertNoThrow(try subject.inspect().find(text: "Ready to fill, save, update, and generate credentials in Safari."))
         XCTAssertThrowsError(try subject.inspect().find(text: "Finish setup"))
         let doneTexts = try subject.inspect().findAll(ViewType.Text.self)
