@@ -117,6 +117,7 @@ struct SafariExtensionView: View {
                 .contentBlock()
 
                 VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("What you can do")
                     featureRow(title: "Fill", subtitle: "Use page-aware fill suggestions for websites in Safari.")
                     featureRow(title: "Save & Update", subtitle: "Capture new logins and password changes from the current page.")
                     featureRow(title: "Generate", subtitle: "Create strong passwords while staying in the browser flow.")
@@ -125,6 +126,7 @@ struct SafariExtensionView: View {
                 .contentBlock()
 
                 VStack(alignment: .leading, spacing: 12) {
+                    sectionTitle("Setup checklist")
                     setupStepRow(
                         title: "Activate in Bitwarden",
                         subtitle: "Start the Safari setup flow from Bitwarden.",
@@ -140,6 +142,7 @@ struct SafariExtensionView: View {
                 .contentBlock()
 
                 VStack(alignment: .leading, spacing: 8) {
+                    sectionTitle("Next step")
                     Text(nextStepTitle)
                         .styleGuide(.headline)
                     Text(nextStepMessage)
@@ -164,6 +167,15 @@ struct SafariExtensionView: View {
             .scrollView(addVerticalPadding: false)
         }
         .navigationBar(title: "Safari Extension", titleDisplayMode: .inline)
+    }
+
+    @ViewBuilder
+    private func sectionTitle(_ title: String) -> some View {
+        Text(title)
+            .styleGuide(.caption1)
+            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+            .textCase(.uppercase)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
