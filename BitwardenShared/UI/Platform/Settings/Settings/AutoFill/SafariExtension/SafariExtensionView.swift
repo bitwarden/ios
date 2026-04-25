@@ -136,7 +136,7 @@ struct SafariExtensionView: View {
                         status: stepOneStatus,
                     )
                     setupStepRow(
-                        title: "Turn on in Safari Settings",
+                        title: "Turn on in Safari",
                         subtitle: "Allow Bitwarden in Safari, then return here.",
                         status: stepTwoStatus,
                     )
