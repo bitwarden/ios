@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 import BitwardenKit
 import BitwardenKitMocks
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -67,6 +68,25 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: "Not enabled"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Get started"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate Bitwarden, then allow it in Safari settings."))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Current step"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari Settings"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Up next"))
+        XCTAssertThrowsError(try subject.inspect().find(text: "Done"))
+    }
+
+    @MainActor
+    func test_activatedState_showsChecklistProgress() throws {
+        processor.state.extensionActivated = true
+
+        XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari Settings"))
+        let doneTexts = try subject.inspect().findAll(ViewType.Text.self)
+            .compactMap { try? $0.string() }
+            .filter { $0 == "Done" }
+        XCTAssertEqual(doneTexts.count, 1)
+        XCTAssertNoThrow(try subject.inspect().find(text: "Current step"))
+        XCTAssertThrowsError(try subject.inspect().find(text: "Up next"))
     }
 
     @MainActor
@@ -77,5 +97,11 @@ class SafariExtensionViewTests: BitwardenTestCase {
         XCTAssertNoThrow(try subject.inspect().find(text: "You’re ready"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Ready to fill, save, update, and generate credentials in Safari."))
         XCTAssertThrowsError(try subject.inspect().find(text: "Finish setup"))
+        let doneTexts = try subject.inspect().findAll(ViewType.Text.self)
+            .compactMap { try? $0.string() }
+            .filter { $0 == "Done" }
+        XCTAssertEqual(doneTexts.count, 2)
+        XCTAssertThrowsError(try subject.inspect().find(text: "Current step"))
+        XCTAssertThrowsError(try subject.inspect().find(text: "Up next"))
     }
 }

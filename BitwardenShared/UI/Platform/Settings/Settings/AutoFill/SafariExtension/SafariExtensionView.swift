@@ -64,6 +64,22 @@ struct SafariExtensionView: View {
         store.state.extensionActivated ? "Open Safari Settings" : "Activate Safari Extension"
     }
 
+    private var stepOneStatus: String {
+        if store.state.extensionEnabled || store.state.extensionActivated {
+            return "Done"
+        }
+
+        return "Current step"
+    }
+
+    private var stepTwoStatus: String {
+        if store.state.extensionEnabled {
+            return "Done"
+        }
+
+        return store.state.extensionActivated ? "Current step" : "Up next"
+    }
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 16) {
@@ -108,6 +124,21 @@ struct SafariExtensionView: View {
                 .padding(24)
                 .contentBlock()
 
+                VStack(alignment: .leading, spacing: 12) {
+                    setupStepRow(
+                        title: "Activate in Bitwarden",
+                        subtitle: "Start the Safari setup flow from Bitwarden.",
+                        status: stepOneStatus,
+                    )
+                    setupStepRow(
+                        title: "Turn on in Safari Settings",
+                        subtitle: "Allow Bitwarden in Safari, then return here.",
+                        status: stepTwoStatus,
+                    )
+                }
+                .padding(24)
+                .contentBlock()
+
                 VStack(alignment: .leading, spacing: 8) {
                     Text(nextStepTitle)
                         .styleGuide(.headline)
@@ -140,6 +171,30 @@ struct SafariExtensionView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .styleGuide(.headline)
+            Text(subtitle)
+                .styleGuide(.body)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func setupStepRow(title: String, subtitle: String, status: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 12) {
+                Text(title)
+                    .styleGuide(.headline)
+                Spacer()
+                Text(status)
+                    .styleGuide(.caption2)
+                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
+                    .clipShape(Capsule())
+            }
+
             Text(subtitle)
                 .styleGuide(.body)
                 .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
