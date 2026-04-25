@@ -1,4 +1,5 @@
 import BitwardenSdk
+import BitwardenSdkMocks
 
 @testable import BitwardenShared
 
@@ -22,7 +23,7 @@ class MockClient: BitwardenSdkClient {
     var exporterClient = MockExporterClient()
     var generatorClient = MockGeneratorClient()
     var platformClient = MockPlatformClientService()
-    var sendClient = MockSendClient()
+    var sendClient = MockSendClientProtocol()
     var vaultClient = MockVaultClientService()
 
     func auth() -> any AuthClientProtocol {
