@@ -36,6 +36,18 @@ struct SafariExtensionView: View {
         return "Not enabled"
     }
 
+    private var heroTitle: String {
+        if store.state.extensionEnabled {
+            return "Bitwarden is ready in Safari"
+        }
+
+        if store.state.extensionActivated {
+            return "Finish setup in Safari"
+        }
+
+        return "Set up Bitwarden for Safari"
+    }
+
     private var nextStepTitle: String {
         if store.state.extensionEnabled {
             return "You’re ready"
@@ -101,7 +113,7 @@ struct SafariExtensionView: View {
                     }
 
                     VStack(spacing: 12) {
-                        Text("Safari Extension")
+                        Text(heroTitle)
                             .styleGuide(.title)
                             .multilineTextAlignment(.center)
 
