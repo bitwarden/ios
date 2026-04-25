@@ -176,9 +176,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let action = try XCTUnwrap(stackNavigator.actions.last)
         let activityViewController = try XCTUnwrap(action.view as? UIActivityViewController)
         let completionHandler = try XCTUnwrap(activityViewController.completionWithItemsHandler)
-        let safariActivity = UIActivity.ActivityType(
-            rawValue: "\(try XCTUnwrap(Bundle.main.bundleIdentifier)).safari-web-extension",
-        )
+        let safariActivity = UIActivity.ActivityType(rawValue: Bundle.main.safariExtensionIdentifier)
 
         completionHandler(safariActivity, true, nil, nil)
 

@@ -2,6 +2,7 @@ import BitwardenKit
 
 public class MockBundle: BundleProtocol {
     public var appExtensionIdentifier = "com.8bit.bitwarden.find-login-action-extension"
+    public var safariExtensionIdentifier = "com.8bit.bitwarden.safari-web-extension"
     public var appIdentifier = "com.8bit.bitwarden"
     public var appName = "Bitwarden"
     public var appVersion = "1.0"

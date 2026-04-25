@@ -377,7 +377,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         viewController.completionWithItemsHandler = { activityType, completed, _, _ in
             delegate?.didDismissSafariExtensionSetup(
                 enabled: completed &&
-                    activityType?.rawValue == "\(Bundle.main.bundleIdentifier!).safari-web-extension",
+                    activityType?.rawValue == Bundle.main.safariExtensionIdentifier,
             )
         }
         stackNavigator?.present(viewController)
