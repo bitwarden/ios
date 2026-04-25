@@ -98,20 +98,6 @@ struct SafariExtensionView: View {
                 Spacer(minLength: 0)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Text(progressLabel)
-                            .styleGuide(.caption2)
-                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
-                        Spacer()
-                        Text(statusLabel)
-                            .styleGuide(.caption2)
-                            .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                            .clipShape(Capsule())
-                    }
-
                     VStack(spacing: 12) {
                         Text(heroTitle)
                             .styleGuide(.title)
