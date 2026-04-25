@@ -955,6 +955,56 @@ async function testApplyFillScript() {
   assert.equal(password.value, 'secret');
 }
 
+async function testRequestFill_sendMessageFailure_showsWarningBanner() {
+  const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([username, password], {
+    sendMessage: async () => {
+      throw new Error('Native bridge unavailable');
+    },
+  });
+
+  const response = await ctx.window.bitwardenSafariWebExtension.requestFill();
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Native bridge unavailable');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'warning');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+  assert.equal(response.errorMessage, 'Native bridge unavailable');
+}
+
+async function testActionPanelPrimaryErrorEnvelope_restoresPanelInteractivity() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'secret' });
+  const ctx = makeEnvironment([password], {
+    sendMessage: async () => ({
+      response: null,
+      errorMessage: 'Native host missing',
+    }),
+  });
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'saveNewLogin',
+      userMessage: 'Save this login to Bitwarden.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  const primaryButton = actionPanel.querySelector('[data-bitwarden-action-primary]');
+  const dismissButton = actionPanel.querySelector('[data-bitwarden-action-dismiss]');
+
+  await primaryButton.onclick();
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Native host missing');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'warning');
+  assert.equal(primaryButton.disabled, false);
+  assert.equal(dismissButton.disabled, false);
+  assert.ok(ctx.document.body.querySelector('[data-bitwarden-action-panel]'));
+}
+
 async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'secret' });
   const ctx = makeEnvironment([password], {
@@ -992,6 +1042,7 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testTriggerSuggestedAction_sendsActionSpecificRequest();
   await testApplyGeneratedPassword();
   await testApplyFillScript();
+  await testRequestFill_sendMessageFailure_showsWarningBanner();
   await testApplyStatusEvent();
   await testApplyFillResponse_showsCompletionBannerWithoutPanel();
   await testApplyFillResponse_withoutUsername_usesSiteHostCopy();
@@ -1004,6 +1055,7 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel();
   await testApplyUpdateExistingLogin_showsStructuredPanelCopy();
   await testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel();
+  await testActionPanelPrimaryErrorEnvelope_restoresPanelInteractivity();
   await testActionPanelPrimaryDispatchesConfirmEvent();
   await testActionPanelPrimaryShowsPendingBannerWhileSaving();
   await testActionPanelPrimaryFailure_restoresPanelInteractivity();
