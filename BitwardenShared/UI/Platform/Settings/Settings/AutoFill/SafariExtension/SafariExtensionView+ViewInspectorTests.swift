@@ -52,7 +52,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
     func test_activatedState_showsContinueSetupMessage() throws {
         processor.state.extensionActivated = true
 
-        XCTAssertNoThrow(try subject.inspect().find(text: "Finish enabling the Safari extension in Safari settings."))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Continue the Safari setup flow to finish enabling the extension."))
         XCTAssertNoThrow(try subject.inspect().find(text: "Step 2 of 2"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Almost done"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Continue in Safari"))

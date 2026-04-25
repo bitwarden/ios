@@ -14,7 +14,7 @@ struct SafariExtensionView: View {
         }
 
         if store.state.extensionActivated {
-            return "Finish enabling the Safari extension in Safari settings."
+            return "Continue the Safari setup flow to finish enabling the extension."
         }
 
         return "Set up the Safari extension to fill, save, update, and generate credentials with Bitwarden."
