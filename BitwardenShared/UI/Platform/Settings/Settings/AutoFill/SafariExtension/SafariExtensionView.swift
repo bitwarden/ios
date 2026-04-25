@@ -112,6 +112,11 @@ struct SafariExtensionView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity)
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        summaryRow(title: "Status", value: statusLabel)
+                        summaryRow(title: "Progress", value: progressLabel)
+                    }
                 }
                 .padding(24)
                 .contentBlock()
@@ -176,6 +181,21 @@ struct SafariExtensionView: View {
             .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             .textCase(.uppercase)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private func summaryRow(title: String, value: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(title)
+                .styleGuide(.caption1)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+            Spacer()
+            Text(value)
+                .styleGuide(.body)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .multilineTextAlignment(.trailing)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     @ViewBuilder
