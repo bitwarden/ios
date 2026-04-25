@@ -67,6 +67,9 @@ class SafariExtensionViewTests: BitwardenTestCase {
     func test_defaultState_showsStepOneAndStatusLabel() throws {
         XCTAssertNoThrow(try subject.inspect().find(text: "Step 1 of 2"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Not enabled"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "What you can do"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Setup checklist"))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Next step"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Get started"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate Bitwarden, then allow it in Safari settings."))
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
