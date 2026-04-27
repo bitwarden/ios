@@ -21,7 +21,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var clientService: MockClientService!
     var collectionHelper: MockCollectionHelper!
     var collectionService: MockCollectionService!
-    var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var fido2UserInterfaceHelper: MockFido2UserInterfaceHelper!
@@ -60,7 +59,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService = MockClientService()
         collectionHelper = MockCollectionHelper()
         collectionService = MockCollectionService()
-        configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         fido2UserInterfaceHelper = MockFido2UserInterfaceHelper()
@@ -87,7 +85,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             clientService: clientService,
             collectionHelper: collectionHelper,
             collectionService: collectionService,
-            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
@@ -113,7 +110,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService = nil
         collectionHelper = nil
         collectionService = nil
-        configService = nil
         environmentService = nil
         errorReporter = nil
         fido2UserInterfaceHelper = nil
@@ -1469,13 +1465,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, cipher)
     }
 
-    /// `updateCipherCollections()` unarchives the cipher when it's archived, feature flag is on,
-    /// and user doesn't have premium.
+    /// `updateCipherCollections()` unarchives the cipher when it's updated and user doesn't have premium.
     @MainActor
-    func test_updateCipherCollections_unarchivesNonPremiumUserWithFeatureFlag() async throws {
+    func test_updateCipherCollections_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
         stateService.doesActiveAccountHavePremiumResult = false
-        configService.featureFlagsBool[.archiveVaultItems] = true
 
         let archivedCipher = CipherView.fixture(archivedDate: .now, id: "123")
         try await subject.updateCipherCollections(archivedCipher)
@@ -1489,32 +1483,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `updateCipherCollections()` does NOT unarchive the cipher when user has premium,
-    /// even with feature flag on.
+    /// `updateCipherCollections()` does NOT unarchive the cipher when user has premium.
     @MainActor
     func test_updateCipherCollections_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount
         stateService.doesActiveAccountHavePremiumResult = true
-        configService.featureFlagsBool[.archiveVaultItems] = true
-
-        let archivedCipher = CipherView.fixture(archivedDate: .now, id: "123")
-        try await subject.updateCipherCollections(archivedCipher)
-
-        // Verify cipher was NOT unarchived (kept archived)
-        XCTAssertEqual(cipherEncryptionMediator.encryptAndUpdateCipherReceivedCipherView, archivedCipher)
-        XCTAssertEqual(
-            cipherService.updateCipherCollectionsWithServerCiphers,
-            [Cipher(cipherView: archivedCipher)],
-        )
-    }
-
-    /// `updateCipherCollections()` does NOT unarchive the cipher when feature flag is off,
-    /// even for non-premium users.
-    @MainActor
-    func test_updateCipherCollections_doesNotUnarchiveWhenFeatureFlagOff() async throws {
-        stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = false
-        configService.featureFlagsBool[.archiveVaultItems] = false
 
         let archivedCipher = CipherView.fixture(archivedDate: .now, id: "123")
         try await subject.updateCipherCollections(archivedCipher)
@@ -1532,7 +1505,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_updateCipherCollections_notArchivedCipher() async throws {
         stateService.activeAccount = nonPremiumAccount
         stateService.doesActiveAccountHavePremiumResult = false
-        configService.featureFlagsBool[.archiveVaultItems] = true
 
         let cipher = CipherView.fixture(archivedDate: nil, id: "123")
         try await subject.updateCipherCollections(cipher)
@@ -1566,12 +1538,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` unarchives the cipher when it's archived, feature flag is on, and user doesn't have premium.
+    /// `updateCipher()` unarchives the cipher when it's updated and user doesn't have premium.
     @MainActor
-    func test_updateCipher_unarchivesNonPremiumUserWithFeatureFlag() async throws {
+    func test_updateCipher_unarchivesNonPremiumUser() async throws {
         stateService.activeAccount = nonPremiumAccount
         stateService.doesActiveAccountHavePremiumResult = false
-        configService.featureFlagsBool[.archiveVaultItems] = true
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let archivedCipher = CipherView.fixture(archivedDate: .now, id: "123")
@@ -1583,28 +1554,11 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
-    /// `updateCipher()` does NOT unarchive the cipher when user has premium, even with feature flag on.
+    /// `updateCipher()` does NOT unarchive the cipher when user has premium.
     @MainActor
     func test_updateCipher_doesNotUnarchivePremiumUser() async throws {
         stateService.activeAccount = premiumAccount
         stateService.doesActiveAccountHavePremiumResult = true
-        configService.featureFlagsBool[.archiveVaultItems] = true
-        client.result = .httpSuccess(testData: .cipherResponse)
-
-        let archivedCipher = CipherView.fixture(archivedDate: .now, id: "123")
-        try await subject.updateCipher(archivedCipher)
-
-        // Verify cipher was NOT unarchived (kept archived)
-        XCTAssertEqual(clientCiphers.encryptedCiphers, [archivedCipher])
-        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
-    }
-
-    /// `updateCipher()` does NOT unarchive the cipher when feature flag is off, even for non-premium users.
-    @MainActor
-    func test_updateCipher_doesNotUnarchiveWhenFeatureFlagOff() async throws {
-        stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = false
-        configService.featureFlagsBool[.archiveVaultItems] = false
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let archivedCipher = CipherView.fixture(archivedDate: .now, id: "123")
@@ -1620,7 +1574,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_updateCipher_notArchivedCipher() async throws {
         stateService.activeAccount = nonPremiumAccount
         stateService.doesActiveAccountHavePremiumResult = false
-        configService.featureFlagsBool[.archiveVaultItems] = true
         client.result = .httpSuccess(testData: .cipherResponse)
 
         let cipher = CipherView.fixture(archivedDate: nil, id: "123")

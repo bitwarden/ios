@@ -32,7 +32,6 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     // MARK: Types
 
     typealias Services = HasAuthRepository
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -88,13 +87,11 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             let canEdit = cipherView.deletedDate == nil
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
-            let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
-
             coordinator.showAlert(.moreOptions(
                 context: MoreOptionsAlertContext(
-                    canArchive: isArchiveVaultItemsFFEnabled && cipherView.canBeArchived,
+                    canArchive: cipherView.canBeArchived,
                     canCopyTotp: hasPremium || cipherView.organizationUseTotp,
-                    canUnarchive: isArchiveVaultItemsFFEnabled && cipherView.canBeUnarchived,
+                    canUnarchive: cipherView.canBeUnarchived,
                     cipherView: cipherView,
                     id: item.id,
                     showEdit: canEdit,

@@ -564,26 +564,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `perform(_:)` with `.appeared` updates whether to show the archive onboarding card.
     @MainActor
     func test_perform_appeared_loadArchiveOnboarding() async {
-        configService.featureFlagsBool[.archiveVaultItems] = true
         stateService.doesActiveAccountHavePremiumResult = true
         stateService.archiveOnboardingShown = false
 
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.shouldShowArchiveOnboardingActionCard)
-    }
-
-    /// `perform(_:)` with `.appeared` doesn't update whether to show the archive onboarding card
-    /// when archive FF is turned off.
-    @MainActor
-    func test_perform_appeared_loadArchiveOnboarding_FFOff() async {
-        configService.featureFlagsBool[.archiveVaultItems] = false
-        stateService.doesActiveAccountHavePremiumResult = true
-        stateService.archiveOnboardingShown = false
-
-        await subject.perform(.appeared)
-
-        XCTAssertFalse(subject.state.shouldShowArchiveOnboardingActionCard)
     }
 
     /// `perform(_:)` with `.appeared` loads hasPremium state when user has premium.

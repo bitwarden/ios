@@ -16,7 +16,6 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     var cipherMatchingHelperFactory: MockCipherMatchingHelperFactory!
     var ciphersClientWrapperService: MockCiphersClientWrapperService!
     var clientService: MockClientService!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var mockCallOrderHelper: MockCallOrderHelper!
     var policyService: MockPolicyService!
@@ -36,7 +35,6 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         ciphersClientWrapperService = MockCiphersClientWrapperService()
         clientService = MockClientService()
-        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -52,7 +50,6 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
             cipherMatchingHelperFactory: cipherMatchingHelperFactory,
             ciphersClientWrapperService: ciphersClientWrapperService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             policyService: policyService,
             stateService: stateService,
@@ -67,7 +64,6 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         cipherMatchingHelperFactory = nil
         ciphersClientWrapperService = nil
         clientService = nil
-        configService = nil
         errorReporter = nil
         mockCallOrderHelper = nil
         policyService = nil
@@ -80,10 +76,9 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     // MARK: Tests
 
     /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
-    /// prepared data filtering out archived cipher when feature flag is enabled.
+    /// prepared data filtering out an archived cipher.
     @MainActor
-    func test_prepareSearchAutofillCombinedMultipleData_archivedCipherFeatureFlagEnabled() async throws {
-        configService.featureFlagsBool[.archiveVaultItems] = true
+    func test_prepareSearchAutofillCombinedMultipleData_archivedCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             login: .fixture(
@@ -109,41 +104,6 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
             "prepareRestrictItemsPolicyOrganizations",
-        ])
-        XCTAssertNotNil(result)
-    }
-
-    /// `prepareSearchAutofillCombinedMultipleData(from:filter:withFido2Credentials:)` returns the
-    /// prepared data including archived cipher when feature flag is disabled.
-    @MainActor
-    func test_prepareSearchAutofillCombinedMultipleData_archivedCipherFeatureFlagDisabled() async throws {
-        configService.featureFlagsBool[.archiveVaultItems] = false
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            login: .fixture(
-                hasFido2: false,
-                uris: [.fixture(uri: "https://example.com", match: .exact)],
-            ),
-            name: "Example Site",
-            archivedDate: .now,
-            copyableFields: [.loginPassword],
-        )
-
-        let result = await subject.prepareSearchAutofillCombinedMultipleData(
-            from: [
-                .fixture(
-                    login: .fixture(
-                        uris: [.fixture(uri: "https://example.com", match: .exact)],
-                    ),
-                ),
-            ],
-            filter: VaultListFilter(searchText: "example"),
-            withFido2Credentials: nil,
-        )
-
-        XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
-            "addItemForGroup",
         ])
         XCTAssertNotNil(result)
     }
@@ -477,10 +437,9 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     }
 
     /// `prepareSearchData(from:filter:)` returns the prepared data filtering out archived cipher
-    /// when feature flag is enabled and not in archive group.
+    /// when not in archive group.
     @MainActor
-    func test_prepareSearchData_archivedCipherFeatureFlagEnabled() async throws {
-        configService.featureFlagsBool[.archiveVaultItems] = true
+    func test_prepareSearchData_archivedCipher() async throws {
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             name: "Example Site",
@@ -499,10 +458,9 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
     }
 
     /// `prepareSearchData(from:filter:)` returns the prepared data including archived cipher
-    /// when feature flag is enabled and in archive group.
+    /// in archive group.
     @MainActor
     func test_prepareSearchData_archivedCipherArchiveGroup() async throws {
-        configService.featureFlagsBool[.archiveVaultItems] = true
         ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
             id: "1",
             name: "Example Site",
@@ -512,29 +470,6 @@ class VaultListDataPreparatorSearchTests: BitwardenTestCase { // swiftlint:disab
         let result = await subject.prepareSearchData(
             from: [.fixture(archivedDate: .now)],
             filter: VaultListFilter(group: .archive, searchText: "example"),
-        )
-
-        XCTAssertEqual(mockCallOrderHelper.callOrder, [
-            "prepareRestrictItemsPolicyOrganizations",
-            "addSearchResultItem",
-        ])
-        XCTAssertNotNil(result)
-    }
-
-    /// `prepareSearchData(from:filter:)` returns the prepared data including archived cipher
-    /// when feature flag is disabled.
-    @MainActor
-    func test_prepareSearchData_archivedCipherFeatureFlagDisabled() async throws {
-        configService.featureFlagsBool[.archiveVaultItems] = false
-        ciphersClientWrapperService.decryptAndProcessCiphersInBatchOnCipherParameterToPass = .fixture(
-            id: "1",
-            name: "Example Site",
-            archivedDate: .now,
-        )
-
-        let result = await subject.prepareSearchData(
-            from: [.fixture()],
-            filter: VaultListFilter(searchText: "example"),
         )
 
         XCTAssertEqual(mockCallOrderHelper.callOrder, [
