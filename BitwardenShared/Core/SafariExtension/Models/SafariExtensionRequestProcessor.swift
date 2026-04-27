@@ -365,6 +365,14 @@ private extension SafariExtensionRequestProcessor {
         }
 
         if hasNewPassword || hasConfirmPassword {
+            if preferredUsername(from: pageDetails) == nil, isGeneratedPasswordChangePasswordSurface(pageDetails) {
+                return SafariExtensionRequest(
+                    kind: .changePassword,
+                    password: generatedPassword,
+                    urlString: request.urlString
+                )
+            }
+
             return SafariExtensionRequest(
                 kind: .saveLogin,
                 password: generatedPassword,
@@ -427,6 +435,33 @@ private extension SafariExtensionRequestProcessor {
             return nil
         }
         return value
+    }
+
+    func isGeneratedPasswordChangePasswordSurface(_ pageDetails: PageDetails) -> Bool {
+        let text = generatedPasswordSurfaceText(pageDetails)
+        return text.contains(where: isChangePasswordSurfaceText)
+    }
+
+    func generatedPasswordSurfaceText(_ pageDetails: PageDetails) -> [String] {
+        var values: [String] = [pageDetails.title]
+        values.append(contentsOf: pageDetails.forms.values.flatMap { [$0.htmlId, $0.htmlName, $0.htmlAction] })
+        values.append(contentsOf: pageDetails.fields.flatMap {
+            [
+                $0.form,
+                $0.htmlId,
+                $0.htmlName,
+                $0.labelLeft,
+                $0.labelRight,
+                $0.labelTag,
+                $0.placeholder,
+            ]
+        }.compactMap { $0 })
+        return values
+    }
+
+    func isChangePasswordSurfaceText(_ text: String) -> Bool {
+        let tokens = ["change password", "update password", "reset password", "new password", "confirm new password"]
+        return tokens.contains { text.localizedCaseInsensitiveContains($0) }
     }
 
     func passwordFieldRole(_ field: PageDetails.Field) -> PasswordFieldRole {
