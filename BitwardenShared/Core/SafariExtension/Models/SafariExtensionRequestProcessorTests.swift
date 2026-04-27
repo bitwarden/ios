@@ -14,6 +14,40 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(response.generatedPassword, "generated-secret")
         XCTAssertEqual(response.submissionAction, .generatePassword)
+        XCTAssertNil(response.followUpType)
+        XCTAssertNil(response.followUpRequest)
+        XCTAssertNil(response.followUpSubmissionAction)
+    }
+
+    func test_makeResponse_generatePassword_withSignupPage_returnsSaveLoginFollowUpContext() throws {
+        let request = testMakeGeneratePasswordSignupRequest()
+        let subject = SafariExtensionRequestProcessor(
+            passwordGenerator: { _ in "generated-secret" }
+        )
+
+        let response = try XCTUnwrap(subject.makeResponse(for: request))
+
+        XCTAssertEqual(response.generatedPassword, "generated-secret")
+        XCTAssertEqual(response.followUpType, .generatedPassword)
+        XCTAssertEqual(response.followUpRequest?.kind, .saveLogin)
+        XCTAssertEqual(response.followUpRequest?.urlString, "https://signup.example.com/register")
+        XCTAssertEqual(response.followUpRequest?.username, "user@example.com")
+        XCTAssertEqual(response.followUpSubmissionAction, .saveNewLogin)
+    }
+
+    func test_makeResponse_generatePassword_withChangePasswordPage_returnsUpdatePasswordFollowUpContext() throws {
+        let request = testMakeGeneratePasswordChangePasswordRequest()
+        let subject = SafariExtensionRequestProcessor(
+            passwordGenerator: { _ in "generated-secret" }
+        )
+
+        let response = try XCTUnwrap(subject.makeResponse(for: request))
+
+        XCTAssertEqual(response.generatedPassword, "generated-secret")
+        XCTAssertEqual(response.followUpType, .generatedPassword)
+        XCTAssertEqual(response.followUpRequest?.kind, .changePassword)
+        XCTAssertEqual(response.followUpRequest?.urlString, "https://accounts.example.com/change-password")
+        XCTAssertEqual(response.followUpSubmissionAction, .updatePassword)
     }
 
     func test_makeResponse_changePasswordWithMatchedLogin_returnsUpdatePasswordMessage() async throws {
@@ -188,7 +222,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
     func test_makeResponse_fillWithMatchedLogin_returnsFillScriptResponse() async throws {
         let request = SafariExtensionRequest(
             kind: .fill,
-            pageDetails: makePageDetails(),
+            pageDetails: testMakePageDetails(),
             urlString: "https://example.com/login"
         )
         let subject = SafariExtensionRequestProcessor(
@@ -214,7 +248,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
     func test_makeResponse_fillWithMatchedLoginWithoutUsername_fallsBackToSiteHost() async throws {
         let request = SafariExtensionRequest(
             kind: .fill,
-            pageDetails: makePageDetails(),
+            pageDetails: testMakePageDetails(),
             urlString: "https://accounts.example.com/login"
         )
         let subject = SafariExtensionRequestProcessor(
@@ -237,7 +271,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
     func test_makeResponse_fillWithoutMatchedLogin_returnsNoMatchMessage() async throws {
         let request = SafariExtensionRequest(
             kind: .fill,
-            pageDetails: makePageDetails(),
+            pageDetails: testMakePageDetails(),
             urlString: "https://example.com/login"
         )
         let subject = SafariExtensionRequestProcessor(
@@ -304,66 +338,6 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(response.submissionAction, .saveNewLogin)
         XCTAssertEqual(response.userMessage, "Saved login to Bitwarden.")
     }
-
-    private func makePageDetails() -> PageDetails {
-        PageDetails(
-            collectedTimestamp: Date(timeIntervalSince1970: 1_715_000_000),
-            documentUUID: "doc-1",
-            documentUrl: "https://example.com/login",
-            fields: [
-                PageDetails.Field(
-                    disabled: false,
-                    elementNumber: 0,
-                    form: "form__0",
-                    htmlClass: nil,
-                    htmlId: "username",
-                    htmlName: "username",
-                    labelLeft: nil,
-                    labelRight: nil,
-                    labelTag: "Username",
-                    onepasswordFieldType: nil,
-                    opId: "field__0",
-                    placeholder: nil,
-                    readOnly: false,
-                    type: "text",
-                    value: nil,
-                    viewable: true,
-                    visible: true
-                ),
-                PageDetails.Field(
-                    disabled: false,
-                    elementNumber: 1,
-                    form: "form__0",
-                    htmlClass: nil,
-                    htmlId: "password",
-                    htmlName: "password",
-                    labelLeft: nil,
-                    labelRight: nil,
-                    labelTag: "Password",
-                    onepasswordFieldType: nil,
-                    opId: "field__1",
-                    placeholder: nil,
-                    readOnly: false,
-                    type: "password",
-                    value: nil,
-                    viewable: true,
-                    visible: true
-                )
-            ],
-            forms: [
-                "form__0": PageDetails.Form(
-                    htmlAction: "https://example.com/login",
-                    htmlId: "login-form",
-                    htmlMethod: "post",
-                    htmlName: "login",
-                    opId: "form__0"
-                )
-            ],
-            tabUrl: "https://example.com/login",
-            title: "Example",
-            url: "https://example.com/login"
-        )
-    }
 }
 
 private struct MockSafariExtensionMatchedLoginResolver: SafariExtensionMatchedLoginResolving {
@@ -384,4 +358,180 @@ private final class MockSafariExtensionCredentialStore: SafariExtensionCredentia
     ) async throws {
         savedRequests.append((request, matchedLogin, submissionAction))
     }
+}
+
+private func testMakePageDetails() -> PageDetails {
+    PageDetails(
+        collectedTimestamp: Date(timeIntervalSince1970: 1_715_000_000),
+        documentUUID: "doc-1",
+        documentUrl: "https://example.com/login",
+        fields: [
+            testMakeField(
+                elementNumber: 0,
+                form: "form__0",
+                htmlId: "username",
+                htmlName: "username",
+                labelTag: "Username",
+                type: "text"
+            ),
+            testMakeField(
+                elementNumber: 1,
+                form: "form__0",
+                htmlId: "password",
+                htmlName: "password",
+                labelTag: "Password",
+                type: "password"
+            ),
+        ],
+        forms: [
+            "form__0": PageDetails.Form(
+                htmlAction: "https://example.com/login",
+                htmlId: "login-form",
+                htmlMethod: "post",
+                htmlName: "login",
+                opId: "form__0"
+            ),
+        ],
+        tabUrl: "https://example.com/login",
+        title: "Example",
+        url: "https://example.com/login"
+    )
+}
+
+private func testMakeGeneratePasswordSignupRequest() -> SafariExtensionRequest {
+    SafariExtensionRequest(
+        kind: .generatePassword,
+        pageDetails: PageDetails(
+            collectedTimestamp: Date(timeIntervalSince1970: 1_715_000_000),
+            documentUUID: "doc-signup",
+            documentUrl: "https://signup.example.com/register",
+            fields: [
+                testMakeField(
+                    elementNumber: 0,
+                    form: "signup-form",
+                    htmlId: "email",
+                    htmlName: "email",
+                    labelTag: "Email",
+                    placeholder: "Email",
+                    type: "email",
+                    value: "user@example.com"
+                ),
+                testMakeField(
+                    elementNumber: 1,
+                    form: "signup-form",
+                    htmlId: "new-password",
+                    htmlName: "newPassword",
+                    labelTag: "New password",
+                    placeholder: "New password",
+                    type: "password"
+                ),
+                testMakeField(
+                    elementNumber: 2,
+                    form: "signup-form",
+                    htmlId: "confirm-password",
+                    htmlName: "confirmPassword",
+                    labelTag: "Confirm password",
+                    placeholder: "Confirm password",
+                    type: "password"
+                ),
+            ],
+            forms: [
+                "signup-form": PageDetails.Form(
+                    htmlAction: "https://signup.example.com/register",
+                    htmlId: "signup-form",
+                    htmlMethod: "post",
+                    htmlName: "register",
+                    opId: "signup-form"
+                ),
+            ],
+            tabUrl: "https://signup.example.com/register",
+            title: "Create account",
+            url: "https://signup.example.com/register"
+        ),
+        urlString: "https://signup.example.com/register"
+    )
+}
+
+private func testMakeGeneratePasswordChangePasswordRequest() -> SafariExtensionRequest {
+    SafariExtensionRequest(
+        kind: .generatePassword,
+        pageDetails: PageDetails(
+            collectedTimestamp: Date(timeIntervalSince1970: 1_715_000_000),
+            documentUUID: "doc-change-password",
+            documentUrl: "https://accounts.example.com/change-password",
+            fields: [
+                testMakeField(
+                    elementNumber: 0,
+                    form: "change-password-form",
+                    htmlId: "current-password",
+                    htmlName: "currentPassword",
+                    labelTag: "Current password",
+                    placeholder: "Current password",
+                    type: "password"
+                ),
+                testMakeField(
+                    elementNumber: 1,
+                    form: "change-password-form",
+                    htmlId: "new-password",
+                    htmlName: "newPassword",
+                    labelTag: "New password",
+                    placeholder: "New password",
+                    type: "password"
+                ),
+                testMakeField(
+                    elementNumber: 2,
+                    form: "change-password-form",
+                    htmlId: "confirm-password",
+                    htmlName: "confirmPassword",
+                    labelTag: "Confirm password",
+                    placeholder: "Confirm password",
+                    type: "password"
+                ),
+            ],
+            forms: [
+                "change-password-form": PageDetails.Form(
+                    htmlAction: "https://accounts.example.com/change-password",
+                    htmlId: "change-password-form",
+                    htmlMethod: "post",
+                    htmlName: "changePassword",
+                    opId: "change-password-form"
+                ),
+            ],
+            tabUrl: "https://accounts.example.com/change-password",
+            title: "Change password",
+            url: "https://accounts.example.com/change-password"
+        ),
+        urlString: "https://accounts.example.com/change-password"
+    )
+}
+
+private func testMakeField(
+    elementNumber: Int,
+    form: String,
+    htmlId: String,
+    htmlName: String,
+    labelTag: String,
+    placeholder: String? = nil,
+    type: String,
+    value: String? = nil
+) -> PageDetails.Field {
+    PageDetails.Field(
+        disabled: false,
+        elementNumber: elementNumber,
+        form: form,
+        htmlClass: nil,
+        htmlId: htmlId,
+        htmlName: htmlName,
+        labelLeft: nil,
+        labelRight: nil,
+        labelTag: labelTag,
+        onepasswordFieldType: nil,
+        opId: "field__\(elementNumber)",
+        placeholder: placeholder,
+        readOnly: false,
+        type: type,
+        value: value,
+        viewable: true,
+        visible: true
+    )
 }

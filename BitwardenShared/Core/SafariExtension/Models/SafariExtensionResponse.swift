@@ -125,7 +125,13 @@ public struct SafariExtensionResponse: Codable, Equatable {
     }
 
     /// Build a response for password generation flows.
-    public static func generatedPassword(_ generatedPassword: String, for request: SafariExtensionRequest) throws -> Self {
+    public static func generatedPassword(
+        _ generatedPassword: String,
+        for request: SafariExtensionRequest,
+        followUpType: SafariExtensionResponseFollowUpType? = nil,
+        followUpRequest: SafariExtensionRequest? = nil,
+        followUpSubmissionAction: SafariExtensionSubmissionAction? = nil
+    ) throws -> Self {
         guard request.canGeneratePassword else {
             throw CocoaError(.coderInvalidValue)
         }
@@ -138,6 +144,9 @@ public struct SafariExtensionResponse: Codable, Equatable {
             fillScriptJSON: nil,
             generatedPassword: generatedPassword,
             userMessage: "Generated password with Bitwarden.",
+            followUpType: followUpType,
+            followUpRequest: followUpRequest,
+            followUpSubmissionAction: followUpSubmissionAction,
         )
     }
 }
