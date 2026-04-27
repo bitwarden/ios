@@ -72,7 +72,13 @@ public struct SafariExtensionRequestProcessor {
     func makeResponse(for request: SafariExtensionRequest) async -> SafariExtensionResponse? {
         if request.kind == .generatePassword {
             if let generatedPassword = await makeGeneratedPassword(for: request) {
-                return try? SafariExtensionResponse.generatedPassword(generatedPassword, for: request)
+                return try? SafariExtensionResponse.generatedPassword(
+                    generatedPassword,
+                    for: request,
+                    followUpType: makeGeneratedPasswordFollowUpType(for: request),
+                    followUpRequest: makeGeneratedPasswordFollowUpRequest(for: request),
+                    followUpSubmissionAction: makeGeneratedPasswordFollowUpSubmissionAction(for: request),
+                )
             }
 
             return SafariExtensionResponse(
@@ -109,7 +115,13 @@ public struct SafariExtensionRequestProcessor {
     ) -> SafariExtensionResponse? {
         switch request.kind {
         case .generatePassword:
-            return try? SafariExtensionResponse.generatedPassword(passwordGenerator(request.passwordOptions), for: request)
+            return try? SafariExtensionResponse.generatedPassword(
+                passwordGenerator(request.passwordOptions),
+                for: request,
+                followUpType: makeGeneratedPasswordFollowUpType(for: request),
+                followUpRequest: makeGeneratedPasswordFollowUpRequest(for: request),
+                followUpSubmissionAction: makeGeneratedPasswordFollowUpSubmissionAction(for: request),
+            )
         case .setup:
             return SafariExtensionResponse(
                 request: request,
@@ -308,5 +320,102 @@ public struct SafariExtensionRequestProcessor {
 
     private static func clampedUInt8(_ value: Int) -> UInt8 {
         UInt8(max(1, min(value, Int(UInt8.max))))
+    }
+}
+
+private extension SafariExtensionRequestProcessor {
+    func makeGeneratedPasswordFollowUpType(for request: SafariExtensionRequest) -> SafariExtensionResponseFollowUpType? {
+        makeGeneratedPasswordFollowUpSubmissionAction(for: request) == nil ? nil : .generatedPassword
+    }
+
+    func makeGeneratedPasswordFollowUpRequest(for request: SafariExtensionRequest) -> SafariExtensionRequest? {
+        guard let submissionAction = makeGeneratedPasswordFollowUpSubmissionAction(for: request) else {
+            return nil
+        }
+
+        switch submissionAction {
+        case .saveNewLogin:
+            return SafariExtensionRequest(
+                kind: .saveLogin,
+                urlString: request.urlString,
+                username: preferredUsername(from: request.pageDetails)
+            )
+        case .updatePassword:
+            return SafariExtensionRequest(
+                kind: .changePassword,
+                urlString: request.urlString
+            )
+        default:
+            return nil
+        }
+    }
+
+    func makeGeneratedPasswordFollowUpSubmissionAction(for request: SafariExtensionRequest) -> SafariExtensionSubmissionAction? {
+        guard request.kind == .generatePassword,
+              let pageDetails = request.pageDetails else {
+            return nil
+        }
+
+        let passwordFields = pageDetails.fields.filter { $0.type == "password" && $0.viewable }
+        let roles = passwordFields.map(passwordFieldRole)
+        let hasCurrentPassword = roles.contains(.current)
+        let hasNewPassword = roles.contains(.new)
+        let hasConfirmPassword = roles.contains(.confirm)
+
+        if hasCurrentPassword && (hasNewPassword || hasConfirmPassword) {
+            return .updatePassword
+        }
+
+        if (hasNewPassword || hasConfirmPassword), preferredUsername(from: pageDetails) != nil {
+            return .saveNewLogin
+        }
+
+        return nil
+    }
+
+    func preferredUsername(from pageDetails: PageDetails?) -> String? {
+        guard let pageDetails else {
+            return nil
+        }
+
+        let fields = pageDetails.fields
+        let preferredField = fields.first { $0.type == "email" && $0.viewable }
+            ?? fields.first { $0.type == "text" && $0.viewable }
+            ?? fields.first { $0.type == "tel" && $0.viewable }
+            ?? fields.first { $0.type == "email" }
+
+        return normalizedFieldValue(preferredField)
+    }
+
+    func normalizedFieldValue(_ field: PageDetails.Field?) -> String? {
+        guard let value = field?.value?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty else {
+            return nil
+        }
+        return value
+    }
+
+    func passwordFieldRole(_ field: PageDetails.Field) -> PasswordFieldRole {
+        let source = [field.htmlId, field.htmlName, field.labelTag, field.labelLeft, field.placeholder]
+            .compactMap { $0?.lowercased() }
+            .joined(separator: " ")
+
+        if source.contains("current") || source.contains("old") {
+            return .current
+        }
+        if source.contains("confirm") || source.contains("verification") || source.contains("verify")
+            || source.contains("repeat") || source.contains("again") {
+            return .confirm
+        }
+        if source.contains("new") || source.contains("create") || source.contains("choose") || source.contains("set") {
+            return .new
+        }
+        return .unknown
+    }
+
+    enum PasswordFieldRole {
+        case current
+        case new
+        case confirm
+        case unknown
     }
 }
