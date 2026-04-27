@@ -32,6 +32,7 @@ class SafariExtensionResponseTests: BitwardenTestCase {
         XCTAssertEqual(subject.suggestionAction, .generatePassword)
         XCTAssertEqual(subject.submissionAction, .generatePassword)
         XCTAssertEqual(subject.generatedPassword, "generated-secret")
+        XCTAssertNil(subject.followUpType)
         XCTAssertEqual(subject.userMessage, "Generated password with Bitwarden.")
         XCTAssertTrue(subject.hasGeneratedPassword)
         XCTAssertFalse(subject.canFinalizeWithScript)
@@ -77,12 +78,14 @@ class SafariExtensionResponseTests: BitwardenTestCase {
             fillScriptJSON: nil,
             generatedPassword: nil,
             userMessage: "Save login",
+            followUpType: .generatedPassword,
         )
 
         let data = try JSONEncoder().encode(subject)
         let decoded = try JSONDecoder().decode(SafariExtensionResponse.self, from: data)
 
         XCTAssertEqual(decoded, subject)
+        XCTAssertEqual(decoded.followUpType, .generatedPassword)
         XCTAssertFalse(decoded.canFinalizeWithScript)
         XCTAssertFalse(decoded.hasGeneratedPassword)
     }

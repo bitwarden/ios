@@ -85,7 +85,37 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
 
         XCTAssertEqual(decoded.id, "req-1")
         XCTAssertEqual(decoded.response?.generatedPassword, "generated-secret")
+        XCTAssertNil(decoded.response?.followUpType)
         XCTAssertNil(decoded.errorMessage)
+    }
+
+    func test_encodeResponse_withFollowUpType_roundTrips() throws {
+        let request = SafariExtensionRequest(
+            kind: .saveLogin,
+            password: "secret",
+            urlString: "https://example.com/login",
+            username: "user@example.com"
+        )
+        let response = SafariExtensionResponse(
+            request: request,
+            suggestionAction: .saveLogin,
+            submissionAction: .saveNewLogin,
+            matchedLogin: nil,
+            fillScriptJSON: nil,
+            generatedPassword: nil,
+            userMessage: "Save this generated password to Bitwarden.",
+            followUpType: .generatedPassword,
+        )
+
+        let encoded = try SafariExtensionBridgeCodec.encodeResponse(
+            requestID: "req-followup",
+            response: response,
+        )
+        let decoded = try JSONDecoder().decode(SafariExtensionBridgeResponse.self, from: XCTUnwrap(encoded.data(using: .utf8)))
+
+        XCTAssertEqual(decoded.id, "req-followup")
+        XCTAssertEqual(decoded.response?.followUpType, .generatedPassword)
+        XCTAssertEqual(decoded.response?.submissionAction, .saveNewLogin)
     }
 
     func test_encodeErrorResponse_returnsErrorOnlyJSONStringEnvelope() throws {
