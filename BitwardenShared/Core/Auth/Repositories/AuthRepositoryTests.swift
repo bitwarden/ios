@@ -1516,6 +1516,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
     }
@@ -1658,6 +1659,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
     }
@@ -2108,6 +2110,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2279,6 +2282,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     securityState: "SECURITY_STATE",
                 ),
                 method: .decryptedKey(decryptedUserKey: "DECRYPTED_USER_KEY"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2324,6 +2328,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v1(privateKey: "private"),
                 method: .keyConnector(masterKey: "key", userKey: "user"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(keyConnectorService.convertNewUserToKeyConnectorCalled)
@@ -2376,6 +2381,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v1(privateKey: "private"),
                 method: .keyConnector(masterKey: "key", userKey: "user"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
@@ -2484,6 +2490,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2544,6 +2551,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2599,6 +2607,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2758,6 +2767,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY"),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -2797,6 +2807,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .userKey(protectedUserKey: "KEY"),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -2849,6 +2860,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2917,6 +2929,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2985,6 +2998,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -3036,6 +3050,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     securityState: "SECURITY_STATE",
                 ),
                 method: .pin(pin: "123", pinProtectedUserKey: "pinProtectedUserKey"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -3080,6 +3095,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     securityState: "SECURITY_STATE",
                 ),
                 method: .pinEnvelope(pin: "123", pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
