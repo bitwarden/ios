@@ -70,14 +70,25 @@ public struct SafariExtensionRequestProcessor {
     }
 
     func makeResponse(for request: SafariExtensionRequest) async -> SafariExtensionResponse? {
+        let matchedLogin = try? await matchedLoginResolver?.resolveMatchedLogin(for: request)
+
         if request.kind == .generatePassword {
             if let generatedPassword = await makeGeneratedPassword(for: request) {
+                let followUpRequest = makeGeneratedPasswordFollowUpRequest(
+                    for: request,
+                    generatedPassword: generatedPassword
+                )
+                let followUpSubmissionAction = makeGeneratedPasswordFollowUpSubmissionAction(
+                    for: followUpRequest,
+                    matchedLogin: matchedLogin ?? nil
+                )
                 return try? SafariExtensionResponse.generatedPassword(
                     generatedPassword,
                     for: request,
-                    followUpType: makeGeneratedPasswordFollowUpType(for: request),
-                    followUpRequest: makeGeneratedPasswordFollowUpRequest(for: request),
-                    followUpSubmissionAction: makeGeneratedPasswordFollowUpSubmissionAction(for: request),
+                    matchedLogin: matchedLogin ?? nil,
+                    followUpType: followUpSubmissionAction == nil ? nil : .generatedPassword,
+                    followUpRequest: followUpRequest,
+                    followUpSubmissionAction: followUpSubmissionAction,
                 )
             }
 
@@ -91,8 +102,6 @@ public struct SafariExtensionRequestProcessor {
                 userMessage: "Couldn’t generate a password in Bitwarden.",
             )
         }
-
-        let matchedLogin = try? await matchedLoginResolver?.resolveMatchedLogin(for: request)
 
         if request.requestContext?.trigger == .actionPanelPrimary {
             let submissionAction = request.requestContext?.submissionAction
@@ -115,12 +124,20 @@ public struct SafariExtensionRequestProcessor {
     ) -> SafariExtensionResponse? {
         switch request.kind {
         case .generatePassword:
+            let followUpRequest = makeGeneratedPasswordFollowUpRequest(
+                for: request,
+                generatedPassword: passwordGenerator(request.passwordOptions)
+            )
+            let followUpSubmissionAction = makeGeneratedPasswordFollowUpSubmissionAction(
+                for: followUpRequest,
+                matchedLogin: nil
+            )
             return try? SafariExtensionResponse.generatedPassword(
                 passwordGenerator(request.passwordOptions),
                 for: request,
-                followUpType: makeGeneratedPasswordFollowUpType(for: request),
-                followUpRequest: makeGeneratedPasswordFollowUpRequest(for: request),
-                followUpSubmissionAction: makeGeneratedPasswordFollowUpSubmissionAction(for: request),
+                followUpType: followUpSubmissionAction == nil ? nil : .generatedPassword,
+                followUpRequest: followUpRequest,
+                followUpSubmissionAction: followUpSubmissionAction,
             )
         case .setup:
             return SafariExtensionResponse(
@@ -324,35 +341,11 @@ public struct SafariExtensionRequestProcessor {
 }
 
 private extension SafariExtensionRequestProcessor {
-    func makeGeneratedPasswordFollowUpType(for request: SafariExtensionRequest) -> SafariExtensionResponseFollowUpType? {
-        makeGeneratedPasswordFollowUpSubmissionAction(for: request) == nil ? nil : .generatedPassword
-    }
-
-    func makeGeneratedPasswordFollowUpRequest(for request: SafariExtensionRequest) -> SafariExtensionRequest? {
-        guard let submissionAction = makeGeneratedPasswordFollowUpSubmissionAction(for: request) else {
-            return nil
-        }
-
-        switch submissionAction {
-        case .saveNewLogin:
-            return SafariExtensionRequest(
-                kind: .saveLogin,
-                urlString: request.urlString,
-                username: preferredUsername(from: request.pageDetails)
-            )
-        case .updatePassword:
-            return SafariExtensionRequest(
-                kind: .changePassword,
-                urlString: request.urlString
-            )
-        default:
-            return nil
-        }
-    }
-
-    func makeGeneratedPasswordFollowUpSubmissionAction(for request: SafariExtensionRequest) -> SafariExtensionSubmissionAction? {
-        guard request.kind == .generatePassword,
-              let pageDetails = request.pageDetails else {
+    func makeGeneratedPasswordFollowUpRequest(
+        for request: SafariExtensionRequest,
+        generatedPassword: String
+    ) -> SafariExtensionRequest? {
+        guard let pageDetails = request.pageDetails else {
             return nil
         }
 
@@ -363,14 +356,56 @@ private extension SafariExtensionRequestProcessor {
         let hasConfirmPassword = roles.contains(.confirm)
 
         if hasCurrentPassword && (hasNewPassword || hasConfirmPassword) {
-            return .updatePassword
+            return SafariExtensionRequest(
+                kind: .changePassword,
+                oldPassword: currentPasswordValue(from: pageDetails),
+                password: generatedPassword,
+                urlString: request.urlString
+            )
         }
 
-        if (hasNewPassword || hasConfirmPassword), preferredUsername(from: pageDetails) != nil {
-            return .saveNewLogin
+        if hasNewPassword || hasConfirmPassword {
+            return SafariExtensionRequest(
+                kind: .saveLogin,
+                password: generatedPassword,
+                urlString: request.urlString,
+                username: preferredUsername(from: pageDetails)
+            )
         }
 
         return nil
+    }
+
+    func makeGeneratedPasswordFollowUpSubmissionAction(
+        for followUpRequest: SafariExtensionRequest?,
+        matchedLogin: SafariExtensionMatchedLogin?
+    ) -> SafariExtensionSubmissionAction? {
+        guard let followUpRequest else {
+            return nil
+        }
+
+        let action = SafariExtensionSubmissionAction.classify(followUpRequest, matchedLogin: matchedLogin)
+        if action != .none {
+            return action
+        }
+
+        switch followUpRequest.kind {
+        case .changePassword:
+            return .updatePassword
+        case .saveLogin:
+            return followUpRequest.username == nil ? nil : .saveNewLogin
+        default:
+            return nil
+        }
+    }
+
+    func currentPasswordValue(from pageDetails: PageDetails?) -> String? {
+        guard let pageDetails else {
+            return nil
+        }
+
+        let currentPasswordField = pageDetails.fields.first { passwordFieldRole($0) == .current }
+        return normalizedFieldValue(currentPasswordField)
     }
 
     func preferredUsername(from pageDetails: PageDetails?) -> String? {
