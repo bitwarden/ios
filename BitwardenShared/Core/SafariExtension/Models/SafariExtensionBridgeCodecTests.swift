@@ -96,6 +96,12 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
             urlString: "https://example.com/login",
             username: "user@example.com"
         )
+        let followUpRequest = SafariExtensionRequest(
+            kind: .saveLogin,
+            password: "secret",
+            urlString: "https://example.com/register",
+            username: "user@example.com"
+        )
         let response = SafariExtensionResponse(
             request: request,
             suggestionAction: .saveLogin,
@@ -105,6 +111,8 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
             generatedPassword: nil,
             userMessage: "Save this generated password to Bitwarden.",
             followUpType: .generatedPassword,
+            followUpRequest: followUpRequest,
+            followUpSubmissionAction: .saveNewLogin,
         )
 
         let encoded = try SafariExtensionBridgeCodec.encodeResponse(
@@ -115,6 +123,8 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
 
         XCTAssertEqual(decoded.id, "req-followup")
         XCTAssertEqual(decoded.response?.followUpType, .generatedPassword)
+        XCTAssertEqual(decoded.response?.followUpRequest?.urlString, "https://example.com/register")
+        XCTAssertEqual(decoded.response?.followUpSubmissionAction, .saveNewLogin)
         XCTAssertEqual(decoded.response?.submissionAction, .saveNewLogin)
     }
 

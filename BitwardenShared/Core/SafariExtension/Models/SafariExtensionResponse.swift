@@ -35,6 +35,12 @@ public struct SafariExtensionResponse: Codable, Equatable {
     /// Additional context for flows that were triggered as a follow-up to another response.
     var followUpType: SafariExtensionResponseFollowUpType?
 
+    /// A request to use for the next follow-up action, when the native layer already knows it.
+    var followUpRequest: SafariExtensionRequest?
+
+    /// The submission action to use for the next follow-up action, when the native layer already knows it.
+    var followUpSubmissionAction: SafariExtensionSubmissionAction?
+
     /// Whether the response includes a fill script that can be finalized into the page.
     public var canFinalizeWithScript: Bool {
         submissionAction == .fill && !(fillScriptJSON?.isEmpty ?? true)
@@ -55,6 +61,8 @@ public struct SafariExtensionResponse: Codable, Equatable {
         generatedPassword: String?,
         userMessage: String?,
         followUpType: SafariExtensionResponseFollowUpType? = nil,
+        followUpRequest: SafariExtensionRequest? = nil,
+        followUpSubmissionAction: SafariExtensionSubmissionAction? = nil,
     ) {
         self.request = request
         self.suggestionAction = suggestionAction
@@ -64,6 +72,8 @@ public struct SafariExtensionResponse: Codable, Equatable {
         self.generatedPassword = generatedPassword
         self.userMessage = userMessage
         self.followUpType = followUpType
+        self.followUpRequest = followUpRequest
+        self.followUpSubmissionAction = followUpSubmissionAction
     }
 
     /// Build a response for page fill flows.
