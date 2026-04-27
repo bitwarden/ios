@@ -506,14 +506,26 @@
   }
 
   function bitwardenActionPanelContent(response) {
+    const generatedPasswordFollowUp = response?.followUpType === 'generatedPassword';
     switch (response?.submissionAction) {
       case "saveNewLogin":
         return {
-          eyebrow: 'Review before saving',
-          title: "Save login",
-          subtitle: response.userMessage || "Save this login to Bitwarden.",
+          eyebrow: generatedPasswordFollowUp ? 'Review generated password' : 'Review before saving',
+          title: generatedPasswordFollowUp ? 'Save generated password' : 'Save login',
+          subtitle: response.userMessage || (generatedPasswordFollowUp ? 'Save this generated password to Bitwarden.' : 'Save this login to Bitwarden.'),
           primaryLabel: "Save in Bitwarden",
           dismissLabel: "Not now",
+          iconBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.16)' : 'rgba(52, 199, 89, 0.16)',
+          iconColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(36, 138, 61, 1)',
+          eyebrowBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.12)' : 'rgba(52, 199, 89, 0.12)',
+          eyebrowColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(36, 138, 61, 1)',
+          primaryBackground: generatedPasswordFollowUp ? 'rgba(137, 68, 171, 1)' : 'rgba(24, 122, 51, 1)',
+          detailBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.08)' : 'rgba(52, 199, 89, 0.08)',
+          detailBorder: generatedPasswordFollowUp ? '1px solid rgba(175, 82, 222, 0.18)' : '1px solid rgba(52, 199, 89, 0.18)',
+          detailLabelColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(36, 138, 61, 1)',
+          dismissBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.12)' : 'rgba(52, 199, 89, 0.12)',
+          dismissColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(36, 138, 61, 1)',
+          dismissBorder: generatedPasswordFollowUp ? '1px solid rgba(175, 82, 222, 0.18)' : '1px solid rgba(52, 199, 89, 0.18)',
         };
       case "updateExistingLogin":
         return {
@@ -522,18 +534,100 @@
           subtitle: response.userMessage || "Update the existing Bitwarden login with these changes.",
           primaryLabel: "Update in Bitwarden",
           dismissLabel: "Not now",
+          iconBackground: 'rgba(0, 122, 255, 0.14)',
+          iconColor: 'rgba(0, 122, 255, 1)',
+          eyebrowBackground: 'rgba(0, 122, 255, 0.12)',
+          eyebrowColor: 'rgba(0, 122, 255, 1)',
+          primaryBackground: 'rgba(0, 86, 214, 1)',
+          detailBackground: 'rgba(0, 122, 255, 0.08)',
+          detailBorder: '1px solid rgba(0, 122, 255, 0.18)',
+          detailLabelColor: 'rgba(0, 122, 255, 1)',
+          dismissBackground: 'rgba(0, 122, 255, 0.12)',
+          dismissColor: 'rgba(0, 122, 255, 1)',
+          dismissBorder: '1px solid rgba(0, 122, 255, 0.18)',
         };
       case "updatePassword":
         return {
-          eyebrow: 'Review before updating',
-          title: "Update password",
-          subtitle: response.userMessage || "Update the password for this Bitwarden login.",
+          eyebrow: generatedPasswordFollowUp ? 'Review generated password' : 'Review before updating',
+          title: generatedPasswordFollowUp ? 'Update with generated password' : 'Update password',
+          subtitle: response.userMessage || (generatedPasswordFollowUp ? 'Update this Bitwarden login with the generated password.' : 'Update the password for this Bitwarden login.'),
           primaryLabel: "Update in Bitwarden",
           dismissLabel: "Not now",
+          iconBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.16)' : 'rgba(0, 122, 255, 0.14)',
+          iconColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(0, 122, 255, 1)',
+          eyebrowBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.12)' : 'rgba(0, 122, 255, 0.12)',
+          eyebrowColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(0, 122, 255, 1)',
+          primaryBackground: generatedPasswordFollowUp ? 'rgba(137, 68, 171, 1)' : 'rgba(0, 86, 214, 1)',
+          detailBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.08)' : 'rgba(0, 122, 255, 0.08)',
+          detailBorder: generatedPasswordFollowUp ? '1px solid rgba(175, 82, 222, 0.18)' : '1px solid rgba(0, 122, 255, 0.18)',
+          detailLabelColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(0, 122, 255, 1)',
+          dismissBackground: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 0.12)' : 'rgba(0, 122, 255, 0.12)',
+          dismissColor: generatedPasswordFollowUp ? 'rgba(175, 82, 222, 1)' : 'rgba(0, 122, 255, 1)',
+          dismissBorder: generatedPasswordFollowUp ? '1px solid rgba(175, 82, 222, 0.18)' : '1px solid rgba(0, 122, 255, 0.18)',
         };
       default:
         return null;
     }
+  }
+
+  function bitwardenActionPanelSite(response) {
+    const urlString = bitwardenTrimmedValue(response?.request?.urlString);
+    if (!urlString) {
+      return null;
+    }
+
+    try {
+      const parsed = new URL(urlString);
+      return bitwardenTrimmedValue(parsed.host) || bitwardenTrimmedValue(parsed.hostname) || bitwardenTrimmedValue(urlString);
+    } catch (_error) {
+      const normalized = urlString
+        .replace(/^[a-z]+:\/\//i, '')
+        .split('/')[0]
+        .split('?')[0]
+        .split('#')[0]
+        .split('@').pop()
+        .trim();
+      return bitwardenTrimmedValue(normalized) || bitwardenTrimmedValue(urlString);
+    }
+  }
+
+  function bitwardenActionPanelUsername(response) {
+    return bitwardenTrimmedValue(response?.request?.username)
+      || bitwardenTrimmedValue(response?.matchedLogin?.username)
+      || null;
+  }
+
+  function bitwardenActionPanelDetails(response) {
+    const details = [];
+    const site = bitwardenActionPanelSite(response);
+    const username = bitwardenActionPanelUsername(response);
+    const generatedPasswordFollowUp = response?.followUpType === 'generatedPassword';
+
+    if (site) {
+      details.push({
+        key: 'site',
+        label: 'Site',
+        value: site,
+      });
+    }
+
+    if (username) {
+      details.push({
+        key: 'username',
+        label: 'Username',
+        value: username,
+      });
+    }
+
+    if (generatedPasswordFollowUp) {
+      details.push({
+        key: 'generated-password',
+        label: 'Password',
+        value: 'Generated just now',
+      });
+    }
+
+    return details;
   }
 
   function bitwardenShouldPresentActionPanel(nativeResponse) {
@@ -585,20 +679,38 @@
       return null;
     }
 
+    const pageDetails = bitwardenCollectPageDetails(document);
     const suggestedAction = bitwardenSuggestPageAction(document);
     switch (suggestedAction) {
-      case 'saveLogin':
+      case 'saveLogin': {
+        const usernameField = bitwardenPreferredUsernameField(pageDetails.fields, {
+          includeHiddenEmail: true,
+          document,
+          forms: pageDetails.forms,
+        });
         return {
           response: {
+            followUpType: 'generatedPassword',
+            request: {
+              kind: 'saveLogin',
+              urlString: bitwardenCurrentURL(),
+              username: usernameField?.value || null,
+            },
             submissionAction: 'saveNewLogin',
-            userMessage: 'Save this login to Bitwarden.',
+            userMessage: 'Save this generated password to Bitwarden.',
           },
         };
+      }
       case 'changePassword':
         return {
           response: {
+            followUpType: 'generatedPassword',
+            request: {
+              kind: 'changePassword',
+              urlString: bitwardenCurrentURL(),
+            },
             submissionAction: 'updatePassword',
-            userMessage: 'Update the password for this Bitwarden login.',
+            userMessage: 'Update this Bitwarden login with the generated password.',
           },
         };
       default:
@@ -628,13 +740,67 @@
     eyebrow.dataset.bitwardenActionEyebrow = 'true';
     eyebrow.textContent = content.eyebrow || '';
 
+    const icon = document.createElement('div');
+    icon.dataset.bitwardenActionIcon = 'true';
+    icon.textContent = 'B';
+
     const title = document.createElement('div');
     title.dataset.bitwardenActionTitle = 'true';
     title.textContent = content.title;
 
+    const textGroup = document.createElement('div');
+    textGroup.dataset.bitwardenActionTextGroup = 'true';
+
+    const header = document.createElement('div');
+    header.dataset.bitwardenActionHeader = 'true';
+
     const subtitle = document.createElement('div');
     subtitle.dataset.bitwardenActionSubtitle = 'true';
     subtitle.textContent = content.subtitle;
+
+    const detailRows = bitwardenActionPanelDetails(response);
+    const details = document.createElement('div');
+    details.dataset.bitwardenActionDetails = 'true';
+    details.style.display = detailRows.length > 0 ? 'grid' : 'none';
+    details.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+    details.style.gap = '10px';
+    details.style.marginTop = detailRows.length > 0 ? '14px' : '0';
+
+    detailRows.forEach((detail) => {
+      const row = document.createElement('div');
+      row.dataset.bitwardenActionDetail = detail.key;
+      if (detail.key === 'site') {
+        row.dataset.bitwardenActionDetailSite = 'true';
+      }
+      if (detail.key === 'username') {
+        row.dataset.bitwardenActionDetailUsername = 'true';
+      }
+      if (detail.key === 'generated-password') {
+        row.dataset.bitwardenActionDetailGeneratedPassword = 'true';
+      }
+      row.style.padding = '12px';
+      row.style.borderRadius = '14px';
+      row.style.background = content.detailBackground || 'rgba(120, 120, 128, 0.08)';
+      row.style.border = content.detailBorder || '1px solid rgba(60, 60, 67, 0.08)';
+
+      const label = document.createElement('div');
+      label.textContent = detail.label;
+      label.style.fontSize = '12px';
+      label.style.fontWeight = '600';
+      label.style.color = content.detailLabelColor || 'rgba(60, 60, 67, 0.72)';
+      label.style.marginBottom = '4px';
+
+      const value = document.createElement('div');
+      value.textContent = detail.value;
+      value.style.fontSize = '14px';
+      value.style.fontWeight = '600';
+      value.style.color = '#111';
+      value.style.wordBreak = 'break-word';
+
+      row.appendChild(label);
+      row.appendChild(value);
+      details.appendChild(row);
+    });
 
     const buttons = document.createElement('div');
     buttons.dataset.bitwardenActionButtons = 'true';
@@ -645,7 +811,7 @@
     const primaryButton = document.createElement('button');
     primaryButton.dataset.bitwardenActionPrimary = 'true';
     primaryButton.textContent = content.primaryLabel;
-    primaryButton.style.background = 'rgba(0, 122, 255, 1)';
+    primaryButton.style.background = content.primaryBackground || 'rgba(0, 122, 255, 1)';
     primaryButton.style.color = '#fff';
     primaryButton.style.border = 'none';
     primaryButton.style.borderRadius = '12px';
@@ -681,9 +847,9 @@
     const dismissButton = document.createElement('button');
     dismissButton.dataset.bitwardenActionDismiss = 'true';
     dismissButton.textContent = content.dismissLabel;
-    dismissButton.style.background = 'rgba(120, 120, 128, 0.12)';
-    dismissButton.style.color = '#111';
-    dismissButton.style.border = 'none';
+    dismissButton.style.background = content.dismissBackground || 'rgba(120, 120, 128, 0.12)';
+    dismissButton.style.color = content.dismissColor || '#111';
+    dismissButton.style.border = content.dismissBorder || 'none';
     dismissButton.style.borderRadius = '12px';
     dismissButton.style.padding = '12px 16px';
     dismissButton.style.fontWeight = '500';
@@ -697,15 +863,51 @@
     if (typeof panel.appendChild === 'function') {
       buttons.appendChild(primaryButton);
       buttons.appendChild(dismissButton);
-      panel.appendChild(eyebrow);
-      panel.appendChild(title);
-      panel.appendChild(subtitle);
+      textGroup.appendChild(eyebrow);
+      textGroup.appendChild(title);
+      textGroup.appendChild(subtitle);
+      header.appendChild(icon);
+      header.appendChild(textGroup);
+      panel.appendChild(header);
+      panel.appendChild(details);
       panel.appendChild(buttons);
     }
+    header.style.display = 'flex';
+    header.style.alignItems = 'flex-start';
+    header.style.gap = '12px';
+    icon.style.width = '36px';
+    icon.style.height = '36px';
+    icon.style.borderRadius = '999px';
+    icon.style.display = 'flex';
+    icon.style.alignItems = 'center';
+    icon.style.justifyContent = 'center';
+    icon.style.fontSize = '16px';
+    icon.style.fontWeight = '700';
+    icon.style.background = content.iconBackground || 'rgba(0, 122, 255, 0.14)';
+    icon.style.color = content.iconColor || 'rgba(0, 122, 255, 1)';
+    icon.style.flexShrink = '0';
+    textGroup.style.display = 'grid';
+    textGroup.style.gap = '6px';
+    eyebrow.style.display = 'inline-flex';
+    eyebrow.style.alignSelf = 'flex-start';
+    eyebrow.style.padding = '4px 10px';
+    eyebrow.style.borderRadius = '999px';
+    eyebrow.style.background = content.eyebrowBackground || 'rgba(60, 60, 67, 0.08)';
+    eyebrow.style.color = content.eyebrowColor || 'rgba(60, 60, 67, 0.82)';
+    eyebrow.style.fontSize = '12px';
+    eyebrow.style.fontWeight = '600';
+    title.style.fontSize = '20px';
+    title.style.fontWeight = '700';
+    title.style.lineHeight = '1.2';
+    subtitle.style.color = 'rgba(60, 60, 67, 0.82)';
+    subtitle.style.lineHeight = '1.35';
     panel.style.position = 'fixed';
     panel.style.top = '16px';
     panel.style.left = '16px';
     panel.style.right = '16px';
+    panel.style.maxWidth = '420px';
+    panel.style.marginLeft = 'auto';
+    panel.style.marginRight = 'auto';
     panel.style.zIndex = '2147483647';
     panel.style.padding = '16px';
     panel.style.borderRadius = '18px';

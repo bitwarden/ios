@@ -41,6 +41,7 @@ targetTemplates:
           - "**/Tests/*"
           - "**/__Snapshots__/*"
           - "**/sourcery.yml"
+          - "**/*.node-test.js"
       - path: ${sourcesPath}
         includes:
           - "**/__Snapshots__/*"
