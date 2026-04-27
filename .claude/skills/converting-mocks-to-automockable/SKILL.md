@@ -26,7 +26,6 @@ These patterns require custom behavior that AutoMockable can't express:
 | Mock executes passed-in closure parameters (e.g., runs a `() async throws -> T` argument) | Closures passed as arguments are non-escaping; Sourcery stubs these with `fatalError` |
 | Mock accumulates all calls into a combined array (e.g., `var alerts: [Alert]`)            | AutoMockable stores last call's args, not a merged collection across overloads        |
 | Methods with overloaded signatures that share state                                       | Each overload gets a separate mock; shared logic must be bespoke                      |
-| Mock is a class/struct, not a protocol implementation                                     | AutoMockable only works on protocols                                                  |
 
 When in doubt, check the Sourcery template behavior: non-escaping closure parameters will be noted with a `fatalError("…")` stub in the generated output.
 
