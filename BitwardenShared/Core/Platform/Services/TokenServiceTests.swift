@@ -64,14 +64,6 @@ class TokenServiceTests: BitwardenTestCase {
         }
     }
 
-    /// `getAccessToken()` returns the access token stored in the state service for the active account
-    /// for the `ClientManagedTokens` function. Now it temporarily returns `nil` until the expired validation is added
-    /// as the SDK always expect a valid token.
-    func test_getAccessToken_sdk() async throws {
-        let accessToken: String? = await subject.getAccessToken()
-        XCTAssertNil(accessToken)
-    }
-
     /// `getAccessTokenExpirationDate()` returns the access token's expiration date.
     func test_getAccessTokenExpirationDate() async throws {
         stateService.accessTokenExpirationDateByUserId["1"] = Date(year: 2025, month: 10, day: 2)
