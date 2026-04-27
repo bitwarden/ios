@@ -128,6 +128,7 @@ public struct SafariExtensionResponse: Codable, Equatable {
     public static func generatedPassword(
         _ generatedPassword: String,
         for request: SafariExtensionRequest,
+        matchedLogin: SafariExtensionMatchedLogin? = nil,
         followUpType: SafariExtensionResponseFollowUpType? = nil,
         followUpRequest: SafariExtensionRequest? = nil,
         followUpSubmissionAction: SafariExtensionSubmissionAction? = nil
@@ -140,7 +141,7 @@ public struct SafariExtensionResponse: Codable, Equatable {
             request: request,
             suggestionAction: SafariExtensionSuggestionAction.from(request),
             submissionAction: SafariExtensionSubmissionAction.classify(request, matchedLogin: nil),
-            matchedLogin: nil,
+            matchedLogin: matchedLogin,
             fillScriptJSON: nil,
             generatedPassword: generatedPassword,
             userMessage: "Generated password with Bitwarden.",

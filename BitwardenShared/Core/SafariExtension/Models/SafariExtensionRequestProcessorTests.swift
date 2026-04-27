@@ -36,7 +36,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
     }
 
     func test_makeResponse_generatePassword_withChangePasswordPage_returnsUpdatePasswordFollowUpContext() throws {
-        let request = testMakeGeneratePasswordChangePasswordRequest()
+        let request = testMakeGeneratePasswordChangePasswordRequest(currentPassword: nil)
         let subject = SafariExtensionRequestProcessor(
             passwordGenerator: { _ in "generated-secret" }
         )
@@ -47,6 +47,58 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(response.followUpType, .generatedPassword)
         XCTAssertEqual(response.followUpRequest?.kind, .changePassword)
         XCTAssertEqual(response.followUpRequest?.urlString, "https://accounts.example.com/change-password")
+        XCTAssertEqual(response.followUpSubmissionAction, .updatePassword)
+    }
+
+    func test_makeAsyncResponse_generatePassword_withMatchedLogin_prefersUpdateExistingLoginFollowUp() async throws {
+        let request = testMakeGeneratePasswordSignupRequest()
+        let subject = SafariExtensionRequestProcessor(
+            matchedLoginResolver: MockSafariExtensionMatchedLoginResolver(
+                matchedLogin: SafariExtensionMatchedLogin(
+                    id: "cipher-1",
+                    username: "user@example.com",
+                    password: "old-secret",
+                    urlString: "https://signup.example.com/register"
+                )
+            ),
+            passwordGenerator: { _ in "generated-secret" }
+        )
+
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertEqual(response.generatedPassword, "generated-secret")
+        XCTAssertEqual(response.matchedLogin?.id, "cipher-1")
+        XCTAssertEqual(response.followUpType, .generatedPassword)
+        XCTAssertEqual(response.followUpRequest?.kind, .saveLogin)
+        XCTAssertEqual(response.followUpRequest?.username, "user@example.com")
+        XCTAssertEqual(response.followUpRequest?.password, "generated-secret")
+        XCTAssertEqual(response.followUpSubmissionAction, .updateExistingLogin)
+    }
+
+    func test_makeAsyncResponse_generatePassword_withMatchedLogin_prefersUpdatePasswordFollowUp() async throws {
+        let request = testMakeGeneratePasswordChangePasswordRequest(currentPassword: "old-secret")
+        let subject = SafariExtensionRequestProcessor(
+            matchedLoginResolver: MockSafariExtensionMatchedLoginResolver(
+                matchedLogin: SafariExtensionMatchedLogin(
+                    id: "cipher-1",
+                    username: "user@example.com",
+                    password: "old-secret",
+                    urlString: "https://accounts.example.com/change-password"
+                )
+            ),
+            passwordGenerator: { _ in "generated-secret" }
+        )
+
+        let maybeResponse = await subject.makeAsyncResponse(for: request)
+        let response = try XCTUnwrap(maybeResponse)
+
+        XCTAssertEqual(response.generatedPassword, "generated-secret")
+        XCTAssertEqual(response.matchedLogin?.id, "cipher-1")
+        XCTAssertEqual(response.followUpType, .generatedPassword)
+        XCTAssertEqual(response.followUpRequest?.kind, .changePassword)
+        XCTAssertEqual(response.followUpRequest?.oldPassword, "old-secret")
+        XCTAssertEqual(response.followUpRequest?.password, "generated-secret")
         XCTAssertEqual(response.followUpSubmissionAction, .updatePassword)
     }
 
@@ -452,7 +504,7 @@ private func testMakeGeneratePasswordSignupRequest() -> SafariExtensionRequest {
     )
 }
 
-private func testMakeGeneratePasswordChangePasswordRequest() -> SafariExtensionRequest {
+private func testMakeGeneratePasswordChangePasswordRequest(currentPassword: String?) -> SafariExtensionRequest {
     SafariExtensionRequest(
         kind: .generatePassword,
         pageDetails: PageDetails(
@@ -467,7 +519,8 @@ private func testMakeGeneratePasswordChangePasswordRequest() -> SafariExtensionR
                     htmlName: "currentPassword",
                     labelTag: "Current password",
                     placeholder: "Current password",
-                    type: "password"
+                    type: "password",
+                    value: currentPassword
                 ),
                 testMakeField(
                     elementNumber: 1,
