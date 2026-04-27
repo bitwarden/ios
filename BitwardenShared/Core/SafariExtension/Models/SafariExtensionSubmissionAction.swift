@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - SafariExtensionMatchedLogin
 
 /// A lightweight snapshot of an existing matching login item.
@@ -60,7 +62,10 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
             let normalizedMatchedURL = matchedLogin.urlString?.trimmingCharacters(in: .whitespacesAndNewlines)
 
             if normalizedRequestUsername == nil {
-                if normalizedRequestURL != normalizedMatchedURL {
+                if !saveLoginURLsAppearEquivalent(
+                    requestURLString: normalizedRequestURL,
+                    matchedURLString: normalizedMatchedURL
+                ) {
                     return .saveNewLogin
                 }
 
@@ -84,4 +89,67 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
 
         return .none
     }
+
+    private static func saveLoginURLsAppearEquivalent(
+        requestURLString: String?,
+        matchedURLString: String?
+    ) -> Bool {
+        guard let request = normalizedSaveLoginURLContext(from: requestURLString),
+              let matched = normalizedSaveLoginURLContext(from: matchedURLString) else {
+            return requestURLString == matchedURLString
+        }
+
+        guard request.scheme == matched.scheme,
+              request.host == matched.host,
+              request.port == matched.port else {
+            return false
+        }
+
+        if request.normalizedPath == matched.normalizedPath {
+            return true
+        }
+
+        return request.isLoginLikePath && matched.isLoginLikePath
+    }
+
+    private static func normalizedSaveLoginURLContext(from urlString: String?) -> SaveLoginURLContext? {
+        guard let urlString,
+              let components = URLComponents(string: urlString),
+              let scheme = components.scheme?.lowercased(),
+              let host = components.host?.lowercased() else {
+            return nil
+        }
+
+        let normalizedPath = normalizedSaveLoginPath(components.path)
+        return SaveLoginURLContext(
+            scheme: scheme,
+            host: host,
+            port: components.port,
+            normalizedPath: normalizedPath,
+            isLoginLikePath: isLoginLikePath(normalizedPath)
+        )
+    }
+
+    private static func normalizedSaveLoginPath(_ path: String) -> String {
+        let trimmed = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != "/" else {
+            return "/"
+        }
+
+        let collapsed = trimmed.hasPrefix("/") ? trimmed : "/\(trimmed)"
+        return collapsed.hasSuffix("/") && collapsed.count > 1 ? String(collapsed.dropLast()) : collapsed
+    }
+
+    private static func isLoginLikePath(_ path: String) -> Bool {
+        let loginLikeTokens = ["login", "log-in", "signin", "sign-in", "auth"]
+        return loginLikeTokens.contains { path.localizedCaseInsensitiveContains($0) }
+    }
+}
+
+private struct SaveLoginURLContext {
+    var scheme: String
+    var host: String
+    var port: Int?
+    var normalizedPath: String
+    var isLoginLikePath: Bool
 }
