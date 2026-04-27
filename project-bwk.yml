@@ -46,6 +46,10 @@ schemes:
     build:
       targets:
         BitwardenResources: all
+  BitwardenSdkMocks:
+    build:
+      targets:
+        BitwardenSdkMocks: all
   Networking:
     build:
       targets:
