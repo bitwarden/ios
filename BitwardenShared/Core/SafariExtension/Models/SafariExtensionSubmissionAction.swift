@@ -109,6 +109,10 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
             return true
         }
 
+        if request.isSignupLikePath || matched.isSignupLikePath {
+            return false
+        }
+
         return request.isLoginLikePath && matched.isLoginLikePath
     }
 
@@ -126,7 +130,8 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
             host: host,
             port: components.port,
             normalizedPath: normalizedPath,
-            isLoginLikePath: isLoginLikePath(normalizedPath)
+            isLoginLikePath: isLoginLikePath(normalizedPath),
+            isSignupLikePath: isSignupLikePath(normalizedPath)
         )
     }
 
@@ -144,6 +149,11 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
         let loginLikeTokens = ["login", "log-in", "signin", "sign-in", "auth"]
         return loginLikeTokens.contains { path.localizedCaseInsensitiveContains($0) }
     }
+
+    private static func isSignupLikePath(_ path: String) -> Bool {
+        let signupLikeTokens = ["signup", "sign-up", "register", "create-account", "createaccount", "join"]
+        return signupLikeTokens.contains { path.localizedCaseInsensitiveContains($0) }
+    }
 }
 
 private struct SaveLoginURLContext {
@@ -152,4 +162,5 @@ private struct SaveLoginURLContext {
     var port: Int?
     var normalizedPath: String
     var isLoginLikePath: Bool
+    var isSignupLikePath: Bool
 }
