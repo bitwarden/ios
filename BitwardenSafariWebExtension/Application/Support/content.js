@@ -674,7 +674,34 @@
     }
   }
 
-  function bitwardenFollowUpResponseForGeneratedPassword(document = window.document, generatedPassword = null) {
+  function bitwardenNativeGeneratedPasswordFollowUpResponse(response) {
+    if (response?.followUpType !== 'generatedPassword') {
+      return null;
+    }
+
+    const followUpRequest = response?.followUpRequest;
+    const followUpSubmissionAction = response?.followUpSubmissionAction;
+    if (!followUpRequest || typeof followUpRequest !== 'object' || !bitwardenNeedsActionPanel(followUpSubmissionAction)) {
+      return null;
+    }
+
+    return {
+      response: {
+        followUpType: response.followUpType,
+        request: followUpRequest,
+        submissionAction: followUpSubmissionAction,
+        matchedLogin: response?.matchedLogin || null,
+      },
+    };
+  }
+
+  function bitwardenFollowUpResponseForGeneratedPassword(nativeResponse, document = window.document) {
+    const nativeFollowUpResponse = bitwardenNativeGeneratedPasswordFollowUpResponse(nativeResponse?.response);
+    if (nativeFollowUpResponse) {
+      return nativeFollowUpResponse;
+    }
+
+    const generatedPassword = nativeResponse?.response?.generatedPassword;
     if (typeof generatedPassword !== 'string' || generatedPassword.length === 0) {
       return null;
     }
@@ -1030,7 +1057,7 @@
     }
 
     const followUpResponse = response.submissionAction === 'generatePassword'
-      ? bitwardenFollowUpResponseForGeneratedPassword(window.document, response.generatedPassword)
+      ? bitwardenFollowUpResponseForGeneratedPassword(nativeResponse, window.document)
       : null;
 
     bitwardenPresentActionPanel(followUpResponse || nativeResponse);

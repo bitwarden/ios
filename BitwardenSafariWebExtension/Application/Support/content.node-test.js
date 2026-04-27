@@ -580,6 +580,38 @@ async function testApplyUpdateExistingLogin_stripsSensitiveURLPartsFromSiteDetai
   assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[1].textContent, 'accounts.example.com');
 }
 
+async function testApplyGeneratedPassword_prefersNativeProvidedFollowUpContext() {
+  const currentPassword = createInput({ id: 'current-password', name: 'currentPassword', type: 'password', value: 'old-secret' });
+  currentPassword.placeholder = 'Current password';
+  const newPassword = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: '' });
+  newPassword.placeholder = 'New password';
+  const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: '' });
+  confirmPassword.placeholder = 'Confirm password';
+  const ctx = makeEnvironment([currentPassword, newPassword, confirmPassword], {
+    href: 'https://accounts.example.com/change-password',
+  });
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'generatePassword',
+      generatedPassword: 'generated-secret',
+      followUpType: 'generatedPassword',
+      followUpRequest: {
+        kind: 'saveLogin',
+        urlString: 'https://signup.example.com/register',
+        username: 'native@example.com',
+      },
+      followUpSubmissionAction: 'saveNewLogin',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Save generated password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[1].textContent, 'signup.example.com');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').children[1].textContent, 'native@example.com');
+}
+
 async function testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel() {
   const email = createInput({ id: 'email', name: 'email', type: 'email', value: 'user@example.com' });
   const password = createInput({ id: 'new-password', name: 'newPassword', type: 'password', value: '' });
@@ -1197,6 +1229,7 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel();
   await testApplyUpdateExistingLogin_showsStructuredPanelCopy();
   await testApplyUpdateExistingLogin_stripsSensitiveURLPartsFromSiteDetail();
+  await testApplyGeneratedPassword_prefersNativeProvidedFollowUpContext();
   await testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel();
   await testActionPanelPrimaryErrorEnvelope_restoresPanelInteractivity();
   await testActionPanelPrimaryDispatchesConfirmEvent();
