@@ -50,6 +50,21 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
         XCTAssertEqual(response.followUpSubmissionAction, .updatePassword)
     }
 
+    func test_makeResponse_generatePassword_withPasswordResetSurface_returnsUpdatePasswordFollowUpContext() throws {
+        let request = testMakeGeneratePasswordResetPasswordRequest()
+        let subject = SafariExtensionRequestProcessor(
+            passwordGenerator: { _ in "generated-secret" }
+        )
+
+        let response = try XCTUnwrap(subject.makeResponse(for: request))
+
+        XCTAssertEqual(response.generatedPassword, "generated-secret")
+        XCTAssertEqual(response.followUpType, .generatedPassword)
+        XCTAssertEqual(response.followUpRequest?.kind, .changePassword)
+        XCTAssertEqual(response.followUpRequest?.urlString, "https://example.com/account/security")
+        XCTAssertEqual(response.followUpSubmissionAction, .updatePassword)
+    }
+
     func test_makeAsyncResponse_generatePassword_withMatchedLogin_prefersUpdateExistingLoginFollowUp() async throws {
         let request = testMakeGeneratePasswordSignupRequest()
         let subject = SafariExtensionRequestProcessor(
@@ -555,6 +570,50 @@ private func testMakeGeneratePasswordChangePasswordRequest(currentPassword: Stri
             url: "https://accounts.example.com/change-password"
         ),
         urlString: "https://accounts.example.com/change-password"
+    )
+}
+
+private func testMakeGeneratePasswordResetPasswordRequest() -> SafariExtensionRequest {
+    SafariExtensionRequest(
+        kind: .generatePassword,
+        pageDetails: PageDetails(
+            collectedTimestamp: Date(timeIntervalSince1970: 1_715_000_000),
+            documentUUID: "doc-reset-password",
+            documentUrl: "https://example.com/account/security",
+            fields: [
+                testMakeField(
+                    elementNumber: 0,
+                    form: "reset-password-form",
+                    htmlId: "new-password",
+                    htmlName: "newPassword",
+                    labelTag: "New password",
+                    placeholder: "Create a new password",
+                    type: "password"
+                ),
+                testMakeField(
+                    elementNumber: 1,
+                    form: "reset-password-form",
+                    htmlId: "confirm-password",
+                    htmlName: "confirmPassword",
+                    labelTag: "Confirm new password",
+                    placeholder: "Confirm new password",
+                    type: "password"
+                ),
+            ],
+            forms: [
+                "reset-password-form": PageDetails.Form(
+                    htmlAction: "https://example.com/account/security",
+                    htmlId: "reset-password-form",
+                    htmlMethod: "post",
+                    htmlName: "reset-password-form",
+                    opId: "reset-password-form"
+                ),
+            ],
+            tabUrl: "https://example.com/account/security",
+            title: "Update your password",
+            url: "https://example.com/account/security"
+        ),
+        urlString: "https://example.com/account/security"
     )
 }
 
