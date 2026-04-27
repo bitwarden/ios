@@ -6,6 +6,7 @@ import Networking
 class MockTokenService: TokenService {
     var accessToken: String? = "ACCESS_TOKEN"
     var accessTokenExpirationDateResult: Result<Date?, Error> = .success(nil)
+    var accessTokenThrowableError: (any Error)?
     var expirationDate: Date?
     var getIsExternalResult: Result<Bool, Error> = .success(false)
     var refreshToken: String? = "REFRESH_TOKEN"
@@ -17,12 +18,14 @@ class MockTokenService: TokenService {
     var setTokensCalledWithUserId: String?
 
     func getAccessToken() async throws -> String {
+        if let accessTokenThrowableError { throw accessTokenThrowableError }
         guard let accessToken else { throw StateServiceError.noActiveAccount }
         return accessToken
     }
 
     func getAccessToken(userId: String) async throws -> String {
         getAccessTokenCalledWithUserId = userId
+        if let accessTokenThrowableError { throw accessTokenThrowableError }
         return accessTokenByUserId[userId] ?? accessToken ?? "ACCESS_TOKEN"
     }
 

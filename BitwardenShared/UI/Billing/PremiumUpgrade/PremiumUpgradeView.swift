@@ -41,27 +41,44 @@ struct PremiumUpgradeView: View {
     /// The main content of the view.
     private var content: some View {
         VStack(spacing: 0) {
+            if store.state.showSelfHostedBanner {
+                selfHostedBanner
+                    .padding(.bottom, 16)
+            }
+
             premiumCard
                 .padding(.bottom, 24)
 
-            upgradeButton
-                .padding(.bottom, 12)
+            if !store.state.isSelfHosted {
+                upgradeButton
+                    .padding(.bottom, 12)
 
-            stripeFooter
+                stripeFooter
+            }
         }
         .scrollView()
+        .task {
+            await store.perform(.appeared)
+        }
     }
 
     /// The premium upgrade card containing price, description, and features.
     private var premiumCard: some View {
         VStack(alignment: .leading, spacing: 0) {
-            priceSection
-                .padding(.bottom, 4)
+            if store.state.isSelfHosted {
+                Text(Localizations.unlockMoreAdvancedFeaturesWithPremiumPlan)
+                    .styleGuide(.headline, weight: .semibold)
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
+                    .padding(.bottom, 16)
+            } else {
+                priceSection
+                    .padding(.bottom, 4)
 
-            Text(Localizations.unlockMoreAdvancedFeaturesWithPremiumPlan)
-                .styleGuide(.body)
-                .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
-                .padding(.bottom, 16)
+                Text(Localizations.unlockMoreAdvancedFeaturesWithPremiumPlan)
+                    .styleGuide(.body)
+                    .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+                    .padding(.bottom, 16)
+            }
 
             PremiumFeaturesList()
         }
@@ -81,6 +98,19 @@ struct PremiumUpgradeView: View {
             Text(Localizations.perMonth)
                 .styleGuide(.body)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+        }
+    }
+
+    /// The self-hosted info banner displayed above the premium card.
+    private var selfHostedBanner: some View {
+        ActionCard(
+            message: Localizations.toManageYourPremiumSubscriptionDescriptionLong,
+            dismissButtonState: ActionCard.ButtonState(title: Localizations.close) {
+                store.send(.dismissBannerTapped)
+            },
+        ) {
+            SharedAsset.Icons.informationCircle24.swiftUIImage
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
         }
     }
 
@@ -113,12 +143,26 @@ struct PremiumUpgradeView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
+#Preview("Cloud") {
     NavigationView {
         PremiumUpgradeView(
             store: Store(
                 processor: StateProcessor(
                     state: PremiumUpgradeState(),
+                ),
+            ),
+        )
+    }
+}
+
+#Preview("Self-Hosted") {
+    NavigationView {
+        PremiumUpgradeView(
+            store: Store(
+                processor: StateProcessor(
+                    state: PremiumUpgradeState(
+                        isSelfHosted: true,
+                    ),
                 ),
             ),
         )

@@ -51,7 +51,7 @@ public struct ActionCard<LeadingContent: View>: View {
     let secondaryButtonState: ButtonState?
 
     /// The title of the card.
-    let title: String
+    let title: String?
 
     // MARK: View
 
@@ -63,8 +63,10 @@ public struct ActionCard<LeadingContent: View>: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .styleGuide(.title2, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
+                    if let title {
+                        Text(title)
+                            .styleGuide(.title2, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
+                    }
 
                     if let message {
                         Text(message)
@@ -115,7 +117,7 @@ public struct ActionCard<LeadingContent: View>: View {
     /// Initialize an `ActionCard` with leading content.
     ///
     /// - Parameters:
-    ///   - title: The title of the card.
+    ///   - title: The title of the card. If `nil`, the title is hidden.
     ///   - message: The message to display in the card.
     ///   - actionButtonState: State that describes the action button.
     ///   - dismissButtonState: State that describes the dismiss button.
@@ -123,7 +125,7 @@ public struct ActionCard<LeadingContent: View>: View {
     ///   - leadingContent: Content that is displayed at the leading edge of the title and message.
     ///
     public init(
-        title: String,
+        title: String? = nil,
         message: String? = nil,
         actionButtonState: ButtonState? = nil,
         dismissButtonState: ButtonState? = nil,
@@ -141,14 +143,14 @@ public struct ActionCard<LeadingContent: View>: View {
     /// Initialize an `ActionCard` with no leading content.
     ///
     /// - Parameters:
-    ///   - title: The title of the card.
+    ///   - title: The title of the card. If `nil`, the title is hidden.
     ///   - message: The message to display in the card.
     ///   - actionButtonState: State that describes the action button.
     ///   - dismissButtonState: State that describes the dismiss button.
     ///   - secondaryButtonState: State that describes the secondary button.
     ///
     public init(
-        title: String,
+        title: String? = nil,
         message: String? = nil,
         actionButtonState: ButtonState? = nil,
         dismissButtonState: ButtonState? = nil,

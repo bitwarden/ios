@@ -247,6 +247,11 @@ public class ServiceContainer: Services {
         let apiService = APIService(
             environmentService: environmentService,
             flightRecorder: flightRecorder,
+            userAgentBuilder: UserAgentBuilder(
+                appName: "Bitwarden_Authenticator_Mobile",
+                appVersion: Bundle.main.appVersion,
+                systemDevice: UIDevice.current,
+            ),
         )
 
         let errorReportBuilder = DefaultErrorReportBuilder(

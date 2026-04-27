@@ -72,4 +72,35 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         let text = try subject.inspect().find(text: "$9.99")
         XCTAssertNotNil(text)
     }
+
+    /// The self-hosted banner is visible when the user is on a self-hosted server.
+    @MainActor
+    func test_selfHostedBanner_visible() throws {
+        processor.state.isSelfHosted = true
+        let text = try subject.inspect().find(
+            text: Localizations.toManageYourPremiumSubscriptionDescriptionLong,
+        )
+        XCTAssertNotNil(text)
+    }
+
+    /// The self-hosted banner is hidden when dismissed.
+    @MainActor
+    func test_selfHostedBanner_hidden_whenDismissed() throws {
+        processor.state.isSelfHosted = true
+        processor.state.isBannerDismissed = true
+        XCTAssertThrowsError(
+            try subject.inspect().find(
+                text: Localizations.toManageYourPremiumSubscriptionDescriptionLong,
+            ),
+        )
+    }
+
+    /// The upgrade button and Stripe footer are hidden when self-hosted.
+    @MainActor
+    func test_upgradeButton_hidden_whenSelfHosted() throws {
+        processor.state.isSelfHosted = true
+        XCTAssertThrowsError(
+            try subject.inspect().find(asyncButton: Localizations.upgradeNow),
+        )
+    }
 }

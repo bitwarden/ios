@@ -446,15 +446,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func getPendingAdminLoginRequest(userId: String?) async throws -> PendingAdminLoginRequest? {
         let activeUserId = try await stateService.getAccountIdOrActiveId(userId: userId)
-        do {
-            if let jsonString = try await keychainRepository.getPendingAdminLoginRequest(userId: activeUserId),
-               let jsonData = jsonString.data(using: .utf8) {
-                return try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
-            }
-            return nil
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
-            return nil
+        if let jsonString = try await keychainRepository.getPendingAdminLoginRequest(userId: activeUserId),
+           let jsonData = jsonString.data(using: .utf8) {
+            return try JSONDecoder().decode(PendingAdminLoginRequest.self, from: jsonData)
         }
+        return nil
     }
 
     func getPendingLoginRequest(withId id: String?) async throws -> [LoginRequest] {

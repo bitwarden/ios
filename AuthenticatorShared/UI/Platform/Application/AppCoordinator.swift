@@ -113,7 +113,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             let navigationController = module.makeNavigationController()
             navigationController.isModalInPresentation = true
             navigationController.isNavigationBarHidden = true
-            navigationController.modalPresentationStyle = .fullScreen
+            navigationController.modalPresentationStyle = .overFullScreen
 
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,

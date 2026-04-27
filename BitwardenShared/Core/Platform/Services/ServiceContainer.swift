@@ -555,6 +555,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             )
         }
 
+        let userAgentBuilder = UserAgentBuilder(
+            appName: "Bitwarden_Mobile",
+            appVersion: Bundle.main.appVersion,
+            systemDevice: UIDevice.current,
+        )
         let apiService = APIService(
             activeAccountStateProvider: stateService,
             client: certificateHttpClient,
@@ -564,6 +569,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             serverCommunicationConfigClientSingleton: { serverCommConfigClientSingletonHolder },
             stateService: stateService,
             tokenService: tokenService,
+            userAgentBuilder: userAgentBuilder,
         )
 
         let errorReportBuilder = DefaultErrorReportBuilder(
@@ -589,12 +595,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let clientBuilder = DefaultClientBuilder(
-            errorReporter: errorReporter,
-            tokenProvider: tokenService,
+            appIDService: appIDService,
+            environmentService: environmentService,
+            tokenProvider: apiService.accountTokenProvider,
+            userAgentBuilder: userAgentBuilder,
         )
         let sdkRepositoryFactory = DefaultSdkRepositoryFactory(
             cipherDataStore: dataStore,
-            errorReporter: errorReporter,
             serverCommunicationConfigStateService: stateService,
         )
         let clientService = DefaultClientService(
@@ -1074,7 +1081,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             sdkRepositoryFactory: DefaultSdkRepositoryFactory(
                 cipherDataStore: dataStore,
-                errorReporter: errorReporter,
                 serverCommunicationConfigStateService: stateService,
             ),
             stateService: stateService,
