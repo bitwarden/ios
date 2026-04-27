@@ -222,6 +222,50 @@ class SafariExtensionSubmissionActionTests: BitwardenTestCase {
         XCTAssertEqual(SafariExtensionSubmissionAction.classify(request, matchedLogin: matchedLogin), .saveNewLogin)
     }
 
+    func test_classify_saveLogin_withMissingUsernameAndSignupSurface_returnsSaveNewLogin() {
+        let request = SafariExtensionRequest(
+            kind: .saveLogin,
+            pageDetails: testMakePageDetails(
+                title: "Create your account",
+                formIdentifier: "signup-form",
+                passwordLabel: "Create password"
+            ),
+            password: "new-secret",
+            urlString: "https://example.com/account",
+            username: nil,
+        )
+        let matchedLogin = SafariExtensionMatchedLogin(
+            id: "cipher-1",
+            username: "user@example.com",
+            password: "old-secret",
+            urlString: "https://example.com/login",
+        )
+
+        XCTAssertEqual(SafariExtensionSubmissionAction.classify(request, matchedLogin: matchedLogin), .saveNewLogin)
+    }
+
+    func test_classify_saveLogin_withMissingUsernameAndLoginSurface_returnsUpdateExistingLogin() {
+        let request = SafariExtensionRequest(
+            kind: .saveLogin,
+            pageDetails: testMakePageDetails(
+                title: "Sign in to Example",
+                formIdentifier: "login-form",
+                passwordLabel: "Password"
+            ),
+            password: "new-secret",
+            urlString: "https://example.com/account",
+            username: nil,
+        )
+        let matchedLogin = SafariExtensionMatchedLogin(
+            id: "cipher-1",
+            username: "user@example.com",
+            password: "old-secret",
+            urlString: "https://example.com/login",
+        )
+
+        XCTAssertEqual(SafariExtensionSubmissionAction.classify(request, matchedLogin: matchedLogin), .updateExistingLogin)
+    }
+
     func test_classify_incompleteRequest_returnsNone() {
         XCTAssertEqual(
             SafariExtensionSubmissionAction.classify(
@@ -231,4 +275,49 @@ class SafariExtensionSubmissionActionTests: BitwardenTestCase {
             .none,
         )
     }
+}
+
+private func testMakePageDetails(
+    title: String,
+    formIdentifier: String,
+    passwordLabel: String
+) -> PageDetails {
+    PageDetails(
+        collectedTimestamp: Date(timeIntervalSince1970: 1_715_000_000),
+        documentUUID: "doc-surface",
+        documentUrl: "https://example.com/account",
+        fields: [
+            PageDetails.Field(
+                disabled: false,
+                elementNumber: 1,
+                form: formIdentifier,
+                htmlClass: nil,
+                htmlId: "password",
+                htmlName: "password",
+                labelLeft: nil,
+                labelRight: nil,
+                labelTag: passwordLabel,
+                onepasswordFieldType: nil,
+                opId: "password-field",
+                placeholder: passwordLabel,
+                readOnly: false,
+                type: "password",
+                value: nil,
+                viewable: true,
+                visible: true
+            ),
+        ],
+        forms: [
+            formIdentifier: PageDetails.Form(
+                htmlAction: "https://example.com/account",
+                htmlId: formIdentifier,
+                htmlMethod: "post",
+                htmlName: formIdentifier,
+                opId: formIdentifier
+            ),
+        ],
+        tabUrl: "https://example.com/account",
+        title: title,
+        url: "https://example.com/account"
+    )
 }

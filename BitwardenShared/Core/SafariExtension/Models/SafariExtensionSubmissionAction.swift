@@ -62,11 +62,23 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
             let normalizedMatchedURL = matchedLogin.urlString?.trimmingCharacters(in: .whitespacesAndNewlines)
 
             if normalizedRequestUsername == nil {
-                if !saveLoginURLsAppearEquivalent(
+                let requestSurface = saveLoginSurfaceCategory(for: request)
+                if requestSurface == .signup {
+                    return .saveNewLogin
+                }
+
+                let urlsAppearEquivalent = saveLoginURLsAppearEquivalent(
                     requestURLString: normalizedRequestURL,
                     matchedURLString: normalizedMatchedURL
-                ) {
-                    return .saveNewLogin
+                )
+                if !urlsAppearEquivalent {
+                    let sharesOrigin = saveLoginURLsShareOrigin(
+                        requestURLString: normalizedRequestURL,
+                        matchedURLString: normalizedMatchedURL
+                    )
+                    guard sharesOrigin, requestSurface == .login else {
+                        return .saveNewLogin
+                    }
                 }
 
                 if normalizedRequestPassword != normalizedMatchedPassword {
@@ -116,6 +128,54 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
         return request.isLoginLikePath && matched.isLoginLikePath
     }
 
+    private static func saveLoginURLsShareOrigin(
+        requestURLString: String?,
+        matchedURLString: String?
+    ) -> Bool {
+        guard let request = normalizedSaveLoginURLContext(from: requestURLString),
+              let matched = normalizedSaveLoginURLContext(from: matchedURLString) else {
+            return false
+        }
+
+        return request.scheme == matched.scheme
+            && request.host == matched.host
+            && request.port == matched.port
+    }
+
+    private static func saveLoginSurfaceCategory(for request: SafariExtensionRequest) -> SaveLoginSurfaceCategory {
+        let text = saveLoginSurfaceText(for: request)
+        if text.contains(where: isSignupLikeText) {
+            return .signup
+        }
+        if text.contains(where: isLoginLikeText) {
+            return .login
+        }
+        return .unknown
+    }
+
+    private static func saveLoginSurfaceText(for request: SafariExtensionRequest) -> [String] {
+        var values: [String] = []
+        if let loginTitle = request.loginTitle?.trimmingCharacters(in: .whitespacesAndNewlines), !loginTitle.isEmpty {
+            values.append(loginTitle)
+        }
+        if let pageDetails = request.pageDetails {
+            values.append(pageDetails.title)
+            values.append(contentsOf: pageDetails.forms.values.flatMap { [$0.htmlId, $0.htmlName, $0.htmlAction] })
+            values.append(contentsOf: pageDetails.fields.flatMap {
+                [
+                    $0.form,
+                    $0.htmlId,
+                    $0.htmlName,
+                    $0.labelLeft,
+                    $0.labelRight,
+                    $0.labelTag,
+                    $0.placeholder,
+                ]
+            }.compactMap { $0 })
+        }
+        return values
+    }
+
     private static func normalizedSaveLoginURLContext(from urlString: String?) -> SaveLoginURLContext? {
         guard let urlString,
               let components = URLComponents(string: urlString),
@@ -154,6 +214,22 @@ public enum SafariExtensionSubmissionAction: String, Codable, Equatable {
         let signupLikeTokens = ["signup", "sign-up", "register", "create-account", "createaccount", "join"]
         return signupLikeTokens.contains { path.localizedCaseInsensitiveContains($0) }
     }
+
+    private static func isLoginLikeText(_ text: String) -> Bool {
+        let loginLikeTokens = ["login", "log in", "log-in", "sign in", "sign-in", "password"]
+        return loginLikeTokens.contains { text.localizedCaseInsensitiveContains($0) }
+    }
+
+    private static func isSignupLikeText(_ text: String) -> Bool {
+        let signupLikeTokens = ["signup", "sign up", "sign-up", "register", "create account", "create-account", "join"]
+        return signupLikeTokens.contains { text.localizedCaseInsensitiveContains($0) }
+    }
+}
+
+private enum SaveLoginSurfaceCategory {
+    case login
+    case signup
+    case unknown
 }
 
 private struct SaveLoginURLContext {
