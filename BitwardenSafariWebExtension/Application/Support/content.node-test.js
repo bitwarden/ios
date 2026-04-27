@@ -117,6 +117,15 @@ function makeEnvironment(elements, options = {}) {
           if (selector === '[data-bitwarden-action-title]') {
             return findChild((child) => child.dataset?.bitwardenActionTitle === 'true');
           }
+          if (selector === '[data-bitwarden-action-header]') {
+            return findChild((child) => child.dataset?.bitwardenActionHeader === 'true');
+          }
+          if (selector === '[data-bitwarden-action-icon]') {
+            return findChild((child) => child.dataset?.bitwardenActionIcon === 'true');
+          }
+          if (selector === '[data-bitwarden-action-text-group]') {
+            return findChild((child) => child.dataset?.bitwardenActionTextGroup === 'true');
+          }
           if (selector === '[data-bitwarden-action-eyebrow]') {
             return findChild((child) => child.dataset?.bitwardenActionEyebrow === 'true');
           }
@@ -125,6 +134,18 @@ function makeEnvironment(elements, options = {}) {
           }
           if (selector === '[data-bitwarden-action-buttons]') {
             return findChild((child) => child.dataset?.bitwardenActionButtons === 'true');
+          }
+          if (selector === '[data-bitwarden-action-details]') {
+            return findChild((child) => child.dataset?.bitwardenActionDetails === 'true');
+          }
+          if (selector === '[data-bitwarden-action-detail-site]') {
+            return findChild((child) => child.dataset?.bitwardenActionDetailSite === 'true');
+          }
+          if (selector === '[data-bitwarden-action-detail-username]') {
+            return findChild((child) => child.dataset?.bitwardenActionDetailUsername === 'true');
+          }
+          if (selector === '[data-bitwarden-action-detail-generated-password]') {
+            return findChild((child) => child.dataset?.bitwardenActionDetailGeneratedPassword === 'true');
           }
           return null;
         },
@@ -312,6 +333,11 @@ async function testApplyStatusBanner() {
   const ctx = makeEnvironment([password]);
   await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
     response: {
+      request: {
+        kind: 'saveLogin',
+        urlString: 'https://vault.example.com/login',
+        username: 'user@example.com',
+      },
       submissionAction: 'saveNewLogin',
       userMessage: 'Save this login to Bitwarden.',
     },
@@ -327,24 +353,57 @@ async function testApplyStatusBanner() {
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
   assert.equal(actionPanel.role, 'dialog');
   const title = actionPanel.querySelector('[data-bitwarden-action-title]');
+  const header = actionPanel.querySelector('[data-bitwarden-action-header]');
+  const icon = actionPanel.querySelector('[data-bitwarden-action-icon]');
+  const textGroup = actionPanel.querySelector('[data-bitwarden-action-text-group]');
   const eyebrow = actionPanel.querySelector('[data-bitwarden-action-eyebrow]');
   const subtitle = actionPanel.querySelector('[data-bitwarden-action-subtitle]');
+  const details = actionPanel.querySelector('[data-bitwarden-action-details]');
+  const siteDetail = actionPanel.querySelector('[data-bitwarden-action-detail-site]');
+  const usernameDetail = actionPanel.querySelector('[data-bitwarden-action-detail-username]');
   const buttons = actionPanel.querySelector('[data-bitwarden-action-buttons]');
   assert.ok(title);
+  assert.ok(header);
+  assert.ok(icon);
+  assert.ok(textGroup);
   assert.ok(eyebrow);
   assert.ok(subtitle);
+  assert.ok(details);
+  assert.ok(siteDetail);
+  assert.ok(usernameDetail);
   assert.ok(buttons);
   assert.equal(eyebrow.textContent, 'Review before saving');
+  assert.equal(icon.textContent, 'B');
+  assert.equal(icon.style.background, 'rgba(52, 199, 89, 0.16)');
+  assert.equal(icon.style.color, 'rgba(36, 138, 61, 1)');
   assert.equal(title.textContent, 'Save login');
   assert.equal(subtitle.textContent, 'Save this login to Bitwarden.');
+  assert.equal(siteDetail.textContent, '');
+  assert.equal(siteDetail.children.length, 2);
+  assert.equal(siteDetail.children[0].textContent, 'Site');
+  assert.equal(siteDetail.children[1].textContent, 'vault.example.com');
+  assert.equal(usernameDetail.textContent, '');
+  assert.equal(usernameDetail.children.length, 2);
+  assert.equal(usernameDetail.children[0].textContent, 'Username');
+  assert.equal(usernameDetail.children[1].textContent, 'user@example.com');
+  assert.equal(siteDetail.style.background, 'rgba(52, 199, 89, 0.08)');
+  assert.equal(siteDetail.style.border, '1px solid rgba(52, 199, 89, 0.18)');
+  assert.equal(siteDetail.children[0].style.color, 'rgba(36, 138, 61, 1)');
   const primary = buttons.querySelector('[data-bitwarden-action-primary]');
   const dismiss = buttons.querySelector('[data-bitwarden-action-dismiss]');
   assert.equal(primary.textContent, 'Save in Bitwarden');
   assert.equal(dismiss.textContent, 'Not now');
   assert.equal(buttons.style.display, 'flex');
-  assert.equal(primary.style.background, 'rgba(0, 122, 255, 1)');
+  assert.equal(eyebrow.style.background, 'rgba(52, 199, 89, 0.12)');
+  assert.equal(eyebrow.style.color, 'rgba(36, 138, 61, 1)');
+  assert.equal(primary.style.background, 'rgba(24, 122, 51, 1)');
+  assert.equal(actionPanel.style.maxWidth, '420px');
+  assert.equal(actionPanel.style.marginLeft, 'auto');
+  assert.equal(actionPanel.style.marginRight, 'auto');
   assert.equal(primary.style.color, '#fff');
-  assert.equal(dismiss.style.background, 'rgba(120, 120, 128, 0.12)');
+  assert.equal(dismiss.style.background, 'rgba(52, 199, 89, 0.12)');
+  assert.equal(dismiss.style.color, 'rgba(36, 138, 61, 1)');
+  assert.equal(dismiss.style.border, '1px solid rgba(52, 199, 89, 0.18)');
 }
 
 async function testApplyStatusBanner_doesNotReopenPanelForConfirmedAction() {
@@ -376,7 +435,9 @@ async function testApplyGeneratedPassword_showsSaveLoginFollowUpPanel() {
   password.placeholder = 'New password';
   const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: '' });
   confirmPassword.placeholder = 'Confirm password';
-  const ctx = makeEnvironment([email, password, confirmPassword]);
+  const ctx = makeEnvironment([email, password, confirmPassword], {
+    href: 'https://signup.example.com/register',
+  });
   await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
     response: {
       submissionAction: 'generatePassword',
@@ -393,7 +454,30 @@ async function testApplyGeneratedPassword_showsSaveLoginFollowUpPanel() {
   const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
   assert.ok(actionPanel);
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'saveNewLogin');
-  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Save login');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').textContent, 'Review generated password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Save generated password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-icon]').style.background, 'rgba(175, 82, 222, 0.16)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-icon]').style.color, 'rgba(175, 82, 222, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').style.background, 'rgba(175, 82, 222, 0.12)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').style.color, 'rgba(175, 82, 222, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-primary]').style.background, 'rgba(137, 68, 171, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-subtitle]').textContent, 'Save this generated password to Bitwarden.');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-primary]').textContent, 'Save in Bitwarden');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').textContent, '');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[0].textContent, 'Site');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[1].textContent, 'signup.example.com');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').textContent, '');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').children[0].textContent, 'Username');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').children[1].textContent, 'user@example.com');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-generated-password]').textContent, '');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-generated-password]').children[0].textContent, 'Password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-generated-password]').children[1].textContent, 'Generated just now');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').style.background, 'rgba(175, 82, 222, 0.08)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').style.border, '1px solid rgba(175, 82, 222, 0.18)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-generated-password]').children[0].style.color, 'rgba(175, 82, 222, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-dismiss]').style.background, 'rgba(175, 82, 222, 0.12)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-dismiss]').style.color, 'rgba(175, 82, 222, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-dismiss]').style.border, '1px solid rgba(175, 82, 222, 0.18)');
 }
 
 async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
@@ -403,7 +487,9 @@ async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
   newPassword.placeholder = 'New password';
   const confirmPassword = createInput({ id: 'confirm-password', name: 'confirmPassword', type: 'password', value: '' });
   confirmPassword.placeholder = 'Confirm password';
-  const ctx = makeEnvironment([currentPassword, newPassword, confirmPassword]);
+  const ctx = makeEnvironment([currentPassword, newPassword, confirmPassword], {
+    href: 'https://accounts.example.com/change-password',
+  });
   await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
     response: {
       submissionAction: 'generatePassword',
@@ -414,8 +500,17 @@ async function testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel() {
   const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
   assert.ok(actionPanel);
   assert.equal(actionPanel.dataset.bitwardenActionKind, 'updatePassword');
-  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').textContent, 'Review before updating');
-  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').textContent, 'Review generated password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update with generated password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-subtitle]').textContent, 'Update this Bitwarden login with the generated password.');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-primary]').textContent, 'Update in Bitwarden');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-primary]').style.background, 'rgba(137, 68, 171, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').textContent, '');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[0].textContent, 'Site');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[1].textContent, 'accounts.example.com');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-generated-password]').textContent, '');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-generated-password]').children[0].textContent, 'Password');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-generated-password]').children[1].textContent, 'Generated just now');
 }
 
 async function testApplyUpdateExistingLogin_showsStructuredPanelCopy() {
@@ -424,6 +519,13 @@ async function testApplyUpdateExistingLogin_showsStructuredPanelCopy() {
   const ctx = makeEnvironment([email, password]);
   await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
     response: {
+      request: {
+        kind: 'saveLogin',
+        urlString: 'https://accounts.example.com/sign-in',
+      },
+      matchedLogin: {
+        username: 'matched@example.com',
+      },
       submissionAction: 'updateExistingLogin',
       userMessage: 'Update the existing Bitwarden login with these changes.',
     },
@@ -435,7 +537,47 @@ async function testApplyUpdateExistingLogin_showsStructuredPanelCopy() {
   assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').textContent, 'Review before updating');
   assert.equal(actionPanel.querySelector('[data-bitwarden-action-title]').textContent, 'Update login');
   assert.equal(actionPanel.querySelector('[data-bitwarden-action-subtitle]').textContent, 'Update the existing Bitwarden login with these changes.');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-icon]').style.background, 'rgba(0, 122, 255, 0.14)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-icon]').style.color, 'rgba(0, 122, 255, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').style.background, 'rgba(0, 122, 255, 0.12)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-eyebrow]').style.color, 'rgba(0, 122, 255, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-primary]').style.background, 'rgba(0, 86, 214, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').textContent, '');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[0].textContent, 'Site');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[1].textContent, 'accounts.example.com');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').textContent, '');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').children[0].textContent, 'Username');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').children[1].textContent, 'matched@example.com');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').style.background, 'rgba(0, 122, 255, 0.08)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').style.border, '1px solid rgba(0, 122, 255, 0.18)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-username]').children[0].style.color, 'rgba(0, 122, 255, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-dismiss]').style.background, 'rgba(0, 122, 255, 0.12)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-dismiss]').style.color, 'rgba(0, 122, 255, 1)');
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-dismiss]').style.border, '1px solid rgba(0, 122, 255, 0.18)');
   assert.equal(actionPanel.querySelector('[data-bitwarden-action-primary]').textContent, 'Update in Bitwarden');
+}
+
+async function testApplyUpdateExistingLogin_stripsSensitiveURLPartsFromSiteDetail() {
+  const email = createInput({ id: 'email', name: 'email', type: 'email', value: 'user@example.com' });
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'new-secret' });
+  const ctx = makeEnvironment([email, password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      request: {
+        kind: 'saveLogin',
+        urlString: 'https://user:pass@accounts.example.com/sign-in?token=abc#frag',
+      },
+      matchedLogin: {
+        username: 'matched@example.com',
+      },
+      submissionAction: 'updateExistingLogin',
+      userMessage: 'Update the existing Bitwarden login with these changes.',
+    },
+  });
+
+  const actionPanel = ctx.document.body.querySelector('[data-bitwarden-action-panel]');
+  assert.ok(actionPanel);
+  assert.equal(actionPanel.querySelector('[data-bitwarden-action-detail-site]').children[1].textContent, 'accounts.example.com');
 }
 
 async function testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel() {
@@ -1054,6 +1196,7 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testApplyGeneratedPassword_showsSaveLoginFollowUpPanel();
   await testApplyGeneratedPassword_showsUpdatePasswordFollowUpPanel();
   await testApplyUpdateExistingLogin_showsStructuredPanelCopy();
+  await testApplyUpdateExistingLogin_stripsSensitiveURLPartsFromSiteDetail();
   await testApplyGeneratedPasswordFailure_showsErrorBannerWithoutFollowUpPanel();
   await testActionPanelPrimaryErrorEnvelope_restoresPanelInteractivity();
   await testActionPanelPrimaryDispatchesConfirmEvent();

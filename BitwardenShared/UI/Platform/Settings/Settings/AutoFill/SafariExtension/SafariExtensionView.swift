@@ -48,6 +48,66 @@ struct SafariExtensionView: View {
         return "Set up Bitwarden for Safari"
     }
 
+    private var heroBadgeText: String {
+        if store.state.extensionEnabled {
+            return "Ready"
+        }
+
+        if store.state.extensionActivated {
+            return "Continue setup"
+        }
+
+        return "Set up now"
+    }
+
+    private var heroBadgeStyle: PillBadgeStyle {
+        if store.state.extensionEnabled {
+            return .success
+        }
+
+        return store.state.extensionActivated ? .warning : .warning
+    }
+
+    private var nextStepBadgeText: String {
+        if store.state.extensionEnabled {
+            return "Complete"
+        }
+
+        if store.state.extensionActivated {
+            return "Needs action"
+        }
+
+        return "Start here"
+    }
+
+    private var nextStepBadgeStyle: PillBadgeStyle {
+        store.state.extensionEnabled ? .success : .warning
+    }
+
+    private var nextStepIconSystemName: String {
+        if store.state.extensionEnabled {
+            return "checkmark.circle.fill"
+        }
+
+        if store.state.extensionActivated {
+            return "safari.fill"
+        }
+
+        return "sparkles"
+    }
+
+    private var nextStepIconAccessibilityIdentifier: String {
+        if store.state.extensionEnabled {
+            return "SafariExtensionNextStepIconReady"
+        }
+
+        if store.state.extensionActivated {
+            return "SafariExtensionNextStepIconContinue"
+        }
+
+        return "SafariExtensionNextStepIconStart"
+    }
+
     private var nextStepTitle: String {
         if store.state.extensionEnabled {
             return "You’re ready"
@@ -72,6 +132,35 @@ struct SafariExtensionView: View {
         return "Start the Safari setup flow in Bitwarden, then turn on the extension in Safari."
     }
 
+    private var nextStepDetails: [(title: String, value: String)] {
+        if store.state.extensionEnabled {
+            return [
+                (title: "Available now", value: "Fill and save from Safari pages"),
+                (title: "Also included", value: "Generate passwords without leaving Safari"),
+            ]
+        }
+
+        if store.state.extensionActivated {
+            return [
+                (title: "Now", value: "Open the setup sheet again"),
+                (title: "Then", value: "Turn on Bitwarden for Safari"),
+            ]
+        }
+
+        return [
+            (title: "Now", value: "Start setup from Bitwarden"),
+            (title: "Then", value: "Allow Bitwarden in Safari"),
+        ]
+    }
+
+    private var activateButtonMessage: String {
+        if store.state.extensionActivated {
+            return "Reopen the setup flow, then finish turning on Bitwarden in Safari."
+        }
+
+        return "Starts the Safari setup flow from Bitwarden."
+    }
+
     private var activateButtonTitle: String {
         store.state.extensionActivated ? "Continue Safari Setup" : "Activate Safari Extension"
     }
@@ -84,12 +173,40 @@ struct SafariExtensionView: View {
         return "Current step"
     }
 
+    private var stepOneSubtitle: String {
+        if store.state.extensionEnabled {
+            return "Safari setup completed from Bitwarden."
+        }
+
+        if store.state.extensionActivated {
+            return "Safari setup started from Bitwarden."
+        }
+
+        return "Start the Safari setup flow from Bitwarden."
+    }
+
     private var stepTwoStatus: String {
         if store.state.extensionEnabled {
             return "Done"
         }
 
         return store.state.extensionActivated ? "Current step" : "Up next"
+    }
+
+    private var stepTwoSubtitle: String {
+        if store.state.extensionEnabled {
+            return "Bitwarden is on and ready in Safari."
+        }
+
+        if store.state.extensionActivated {
+            return "Turn on Bitwarden in Safari to finish setup."
+        }
+
+        return "Allow Bitwarden in Safari, then return here."
+    }
+
+    private func stepBadgeStyle(for status: String) -> PillBadgeStyle {
+        status == "Done" ? .success : .warning
     }
 
     var body: some View {
@@ -99,6 +216,9 @@ struct SafariExtensionView: View {
 
                 VStack(alignment: .leading, spacing: 12) {
                     VStack(spacing: 12) {
+                        PillBadgeView(text: heroBadgeText, style: heroBadgeStyle)
+                            .frame(maxWidth: .infinity)
+
                         Text(heroTitle)
                             .styleGuide(.title)
                             .multilineTextAlignment(.center)
@@ -132,13 +252,15 @@ struct SafariExtensionView: View {
                     sectionTitle("Setup checklist")
                     setupStepRow(
                         title: "Activate in Bitwarden",
-                        subtitle: "Start the Safari setup flow from Bitwarden.",
+                        subtitle: stepOneSubtitle,
                         status: stepOneStatus,
+                        badgeAccessibilityIdentifier: "SafariExtensionStepOneBadge",
                     )
                     setupStepRow(
                         title: "Turn on in Safari",
-                        subtitle: "Allow Bitwarden in Safari, then return here.",
+                        subtitle: stepTwoSubtitle,
                         status: stepTwoStatus,
+                        badgeAccessibilityIdentifier: "SafariExtensionStepTwoBadge",
                     )
                 }
                 .padding(24)
@@ -146,21 +268,43 @@ struct SafariExtensionView: View {
 
                 VStack(alignment: .leading, spacing: 8) {
                     sectionTitle("Next step")
-                    Text(nextStepTitle)
-                        .styleGuide(.headline)
+                    HStack(alignment: .center, spacing: 12) {
+                        nextStepIconView()
+                        VStack(alignment: .leading, spacing: 8) {
+                            PillBadgeView(text: nextStepBadgeText, style: nextStepBadgeStyle)
+                                .accessibilityIdentifier("SafariExtensionNextStepBadge")
+                            Text(nextStepTitle)
+                                .styleGuide(.headline)
+                        }
+                        Spacer(minLength: 0)
+                    }
                     Text(nextStepMessage)
                         .styleGuide(.body)
                         .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        ForEach(Array(nextStepDetails.enumerated()), id: \.offset) { _, detail in
+                            nextStepDetailRow(title: detail.title, value: detail.value)
+                        }
+                    }
                 }
                 .padding(24)
                 .contentBlock()
 
                 if !store.state.extensionEnabled {
-                    Button(activateButtonTitle) {
-                        store.send(.activateButtonTapped)
+                    VStack(spacing: 8) {
+                        Button(activateButtonTitle) {
+                            store.send(.activateButtonTapped)
+                        }
+                        .buttonStyle(.secondary())
+
+                        Text(activateButtonMessage)
+                            .styleGuide(.caption1)
+                            .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    .buttonStyle(.secondary())
                 }
 
                 Spacer(minLength: 0)
@@ -197,6 +341,35 @@ struct SafariExtensionView: View {
     }
 
     @ViewBuilder
+    private func nextStepIconView() -> some View {
+        Image(systemName: nextStepIconSystemName)
+            .font(.system(size: 18, weight: .semibold))
+            .foregroundStyle(nextStepBadgeStyle.textColor)
+            .frame(width: 36, height: 36)
+            .background(nextStepBadgeStyle.backgroundColor)
+            .clipShape(Circle())
+            .overlay(
+                Circle()
+                    .strokeBorder(nextStepBadgeStyle.borderColor, lineWidth: 1),
+            )
+            .accessibilityIdentifier(nextStepIconAccessibilityIdentifier)
+    }
+
+    @ViewBuilder
+    private func nextStepDetailRow(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .styleGuide(.caption1)
+                .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
+            Text(value)
+                .styleGuide(.body)
+                .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
     private func featureRow(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -210,19 +383,19 @@ struct SafariExtensionView: View {
     }
 
     @ViewBuilder
-    private func setupStepRow(title: String, subtitle: String, status: String) -> some View {
+    private func setupStepRow(
+        title: String,
+        subtitle: String,
+        status: String,
+        badgeAccessibilityIdentifier: String,
+    ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 12) {
                 Text(title)
                     .styleGuide(.headline)
                 Spacer()
-                Text(status)
-                    .styleGuide(.caption2)
-                    .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(SharedAsset.Colors.backgroundSecondary.swiftUIColor)
-                    .clipShape(Capsule())
+                PillBadgeView(text: status, style: stepBadgeStyle(for: status))
+                    .accessibilityIdentifier(badgeAccessibilityIdentifier)
             }
 
             Text(subtitle)
