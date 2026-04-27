@@ -148,6 +148,34 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(delegate.itemArchivedCalled)
     }
 
+    /// `itemDeleted()` presents the dismiss action and calls the delegate.
+    @MainActor
+    func test_itemDeleted() async throws {
+        subject.itemDeleted()
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemDeletedCalled)
+    }
+
+    /// `itemSoftDeleted()` presents the dismiss action and calls the delegate.
+    @MainActor
+    func test_itemSoftDeleted() async throws {
+        subject.itemSoftDeleted()
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemSoftDeletedCalled)
+    }
+
     /// `itemUnarchived()` calls the delegate.
     @MainActor
     func test_itemUnarchived() async throws {

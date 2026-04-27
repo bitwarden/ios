@@ -282,12 +282,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Archives a cipher.
     ///
     private func archiveItem() async {
+        let delegate = delegate
         await vaultItemActionHelper.archive(cipher: state.cipher) { [weak self] url in
             self?.state.url = url
         } completionHandler: { [weak self] in
-            self?.dismiss { [weak self] in
-                self?.delegate?.itemArchived()
-            }
+            self?.dismiss { delegate?.itemArchived() }
         }
     }
 
@@ -544,10 +543,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Unarchives cipher.
     ///
     private func unarchiveItem() async {
+        let delegate = delegate
         await vaultItemActionHelper.unarchive(cipher: state.cipher) { [weak self] in
-            self?.dismiss { [weak self] in
-                self?.delegate?.itemUnarchived()
-            }
+            self?.dismiss { delegate?.itemUnarchived() }
         }
     }
 
@@ -756,9 +754,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         do {
             coordinator.showLoadingOverlay(title: Localizations.softDeleting)
             try await services.vaultRepository.softDeleteCipher(state.cipher)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemSoftDeleted()
-            })))
+            let delegate = delegate
+            coordinator.navigate(to: .dismiss(DismissAction(action: { delegate?.itemSoftDeleted() })))
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)

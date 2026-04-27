@@ -214,13 +214,11 @@ private extension ViewItemProcessor {
     ///
     private func archiveItem() async {
         guard case let .data(cipherState) = state.loadingState else { return }
-
+        let delegate = delegate
         await vaultItemActionHelper.archive(cipher: cipherState.cipher) { [weak self] url in
             self?.state.url = url
         } completionHandler: { [weak self] in
-            self?.dismiss { [weak self] in
-                self?.delegate?.itemArchived()
-            }
+            self?.dismiss { delegate?.itemArchived() }
         }
     }
 
@@ -332,35 +330,23 @@ private extension ViewItemProcessor {
     /// Permanently deletes the item currently stored in `state`.
     ///
     private func permanentDeleteItem(id: String) async {
-        defer { coordinator.hideLoadingOverlay() }
-        do {
-            coordinator.showLoadingOverlay(.init(title: Localizations.deleting))
-
-            try await services.vaultRepository.deleteCipher(id)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemDeleted()
-            })))
-        } catch {
-            await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
-        }
+        let delegate = delegate
+        await performOperationAndDismiss(
+            loadingTitle: Localizations.deleting,
+            operation: { try await self.services.vaultRepository.deleteCipher(id) },
+            onDismiss: { delegate?.itemDeleted() },
+        )
     }
 
     /// Soft deletes the item currently stored in `state`.
     ///
     private func softDeleteItem(_ cipher: CipherView) async {
-        defer { coordinator.hideLoadingOverlay() }
-        do {
-            coordinator.showLoadingOverlay(.init(title: Localizations.softDeleting))
-
-            try await services.vaultRepository.softDeleteCipher(cipher)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemSoftDeleted()
-            })))
-        } catch {
-            await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
-        }
+        let delegate = delegate
+        await performOperationAndDismiss(
+            loadingTitle: Localizations.softDeleting,
+            operation: { try await self.services.vaultRepository.softDeleteCipher(cipher) },
+            onDismiss: { delegate?.itemSoftDeleted() },
+        )
     }
 
     /// Handles `ViewCardItemAction` events.
@@ -468,18 +454,13 @@ private extension ViewItemProcessor {
     private func performOperationAndDismiss(
         loadingTitle: String,
         operation: () async throws -> Void,
-        onDismiss: @escaping (ViewItemProcessor) -> Void,
+        onDismiss: @escaping () -> Void,
     ) async {
         defer { coordinator.hideLoadingOverlay() }
         do {
             coordinator.showLoadingOverlay(.init(title: loadingTitle))
-
             try await operation()
-
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                guard let self else { return }
-                onDismiss(self)
-            })))
+            coordinator.navigate(to: .dismiss(DismissAction(action: onDismiss)))
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
@@ -489,18 +470,12 @@ private extension ViewItemProcessor {
     /// Restores the item currently stored in `state`.
     ///
     private func restoreItem(_ cipher: CipherView) async {
-        defer { coordinator.hideLoadingOverlay() }
-        do {
-            coordinator.showLoadingOverlay(.init(title: Localizations.restoring))
-
-            try await services.vaultRepository.restoreCipher(cipher)
-            coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-                self?.delegate?.itemRestored()
-            })))
-        } catch {
-            await coordinator.showErrorAlert(error: error)
-            services.errorReporter.log(error: error)
-        }
+        let delegate = delegate
+        await performOperationAndDismiss(
+            loadingTitle: Localizations.restoring,
+            operation: { try await self.services.vaultRepository.restoreCipher(cipher) },
+            onDismiss: { delegate?.itemRestored() },
+        )
     }
 
     /// Shows a permanent delete cipher confirmation alert.
@@ -615,11 +590,9 @@ private extension ViewItemProcessor {
     ///
     private func unarchiveItem() async {
         guard case let .data(cipherState) = state.loadingState else { return }
-
+        let delegate = delegate
         await vaultItemActionHelper.unarchive(cipher: cipherState.cipher) { [weak self] in
-            self?.dismiss { [weak self] in
-                self?.delegate?.itemUnarchived()
-            }
+            self?.dismiss { delegate?.itemUnarchived() }
         }
     }
 }
@@ -659,15 +632,13 @@ private extension ViewItemProcessor {
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
     func itemArchived() {
-        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-            self?.delegate?.itemArchived()
-        })))
+        let delegate = delegate
+        coordinator.navigate(to: .dismiss(DismissAction(action: { delegate?.itemArchived() })))
     }
 
     func itemDeleted() {
-        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-            self?.delegate?.itemDeleted()
-        })))
+        let delegate = delegate
+        coordinator.navigate(to: .dismiss(DismissAction(action: { delegate?.itemDeleted() })))
     }
 
     func itemRestored() {
@@ -675,15 +646,13 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
     }
 
     func itemSoftDeleted() {
-        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-            self?.delegate?.itemSoftDeleted()
-        })))
+        let delegate = delegate
+        coordinator.navigate(to: .dismiss(DismissAction(action: { delegate?.itemSoftDeleted() })))
     }
 
     func itemUnarchived() {
-        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
-            self?.delegate?.itemUnarchived()
-        })))
+        let delegate = delegate
+        coordinator.navigate(to: .dismiss(DismissAction(action: { delegate?.itemUnarchived() })))
     }
 }
 
