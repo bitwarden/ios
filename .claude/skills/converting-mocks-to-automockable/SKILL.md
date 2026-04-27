@@ -7,27 +7,19 @@ description: Convert a hand-written bespoke mock to a Sourcery AutoMockable-gene
 
 This skill guides you through assessing whether a hand-written mock can be replaced with a Sourcery-generated one, performing the migration, and updating affected tests.
 
-## Step 1: Read and Assess the Candidate
+## Step 1: Assess the Candidate
 
-Read the bespoke mock file and locate its corresponding protocol. Understand what the mock currently does.
+Read the bespoke mock file and locate its corresponding protocol. Scan for
+these disqualifying patterns — if any are present, keep the mock as bespoke:
 
-### Good candidates for AutoMockable
-
-- Protocol methods that return values, throw errors, or return async results
-- Mocks that only track whether methods were called and with what arguments
-- Mocks whose "behavior" is just returning a stubbed value
-
-### Poor candidates — keep as bespoke
-
-These patterns require custom behavior that AutoMockable can't express:
-
-| Pattern                                                                                   | Why it can't be auto-generated                                                        |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Pattern                                                                                    | Why it can't be auto-generated                                                        |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
 | Mock executes passed-in closure parameters (e.g., runs a `() async throws -> T` argument) | Closures passed as arguments are non-escaping; Sourcery stubs these with `fatalError` |
-| Mock accumulates all calls into a combined array (e.g., `var alerts: [Alert]`)            | AutoMockable stores last call's args, not a merged collection across overloads        |
-| Methods with overloaded signatures that share state                                       | Each overload gets a separate mock; shared logic must be bespoke                      |
+| Mock accumulates all calls into a combined array (e.g., `var alerts: [Alert]`)             | AutoMockable stores last call's args, not a merged collection across overloads        |
+| Methods with overloaded signatures that share state                                        | Each overload gets a separate mock; shared logic must be bespoke                      |
 
-When in doubt, check the Sourcery template behavior: non-escaping closure parameters will be noted with a `fatalError("…")` stub in the generated output.
+If none apply, proceed — AutoMockable handles value returns, throws, async
+results, and call tracking out of the box.
 
 ## Step 2: Annotate the Protocol
 
