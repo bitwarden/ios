@@ -9,11 +9,11 @@ public struct TOTPCodeModel: Equatable, Sendable {
 
     /// The code string.
     ///
-    public var code: String
+    public let code: String
 
     /// The date used to generate the code.
     ///
-    public var codeGenerationDate: Date
+    public let codeGenerationDate: Date
 
     /// The code formatted for display.
     ///
@@ -28,7 +28,7 @@ public struct TOTPCodeModel: Equatable, Sendable {
 
     /// The period of the code.
     ///
-    public var period: UInt32
+    public let period: UInt32
 
     // MARK: Initialization
 
