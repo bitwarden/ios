@@ -9,22 +9,38 @@ struct TOTPCountdownTimerTests {
     // MARK: Tests
 
     /// `onExpiration` is called when the timer fires for a code whose generation date is in the past.
-    @Test @MainActor
+    @Test
+    @MainActor
     func onExpiration_oldDate() async {
         let expiredCode = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: .distantPast,
             period: 3,
         )
+        // `subject` needs to be held strongly outside the block so it doesn't get deallocated
+        var subject: TOTPCountdownTimer?
         await withContinuationTimeout { resume in
-            let subject = TOTPCountdownTimer(
+            subject = TOTPCountdownTimer(
                 timeProvider: CurrentTime(),
                 timerInterval: 0.1,
                 totpCode: expiredCode,
                 onExpiration: { resume() },
             )
-            _ = subject
         }
+        _ = subject
+    }
+
+    /// `TOTPCountdownTimer` is deallocated when the last external strong reference is
+    /// released, confirming the timer block does not create a retain cycle.
+    @Test
+    @MainActor
+    func timer_doesNotCreateRetainCycle() {
+        weak var weakSubject: TOTPCountdownTimer?
+        do {
+            let subject = makeSubject(period: 30, mockTime: Date(timeIntervalSinceReferenceDate: 20))
+            weakSubject = subject
+        }
+        #expect(weakSubject == nil)
     }
 
     /// `timerColor()` returns the normal (tintPrimary) color when more than

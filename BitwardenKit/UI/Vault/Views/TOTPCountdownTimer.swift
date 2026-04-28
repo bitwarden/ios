@@ -84,8 +84,8 @@ public class TOTPCountdownTimer: ObservableObject {
         timer = Timer.scheduledTimer(
             withTimeInterval: timerInterval,
             repeats: true,
-            block: { _ in
-                self.updateCountdown()
+            block: { [weak self] _ in
+                self?.updateCountdown()
             },
         )
     }
