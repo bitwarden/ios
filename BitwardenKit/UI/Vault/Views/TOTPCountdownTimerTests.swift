@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import Foundation
+import TestHelpers
 import Testing
 
 struct TOTPCountdownTimerTests {
@@ -9,20 +10,19 @@ struct TOTPCountdownTimerTests {
 
     /// `onExpiration` is called when the timer fires for a code whose generation date is in the past.
     @Test @MainActor
-    func onExpiration_oldDate() async throws {
-        try await confirmation("onExpiration was called") { confirm in
-            let expiredCode = TOTPCodeModel(
-                code: "123456",
-                codeGenerationDate: .distantPast,
-                period: 3,
-            )
+    func onExpiration_oldDate() async {
+        let expiredCode = TOTPCodeModel(
+            code: "123456",
+            codeGenerationDate: .distantPast,
+            period: 3,
+        )
+        await withContinuationTimeout { resume in
             let subject = TOTPCountdownTimer(
                 timeProvider: CurrentTime(),
                 timerInterval: 0.1,
                 totpCode: expiredCode,
-                onExpiration: { confirm() },
+                onExpiration: { resume() },
             )
-            try await Task.sleep(nanoseconds: 1_000_000_000)
             _ = subject
         }
     }
