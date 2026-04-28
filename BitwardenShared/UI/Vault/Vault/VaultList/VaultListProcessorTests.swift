@@ -685,63 +685,76 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
     }
 
-    /// `perform(_:)` with `.streamPremiumCheckoutStatus` shows a loading overlay on `.syncing`.
+    /// When the billing service emits `.canceled`, the processor cancels its subscription
+    /// without navigating.
     @MainActor
-    func test_perform_streamPremiumCheckoutStatus_syncing() async throws {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        let subject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = subject.eraseToAnyPublisher()
+    func test_subscribeToPremiumCheckoutStatus_canceled() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        subject.receive(.upgradeToPremium)
+        let routeCountBeforeSend = coordinator.routes.count
 
-        let task = Task {
-            await self.subject.perform(.streamPremiumCheckoutStatus)
-        }
-        defer { task.cancel() }
+        statusSubject.send(.canceled)
 
-        try await waitForAsync { self.billingService.premiumCheckoutStatusPublisherCalled }
-        subject.send(.syncing)
-        try await waitForAsync { self.coordinator.isLoadingOverlayShowing == true }
-        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.confirmingYourUpgrade)
+        try await Task.sleep(nanoseconds: 100_000_000)
+        XCTAssertEqual(coordinator.routes.count, routeCountBeforeSend)
     }
 
-    /// `perform(_:)` with `.streamPremiumCheckoutStatus` hides the action card and reloads on `.confirmed`.
+    /// When the billing service emits `.confirmed`, the processor navigates to `.dismiss` with a
+    /// `DismissCompletionContext` whose completion hides the overlay and refreshes the vault.
     @MainActor
-    func test_perform_streamPremiumCheckoutStatus_confirmed() async throws {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        let subject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = subject.eraseToAnyPublisher()
+    func test_subscribeToPremiumCheckoutStatus_confirmed() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
         stateService.doesActiveAccountHavePremiumResult = true
-        self.subject.state.shouldShowPremiumUpgradeActionCard = true
+        subject.state.shouldShowPremiumUpgradeActionCard = true
+        subject.receive(.upgradeToPremium)
 
-        let task = Task {
-            await self.subject.perform(.streamPremiumCheckoutStatus)
-        }
-        defer { task.cancel() }
+        statusSubject.send(.confirmed)
 
-        try await waitForAsync { self.billingService.premiumCheckoutStatusPublisherCalled }
-        subject.send(.confirmed)
-        try await waitForAsync { self.subject.state.shouldShowUpgradedToPremiumActionCard == true }
-        XCTAssertFalse(self.subject.state.shouldShowPremiumUpgradeActionCard)
-        XCTAssertTrue(self.subject.state.hasPremium)
+        try await waitForAsync { self.coordinator.contexts.last is DismissCompletionContext }
+        let context = try XCTUnwrap(coordinator.contexts.last as? DismissCompletionContext)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        context.completion()
+        try await waitForAsync { self.subject.state.shouldShowUpgradedToPremiumActionCard }
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+        XCTAssertTrue(subject.state.hasPremium)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
 
-    /// `perform(_:)` with `.streamPremiumCheckoutStatus` shows the pending alert on `.pending`.
+    /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
+    /// `DismissCompletionContext` whose completion shows the upgrade pending alert.
     @MainActor
-    func test_perform_streamPremiumCheckoutStatus_pending() async throws {
-        configService.featureFlagsBool[.premiumUpgradePath] = true
-        let subject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = subject.eraseToAnyPublisher()
+    func test_subscribeToPremiumCheckoutStatus_pending() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        subject.receive(.upgradeToPremium)
 
-        let task = Task {
-            await self.subject.perform(.streamPremiumCheckoutStatus)
-        }
-        defer { task.cancel() }
+        statusSubject.send(.pending)
 
-        try await waitForAsync { self.billingService.premiumCheckoutStatusPublisherCalled }
-        subject.send(.pending)
-        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+        try await waitForAsync { self.coordinator.contexts.last is DismissCompletionContext }
+        let context = try XCTUnwrap(coordinator.contexts.last as? DismissCompletionContext)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        context.completion()
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+    }
+
+    /// When the billing service emits `.syncing`, the processor navigates to `.dismiss` with a
+    /// `DismissCompletionContext` whose completion shows the loading overlay.
+    @MainActor
+    func test_subscribeToPremiumCheckoutStatus_syncing() async throws {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        subject.receive(.upgradeToPremium)
+
+        statusSubject.send(.syncing)
+
+        try await waitForAsync { self.coordinator.contexts.last is DismissCompletionContext }
+        let context = try XCTUnwrap(coordinator.contexts.last as? DismissCompletionContext)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        context.completion()
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.confirmingYourUpgrade)
     }
 
     /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to premium card.
@@ -2286,12 +2299,28 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state, initialState)
     }
 
-    /// `receive(_:)` with `.upgradeToPremium` navigates to the premium upgrade route.
+    /// `receive(_:)` with `.upgradeToPremium` navigates to the premium upgrade route and
+    /// sets up the billing service status subscription.
     @MainActor
     func test_receive_upgradeToPremium() {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+
         subject.receive(.upgradeToPremium)
 
         XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertTrue(billingService.premiumCheckoutStatusPublisherCalled)
+    }
+
+    /// `receive(_:)` with `.upgradeToPremium` subscribes to the billing service status publisher.
+    @MainActor
+    func test_receive_upgradeToPremium_subscribesToBillingService() {
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+
+        subject.receive(.upgradeToPremium)
+
+        XCTAssertTrue(billingService.premiumCheckoutStatusPublisherCalled)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.

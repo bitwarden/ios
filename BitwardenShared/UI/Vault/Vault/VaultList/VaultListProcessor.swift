@@ -49,6 +49,9 @@ final class VaultListProcessor: StateProcessor<
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
+    /// Cancellable for the premium checkout status subscription.
+    private var premiumStatusChangedCancellable: AnyCancellable?
+
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
 
@@ -138,8 +141,6 @@ final class VaultListProcessor: StateProcessor<
             await refreshVault(syncWithPeriodicCheck: false)
         case let .search(text):
             await searchVault(for: text)
-        case .streamPremiumCheckoutStatus:
-            await streamPremiumCheckoutStatus()
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
         case .streamFlightRecorderLog:
@@ -203,11 +204,13 @@ final class VaultListProcessor: StateProcessor<
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
         case .upgradeToPremium:
+            subscribeToPremiumCheckoutStatus()
             coordinator.navigate(to: .premiumUpgrade)
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
         case .viewPlanDetails:
             coordinator.navigate(to: .viewPlanDetails)
+            state.shouldShowUpgradedToPremiumActionCard = false
         }
     }
 }
@@ -559,32 +562,56 @@ extension VaultListProcessor {
         }
     }
 
-    /// Streams premium checkout status updates. On `.confirmed`, reloads the vault list
+    /// Subscribes to premium checkout status updates. On `.confirmed`, reloads the vault list
     /// to update the premium state. On `.pending`, shows an upgrade pending alert.
     ///
-    private func streamPremiumCheckoutStatus() async {
-        guard await services.configService.getFeatureFlag(.premiumUpgradePath) else { return }
-        for await status in services.billingService.premiumCheckoutStatusPublisher().values {
-            switch status {
-            case .canceled:
-                break
-            case .confirmed:
-                coordinator.hideLoadingOverlay()
-                await refreshVault(syncWithPeriodicCheck: false)
-                state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
-                state.shouldShowPremiumUpgradeActionCard = false
-                state.shouldShowUpgradedToPremiumActionCard = true
-            case .pending:
-                coordinator.hideLoadingOverlay()
-                coordinator.showAlert(.upgradePending {
-                    await self.services.billingService.premiumStatusChanged()
-                })
-            case .syncing:
-                coordinator.showLoadingOverlay(
-                    title: Localizations.confirmingYourUpgrade,
-                )
+    private func subscribeToPremiumCheckoutStatus() {
+        premiumStatusChangedCancellable = services.billingService
+            .premiumCheckoutStatusPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let self else { return }
+                switch status {
+                case .canceled:
+                    premiumStatusChangedCancellable = nil
+                case .confirmed:
+                    premiumStatusChangedCancellable = nil
+                    coordinator.navigate(
+                        to: .dismiss,
+                        context: DismissCompletionContext { [weak self] in
+                            guard let self else { return }
+                            coordinator.hideLoadingOverlay()
+                            Task {
+                                await self.refreshVault(syncWithPeriodicCheck: false)
+                                self.state.hasPremium = await self.services.stateService.doesActiveAccountHavePremium()
+                                self.state.shouldShowPremiumUpgradeActionCard = false
+                                self.state.shouldShowUpgradedToPremiumActionCard = true
+                            }
+                        },
+                    )
+                case .pending:
+                    coordinator.navigate(
+                        to: .dismiss,
+                        context: DismissCompletionContext { [weak self] in
+                            guard let self else { return }
+                            coordinator.hideLoadingOverlay()
+                            coordinator.showAlert(.upgradePending {
+                                await self.services.billingService.premiumStatusChanged()
+                            })
+                        },
+                    )
+                case .syncing:
+                    coordinator.navigate(
+                        to: .dismiss,
+                        context: DismissCompletionContext { [weak self] in
+                            guard let self else { return }
+                            coordinator.showLoadingOverlay(
+                                title: Localizations.confirmingYourUpgrade,
+                            )
+                        },
+                    )
+                }
             }
-        }
     }
 
     /// Streams the user's account setup progress.

@@ -433,9 +433,6 @@ struct VaultListView: View {
             await store.perform(.appeared)
         }
         .task {
-            await store.perform(.streamPremiumCheckoutStatus)
-        }
-        .task {
             await store.perform(.streamAccountSetupProgress)
         }
         .task {

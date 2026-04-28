@@ -50,9 +50,6 @@ enum VaultListEffect: Equatable {
     /// Stream the list of organizations for the user.
     case streamOrganizations
 
-    /// Stream the premium checkout status updates.
-    case streamPremiumCheckoutStatus
-
     /// Stream the show web icons setting.
     case streamShowWebIcons
 
