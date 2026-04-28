@@ -19,9 +19,11 @@ struct PremiumUpgradeState: Equatable {
     /// Whether the user is on a self-hosted server.
     var isSelfHosted = false
 
-    // TODO: PM-33852 - Remove this temporary variable and fetch the price from the API.
-    /// The premium price to display.
-    var premiumPrice = "$1.65"
+    /// The premium price to display. `nil` until successfully fetched from the API.
+    var premiumPrice: String?
+
+    /// Whether the pricing error banner is visible.
+    var showPricingErrorBanner = false
 
     // MARK: Computed Properties
 
