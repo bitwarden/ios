@@ -24,3 +24,10 @@ Bitwarden = "Bitwarden"
 Rotateable = "Rotateable"
 RotateableKeySet = "RotateableKeySet"
 Sourcery = "Sourcery"
+
+[type.timeprovider]
+extend-glob = ["**/TimeProvider.swift"]
+
+[type.timeprovider.extend-words]
+# mach_timebase_info_data_t fields: numer (numerator) and denom (denominator)
+numer = "numer"
