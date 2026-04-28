@@ -55,7 +55,7 @@ class DefaultBillingService: BillingService {
     private let errorReporter: ErrorReporter
 
     /// Subject that emits the premium checkout sync status.
-    private let premiumCheckoutStatusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+    private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
 
     /// The service used to manage the app's state.
     private let stateService: StateService
@@ -108,20 +108,31 @@ class DefaultBillingService: BillingService {
 
     func premiumCheckoutCanceled() {
         premiumCheckoutStatusSubject.send(.canceled)
+        premiumCheckoutStatusSubject.send(nil)
     }
 
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
-        premiumCheckoutStatusSubject.eraseToAnyPublisher()
+        premiumCheckoutStatusSubject
+            .compactMap(\.self)
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     func premiumStatusChanged() async {
+        guard await !stateService.doesActiveAccountHavePremium() else {
+            return
+        }
+
         premiumCheckoutStatusSubject.send(.syncing)
         do {
-            try await syncService.fetchSync(forceSync: false)
+            try await syncService.fetchSync(forceSync: true)
         } catch {
             errorReporter.log(error: error)
         }
         let hasPremium = await stateService.doesActiveAccountHavePremium()
         premiumCheckoutStatusSubject.send(hasPremium ? .confirmed : .pending)
+        if hasPremium {
+            premiumCheckoutStatusSubject.send(nil)
+        }
     }
 }

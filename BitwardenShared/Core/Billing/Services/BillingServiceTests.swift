@@ -180,9 +180,53 @@ struct BillingServiceTests {
         #expect(billingAPIService.getSubscriptionCallsCount == 1)
     }
 
-    /// `premiumStatusChanged()` publishes `.syncing` then `.confirmed` when the user has premium.
+    /// `premiumCheckoutCanceled()` publishes `.canceled` and then resets the publisher value to nil.
     @Test
-    func premiumStatusChanged_confirmed() async throws {
+    func premiumCheckoutCanceled() async throws {
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        subject.premiumCheckoutCanceled()
+
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.canceled])
+
+        // After .canceled + nil are sent, a new subscriber should receive nothing (nil is filtered).
+        var lateStatuses = [PremiumCheckoutStatus]()
+        let lateCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { lateStatuses.append($0) }
+        try await Task.sleep(nanoseconds: 400_000_000)
+
+        #expect(lateStatuses.isEmpty)
+    }
+
+    /// A subscriber connecting after `.pending` is emitted receives the pending status immediately
+    /// (CurrentValueSubject replays the last value to new subscribers).
+    @Test
+    func premiumCheckoutStatusPublisher_lateSubscriberReceivesPendingStatus() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        var earlyStatuses = [PremiumCheckoutStatus]()
+        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { earlyStatuses.append($0) }
+
+        await subject.premiumStatusChanged()
+        try await waitForAsync { !earlyStatuses.isEmpty }
+
+        // Late subscriber connects after .pending was emitted and should receive it.
+        var lateStatuses = [PremiumCheckoutStatus]()
+        let lateCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { lateStatuses.append($0) }
+        try await waitForAsync { !lateStatuses.isEmpty }
+
+        #expect(lateStatuses == [.pending])
+        _ = earlyCancellable
+        _ = lateCancellable
+    }
+
+    /// `premiumStatusChanged()` returns early without syncing when the user already has premium.
+    @Test
+    func premiumStatusChanged_alreadyHasPremium() async throws {
         stateService.doesActiveAccountHavePremiumResult = true
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
@@ -190,12 +234,58 @@ struct BillingServiceTests {
 
         await subject.premiumStatusChanged()
 
-        #expect(statuses == [.syncing, .confirmed])
-        #expect(syncService.didFetchSync)
-        _ = cancellable
+        #expect(statuses.isEmpty)
+        #expect(!syncService.didFetchSync)
     }
 
-    /// `premiumStatusChanged()` publishes `.syncing` then `.pending` when the user does not have premium.
+    /// `premiumStatusChanged()` publishes `.confirmed` when the user gains premium after sync.
+    @Test
+    func premiumStatusChanged_confirmed() async throws {
+        // Start as non-premium so the guard passes, then switch to premium after sync.
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        await subject.premiumStatusChanged()
+
+        // With instant mock sync, .syncing and .confirmed arrive within the 300ms debounce
+        // window, so only .confirmed (the last value) is delivered.
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.confirmed])
+        #expect(syncService.didFetchSync)
+    }
+
+    /// `premiumStatusChanged()` resets the publisher value to nil after emitting `.confirmed`,
+    /// so late subscribers do not receive a stale `.confirmed` on connection.
+    @Test
+    func premiumStatusChanged_confirmed_resetsPublisherValue() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
+        syncService.fetchSyncHandler = {
+            stateService.doesActiveAccountHavePremiumResult = true
+        }
+        var earlyStatuses = [PremiumCheckoutStatus]()
+        let earlyCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { earlyStatuses.append($0) }
+
+        await subject.premiumStatusChanged()
+        try await waitForAsync { !earlyStatuses.isEmpty }
+
+        // A subscriber connecting after .confirmed + nil are emitted should receive nothing.
+        var lateStatuses = [PremiumCheckoutStatus]()
+        let lateCancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { lateStatuses.append($0) }
+        try await Task.sleep(nanoseconds: 400_000_000)
+
+        #expect(lateStatuses.isEmpty)
+        _ = earlyCancellable
+        _ = lateCancellable
+    }
+
+    /// `premiumStatusChanged()` publishes `.pending` when the user does not have premium after sync.
     @Test
     func premiumStatusChanged_pending() async throws {
         stateService.doesActiveAccountHavePremiumResult = false
@@ -205,14 +295,15 @@ struct BillingServiceTests {
 
         await subject.premiumStatusChanged()
 
-        #expect(statuses == [.syncing, .pending])
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.pending])
         #expect(syncService.didFetchSync)
-        _ = cancellable
     }
 
     /// `premiumStatusChanged()` reports the error and publishes `.pending` when sync fails.
     @Test
     func premiumStatusChanged_syncError() async throws {
+        stateService.doesActiveAccountHavePremiumResult = false
         syncService.fetchSyncResult = .failure(URLError(.notConnectedToInternet))
         var statuses = [PremiumCheckoutStatus]()
         let cancellable = subject.premiumCheckoutStatusPublisher()
@@ -220,21 +311,8 @@ struct BillingServiceTests {
 
         await subject.premiumStatusChanged()
 
-        #expect(statuses == [.syncing, .pending])
+        try await waitForAsync { !statuses.isEmpty }
+        #expect(statuses == [.pending])
         #expect(errorReporter.errors.first is URLError)
-        _ = cancellable
-    }
-
-    /// `premiumCheckoutCanceled()` publishes `.canceled`.
-    @Test
-    func premiumCheckoutCanceled() {
-        var statuses = [PremiumCheckoutStatus]()
-        let cancellable = subject.premiumCheckoutStatusPublisher()
-            .sink { statuses.append($0) }
-
-        subject.premiumCheckoutCanceled()
-
-        #expect(statuses == [.canceled])
-        _ = cancellable
     }
 }
