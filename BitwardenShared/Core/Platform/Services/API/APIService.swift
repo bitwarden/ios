@@ -52,6 +52,7 @@ class APIService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - tokenService: The `TokenService` which manages accessing and updating the active
     ///     account's tokens.
+    ///   - userAgentBuilder: Builds the user agent string from app and device information.
     ///
     init(
         accountTokenProvider: AccountTokenProvider? = nil,
@@ -63,16 +64,15 @@ class APIService {
         serverCommunicationConfigClientSingleton: @escaping () -> ServerCommunicationConfigClientSingleton?,
         stateService: StateService,
         tokenService: TokenService,
+        userAgentBuilder: UserAgentBuilder,
     ) {
         self.stateService = stateService
 
         httpServiceBuilder = HTTPServiceBuilder(
             client: client,
             defaultHeadersRequestHandler: DefaultHeadersRequestHandler(
-                appName: "Bitwarden_Mobile",
                 appVersion: Bundle.main.appVersion,
-                buildNumber: Bundle.main.buildNumber,
-                systemDevice: UIDevice.current,
+                userAgentBuilder: userAgentBuilder,
             ),
             loggers: [
                 FlightRecorderHTTPLogger(flightRecorder: flightRecorder),

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
@@ -27,6 +28,11 @@ class RefreshableAPIServiceTests: BitwardenTestCase {
             serverCommunicationConfigClientSingleton: { MockServerCommunicationConfigClientSingleton() },
             stateService: MockStateService(),
             tokenService: MockTokenService(),
+            userAgentBuilder: UserAgentBuilder(
+                appName: "TestApp",
+                appVersion: "1.0",
+                systemDevice: MockSystemDevice(),
+            ),
         )
     }
 

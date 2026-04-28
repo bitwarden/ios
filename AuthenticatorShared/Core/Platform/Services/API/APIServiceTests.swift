@@ -41,6 +41,11 @@ class APIServiceTests: BitwardenTestCase {
             client: MockHTTPClient(),
             environmentService: MockEnvironmentService(),
             flightRecorder: mockFlightRecorder,
+            userAgentBuilder: UserAgentBuilder(
+                appName: "TestApp",
+                appVersion: "1.0",
+                systemDevice: MockSystemDevice(),
+            ),
         )
 
         XCTAssertTrue(

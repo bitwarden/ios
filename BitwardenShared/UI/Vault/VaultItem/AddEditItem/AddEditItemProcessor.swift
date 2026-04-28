@@ -520,6 +520,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.passportNumber = passportNumber
         case let .licenseNumberChanged(licenseNumber):
             state.identityState.licenseNumber = licenseNumber
+        case let .ssnVisibilityChanged(isVisible):
+            state.identityState.showSocialSecurityNumber = isVisible
         case let .emailChanged(email):
             state.identityState.email = email
         case let .phoneNumberChanged(phoneNumber):

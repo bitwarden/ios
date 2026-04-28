@@ -45,4 +45,19 @@ class PremiumUpgradeViewSnapshotTests: BitwardenTestCase {
         processor.state.isLoading = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
+
+    /// Check the snapshot for the self-hosted state with banner visible.
+    @MainActor
+    func disabletest_snapshot_selfHosted() {
+        processor.state.isSelfHosted = true
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// Check the snapshot for the self-hosted state with banner dismissed.
+    @MainActor
+    func disabletest_snapshot_selfHosted_bannerDismissed() {
+        processor.state.isSelfHosted = true
+        processor.state.isBannerDismissed = true
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
 }

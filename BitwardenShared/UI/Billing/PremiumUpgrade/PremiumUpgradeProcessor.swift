@@ -15,6 +15,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasBillingService
+        & HasEnvironmentService
         & HasErrorReporter
 
     // MARK: Properties
@@ -54,6 +55,8 @@ final class PremiumUpgradeProcessor: StateProcessor<
 
     override func perform(_ effect: PremiumUpgradeEffect) async {
         switch effect {
+        case .appeared:
+            state.isSelfHosted = services.environmentService.region == .selfHosted
         case .upgradeNowTapped:
             await createCheckoutSession()
         }
@@ -65,6 +68,8 @@ final class PremiumUpgradeProcessor: StateProcessor<
             coordinator.navigate(to: .dismiss)
         case .clearURL:
             state.checkoutURL = nil
+        case .dismissBannerTapped:
+            state.isBannerDismissed = true
         case .urlOpenFailed:
             Task {
                 await coordinator.showErrorAlert(error: BillingError.unableToOpenCheckout)
