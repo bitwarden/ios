@@ -89,11 +89,11 @@ final class PremiumUpgradeProcessor: StateProcessor<
                         self.state.checkoutURL = self.lastCheckoutURL
                     })
                 case .confirmed,
-                     .pending:
+                     .pending,
+                     .syncing:
+                    // VaultListProcessor owns the dismiss and all post-dismiss actions
+                    // via DismissCompletionContext for each of these states.
                     premiumStatusChangedCancellable = nil
-                    coordinator.navigate(to: .dismiss)
-                case .syncing:
-                    break
                 }
             }
     }

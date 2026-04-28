@@ -114,28 +114,46 @@ struct PremiumUpgradeProcessorTests {
         #expect(coordinator.isLoadingOverlayShowing == false)
     }
 
-    /// When the billing service emits `.confirmed`, the processor dismisses the modal.
+    /// When the billing service emits `.confirmed`, the processor cancels its subscription
+    /// without navigating — VaultListProcessor owns the dismiss and post-dismiss flow.
     @Test
-    func premiumCheckoutStatus_confirmed_dismisses() async throws {
+    func premiumCheckoutStatus_confirmed_cancelsSubscription() async throws {
         let expectedURL = URL(string: "https://checkout.stripe.com/session")!
         billingService.createCheckoutSessionReturnValue = expectedURL
         await subject.perform(.upgradeNowTapped)
 
         premiumCheckoutStatusSubject.send(.confirmed)
 
-        try await waitForAsync { coordinator.routes.last == .dismiss }
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(coordinator.routes.isEmpty)
     }
 
-    /// When the billing service emits `.pending`, the processor dismisses the modal.
+    /// When the billing service emits `.pending`, the processor cancels its subscription
+    /// without navigating — VaultListProcessor owns the dismiss and post-dismiss flow.
     @Test
-    func premiumCheckoutStatus_pending_dismisses() async throws {
+    func premiumCheckoutStatus_pending_cancelsSubscription() async throws {
         let expectedURL = URL(string: "https://checkout.stripe.com/session")!
         billingService.createCheckoutSessionReturnValue = expectedURL
         await subject.perform(.upgradeNowTapped)
 
         premiumCheckoutStatusSubject.send(.pending)
 
-        try await waitForAsync { coordinator.routes.last == .dismiss }
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(coordinator.routes.isEmpty)
+    }
+
+    /// When the billing service emits `.syncing`, the processor cancels its subscription
+    /// without navigating — VaultListProcessor owns the dismiss and post-dismiss flow.
+    @Test
+    func premiumCheckoutStatus_syncing_cancelsSubscription() async throws {
+        let expectedURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = expectedURL
+        await subject.perform(.upgradeNowTapped)
+
+        premiumCheckoutStatusSubject.send(.syncing)
+
+        try await Task.sleep(nanoseconds: 100_000_000)
+        #expect(coordinator.routes.isEmpty)
     }
 
     /// When the billing service emits `.canceled`, the processor shows the "Payment not received yet" alert.
