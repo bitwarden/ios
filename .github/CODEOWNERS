@@ -42,6 +42,6 @@
 **/docker-compose.yml @bitwarden/team-appsec @bitwarden/dept-bre
 
 # Claude related files
-.claude/ @bitwarden/team-ai-sme
+.claude/ @bitwarden/team-ai-sme @bitwarden/team-ios
 .github/workflows/respond.yml @bitwarden/team-ai-sme
 .github/workflows/review-code.yml @bitwarden/team-ai-sme

@@ -13,9 +13,6 @@ protocol AppSettingsStore: AnyObject {
     /// Whether the autofill info prompt has been shown.
     var addSitePromptShown: Bool { get set }
 
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -205,6 +202,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func isBiometricAuthenticationEnabled(userId: String) -> Bool
 
+    /// Gets the time of the last request to turn on credential provider.
+    ///
+    /// - Returns: The time of the last request to turn on credential provider.
+    ///
+    func lastRequestToTurnOnCredentialProvider() -> Date?
+
     /// Gets the time of the last sync for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the last sync time.
@@ -260,6 +263,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The pin protected user key envelope.
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
+
+    /// Whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
     /// Gets the environment URLs used to start the account creation flow.
     ///
@@ -421,6 +431,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
 
+    /// Sets the time of the last request to turn on credential provider for the user ID.
+    ///
+    /// - Parameter date: The time of the last request to turn on credential provider.
+    ///
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?)
+
     /// Sets the time of the last sync for the user ID.
     ///
     /// - Parameters:
@@ -484,6 +500,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
+
+    /// Sets whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
 
     /// Sets the environment URLs used to start the account creation flow.
     ///
@@ -736,7 +760,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case allowUniversalClipboard(userId: String)
-        case appId
+        case appID
         case appLocale
         case appRehydrationState(userId: String)
         case appTheme
@@ -756,6 +780,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
+        case lastRequestToTurnOnCredentialProvider
         case lastSync(userId: String)
         case lastSyncMonotonic(userId: String)
         case lastUserShouldConnectToWatch
@@ -772,6 +797,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
+        case premiumUpgradeBannerDismissed(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -804,7 +830,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "syncOnRefresh_\(userId)"
             case let .allowUniversalClipboard(userId):
                 "allowUniversalClipboard_\(userId)"
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -844,6 +870,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "introCarouselShown"
             case .learnNewLoginActionCardStatus:
                 "learnNewLoginActionCardStatus"
+            case .lastRequestToTurnOnCredentialProvider:
+                "lastRequestToTurnOnCredentialProvider"
             case let .lastSync(userId):
                 "lastSync_\(userId)"
             case let .lastSyncMonotonic(userId):
@@ -876,6 +904,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 "preAuthServerConfig"
+            case let .premiumUpgradeBannerDismissed(userId):
+                "premiumUpgradeBannerDismissed_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -908,11 +938,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var addSitePromptShown: Bool {
         get { fetch(for: .addSitePromptShown) }
         set { store(newValue, for: .addSitePromptShown) }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {
@@ -1092,6 +1117,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
 
+    func lastRequestToTurnOnCredentialProvider() -> Date? {
+        fetch(for: .lastRequestToTurnOnCredentialProvider).map { Date(timeIntervalSince1970: $0) }
+    }
+
     func lastSyncTime(userId: String) -> Date? {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -1126,6 +1155,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func pinProtectedUserKeyEnvelope(userId: String) -> String? {
         fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool {
+        fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
@@ -1210,6 +1243,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) {
+        store(date?.timeIntervalSince1970, for: .lastRequestToTurnOnCredentialProvider)
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
@@ -1240,6 +1277,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
+        store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
@@ -1308,5 +1349,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func shouldTrustDevice(userId: String) -> Bool? {
         fetch(for: .shouldTrustDevice(userId: userId))
+    }
+}
+
+// MARK: AppIDSettingsStore
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }

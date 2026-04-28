@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 import Foundation
 
@@ -16,6 +17,12 @@ struct AutoFillState {
 
     /// Whether or not the copy TOTP automatically toggle is on.
     var isCopyTOTPToggleOn: Bool = false
+
+    /// Whether to show the password autofill row.
+    var shouldShowPasswordAutofill: Bool = false
+
+    /// A toast message to show in the view.
+    var toast: Toast?
 
     /// The url to open in the device's web browser.
     var url: URL?

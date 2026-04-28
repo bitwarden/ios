@@ -39,6 +39,10 @@ struct AutoFillView: View {
         .task {
             await store.perform(.streamSettingsBadge)
         }
+        .toast(store.binding(
+            get: \.toast,
+            send: AutoFillAction.toastShown,
+        ))
     }
 
     // MARK: Private views
@@ -46,16 +50,34 @@ struct AutoFillView: View {
     /// The action card for setting up autofill.
     @ViewBuilder private var autofillActionCard: some View {
         if store.state.shouldShowAutofillActionCard {
-            ActionCard(
-                title: Localizations.setUpAutofill,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
-                    store.send(.showSetUpAutofill)
-                },
-                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                    await store.perform(.dismissSetUpAutofillActionCard)
-                },
-            ) {
-                BitwardenBadge(badgeValue: "1")
+            if #available(iOS 18, *) {
+                ActionCard(
+                    title: Localizations.autofillWithBitwarden,
+                    message: Localizations.autofillWithBitwardenDescriptionLong,
+                    actionButtonState: ActionCard.ButtonState(title: Localizations.turnOnNow) {
+                        await store.perform(.setUpAutofill)
+                    },
+                    dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                        await store.perform(.dismissSetUpAutofillActionCard)
+                    },
+                    secondaryButtonState: ActionCard.ButtonState(title: Localizations.learnMoreAboutAutofill) {
+                        store.send(.learnMoreAboutAutofillTapped)
+                    },
+                ) {
+                    BitwardenBadge(badgeValue: "1")
+                }
+            } else {
+                ActionCard(
+                    title: Localizations.setUpAutofill,
+                    actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                        await store.perform(.setUpAutofill)
+                    },
+                    dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                        await store.perform(.dismissSetUpAutofillActionCard)
+                    },
+                ) {
+                    BitwardenBadge(badgeValue: "1")
+                }
             }
         }
     }
@@ -106,8 +128,10 @@ struct AutoFillView: View {
     private var autoFillSection: some View {
         SectionView(Localizations.autofill, contentSpacing: 8) {
             ContentBlock(dividerLeadingPadding: 16) {
-                SettingsListItem(Localizations.passwordAutofill) {
-                    store.send(.passwordAutoFillTapped)
+                if store.state.shouldShowPasswordAutofill {
+                    SettingsListItem(Localizations.passwordAutofill) {
+                        store.send(.passwordAutoFillTapped)
+                    }
                 }
 
                 SettingsListItem(Localizations.appExtension) {

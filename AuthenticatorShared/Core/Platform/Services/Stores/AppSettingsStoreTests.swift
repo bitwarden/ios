@@ -8,7 +8,7 @@ import XCTest
 class AppSettingsStoreTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: AppSettingsStore!
+    var subject: DefaultAppSettingsStore!
     var userDefaults: UserDefaults!
 
     // MARK: Setup & Teardown
@@ -37,23 +37,23 @@ class AppSettingsStoreTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `appId` returns `nil` if there isn't a previously stored value.
-    func test_appId_isInitiallyNil() {
-        XCTAssertNil(subject.appId)
+    /// `appID` returns `nil` if there isn't a previously stored value.
+    func test_appID_isInitiallyNil() {
+        XCTAssertNil(subject.appID)
     }
 
-    /// `appId` can be used to get and set the persisted value in user defaults.
-    func test_appId_withValue() {
-        subject.appId = "📱"
-        XCTAssertEqual(subject.appId, "📱")
+    /// `appID` can be used to get and set the persisted value in user defaults.
+    func test_appID_withValue() {
+        subject.appID = "📱"
+        XCTAssertEqual(subject.appID, "📱")
         XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:appId"), "📱")
 
-        subject.appId = "☎️"
-        XCTAssertEqual(subject.appId, "☎️")
+        subject.appID = "☎️"
+        XCTAssertEqual(subject.appID, "☎️")
         XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:appId"), "☎️")
 
-        subject.appId = nil
-        XCTAssertNil(subject.appId)
+        subject.appID = nil
+        XCTAssertNil(subject.appID)
         XCTAssertNil(userDefaults.string(forKey: "bwaPreferencesStorage:appId"))
     }
 

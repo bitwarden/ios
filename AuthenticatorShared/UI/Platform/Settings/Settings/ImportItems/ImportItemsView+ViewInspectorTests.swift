@@ -35,7 +35,7 @@ class ImportItemsViewTests: BitwardenTestCase {
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_cancelButton_tap() throws {
-        var button = try subject.inspect().findCancelToolbarButton()
+        let button = try subject.inspect().findCancelToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }

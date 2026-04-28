@@ -10,6 +10,7 @@ import XCTest
 class ConfigAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var activeAccountStateProvider: MockActiveAccountStateProvider!
     var client: MockHTTPClient!
     var stateService: MockStateService!
     var subject: ConfigAPIService!
@@ -19,14 +20,20 @@ class ConfigAPIServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        activeAccountStateProvider = MockActiveAccountStateProvider()
         client = MockHTTPClient()
         stateService = MockStateService()
-        subject = APIService(client: client, stateService: stateService)
+        subject = APIService(
+            activeAccountStateProvider: activeAccountStateProvider,
+            client: client,
+            stateService: stateService,
+        )
     }
 
     override func tearDown() async throws {
         try await super.tearDown()
 
+        activeAccountStateProvider = nil
         client = nil
         stateService = nil
         subject = nil

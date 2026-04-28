@@ -35,6 +35,9 @@ final class MigrateToMyItemsProcessor: StateProcessor<
 
     // MARK: Private Properties
 
+    /// The delegate for app extension events.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// The coordinator that handles navigation.
     private let coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>
 
@@ -49,17 +52,20 @@ final class MigrateToMyItemsProcessor: StateProcessor<
     /// Creates a new `MigrateToMyItemsProcessor`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: The delegate for app extension events.
     ///   - coordinator: The coordinator that handles navigation.
     ///   - delegate: The delegate to notify of events.
     ///   - services: The services required by this processor.
     ///   - state: The initial state of the processor.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         delegate: MigrateToMyItemsProcessorDelegate?,
         services: Services,
         state: MigrateToMyItemsState,
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
@@ -83,6 +89,9 @@ final class MigrateToMyItemsProcessor: StateProcessor<
         switch action {
         case .backTapped:
             state.page = .transfer
+        case .closeTapped,
+             .continueToBitwardenTapped:
+            appExtensionDelegate?.didCancel()
         case .declineAndLeaveTapped:
             state.page = .declineConfirmation
         }
@@ -120,10 +129,6 @@ final class MigrateToMyItemsProcessor: StateProcessor<
         do {
             try await services.authRepository.revokeSelfFromOrganization(organizationId: state.organizationId)
             coordinator.hideLoadingOverlay()
-            await services.eventService.collect(
-                eventType: .organizationItemOrganizationDeclined,
-                organizationId: state.organizationId,
-            )
             delegate?.didLeaveOrganization()
         } catch {
             coordinator.hideLoadingOverlay()

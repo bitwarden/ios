@@ -10,6 +10,7 @@ class MockAppModule:
     AddEditFolderModule,
     AppModule,
     AuthModule,
+    BillingModule,
     DebugMenuModule,
     ExportCXFModule,
     ExtensionSetupModule,
@@ -35,6 +36,7 @@ class MockAppModule:
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
+    var billingCoordinator = MockCoordinator<BillingRoute, Void>()
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var debugMenuCoordinatorDelegate: DebugMenuCoordinatorDelegate?
     var exportCXFCoordinator = MockCoordinator<ExportCXFRoute, Void>()
@@ -87,6 +89,12 @@ class MockAppModule:
 
     func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
         authRouter.asAnyRouter()
+    }
+
+    func makeBillingCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<BillingRoute, Void> {
+        billingCoordinator.asAnyCoordinator()
     }
 
     func makeDebugMenuCoordinator(

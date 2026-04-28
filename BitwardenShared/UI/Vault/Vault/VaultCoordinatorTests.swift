@@ -186,6 +186,31 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.dismiss` dismisses only the presented view controller when the stack
+    /// navigator has a presented view controller (e.g. a profile switcher sheet stacked on a modal).
+    @MainActor
+    func test_navigate_dismiss_withPresentedViewController() {
+        let mockNavController = MockUINavigationController()
+        let presentedVC = MockUIViewController()
+        mockNavController.presentedView = presentedVC
+        subject = VaultCoordinator(
+            appExtensionDelegate: MockAppExtensionDelegate(),
+            delegate: delegate,
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
+            module: module,
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository,
+            ),
+            stackNavigator: mockNavController,
+        )
+
+        subject.navigate(to: .dismiss)
+
+        XCTAssertTrue(presentedVC.dismissCalled)
+        XCTAssertFalse(mockNavController.dismissCalled)
+    }
+
     /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
     /// screen in the settings tab.
     @MainActor
@@ -326,6 +351,16 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userInitiated)
     }
 
+    /// `navigate(to:)` with `.premiumUpgrade` presents the premium upgrade view via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgrade() throws {
+        subject.navigate(to: .premiumUpgrade)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
+    }
+
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.
     @MainActor
     func test_navigateTo_switchAccount() throws {
@@ -339,8 +374,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_navigateTo_vaultItemSelection() throws {
         subject.navigate(to: .vaultItemSelection(.fixtureExample))
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
+        let action = try XCTUnwrap(stackNavigator.actions.first(where: { $0.type == .presented }))
         XCTAssertTrue(action.view is VaultItemSelectionView)
         XCTAssertEqual(action.embedInNavigationController, true)
     }

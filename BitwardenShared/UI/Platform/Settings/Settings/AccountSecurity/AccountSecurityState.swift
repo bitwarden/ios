@@ -240,18 +240,16 @@ struct AccountSecurityState: Equatable {
     /// - `nil`: Returns `nil` if no policy is in effect
     ///
     var policyTimeoutCustomMessage: String? {
-        guard isPolicyTimeoutEnabled, let policy = policyTimeoutType else { return nil }
+        guard isPolicyTimeoutEnabled, let policyTimeoutType else { return nil }
         switch policyTimeoutType {
         case .custom:
             return customTimeoutMessage
         case .immediately:
             return Localizations.thisSettingIsManagedByYourOrganization
         case .never:
-            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(policy.timeoutType)
+            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToNever
         case .onAppRestart:
-            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToX(policy.timeoutType)
-        default:
-            return customTimeoutMessage
+            return Localizations.yourOrganizationHasSetTheDefaultSessionTimeoutToAppRestart
         }
     }
 

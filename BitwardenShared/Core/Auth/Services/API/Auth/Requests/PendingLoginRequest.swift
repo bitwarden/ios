@@ -1,6 +1,14 @@
 import Foundation
 import Networking
 
+// MARK: - PendingLoginRequestError
+
+/// Errors thrown from validating a `PendingLoginRequest` response.
+enum PendingLoginRequestError: Error {
+    /// The login request was not found (e.g., it expired before it could be answered).
+    case notFound
+}
+
 // MARK: - PendingLoginRequest
 
 /// A request for getting a specific pending login request.
@@ -18,4 +26,12 @@ struct PendingLoginRequest: Request {
 
     /// The URL path for this request.
     var path: String { "/auth-requests/\(id)" }
+
+    // MARK: Request
+
+    func validate(_ response: HTTPResponse) throws {
+        if response.statusCode == 404 {
+            throw PendingLoginRequestError.notFound
+        }
+    }
 }

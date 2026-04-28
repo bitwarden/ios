@@ -5,7 +5,7 @@ import XCTest
 
 class WebAuthnLoginGetCredentialAssertionOptionsRequestTests: BitwardenTestCase {
     // swiftlint:disable:previous type_name
-    
+
     // MARK: Properties
 
     var subject: WebAuthnLoginGetCredentialAssertionOptionsRequest!

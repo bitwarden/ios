@@ -14,6 +14,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var dataStore: DataStore!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
+    var timeProvider: MockTimeProvider!
     var userSessionKeychainRepository: MockUserSessionKeychainRepository!
     var subject: DefaultStateService!
 
@@ -26,6 +27,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
+        timeProvider = MockTimeProvider(.currentTime)
         userSessionKeychainRepository = MockUserSessionKeychainRepository()
 
         subject = DefaultStateService(
@@ -33,6 +35,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             dataStore: dataStore,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
+            timeProvider: timeProvider,
             userSessionKeychainRepository: userSessionKeychainRepository,
         )
     }
@@ -45,6 +48,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter = nil
         keychainRepository = nil
         subject = nil
+        timeProvider = nil
         userSessionKeychainRepository = nil
     }
 
@@ -636,6 +640,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownOnboarding)
     }
 
+    /// `getPremiumUpgradeBannerDismissed(userId:)` returns whether the premium upgrade banner has been dismissed.
+    func test_getPremiumUpgradeBannerDismissed() async throws {
+        await subject.addAccount(.fixture())
+        var hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        XCTAssertFalse(hasDismissedBanner)
+
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
+        hasDismissedBanner = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        XCTAssertTrue(hasDismissedBanner)
+    }
+
+    /// `getPremiumUpgradeBannerDismissed(userId:)` throws errors if no user exists.
+    func test_getPremiumUpgradeBannerDismissed_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getPremiumUpgradeBannerDismissed(userId: nil)
+        }
+    }
+
     /// `getBiometricAuthenticationEnabled(:)` returns biometric unlock preference of the active user.
     func test_getBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -848,6 +870,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.learnNewLoginActionCardStatus = .complete
         learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
         XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
+    }
+
+    /// `getLastRequestToTurnOnCredentialProvider()` returns the date of the last request
+    /// to turn on the credential provider.
+    func test_getLastRequestToTurnOnCredentialProvider() async {
+        var result = await subject.getLastRequestToTurnOnCredentialProvider()
+        XCTAssertNil(result)
+
+        let date = Date(year: 2024, month: 6, day: 15)
+        appSettingsStore.lastRequestToTurnOnCredentialProviderDate = date
+        result = await subject.getLastRequestToTurnOnCredentialProvider()
+        XCTAssertEqual(result, date)
     }
 
     /// `getLastSyncTime(userId:)` gets the user's last sync time.
@@ -1272,6 +1306,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// After switching accounts, `connectToWatchPublisher()` should only emit for the new
+    /// active account and not the previous one.
+    func test_connectToWatchPublisher_accountSwitch_onlyEmitsForActiveAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [ConnectToWatchValue]()
+        let publisher = await subject.connectToWatchPublisher()
+            .sink(receiveValue: { userId, shouldConnect in
+                publishedValues.append(ConnectToWatchValue(userId: userId, shouldConnect: shouldConnect))
+            })
+        defer { publisher.cancel() }
+
+        // Switch to account "2".
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        try await subject.setActiveAccount(userId: "2")
+
+        // Clear emissions from the switch so we isolate post-switch behavior.
+        publishedValues.removeAll()
+
+        // Toggle the setting for the now-active account "2".
+        try await subject.setConnectToWatch(true)
+
+        // Only account "2" should appear; account "1" must not re-emit.
+        XCTAssertEqual(publishedValues, [ConnectToWatchValue(userId: "2", shouldConnect: true)])
+    }
+
     /// `connectToWatchPublisher()` gets the initial stored value if a cached value doesn't exist.
     func test_connectToWatchPublisher_fetchesInitialValue() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1325,13 +1385,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
 
-        keychainRepository.getAccessTokenResult = .failure(
-            KeychainServiceError.osStatusError(errSecItemNotFound),
-        )
+        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.keyNotFound(BitwardenKeychainItem.accessToken(userId: "1"))
         var authenticationState = try await subject.isAuthenticated()
         XCTAssertFalse(authenticationState)
 
-        keychainRepository.getAccessTokenResult = .success("ACCESS_TOKEN")
+        keychainRepository.getAccessTokenThrowableError = nil
+        keychainRepository.getAccessTokenReturnValue = "ACCESS_TOKEN"
         authenticationState = try await subject.isAuthenticated()
         XCTAssertTrue(authenticationState)
     }
@@ -1340,7 +1399,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated_keychainError() async throws {
         await subject.addAccount(.fixture())
         let error = KeychainServiceError.osStatusError(errSecParam)
-        keychainRepository.getAccessTokenResult = .failure(error)
+        keychainRepository.getAccessTokenThrowableError = error
 
         await assertAsyncThrows(error: error) {
             _ = try await subject.isAuthenticated()
@@ -1857,6 +1916,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.archiveOnboardingShown)
     }
 
+    /// `setPremiumUpgradeBannerDismissed(_:)` sets whether the premium upgrade banner has been dismissed.
+    func test_setPremiumUpgradeBannerDismissed() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        XCTAssertTrue(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
+
+        try await subject.setPremiumUpgradeBannerDismissed(false, userId: nil)
+        XCTAssertFalse(appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] ?? true)
+    }
+
+    /// `setPremiumUpgradeBannerDismissed(_:userId:)` throws errors if no user exists.
+    func test_setPremiumUpgradeBannerDismissed_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setPremiumUpgradeBannerDismissed(true, userId: nil)
+        }
+    }
+
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -1940,6 +2016,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let date2 = Date(year: 2023, month: 12, day: 2)
         try await subject.setLastSyncTime(date2, userId: "1")
         XCTAssertEqual(appSettingsStore.lastSyncTimeByUserId["1"], date2)
+    }
+
+    /// `setLastRequestToTurnOnCredentialProvider(_:)` stores the date in the app settings store.
+    func test_setLastRequestToTurnOnCredentialProvider() async {
+        let date = Date(year: 2024, month: 6, day: 15)
+        await subject.setLastRequestToTurnOnCredentialProvider(date)
+        XCTAssertEqual(appSettingsStore.lastRequestToTurnOnCredentialProviderDate, date)
+
+        await subject.setLastRequestToTurnOnCredentialProvider(nil)
+        XCTAssertNil(appSettingsStore.lastRequestToTurnOnCredentialProviderDate)
     }
 
     /// `setDefaultUriMatchType(_:userId:)` sets the default URI match type value for a user.
@@ -2036,18 +2122,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `setAccountMasterPasswordUnlock(_:)` sets the master password unlock data for the user account.
     func test_setAccountMasterPasswordUnlock() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
-        await subject.addAccount(
-            .fixture(
-                profile: .fixture(
-                    userDecryptionOptions: UserDecryptionOptions(
-                        hasMasterPassword: true,
-                        keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
-                        trustedDeviceOption: nil,
-                    ),
-                    userId: "2",
+        await subject.addAccount(.fixture(
+            profile: .fixture(
+                userDecryptionOptions: UserDecryptionOptions(
+                    hasMasterPassword: true,
+                    keyConnectorOption: KeyConnectorUserDecryptionOption(keyConnectorUrl: "https://example.com"),
+                    trustedDeviceOption: nil,
                 ),
+                userId: "2",
             ),
-        )
+        ))
 
         let masterPasswordUnlockUser1 = MasterPasswordUnlockResponseModel(
             kdf: KdfConfig(kdfType: .pbkdf2sha256, iterations: 600_000),
@@ -2647,6 +2731,79 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.archiveOnboardingShown = false
         let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
         XCTAssertFalse(shouldDoArchiveOnboarding)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `true` when user is free, account is 7+ days old,
+    /// and banner has not been dismissed.
+    func test_shouldShowPremiumUpgradeBanner_true() async {
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertTrue(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when user has premium.
+    func test_shouldShowPremiumUpgradeBanner_hasPremium() async {
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: true,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when banner has been dismissed.
+    func test_shouldShowPremiumUpgradeBanner_dismissed() async {
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account is less than 7 days old.
+    func test_shouldShowPremiumUpgradeBanner_accountTooNew() async {
+        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
+        timeProvider.timeConfig = .mockTime(fixedDate)
+        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge + 1)
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: creationDate,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
+    }
+
+    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account has no creation date.
+    func test_shouldShowPremiumUpgradeBanner_noCreationDate() async {
+        await subject.addAccount(.fixture(profile: .fixture(
+            creationDate: nil,
+            hasPremiumPersonally: false,
+        )))
+        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
+
+        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
+        XCTAssertFalse(shouldShow)
     }
 
     /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.

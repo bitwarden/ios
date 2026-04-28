@@ -10,9 +10,6 @@ import OSLog
 /// A protocol for an object that persists app setting values.
 ///
 protocol AppSettingsStore: AnyObject {
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -287,7 +284,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
-        case appId
+        case appID
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
@@ -309,7 +306,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
             let key = switch self {
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -348,11 +345,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
             }
             return "bwaPreferencesStorage:\(key)"
         }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {
@@ -479,6 +471,15 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func vaultTimeout(userId: String) -> Int? {
         fetch(for: .vaultTimeout(userId: userId))
+    }
+}
+
+// MARK: AppIDSettingsStore
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }
 

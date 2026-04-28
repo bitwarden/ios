@@ -10,6 +10,9 @@ struct SettingsState: Equatable {
     /// if the UI should show specific elements.
     var presentationMode = SettingsPresentationMode.tab
 
+    /// Whether the premium plan row should be shown.
+    var showPlanRow = false
+
     // MARK: Computed Properties
 
     /// The badge value for the account security row.

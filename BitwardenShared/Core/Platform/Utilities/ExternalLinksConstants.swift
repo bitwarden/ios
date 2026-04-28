@@ -20,6 +20,10 @@ extension ExternalLinksConstants {
     /// A link to the auto fill help page.
     static let autofillHelp = URL(string: "https://bitwarden.com/help/auto-fill-ios/#keyboard-auto-fill")!
 
+    // TODO: PM-35101 to be refactored in update to premium payment flow
+    /// A link to Bitwarden's page for canceling the premium plan.
+    static let cancelPremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription/cancel")!
+
     /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
     static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!
 
@@ -28,6 +32,10 @@ extension ExternalLinksConstants {
 
     /// A link to the import logins help page.
     static let importHelp = URL(string: "https://bitwarden.com/help/import-data/")!
+
+    // TODO: PM-35101 to be refactored in update to premium payment flow
+    /// A link to Bitwarden's page for managing the premium plan.
+    static let managePremiumPlan = URL(string: "https://vault.bitwarden.com/#/settings/subscription")!
 
     /// A link to the password options within the passwords section of the settings menu.
     static let passwordOptions = URL(string: "App-prefs:PASSWORDS&path=PASSWORD_OPTIONS")!
@@ -49,9 +57,9 @@ extension ExternalLinksConstants {
     /// A markdown link to Bitwarden's marketing email preferences.
     static let unsubscribeFromMarketingEmails = URL(string: "https://bitwarden.com/email-preferences/")!
 
-    /// A link to Bitwarden's help page for showing website icons.
-    static let websiteIconsHelp = URL(string: "https://bitwarden.com/help/website-icons/")!
-
     /// A link to Bitwarden's help page for URI match detection.
     static let uriMatchDetections = URL(string: "https://bitwarden.com/help/uri-match-detection/")!
+
+    /// A link to Bitwarden's help page for showing website icons.
+    static let websiteIconsHelp = URL(string: "https://bitwarden.com/help/website-icons/")!
 }

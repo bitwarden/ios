@@ -11,7 +11,7 @@ import XCTest
 class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<SettingsState, SettingsAction, Void>!
+    var processor: MockProcessor<SettingsState, SettingsAction, SettingsEffect>!
     var subject: SettingsView!
 
     // MARK: Setup & Teardown
@@ -81,6 +81,22 @@ class SettingsViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.other)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .otherPressed)
+    }
+
+    /// The plan button is hidden when `showPlanRow` is `false`.
+    @MainActor
+    func test_planButton_hidden() throws {
+        processor.state.showPlanRow = false
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.plan))
+    }
+
+    /// Tapping the plan button dispatches the `.planPressed` action.
+    @MainActor
+    func test_planButton_tap() throws {
+        processor.state.showPlanRow = true
+        let button = try subject.inspect().find(button: Localizations.plan)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .planPressed)
     }
 
     /// Tapping the vault button dispatches the `.vaultPressed` action.

@@ -8,7 +8,7 @@ import Foundation
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
+class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateService, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
@@ -28,6 +28,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
+    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
+    var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -61,7 +63,9 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     var getAccountEncryptionKeysError: Error?
     // swiftlint:disable:next identifier_name
     var getAccountHasBeenUnlockedInteractivelyResult: Result<Bool, Error> = .success(false)
+    var getActiveAccountIdError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
+    var lastRequestToTurnOnCredentialProvider: Date?
     var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
@@ -102,6 +106,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
+    var shouldShowPremiumUpgradeBannerResult: Bool = false
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
@@ -211,6 +216,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     }
 
     func getActiveAccountId() async throws -> String {
+        if let getActiveAccountIdError { throw getActiveAccountIdError }
         guard let activeAccount else { throw StateServiceError.noActiveAccount }
         return activeAccount.profile.userId
     }
@@ -240,6 +246,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
 
     func getArchiveOnboardingShown() async -> Bool {
         archiveOnboardingShown
+    }
+
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        try premiumUpgradeBannerDismissedResult.get()
+        let userId = try unwrapUserId(userId)
+        return premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -303,6 +315,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
 
     func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
         learnNewLoginActionCardStatus
+    }
+
+    func getLastRequestToTurnOnCredentialProvider() async -> Date? {
+        lastRequestToTurnOnCredentialProvider
     }
 
     func getLastSyncTime(userId: String?) async throws -> Date? {
@@ -549,6 +565,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
         archiveOnboardingShown = shown
     }
 
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        try premiumUpgradeBannerDismissedResult.get()
+        let userId = try unwrapUserId(userId)
+        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
@@ -615,6 +637,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
 
     func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         learnNewLoginActionCardStatus = status
+    }
+
+    func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
+        lastRequestToTurnOnCredentialProvider = date
     }
 
     func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
@@ -762,6 +788,10 @@ class MockStateService: StateService, ActiveAccountStateProvider, ServerCommunic
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.usesKeyConnector[userId] = usesKeyConnector
+    }
+
+    func shouldShowPremiumUpgradeBanner() async -> Bool {
+        shouldShowPremiumUpgradeBannerResult
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

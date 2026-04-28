@@ -520,6 +520,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.passportNumber = passportNumber
         case let .licenseNumberChanged(licenseNumber):
             state.identityState.licenseNumber = licenseNumber
+        case let .ssnVisibilityChanged(isVisible):
+            state.identityState.showSocialSecurityNumber = isVisible
         case let .emailChanged(email):
             state.identityState.email = email
         case let .phoneNumberChanged(phoneNumber):
@@ -696,6 +698,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         } catch UserVerificationError.cancelled {
             return
+        } catch let error as ServerError
+            where error.message.contains("Cipher was not encrypted for the current user") {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: BitwardenError.generalError(
+                type: "Save item failed",
+                message: error.message,
+                error: error,
+            ))
+            return
         } catch {
             await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
@@ -770,13 +781,21 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         await services.stateService.setAddSitePromptShown(true)
     }
 
-    /// Stream the cipher details.
+    /// Streams cipher details for the current cipher, updating state whenever the vault repository
+    /// emits an updated `CipherView`. When the current TOTP state contains a key (i.e., it was
+    /// set via BWA import and is not yet persisted to the server), that key is preserved and all
+    /// other login fields (password, username, URIs, etc.) are updated normally. When the current
+    /// TOTP state is `.none`, the full cipher view is applied so that any TOTP key added on
+    /// another client is not silently discarded.
     private func streamCipherDetails() async {
         guard let cipherId = state.cipher.id else { return }
         do {
             for try await cipherView in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
                 guard let cipherView else { continue }
-                state.update(from: cipherView)
+                let totpOverride: LoginTOTPState? = state.loginState.totpState == .none
+                    ? nil
+                    : state.loginState.totpState
+                state.update(from: cipherView, preservingTOTPState: totpOverride)
             }
         } catch {
             services.errorReporter.log(error: error)

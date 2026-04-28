@@ -175,41 +175,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.type, .dismissed)
     }
 
-    /// `navigate(to:)` with `.exportVault` presents the export vault to file view when
-    /// Credential Exchange flag to export is disabled.
+    /// `navigate(to:)` with `.exportVault` pushes the export settings view.
     @MainActor
-    func test_navigateTo_exportVaultCXPDisabled() async throws {
-        configService.featureFlagsBool[.cxpExportMobile] = false
-        let task = Task {
-            subject.navigate(to: .exportVault)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return stackNavigator.actions.last?.view is ExportVaultView
-        }
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(action.view is ExportVaultView)
-        XCTAssertEqual(action.embedInNavigationController, true)
-    }
-
-    /// `navigate(to:)` with `.exportVault` presents the export settings view when
-    /// Credential Exchange flag to export is enabled.
-    @MainActor
-    func test_navigateTo_exportVaultCXPEnabled() async throws {
-        configService.featureFlagsBool[.cxpExportMobile] = true
-        let task = Task {
-            subject.navigate(to: .exportVault)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return stackNavigator.actions.last != nil
-        }
+    func test_navigateTo_exportVault() throws {
+        subject.navigate(to: .exportVault)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
@@ -339,15 +308,32 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UIHostingController<OtherSettingsView>)
     }
 
-    /// `navigate(to:)` with `.passwordAutoFill` pushes the password auto-fill view onto the stack navigator.
+    /// `navigate(to:)` with `.passwordAutoFill` pushes the password auto-fill view onto the stack navigator
+    /// with no delegate context when no context is provided.
     @MainActor
     func test_navigateTo_passwordAutoFill() throws {
         subject.navigate(to: .passwordAutoFill)
 
         XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
         XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertNil(module.passwordAutoFillCoordinator.contexts.last as? PasswordAutoFillProcessorDelegate)
         XCTAssertNil(module.passwordAutoFillCoordinatorDelegate)
         XCTAssertIdentical(module.passwordAutoFillCoordinatorStackNavigator, stackNavigator)
+    }
+
+    /// `navigate(to:)` with `.passwordAutoFill` passes the delegate as context to the coordinator
+    /// when a `PasswordAutoFillProcessorDelegate` context is provided.
+    @MainActor
+    func test_navigateTo_passwordAutoFill_withDelegate() throws {
+        let mockDelegate = MockPasswordAutoFillProcessorDelegate()
+        subject.navigate(to: .passwordAutoFill, context: mockDelegate)
+
+        XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
+        XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertIdentical(
+            module.passwordAutoFillCoordinator.contexts.last as AnyObject,
+            mockDelegate,
+        )
     }
 
     /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.
@@ -359,6 +345,14 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is PendingRequestsView)
         XCTAssertEqual(action.embedInNavigationController, true)
+    }
+
+    /// `navigate(to:)` with `.premiumPlan` shows the premium plan via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumPlan() throws {
+        subject.navigate(to: .premiumPlan)
+
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumPlan])
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
