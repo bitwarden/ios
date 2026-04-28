@@ -42,20 +42,20 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `acquireCookies(hostname:)` emits the hostname through the publisher and returns cookies
+    /// `acquireCookies(vaultUrl:)` emits the vault URL through the publisher and returns cookies
     /// when `cookiesAcquired(cookies:)` is called with a successful result.
     @MainActor
     func test_acquireCookies_success() async throws {
-        let hostname = "example.com"
+        let vaultURL = "https://example.com"
 
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: hostname) }
+        let acquireTask = Task { await self.subject.acquireCookies(vaultUrl: vaultURL) }
 
-        try await waitForAsync { emittedHostnames.contains(hostname) }
+        try await waitForAsync { emittedVaultURLs.contains(vaultURL) }
 
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
 
@@ -64,25 +64,25 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
-    /// `acquireCookies(hostname:)` returns `nil` without emitting a hostname when the main app
+    /// `acquireCookies(vaultUrl:)` returns `nil` without emitting a vault URL when the main app
     /// is backgrounded.
     @MainActor
     func test_acquireCookies_mainAppBackgrounded_returnsNilWithoutEmitting() async throws {
         notificationCenterService.isInForegroundSubject.send(false)
 
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let result = await subject.acquireCookies(hostname: "example.com")
+        let result = await subject.acquireCookies(vaultUrl: "https://example.com")
 
         XCTAssertNil(result)
-        // Only the initial nil should have been emitted; no hostname.
-        XCTAssertEqual(emittedHostnames, [nil])
+        // Only the initial nil should have been emitted; no vault URL.
+        XCTAssertEqual(emittedVaultURLs, [nil])
     }
 
-    /// `acquireCookies(hostname:)` skips the foreground check and proceeds normally when running
+    /// `acquireCookies(vaultUrl:)` skips the foreground check and proceeds normally when running
     /// in an app extension context, even if the app is backgrounded.
     @MainActor
     func test_acquireCookies_appExtension_skipsForegroundCheckAndSucceeds() async throws {
@@ -90,13 +90,13 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         notificationCenterService.isInForegroundSubject.send(false)
 
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
+        let acquireTask = Task { await self.subject.acquireCookies(vaultUrl: "https://example.com") }
 
-        try await waitForAsync { emittedHostnames.contains("example.com") }
+        try await waitForAsync { emittedVaultURLs.contains("https://example.com") }
 
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
 
@@ -105,26 +105,26 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
-    /// `acquireCookies(hostname:)` returns `nil` immediately when called while another
+    /// `acquireCookies(vaultUrl:)` returns `nil` immediately when called while another
     /// acquisition is already in flight, leaving the original caller's continuation intact.
     @MainActor
     func test_acquireCookies_concurrentCallDropped() async throws {
-        let hostname = "example.com"
+        let vaultURL = "https://example.com"
 
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let firstTask = Task { await self.subject.acquireCookies(hostname: hostname) }
+        let firstTask = Task { await self.subject.acquireCookies(vaultUrl: vaultURL) }
 
         // Wait until the first call has registered its continuation.
-        try await waitForAsync { emittedHostnames.contains(hostname) }
+        try await waitForAsync { emittedVaultURLs.contains(vaultURL) }
 
         // A second concurrent call should be dropped and not emit to the publisher.
-        let secondResult = await subject.acquireCookies(hostname: "other.com")
+        let secondResult = await subject.acquireCookies(vaultUrl: "https://other.com")
         XCTAssertNil(secondResult)
-        XCTAssertFalse(emittedHostnames.contains("other.com"))
+        XCTAssertFalse(emittedVaultURLs.contains("https://other.com"))
 
         // The original continuation should still be satisfied normally.
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
@@ -134,26 +134,26 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
         XCTAssertTrue(result?.contains(where: { $0.name == "session" && $0.value == "abc" }) == true)
     }
 
-    /// `acquireCookies(hostname:)` succeeds on a subsequent call once the previous
+    /// `acquireCookies(vaultUrl:)` succeeds on a subsequent call once the previous
     /// acquisition has completed and its continuation has been cleared.
     @MainActor
     func test_acquireCookies_succeedsAfterPreviousCompletes() async throws {
-        let hostname = "example.com"
+        let vaultURL = "https://example.com"
 
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
         // Complete the first acquisition.
-        let firstTask = Task { await self.subject.acquireCookies(hostname: hostname) }
-        try await waitForAsync { emittedHostnames.contains(hostname) }
+        let firstTask = Task { await self.subject.acquireCookies(vaultUrl: vaultURL) }
+        try await waitForAsync { emittedVaultURLs.contains(vaultURL) }
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
         _ = await firstTask.value
 
         // A second acquisition should be accepted and resolved normally.
-        let secondTask = Task { await self.subject.acquireCookies(hostname: hostname) }
-        try await waitForAsync { emittedHostnames.count(where: { $0 == hostname }) == 2 }
+        let secondTask = Task { await self.subject.acquireCookies(vaultUrl: vaultURL) }
+        try await waitForAsync { emittedVaultURLs.count(where: { $0 == vaultURL }) == 2 }
 
         // The original continuation should still be satisfied normally.
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
@@ -181,12 +181,12 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_cookiesAcquiredFrom_parsesCookies() async throws {
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
-        try await waitForAsync { emittedHostnames.contains("example.com") }
+        let acquireTask = Task { await self.subject.acquireCookies(vaultUrl: "https://example.com") }
+        try await waitForAsync { emittedVaultURLs.contains("https://example.com") }
 
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendor)
 
@@ -201,12 +201,12 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_cookiesAcquiredFrom_excludesDParam() async throws {
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
-        try await waitForAsync { emittedHostnames.contains("example.com") }
+        let acquireTask = Task { await self.subject.acquireCookies(vaultUrl: "https://example.com") }
+        try await waitForAsync { emittedVaultURLs.contains("https://example.com") }
 
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendorDParam)
 
@@ -221,12 +221,12 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_cookiesAcquiredFrom_noQueryParameters_deliversNilCookies() async throws {
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
-        try await waitForAsync { emittedHostnames.contains("example.com") }
+        let acquireTask = Task { await self.subject.acquireCookies(vaultUrl: "https://example.com") }
+        try await waitForAsync { emittedVaultURLs.contains("https://example.com") }
 
         await subject.cookiesAcquired(from: .bitwardenSSOCookieVendorNoCookies)
 
@@ -239,12 +239,12 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_cookiesAcquiredFrom_nilURL_resumesWithNilCookies() async throws {
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
-        try await waitForAsync { emittedHostnames.contains("example.com") }
+        let acquireTask = Task { await self.subject.acquireCookies(vaultUrl: "https://example.com") }
+        try await waitForAsync { emittedVaultURLs.contains("https://example.com") }
 
         // nil signals cancellation; the continuation is resumed with nil.
         await subject.cookiesAcquired(from: nil)
@@ -258,12 +258,12 @@ class ServerCommunicationConfigAPIServiceTests: BitwardenTestCase {
     @MainActor
     func test_cookiesAcquiredFrom_nonMatchingURL_resumesWithNilCookies() async throws {
         let publisher = await subject.acquireCookiesPublisher()
-        var emittedHostnames = [String?]()
-        let cancellable = publisher.sink { emittedHostnames.append($0) }
+        var emittedVaultURLs = [String?]()
+        let cancellable = publisher.sink { emittedVaultURLs.append($0) }
         defer { cancellable.cancel() }
 
-        let acquireTask = Task { await self.subject.acquireCookies(hostname: "example.com") }
-        try await waitForAsync { emittedHostnames.contains("example.com") }
+        let acquireTask = Task { await self.subject.acquireCookies(vaultUrl: "https://example.com") }
+        try await waitForAsync { emittedVaultURLs.contains("https://example.com") }
 
         // A URL with a different path does not match the scheme; the continuation is resumed with nil.
         await subject.cookiesAcquired(from: URL(string: "bitwarden://other-path?cookie=value")!)

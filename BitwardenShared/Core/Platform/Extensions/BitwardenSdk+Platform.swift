@@ -108,6 +108,7 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
                     idpLoginUrl: bootstrap.idpLoginUrl,
                     cookieName: bootstrap.cookieName,
                     cookieDomain: bootstrap.cookieDomain,
+                    vaultUrl: nil,
                     cookieValue: nil,
                 ),
             ),
@@ -137,6 +138,7 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
                     idpLoginUrl: currentCookieConfig.idpLoginUrl,
                     cookieName: currentCookieConfig.cookieName,
                     cookieDomain: currentCookieConfig.cookieDomain,
+                    vaultUrl: currentCookieConfig.vaultUrl,
                     cookieValue: fromSSOCookieConfig.cookieValue,
                 ),
             ),
@@ -152,6 +154,7 @@ extension BitwardenSdk.SsoCookieVendorConfig: @retroactive Codable {
         case cookieName
         case cookieDomain
         case cookieValue
+        case vaultUrl
     }
 
     public init(from decoder: Decoder) throws {
@@ -160,10 +163,12 @@ extension BitwardenSdk.SsoCookieVendorConfig: @retroactive Codable {
         let cookieName = try container.decodeIfPresent(String.self, forKey: .cookieName)
         let cookieDomain = try container.decodeIfPresent(String.self, forKey: .cookieDomain)
         let cookieValue = try container.decodeIfPresent([AcquiredCookie].self, forKey: .cookieValue)
+        let vaultUrl = try container.decodeIfPresent(String.self, forKey: .vaultUrl)
         self.init(
             idpLoginUrl: idpLoginUrl,
             cookieName: cookieName,
             cookieDomain: cookieDomain,
+            vaultUrl: vaultUrl,
             cookieValue: cookieValue,
         )
     }
@@ -174,5 +179,6 @@ extension BitwardenSdk.SsoCookieVendorConfig: @retroactive Codable {
         try container.encodeIfPresent(cookieName, forKey: .cookieName)
         try container.encodeIfPresent(cookieDomain, forKey: .cookieDomain)
         try container.encodeIfPresent(cookieValue, forKey: .cookieValue)
+        try container.encodeIfPresent(vaultUrl, forKey: .vaultUrl)
     }
 }
