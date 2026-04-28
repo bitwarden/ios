@@ -60,7 +60,7 @@ struct TOTPCountdownTimerTests {
         let mockTime = Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining))
         let subject = makeSubject(period: period, mockTime: mockTime)
 
-        #expect(subject.timerColor() == SharedAsset.Colors.error.swiftUIColor)
+        #expect(subject.timerColor() == SharedAsset.Colors.danger.swiftUIColor)
     }
 
     /// `timerColor()` returns the urgent (error) color when well below
@@ -72,7 +72,7 @@ struct TOTPCountdownTimerTests {
         let mockTime = Date(timeIntervalSinceReferenceDate: Double(period - secondsRemaining))
         let subject = makeSubject(period: period, mockTime: mockTime)
 
-        #expect(subject.timerColor() == SharedAsset.Colors.error.swiftUIColor)
+        #expect(subject.timerColor() == SharedAsset.Colors.danger.swiftUIColor)
     }
 
     // MARK: Private Methods

@@ -109,7 +109,7 @@ public class TOTPCountdownTimer: ObservableObject {
     ///
     public func timerColor() -> Color {
         secondsRemaining <= Constants.totpUrgentCountdownThreshold
-            ? SharedAsset.Colors.error.swiftUIColor
+            ? SharedAsset.Colors.danger.swiftUIColor
             : SharedAsset.Colors.tintPrimary.swiftUIColor
     }
 
