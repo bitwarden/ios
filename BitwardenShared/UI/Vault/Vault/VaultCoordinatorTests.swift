@@ -183,7 +183,53 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_navigate_dismiss() throws {
         subject.navigate(to: .dismiss)
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` and a `DismissCompletionContext` passes the completion to
+    /// the underlying dismiss call and invokes it when dismissal completes.
+    @MainActor
+    func test_navigate_dismiss_withDismissCompletionContext() throws {
+        var completionCalled = false
+        let context = DismissCompletionContext { completionCalled = true }
+
+        subject.navigate(to: .dismiss, context: context)
+
+        // MockStackNavigator calls the completion immediately.
+        XCTAssertTrue(completionCalled)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` and a `DismissCompletionContext` passes the completion to
+    /// the presented view controller's dismiss call when one is present.
+    @MainActor
+    func test_navigate_dismiss_withDismissCompletionContext_andPresentedViewController() {
+        let mockNavController = MockUINavigationController()
+        let presentedVC = MockUIViewController()
+        mockNavController.presentedView = presentedVC
+        subject = VaultCoordinator(
+            appExtensionDelegate: MockAppExtensionDelegate(),
+            delegate: delegate,
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
+            module: module,
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository,
+            ),
+            stackNavigator: mockNavController,
+        )
+        var completionCalled = false
+        let context = DismissCompletionContext { completionCalled = true }
+
+        subject.navigate(to: .dismiss, context: context)
+
+        XCTAssertTrue(presentedVC.dismissCalled)
+        XCTAssertNotNil(presentedVC.dismissCompletion)
+
+        // Simulate UIKit calling the completion after animation.
+        presentedVC.dismissCompletion?()
+        XCTAssertTrue(completionCalled)
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses only the presented view controller when the stack
