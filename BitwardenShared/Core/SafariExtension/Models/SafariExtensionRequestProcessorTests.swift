@@ -266,7 +266,7 @@ class SafariExtensionRequestProcessorTests: BitwardenTestCase {
 
         let response = try XCTUnwrap(subject.makeResponse(for: SafariExtensionRequest(kind: .setup)))
 
-        XCTAssertEqual(response.userMessage, "Safari Web Extension setup")
+        XCTAssertEqual(response.userMessage, "Open Bitwarden to finish Safari extension setup.")
         XCTAssertEqual(response.submissionAction, .none)
     }
 
