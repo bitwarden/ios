@@ -2,11 +2,25 @@ import BitwardenKit
 
 // MARK: - SafariExtensionSetupDelegate
 
-/// A delegate of the Safari extension setup flow that is notified when the user enables the extension.
+/// A delegate of the Safari extension setup flow that is notified about the locally observable outcome.
 @MainActor
 protocol SafariExtensionSetupDelegate: AnyObject {
-    /// Called when the user dismisses the Safari extension setup process.
-    func didDismissSafariExtensionSetup(enabled: Bool)
+    /// Called when the Safari extension setup process finishes with a locally observable result.
+    func didDismissSafariExtensionSetup(result: SafariExtensionSetupResult)
+}
+
+// MARK: - SafariExtensionSetupResult
+
+/// The observable result of dismissing the Safari extension setup flow.
+enum SafariExtensionSetupResult: Equatable {
+    /// The setup flow was dismissed without opening the Safari extension activity.
+    case dismissed
+
+    /// The Safari extension activity was opened, but iOS did not confirm enablement.
+    case setupOpened
+
+    /// The Safari extension activity completed and iOS reported success.
+    case enabled
 }
 
 // MARK: - SafariExtensionProcessor
@@ -32,9 +46,15 @@ final class SafariExtensionProcessor: StateProcessor<SafariExtensionState, Safar
 }
 
 extension SafariExtensionProcessor: SafariExtensionSetupDelegate {
-    func didDismissSafariExtensionSetup(enabled: Bool) {
+    func didDismissSafariExtensionSetup(result: SafariExtensionSetupResult) {
         guard !state.extensionEnabled else { return }
-        state.extensionActivated = true
-        state.extensionEnabled = enabled
+        switch result {
+        case .dismissed:
+            break
+        case .setupOpened:
+            state.setupStatus = .setupOpened
+        case .enabled:
+            state.setupStatus = .enabled
+        }
     }
 }

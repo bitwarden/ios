@@ -36,7 +36,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
         processor.state.extensionActivated = true
 
         XCTAssertNoThrow(try subject.inspect().find(button: "Continue Safari Setup"))
-        XCTAssertNoThrow(try subject.inspect().find(text: "Reopen the setup flow, then finish turning on Bitwarden in Safari."))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Bitwarden already opened the Safari setup flow. Reopen it if you still need to finish turning on the extension in Safari."))
         XCTAssertThrowsError(try subject.inspect().find(button: "Activate Safari Extension"))
         XCTAssertThrowsError(try subject.inspect().find(button: "Open Safari Settings"))
     }
@@ -57,7 +57,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
 
         XCTAssertNoThrow(try subject.inspect().find(text: "Finish setup in Safari"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Continue setup"))
-        XCTAssertNoThrow(try subject.inspect().find(text: "Continue the Safari setup flow to finish enabling the extension."))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Bitwarden opened the Safari setup flow. Finish turning on the extension in Safari."))
         XCTAssertNoThrow(try subject.inspect().find(text: "Step 2 of 2"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Almost done"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Status"))
@@ -77,7 +77,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
             .compactMap { try? $0.string() }
         XCTAssertEqual(summaryTexts.filter { $0 == "Step 2 of 2" }.count, 1)
         XCTAssertEqual(summaryTexts.filter { $0 == "Almost done" }.count, 1)
-        XCTAssertNoThrow(try subject.inspect().find(text: "Open the Safari setup sheet again, then turn on Bitwarden for Safari."))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Safari setup was already opened from Bitwarden. Reopen it if needed, then turn on Bitwarden for Safari."))
         XCTAssertThrowsError(try subject.inspect().find(text: "Not enabled"))
         XCTAssertThrowsError(try subject.inspect().find(text: "Get started"))
         XCTAssertThrowsError(try subject.inspect().find(text: "You’re ready"))
@@ -128,7 +128,7 @@ class SafariExtensionViewTests: BitwardenTestCase {
         processor.state.extensionActivated = true
 
         XCTAssertNoThrow(try subject.inspect().find(text: "Activate in Bitwarden"))
-        XCTAssertNoThrow(try subject.inspect().find(text: "Safari setup started from Bitwarden."))
+        XCTAssertNoThrow(try subject.inspect().find(text: "Safari setup was opened from Bitwarden."))
         XCTAssertNoThrow(try subject.inspect().find(viewWithAccessibilityIdentifier: "SafariExtensionStepOneBadge"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Turn on in Safari"))
         XCTAssertNoThrow(try subject.inspect().find(text: "Turn on Bitwarden in Safari to finish setup."))
