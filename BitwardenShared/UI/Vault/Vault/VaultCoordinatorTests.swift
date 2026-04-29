@@ -181,19 +181,18 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// navigator.
     @MainActor
     func test_navigate_dismiss() throws {
-        subject.navigate(to: .dismiss)
+        subject.navigate(to: .dismiss())
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
     }
 
-    /// `navigate(to:)` with `.dismiss` and a `DismissCompletionContext` passes the completion to
+    /// `navigate(to:)` with `.dismiss` and a `DismissAction` passes the completion to
     /// the underlying dismiss call and invokes it when dismissal completes.
     @MainActor
-    func test_navigate_dismiss_withDismissCompletionContext() throws {
+    func test_navigate_dismiss_withDismissAction() throws {
         var completionCalled = false
-        let context = DismissCompletionContext { completionCalled = true }
 
-        subject.navigate(to: .dismiss, context: context)
+        subject.navigate(to: .dismiss(DismissAction { completionCalled = true }))
 
         // MockStackNavigator calls the completion immediately.
         XCTAssertTrue(completionCalled)
@@ -201,10 +200,10 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
     }
 
-    /// `navigate(to:)` with `.dismiss` and a `DismissCompletionContext` passes the completion to
+    /// `navigate(to:)` with `.dismiss` and a `DismissAction` passes the completion to
     /// the presented view controller's dismiss call when one is present.
     @MainActor
-    func test_navigate_dismiss_withDismissCompletionContext_andPresentedViewController() {
+    func test_navigate_dismiss_withDismissAction_andPresentedViewController() {
         let mockNavController = MockUINavigationController()
         let presentedVC = MockUIViewController()
         mockNavController.presentedView = presentedVC
@@ -220,9 +219,8 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             stackNavigator: mockNavController,
         )
         var completionCalled = false
-        let context = DismissCompletionContext { completionCalled = true }
 
-        subject.navigate(to: .dismiss, context: context)
+        subject.navigate(to: .dismiss(DismissAction { completionCalled = true }))
 
         XCTAssertTrue(presentedVC.dismissCalled)
         XCTAssertNotNil(presentedVC.dismissCompletion)
@@ -251,7 +249,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             stackNavigator: mockNavController,
         )
 
-        subject.navigate(to: .dismiss)
+        subject.navigate(to: .dismiss())
 
         XCTAssertTrue(presentedVC.dismissCalled)
         XCTAssertFalse(mockNavController.dismissCalled)

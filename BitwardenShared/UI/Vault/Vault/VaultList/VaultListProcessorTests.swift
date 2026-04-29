@@ -696,12 +696,11 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         statusSubject.send(.canceled)
 
-        try await Task.sleep(nanoseconds: 100_000_000)
-        XCTAssertEqual(coordinator.routes.count, routeCountBeforeSend)
+        try await waitForAsync { self.coordinator.routes.count == routeCountBeforeSend }
     }
 
     /// When the billing service emits `.confirmed`, the processor navigates to `.dismiss` with a
-    /// `DismissCompletionContext` whose completion hides the overlay and refreshes the vault.
+    /// `DismissAction` whose completion hides the overlay and refreshes the vault.
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_confirmed() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
@@ -712,10 +711,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         statusSubject.send(.confirmed)
 
-        try await waitForAsync { self.coordinator.contexts.last is DismissCompletionContext }
-        let context = try XCTUnwrap(coordinator.contexts.last as? DismissCompletionContext)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
-        context.completion()
+        try await waitForAsync {
+            guard case .dismiss(let action) = self.coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
+        action?.action()
         try await waitForAsync { self.subject.state.shouldShowUpgradedToPremiumActionCard }
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
         XCTAssertTrue(subject.state.hasPremium)
@@ -723,7 +724,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
-    /// `DismissCompletionContext` whose completion shows the upgrade pending alert.
+    /// `DismissAction` whose completion shows the upgrade pending alert.
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_pending() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
@@ -732,16 +733,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         statusSubject.send(.pending)
 
-        try await waitForAsync { self.coordinator.contexts.last is DismissCompletionContext }
-        let context = try XCTUnwrap(coordinator.contexts.last as? DismissCompletionContext)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
-        context.completion()
+        try await waitForAsync {
+            guard case .dismiss(let action) = self.coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
+        action?.action()
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
 
     /// When the billing service emits `.syncing`, the processor navigates to `.dismiss` with a
-    /// `DismissCompletionContext` whose completion shows the loading overlay.
+    /// `DismissAction` whose completion shows the loading overlay.
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_syncing() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
@@ -750,10 +753,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         statusSubject.send(.syncing)
 
-        try await waitForAsync { self.coordinator.contexts.last is DismissCompletionContext }
-        let context = try XCTUnwrap(coordinator.contexts.last as? DismissCompletionContext)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
-        context.completion()
+        try await waitForAsync {
+            guard case .dismiss(let action) = self.coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
+        action?.action()
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.confirmingYourUpgrade)
     }
 
@@ -1560,7 +1565,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await lockAction.handler?(lockAction, [])
 
         // Verify the profile switcher sheet is dismissed after lock action
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
 
         // Verify the results.
         XCTAssertEqual(coordinator.events.last, .lockVault(userId: activeProfile.userId, isManuallyLocking: true))
@@ -1631,7 +1636,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await lockAction.handler?(lockAction, [])
 
         // Verify the profile switcher sheet is dismissed after lock action
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
 
         // Verify the results.
         XCTAssertEqual(coordinator.events.last, .lockVault(userId: otherProfile.userId, isManuallyLocking: true))
@@ -1693,7 +1698,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await lockAction.handler?(lockAction, [])
 
         // Verify the profile switcher sheet is dismissed even after error
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
 
         // Verify the results.
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
@@ -1763,7 +1768,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the profile switcher sheet is dismissed after logout action
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
 
         // Verify the results.
         XCTAssertEqual(coordinator.events.last, .logout(userId: activeProfile.userId, userInitiated: true))
@@ -1835,7 +1840,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the profile switcher sheet is dismissed after logout action
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
 
         // Verify the results.
         XCTAssertEqual(
@@ -1909,7 +1914,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the profile switcher sheet is dismissed even after error
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
 
         // Verify the results.
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
@@ -1937,7 +1942,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture())))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountPressed)` for iOS 26 when selecting already-active account
@@ -1960,7 +1965,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
         XCTAssertNil(coordinator.events.last)
     }
 
@@ -2211,7 +2216,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.profileSwitcher(.backgroundTapped))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
     }
 
     /// `receive(_:)` with `.searchStateChanged(isSearching: false)` doesn't hide the profile switcher
@@ -2351,7 +2356,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_dismissProfileSwitcher() {
         subject.dismissProfileSwitcher()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
