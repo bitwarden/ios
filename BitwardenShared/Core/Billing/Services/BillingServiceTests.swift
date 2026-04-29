@@ -14,6 +14,8 @@ struct BillingServiceTests {
     // MARK: Properties
 
     var billingAPIService: MockBillingAPIService!
+    var configService: MockConfigService!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var syncService: MockSyncService!
@@ -23,11 +25,17 @@ struct BillingServiceTests {
 
     init() {
         billingAPIService = MockBillingAPIService()
+        configService = MockConfigService()
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        environmentService = MockEnvironmentService()
+        environmentService.region = .unitedStates
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         syncService = MockSyncService()
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
+            configService: configService,
+            environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -377,6 +385,21 @@ struct BillingServiceTests {
         _ = lateCancellable
     }
 
+    /// `premiumStatusChanged()` returns early without syncing when the premiumUpgradePath flag is disabled.
+    @Test
+    func premiumStatusChanged_featureFlagDisabled() async throws {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+        stateService.doesActiveAccountHavePremiumResult = false
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        await subject.premiumStatusChanged()
+
+        #expect(statuses.isEmpty)
+        #expect(!syncService.didFetchSync)
+    }
+
     /// `premiumStatusChanged()` publishes `.pending` when the user does not have premium after sync.
     @Test
     func premiumStatusChanged_pending() async throws {
@@ -390,6 +413,21 @@ struct BillingServiceTests {
         try await waitForAsync { !statuses.isEmpty }
         #expect(statuses == [.pending])
         #expect(syncService.didFetchSync)
+    }
+
+    /// `premiumStatusChanged()` returns early without syncing when the environment is self-hosted.
+    @Test
+    func premiumStatusChanged_selfHosted() async throws {
+        environmentService.region = .selfHosted
+        stateService.doesActiveAccountHavePremiumResult = false
+        var statuses = [PremiumCheckoutStatus]()
+        let cancellable = subject.premiumCheckoutStatusPublisher()
+            .sink { statuses.append($0) }
+
+        await subject.premiumStatusChanged()
+
+        #expect(statuses.isEmpty)
+        #expect(!syncService.didFetchSync)
     }
 
     /// `premiumStatusChanged()` reports the error and publishes `.pending` when sync fails.
