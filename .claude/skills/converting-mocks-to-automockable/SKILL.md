@@ -114,32 +114,16 @@ func doThing(name: String, count: Int, enabled: Bool) async {
 var doThingReceivedArguments: (name: String, count: Int, enabled: Bool)?
 ```
 
-**XCTest:**
-
 ```swift
 // Before
-XCTAssertEqual(mockService.doThingName, "hello")
-XCTAssertEqual(mockService.doThingCount, 3)
-XCTAssertTrue(mockService.doThingEnabled ?? false)
+mockService.doThingName == "hello"
+mockService.doThingCount == 3
+mockService.doThingEnabled == true
 
 // After
-XCTAssertEqual(mockService.doThingReceivedArguments?.name, "hello")
-XCTAssertEqual(mockService.doThingReceivedArguments?.count, 3)
-XCTAssertTrue(mockService.doThingReceivedArguments?.enabled ?? false)
-```
-
-**Swift Testing:**
-
-```swift
-// Before
-#expect(mockService.doThingName == "hello")
-#expect(mockService.doThingCount == 3)
-#expect(mockService.doThingEnabled == true)
-
-// After
-#expect(mockService.doThingReceivedArguments?.name == "hello")
-#expect(mockService.doThingReceivedArguments?.count == 3)
-#expect(mockService.doThingReceivedArguments?.enabled == true)
+mockService.doThingReceivedArguments?.name == "hello"
+mockService.doThingReceivedArguments?.count == 3
+mockService.doThingReceivedArguments?.enabled == true
 ```
 
 Nil checks via optional chaining preserve the original semantics: `mockService.doThingReceivedArguments?.name` is nil both when the method was never called (whole tuple is nil) and when it was called with a nil argument — matching what the bespoke `mockService.doThingName` would have been.
@@ -173,7 +157,6 @@ func deleteItem() async throws {
 
 // Generated equivalent
 mockService.deleteItemThrowableError = someErr  // nil by default (no throw)
-// deleteItemCalled still works (computed from deleteItemCallsCount)
 ```
 
 ### Methods with return values (non-throwing)
@@ -187,7 +170,7 @@ func isEnabled() -> Bool { isEnabledResult }
 mockService.isEnabledReturnValue = false  // note: implicitly unwrapped optional, crashes if not set
 ```
 
-Always set `ReturnValue` before the test exercises that method — it's `T!`, not `T?`.
+Always set `ReturnValue` before the test exercises that method — it's `T!`, not `T?`. If you need to vary behavior across calls (e.g. return different values on successive invocations), use `isEnabledClosure` instead.
 
 ### Watch out: bespoke defaults vs. generated nil
 
@@ -272,7 +255,6 @@ With the generated mock's actual property names in hand, update each test that u
 Common things to change:
 
 - Replace `Result`-based setup with `ReturnValue`/`ThrowableError`
-- Replace explicit `fooCalled = false` resets (not needed; generated mocks start fresh)
 - Replace bespoke parameter capture properties with `Received{Label}` (single param) or `ReceivedArguments` tuple (multiple params)
 
 ### Adding the import
@@ -292,11 +274,24 @@ If you see `cannot find type 'MockFoo' in scope` after deleting a bespoke mock, 
 
 ## Step 7: Verify
 
-Build and run the affected tests:
+Format, lint, then run the affected tests:
 
 ```bash
 mint run swiftformat .
 mint run swiftlint
 ```
 
-Then build the project (Sourcery also runs as a pre-build phase, so a clean build confirms end-to-end generation). Fix any compile errors from the API translation.
+Run the affected test suite (read simulator config from the project files):
+
+```bash
+DEVICE=$(tr -d '\n' < .test-simulator-device-name)
+OS=$(tr -d '\n' < .test-simulator-ios-version)
+xcodebuild test \
+  -workspace Bitwarden.xcworkspace \
+  -scheme Bitwarden \
+  -testPlan Bitwarden-Default \
+  -only-testing "<TargetTests>/<TestClassName>" \
+  -destination "platform=iOS Simulator,name=$DEVICE,OS=$OS"
+```
+
+Fix any compile errors or test failures from the API translation.
