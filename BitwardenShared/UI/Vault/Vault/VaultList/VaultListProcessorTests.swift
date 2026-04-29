@@ -685,8 +685,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
     }
 
-    /// When the billing service emits `.canceled`, the processor cancels its subscription
-    /// without navigating.
+    /// When the billing service emits `.canceled`, the processor does not navigate,
+    /// keeping the subscription alive so a cancel-and-retry can still be observed.
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_canceled() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()

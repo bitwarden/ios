@@ -151,6 +151,8 @@ struct PremiumUpgradeProcessorTests {
     func perform_upgradeNowTapped_success() async throws {
         let expectedURL = URL(string: "https://checkout.stripe.com/session")!
         billingService.createCheckoutSessionReturnValue = expectedURL
+        billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
+            .eraseToAnyPublisher()
 
         await subject.perform(.upgradeNowTapped)
 

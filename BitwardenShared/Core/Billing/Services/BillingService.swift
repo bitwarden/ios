@@ -14,6 +14,13 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func createCheckoutSession() async throws -> URL
 
+    /// Creates a customer portal session for managing the premium subscription.
+    ///
+    /// - Returns: A validated HTTPS URL for the customer portal.
+    /// - Throws: `BillingError.invalidPortalUrl` if the URL is not HTTPS.
+    ///
+    func getPortalUrl() async throws -> URL
+
     /// Gets the premium subscription plan details.
     ///
     /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
@@ -22,9 +29,9 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
 
     /// Gets the user's subscription details.
     ///
-    /// - Returns: A `BitwardenSubscriptionResponseModel` containing the subscription details.
+    /// - Returns: A `PremiumSubscription` containing the flattened subscription details.
     ///
-    func getSubscription() async throws -> BitwardenSubscriptionResponseModel
+    func getSubscription() async throws -> PremiumSubscription
 
     /// Notifies that the user canceled the Stripe checkout without completing payment,
     /// and publishes a `.canceled` status update.
@@ -98,12 +105,22 @@ class DefaultBillingService: BillingService {
         return url
     }
 
+    func getPortalUrl() async throws -> URL {
+        let response = try await billingAPIService.getPortalUrl()
+        let url = response.url
+        guard url.scheme == "https" else {
+            throw BillingError.invalidPortalUrl
+        }
+        return url
+    }
+
     func getPremiumPlan() async throws -> PremiumPlanResponseModel {
         try await billingAPIService.getPremiumPlan()
     }
 
-    func getSubscription() async throws -> BitwardenSubscriptionResponseModel {
-        try await billingAPIService.getSubscription()
+    func getSubscription() async throws -> PremiumSubscription {
+        let response = try await billingAPIService.getSubscription()
+        return PremiumSubscription(response: response)
     }
 
     func premiumCheckoutCanceled() {
