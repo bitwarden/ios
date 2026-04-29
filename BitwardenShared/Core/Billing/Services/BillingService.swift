@@ -58,6 +58,12 @@ class DefaultBillingService: BillingService {
     /// The API service used for billing requests.
     private let billingAPIService: BillingAPIService
 
+    /// The service used to manage feature flags.
+    private let configService: ConfigService
+
+    /// The service used to manage the app's environment URLs.
+    private let environmentService: EnvironmentService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -76,17 +82,23 @@ class DefaultBillingService: BillingService {
     ///
     /// - Parameters:
     ///   - billingAPIService: The API service used for billing requests.
+    ///   - configService: The service used to manage feature flags.
+    ///   - environmentService: The service used to manage the app's environment URLs.
     ///   - errorReporter: The service used to report non-fatal errors.
     ///   - stateService: The service used to manage the app's state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         billingAPIService: BillingAPIService,
+        configService: ConfigService,
+        environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         syncService: SyncService,
     ) {
         self.billingAPIService = billingAPIService
+        self.configService = configService
+        self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.syncService = syncService
@@ -136,7 +148,10 @@ class DefaultBillingService: BillingService {
     }
 
     func premiumStatusChanged() async {
-        guard await !stateService.doesActiveAccountHavePremium() else {
+        guard environmentService.region != .selfHosted,
+              await configService.getFeatureFlag(.premiumUpgradePath),
+              await !stateService.doesActiveAccountHavePremium()
+        else {
             return
         }
 
