@@ -12,6 +12,13 @@ protocol BillingService: AnyObject { // sourcery: AutoMockable
     ///
     func createCheckoutSession() async throws -> URL
 
+    /// Creates a customer portal session for managing the premium subscription.
+    ///
+    /// - Returns: A validated HTTPS URL for the customer portal.
+    /// - Throws: `BillingError.invalidPortalUrl` if the URL is not HTTPS.
+    ///
+    func getPortalUrl() async throws -> URL
+
     /// Gets the premium subscription plan details.
     ///
     /// - Returns: A `PremiumPlanResponseModel` containing the premium plan details.
@@ -54,6 +61,15 @@ class DefaultBillingService: BillingService {
         // when redirecting users to the payment provider.
         guard url.scheme == "https" else {
             throw BillingError.invalidCheckoutUrl
+        }
+        return url
+    }
+
+    func getPortalUrl() async throws -> URL {
+        let response = try await billingAPIService.getPortalUrl()
+        let url = response.url
+        guard url.scheme == "https" else {
+            throw BillingError.invalidPortalUrl
         }
         return url
     }

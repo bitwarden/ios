@@ -79,6 +79,31 @@ struct BillingServiceTests {
         #expect(billingAPIService.createCheckoutSessionCallsCount == 1)
     }
 
+    /// `getPortalUrl()` returns the URL when it uses HTTPS scheme.
+    @Test
+    func getPortalUrl_success() async throws {
+        let expectedURL = URL(string: "https://billing.stripe.com/portal/session")!
+        billingAPIService.getPortalUrlReturnValue = .init(url: expectedURL)
+
+        let result = try await subject.getPortalUrl()
+
+        #expect(billingAPIService.getPortalUrlCallsCount == 1)
+        #expect(result == expectedURL)
+    }
+
+    /// `getPortalUrl()` throws `invalidPortalUrl` when the URL uses HTTP scheme.
+    @Test
+    func getPortalUrl_nonHttpsUrl_throwsInvalidPortalUrl() async throws {
+        let httpURL = URL(string: "http://billing.stripe.com/portal/session")!
+        billingAPIService.getPortalUrlReturnValue = .init(url: httpURL)
+
+        await #expect(throws: BillingError.invalidPortalUrl) {
+            _ = try await subject.getPortalUrl()
+        }
+
+        #expect(billingAPIService.getPortalUrlCallsCount == 1)
+    }
+
     /// `getPremiumPlan()` returns the premium plan from the API service.
     @Test
     func getPremiumPlan_success() async throws {
