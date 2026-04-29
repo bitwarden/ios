@@ -96,7 +96,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
                      .pending,
                      .syncing:
                     // VaultListProcessor owns the dismiss and all post-dismiss actions
-                    // via DismissCompletionContext for each of these states.
+                    // via DismissAction for each of these states.
                     premiumStatusChangedCancellable = nil
                 }
             }

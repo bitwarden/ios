@@ -577,8 +577,7 @@ extension VaultListProcessor {
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
                     coordinator.navigate(
-                        to: .dismiss,
-                        context: DismissCompletionContext { [weak self] in
+                        to: .dismiss(DismissAction { [weak self] in
                             guard let self else { return }
                             coordinator.hideLoadingOverlay()
                             Task {
@@ -587,28 +586,26 @@ extension VaultListProcessor {
                                 self.state.shouldShowPremiumUpgradeActionCard = false
                                 self.state.shouldShowUpgradedToPremiumActionCard = true
                             }
-                        },
+                        }),
                     )
                 case .pending:
                     coordinator.navigate(
-                        to: .dismiss,
-                        context: DismissCompletionContext { [weak self] in
+                        to: .dismiss(DismissAction { [weak self] in
                             guard let self else { return }
                             coordinator.hideLoadingOverlay()
                             coordinator.showAlert(.upgradePending {
                                 await self.services.billingService.premiumStatusChanged()
                             })
-                        },
+                        }),
                     )
                 case .syncing:
                     coordinator.navigate(
-                        to: .dismiss,
-                        context: DismissCompletionContext { [weak self] in
+                        to: .dismiss(DismissAction { [weak self] in
                             guard let self else { return }
                             coordinator.showLoadingOverlay(
                                 title: Localizations.confirmingYourUpgrade,
                             )
-                        },
+                        }),
                     )
                 }
             }
@@ -785,7 +782,7 @@ extension VaultListProcessor: ProfileSwitcherHandler {
     }
 
     func dismissProfileSwitcher() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func showAddAccount() {

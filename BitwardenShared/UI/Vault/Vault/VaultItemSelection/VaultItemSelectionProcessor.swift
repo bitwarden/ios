@@ -111,7 +111,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 context: self,
             )
         case .cancelTapped:
-            coordinator.navigate(to: .dismiss)
+            coordinator.navigate(to: .dismiss())
         case .clearURL:
             state.url = nil
         case let .profileSwitcher(action):
@@ -264,21 +264,21 @@ class VaultItemSelectionProcessor: StateProcessor<
 
 extension VaultItemSelectionProcessor: CipherItemOperationDelegate {
     func itemAdded() -> Bool {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false
     }
 
     func itemArchived() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func itemUnarchived() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func itemUpdated() -> Bool {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
         // Return false to notify the calling processor that the dismissal occurs here.
         return false
     }
@@ -322,7 +322,7 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
     }
 
     func dismissProfileSwitcher() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func handleAuthEvent(_ authEvent: AuthEvent) async {

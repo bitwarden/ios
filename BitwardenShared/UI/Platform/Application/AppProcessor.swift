@@ -441,7 +441,8 @@ extension AppProcessor {
     /// - Returns: `true` if the URL was a premium checkout result and was handled.
     ///
     private func handlePremiumCheckoutResult(url: URL) async -> Bool {
-        guard url.scheme == "bitwarden", url.host == "premium-checkout-result" else {
+        guard url.scheme?.isBitwardenAppScheme == true,
+              url.host == BitwardenDeepLinkConstants.premiumCheckoutResultHost else {
             return false
         }
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
