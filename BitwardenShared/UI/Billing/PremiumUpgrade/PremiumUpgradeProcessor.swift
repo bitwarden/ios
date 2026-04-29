@@ -93,10 +93,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
     private func fetchPremiumPrice() async {
         do {
             let plan = try await services.billingService.getPremiumPlan()
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .currency
-            formatter.locale = Locale.current
-            state.premiumPrice = formatter.string(from: NSDecimalNumber(decimal: plan.seat.price))
+            state.premiumSeatPrice = plan.seat.price
             state.showPricingErrorBanner = false
         } catch {
             services.errorReporter.log(error: error)

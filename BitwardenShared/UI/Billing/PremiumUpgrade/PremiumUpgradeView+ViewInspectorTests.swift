@@ -103,15 +103,15 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
     /// The premium price text displays the value from state.
     @MainActor
     func test_premiumPrice_displaysStateValue() throws {
-        processor.state.premiumPrice = "$9.99"
-        let text = try subject.inspect().find(text: "$9.99")
+        processor.state.premiumSeatPrice = 19.80
+        let text = try subject.inspect().find(text: "$1.65")
         XCTAssertNotNil(text)
     }
 
     /// The premium price section is hidden when `premiumPrice` is `nil`.
     @MainActor
     func test_premiumPrice_hiddenWhenNil() throws {
-        processor.state.premiumPrice = nil
+        processor.state.premiumSeatPrice = nil
         XCTAssertThrowsError(
             try subject.inspect().find(text: Localizations.perMonth),
         )
