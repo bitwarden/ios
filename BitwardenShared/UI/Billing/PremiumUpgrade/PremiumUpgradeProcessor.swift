@@ -57,6 +57,12 @@ final class PremiumUpgradeProcessor: StateProcessor<
         switch effect {
         case .appeared:
             state.isSelfHosted = services.environmentService.region == .selfHosted
+            if !state.isSelfHosted {
+                await fetchPremiumPrice()
+            }
+        case .retryFetchPriceTapped:
+            state.showPricingErrorBanner = false
+            await fetchPremiumPrice()
         case .upgradeNowTapped:
             await createCheckoutSession()
         }
@@ -70,6 +76,8 @@ final class PremiumUpgradeProcessor: StateProcessor<
             state.checkoutURL = nil
         case .dismissBannerTapped:
             state.isBannerDismissed = true
+        case .dismissPricingErrorBannerTapped:
+            state.showPricingErrorBanner = false
         case .urlOpenFailed:
             Task {
                 await coordinator.showErrorAlert(error: BillingError.unableToOpenCheckout)
@@ -78,6 +86,20 @@ final class PremiumUpgradeProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    /// Fetches the premium plan price from the billing service and updates state.
+    /// Shows the pricing error banner on failure.
+    ///
+    private func fetchPremiumPrice() async {
+        do {
+            let plan = try await services.billingService.getPremiumPlan()
+            state.premiumSeatPrice = plan.seat.price
+            state.showPricingErrorBanner = false
+        } catch {
+            services.errorReporter.log(error: error)
+            state.showPricingErrorBanner = true
+        }
+    }
 
     /// Subscribes to premium checkout status updates and reacts accordingly.
     ///

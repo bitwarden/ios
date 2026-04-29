@@ -1082,3 +1082,5 @@
 "CopyUserID" = "Copy user ID";
 "UserIDUnavailable" = "User ID unavailable";
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
+"CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
+"PricingUnavailable" = "Pricing unavailable";
