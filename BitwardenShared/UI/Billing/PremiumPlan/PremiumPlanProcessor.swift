@@ -55,15 +55,50 @@ final class PremiumPlanProcessor: StateProcessor<
     override func receive(_ action: PremiumPlanAction) {
         switch action {
         case .cancelPremiumTapped:
-            state.urlToOpen = ExternalLinksConstants.cancelPremiumPlan
+            showCancelConfirmation()
         case .clearUrl:
             state.urlToOpen = nil
         case .managePlanTapped:
-            state.urlToOpen = ExternalLinksConstants.managePremiumPlan
+            Task { [weak self] in
+                await self?.openPortalUrl()
+            }
         }
     }
 
     // MARK: Private Methods
+
+    /// Fetches the portal URL from the billing service and sets it on state.
+    ///
+    private func openPortalUrl() async {
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+
+        do {
+            let url = try await services.billingService.getPortalUrl()
+            state.urlToOpen = url
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
+    }
+
+    /// Shows the cancel premium confirmation alert.
+    ///
+    private func showCancelConfirmation() {
+        coordinator.showAlert(
+            Alert(
+                title: Localizations.cancelPremium,
+                message: Localizations.youllContinueToHavePremiumAccessUntilX(state.nextChargeDate),
+                alertActions: [
+                    AlertAction(title: Localizations.cancelNow, style: .destructive) { [weak self] _ in
+                        guard let self else { return }
+                        await openPortalUrl()
+                    },
+                    AlertAction(title: Localizations.close, style: .cancel),
+                ],
+            ),
+        )
+    }
 
     /// Loads the premium plan details from the billing service and updates the state.
     ///

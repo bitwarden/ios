@@ -102,29 +102,82 @@ struct PremiumPlanProcessorTests {
         #expect(!subject.state.showStorageCost)
     }
 
-    /// `receive(_:)` with `.cancelPremiumTapped` sets the URL to open.
+    /// `receive(_:)` with `.cancelPremiumTapped` shows the confirmation alert.
     @Test
-    func receive_cancelPremiumTapped() {
+    func receive_cancelPremiumTapped_showsConfirmationAlert() {
         subject.receive(.cancelPremiumTapped)
 
-        #expect(subject.state.urlToOpen == ExternalLinksConstants.cancelPremiumPlan)
+        #expect(coordinator.alertShown.count == 1)
+        #expect(coordinator.alertShown.first?.title == Localizations.cancelPremium)
+        #expect(coordinator.alertShown.first?.alertActions.count == 2)
+        #expect(coordinator.alertShown.first?.alertActions.first?.title == Localizations.cancelNow)
+        #expect(coordinator.alertShown.first?.alertActions.last?.title == Localizations.close)
+    }
+
+    /// `receive(_:)` with `.cancelPremiumTapped`, after confirming, fetches portal URL and sets state.
+    @Test
+    func receive_cancelPremiumTapped_confirmed_setsPortalUrl() async throws {
+        let portalURL = URL(string: "https://billing.stripe.com/portal/session")!
+        billingService.getPortalUrlReturnValue = portalURL
+        subject.receive(.cancelPremiumTapped)
+
+        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        #expect(billingService.getPortalUrlCallsCount == 1)
+        #expect(subject.state.urlToOpen == portalURL)
+    }
+
+    /// `receive(_:)` with `.cancelPremiumTapped`, after confirming, logs error and shows alert on failure.
+    @Test
+    func receive_cancelPremiumTapped_confirmed_serviceError() async throws {
+        billingService.getPortalUrlThrowableError = BitwardenTestError.example
+        subject.receive(.cancelPremiumTapped)
+
+        let confirmAction = try #require(coordinator.alertShown.first?.alertActions.first)
+        await confirmAction.handler?(confirmAction, [])
+
+        #expect(errorReporter.errors.first as? BitwardenTestError == .example)
+        #expect(coordinator.errorAlertsShown.count == 1)
+        #expect(subject.state.urlToOpen == nil)
     }
 
     /// `receive(_:)` with `.clearUrl` clears the URL to open.
     @Test
     func receive_clearUrl() {
-        subject.state.urlToOpen = ExternalLinksConstants.managePremiumPlan
+        subject.state.urlToOpen = URL(string: "https://example.com")
 
         subject.receive(.clearUrl)
 
         #expect(subject.state.urlToOpen == nil)
     }
 
-    /// `receive(_:)` with `.managePlanTapped` sets the URL to open.
+    /// `receive(_:)` with `.managePlanTapped` fetches portal URL and sets state.
     @Test
-    func receive_managePlanTapped() {
-        subject.receive(.managePlanTapped)
+    func receive_managePlanTapped_setsPortalUrl() async {
+        let portalURL = URL(string: "https://billing.stripe.com/portal/session")!
+        billingService.getPortalUrlReturnValue = portalURL
 
-        #expect(subject.state.urlToOpen == ExternalLinksConstants.managePremiumPlan)
+        subject.receive(.managePlanTapped)
+        // Allow the spawned Task to complete
+        await Task.yield()
+        await Task.yield()
+
+        #expect(billingService.getPortalUrlCallsCount == 1)
+        #expect(subject.state.urlToOpen == portalURL)
+    }
+
+    /// `receive(_:)` with `.managePlanTapped` logs error and shows alert on failure.
+    @Test
+    func receive_managePlanTapped_serviceError() async {
+        billingService.getPortalUrlThrowableError = BitwardenTestError.example
+
+        subject.receive(.managePlanTapped)
+        await Task.yield()
+        await Task.yield()
+
+        #expect(errorReporter.errors.first as? BitwardenTestError == .example)
+        #expect(coordinator.errorAlertsShown.count == 1)
+        #expect(subject.state.urlToOpen == nil)
     }
 }

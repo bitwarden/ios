@@ -1046,6 +1046,7 @@
 "EstimatedTax" = "Estimated tax";
 "ManagePlan" = "Manage plan";
 "CancelPremium" = "Cancel Premium";
+"CancelNow" = "Cancel now";
 "YourNextChargeIsForXDueOnY" = "Your next charge is for **%1$@**, due on **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "We could not process your payment. Update your payment method before your subscription ends on **%1$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Your subscription was canceled on **%1$@**. Resubscribe to continue using premium features.";
@@ -1063,6 +1064,7 @@
 "BreachMonitoring" = "Breach monitoring";
 "UpgradeNow" = "Upgrade now";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
+"YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";
 "UserID" = "User ID";
 "CopyUserID" = "Copy user ID";
