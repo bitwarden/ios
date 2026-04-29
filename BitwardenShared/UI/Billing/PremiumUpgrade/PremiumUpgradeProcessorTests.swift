@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import Combine
 import Foundation
 import TestHelpers
 import Testing
@@ -71,7 +72,7 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.checkoutURL == nil)
         #expect(subject.state.isLoading == false)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
-        #expect(coordinator.errorAlertsShown.count == 1)
+        #expect(coordinator.alertShown.count == 1)
     }
 
     /// `perform(_:)` with `.upgradeNowTapped` shows an error when the service returns an invalid URL error.
@@ -84,7 +85,7 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.checkoutURL == nil)
         #expect(subject.state.isLoading == false)
         #expect(errorReporter.errors.first as? BillingError == .invalidCheckoutUrl)
-        #expect(coordinator.errorAlertsShown.count == 1)
+        #expect(coordinator.alertShown.count == 1)
     }
 
     /// `perform(_:)` with `.upgradeNowTapped` sets the checkout URL on success.
@@ -92,6 +93,8 @@ struct PremiumUpgradeProcessorTests {
     func perform_upgradeNowTapped_success() async throws {
         let expectedURL = URL(string: "https://checkout.stripe.com/session")!
         billingService.createCheckoutSessionReturnValue = expectedURL
+        billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
+            .eraseToAnyPublisher()
 
         await subject.perform(.upgradeNowTapped)
 

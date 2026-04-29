@@ -89,7 +89,6 @@ final class PremiumUpgradeProcessor: StateProcessor<
                 guard let self else { return }
                 switch status {
                 case .canceled:
-                    premiumStatusChangedCancellable = nil
                     coordinator.showAlert(.paymentNotReceivedYet {
                         self.state.checkoutURL = self.lastCheckoutURL
                     })

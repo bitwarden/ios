@@ -573,7 +573,7 @@ extension VaultListProcessor {
                 guard let self else { return }
                 switch status {
                 case .canceled:
-                    premiumStatusChangedCancellable = nil
+                    break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
                     coordinator.navigate(
