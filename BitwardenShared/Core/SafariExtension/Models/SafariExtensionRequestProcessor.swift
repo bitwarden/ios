@@ -147,7 +147,7 @@ public struct SafariExtensionRequestProcessor {
                 matchedLogin: nil,
                 fillScriptJSON: nil,
                 generatedPassword: nil,
-                userMessage: "Safari Web Extension setup",
+                userMessage: "Open Bitwarden to finish Safari extension setup.",
             )
         case .fill:
             guard let matchedLogin,

@@ -286,6 +286,23 @@ async function testApplyNoMatchFillMessage_showsBannerWithoutPanel() {
   assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
 }
 
+async function testApplySetupResponse_showsInfoBannerWithoutPanel() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([password]);
+  await ctx.window.bitwardenSafariWebExtension.applyNativeResponse({
+    response: {
+      submissionAction: 'none',
+      userMessage: 'Open Bitwarden to finish Safari extension setup.',
+    },
+  });
+
+  const banner = ctx.document.body.querySelector('[data-bitwarden-status-banner]');
+  assert.ok(banner);
+  assert.equal(banner.textContent, 'Open Bitwarden to finish Safari extension setup.');
+  assert.equal(banner.dataset.bitwardenStatusTone, 'info');
+  assert.equal(ctx.document.body.querySelector('[data-bitwarden-action-panel]'), null);
+}
+
 async function testApplyNativeErrorMessage_showsWarningBannerWithoutPanel() {
   const username = createInput({ id: 'username', name: 'username', type: 'text', value: '' });
   const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
@@ -1221,6 +1238,7 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testApplyFillResponse_showsCompletionBannerWithoutPanel();
   await testApplyFillResponse_withoutUsername_usesSiteHostCopy();
   await testApplyNoMatchFillMessage_showsBannerWithoutPanel();
+  await testApplySetupResponse_showsInfoBannerWithoutPanel();
   await testApplyNativeErrorMessage_showsWarningBannerWithoutPanel();
   await testApplyNativeErrorMessage_withResponse_prefersResponseHandling();
   await testApplyStatusBanner();
