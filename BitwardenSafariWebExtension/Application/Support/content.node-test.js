@@ -1165,6 +1165,28 @@ async function testRequestFill_sendMessageFailure_showsWarningBanner() {
   assert.equal(response.errorMessage, 'Native bridge unavailable');
 }
 
+async function testRequestSetup_sendsSetupRequestContext() {
+  const password = createInput({ id: 'password', name: 'password', type: 'password', value: '' });
+  const ctx = makeEnvironment([password], {
+    sendMessage: async (message) => ({
+      response: {
+        submissionAction: 'none',
+        userMessage: 'Open Bitwarden to finish Safari extension setup.',
+        request: {
+          ...message.request,
+          requestContext: message.requestContext,
+        },
+      },
+    }),
+  });
+
+  const response = await ctx.window.bitwardenSafariWebExtension.requestSetup();
+
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).type, 'bitwarden:setup');
+  assert.equal(ctx.browser.runtime.sentMessages.at(-1).requestContext.trigger, 'setupButton');
+  assert.equal(response.response.request.requestContext.trigger, 'setupButton');
+}
+
 async function testActionPanelPrimaryErrorEnvelope_restoresPanelInteractivity() {
   const password = createInput({ id: 'password', name: 'password', type: 'password', value: 'secret' });
   const ctx = makeEnvironment([password], {
@@ -1234,6 +1256,7 @@ async function testActionPanelPrimaryFailure_restoresPanelInteractivity() {
   await testApplyGeneratedPassword();
   await testApplyFillScript();
   await testRequestFill_sendMessageFailure_showsWarningBanner();
+  await testRequestSetup_sendsSetupRequestContext();
   await testApplyStatusEvent();
   await testApplyFillResponse_showsCompletionBannerWithoutPanel();
   await testApplyFillResponse_withoutUsername_usesSiteHostCopy();

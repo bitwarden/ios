@@ -107,4 +107,21 @@ class SafariExtensionRequestTests: BitwardenTestCase {
         XCTAssertFalse(subject.canSaveLogin)
         XCTAssertFalse(subject.canChangePassword)
     }
+
+    func test_roundTripEncodeDecode_setupRequestContext() throws {
+        let subject = SafariExtensionRequest(
+            kind: .setup,
+            requestContext: SafariExtensionRequestContext(
+                trigger: .setupButton,
+                submissionAction: nil
+            ),
+            urlString: "https://example.com/account"
+        )
+
+        let data = try JSONEncoder().encode(subject)
+        let decoded = try JSONDecoder().decode(SafariExtensionRequest.self, from: data)
+
+        XCTAssertEqual(decoded, subject)
+        XCTAssertEqual(decoded.requestContext?.trigger, .setupButton)
+    }
 }

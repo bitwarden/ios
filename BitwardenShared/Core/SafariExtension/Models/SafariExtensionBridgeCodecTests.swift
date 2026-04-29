@@ -55,7 +55,7 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
             "request": [
                 "kind": "saveLogin",
                 "username": "user@example.com",
-                "password": "secret",
+                "password": "***",
                 "requestContext": [
                     "trigger": "actionPanelPrimary",
                     "submissionAction": "saveNewLogin",
@@ -69,6 +69,26 @@ class SafariExtensionBridgeCodecTests: BitwardenTestCase {
         XCTAssertEqual(subject.request.kind, .saveLogin)
         XCTAssertEqual(subject.request.requestContext?.trigger, .actionPanelPrimary)
         XCTAssertEqual(subject.request.requestContext?.submissionAction, .saveNewLogin)
+    }
+
+    func test_decodeRequestFromDictionary_withSetupRequestContext_parsesBridgeEnvelope() throws {
+        let message: [String: Any] = [
+            "id": "req-setup",
+            "request": [
+                "kind": "setup",
+                "urlString": "https://example.com/account",
+                "requestContext": [
+                    "trigger": "setupButton",
+                ],
+            ],
+        ]
+
+        let subject = try XCTUnwrap(SafariExtensionBridgeCodec.decodeRequest(from: message))
+
+        XCTAssertEqual(subject.id, "req-setup")
+        XCTAssertEqual(subject.request.kind, .setup)
+        XCTAssertEqual(subject.request.requestContext?.trigger, .setupButton)
+        XCTAssertNil(subject.request.requestContext?.submissionAction)
     }
 
     func test_encodeResponse_returnsJSONStringEnvelope() throws {
