@@ -17,6 +17,7 @@ public enum SafariExtensionRequestKind: String, Codable, Equatable {
 public enum SafariExtensionRequestTrigger: String, Codable, Equatable {
     case suggestedAction
     case actionPanelPrimary
+    case setupButton
 }
 
 // MARK: - SafariExtensionRequestContext
