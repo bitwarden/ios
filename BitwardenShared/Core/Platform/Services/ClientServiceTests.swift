@@ -33,6 +33,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             userKeyState: nil,
             localUserDataKeyState: nil,
             ephemeralPinEnvelopeState: nil,
+            organizationSharedKey: nil,
         )
         stateService = MockStateService()
         subject = DefaultClientService(
