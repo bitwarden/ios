@@ -90,7 +90,6 @@ class VaultItemActionHelperTests: BitwardenTestCase {
         let cipher = CipherView.loginFixture(id: "123")
 
         vaultRepository.doesActiveAccountHavePremiumResult = true
-        vaultRepository.archiveCipherResult = .success(())
 
         await subject.archive(
             cipher: cipher,
@@ -98,11 +97,42 @@ class VaultItemActionHelperTests: BitwardenTestCase {
             completionHandler: { completionCalled = true },
         )
 
-        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.sendingToArchive)
+        let confirmAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(confirmAlert.title, Localizations.archiveItem)
+        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
+        XCTAssertFalse(completionCalled)
 
+        vaultRepository.archiveCipherResult = .success(())
+        try await confirmAlert.tapAction(title: Localizations.archive)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.sendingToArchive)
         XCTAssertEqual(vaultRepository.archiveCipher.last?.id, "123")
         XCTAssertTrue(completionCalled)
         XCTAssertNil(errorReporter.errors.first)
+    }
+
+    /// `archive(cipher:handleOpenURL:completionHandler:)` does not archive when the user cancels
+    /// the confirmation alert.
+    @MainActor
+    func test_archive_confirmationCancel() async throws {
+        var completionCalled = false
+        let cipher = CipherView.loginFixture(id: "123")
+
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        await subject.archive(
+            cipher: cipher,
+            handleOpenURL: { _ in },
+            completionHandler: { completionCalled = true },
+        )
+
+        let confirmAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(confirmAlert.title, Localizations.archiveItem)
+
+        try await confirmAlert.tapCancel()
+
+        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
+        XCTAssertFalse(completionCalled)
     }
 
     /// `archive(cipher:handleOpenURL:completionHandler:)` shows an error alert when archiving fails.
@@ -119,6 +149,9 @@ class VaultItemActionHelperTests: BitwardenTestCase {
             handleOpenURL: { _ in },
             completionHandler: { completionCalled = true },
         )
+
+        let confirmAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await confirmAlert.tapAction(title: Localizations.archive)
 
         XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
