@@ -33,7 +33,10 @@ public enum VaultRoute: Equatable, Hashable {
     case autofillListForGroup(_ group: VaultListGroup)
 
     /// A route to dismiss the screen currently presented modally.
-    case dismiss
+    ///
+    /// - Parameter action: An optional `DismissAction` that is executed after the screen has been dismissed.
+    ///
+    case dismiss(_ action: DismissAction? = nil)
 
     /// A route to edit an item.
     ///

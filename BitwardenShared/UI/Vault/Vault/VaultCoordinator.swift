@@ -3,18 +3,6 @@ import BitwardenResources
 import BitwardenSdk
 import SwiftUI
 
-// MARK: - DismissCompletionContext
-
-/// A context object used to pass a completion handler through `coordinator.navigate(to: .dismiss)`.
-///
-class DismissCompletionContext: NSObject {
-    let completion: () -> Void
-
-    init(completion: @escaping () -> Void) {
-        self.completion = completion
-    }
-}
-
 // MARK: - VaultCoordinatorDelegate
 
 /// An object that is signaled when specific circumstances in the application flow have been encountered.
@@ -252,11 +240,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                     services.errorReporter.log(error: error)
                 }
             }
-        case .dismiss:
+        case let .dismiss(action):
             // If we're presenting a more complicated stack of view controllers (in particular, this could happen
             // if the user goes to the change profile sheet in the VaultItemSelection modal) then we only want to
             // dismiss the presented one, not the full stack.
-            let completion = (context as? DismissCompletionContext)?.completion
+            let completion = action?.action
             if let presentedViewController = stackNavigator?.rootViewController?.presentedViewController {
                 presentedViewController.dismiss(animated: UI.animated, completion: completion)
             } else {
