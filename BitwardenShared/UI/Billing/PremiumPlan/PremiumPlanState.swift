@@ -73,10 +73,10 @@ struct PremiumPlanState: Equatable {
         return formatCurrency(subscription.estimatedTax)
     }
 
-    /// The next charge amount with currency, formatted for display (e.g. "$24.35 USD").
+    /// The next charge amount with currency code, formatted for display (e.g. "24.35 USD").
     var nextChargeAmount: String {
         guard let subscription, subscription.nextCharge != nil else { return "" }
-        return "\(formatCurrency(subscription.totalAmount)) USD"
+        return formatCurrencyCode(subscription.totalAmount)
     }
 
     /// The next charge date, formatted for display.
@@ -128,13 +128,22 @@ struct PremiumPlanState: Equatable {
 
     // MARK: Private Methods
 
-    /// Formats a decimal price as a US dollar currency string.
+    /// Formats a decimal price as a US dollar currency string using the currency symbol.
     ///
     /// - Parameter price: The price to format.
     /// - Returns: A formatted currency string (e.g. "$1.65").
     ///
     private func formatCurrency(_ price: Decimal) -> String {
         NumberFormatter.usdCurrency.string(from: price as NSDecimalNumber) ?? "--"
+    }
+
+    /// Formats a decimal price as a US dollar currency string using the ISO currency code.
+    ///
+    /// - Parameter price: The price to format.
+    /// - Returns: A formatted currency string (e.g. "1.65 USD").
+    ///
+    private func formatCurrencyCode(_ price: Decimal) -> String {
+        NumberFormatter.usdCurrencyCode.string(from: price as NSDecimalNumber) ?? "--"
     }
 
     /// Formats a date for display using the long date style (e.g. "April 2, 2026").
