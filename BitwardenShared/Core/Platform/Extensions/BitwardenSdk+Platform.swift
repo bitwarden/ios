@@ -95,26 +95,6 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
         self.init(bootstrap: bootstrap)
     }
 
-    init(communicationSettings: ServerCommunicationSettings) {
-        let bootstrap = communicationSettings.bootstrap
-        guard bootstrap.type == BitwardenSdk.BootstrapConfig.BootstrapType.ssoCookieVendor.rawValue else {
-            self.init(bootstrap: .direct)
-            return
-        }
-
-        self.init(
-            bootstrap: .ssoCookieVendor(
-                SsoCookieVendorConfig(
-                    idpLoginUrl: bootstrap.idpLoginUrl,
-                    cookieName: bootstrap.cookieName,
-                    cookieDomain: bootstrap.cookieDomain,
-                    vaultUrl: nil,
-                    cookieValue: nil,
-                ),
-            ),
-        )
-    }
-
     // MARK: Methods
 
     public func encode(to encoder: Encoder) throws {
@@ -140,6 +120,29 @@ extension BitwardenSdk.ServerCommunicationConfig: @retroactive Codable {
                     cookieDomain: currentCookieConfig.cookieDomain,
                     vaultUrl: currentCookieConfig.vaultUrl,
                     cookieValue: fromSSOCookieConfig.cookieValue,
+                ),
+            ),
+        )
+    }
+}
+
+// MARK: - BitwardenSdk.SetCommunicationTypeRequest
+
+extension BitwardenSdk.SetCommunicationTypeRequest {
+    init(communicationSettings: ServerCommunicationSettings) {
+        let bootstrap = communicationSettings.bootstrap
+        guard bootstrap.type == BitwardenSdk.BootstrapConfig.BootstrapType.ssoCookieVendor.rawValue else {
+            self.init(bootstrap: .direct)
+            return
+        }
+
+        self.init(
+            bootstrap: .ssoCookieVendor(
+                SsoCookieVendorConfigRequest(
+                    idpLoginUrl: bootstrap.idpLoginUrl,
+                    cookieName: bootstrap.cookieName,
+                    cookieDomain: bootstrap.cookieDomain,
+                    vaultUrl: nil,
                 ),
             ),
         )

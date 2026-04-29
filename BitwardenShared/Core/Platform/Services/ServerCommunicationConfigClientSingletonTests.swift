@@ -83,8 +83,8 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
-            ServerCommunicationConfig(bootstrap: .direct),
+            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            SetCommunicationTypeRequest(bootstrap: .direct),
         )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
@@ -102,8 +102,8 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
-            ServerCommunicationConfig(bootstrap: .direct),
+            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            SetCommunicationTypeRequest(bootstrap: .direct),
         )
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
@@ -147,22 +147,10 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
         XCTAssertEqual((errorReporter.errors as? [BitwardenTestError])?.first, .example)
     }
 
-    /// `configPublisher` logs an error when the state service throws.
+    /// `configPublisher` triggers `setCommunicationType` without the cookie value even when
+    /// both the server config and local config are `ssoCookieVendor`.
     @MainActor
-    func test_configPublisher_stateServiceError_logsError() async throws {
-        stateService.getServerCommunicationConfigError = BitwardenTestError.example
-
-        configService.configSubject.send(makeMetaServerConfig())
-
-        try await waitForAsync { !self.errorReporter.errors.isEmpty }
-
-        XCTAssertEqual((errorReporter.errors as? [BitwardenTestError])?.first, .example)
-    }
-
-    /// `configPublisher` triggers `setCommunicationType` preserving the cookie value from the
-    /// local config when both the server config and local config are `ssoCookieVendor`.
-    @MainActor
-    func test_configPublisher_bothSSO_preservesCookieValue() async throws {
+    func test_configPublisher_bothSSO_sendsRequestWithoutCookieValue() async throws {
         let hostname = try XCTUnwrap(environmentService.webVaultURL.host)
         let cookieValue = [AcquiredCookie(name: "cookie", value: "stored_value")]
         stateService.serverCommunicationConfigs[hostname] = ServerCommunicationConfig(
@@ -183,15 +171,14 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
-            ServerCommunicationConfig(
+            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            SetCommunicationTypeRequest(
                 bootstrap: .ssoCookieVendor(
-                    SsoCookieVendorConfig(
+                    SsoCookieVendorConfigRequest(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
                         cookieDomain: "example.com",
                         vaultUrl: nil,
-                        cookieValue: [AcquiredCookie(name: "cookie", value: "stored_value")],
                     ),
                 ),
             ),
@@ -212,15 +199,14 @@ class ServerCommunicationConfigClientSingletonTests: BitwardenTestCase {
 
         XCTAssertEqual(serverCommunicationConfigClient.setCommunicationTypeReceivedHostname, hostname)
         XCTAssertEqual(
-            serverCommunicationConfigClient.setCommunicationTypeReceivedConfig,
-            ServerCommunicationConfig(
+            serverCommunicationConfigClient.setCommunicationTypeReceivedRequest,
+            SetCommunicationTypeRequest(
                 bootstrap: .ssoCookieVendor(
-                    SsoCookieVendorConfig(
+                    SsoCookieVendorConfigRequest(
                         idpLoginUrl: "https://idp.example.com",
                         cookieName: "sso_cookie",
                         cookieDomain: "example.com",
                         vaultUrl: nil,
-                        cookieValue: nil,
                     ),
                 ),
             ),

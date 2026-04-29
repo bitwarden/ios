@@ -287,62 +287,6 @@ class ServerCommunicationConfigCodableTests: BitwardenTestCase {
         XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
     }
 
-    /// `init(communicationSettings:)` produces `.direct` when bootstrap type is `"direct"`.
-    func test_init_communicationSettings_direct() {
-        let settings = ServerCommunicationSettings(
-            bootstrap: ServerCommunicationBootstrapSettings(
-                type: "direct",
-                idpLoginUrl: nil,
-                cookieName: nil,
-                cookieDomain: nil,
-            ),
-        )
-        let subject = ServerCommunicationConfig(communicationSettings: settings)
-
-        if case .direct = subject.bootstrap {} else {
-            XCTFail("Expected .direct bootstrap, got \(subject.bootstrap)")
-        }
-    }
-
-    /// `init(communicationSettings:)` produces `.ssoCookieVendor` when bootstrap type matches.
-    func test_init_communicationSettings_ssoCookieVendor() {
-        let settings = ServerCommunicationSettings(
-            bootstrap: ServerCommunicationBootstrapSettings(
-                type: "ssoCookieVendor",
-                idpLoginUrl: "https://idp.example.com",
-                cookieName: "bwauth",
-                cookieDomain: "example.com",
-            ),
-        )
-        let subject = ServerCommunicationConfig(communicationSettings: settings)
-
-        guard case let .ssoCookieVendor(config) = subject.bootstrap else {
-            XCTFail("Expected .ssoCookieVendor bootstrap, got \(subject.bootstrap)")
-            return
-        }
-        XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
-        XCTAssertEqual(config.cookieName, "bwauth")
-        XCTAssertEqual(config.cookieDomain, "example.com")
-        XCTAssertNil(config.cookieValue)
-    }
-
-    /// `init(communicationSettings:)` falls back to `.direct` for unknown bootstrap types.
-    func test_init_communicationSettings_unknownType_treatedAsDirect() {
-        let settings = ServerCommunicationSettings(
-            bootstrap: ServerCommunicationBootstrapSettings(
-                type: "unknownBootstrapType",
-                idpLoginUrl: nil,
-                cookieName: nil,
-                cookieDomain: nil,
-            ),
-        )
-        let subject = ServerCommunicationConfig(communicationSettings: settings)
-
-        if case .direct = subject.bootstrap {} else {
-            XCTFail("Expected .direct fallback for unknown type, got \(subject.bootstrap)")
-        }
-    }
-
     /// `updateCookieValue(from:)` copies the `cookieValue` from the `from` config.
     func test_updateCookieValue_bothSsoCookieVendor() {
         let selfConfig = SsoCookieVendorConfig(
@@ -448,5 +392,65 @@ class ServerCommunicationConfigSSOCookieVendorConfigTests: BitwardenTestCase {
         let subject = ServerCommunicationConfig(bootstrap: .direct)
 
         XCTAssertNil(subject.ssoCookieVendorConfig)
+    }
+}
+
+// MARK: - SetCommunicationTypeRequestTests
+
+class SetCommunicationTypeRequestTests: BitwardenTestCase {
+    /// `init(communicationSettings:)` produces `.direct` when bootstrap type is `"direct"`.
+    func test_init_communicationSettings_direct() {
+        let settings = ServerCommunicationSettings(
+            bootstrap: ServerCommunicationBootstrapSettings(
+                type: "direct",
+                idpLoginUrl: nil,
+                cookieName: nil,
+                cookieDomain: nil,
+            ),
+        )
+        let subject = SetCommunicationTypeRequest(communicationSettings: settings)
+
+        if case .direct = subject.bootstrap {} else {
+            XCTFail("Expected .direct bootstrap, got \(subject.bootstrap)")
+        }
+    }
+
+    /// `init(communicationSettings:)` produces `.ssoCookieVendor` when bootstrap type matches.
+    func test_init_communicationSettings_ssoCookieVendor() {
+        let settings = ServerCommunicationSettings(
+            bootstrap: ServerCommunicationBootstrapSettings(
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "bwauth",
+                cookieDomain: "example.com",
+            ),
+        )
+        let subject = SetCommunicationTypeRequest(communicationSettings: settings)
+
+        guard case let .ssoCookieVendor(config) = subject.bootstrap else {
+            XCTFail("Expected .ssoCookieVendor bootstrap, got \(subject.bootstrap)")
+            return
+        }
+        XCTAssertEqual(config.idpLoginUrl, "https://idp.example.com")
+        XCTAssertEqual(config.cookieName, "bwauth")
+        XCTAssertEqual(config.cookieDomain, "example.com")
+        XCTAssertNil(config.vaultUrl)
+    }
+
+    /// `init(communicationSettings:)` falls back to `.direct` for unknown bootstrap types.
+    func test_init_communicationSettings_unknownType_treatedAsDirect() {
+        let settings = ServerCommunicationSettings(
+            bootstrap: ServerCommunicationBootstrapSettings(
+                type: "unknownBootstrapType",
+                idpLoginUrl: nil,
+                cookieName: nil,
+                cookieDomain: nil,
+            ),
+        )
+        let subject = SetCommunicationTypeRequest(communicationSettings: settings)
+
+        if case .direct = subject.bootstrap {} else {
+            XCTFail("Expected .direct fallback for unknown type, got \(subject.bootstrap)")
+        }
     }
 } // swiftlint:disable:this file_length
