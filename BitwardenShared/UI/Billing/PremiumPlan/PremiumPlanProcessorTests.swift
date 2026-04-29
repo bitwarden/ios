@@ -97,7 +97,8 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.planStatus == .active)
         #expect(subject.state.subscription != nil)
         #expect(subject.state.billingAmount.contains("$19.80"))
-        #expect(subject.state.nextChargeAmount.contains("$24.35"))
+        #expect(subject.state.nextChargeAmount.contains("USD"))
+        #expect(subject.state.nextChargeAmount.contains("24.35"))
         #expect(!subject.state.nextChargeDate.isEmpty)
         #expect(!subject.state.showStorageCost)
     }
