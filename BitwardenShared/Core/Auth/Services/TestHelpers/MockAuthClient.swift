@@ -141,6 +141,10 @@ class MockAuthClient: AuthClientProtocol {
         return passwordStrengthResult
     }
 
+    func registration() -> BitwardenSdk.RegistrationClient {
+        fatalError()
+    }
+
     func satisfiesPolicy(password: String, strength: UInt8, policy: MasterPasswordPolicyOptions) -> Bool {
         satisfiesPolicyPassword = password
         satisfiesPolicyStrength = strength
