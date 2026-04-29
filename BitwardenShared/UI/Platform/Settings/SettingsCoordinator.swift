@@ -361,10 +361,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         ]
         let viewController = UIActivityViewController(activityItems: [extensionItem], applicationActivities: nil)
         viewController.completionWithItemsHandler = { activityType, completed, _, _ in
-            delegate?.didDismissSafariExtensionSetup(
-                enabled: completed &&
-                    activityType?.rawValue == Bundle.main.safariExtensionIdentifier,
-            )
+            let result: SafariExtensionSetupResult
+            if activityType?.rawValue == Bundle.main.safariExtensionIdentifier {
+                result = completed ? .enabled : .setupOpened
+            } else {
+                result = .dismissed
+            }
+
+            delegate?.didDismissSafariExtensionSetup(result: result)
         }
         stackNavigator?.present(viewController)
     }

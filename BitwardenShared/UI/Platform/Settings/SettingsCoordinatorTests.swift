@@ -163,7 +163,24 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         completionHandler(UIActivity.ActivityType(rawValue: "com.apple.UIKit.activity.CopyToPasteboard"), true, nil, nil)
 
-        XCTAssertEqual(delegate.enabledValues, [false])
+        XCTAssertEqual(delegate.results, [.dismissed])
+    }
+
+    /// `navigate(to:)` with `.safariExtensionSetup` tracks when the Safari setup flow opened
+    /// even if iOS cannot confirm enablement.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup_completionWithSafariActivityIncomplete_marksSetupOpened() throws {
+        let delegate = MockSafariExtensionSetupDelegate()
+        subject.navigate(to: .safariExtensionSetup, context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        let activityViewController = try XCTUnwrap(action.view as? UIActivityViewController)
+        let completionHandler = try XCTUnwrap(activityViewController.completionWithItemsHandler)
+        let safariActivity = UIActivity.ActivityType(rawValue: Bundle.main.safariExtensionIdentifier)
+
+        completionHandler(safariActivity, false, nil, nil)
+
+        XCTAssertEqual(delegate.results, [.setupOpened])
     }
 
     /// `navigate(to:)` with `.safariExtensionSetup` marks Safari as enabled when the Safari
@@ -180,7 +197,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         completionHandler(safariActivity, true, nil, nil)
 
-        XCTAssertEqual(delegate.enabledValues, [true])
+        XCTAssertEqual(delegate.results, [.enabled])
     }
 
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
@@ -500,9 +517,9 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
 @MainActor
 private final class MockSafariExtensionSetupDelegate: SafariExtensionSetupDelegate {
-    var enabledValues: [Bool] = []
+    var results: [SafariExtensionSetupResult] = []
 
-    func didDismissSafariExtensionSetup(enabled: Bool) {
-        enabledValues.append(enabled)
+    func didDismissSafariExtensionSetup(result: SafariExtensionSetupResult) {
+        results.append(result)
     }
 }

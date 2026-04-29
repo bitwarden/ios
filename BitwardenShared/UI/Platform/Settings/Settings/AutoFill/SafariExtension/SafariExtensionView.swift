@@ -14,7 +14,7 @@ struct SafariExtensionView: View {
         }
 
         if store.state.extensionActivated {
-            return "Continue the Safari setup flow to finish enabling the extension."
+            return "Bitwarden opened the Safari setup flow. Finish turning on the extension in Safari."
         }
 
         return "Set up the Safari extension to fill, save, update, and generate credentials with Bitwarden."
@@ -126,7 +126,7 @@ struct SafariExtensionView: View {
         }
 
         if store.state.extensionActivated {
-            return "Open the Safari setup sheet again, then turn on Bitwarden for Safari."
+            return "Safari setup was already opened from Bitwarden. Reopen it if needed, then turn on Bitwarden for Safari."
         }
 
         return "Start the Safari setup flow in Bitwarden, then turn on the extension in Safari."
@@ -155,7 +155,7 @@ struct SafariExtensionView: View {
 
     private var activateButtonMessage: String {
         if store.state.extensionActivated {
-            return "Reopen the setup flow, then finish turning on Bitwarden in Safari."
+            return "Bitwarden already opened the Safari setup flow. Reopen it if you still need to finish turning on the extension in Safari."
         }
 
         return "Starts the Safari setup flow from Bitwarden."
@@ -179,7 +179,7 @@ struct SafariExtensionView: View {
         }
 
         if store.state.extensionActivated {
-            return "Safari setup started from Bitwarden."
+            return "Safari setup was opened from Bitwarden."
         }
 
         return "Start the Safari setup flow from Bitwarden."

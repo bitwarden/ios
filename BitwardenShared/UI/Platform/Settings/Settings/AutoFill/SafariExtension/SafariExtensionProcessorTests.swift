@@ -34,18 +34,37 @@ class SafariExtensionProcessorTests: BitwardenTestCase {
 
     @MainActor
     func test_didDismissSafariExtensionSetup_enabled() {
-        subject.didDismissSafariExtensionSetup(enabled: true)
+        subject.didDismissSafariExtensionSetup(result: .enabled)
 
         XCTAssertTrue(subject.state.extensionActivated)
         XCTAssertTrue(subject.state.extensionEnabled)
     }
 
     @MainActor
-    func test_didDismissSafariExtensionSetup_notEnabled() {
-        subject.didDismissSafariExtensionSetup(enabled: false)
+    func test_didDismissSafariExtensionSetup_setupOpened() {
+        subject.didDismissSafariExtensionSetup(result: .setupOpened)
 
         XCTAssertTrue(subject.state.extensionActivated)
         XCTAssertFalse(subject.state.extensionEnabled)
+    }
+
+    @MainActor
+    func test_didDismissSafariExtensionSetup_dismissed() {
+        subject.didDismissSafariExtensionSetup(result: .dismissed)
+
+        XCTAssertFalse(subject.state.extensionActivated)
+        XCTAssertFalse(subject.state.extensionEnabled)
+    }
+
+    @MainActor
+    func test_didDismissSafariExtensionSetup_dismissed_afterSetupOpened_preservesProgress() {
+        subject.didDismissSafariExtensionSetup(result: .setupOpened)
+
+        subject.didDismissSafariExtensionSetup(result: .dismissed)
+
+        XCTAssertTrue(subject.state.extensionActivated)
+        XCTAssertFalse(subject.state.extensionEnabled)
+        XCTAssertEqual(subject.state.setupStatus, .setupOpened)
     }
 
     @MainActor
