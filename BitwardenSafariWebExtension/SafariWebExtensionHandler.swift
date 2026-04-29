@@ -4,10 +4,37 @@ import Foundation
 import SafariServices
 
 final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
+    typealias ResponseProvider = @MainActor (SafariExtensionRequest) async -> SafariExtensionResponse?
+
+    private let responseProvider: ResponseProvider
+    private let bridgeMessageUserInfoKeyProvider: () -> String
+
     @MainActor
-    private lazy var requestProcessor = SafariExtensionRequestProcessor.liveForAppExtension(
-        errorReporter: OSLogErrorReporter(),
-    )
+    override convenience init() {
+        self.init(
+            responseProvider: { request in
+                let requestProcessor = SafariExtensionRequestProcessor.liveForAppExtension(
+                    errorReporter: OSLogErrorReporter(),
+                )
+                return await requestProcessor.makeAsyncResponse(for: request)
+            }
+        )
+    }
+
+    @MainActor
+    init(
+        responseProvider: @escaping ResponseProvider,
+        bridgeMessageUserInfoKeyProvider: @escaping () -> String = {
+            if #available(iOS 15.0, macOS 11.0, *) {
+                return SFExtensionMessageKey
+            }
+            return SafariWebExtensionBridge.legacyMessageUserInfoKey
+        }
+    ) {
+        self.responseProvider = responseProvider
+        self.bridgeMessageUserInfoKeyProvider = bridgeMessageUserInfoKeyProvider
+        super.init()
+    }
 
     func beginRequest(with context: NSExtensionContext) {
         Task { @MainActor in
@@ -31,7 +58,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             ))
         }
 
-        guard let response = await requestProcessor.makeAsyncResponse(for: bridgeRequest.request) else {
+        guard let response = await responseProvider(bridgeRequest.request) else {
             return makeBridgeItem(from: try? SafariExtensionBridgeCodec.encodeErrorResponse(
                 requestID: bridgeRequest.id,
                 errorMessage: "Couldn’t process Safari extension request.",
@@ -55,10 +82,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     }
 
     private var bridgeMessageUserInfoKey: String {
-        if #available(iOS 15.0, macOS 11.0, *) {
-            return SFExtensionMessageKey
-        }
-        return SafariWebExtensionBridge.legacyMessageUserInfoKey
+        bridgeMessageUserInfoKeyProvider()
     }
 }
 

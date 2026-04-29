@@ -1,5 +1,5 @@
 browser.runtime.onInstalled.addListener(() => {
-  console.log("Bitwarden Safari Web Extension scaffold installed.");
+  console.log("Bitwarden Safari Web Extension installed.");
 });
 
 function bitwardenParseNativeResponse(nativeResponse) {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Bitwarden Safari",
-  "description": "Bitwarden Safari Web Extension scaffold for iOS and iPadOS.",
+  "description": "Bitwarden Safari Web Extension for iOS and iPadOS.",
   "version": "0.0.1",
   "icons": {
     "48": "icon-48.png",
