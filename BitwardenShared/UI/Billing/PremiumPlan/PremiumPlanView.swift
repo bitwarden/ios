@@ -115,8 +115,8 @@ struct PremiumPlanView: View {
 
     /// The manage plan button.
     private var managePlanButton: some View {
-        Button {
-            store.send(.managePlanTapped)
+        AsyncButton {
+            await store.perform(.managePlanTapped)
         } label: {
             HStack(spacing: 8) {
                 Image(asset: SharedAsset.Icons.externalLink24)

@@ -49,6 +49,8 @@ final class PremiumPlanProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await loadPremiumPlan()
+        case .managePlanTapped:
+            await openPortalUrl()
         }
     }
 
@@ -58,10 +60,6 @@ final class PremiumPlanProcessor: StateProcessor<
             showCancelConfirmation()
         case .clearUrl:
             state.urlToOpen = nil
-        case .managePlanTapped:
-            Task { [weak self] in
-                await self?.openPortalUrl()
-            }
         }
     }
 

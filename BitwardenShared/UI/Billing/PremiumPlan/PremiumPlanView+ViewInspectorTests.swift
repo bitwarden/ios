@@ -86,11 +86,11 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertNotNil(button)
     }
 
-    /// Tapping the manage plan button dispatches the `.managePlanTapped` action.
+    /// Tapping the manage plan button dispatches the `.managePlanTapped` effect.
     @MainActor
-    func test_managePlanButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.managePlan)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .managePlanTapped)
+    func test_managePlanButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.managePlan)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .managePlanTapped)
     }
 }

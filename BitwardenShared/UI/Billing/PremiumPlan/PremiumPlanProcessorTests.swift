@@ -153,29 +153,24 @@ struct PremiumPlanProcessorTests {
         #expect(subject.state.urlToOpen == nil)
     }
 
-    /// `receive(_:)` with `.managePlanTapped` fetches portal URL and sets state.
+    /// `perform(_:)` with `.managePlanTapped` fetches portal URL and sets state.
     @Test
-    func receive_managePlanTapped_setsPortalUrl() async {
+    func perform_managePlanTapped_setsPortalUrl() async {
         let portalURL = URL(string: "https://billing.stripe.com/portal/session")!
         billingService.getPortalUrlReturnValue = portalURL
 
-        subject.receive(.managePlanTapped)
-        // Allow the spawned Task to complete
-        await Task.yield()
-        await Task.yield()
+        await subject.perform(.managePlanTapped)
 
         #expect(billingService.getPortalUrlCallsCount == 1)
         #expect(subject.state.urlToOpen == portalURL)
     }
 
-    /// `receive(_:)` with `.managePlanTapped` logs error and shows alert on failure.
+    /// `perform(_:)` with `.managePlanTapped` logs error and shows alert on failure.
     @Test
-    func receive_managePlanTapped_serviceError() async {
+    func perform_managePlanTapped_serviceError() async {
         billingService.getPortalUrlThrowableError = BitwardenTestError.example
 
-        subject.receive(.managePlanTapped)
-        await Task.yield()
-        await Task.yield()
+        await subject.perform(.managePlanTapped)
 
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
         #expect(coordinator.errorAlertsShown.count == 1)
