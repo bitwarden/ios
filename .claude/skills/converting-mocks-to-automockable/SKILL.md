@@ -58,33 +58,33 @@ Some bespoke mocks expose a plain stored property that a method simply returns:
 
 ```swift
 // Bespoke
-var widgetStatus: WidgetStatus = .idle
+var fooStatus: FooStatus = .idle
 
-func getWidgetStatus(_ context: SomeContext?) -> WidgetStatus {
-    widgetStatus
+func getFooStatus(_ context: BarContext?) -> FooStatus {
+    fooStatus
 }
 ```
 
 Tests write directly to the stored property:
 
 ```swift
-mockService.widgetStatus = .active
+mockService.fooStatus = .active
 ```
 
 The generated mock drops the stored property and routes through `ReturnValue` named after the **method**:
 
 ```swift
 // Generated
-var getWidgetStatusReturnValue: WidgetStatus!
+var getFooStatusReturnValue: FooStatus!
 ```
 
 Tests update to:
 
 ```swift
-mockService.getWidgetStatusReturnValue = .active
+mockService.getFooStatusReturnValue = .active
 ```
 
-The generated property name comes from the **method** (`getWidgetStatus` + `ReturnValue`), not from the old stored property name (`widgetStatus`). They'll often differ — always read the generated output to confirm the exact name rather than guessing from the bespoke property.
+The generated property name comes from the **method** (`getFooStatus` + `ReturnValue`), not from the old stored property name (`fooStatus`). They'll often differ — always read the generated output to confirm the exact name rather than guessing from the bespoke property.
 
 ### Parameter capture: single vs. multiple
 
@@ -132,14 +132,14 @@ Nil checks via optional chaining preserve the original semantics: `mockService.d
 
 ```swift
 // Bespoke
-var loadItemsResult: Result<[Item], Error> = .success([])
-func loadItems() async throws -> [Item] {
-    return try loadItemsResult.get()
+var fetchFoosResult: Result<[Foo], Error> = .success([])
+func fetchFoos() async throws -> [Foo] {
+    return try fetchFoosResult.get()
 }
 
 // Generated equivalent — two separate properties
-mockService.loadItemsReturnValue = []          // set return value
-mockService.loadItemsThrowableError = someErr  // or set error to throw
+mockService.fetchFoosReturnValue = []          // set return value
+mockService.fetchFoosThrowableError = someErr  // or set error to throw
 ```
 
 When both are set, the generated mock checks for `ThrowableError` first and throws it, ignoring `ReturnValue`.
@@ -148,15 +148,15 @@ When both are set, the generated mock checks for `ThrowableError` first and thro
 
 ```swift
 // Bespoke
-var deleteItemCalled = false
-var deleteItemError: Error?
-func deleteItem() async throws {
-    deleteItemCalled = true
-    if let error = deleteItemError { throw error }
+var deleteFooCalled = false
+var deleteFooError: Error?
+func deleteFoo() async throws {
+    deleteFooCalled = true
+    if let error = deleteFooError { throw error }
 }
 
 // Generated equivalent
-mockService.deleteItemThrowableError = someErr  // nil by default (no throw)
+mockService.deleteFooThrowableError = someErr  // nil by default (no throw)
 ```
 
 ### Methods with return values (non-throwing)
