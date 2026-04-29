@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - SafariExtensionView
 
-/// A temporary setup view for the Safari extension flow.
+/// A setup view for the Safari extension flow.
 struct SafariExtensionView: View {
     @ObservedObject var store: Store<SafariExtensionState, SafariExtensionAction, Void>
 

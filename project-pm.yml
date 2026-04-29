@@ -379,6 +379,25 @@ targets:
       sourcesPath: BitwardenSafariWebExtension
     dependencies:
       - target: BitwardenShared
+  BitwardenSafariWebExtensionTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenSafariWebExtension/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenSafariWebExtension
+    sources:
+      - path: GlobalTestHelpers
+      - path: BitwardenSafariWebExtension/SafariWebExtensionBridge.swift
+      - path: BitwardenSafariWebExtension/SafariWebExtensionHandler.swift
+    dependencies:
+      - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
+    randomExecutionOrder: true
 
   BitwardenShared:
     type: framework
