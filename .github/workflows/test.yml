@@ -11,6 +11,8 @@ on:
     paths-ignore:
       - Authenticator/**
       - AuthenticatorShared/**
+      - Gemfile
+      - Gemfile.lock
   workflow_dispatch:
     inputs:
       xcode-version:
