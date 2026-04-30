@@ -9,6 +9,15 @@ extension APIService: ConfigAPIService {
         guard isAuthenticated == true else {
             return try await apiUnauthenticatedService.send(ConfigRequest())
         }
-        return try await apiService.send(ConfigRequest())
+        do {
+            return try await apiService.send(ConfigRequest())
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound),
+                KeychainServiceError.keyNotFound {
+            // The access token was removed between the isAuthenticated check and the
+            // actual request (e.g., logout during a background config refresh).
+            // The config endpoint returns the same response regardless of auth state,
+            // so falling back to the unauthenticated endpoint is safe.
+            return try await apiUnauthenticatedService.send(ConfigRequest())
+        }
     }
 }
