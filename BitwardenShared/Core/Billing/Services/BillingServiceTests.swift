@@ -296,9 +296,7 @@ struct BillingServiceTests {
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
-        try await Task.sleep(nanoseconds: 400_000_000)
-
-        #expect(lateStatuses.isEmpty)
+        try await waitForAsync { lateStatuses.isEmpty }
     }
 
     /// A subscriber connecting after `.pending` is emitted receives the pending status immediately
