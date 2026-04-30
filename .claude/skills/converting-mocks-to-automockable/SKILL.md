@@ -240,10 +240,11 @@ Run Sourcery manually to generate the new mock before updating tests, so you can
 
 ```bash
 # Match to the framework where the protocol lives
-mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
-mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
-mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
-mint run sourcery --config AuthenticatorBridgeKit/Sourcery/sourcery.yml
+# Requires BUILD_DIR — see the script header for the standalone one-liner
+./Scripts/generate-mocks.sh BitwardenShared
+./Scripts/generate-mocks.sh BitwardenKit
+./Scripts/generate-mocks.sh AuthenticatorShared
+./Scripts/generate-mocks.sh AuthenticatorBridgeKit
 ```
 
 After running, find the new `Mock<ProtocolName>` block in the appropriate `Sourcery/Generated/AutoMockable.generated.swift` and read it to confirm the property names before updating tests.
