@@ -530,7 +530,7 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
     }
 
     func dismissProfileSwitcher() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func handleAuthEvent(_ authEvent: AuthEvent) async {

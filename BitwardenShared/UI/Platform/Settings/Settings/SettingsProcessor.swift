@@ -21,6 +21,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
         & HasVaultRepository
@@ -88,7 +89,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             let featureEnabled = await services.configService
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
-            state.showPlanRow = featureEnabled && hasPremium
+            let isSelfHosted = services.environmentService.region == .selfHosted
+            state.showPlanRow = featureEnabled && hasPremium && !isSelfHosted
         }
     }
 

@@ -20,6 +20,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
     var autofillCredentialService: MockAutofillCredentialService!
+    var billingService: MockBillingService!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
@@ -55,6 +56,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
         autofillCredentialService = MockAutofillCredentialService()
+        billingService = MockBillingService()
         clientService = MockClientService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
@@ -85,6 +87,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 authRepository: authRepository,
                 authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
+                billingService: billingService,
                 clientService: clientService,
                 configService: configService,
                 environmentService: environmentService,
@@ -112,6 +115,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
+        billingService = nil
         clientService = nil
         configService = nil
         coordinator = nil
@@ -892,6 +896,38 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` with a premium checkout success URL calls `billingService.premiumStatusChanged()`.
+    @MainActor
+    func test_openUrl_premiumCheckoutResult_success() async throws {
+        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=success"))
+
+        await subject.openUrl(url)
+
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 1)
+    }
+
+    /// `openUrl(_:)` with a premium checkout canceled URL calls `premiumCheckoutCanceled()`.
+    @MainActor
+    func test_openUrl_premiumCheckoutResult_canceled() async throws {
+        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=canceled"))
+
+        await subject.openUrl(url)
+
+        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 1)
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
+    }
+
+    /// `openUrl(_:)` with a non-premium-checkout URL is not handled by `handlePremiumCheckoutResult`.
+    @MainActor
+    func test_openUrl_premiumCheckoutResult_unrelatedUrl() async throws {
+        let url = try XCTUnwrap(URL(string: "bitwarden://other-path"))
+
+        await subject.openUrl(url)
+
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
+        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 0)
     }
 
     /// `provideCredential(for:)` returns the credential with the specified identifier.

@@ -181,6 +181,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage account state.
     let stateService: StateService
 
+    /// The service used by the application to retrieve App Store storefront information.
+    let storefrontService: StorefrontService
+
     /// The service used to handle syncing vault data with the API.
     let syncService: SyncService
 
@@ -287,6 +290,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - storefrontService: The service used by the application to retrieve App Store storefront information.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - textAutofillHelperFactory: Factory to create `TextAutofillHelper`s.
@@ -356,6 +360,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         settingsRepository: SettingsRepository,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
+        storefrontService: StorefrontService,
         syncService: SyncService,
         systemDevice: SystemDevice,
         textAutofillHelperFactory: TextAutofillHelperFactory,
@@ -423,6 +428,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.settingsRepository = settingsRepository
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
+        self.storefrontService = storefrontService
         self.syncService = syncService
         self.systemDevice = systemDevice
         self.textAutofillHelperFactory = textAutofillHelperFactory
@@ -844,10 +850,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             userSessionStateService: stateService,
         )
 
+        let billingService = DefaultBillingService(
+            billingAPIService: apiService,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            syncService: syncService,
+        )
+
         let notificationService = DefaultNotificationService(
             appIDService: appIDService,
             authRepository: authRepository,
             authService: authService,
+            billingService: billingService,
             configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
@@ -1112,7 +1128,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
-            billingService: DefaultBillingService(billingAPIService: apiService),
+            billingService: billingService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),
@@ -1153,6 +1169,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
+            storefrontService: DefaultStorefrontService(),
             syncService: syncService,
             systemDevice: UIDevice.current,
             textAutofillHelperFactory: textAutofillHelperFactory,

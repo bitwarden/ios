@@ -93,7 +93,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     func test_itemAdded() {
         let shouldDismiss = subject.itemAdded()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
     }
 
@@ -102,7 +102,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     func test_itemArchived() {
         subject.itemArchived()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `itemUnarchived()` requests the coordinator dismiss the view.
@@ -110,7 +110,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     func test_itemUnarchived() {
         subject.itemUnarchived()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `itemUpdated()` requests the coordinator dismiss the view.
@@ -118,7 +118,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     func test_itemUpdated() {
         let shouldDismiss = subject.itemUpdated()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
         XCTAssertFalse(shouldDismiss)
     }
 
@@ -214,7 +214,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
         XCTAssertEqual(
             coordinator.events.last,
             .switchAccount(
@@ -245,7 +245,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
         XCTAssertNil(coordinator.events.last)
     }
 
@@ -576,7 +576,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     func test_receive_cancelTapped() {
         subject.receive(.cancelTapped)
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.
@@ -609,7 +609,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
 
         subject.receive(.profileSwitcher(.backgroundTapped))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.logout)` does nothing.
@@ -678,7 +678,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     func test_dismissProfileSwitcher() {
         subject.dismissProfileSwitcher()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `showProfileSwitcher` calls the coordinator to show the profile switcher.

@@ -37,8 +37,21 @@ class PremiumPlanViewTests: BitwardenTestCase {
     @MainActor
     func test_billingAmount_visible_whenActive() throws {
         processor.state.planStatus = .active
-        processor.state.billingAmount = "$1.65 / month"
-        let text = try subject.inspect().find(text: "$1.65 / month")
+        processor.state.subscription = PremiumSubscription(
+            cadence: .monthly,
+            cancelAt: nil,
+            canceled: nil,
+            discount: 0,
+            estimatedTax: 0,
+            gracePeriod: nil,
+            nextCharge: nil,
+            seatsCost: Decimal(string: "1.65")!,
+            status: .active,
+            storageCost: 0,
+            suspension: nil,
+        )
+        let billingAmount = processor.state.billingAmount
+        let text = try subject.inspect().find(text: billingAmount)
         XCTAssertNotNil(text)
     }
 
@@ -73,11 +86,11 @@ class PremiumPlanViewTests: BitwardenTestCase {
         XCTAssertNotNil(button)
     }
 
-    /// Tapping the manage plan button dispatches the `.managePlanTapped` action.
+    /// Tapping the manage plan button dispatches the `.managePlanTapped` effect.
     @MainActor
-    func test_managePlanButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.managePlan)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .managePlanTapped)
+    func test_managePlanButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.managePlan)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .managePlanTapped)
     }
 }
