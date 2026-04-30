@@ -62,4 +62,7 @@ enum VaultListAction: Equatable {
 
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
+
+    /// The "View plan details" button on the upgraded to premium action card was tapped.
+    case viewPlanDetails
 }

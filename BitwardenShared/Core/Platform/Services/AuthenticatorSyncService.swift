@@ -51,9 +51,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// encryption/decryption related to authenticator syncing.
     private let clientService: ClientService
 
-    /// The service to get server-specified configuration.
-    private let configService: ConfigService
-
     /// A task that sets up syncing for a user.
     ///
     /// Using an actor-protected `Task` ensures that multiple threads don't attempt
@@ -98,7 +95,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///     encryption and decryption.
     ///   - cipherDataStore: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
-    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.\ organizations.
     ///   - keychainRepository: Keychain Repository for storing/accessing the Authenticator Vault Key.
     ///   - organizationService: The service for managing the organizations for the user.
@@ -112,7 +108,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         authenticatorClientService: ClientService,
         cipherDataStore: CipherDataStore,
         clientService: ClientService,
-        configService: ConfigService,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
         organizationService: OrganizationService,
@@ -124,7 +119,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         self.authenticatorClientService = authenticatorClientService
         self.cipherDataStore = cipherDataStore
         self.clientService = clientService
-        self.configService = configService
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
         self.organizationService = organizationService
@@ -222,10 +216,8 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func decryptTOTPs(_ ciphers: [Cipher],
                               account: Account) async throws -> [AuthenticatorBridgeItemDataView] {
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         let totpCiphers = ciphers.filter { cipher in
-            !cipher.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled)
+            !cipher.isHidden
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }

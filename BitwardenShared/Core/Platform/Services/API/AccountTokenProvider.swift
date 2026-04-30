@@ -6,7 +6,7 @@ import Networking
 // MARK: - AccountTokenProvider
 
 /// A more specific `TokenProvider` protocol to use and ease testing.
-protocol AccountTokenProvider: TokenProvider, ClientManagedTokens {
+protocol AccountTokenProvider: TokenProvider, ClientManagedTokens { // sourcery: AutoMockable
     /// Sets the delegate to use in this token provider.
     /// - Parameter delegate: The delegate to use.
     func setDelegate(delegate: AccountTokenProviderDelegate) async
@@ -171,7 +171,7 @@ extension DefaultAccountTokenProvider: ClientManagedTokens {
 // MARK: - AccountTokenProviderDelegate
 
 /// Delegate to be used by the `AccountTokenProvider`.
-protocol AccountTokenProviderDelegate: AnyObject {
+protocol AccountTokenProviderDelegate: AnyObject { // sourcery: AutoMockable
     /// Callback to be used when an error is thrown when refreshing the access token.
     /// - Parameter error: `Error` thrown.
     func onRefreshTokenError(error: Error) async throws

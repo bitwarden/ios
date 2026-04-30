@@ -109,6 +109,25 @@ private struct SearchableVaultListView: View {
         }
     }
 
+    /// The action card for the upgraded to premium confirmation.
+    @ViewBuilder private var upgradedToPremiumActionCard: some View {
+        if store.state.shouldShowUpgradedToPremiumActionCard {
+            ActionCard(
+                title: Localizations.upgradedToPremium,
+                message: Localizations.welcomeToPremiumYouNowHaveAccessDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlanDetails) {
+                    store.send(.viewPlanDetails)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissUpgradedToPremiumActionCard)
+                },
+            ) {
+                SharedAsset.Icons.star24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+        }
+    }
+
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
         VStack(spacing: 24) {
@@ -285,6 +304,8 @@ private struct SearchableVaultListView: View {
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
             premiumUpgradeActionCard
+
+            upgradedToPremiumActionCard
 
             archiveOnboardingActionCard
 

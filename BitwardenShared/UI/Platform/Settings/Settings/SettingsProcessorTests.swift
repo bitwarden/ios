@@ -10,6 +10,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSettingsProcessorDelegate!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var subject: SettingsProcessor!
     var stateService: MockStateService!
@@ -23,6 +24,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
@@ -36,6 +38,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         configService = nil
         coordinator = nil
         delegate = nil
+        environmentService = nil
         errorReporter = nil
         subject = nil
         stateService = nil
@@ -49,6 +52,7 @@ class SettingsProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 configService: configService,
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 vaultRepository: vaultRepository,
@@ -186,11 +190,24 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.showPlanRow)
     }
 
+    /// `perform(.appeared)` hides the plan row when the user is self-hosted.
+    @MainActor
+    func test_perform_appeared_hidesPlanRow_selfHosted() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        environmentService.region = .selfHosted
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.showPlanRow)
+    }
+
     /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has premium.
     @MainActor
     func test_perform_appeared_showsPlanRow() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = true
+        environmentService.region = .unitedStates
 
         await subject.perform(.appeared)
 

@@ -65,12 +65,56 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         XCTAssertFalse(button.isDisabled())
     }
 
+    /// The pricing error banner is visible when `showPricingErrorBanner` is `true`.
+    @MainActor
+    func test_pricingErrorBanner_visible() throws {
+        processor.state.showPricingErrorBanner = true
+        let text = try subject.inspect().find(text: Localizations.pricingUnavailable)
+        XCTAssertNotNil(text)
+    }
+
+    /// The pricing error banner is hidden when `showPricingErrorBanner` is `false`.
+    @MainActor
+    func test_pricingErrorBanner_hidden() throws {
+        processor.state.showPricingErrorBanner = false
+        XCTAssertThrowsError(
+            try subject.inspect().find(text: Localizations.pricingUnavailable),
+        )
+    }
+
+    /// Tapping the dismiss (X) button on the pricing error banner dispatches the correct action.
+    @MainActor
+    func test_pricingErrorBanner_dismissTapped() async throws {
+        processor.state.showPricingErrorBanner = true
+        let button = try subject.inspect().find(asyncButton: Localizations.close)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismissPricingErrorBannerTapped)
+    }
+
+    /// Tapping "Try again" on the pricing error banner dispatches the correct effect.
+    @MainActor
+    func test_pricingErrorBanner_tryAgainTapped() async throws {
+        processor.state.showPricingErrorBanner = true
+        let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .retryFetchPriceTapped)
+    }
+
     /// The premium price text displays the value from state.
     @MainActor
     func test_premiumPrice_displaysStateValue() throws {
-        processor.state.premiumPrice = "$9.99"
-        let text = try subject.inspect().find(text: "$9.99")
+        processor.state.premiumSeatPrice = 19.80
+        let text = try subject.inspect().find(text: "$1.65")
         XCTAssertNotNil(text)
+    }
+
+    /// The premium price section is hidden when `premiumPrice` is `nil`.
+    @MainActor
+    func test_premiumPrice_hiddenWhenNil() throws {
+        processor.state.premiumSeatPrice = nil
+        XCTAssertThrowsError(
+            try subject.inspect().find(text: Localizations.perMonth),
+        )
     }
 
     /// The self-hosted banner is visible when the user is on a self-hosted server.
@@ -92,6 +136,15 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
             try subject.inspect().find(
                 text: Localizations.toManageYourPremiumSubscriptionDescriptionLong,
             ),
+        )
+    }
+
+    /// The upgrade now button is hidden when the pricing error banner is showing.
+    @MainActor
+    func test_upgradeButton_hidden_whenPricingErrorBannerShowing() throws {
+        processor.state.showPricingErrorBanner = true
+        XCTAssertThrowsError(
+            try subject.inspect().find(asyncButton: Localizations.upgradeNow),
         )
     }
 

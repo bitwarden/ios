@@ -12,7 +12,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -583,8 +582,6 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
-                let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
-
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasPremium: hasPremium,
@@ -598,7 +595,6 @@ private extension ViewItemProcessor {
                     itemState.organizationName = organization?.name
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
-                    itemState.isArchiveVaultItemsFFEnabled = isArchiveVaultItemsFFEnabled
 
                     newState.loadingState = .data(itemState)
                 }

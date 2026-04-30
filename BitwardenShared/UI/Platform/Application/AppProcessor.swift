@@ -105,6 +105,10 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
+        if await handlePremiumCheckoutResult(url: url) {
+            return
+        }
+
         var route = await getBitwardenUrlRoute(url: url)
         if route == nil {
             route = await getOtpAuthUrlRoute(url: url)
@@ -429,6 +433,28 @@ extension AppProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Handles the premium checkout result deep link.
+    ///
+    /// - Parameter url: The URL to check.
+    /// - Returns: `true` if the URL was a premium checkout result and was handled.
+    ///
+    private func handlePremiumCheckoutResult(url: URL) async -> Bool {
+        guard url.scheme?.isBitwardenAppScheme == true,
+              url.host == BitwardenDeepLinkConstants.premiumCheckoutResultHost else {
+            return false
+        }
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let result = components?.queryItems?.first(where: {
+            $0.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
+        })?.value
+        if result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
+            await services.billingService.premiumStatusChanged()
+        } else {
+            services.billingService.premiumCheckoutCanceled()
+        }
+        return true
     }
 
     /// Attempt to create an `AppRoute` from an "bitwarden://" url.

@@ -93,6 +93,9 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     /// The service used by the application to handle authentication tasks.
     private let authService: AuthService
 
+    /// The service used by the application to manage billing operations.
+    private let billingService: BillingService
+
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
@@ -122,6 +125,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
+    ///   - billingService: The service used by the application to manage billing operations.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
@@ -133,6 +137,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
         appIDService: AppIDService,
         authRepository: AuthRepository,
         authService: AuthService,
+        billingService: BillingService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
@@ -144,6 +149,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
         self.appIDService = appIDService
         self.authRepository = authRepository
         self.authService = authService
+        self.billingService = billingService
         self.configService = configService
         self.errorReporter = errorReporter
         self.flightRecorder = flightRecorder
@@ -269,9 +275,10 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
                 // No action necessary, since the LoginWithDeviceProcessor already checks for updates
                 // every few seconds.
                 break
-            case .policyChanged,
-                 .premiumStatusChanged:
+            case .policyChanged:
                 try await syncService.fetchSync(forceSync: false)
+            case .premiumStatusChanged:
+                await billingService.premiumStatusChanged()
             }
         } catch {
             errorReporter.log(error: error)

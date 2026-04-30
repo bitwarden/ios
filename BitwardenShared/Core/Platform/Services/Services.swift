@@ -56,6 +56,7 @@ typealias Services = HasAPIService
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
+    & HasStorefrontService
     & HasSyncService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
@@ -374,6 +375,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that provides a `StorefrontService`.
+///
+protocol HasStorefrontService {
+    /// The service used by the application to retrieve App Store storefront information.
+    var storefrontService: StorefrontService { get }
 }
 
 /// Protocol for an object that provides a `UserSessionStateService`.

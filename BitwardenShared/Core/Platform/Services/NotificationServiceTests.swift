@@ -11,6 +11,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var appIDSettingsStore: MockAppIDSettingsStore!
+    var billingService: MockBillingService!
     var refreshableApiService: MockRefreshableAPIService!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
@@ -30,6 +31,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         appIDSettingsStore = MockAppIDSettingsStore()
+        billingService = MockBillingService()
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
@@ -46,6 +48,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             appIDService: AppIDService(appIDSettingsStore: appIDSettingsStore),
             authRepository: authRepository,
             authService: authService,
+            billingService: billingService,
             configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
@@ -61,6 +64,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await super.tearDown()
 
         appIDSettingsStore = nil
+        billingService = nil
         authService = nil
         client = nil
         configService = nil
@@ -441,7 +445,7 @@ class NotificationServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         await subject.messageReceived(message, notificationDismissed: nil, notificationTapped: nil)
 
-        XCTAssertTrue(syncService.didFetchSync)
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 1)
     }
 
     /// `messageReceived(_:notificationDismissed:notificationTapped:)` logs to the flight recorder
