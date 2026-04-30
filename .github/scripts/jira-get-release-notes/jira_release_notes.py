@@ -1,4 +1,20 @@
 #!/usr/bin/env python3
+# Requires Python 3.9+
+"""
+Fetch release notes from a Jira issue.
+
+Usage:
+    python3 jira_release_notes.py <issue_id> <jira_cloud_id> <jira_email> <jira_api_token>
+
+Arguments:
+    issue_id: RELEASE issue ID to fetch release notes from
+    jira_cloud_id: Atlassian Cloud ID - Can be retrieved from the `tenant_info` endpoint, e.g.: `https://<my-site-name>.atlassian.net/_edge/tenant_info`
+    jira_email: Email used to create the API token
+    jira_api_token: Jira API token - Generate one at: https://id.atlassian.com/manage-profile/security/api-tokens
+
+Examples:
+    python3 jira_release_notes.py RELEASE-1762 jira-cloud-id example@example.com T0k3n123
+"""
 
 import base64
 import json
