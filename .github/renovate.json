@@ -3,6 +3,7 @@
   "extends": [
     "github>bitwarden/renovate-config"
   ],
+  "labels": ["t:deps"],
   "enabledManagers": [
     "bundler",
     "github-actions",
