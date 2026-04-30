@@ -376,11 +376,8 @@ struct BillingServiceTests {
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
-        try await Task.sleep(nanoseconds: 400_000_000)
-
-        #expect(lateStatuses.isEmpty)
-        _ = earlyCancellable
-        _ = lateCancellable
+        
+        try await waitForAsync { lateStatuses.isEmpty }
     }
 
     /// `premiumStatusChanged()` returns early without syncing when the premiumUpgradePath flag is disabled.
