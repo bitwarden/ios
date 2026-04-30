@@ -49,6 +49,9 @@ enum ViewItemAction: Equatable, Sendable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
+
+    /// The SSN visibility button was pressed
+    case ssnVisibilityPressed
 }
 
 // MARK: CopyableField

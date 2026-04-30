@@ -26,9 +26,22 @@ struct BillingCoordinatorTests {
 
     // MARK: Tests
 
-    /// `navigate(to:)` with `.dismiss` dismisses the view.
+    /// `navigate(to:)` with `.dismiss` pops the view when not presenting.
     @Test
-    func navigate_dismiss() throws {
+    func navigate_dismiss_pops() throws {
+        stackNavigator.isPresenting = false
+
+        subject.navigate(to: .dismiss)
+
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .popped)
+    }
+
+    /// `navigate(to:)` with `.dismiss` dismisses the view when presenting.
+    @Test
+    func navigate_dismiss_dismisses() throws {
+        stackNavigator.isPresenting = true
+
         subject.navigate(to: .dismiss)
 
         let action = try #require(stackNavigator.actions.last)

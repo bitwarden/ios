@@ -42,24 +42,31 @@ struct PremiumPlanView: View {
     // MARK: Private Views
 
     /// The billing details section with rows for billing amount, storage cost, and discount.
-    private var billingSection: some View {
-        VStack(spacing: 0) {
-            billingRow(
-                label: Localizations.billingAmount,
-                value: store.state.billingAmount,
-                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
-            )
-            Divider()
+    @ViewBuilder private var billingSection: some View {
+        billingRow(
+            label: Localizations.billingAmount,
+            value: store.state.billingAmount,
+            valueColor: Color(asset: SharedAsset.Colors.textPrimary),
+        )
+        if store.state.showStorageCost {
             billingRow(
                 label: Localizations.storageCost,
-                value: store.state.storageCost,
+                value: store.state.storageCostLabel,
                 valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             )
-            Divider()
+        }
+        if store.state.showDiscount {
             billingRow(
                 label: Localizations.discount,
                 value: store.state.discount,
                 valueColor: SharedAsset.Colors.statusStrong.swiftUIColor,
+            )
+        }
+        if store.state.showEstimatedTax {
+            billingRow(
+                label: Localizations.estimatedTax,
+                value: store.state.estimatedTax,
+                valueColor: Color(asset: SharedAsset.Colors.textPrimary),
             )
         }
     }
@@ -108,8 +115,8 @@ struct PremiumPlanView: View {
 
     /// The manage plan button.
     private var managePlanButton: some View {
-        Button {
-            store.send(.managePlanTapped)
+        AsyncButton {
+            await store.perform(.managePlanTapped)
         } label: {
             HStack(spacing: 8) {
                 Image(asset: SharedAsset.Icons.externalLink24)
@@ -170,16 +177,72 @@ struct PremiumPlanView: View {
 // MARK: - Previews
 
 #if DEBUG
+private extension PremiumSubscription {
+    static let previewActive = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 1.98,
+        estimatedTax: 4.55,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .active,
+        storageCost: 4,
+        suspension: nil,
+    )
+
+    static let previewCanceled = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: Date().addingTimeInterval(-60 * 60 * 24 * 14),
+        discount: 0,
+        estimatedTax: 0,
+        gracePeriod: nil,
+        nextCharge: nil,
+        seatsCost: 19.8,
+        status: .canceled,
+        storageCost: 0,
+        suspension: nil,
+    )
+
+    static let previewPastDue = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: nil,
+        canceled: nil,
+        discount: 1.98,
+        estimatedTax: 4.55,
+        gracePeriod: 30,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .pastDue,
+        storageCost: 4,
+        suspension: Date().addingTimeInterval(60 * 60 * 24 * 30),
+    )
+
+    static let previewUpdatePayment = PremiumSubscription(
+        cadence: .annually,
+        cancelAt: Date().addingTimeInterval(60 * 60 * 24 * 14),
+        canceled: nil,
+        discount: 1.98,
+        estimatedTax: 4.55,
+        gracePeriod: nil,
+        nextCharge: Date().addingTimeInterval(60 * 60 * 24 * 30),
+        seatsCost: 19.8,
+        status: .updatePayment,
+        storageCost: 4,
+        suspension: nil,
+    )
+}
+
 #Preview("Active") {
     NavigationView {
         PremiumPlanView(
             store: Store(
                 processor: StateProcessor(
                     state: PremiumPlanState(
-                        billingAmount: "$1.65 / month",
-                        discount: "-$0.10",
                         planStatus: .active,
-                        storageCost: "$0.35",
+                        subscription: .previewActive,
                     ),
                 ),
             ),
@@ -193,10 +256,8 @@ struct PremiumPlanView: View {
             store: Store(
                 processor: StateProcessor(
                     state: PremiumPlanState(
-                        billingAmount: "$1.65 / month",
-                        discount: "-$0.10",
                         planStatus: .updatePayment,
-                        storageCost: "$0.35",
+                        subscription: .previewUpdatePayment,
                     ),
                 ),
             ),
@@ -210,10 +271,8 @@ struct PremiumPlanView: View {
             store: Store(
                 processor: StateProcessor(
                     state: PremiumPlanState(
-                        billingAmount: "$1.65 / month",
-                        discount: "-$0.10",
                         planStatus: .pastDue,
-                        storageCost: "$0.35",
+                        subscription: .previewPastDue,
                     ),
                 ),
             ),
@@ -228,6 +287,7 @@ struct PremiumPlanView: View {
                 processor: StateProcessor(
                     state: PremiumPlanState(
                         planStatus: .canceled,
+                        subscription: .previewCanceled,
                     ),
                 ),
             ),

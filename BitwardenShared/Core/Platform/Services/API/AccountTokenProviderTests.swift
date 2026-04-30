@@ -270,4 +270,25 @@ class AccountTokenProviderTests: BitwardenTestCase {
         // setTokens was never called
         XCTAssertNil(tokenService.setTokensCalledWithUserId)
     }
+
+    // MARK: ClientManagedTokens Tests
+
+    /// `getAccessToken()` (ClientManagedTokens) returns the access token when `getToken()` succeeds.
+    func test_getAccessToken_sdk_success() async {
+        tokenService.accessToken = "ACCESS_TOKEN"
+        tokenService.accessTokenExpirationDateResult = .success(expirationDateUnexpired)
+
+        let token = await subject.getAccessToken()
+        XCTAssertEqual(token, "ACCESS_TOKEN")
+    }
+
+    /// `getAccessToken()` (ClientManagedTokens) returns nil and logs the error when `getToken()` throws.
+    func test_getAccessToken_sdk_error() async {
+        tokenService.accessTokenThrowableError = BitwardenTestError.example
+
+        let token = await subject.getAccessToken()
+        XCTAssertNil(token)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
 }

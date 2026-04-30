@@ -31,6 +31,7 @@ final class VaultListProcessor: StateProcessor<
         & HasReviewPromptService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasStorefrontService
         & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
@@ -255,7 +256,8 @@ extension VaultListProcessor {
             let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
             let hasEnoughItems = await (try? services.vaultRepository
                 .hasMinimumCipherCount(Constants.minimumPremiumUpgradeBannerCipherCount)) ?? false
-            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
+            let isUSStorefront = await services.storefrontService.isUSStorefront()
+            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems && isUSStorefront
         } else {
             state.shouldShowPremiumUpgradeActionCard = false
         }

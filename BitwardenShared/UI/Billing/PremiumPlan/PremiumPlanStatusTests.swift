@@ -27,10 +27,48 @@ struct PremiumPlanStatusTests {
         #expect(PremiumPlanStatus.pastDue.badgeStyle == .warning)
     }
 
+    /// `badgeStyle` for `.unknown` returns `.warning`.
+    @Test
+    func badgeStyle_unknown() {
+        #expect(PremiumPlanStatus.unknown.badgeStyle == .warning)
+    }
+
     /// `badgeStyle` for `.updatePayment` returns `.warning`.
     @Test
     func badgeStyle_updatePayment() {
         #expect(PremiumPlanStatus.updatePayment.badgeStyle == .warning)
+    }
+
+    // MARK: Tests - init
+
+    /// `init` maps `.active` to `.active`.
+    @Test
+    func init_active() {
+        #expect(PremiumPlanStatus(.active) == .active)
+    }
+
+    /// `init` maps `.canceled` to `.canceled`.
+    @Test
+    func init_canceled() {
+        #expect(PremiumPlanStatus(.canceled) == .canceled)
+    }
+
+    /// `init` maps `.pastDue` to `.pastDue`.
+    @Test
+    func init_pastDue() {
+        #expect(PremiumPlanStatus(.pastDue) == .pastDue)
+    }
+
+    /// `init` maps `.unknown` to `.unknown`.
+    @Test
+    func init_unknown() {
+        #expect(PremiumPlanStatus(.unknown) == .unknown)
+    }
+
+    /// `init` maps `.unpaid` to `.updatePayment`.
+    @Test
+    func init_unpaid() {
+        #expect(PremiumPlanStatus(.unpaid) == .updatePayment)
     }
 
     // MARK: Tests - label
@@ -51,6 +89,12 @@ struct PremiumPlanStatusTests {
     @Test
     func label_pastDue() {
         #expect(PremiumPlanStatus.pastDue.label == Localizations.pastDue)
+    }
+
+    /// `label` for `.unknown` returns the unknown status localization.
+    @Test
+    func label_unknown() {
+        #expect(PremiumPlanStatus.unknown.label == Localizations.unknownStatus)
     }
 
     /// `label` for `.updatePayment` returns the update payment localization.
