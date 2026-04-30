@@ -6,10 +6,11 @@ import argparse
 import base64
 import json
 import sys
+from pathlib import Path
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
-SCRIPT_NAME = "jira_release_notes.py"
+SCRIPT_NAME = Path(__file__).name
 
 def extract_text_from_content(content):
     if isinstance(content, list):
