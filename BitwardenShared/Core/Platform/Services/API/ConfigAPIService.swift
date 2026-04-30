@@ -15,8 +15,7 @@ extension APIService: ConfigAPIService {
                 KeychainServiceError.keyNotFound {
             // The access token was removed between the isAuthenticated check and the
             // actual request (e.g., logout during a background config refresh).
-            // The config endpoint returns the same response regardless of auth state,
-            // so falling back to the unauthenticated endpoint is safe.
+            // Fall back to the unauthenticated endpoint.
             return try await apiUnauthenticatedService.send(ConfigRequest())
         }
     }
