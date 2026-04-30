@@ -2,6 +2,7 @@
 
 import BitwardenKit
 import Networking
+import Security
 
 extension APIService: ConfigAPIService {
     func getConfig() async throws -> ConfigResponseModel {
