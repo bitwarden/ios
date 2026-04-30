@@ -99,7 +99,7 @@ def main():
         with urlopen(request) as response:
             response_json = json.loads(response.read().decode())
     except HTTPError as error:
-        error_text = error.read().decode()
+        error_text = error.read().decode().replace(jira_cloud_id, "[REDACTED]")
         print(f"[{SCRIPT_NAME}] Error fetching Jira issue ({jira_issue_id}). Status code: {error.code}. Msg: {error_text}", file=sys.stderr)
         sys.exit(1)
 
