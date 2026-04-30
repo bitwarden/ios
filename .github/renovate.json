@@ -26,16 +26,6 @@
   ],
   "packageRules": [
     {
-      "groupName": "bundler minor",
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "matchManagers": [
-        "bundler"
-      ]
-    },
-    {
       "groupName": "gh minor",
       "matchManagers": [
         "github-actions"
