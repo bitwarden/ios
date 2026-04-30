@@ -16,8 +16,6 @@ on:
       - BitwardenShareExtension/**
       - BitwardenWatchApp/**
       - BitwardenWatchWidgetExtension/**
-      - Gemfile
-      - Gemfile.lock
   workflow_dispatch:
     inputs:
       xcode-version:
