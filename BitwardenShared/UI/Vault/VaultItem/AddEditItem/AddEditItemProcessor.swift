@@ -527,28 +527,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             }
         case .scanCardButtonTapped:
             state.cardItemState.isCardScannerPresented = true
-        case .cardScannerDismissed:
-            state.cardItemState.isCardScannerPresented = false
-            state.cardItemState.shouldFocusCardholderNameAfterScan = false
-        case let .cardScannerLinesUpdated(lines):
-            let data = services.cardTextParser.parseCard(lines: lines)
-            guard data.cardNumber != nil,
-                  data.expirationMonth != nil else {
-                break
-            }
-            state.cardItemState.isCardScannerPresented = false
-            state.cardItemState.shouldFocusCardholderNameAfterScan = true
-            if let number = data.cardNumber {
-                state.cardItemState.cardNumber = number
-                state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
-            }
-            if let month = data.expirationMonth,
-               let cardMonth = CardComponent.Month(rawValue: month) {
-                state.cardItemState.expirationMonth = .custom(cardMonth)
-            }
-            if let year = data.expirationYear {
-                state.cardItemState.expirationYear = year
-            }
         }
     }
 
