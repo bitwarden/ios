@@ -35,6 +35,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var searchProcessorMediator: MockSearchProcessorMediator!
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
     var stateService: MockStateService!
+    var storefrontService: MockStorefrontService!
     var subject: VaultListProcessor!
     var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
@@ -71,6 +72,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         searchProcessorMediatorFactory.makeReturnValue = searchProcessorMediator
 
         stateService = MockStateService()
+        storefrontService = MockStorefrontService()
+        storefrontService.isUSStorefrontReturnValue = true
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
@@ -90,6 +93,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             reviewPromptService: reviewPromptService,
             searchProcessorMediatorFactory: searchProcessorMediatorFactory,
             stateService: stateService,
+            storefrontService: storefrontService,
             syncService: syncService,
             timeProvider: timeProvider,
             vaultRepository: vaultRepository,
@@ -123,6 +127,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         searchProcessorMediator = nil
         searchProcessorMediatorFactory = nil
         stateService = nil
+        storefrontService = nil
         subject = nil
         vaultItemMoreOptionsHelper = nil
         vaultRepository = nil
@@ -653,6 +658,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         configService.featureFlagsBool[.premiumUpgradePath] = true
         stateService.shouldShowPremiumUpgradeBannerResult = true
         vaultRepository.hasMinimumCipherCountResult = .success(false)
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+    }
+
+    /// `perform(_:)` with `.appeared` hides the premium upgrade action card when storefront is not US.
+    @MainActor
+    func test_perform_appeared_loadPremiumUpgradeBanner_nonUSStorefront() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        stateService.shouldShowPremiumUpgradeBannerResult = true
+        vaultRepository.hasMinimumCipherCountResult = .success(true)
+        storefrontService.isUSStorefrontReturnValue = false
 
         await subject.perform(.appeared)
 
