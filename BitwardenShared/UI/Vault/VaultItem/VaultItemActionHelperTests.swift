@@ -10,7 +10,6 @@ import Testing
 
 // MARK: - VaultItemActionHelperTests
 
-@MainActor
 struct VaultItemActionHelperTests {
     // MARK: Properties
 
