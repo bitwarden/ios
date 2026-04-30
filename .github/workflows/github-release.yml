@@ -144,7 +144,7 @@ jobs:
           echo "Getting product release notes..."
           # capture output and exit code so this step continues even if we can't retrieve release notes.
           script_exit_code=0
-          product_release_notes=$(python .github/scripts/jira-get-release-notes/jira_release_notes.py "$_RELEASE_TICKET_ID" "$_JIRA_CLOUD_ID" "$_JIRA_API_EMAIL" "$_JIRA_API_TOKEN") || script_exit_code=$?
+          product_release_notes=$(python3 .github/scripts/jira-get-release-notes/jira_release_notes.py "$_RELEASE_TICKET_ID" "$_JIRA_CLOUD_ID" "$_JIRA_API_EMAIL" "$_JIRA_API_TOKEN") || script_exit_code=$?
           echo "--------------------------------"
 
           if [[ $script_exit_code -ne 0 || -z "$product_release_notes" ]]; then
