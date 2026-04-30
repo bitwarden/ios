@@ -1,21 +1,8 @@
 #!/usr/bin/env python3
 # Requires Python 3.9+
-"""
-Fetch release notes from a Jira issue.
+"""Fetch release notes from a Jira issue."""
 
-Usage:
-    python3 jira_release_notes.py <issue_id> <jira_cloud_id> <jira_email> <jira_api_token>
-
-Arguments:
-    issue_id: RELEASE issue ID to fetch release notes from
-    jira_cloud_id: Atlassian Cloud ID - Can be retrieved from the `tenant_info` endpoint, e.g.: `https://<my-site-name>.atlassian.net/_edge/tenant_info`
-    jira_email: Email used to create the API token
-    jira_api_token: Jira API token - Generate one at: https://id.atlassian.com/manage-profile/security/api-tokens
-
-Examples:
-    python3 jira_release_notes.py RELEASE-1762 jira-cloud-id example@example.com T0k3n123
-"""
-
+import argparse
 import base64
 import json
 import sys
@@ -80,15 +67,23 @@ def parse_release_notes(response_json):
         print(f"[{SCRIPT_NAME}] Error parsing release notes: {str(e)}", file=sys.stderr)
         return ''
 
-def main():
-    if len(sys.argv) != 5:
-        print(f"Usage: {sys.argv[0]} <issue_id> <jira_cloud_id> <jira_email> <jira_api_token>")
-        sys.exit(1)
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+    )
+    parser.add_argument("issue_id", help="RELEASE issue ID to fetch release notes from")
+    parser.add_argument("jira_cloud_id", help="Atlassian Cloud ID - Can be retrieved from the `tenant_info` endpoint, e.g.: `https://<my-site-name>.atlassian.net/_edge/tenant_info`")
+    parser.add_argument("jira_email", help="Email used to create the API token")
+    parser.add_argument("jira_api_token", help="Jira API token - Generate one at: https://id.atlassian.com/manage-profile/security/api-tokens")
+    return parser.parse_args()
 
-    jira_issue_id = sys.argv[1]
-    jira_cloud_id = sys.argv[2]
-    jira_email = sys.argv[3]
-    jira_api_token = sys.argv[4]
+def main():
+    args = parse_args()
+
+    jira_issue_id = args.issue_id
+    jira_cloud_id = args.jira_cloud_id
+    jira_email = args.jira_email
+    jira_api_token = args.jira_api_token
     jira_base_url = "https://api.atlassian.com/ex/jira"
 
     auth = base64.b64encode(f"{jira_email}:{jira_api_token}".encode()).decode()
