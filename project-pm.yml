@@ -116,6 +116,21 @@ schemes:
     build:
       targets:
         BitwardenSafariWebExtension: all
+  BitwardenUITests:
+    build:
+      targets:
+        Bitwarden: all
+        BitwardenUITests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: false
+      language: en
+      region: US
+      targets:
+        - BitwardenUITests
   BitwardenShared:
     build:
       targets:
@@ -229,6 +244,18 @@ targets:
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
+
+  BitwardenUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: Bitwarden/Application/TestHelpers/Support/UITests-Info.plist
+        TEST_TARGET_NAME: Bitwarden
+    sources:
+      - path: Bitwarden/Application/UITests
+    dependencies:
+      - target: Bitwarden
 
   BitwardenActionExtension:
     type: app-extension
