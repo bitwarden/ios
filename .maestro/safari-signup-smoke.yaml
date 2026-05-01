@@ -1,0 +1,13 @@
+appId: com.apple.mobilesafari
+---
+- launchApp
+- openLink: http://127.0.0.1:8123/signup.html
+- assertVisible: Create your Bitwarden Safari test account
+- tapOn: Email
+- inputText: user@example.com
+- tapOn: New password
+- inputText: new-secret-123
+- tapOn: Confirm new password
+- inputText: new-secret-123
+- tapOn: Create account
+- assertVisible: Signup fixture intercepted submit locally for user@example.com.
