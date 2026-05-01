@@ -16,7 +16,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     var authenticatorVaultKeyStorage = [String: String]()
     var cipherDataStore: MockCipherDataStore!
     var clientService: MockClientService!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
     var organizationService: MockOrganizationService!
@@ -33,7 +32,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         authBridgeItemService = MockAuthenticatorBridgeItemService()
         authenticatorClientService = MockClientService()
         cipherDataStore = MockCipherDataStore()
-        configService = MockConfigService()
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
@@ -61,7 +59,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             authenticatorClientService: authenticatorClientService,
             cipherDataStore: cipherDataStore,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             organizationService: organizationService,
@@ -79,7 +76,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         authenticatorClientService = nil
         authenticatorVaultKeyStorage = [:]
         cipherDataStore = nil
-        configService = nil
         clientService = nil
         errorReporter = nil
         keychainRepository = nil

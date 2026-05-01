@@ -31,7 +31,6 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         authRepository = MockAuthRepository()
         configService = MockConfigService()
-        configService.featureFlagsBool[.archiveVaultItems] = true
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()

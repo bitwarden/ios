@@ -74,15 +74,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(state.archiveInfoText, "")
     }
 
-    /// `archiveInfoText` returns nil when the feature flag is disabled.
-    func test_archiveInfoText_featureFlagDisabled() throws {
-        let state = try CipherItemState.initForArchive(
-            archivedDate: .now,
-            isArchiveVaultItemsFFEnabled: false,
-        )
-        XCTAssertEqual(state.archiveInfoText, "")
-    }
-
     /// `archiveInfoText` returns nil when the item is deleted.
     func test_archiveInfoText_deleted() throws {
         let state = try CipherItemState.initForArchive(
@@ -149,9 +140,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeArchived() throws {
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: nil).canBeArchived,
-        )
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(archivedDate: nil, isArchiveVaultItemsFFEnabled: false).canBeArchived,
         )
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: nil, hasPremium: false).canBeArchived,
@@ -313,9 +301,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_canBeUnarchived() throws {
         XCTAssertTrue(
             try CipherItemState.initForArchive(archivedDate: .now).canBeUnarchived,
-        )
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(archivedDate: .now, isArchiveVaultItemsFFEnabled: false).canBeUnarchived,
         )
         XCTAssertFalse(
             try CipherItemState.initForArchive(archivedDate: nil).canBeUnarchived,
@@ -640,16 +625,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `shouldDisplayAsArchived` returns `false` when the feature flag is disabled.
-    func test_shouldDisplayAsArchived_false_featureFlagDisabled() throws {
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(
-                archivedDate: .now,
-                isArchiveVaultItemsFFEnabled: false,
-            ).shouldDisplayAsArchived,
-        )
-    }
-
     /// `shouldDisplayAsArchived` returns `false` when the cipher is not archived.
     func test_shouldDisplayAsArchived_false_notArchived() throws {
         XCTAssertFalse(
@@ -663,16 +638,6 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             try CipherItemState.initForArchive(
                 archivedDate: .now,
                 deletedDate: .now,
-            ).shouldDisplayAsArchived,
-        )
-    }
-
-    /// `shouldDisplayAsArchived` returns `false` when the cipher is both not archived and feature flag is disabled.
-    func test_shouldDisplayAsArchived_false_notArchivedAndFeatureFlagDisabled() throws {
-        XCTAssertFalse(
-            try CipherItemState.initForArchive(
-                archivedDate: nil,
-                isArchiveVaultItemsFFEnabled: false,
             ).shouldDisplayAsArchived,
         )
     }
@@ -851,14 +816,12 @@ private extension CipherItemState {
     ///   - archivedDate: The archived date.
     ///   - deletedDate: The deleted date.
     ///   - hasPremium: Whether the user has premium account.
-    ///   - isArchiveVaultItemsFFEnabled: Whether the archive vualt items feature flag is enabled.
     static func initForArchive(
         archivedDate: Date?,
         deletedDate: Date? = nil,
         hasPremium: Bool = true,
-        isArchiveVaultItemsFFEnabled: Bool = true,
     ) throws -> CipherItemState {
-        var state = try XCTUnwrap(CipherItemState(
+        try XCTUnwrap(CipherItemState(
             existing: CipherView.loginFixture(
                 archivedDate: archivedDate,
                 deletedDate: deletedDate,
@@ -866,7 +829,5 @@ private extension CipherItemState {
             ),
             hasPremium: hasPremium,
         ))
-        state.isArchiveVaultItemsFFEnabled = isArchiveVaultItemsFFEnabled
-        return state
     }
 }

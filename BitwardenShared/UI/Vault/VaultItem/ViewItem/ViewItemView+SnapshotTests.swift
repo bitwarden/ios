@@ -112,7 +112,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         cipherState.folderName = "Folder"
-        cipherState.isArchiveVaultItemsFFEnabled = true
         cipherState.name = "Example"
         cipherState.notes = "Notes"
         cipherState.organizationName = "Organization"

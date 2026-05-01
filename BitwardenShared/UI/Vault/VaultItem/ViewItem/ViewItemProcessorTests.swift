@@ -193,7 +193,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
     @MainActor
     func test_perform_appeared() { // swiftlint:disable:this function_body_length
-        configService.featureFlagsBool[.archiveVaultItems] = true
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.showWebIcons = true
@@ -242,7 +241,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         expectedState.allUserCollections = collections
         expectedState.ownershipOptions = cipherOwnershipOptions
-        expectedState.isArchiveVaultItemsFFEnabled = true
 
         XCTAssertNotNil(subject.streamCipherDetailsTask)
         XCTAssertTrue(subject.state.hasPremiumFeatures)
@@ -1662,6 +1660,41 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     @MainActor
     func test_rehydrationState() {
         XCTAssertEqual(subject.rehydrationState?.target, .viewCipher(cipherId: "id"))
+    }
+
+    /// `receive` with `.ssnVisibilityPressed` with loaded data toggles the SSN visibility.
+    @MainActor
+    func test_receive_ssnVisibilityPressed_togglesVisibilityWhenDataLoaded() {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            identity: .fixture(ssn: "123-45-6789"),
+            name: "name",
+            revisionDate: Date(),
+            type: .identity,
+        )
+        var cipherState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true,
+        )!
+        subject.state.loadingState = .data(cipherState)
+
+        subject.receive(.ssnVisibilityPressed)
+
+        cipherState.identityState.showSocialSecurityNumber = true
+        XCTAssertEqual(subject.state.loadingState, .data(cipherState))
+    }
+
+    /// `receive` with `.ssnVisibilityPressed` while loading logs an error.
+    @MainActor
+    func test_receive_ssnVisibilityPressed_logsErrorAndDoesNotChangeStateWhenNotLoaded() {
+        subject.state.loadingState = .loading(nil)
+
+        subject.receive(.ssnVisibilityPressed)
+
+        XCTAssertEqual(
+            errorReporter.errors.first as? ViewItemProcessor.ActionError,
+            .dataNotLoaded("Cannot toggle ssn for non-loaded item."),
+        )
     }
 
     // MARK: Private

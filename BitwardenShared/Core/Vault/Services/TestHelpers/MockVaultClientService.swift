@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import Foundation
@@ -31,7 +32,7 @@ class MockVaultClientService: VaultClientService {
         clientFolders
     }
 
-    func generateTOTPCode(for _: String, date: Date?) throws -> BitwardenShared.TOTPCodeModel {
+    func generateTOTPCode(for _: String, date: Date?) throws -> BitwardenKit.TOTPCodeModel {
         let code = try generateTOTPCodeResult.get()
         return TOTPCodeModel(
             code: code,
@@ -43,7 +44,7 @@ class MockVaultClientService: VaultClientService {
     func generateTOTPCode(
         for cipherListView: BitwardenSdk.CipherListView,
         date: Date?,
-    ) throws -> BitwardenShared.TOTPCodeModel {
+    ) throws -> BitwardenKit.TOTPCodeModel {
         generateTOTPCodeCipherParam = cipherListView
         let code = try generateTOTPCodeResult.get()
         return TOTPCodeModel(

@@ -95,6 +95,9 @@ struct VaultListState: Equatable {
     /// Whether the Premium Upgrade action card should be shown.
     var shouldShowPremiumUpgradeActionCard: Bool = false
 
+    /// Whether the Upgraded to Premium action card should be shown.
+    var shouldShowUpgradedToPremiumActionCard: Bool = false
+
     /// The user's initials.
     var userInitials: String {
         profileSwitcherState.activeAccountInitials

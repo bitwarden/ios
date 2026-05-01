@@ -46,6 +46,10 @@ schemes:
     build:
       targets:
         BitwardenResources: all
+  BitwardenSdkMocks:
+    build:
+      targets:
+        BitwardenSdkMocks: all
   Networking:
     build:
       targets:
@@ -244,6 +248,22 @@ targets:
           - $(SRCROOT)/BitwardenResources/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenResources/Generated/Localizations.swift
           - $(SRCROOT)/BitwardenResources/Generated/SharedAssets.swift
+  BitwardenSdkMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenSdkMocks/Info.plist
+    templates:
+      - CommonTarget
+      - SourceryTarget
+    templateAttributes:
+      sourcesPath: BitwardenSdkMocks
+    sources:
+      - path: BitwardenSdkMocks/Sourcery/Generated/AutoMockable.generated.swift
+        optional: true
+    dependencies:
+      - package: BitwardenSdk
   Networking:
     type: framework
     platform: iOS

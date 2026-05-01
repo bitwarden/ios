@@ -70,19 +70,27 @@ struct ViewIdentityItemView: View {
                 ContentBlock {
                     if !store.state.socialSecurityNumber.isEmpty {
                         let socialSecurityNumber = store.state.socialSecurityNumber
-                        BitwardenTextValueField(
-                            title: Localizations.ssn,
-                            value: socialSecurityNumber,
-                            valueAccessibilityIdentifier: "IdentitySsnEntry",
-                            copyButtonAccessibilityIdentifier: "IdentityCopySsnButton",
-                            copyButtonAction: { store.send(
-                                .copyPressed(
-                                    value: socialSecurityNumber,
-                                    field: .socialSecurityNumber,
-                                ),
+                        BitwardenField(title: Localizations.ssn) {
+                            PasswordText(
+                                password: socialSecurityNumber,
+                                isPasswordVisible: store.state.showSocialSecurityNumber,
                             )
-                            },
-                        )
+                            .styleGuide(.body)
+                            .accessibilityIdentifier("IdentitySsnEntry")
+                        } accessoryContent: {
+                            PasswordVisibilityButton(isPasswordVisible: store.state.showSocialSecurityNumber) {
+                                store.send(.ssnVisibilityPressed)
+                            }
+
+                            Button {
+                                store.send(.copyPressed(value: socialSecurityNumber, field: .socialSecurityNumber))
+                            } label: {
+                                SharedAsset.Icons.copy24.swiftUIImage
+                                    .imageStyle(.accessoryIcon24)
+                            }
+                            .accessibilityLabel(Localizations.copy)
+                            .accessibilityIdentifier("IdentityCopySsnButton")
+                        }
                         .accessibilityElement(children: .contain)
                     }
 

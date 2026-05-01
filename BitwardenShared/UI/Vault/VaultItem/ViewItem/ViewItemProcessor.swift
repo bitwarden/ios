@@ -12,7 +12,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -203,6 +202,16 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
+        case .ssnVisibilityPressed:
+            guard case var .data(cipherState) = state.loadingState else {
+                services.errorReporter.log(
+                    error: ActionError.dataNotLoaded("Cannot toggle ssn for non-loaded item."),
+                )
+                return
+            }
+            cipherState.identityState.showSocialSecurityNumber.toggle()
+            state.loadingState = .data(cipherState)
+            return
         }
     }
 }
@@ -548,8 +557,6 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
-                let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
-
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasPremium: hasPremium,
@@ -563,7 +570,6 @@ private extension ViewItemProcessor {
                     itemState.organizationName = organization?.name
                     itemState.ownershipOptions = ownershipOptions
                     itemState.showWebIcons = showWebIcons
-                    itemState.isArchiveVaultItemsFFEnabled = isArchiveVaultItemsFFEnabled
 
                     newState.loadingState = .data(itemState)
                 }

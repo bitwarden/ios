@@ -19,17 +19,11 @@ This generates `MockFeatureService` in the `Sourcery/Generated/` directory of th
 Mock generation runs automatically as a pre-build phase. To run manually:
 
 ```bash
-# For BitwardenShared
-mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
-
-# For AuthenticatorShared
-mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
-
-# For BitwardenKit
-mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
-
-# For AuthenticatorBridgeKit
-mint run sourcery --config AuthenticatorBridgeKit/Sourcery/sourcery.yml
+# Requires BUILD_DIR — see script header for how to supply it standalone.
+./Scripts/generate-mocks.sh BitwardenShared
+./Scripts/generate-mocks.sh AuthenticatorShared
+./Scripts/generate-mocks.sh BitwardenKit
+./Scripts/generate-mocks.sh AuthenticatorBridgeKit
 ```
 
 ## Generated File Locations

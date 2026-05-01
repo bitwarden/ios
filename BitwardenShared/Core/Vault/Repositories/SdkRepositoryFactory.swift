@@ -20,8 +20,6 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
 
     /// The data store for managing the persisted ciphers for the user.
     private let cipherDataStore: CipherDataStore
-    /// The service used by the application to report non-fatal errors.
-    private let errorReporter: ErrorReporter
     /// The service that provides state management functionality for the
     /// server communication configuration.
     private let serverCommunicationConfigStateService: ServerCommunicationConfigStateService
@@ -31,16 +29,13 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
     /// Initializes a `DefaultSdkRepositoryFactory`.
     /// - Parameters:
     ///   - cipherDataStore: The data store for managing the persisted ciphers for the user.
-    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - serverCommunicationConfigStateService: The service that provides state management functionality for the
     /// server communication configuration.
     init(
         cipherDataStore: CipherDataStore,
-        errorReporter: ErrorReporter,
         serverCommunicationConfigStateService: ServerCommunicationConfigStateService,
     ) {
         self.cipherDataStore = cipherDataStore
-        self.errorReporter = errorReporter
         self.serverCommunicationConfigStateService = serverCommunicationConfigStateService
     }
 
@@ -49,7 +44,6 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
     func makeCipherRepository(userId: String) -> BitwardenSdk.CipherRepository {
         SdkCipherRepository(
             cipherDataStore: cipherDataStore,
-            errorReporter: errorReporter,
             userId: userId,
         )
     }

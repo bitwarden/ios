@@ -69,7 +69,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasCameraService
-        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
@@ -146,7 +145,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     override func perform(_ effect: AddEditItemEffect) async {
         switch effect {
         case .appeared:
-            await loadFeatureFlags()
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
             await checkLearnNewLoginActionCardEligibility()
@@ -443,11 +441,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
-    /// Loads the feature flags required for this processor.
-    private func loadFeatureFlags() async {
-        state.isArchiveVaultItemsFFEnabled = await services.configService.getFeatureFlag(.archiveVaultItems)
-    }
-
     /// Receives an `AddEditCardItem` action from the `AddEditCardView` view's store, and updates
     /// the `AddEditCardState`.
     ///
@@ -519,6 +512,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.passportNumber = passportNumber
         case let .licenseNumberChanged(licenseNumber):
             state.identityState.licenseNumber = licenseNumber
+        case let .ssnVisibilityChanged(isVisible):
+            state.identityState.showSocialSecurityNumber = isVisible
         case let .emailChanged(email):
             state.identityState.email = email
         case let .phoneNumberChanged(phoneNumber):

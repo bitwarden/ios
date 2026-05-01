@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import SwiftUI
 
 // swiftlint:disable file_length
@@ -19,6 +20,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasBillingService
         & HasChangeKdfService
         & HasConfigService
         & HasEnvironmentService
@@ -31,6 +33,7 @@ final class VaultListProcessor: StateProcessor<
         & HasReviewPromptService
         & HasSearchProcessorMediatorFactory
         & HasStateService
+        & HasStorefrontService
         & HasSyncService
         & HasTimeProvider
         & HasVaultRepository
@@ -46,6 +49,9 @@ final class VaultListProcessor: StateProcessor<
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
+    /// Cancellable for the premium checkout status subscription.
+    private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
@@ -116,6 +122,8 @@ final class VaultListProcessor: StateProcessor<
             } catch {
                 services.errorReporter.log(error: error)
             }
+        case .dismissUpgradedToPremiumActionCard:
+            state.shouldShowUpgradedToPremiumActionCard = false
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -197,9 +205,13 @@ final class VaultListProcessor: StateProcessor<
             // No-op: TOTP codes aren't shown on the list view and can't be copied.
             break
         case .upgradeToPremium:
+            subscribeToPremiumCheckoutStatus()
             coordinator.navigate(to: .premiumUpgrade)
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
+        case .viewPlanDetails:
+            coordinator.navigate(to: .viewPlanDetails)
+            state.shouldShowUpgradedToPremiumActionCard = false
         }
     }
 }
@@ -247,15 +259,14 @@ extension VaultListProcessor {
 
         state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
 
-        if await services.configService.getFeatureFlag(.archiveVaultItems) {
-            state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
-        }
+        state.shouldShowArchiveOnboardingActionCard = await services.stateService.shouldDoArchiveOnboarding()
 
         if await services.configService.getFeatureFlag(.premiumUpgradePath) {
             let shouldShow = await services.stateService.shouldShowPremiumUpgradeBanner()
             let hasEnoughItems = await (try? services.vaultRepository
                 .hasMinimumCipherCount(Constants.minimumPremiumUpgradeBannerCipherCount)) ?? false
-            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems
+            let isUSStorefront = await services.storefrontService.isUSStorefront()
+            state.shouldShowPremiumUpgradeActionCard = shouldShow && hasEnoughItems && isUSStorefront
         } else {
             state.shouldShowPremiumUpgradeActionCard = false
         }
@@ -551,6 +562,55 @@ extension VaultListProcessor {
         }
     }
 
+    /// Subscribes to premium checkout status updates. On `.confirmed`, reloads the vault list
+    /// to update the premium state. On `.pending`, shows an upgrade pending alert.
+    ///
+    private func subscribeToPremiumCheckoutStatus() {
+        premiumStatusChangedCancellable = services.billingService
+            .premiumCheckoutStatusPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let self else { return }
+                switch status {
+                case .canceled:
+                    break
+                case .confirmed:
+                    premiumStatusChangedCancellable = nil
+                    coordinator.navigate(
+                        to: .dismiss(DismissAction { [weak self] in
+                            guard let self else { return }
+                            coordinator.hideLoadingOverlay()
+                            Task {
+                                await self.refreshVault(syncWithPeriodicCheck: false)
+                                self.state.hasPremium = await self.services.stateService.doesActiveAccountHavePremium()
+                                self.state.shouldShowPremiumUpgradeActionCard = false
+                                self.state.shouldShowUpgradedToPremiumActionCard = true
+                            }
+                        }),
+                    )
+                case .pending:
+                    coordinator.navigate(
+                        to: .dismiss(DismissAction { [weak self] in
+                            guard let self else { return }
+                            coordinator.hideLoadingOverlay()
+                            coordinator.showAlert(.upgradePending {
+                                await self.services.billingService.premiumStatusChanged()
+                            })
+                        }),
+                    )
+                case .syncing:
+                    coordinator.navigate(
+                        to: .dismiss(DismissAction { [weak self] in
+                            guard let self else { return }
+                            coordinator.showLoadingOverlay(
+                                title: Localizations.confirmingYourUpgrade,
+                            )
+                        }),
+                    )
+                }
+            }
+    }
+
     /// Streams the user's account setup progress.
     ///
     private func streamAccountSetupProgress() async {
@@ -722,7 +782,7 @@ extension VaultListProcessor: ProfileSwitcherHandler {
     }
 
     func dismissProfileSwitcher() {
-        coordinator.navigate(to: .dismiss)
+        coordinator.navigate(to: .dismiss())
     }
 
     func showAddAccount() {

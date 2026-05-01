@@ -78,9 +78,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded = false
 
-    /// Whether archive vault items feature flag is enabled.
-    var isArchiveVaultItemsFFEnabled = false
-
     /// A flag indicating if this item is favorited.
     var isFavoriteOn = false
 
@@ -157,7 +154,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether or not this item can be archived by the user.
     var canBeArchived: Bool {
-        isArchiveVaultItemsFFEnabled && cipher.archivedDate == nil && cipher.deletedDate == nil
+        cipher.canBeArchived
     }
 
     /// Whether the cipher belongs to any organization.
@@ -206,7 +203,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether or not this item can be unarchived by the user.
     var canBeUnarchived: Bool {
-        isArchiveVaultItemsFFEnabled && cipher.archivedDate != nil && cipher.deletedDate == nil
+        cipher.canBeUnarchived
     }
 
     /// Whether or not this item can be moved to an organization.
@@ -282,7 +279,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether the item should be displayed as archived.
     var shouldDisplayAsArchived: Bool {
-        isArchiveVaultItemsFFEnabled && canBeUnarchived
+        canBeUnarchived
     }
 
     /// The flag indicating if we should show the learn new login action card.
