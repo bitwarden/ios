@@ -108,7 +108,7 @@ protocol StateService: AnyObject {
 
 /// The errors thrown from a `StateService`.
 ///
-enum StateServiceError: Error {
+enum StateServiceError: Error, NonLoggableError {
     /// There are no known accounts.
     case noAccounts
 
