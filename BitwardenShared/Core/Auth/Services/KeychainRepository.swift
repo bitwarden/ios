@@ -550,7 +550,9 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
 
     func getLastActiveMonotonicTime(userId: String) async throws -> TimeInterval? {
         do {
-            let stored = try await getValue(for: .lastActiveMonotonicTime(userId: userId))
+            let stored = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
+            )
             return TimeInterval(stored)
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             return nil
@@ -559,12 +561,17 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
 
     func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) async throws {
         let value = monotonicTime.map { String($0) } ?? ""
-        try await setValue(value, for: .lastActiveMonotonicTime(userId: userId))
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
+        )
     }
 
     func getLastActiveBootEpoch(userId: String) async throws -> TimeInterval? {
         do {
-            let stored = try await getValue(for: .lastActiveBootEpoch(userId: userId))
+            let stored = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),
+            )
             return TimeInterval(stored)
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             return nil
@@ -573,7 +580,10 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
 
     func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String) async throws {
         let value = bootEpoch.map { String($0) } ?? ""
-        try await setValue(value, for: .lastActiveBootEpoch(userId: userId))
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),
+        )
     }
 
     // MARK: Unsuccessful Unlock Attempts

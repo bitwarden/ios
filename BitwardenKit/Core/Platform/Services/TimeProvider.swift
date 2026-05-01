@@ -12,11 +12,14 @@ public protocol TimeProvider: AnyObject {
 
     /// The monotonic time expressed as a `TimeInterval` since system boot.
     ///
-    /// This time is based on `mach_continuous_time()` and cannot be affected by user
-    /// clock changes, making it suitable for measuring elapsed time intervals securely.
+    /// This time is based on `clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)` and cannot be affected
+    /// by user clock changes, making it suitable for measuring elapsed time intervals securely.
     /// Unlike `ProcessInfo.systemUptime`, this clock continues to advance during device
     /// sleep, preventing false tamper-detection divergence when the device wakes.
     /// The value resets to 0 when the device reboots.
+    ///
+    /// - Note: On Darwin, `CLOCK_MONOTONIC_RAW` is equivalent to `mach_continuous_time()` —
+    ///   it includes time while the device is asleep.
     ///
     var monotonicTime: TimeInterval { get }
 
@@ -59,27 +62,12 @@ public protocol TimeProvider: AnyObject {
 public class CurrentTime: TimeProvider {
     // MARK: Properties
 
-    /// Hardware-specific conversion ratio used to translate raw `mach_continuous_time()` ticks
-    /// into nanoseconds: `nanoseconds = ticks × numer / denom`.
-    ///
-    /// The ratio is constant for the lifetime of the process, so it is queried once and cached.
-    /// On Apple Silicon the ratio is always 1/1; on older Intel hardware it may differ.
-    ///
-    private static let timebaseInfo: mach_timebase_info_data_t = {
-        var info = mach_timebase_info_data_t()
-        mach_timebase_info(&info)
-        return info
-    }()
-
     public var presentTime: Date {
         .now
     }
 
     public var monotonicTime: TimeInterval {
-        let nanos = Double(mach_continuous_time())
-            * Double(Self.timebaseInfo.numer)
-            / Double(Self.timebaseInfo.denom)
-        return nanos / 1_000_000_000
+        Double(clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW)) / 1_000_000_000
     }
 
     // MARK: Init

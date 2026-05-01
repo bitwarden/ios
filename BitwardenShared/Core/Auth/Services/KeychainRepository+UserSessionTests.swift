@@ -36,77 +36,69 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     // MARK: Tests - Last Active Monotonic Time
 
     /// `getLastActiveMonotonicTime(userId:)` returns the stored last active monotonic time.
+    ///
     func test_getLastActiveMonotonicTime() async throws {
-        let expectedMonotonicTime: TimeInterval = 12345.67
-        keychainService.setSearchResultData(string: String(expectedMonotonicTime))
+        keychainServiceFacade.getValueReturnValue = "12345.67"
 
         let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: "1")
-        XCTAssertEqual(monotonicTime, expectedMonotonicTime)
+
+        XCTAssertEqual(monotonicTime, 12345.67)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
+        )
     }
 
-    /// `getLastActiveMonotonicTime(userId:)` returns nil when no value is stored.
+    /// `getLastActiveMonotonicTime(userId:)` returns nil when the item is not found.
+    ///
     func test_getLastActiveMonotonicTime_notFound() async throws {
-        let error = KeychainServiceError.osStatusError(errSecItemNotFound)
-        keychainService.searchResult = .failure(error)
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
 
         let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: "1")
+
         XCTAssertNil(monotonicTime)
     }
 
-    /// `getLastActiveMonotonicTime(userId:)` throws an error for errors other than item not found.
+    /// `getLastActiveMonotonicTime(userId:)` rethrows non-notFound errors.
+    ///
     func test_getLastActiveMonotonicTime_error() async {
-        let error = KeychainServiceError.osStatusError(-1)
-        keychainService.searchResult = .failure(error)
+        let error = KeychainServiceError.osStatusError(errSecInvalidItemRef)
+        keychainServiceFacade.getValueThrowableError = error
 
         await assertAsyncThrows(error: error) {
             _ = try await subject.getLastActiveMonotonicTime(userId: "1")
         }
     }
 
-    /// `setLastActiveMonotonicTime(_:userId:)` stores the last active monotonic time.
+    /// `setLastActiveMonotonicTime(_:userId:)` stores the last active monotonic time via the facade.
+    ///
     func test_setLastActiveMonotonicTime() async throws {
-        let monotonicTime: TimeInterval = 98765.43
+        try await subject.setLastActiveMonotonicTime(98765.43, userId: "1")
 
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                [],
-                nil,
-            )!,
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "98765.43")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
         )
-
-        try await subject.setLastActiveMonotonicTime(monotonicTime, userId: "1")
-
-        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
-        let valueData = try XCTUnwrap(attributes[kSecValueData] as? Data)
-        let storedValue = try XCTUnwrap(String(data: valueData, encoding: .utf8))
-        XCTAssertEqual(TimeInterval(storedValue), monotonicTime)
     }
 
     /// `setLastActiveMonotonicTime(_:userId:)` clears the monotonic time when nil is passed.
+    ///
     func test_setLastActiveMonotonicTime_nil() async throws {
-        keychainService.accessControlResult = .success(
-            SecAccessControlCreateWithFlags(
-                nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                [],
-                nil,
-            )!,
-        )
-
         try await subject.setLastActiveMonotonicTime(nil, userId: "1")
 
-        let attributes = try XCTUnwrap(keychainService.addAttributes) as Dictionary
-        let valueData = try XCTUnwrap(attributes[kSecValueData] as? Data)
-        let storedValue = try XCTUnwrap(String(data: valueData, encoding: .utf8))
-        XCTAssertEqual(storedValue, "")
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
+        )
     }
 
-    /// `setLastActiveMonotonicTime(_:userId:)` throws an error if one occurs.
+    /// `setLastActiveMonotonicTime(_:userId:)` rethrows errors from the facade.
+    ///
     func test_setLastActiveMonotonicTime_error() async {
         let error = KeychainServiceError.accessControlFailed(nil)
-        keychainService.addResult = .failure(error)
+        keychainServiceFacade.setValueThrowableError = error
 
         await assertAsyncThrows(error: error) {
             try await subject.setLastActiveMonotonicTime(12345.0, userId: "1")
