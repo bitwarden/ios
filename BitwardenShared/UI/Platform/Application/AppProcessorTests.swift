@@ -1226,10 +1226,10 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         serverCommunicationConfigAPIService.acquireCookiesSubject.send("https://example.com")
 
         try await waitForAsync { [weak self] in
-            self?.coordinator.routes.contains(.syncWithBrowser) == true
+            self?.coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")) == true
         }
 
-        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
 
     /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
@@ -1241,7 +1241,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
 
-        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser))
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
 
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and

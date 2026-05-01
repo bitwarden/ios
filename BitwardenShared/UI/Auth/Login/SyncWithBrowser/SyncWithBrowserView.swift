@@ -24,7 +24,7 @@ struct SyncWithBrowserView: View {
                 image: Asset.Images.Illustrations.keyhole,
                 style: .smallImage,
                 title: Localizations.syncWithBrowser,
-                message: Localizations.syncWithBrowserDescriptionLong(store.state.environmentUrl),
+                message: Localizations.syncWithBrowserDescriptionLong(store.state.vaultUrl),
             )
 
             VStack(spacing: 12) {
@@ -46,9 +46,6 @@ struct SyncWithBrowserView: View {
         .frame(maxWidth: .infinity)
         .scrollView()
         .dismissKeyboardOnAppear()
-        .task {
-            await store.perform(.appeared)
-        }
     }
 }
 
@@ -60,7 +57,7 @@ struct SyncWithBrowserView: View {
         store: Store(
             processor: StateProcessor(
                 state: SyncWithBrowserState(
-                    environmentUrl: "https://example.bitwarden.com",
+                    vaultUrl: "https://example.bitwarden.com",
                 ),
             ),
         ),

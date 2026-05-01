@@ -506,8 +506,8 @@ extension AppProcessor {
     private func listenForAcquireCookies() {
         Task {
             for await vaultURL in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
-                guard vaultURL != nil else { continue }
-                coordinator?.navigate(to: .syncWithBrowser)
+                guard let vaultURL else { continue }
+                coordinator?.navigate(to: .syncWithBrowser(vaultUrl: vaultURL))
             }
         }
     }
