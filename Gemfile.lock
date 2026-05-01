@@ -228,13 +228,13 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  abbrev
-  csv
-  dotenv
-  fastlane
-  logger
-  mutex_m
-  ostruct
+  abbrev (= 0.1.2)
+  csv (= 3.3.5)
+  dotenv (= 2.8.1)
+  fastlane (= 2.229.1)
+  logger (= 1.7.0)
+  mutex_m (= 0.3.0)
+  ostruct (= 0.6.3)
 
 RUBY VERSION
    ruby 3.4.2p28

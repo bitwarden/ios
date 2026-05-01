@@ -13,7 +13,6 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
     var cipherService: MockCipherService!
     var clientService: MockClientService!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: Fido2CredentialStoreService!
@@ -26,7 +25,6 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
         cipherService = MockCipherService()
         clientService = MockClientService()
-        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         syncService = MockSyncService()
@@ -34,7 +32,6 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         subject = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -46,7 +43,6 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
         cipherService = nil
         clientService = nil
-        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -73,6 +69,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 type: .login,
             ),
             .fixture(id: "6", type: .secureNote),
+            .fixture(archivedDate: Date.distantPast, id: "7"),
         ])
 
         let result = try await subject.allCredentials()

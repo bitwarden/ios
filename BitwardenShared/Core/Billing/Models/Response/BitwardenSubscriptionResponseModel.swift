@@ -26,7 +26,7 @@ struct BitwardenSubscriptionResponseModel: JSONResponse, Equatable, Sendable {
     let nextCharge: Date?
 
     /// The status of the subscription.
-    let status: String
+    let status: SubscriptionStatus
 
     /// The amount of storage available and used for the subscription.
     let storage: SubscriptionStorageResponseModel?

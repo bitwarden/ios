@@ -344,10 +344,8 @@ class DefaultAutofillCredentialService {
         do {
             await flightRecorder.log("[AutofillCredentialService] Replacing all credential identities")
 
-            let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
             let decryptedCiphers = try await cipherService.fetchAllCiphers()
-                .filter { $0.type == .login && !$0.isHiddenWithArchiveFF(flag: archiveItemsFeatureFlagEnabled) }
+                .filter { $0.type == .login && !$0.isHidden }
                 .asyncMap { cipher in
                     try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
                 }

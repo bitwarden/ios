@@ -67,11 +67,7 @@ targetTemplates:
         buildPhase: none
     preBuildScripts:
       - name: Sourcery
-        script: |
-          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
-            PATH="/opt/homebrew/bin:$PATH"
-          fi
-          mint run sourcery --config ${sourcesPath}/Sourcery/sourcery.yml
+        path: Scripts/generate-mocks.sh
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/${sourcesPath}/Sourcery/Generated/AutoMockable.generated.swift
