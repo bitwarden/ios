@@ -6,25 +6,25 @@
     <key>BitwardenCouldNotDecryptXVaultItemsDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@BitwardenCouldNotDecryptVaultItems@ Copy and share this error report with customer success to avoid additional data loss.</string>
+      <string>%#@BitwardenCouldNotDecryptVaultItems@ انسخ وشارك تقرير الخطأ هذا مع نجاح العميل لتجنب خسارة البيانات الإضافية.</string>
       <key>BitwardenCouldNotDecryptVaultItems</key>
       <dict>
         <key>zero</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>تعذر على Bitwarden فك تشفير %d عنصر المخزن.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Bitwarden could not decrypt %d vault item.</string>
+        <string>تعذر على Bitwarden فك تشفير %d عنصر المخزن.</string>
         <key>two</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>تعذر على Bitwarden فك تشفير %d عنصري المخزن.</string>
         <key>few</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>تعذر على Bitwarden فك تشفير %d عناصر المخزن.</string>
         <key>many</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>تعذر على Bitwarden فك تشفير %d عناصر المخزن.</string>
         <key>other</key>
-        <string>Bitwarden could not decrypt %d vault items.</string>
+        <string>تعذر على Bitwarden فك تشفير %d عناصر المخزن.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a master password in characters. -->
@@ -35,46 +35,46 @@
       <key>MasterPasswordMustBeAtLeastCharactersLong</key>
       <dict>
         <key>zero</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>كلمة المرور الرئيسية يجب أن تكون على الأقل %d حرف.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Master password must be at least %d character long.</string>
+        <string>كلمة المرور الرئيسية يجب أن تكون على الأقل %d حرف.</string>
         <key>two</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>كلمة المرور الرئيسية يجب أن تكون على الأقل %d حرفين.</string>
         <key>few</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>كلمة المرور الرئيسية يجب أن تكون على الأقل %d احرف.</string>
         <key>many</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>كلمة المرور الرئيسية يجب أن تكون على الأقل %d احرف.</string>
         <key>other</key>
-        <string>Master password must be at least %d characters long.</string>
+        <string>كلمة المرور الرئيسية يجب أن تكون على الأقل %d احرف.</string>
       </dict>
     </dict>
     <!-- A warning if we have determined that a password has been exposed in a data breach. -->
     <key>ThisPasswordHasBeenExposedXTimesDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@ThisPasswordHasBeenExposedTimes@ You should change it.</string>
+      <string>%#@ThisPasswordHasBeenExposedTimes@ يجب عليك تغييره.</string>
       <key>ThisPasswordHasBeenExposedTimes</key>
       <dict>
         <key>zero</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>تم الكشف عن كلمة المرور هذه %d مرة في خروقات البيانات.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>This password has been exposed %d time in data breaches.</string>
+        <string>تم الكشف عن كلمة المرور هذه %d مرة في خروقات البيانات.</string>
         <key>two</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>تم الكشف عن كلمة المرور هذه %d مرتين في خروقات البيانات.</string>
         <key>few</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>تم الكشف عن كلمة المرور هذه %d مرات في خروقات البيانات.</string>
         <key>many</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>تم الكشف عن كلمة المرور هذه %d مرات في خروقات البيانات.</string>
         <key>other</key>
-        <string>This password has been exposed %d times in data breaches.</string>
+        <string>تم الكشف عن كلمة المرور هذه %d مرات في خروقات البيانات.</string>
       </dict>
     </dict>
     <!-- A number of characters, as in letters/numbers/punctuation. For example, the minimum number of characters when creating a password. -->
@@ -85,21 +85,21 @@
       <key>Characters</key>
       <dict>
         <key>zero</key>
-        <string>%d characters</string>
+        <string>%d حرف</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d character</string>
+        <string>%d حرف</string>
         <key>two</key>
-        <string>%d characters</string>
+        <string>%d حرفين</string>
         <key>few</key>
-        <string>%d characters</string>
+        <string>%d حروف</string>
         <key>many</key>
-        <string>%d characters</string>
+        <string>%d حروف</string>
         <key>other</key>
-        <string>%d characters</string>
+        <string>%d حروف</string>
       </dict>
     </dict>
     <!-- A number of days, used in menu selections. For example, the number of days to keep a send before deletion. -->
@@ -110,21 +110,21 @@
       <key>Days</key>
       <dict>
         <key>zero</key>
-        <string>%d days</string>
+        <string>%d يوم</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d day</string>
+        <string>%d يوم</string>
         <key>two</key>
-        <string>%d days</string>
+        <string>%d يومان</string>
         <key>few</key>
-        <string>%d days</string>
+        <string>%d أيام</string>
         <key>many</key>
-        <string>%d days</string>
+        <string>%d أيام</string>
         <key>other</key>
-        <string>%d days</string>
+        <string>%d أيام</string>
       </dict>
     </dict>
     <!-- A number of hours, used in menu selections. For example, how long to log events in the flight recorder. -->
@@ -135,21 +135,21 @@
       <key>Hours</key>
       <dict>
         <key>zero</key>
-        <string>%d hours</string>
+        <string>%d ساعة</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d hour</string>
+        <string>%d ساعة</string>
         <key>two</key>
-        <string>%d hours</string>
+        <string>%d ساعتين</string>
         <key>few</key>
-        <string>%d hours</string>
+        <string>%d ساعات</string>
         <key>many</key>
-        <string>%d hours</string>
+        <string>%d ساعات</string>
         <key>other</key>
-        <string>%d hours</string>
+        <string>%d ساعات</string>
       </dict>
     </dict>
     <!-- A number of items, used in headers' voiceover to indicate how many items are in a section. -->
@@ -160,21 +160,21 @@
       <key>Items</key>
       <dict>
         <key>zero</key>
-        <string>%d items</string>
+        <string>‏%d عنصر</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item</string>
+        <string>‏%d عنصر</string>
         <key>two</key>
-        <string>%d items</string>
+        <string>‏%d عنصرين</string>
         <key>few</key>
-        <string>%d items</string>
+        <string>‏%d عناصر</string>
         <key>many</key>
-        <string>%d items</string>
+        <string>‏%d عناصر</string>
         <key>other</key>
-        <string>%d items</string>
+        <string>‏%d عناصر</string>
       </dict>
     </dict>
     <!-- Message indicating a number of items were successfully imported in the Credential Exchange flow. -->
@@ -185,21 +185,21 @@
       <key>ItemsSuccessfullyImported</key>
       <dict>
         <key>zero</key>
-        <string>%d items successfully imported</string>
+        <string>تم استيراد %d عنصر بنجاح</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d item successfully imported</string>
+        <string>تم استيراد %d عنصر بنجاح</string>
         <key>two</key>
-        <string>%d items successfully imported</string>
+        <string>تم استيراد %d عنصرين بنجاح</string>
         <key>few</key>
-        <string>%d items successfully imported</string>
+        <string>تم استيراد %d عناصر بنجاح</string>
         <key>many</key>
-        <string>%d items successfully imported</string>
+        <string>تم استيراد %d عناصر بنجاح</string>
         <key>other</key>
-        <string>%d items successfully imported</string>
+        <string>تم استيراد %d عناصر بنجاح</string>
       </dict>
     </dict>
     <!-- A number of minutes, used in menu selections. For example, the amount of time to keep the vault unlocked after being unlocked. -->
@@ -210,21 +210,21 @@
       <key>Minutes</key>
       <dict>
         <key>zero</key>
-        <string>%d minutes</string>
+        <string>%d دقيقة</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d minute</string>
+        <string>%d دقيقة</string>
         <key>two</key>
-        <string>%d minutes</string>
+        <string>%d دقيقتين</string>
         <key>few</key>
-        <string>%d minutes</string>
+        <string>%d دقائق</string>
         <key>many</key>
-        <string>%d minutes</string>
+        <string>%d دقائق</string>
         <key>other</key>
-        <string>%d minutes</string>
+        <string>%d دقائق</string>
       </dict>
     </dict>
     <!-- A number of seconds, used in menu selection. For example, how long to keep copied fields in the clipboard before clearing. -->
@@ -235,21 +235,21 @@
       <key>Seconds</key>
       <dict>
         <key>zero</key>
-        <string>%d seconds</string>
+        <string>%d ثانية</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d second</string>
+        <string>%d ثانية</string>
         <key>two</key>
-        <string>%d seconds</string>
+        <string>%d ثانيتان</string>
         <key>few</key>
-        <string>%d seconds</string>
+        <string>%d ثواني</string>
         <key>many</key>
-        <string>%d seconds</string>
+        <string>%d ثواني</string>
         <key>other</key>
-        <string>%d seconds</string>
+        <string>%d ثواني</string>
       </dict>
     </dict>
     <!-- A number of weeks, used in menu selection. For example, how long to log events in the flight recorder. -->
@@ -260,46 +260,71 @@
       <key>Weeks</key>
       <dict>
         <key>zero</key>
-        <string>%d weeks</string>
+        <string>%d أسبوع</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>%d week</string>
+        <string>%d أسبوع</string>
         <key>two</key>
-        <string>%d weeks</string>
+        <string>%d أسبوعان</string>
         <key>few</key>
-        <string>%d weeks</string>
+        <string>%d أسابيع</string>
         <key>many</key>
-        <string>%d weeks</string>
+        <string>%d أسابيع</string>
         <key>other</key>
-        <string>%d weeks</string>
+        <string>%d أسابيع</string>
+      </dict>
+    </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Please resolve the past due invoices by **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>zero</key>
+        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <key>two</key>
+        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <key>few</key>
+        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <key>many</key>
+        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <key>other</key>
+        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>%#@YourPINMustBeAtLeastCharacters@ Your PIN settings will be reset if you ever fully log out of the application.</string>
+      <string>%#@YourPINMustBeAtLeastCharacters@ سيتم إعادة تعيين إعدادات رمز PIN الخاص بك إذا قمت بتسجيل الخروج بالكامل من التطبيق.</string>
       <key>YourPINMustBeAtLeastCharacters</key>
       <dict>
         <key>zero</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>يجب أن يكون رمز PIN الخاص بك على الأقل %d حرف.</string>
         <key>NSStringFormatSpecTypeKey</key>
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>Your PIN must be at least %d character.</string>
+        <string>يجب أن يكون رمز PIN الخاص بك على الأقل %d حرف.</string>
         <key>two</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>يجب أن يكون رمز PIN الخاص بك على الأقل %d حرفين.</string>
         <key>few</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>يجب أن يكون رمز PIN الخاص بك على الأقل %d احرف.</string>
         <key>many</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>يجب أن يكون رمز PIN الخاص بك على الأقل %d احرف.</string>
         <key>other</key>
-        <string>Your PIN must be at least %d characters.</string>
+        <string>يجب أن يكون رمز PIN الخاص بك على الأقل %d احرف.</string>
       </dict>
     </dict>
   </dict>
