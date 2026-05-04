@@ -23,9 +23,13 @@ protocol LocalUserDataKeychainRepository { // sourcery: AutoMockable
 
 extension DefaultKeychainRepository: LocalUserDataKeychainRepository {
     func getLocalUserDataKeyStates(userId: String) async throws -> [String: UserKeyData]? {
-        try await keychainServiceFacade.getValue(
-            for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
-        )
+        do {
+            return try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
+            )
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
     }
 
     func setLocalUserDataKeyStates(_ states: [String: UserKeyData]?, userId: String) async throws {
