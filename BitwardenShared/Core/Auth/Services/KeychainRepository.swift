@@ -554,13 +554,20 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
                 for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
             )
             return TimeInterval(stored)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
     }
 
     func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) async throws {
-        let value = monotonicTime.map { String($0) } ?? ""
+        let value = monotonicTime.map { String($0) }
+        guard let value else {
+            try await keychainServiceFacade.deleteValue(
+                for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
+            )
+            return
+        }
+
         try await keychainServiceFacade.setValue(
             value,
             for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
@@ -573,13 +580,20 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
                 for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),
             )
             return TimeInterval(stored)
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return nil
         }
     }
 
     func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String) async throws {
-        let value = bootEpoch.map { String($0) } ?? ""
+        let value = bootEpoch.map { String($0) }
+        guard let value else {
+            try await keychainServiceFacade.deleteValue(
+                for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),
+            )
+            return
+        }
+
         try await keychainServiceFacade.setValue(
             value,
             for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),

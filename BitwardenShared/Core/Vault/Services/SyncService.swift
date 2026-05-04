@@ -391,14 +391,11 @@ class DefaultSyncService: SyncService {
 
         // Migration fallback: use wall-clock if monotonic time not available
         guard let lastSyncMonotonic else {
-            await flightRecorder.log("Checking needs sync with wall-clock time for userId: \(userId)")
             if lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) >= timeProvider.presentTime {
                 return .shouldNotSync
             }
             return .undefined
         }
-
-        await flightRecorder.log("Checking needs sync with monotonic time for userId: \(userId)")
 
         let result = timeProvider.calculateTamperResistantElapsedTime(
             lastMonotonicTime: lastSyncMonotonic,

@@ -24,6 +24,8 @@ protocol UserSessionStateService { // sourcery: AutoMockable
     ///
     func setLastActiveTime(_ date: Date?, userId: String?) async throws
 
+    // MARK: Last Active Monotonic Time
+
     /// Gets the user's last active monotonic time within the app.
     ///
     /// - Parameter userId: The user ID associated with the last active monotonic time within the app.
@@ -38,6 +40,8 @@ protocol UserSessionStateService { // sourcery: AutoMockable
     ///   - userId: The user ID associated with the last active monotonic time within the app.
     ///
     func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws
+
+    // MARK: Last Active Boot Epoch
 
     /// Gets the stored boot epoch for a user.
     ///
