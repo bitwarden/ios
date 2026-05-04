@@ -36,6 +36,33 @@ class AlertVaultTests: BitwardenTestCase { // swiftlint:disable:this type_body_l
         XCTAssertFalse(called)
     }
 
+    /// `confirmArchiveItem(action:)` returns an `Alert` asking the user to confirm archiving a
+    /// vault item.
+    func test_confirmArchiveItem() async throws {
+        var actionCalled = false
+        let subject = Alert.confirmArchiveItem { actionCalled = true }
+
+        XCTAssertEqual(subject.title, Localizations.archiveItem)
+        XCTAssertEqual(subject.message, Localizations.onceArchivedThisItemWillBeExcludedDescriptionLong)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.archive)
+        XCTAssertEqual(subject.alertActions[0].style, .default)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+        XCTAssertEqual(subject.alertActions[1].style, .cancel)
+
+        try await subject.tapAction(title: Localizations.archive)
+        XCTAssertTrue(actionCalled)
+    }
+
+    /// `confirmArchiveItem(action:)` does not invoke the action when cancel is tapped.
+    func test_confirmArchiveItem_cancel() async throws {
+        var actionCalled = false
+        let subject = Alert.confirmArchiveItem { actionCalled = true }
+
+        try await subject.tapCancel()
+        XCTAssertFalse(actionCalled)
+    }
+
     /// `specificPeopleUnavailable(action:)` returns an `Alert` notifying the user that the
     /// "Specific People" Send feature requires premium.
     func test_specificPeopleUnavailable() async throws {

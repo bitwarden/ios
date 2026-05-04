@@ -233,6 +233,27 @@
         <string>%d týdnů</string>
       </dict>
     </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Prosíme, uhraďte faktury po splatnosti do **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d den od data vypršení platnosti předplatného.</string>
+        <key>few</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d dny od data vypršení platnosti předplatného.</string>
+        <key>many</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d dnů od data vypršení platnosti předplatného.</string>
+        <key>other</key>
+        <string>Máte k dispozici odkladnou lhůtu v délce %1$d dnů od data vypršení platnosti předplatného.</string>
+      </dict>
+    </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>
