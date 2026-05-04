@@ -39,7 +39,7 @@ extension DefaultKeychainRepository: LocalUserDataKeychainRepository {
                 for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
             )
         } else {
-            try? await keychainServiceFacade.deleteValue(
+            try await keychainServiceFacade.deleteValue(
                 for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
             )
         }
