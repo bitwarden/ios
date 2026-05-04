@@ -324,10 +324,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     ///
     private func decodePayload(_ message: [AnyHashable: Any]) async throws -> PushNotificationData? {
         // Decode the content of the message.
-        guard let messageContent = message["data"] as? [AnyHashable: Any]
-        else { return nil }
-        let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
-        let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
+        let notificationData = try PushNotificationData(userInfo: message)
 
         // Verify that the payload is not empty and that the context is correct.
         let appId = await appIDService.getOrCreateAppID()

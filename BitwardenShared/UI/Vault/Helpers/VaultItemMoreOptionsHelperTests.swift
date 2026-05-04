@@ -91,16 +91,50 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         )
 
         let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
-
         XCTAssertTrue(optionsAlert.alertActions.contains(where: { $0.title == Localizations.archive }))
 
         coordinator.loadingOverlaysShown = []
-        vaultRepository.archiveCipherResult = .success(())
         try await optionsAlert.tapAction(title: Localizations.archive)
+
+        let confirmAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(confirmAlert.title, Localizations.archiveItem)
+
+        vaultRepository.archiveCipherResult = .success(())
+        try await confirmAlert.tapAction(title: Localizations.archive)
 
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.sendingToArchive)
         XCTAssertEqual(vaultRepository.archiveCipher, [cipherView])
         XCTAssertEqual(toastToDisplay, Toast(title: Localizations.itemMovedToArchive))
+    }
+
+    /// `showMoreOptionsAlert()` does not archive when the user cancels the confirmation alert.
+    @MainActor
+    func test_showMoreOptionsAlert_archive_confirmationCancel() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+
+        let cipherView = CipherView.loginFixture(archivedDate: nil, deletedDate: nil)
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        var toastToDisplay: Toast?
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { toastToDisplay = $0 },
+            handleOpenURL: { _ in },
+        )
+
+        let optionsAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await optionsAlert.tapAction(title: Localizations.archive)
+
+        let confirmAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(confirmAlert.title, Localizations.archiveItem)
+
+        try await confirmAlert.tapCancel()
+
+        XCTAssertTrue(vaultRepository.archiveCipher.isEmpty)
+        XCTAssertNil(toastToDisplay)
     }
 
     /// `showMoreOptionsAlert()` and press `archive` presents master password re-prompt
@@ -129,6 +163,10 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         coordinator.loadingOverlaysShown = []
         vaultRepository.archiveCipherResult = .success(())
         try await optionsAlert.tapAction(title: Localizations.archive)
+
+        let confirmAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(confirmAlert.title, Localizations.archiveItem)
+        try await confirmAlert.tapAction(title: Localizations.archive)
 
         // Validate master password re-prompt is shown.
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherView, cipherView)
