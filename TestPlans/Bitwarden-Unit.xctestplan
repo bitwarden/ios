@@ -63,6 +63,13 @@
         "identifier" : "8E852F2FEA58332906A444C6",
         "name" : "BitwardenActionExtensionTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "84FA207A5BE6667128A73C39",
+        "name" : "BitwardenSafariWebExtensionTests"
+      }
     }
   ],
   "version" : 1

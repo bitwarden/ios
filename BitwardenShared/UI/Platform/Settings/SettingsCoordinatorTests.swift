@@ -130,6 +130,76 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UIActivityViewController)
     }
 
+    /// `navigate(to:)` with `.safariExtension` pushes the safari extension view onto the stack navigator.
+    @MainActor
+    func test_navigateTo_safariExtension() throws {
+        subject.navigate(to: .safariExtension)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<SafariExtensionView>)
+    }
+
+    /// `navigate(to:)` with `.safariExtensionSetup` presents the safari extension setup flow.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup() throws {
+        subject.navigate(to: .safariExtensionSetup)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UIActivityViewController)
+    }
+
+    /// `navigate(to:)` with `.safariExtensionSetup` only marks Safari as enabled when the
+    /// Safari extension activity completed.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup_completionWithNonSafariActivity_marksDisabled() throws {
+        let delegate = MockSafariExtensionSetupDelegate()
+        subject.navigate(to: .safariExtensionSetup, context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        let activityViewController = try XCTUnwrap(action.view as? UIActivityViewController)
+        let completionHandler = try XCTUnwrap(activityViewController.completionWithItemsHandler)
+
+        completionHandler(UIActivity.ActivityType(rawValue: "com.apple.UIKit.activity.CopyToPasteboard"), true, nil, nil)
+
+        XCTAssertEqual(delegate.results, [.dismissed])
+    }
+
+    /// `navigate(to:)` with `.safariExtensionSetup` tracks when the Safari setup flow opened
+    /// even if iOS cannot confirm enablement.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup_completionWithSafariActivityIncomplete_marksSetupOpened() throws {
+        let delegate = MockSafariExtensionSetupDelegate()
+        subject.navigate(to: .safariExtensionSetup, context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        let activityViewController = try XCTUnwrap(action.view as? UIActivityViewController)
+        let completionHandler = try XCTUnwrap(activityViewController.completionWithItemsHandler)
+        let safariActivity = UIActivity.ActivityType(rawValue: Bundle.main.safariExtensionIdentifier)
+
+        completionHandler(safariActivity, false, nil, nil)
+
+        XCTAssertEqual(delegate.results, [.setupOpened])
+    }
+
+    /// `navigate(to:)` with `.safariExtensionSetup` marks Safari as enabled when the Safari
+    /// extension activity completed.
+    @MainActor
+    func test_navigateTo_safariExtensionSetup_completionWithSafariActivity_marksEnabled() throws {
+        let delegate = MockSafariExtensionSetupDelegate()
+        subject.navigate(to: .safariExtensionSetup, context: delegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        let activityViewController = try XCTUnwrap(action.view as? UIActivityViewController)
+        let completionHandler = try XCTUnwrap(activityViewController.completionWithItemsHandler)
+        let safariActivity = UIActivity.ActivityType(rawValue: Bundle.main.safariExtensionIdentifier)
+
+        completionHandler(safariActivity, true, nil, nil)
+
+        XCTAssertEqual(delegate.results, [.enabled])
+    }
+
     /// `navigate(to:)` with `.autoFill` pushes the auto-fill view onto the stack navigator.
     @MainActor
     func test_navigateTo_autoFill() throws {
@@ -444,3 +514,12 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(stackNavigator.rootViewController?.tabBarItem.badgeValue)
     }
 } // swiftlint:disable:this file_length
+
+@MainActor
+private final class MockSafariExtensionSetupDelegate: SafariExtensionSetupDelegate {
+    var results: [SafariExtensionSetupResult] = []
+
+    func didDismissSafariExtensionSetup(result: SafariExtensionSetupResult) {
+        results.append(result)
+    }
+}

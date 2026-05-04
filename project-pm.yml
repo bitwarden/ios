@@ -38,6 +38,7 @@ schemes:
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
+        - BitwardenSafariWebExtension
         - BitwardenShareExtension
         - BitwardenShared
         - BitwardenKit/AuthenticatorBridgeKit
@@ -111,6 +112,25 @@ schemes:
         - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/Bitwarden-Unit.xctestplan
+  BitwardenSafariWebExtension:
+    build:
+      targets:
+        BitwardenSafariWebExtension: all
+  BitwardenUITests:
+    build:
+      targets:
+        Bitwarden: all
+        BitwardenUITests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: false
+      language: en
+      region: US
+      targets:
+        - BitwardenUITests
   BitwardenShared:
     build:
       targets:
@@ -170,6 +190,7 @@ targets:
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
+      - target: BitwardenSafariWebExtension
       - target: BitwardenShareExtension
       - target: BitwardenWatchApp
       - target: BitwardenKit/AuthenticatorBridgeKit
@@ -223,6 +244,18 @@ targets:
       - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
+
+  BitwardenUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: Bitwarden/Application/TestHelpers/Support/UITests-Info.plist
+        TEST_TARGET_NAME: Bitwarden
+    sources:
+      - path: Bitwarden/Application/UITests
+    dependencies:
+      - target: Bitwarden
 
   BitwardenActionExtension:
     type: app-extension
@@ -326,6 +359,42 @@ targets:
     dependencies:
       - target: BitwardenShareExtension
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
+    randomExecutionOrder: true
+
+  BitwardenSafariWebExtension:
+    type: app-extension
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenSafariWebExtension.xcconfig
+      Release: Configs/BitwardenSafariWebExtension.xcconfig
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenSafariWebExtension/Application/Support/Info.plist
+        CODE_SIGN_ENTITLEMENTS: BitwardenSafariWebExtension/Application/Support/BitwardenSafariWebExtension.entitlements
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: BitwardenSafariWebExtension
+    dependencies:
+      - target: BitwardenShared
+  BitwardenSafariWebExtensionTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenSafariWebExtension/Application/TestHelpers/Support/Info.plist
+    templates:
+      - TestTarget
+    templateAttributes:
+      sourcesPath: BitwardenSafariWebExtension
+    sources:
+      - path: GlobalTestHelpers
+      - path: BitwardenSafariWebExtension/SafariWebExtensionBridge.swift
+      - path: BitwardenSafariWebExtension/SafariWebExtensionHandler.swift
+    dependencies:
+      - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
 

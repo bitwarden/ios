@@ -317,6 +317,54 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(itemData[Constants.appExtensionUsernameKey] as? String, "user@bitwarden.com")
     }
 
+    /// `processInputItems(_:)` derives a save-login provider from signup-like web page details.
+    func test_processInputItems_webUrlProvider_signupPageDerivesSaveLoginProvider() throws {
+        let pageDetails = makePageDetails(
+            title: "Create your Bitwarden Safari test account",
+            fields: [
+                makeField(elementNumber: 0, htmlId: "email", htmlName: "email", labelTag: "Email", type: "email", value: "fixture-user@example.com"),
+                makeField(elementNumber: 1, htmlId: "new-password", htmlName: "newPassword", labelTag: "New password", type: "password", value: "FixturePass123!"),
+                makeField(elementNumber: 2, htmlId: "confirm-password", htmlName: "confirmPassword", labelTag: "Confirm new password", type: "password", value: "FixturePass123!"),
+                makeField(elementNumber: 3, htmlId: "submit", htmlName: "submit", labelTag: "Create account", type: "submit", value: "Create account"),
+            ]
+        )
+        let extensionItem = try makeWebURLProviderExtensionItem(pageDetails: pageDetails, urlString: "https://example.com/signup")
+
+        subject.processInputItems([extensionItem])
+        waitFor(subject.context.didFinishLoadingItem)
+
+        XCTAssertTrue(subject.isProviderSaveLogin)
+        XCTAssertFalse(subject.canAutofill)
+        XCTAssertEqual(subject.context.loginTitle, "Create your Bitwarden Safari test account")
+        XCTAssertEqual(subject.context.username, "fixture-user@example.com")
+        XCTAssertEqual(subject.context.password, "FixturePass123!")
+        XCTAssertEqual(subject.context.urlString, "https://example.com/signup")
+    }
+
+    /// `processInputItems(_:)` derives a change-password provider from password update web page details.
+    func test_processInputItems_webUrlProvider_changePasswordPageDerivesChangePasswordProvider() throws {
+        let pageDetails = makePageDetails(
+            title: "Change password",
+            fields: [
+                makeField(elementNumber: 0, htmlId: "current-password", htmlName: "currentPassword", labelTag: "Current password", type: "password", value: "old-secret"),
+                makeField(elementNumber: 1, htmlId: "new-password", htmlName: "newPassword", labelTag: "New password", type: "password", value: "new-secret"),
+                makeField(elementNumber: 2, htmlId: "confirm-password", htmlName: "confirmPassword", labelTag: "Confirm new password", type: "password", value: "new-secret"),
+            ]
+        )
+        let extensionItem = try makeWebURLProviderExtensionItem(pageDetails: pageDetails, urlString: "https://example.com/change-password")
+
+        subject.processInputItems([extensionItem])
+        waitFor(subject.context.didFinishLoadingItem)
+
+        XCTAssertTrue(subject.isProviderChangePassword)
+        XCTAssertFalse(subject.isProviderSaveLogin)
+        XCTAssertFalse(subject.canAutofill)
+        XCTAssertEqual(subject.context.loginTitle, "Change password")
+        XCTAssertEqual(subject.context.oldPassword, "old-secret")
+        XCTAssertEqual(subject.context.password, "new-secret")
+        XCTAssertEqual(subject.context.urlString, "https://example.com/change-password")
+    }
+
     /// `processInputItems(_:)` processes the input items for a web URL provider and returns the
     /// data necessary to autofill the selected cipher on the web page.
     func test_processInputItems_webUrlProvider() throws { // swiftlint:disable:this function_body_length
@@ -385,5 +433,75 @@ class ActionExtensionHelperTests: BitwardenTestCase { // swiftlint:disable:this 
             }
             """
         }
+    }
+
+    private func makeWebURLProviderExtensionItem(pageDetails: PageDetails, urlString: String) throws -> NSExtensionItem {
+        let pageDetailsData = try JSONEncoder().encode(pageDetails)
+        let pageDetailsJson = try XCTUnwrap(String(data: pageDetailsData, encoding: .utf8))
+
+        let extensionItem = NSExtensionItem()
+        extensionItem.attachments = [
+            NSItemProvider(
+                item: [
+                    NSExtensionJavaScriptPreprocessingResultsKey: [
+                        Constants.appExtensionUrlStringKey: urlString,
+                        Constants.appExtensionWebViewPageDetails: pageDetailsJson,
+                    ],
+                ] as NSSecureCoding,
+                typeIdentifier: UTType.propertyList.identifier,
+            ),
+        ]
+        return extensionItem
+    }
+
+    private func makePageDetails(title: String, fields: [PageDetails.Field]) -> PageDetails {
+        PageDetails(
+            collectedTimestamp: Date(timeIntervalSince1970: 0),
+            documentUUID: "fixture-document",
+            documentUrl: "https://example.com",
+            fields: fields,
+            forms: [
+                "form__0": PageDetails.Form(
+                    htmlAction: "https://example.com/submit",
+                    htmlId: "form-0",
+                    htmlMethod: "post",
+                    htmlName: "account-form",
+                    opId: "form__0"
+                ),
+            ],
+            tabUrl: "https://example.com",
+            title: title,
+            url: "https://example.com"
+        )
+    }
+
+    private func makeField(
+        elementNumber: Int,
+        htmlId: String,
+        htmlName: String,
+        labelTag: String,
+        type: String,
+        value: String,
+        viewable: Bool = true
+    ) -> PageDetails.Field {
+        PageDetails.Field(
+            disabled: false,
+            elementNumber: elementNumber,
+            form: "form__0",
+            htmlClass: nil,
+            htmlId: htmlId,
+            htmlName: htmlName,
+            labelLeft: labelTag,
+            labelRight: nil,
+            labelTag: labelTag,
+            onepasswordFieldType: type,
+            opId: "__\(elementNumber)",
+            placeholder: nil,
+            readOnly: false,
+            type: type,
+            value: value,
+            viewable: viewable,
+            visible: viewable
+        )
     }
 }

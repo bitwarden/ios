@@ -42,6 +42,33 @@ public final nonisolated class AuthenticatorBridgeDataStore: @unchecked Sendable
         return managedObjectModel
     }()
 
+    static func persistedStoreURL(
+        fileManager: FileManager = .default,
+        groupIdentifier: String,
+        bundleIdentifier: String? = Bundle.main.bundleIdentifier,
+        bundlePath: String = Bundle.main.bundlePath,
+        containerURLProvider: (FileManager, String) -> URL? = { fileManager, groupIdentifier in
+            fileManager.containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)
+        }
+    ) -> URL {
+        #if targetEnvironment(simulator)
+            if bundlePath.contains(".appex") {
+                let applicationSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+                    ?? fileManager.temporaryDirectory
+                let directoryURL = applicationSupportURL
+                    .appendingPathComponent(bundleIdentifier ?? "AuthenticatorBridgeExtension", isDirectory: true)
+                try? fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+                return directoryURL.appendingPathComponent("\(authenticatorBridgeModelName).sqlite")
+            }
+        #endif
+
+        if let containerURL = containerURLProvider(fileManager, groupIdentifier) {
+            return containerURL.appendingPathComponent("\(authenticatorBridgeModelName).sqlite")
+        }
+
+        return fileManager.temporaryDirectory.appendingPathComponent("\(authenticatorBridgeModelName).sqlite")
+    }
+
     // MARK: Properties
 
     /// A thread-safe lock for `backgroundContext`. Once we have a minimum of iOS 16, we can use an
@@ -99,9 +126,7 @@ public final nonisolated class AuthenticatorBridgeDataStore: @unchecked Sendable
         case .memory:
             storeDescription = NSPersistentStoreDescription(url: URL(fileURLWithPath: "/dev/null"))
         case .persisted:
-            let storeURL = FileManager.default
-                .containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)!
-                .appendingPathComponent("\(authenticatorBridgeModelName).sqlite")
+            let storeURL = Self.persistedStoreURL(groupIdentifier: groupIdentifier)
             storeDescription = NSPersistentStoreDescription(url: storeURL)
         }
         persistentContainer.persistentStoreDescriptions = [storeDescription]
