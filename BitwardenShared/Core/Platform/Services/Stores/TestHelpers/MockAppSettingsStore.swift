@@ -6,7 +6,7 @@ import Foundation
 
 // swiftlint:disable file_length
 
-class MockAppSettingsStore: AppSettingsStore, LocalUserDataKeyAppSettingsStore { // swiftlint:disable:this type_body_length line_length
+class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountKeys = [String: PrivateKeysResponseModel]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
@@ -51,7 +51,6 @@ class MockAppSettingsStore: AppSettingsStore, LocalUserDataKeyAppSettingsStore {
     var lastActiveTime = [String: Date]()
     var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
     var lastSyncTimeByUserId = [String: Date]()
-    var localUserDataKeyStatesByUserId = [String: [String: UserKeyData]]()
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
@@ -161,10 +160,6 @@ class MockAppSettingsStore: AppSettingsStore, LocalUserDataKeyAppSettingsStore {
 
     func lastSyncTime(userId: String) -> Date? {
         lastSyncTimeByUserId[userId]
-    }
-
-    func localUserDataKeyStates(userId: String) -> [String: UserKeyData]? {
-        localUserDataKeyStatesByUserId[userId]
     }
 
     func manuallyLockedAccount(userId: String) -> Bool {
@@ -306,10 +301,6 @@ class MockAppSettingsStore: AppSettingsStore, LocalUserDataKeyAppSettingsStore {
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         lastSyncTimeByUserId[userId] = date
-    }
-
-    func setLocalUserDataKeyStates(_ states: [String: UserKeyData]?, userId: String) {
-        localUserDataKeyStatesByUserId[userId] = states
     }
 
     func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {

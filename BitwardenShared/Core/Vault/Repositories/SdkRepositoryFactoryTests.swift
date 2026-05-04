@@ -10,7 +10,7 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
     var cipherDataStore: MockCipherDataStore!
     var serverCommunicationConfigStateService: MockServerCommunicationConfigStateService!
-    var stateService: MockStateService!
+    var stateService: MockLocalUserDataStateService!
     var subject: SdkRepositoryFactory!
 
     // MARK: Setup & Teardown
@@ -20,7 +20,7 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
         cipherDataStore = MockCipherDataStore()
         serverCommunicationConfigStateService = MockServerCommunicationConfigStateService()
-        stateService = MockStateService()
+        stateService = MockLocalUserDataStateService()
         subject = DefaultSdkRepositoryFactory(
             cipherDataStore: cipherDataStore,
             serverCommunicationConfigStateService: serverCommunicationConfigStateService,

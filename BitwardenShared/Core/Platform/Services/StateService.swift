@@ -1396,7 +1396,7 @@ enum StateServiceError: LocalizedError {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService, LanguageStateService, LocalUserDataStateService { // swiftlint:disable:this type_body_length line_length
+actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigStateService, FlightRecorderStateService, LanguageStateService { // swiftlint:disable:this type_body_length line_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -1418,10 +1418,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
 
     /// The service that persists app settings.
     let appSettingsStore: AppSettingsStore
-
-    nonisolated var localUserDataKeyStore: LocalUserDataKeyAppSettingsStore? {
-        appSettingsStore as? LocalUserDataKeyAppSettingsStore
-    }
 
     /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
@@ -1857,7 +1853,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
-        localUserDataKeyStore?.setLocalUserDataKeyStates(nil, userId: knownUserId)
+        try? await keychainRepository.setLocalUserDataKeyStates(nil, userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
     }

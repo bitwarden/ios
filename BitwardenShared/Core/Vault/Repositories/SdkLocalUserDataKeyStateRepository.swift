@@ -26,33 +26,33 @@ actor SdkLocalUserDataKeyStateRepository: BitwardenSdk.LocalUserDataKeyStateRepo
     // MARK: LocalUserDataKeyStateRepository
 
     func get(id: String) async throws -> LocalUserDataKeyState? {
-        await stateService.getLocalUserDataKeyStates(userId: userId)?[id]
+        try await stateService.getLocalUserDataKeyStates(userId: userId)?[id]
             .map { LocalUserDataKeyState($0) }
     }
 
     func has(id: String) async throws -> Bool {
-        await stateService.getLocalUserDataKeyStates(userId: userId)?[id] != nil
+        try await stateService.getLocalUserDataKeyStates(userId: userId)?[id] != nil
     }
 
     func list() async throws -> [LocalUserDataKeyState] {
-        await (stateService.getLocalUserDataKeyStates(userId: userId) ?? [:])
+        try await (stateService.getLocalUserDataKeyStates(userId: userId) ?? [:])
             .values.map { LocalUserDataKeyState($0) }
     }
 
     func remove(id: String) async throws {
-        await stateService.removeLocalUserDataKeyState(id: id, userId: userId)
+        try await stateService.removeLocalUserDataKeyState(id: id, userId: userId)
     }
 
     func removeBulk(keys: [String]) async throws {
-        await stateService.removeBulkLocalUserDataKeyStates(keys: keys, userId: userId)
+        try await stateService.removeBulkLocalUserDataKeyStates(keys: keys, userId: userId)
     }
 
     func removeAll() async throws {
-        await stateService.removeAllLocalUserDataKeyStates(userId: userId)
+        try await stateService.removeAllLocalUserDataKeyStates(userId: userId)
     }
 
     func set(id: String, value: LocalUserDataKeyState) async throws {
-        await stateService.setLocalUserDataKeyState(
+        try await stateService.setLocalUserDataKeyState(
             id: id,
             value: UserKeyData(localUserDataKeyState: value),
             userId: userId,
@@ -60,7 +60,7 @@ actor SdkLocalUserDataKeyStateRepository: BitwardenSdk.LocalUserDataKeyStateRepo
     }
 
     func setBulk(values: [String: LocalUserDataKeyState]) async throws {
-        await stateService.setBulkLocalUserDataKeyStates(
+        try await stateService.setBulkLocalUserDataKeyStates(
             values.mapValues { UserKeyData(localUserDataKeyState: $0) },
             userId: userId,
         )

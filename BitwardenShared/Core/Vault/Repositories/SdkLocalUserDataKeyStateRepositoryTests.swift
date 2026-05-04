@@ -9,20 +9,35 @@ import XCTest
 class SdkLocalUserDataKeyStateRepositoryTests: BitwardenTestCase {
     // MARK: Properties
 
-    var stateService: MockStateService!
+    var stateService: MockLocalUserDataStateService!
     var subject: SdkLocalUserDataKeyStateRepository!
     let userId = "user-1"
+
+    /// In-memory backing store keyed by userId → [keyId: UserKeyData], shared via closures.
+    var storage: [String: [String: UserKeyData]] = [:]
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        stateService = MockStateService()
+        stateService = MockLocalUserDataStateService()
         subject = SdkLocalUserDataKeyStateRepository(
             stateService: stateService,
             userId: userId,
         )
+
+        stateService.getLocalUserDataKeyStatesClosure = { [weak self] userId in
+            self?.storage[userId]
+        }
+
+        stateService.setLocalUserDataKeyStateClosure = { [weak self] id, value, userId in
+            self?.storage[userId, default: [:]][id] = value
+        }
+
+        stateService.removeLocalUserDataKeyStateClosure = { [weak self] id, userId in
+            self?.storage[userId]?.removeValue(forKey: id)
+        }
     }
 
     override func tearDown() {
@@ -30,6 +45,7 @@ class SdkLocalUserDataKeyStateRepositoryTests: BitwardenTestCase {
 
         stateService = nil
         subject = nil
+        storage = [:]
     }
 
     // MARK: Tests
@@ -42,7 +58,7 @@ class SdkLocalUserDataKeyStateRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(result?.wrappedKey, "encryptedKey1")
     }
 
-    /// `get(id:)` returns nil for an unknown id.
+    /// `get(id:)` returns nil for an unknown ID.
     func test_get_missingId_returnsNil() async throws {
         let result = try await subject.get(id: "missing")
         XCTAssertNil(result)
@@ -63,7 +79,7 @@ class SdkLocalUserDataKeyStateRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(result)
     }
 
-    /// `has(id:)` returns false for an unknown id.
+    /// `has(id:)` returns false for an unknown ID.
     func test_has_withoutSet_returnsFalse() async throws {
         let result = try await subject.has(id: "missing")
         XCTAssertFalse(result)
@@ -92,6 +108,13 @@ class SdkLocalUserDataKeyStateRepositoryTests: BitwardenTestCase {
         try await subject.set(id: "k1", value: LocalUserDataKeyState(wrappedKey: "key1"))
         try await subject.set(id: "k2", value: LocalUserDataKeyState(wrappedKey: "key2"))
         try await subject.set(id: "k3", value: LocalUserDataKeyState(wrappedKey: "key3"))
+
+        stateService.removeBulkLocalUserDataKeyStatesClosure = { [weak self] keys, userId in
+            for key in keys {
+                self?.storage[userId]?.removeValue(forKey: key)
+            }
+        }
+
         try await subject.removeBulk(keys: ["k1", "k2"])
         let removed1 = try await subject.get(id: "k1")
         let removed2 = try await subject.get(id: "k2")
@@ -105,14 +128,25 @@ class SdkLocalUserDataKeyStateRepositoryTests: BitwardenTestCase {
     func test_removeAll_clearsAll() async throws {
         try await subject.set(id: "k1", value: LocalUserDataKeyState(wrappedKey: "key1"))
         try await subject.set(id: "k2", value: LocalUserDataKeyState(wrappedKey: "key2"))
+
+        stateService.removeAllLocalUserDataKeyStatesClosure = { [weak self] userId in
+            self?.storage[userId] = nil
+        }
+
         try await subject.removeAll()
         let results = try await subject.list()
+        let userDataKeyStates = try await stateService.getLocalUserDataKeyStates(userId: userId)
         XCTAssertTrue(results.isEmpty)
-        XCTAssertTrue(stateService.localUserDataKeyStatesByUserId[userId]?.isEmpty ?? false)
+        XCTAssertNil(userDataKeyStates)
     }
 
     /// `setBulk(values:)` stores multiple values at once.
     func test_setBulk_storesAllValues() async throws {
+        stateService.setBulkLocalUserDataKeyStatesClosure = { [weak self] values, userId in
+            for (id, value) in values {
+                self?.storage[userId, default: [:]][id] = value
+            }
+        }
         try await subject.setBulk(values: [
             "k1": LocalUserDataKeyState(wrappedKey: "key1"),
             "k2": LocalUserDataKeyState(wrappedKey: "key2"),
@@ -123,7 +157,7 @@ class SdkLocalUserDataKeyStateRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(k2Value?.wrappedKey, "key2")
     }
 
-    /// Values are isolated per user — a different userId does not see this user's data.
+    /// Values are isolated per user — a different user ID does not see this user's data.
     func test_userIsolation() async throws {
         try await subject.set(id: "k1", value: LocalUserDataKeyState(wrappedKey: "key"))
         let other = SdkLocalUserDataKeyStateRepository(

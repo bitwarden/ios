@@ -733,7 +733,7 @@ class DefaultAppSettingsStore {
     }
 }
 
-extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore, LocalUserDataKeyAppSettingsStore {
+extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
@@ -767,7 +767,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore, LocalU
         case learnNewLoginActionCardStatus
         case lastRequestToTurnOnCredentialProvider
         case lastSync(userId: String)
-        case localUserDataKeyStates(userId: String)
         case lastUserShouldConnectToWatch
         case learnGeneratorActionCardStatus
         case loginRequest
@@ -859,8 +858,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore, LocalU
                 "lastRequestToTurnOnCredentialProvider"
             case let .lastSync(userId):
                 "lastSync_\(userId)"
-            case let .localUserDataKeyStates(userId):
-                "localUserDataKeyStates_\(userId)"
             case .learnGeneratorActionCardStatus:
                 "learnGeneratorActionCardStatus"
             case .lastUserShouldConnectToWatch:
@@ -1110,10 +1107,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore, LocalU
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
-    func localUserDataKeyStates(userId: String) -> [String: UserKeyData]? {
-        fetch(for: .localUserDataKeyStates(userId: userId))
-    }
-
     func manuallyLockedAccount(userId: String) -> Bool {
         fetch(for: .manuallyLockedAccount(userId: userId))
     }
@@ -1234,10 +1227,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore, LocalU
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
-    }
-
-    func setLocalUserDataKeyStates(_ states: [String: UserKeyData]?, userId: String) {
-        store(states, for: .localUserDataKeyStates(userId: userId))
     }
 
     func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {

@@ -8,7 +8,7 @@ import Foundation
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateService, ServerCommunicationConfigStateService, LocalUserDataStateService { // swiftlint:disable:this type_body_length line_length
+class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateService, ServerCommunicationConfigStateService { // swiftlint:disable:this type_body_length line_length
     var accessTokenExpirationDateByUserId = [String: Date]()
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
@@ -58,8 +58,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var isInitialSyncRequiredByUserId = [String: Bool]()
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
-    var localUserDataKeyStore: LocalUserDataKeyAppSettingsStore? { nil }
-    var localUserDataKeyStatesByUserId: [String: [String: UserKeyData]] = [:]
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
     var getAccountEncryptionKeysError: Error?
@@ -247,10 +245,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func getArchiveOnboardingShown() async -> Bool {
         archiveOnboardingShown
-    }
-
-    func getLocalUserDataKeyStates(userId: String) async -> [String: UserKeyData]? {
-        localUserDataKeyStatesByUserId[userId] ?? nil
     }
 
     func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
@@ -563,38 +557,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setArchiveOnboardingShown(_ shown: Bool) async {
         archiveOnboardingShown = shown
-    }
-
-    func removeLocalUserDataKeyState(id: String, userId: String) async {
-        var current = (localUserDataKeyStatesByUserId[userId] ?? nil) ?? [:]
-        current.removeValue(forKey: id)
-        localUserDataKeyStatesByUserId[userId] = current.nilIfEmpty
-    }
-
-    func removeAllLocalUserDataKeyStates(userId: String) async {
-        localUserDataKeyStatesByUserId.updateValue([:], forKey: userId)
-    }
-
-    func removeBulkLocalUserDataKeyStates(keys: [String], userId: String) async {
-        var current = (localUserDataKeyStatesByUserId[userId] ?? nil) ?? [:]
-        for key in keys {
-            current.removeValue(forKey: key)
-        }
-        localUserDataKeyStatesByUserId[userId] = current.nilIfEmpty
-    }
-
-    func setLocalUserDataKeyState(id: String, value: UserKeyData, userId: String) async {
-        var current = (localUserDataKeyStatesByUserId[userId] ?? nil) ?? [:]
-        current[id] = value
-        localUserDataKeyStatesByUserId[userId] = current
-    }
-
-    func setBulkLocalUserDataKeyStates(_ values: [String: UserKeyData], userId: String) async {
-        var current = (localUserDataKeyStatesByUserId[userId] ?? nil) ?? [:]
-        for (id, value) in values {
-            current[id] = value
-        }
-        localUserDataKeyStatesByUserId[userId] = current
     }
 
     func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {

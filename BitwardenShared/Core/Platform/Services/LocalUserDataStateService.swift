@@ -1,9 +1,8 @@
 import Foundation
 
 /// A service that provides state management functionality for `UserKeyData`.
-protocol LocalUserDataStateService {
-    var localUserDataKeyStore: LocalUserDataKeyAppSettingsStore? { get }
-
+///
+protocol LocalUserDataStateService { // sourcery: AutoMockable
     /// Gets the local user data keys for the user ID
     ///
     /// - Parameters:
@@ -11,7 +10,7 @@ protocol LocalUserDataStateService {
     ///
     /// - Returns: A dictionary mapping SDK-assigned key identifiers to `UserKeyData`.
     ///
-    func getLocalUserDataKeyStates(userId: String) async -> [String: UserKeyData]?
+    func getLocalUserDataKeyStates(userId: String) async throws -> [String: UserKeyData]?
 
     /// Removes a single `UserKeyData` state for the user.
     ///
@@ -19,13 +18,13 @@ protocol LocalUserDataStateService {
     ///   - id: The SDK-assigned key identifier.
     ///   - userId: The user ID of the account.
     ///
-    func removeLocalUserDataKeyState(id: String, userId: String) async
+    func removeLocalUserDataKeyState(id: String, userId: String) async throws
 
     /// Removes all local user data key states for the user.
     ///
     /// - Parameter userId: The user ID of the account.
     ///
-    func removeAllLocalUserDataKeyStates(userId: String) async
+    func removeAllLocalUserDataKeyStates(userId: String) async throws
 
     /// Removes multiple `UserKeyData` states for the user.
     ///
@@ -33,7 +32,7 @@ protocol LocalUserDataStateService {
     ///   - keys: The SDK-assigned key identifiers to remove.
     ///   - userId: The user ID of the account.
     ///
-    func removeBulkLocalUserDataKeyStates(keys: [String], userId: String) async
+    func removeBulkLocalUserDataKeyStates(keys: [String], userId: String) async throws
 
     /// Sets a single `UserKeyData` state for the user.
     ///
@@ -42,51 +41,51 @@ protocol LocalUserDataStateService {
     ///   - value: The `UserKeyData` to store.
     ///   - userId: The user ID of the account.
     ///
-    func setLocalUserDataKeyState(id: String, value: UserKeyData, userId: String) async
+    func setLocalUserDataKeyState(id: String, value: UserKeyData, userId: String) async throws
 
-    /// Merges multiple `UserKeyData` states for the user.
+    /// Sets multiple `UserKeyData` states for the user.
     ///
     /// - Parameters:
     ///   - values: A dictionary mapping SDK-assigned key identifiers to `UserKeyData`.
     ///   - userId: The user ID of the account.
     ///
-    func setBulkLocalUserDataKeyStates(_ values: [String: UserKeyData], userId: String) async
+    func setBulkLocalUserDataKeyStates(_ values: [String: UserKeyData], userId: String) async throws
 }
 
-extension LocalUserDataStateService {
-    func getLocalUserDataKeyStates(userId: String) async -> [String: UserKeyData]? {
-        localUserDataKeyStore?.localUserDataKeyStates(userId: userId)
+extension DefaultStateService: LocalUserDataStateService {
+    func getLocalUserDataKeyStates(userId: String) async throws -> [String: UserKeyData]? {
+        try await keychainRepository.getLocalUserDataKeyStates(userId: userId)
     }
 
-    func removeLocalUserDataKeyState(id: String, userId: String) async {
-        var states = localUserDataKeyStore?.localUserDataKeyStates(userId: userId) ?? [:]
+    func removeLocalUserDataKeyState(id: String, userId: String) async throws {
+        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
         states.removeValue(forKey: id)
-        localUserDataKeyStore?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
+        try await keychainRepository.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
     }
 
-    func removeAllLocalUserDataKeyStates(userId: String) async {
-        localUserDataKeyStore?.setLocalUserDataKeyStates(nil, userId: userId)
+    func removeAllLocalUserDataKeyStates(userId: String) async throws {
+        try await keychainRepository.setLocalUserDataKeyStates(nil, userId: userId)
     }
 
-    func removeBulkLocalUserDataKeyStates(keys: [String], userId: String) async {
-        var states = localUserDataKeyStore?.localUserDataKeyStates(userId: userId) ?? [:]
+    func removeBulkLocalUserDataKeyStates(keys: [String], userId: String) async throws {
+        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
         for key in keys {
             states.removeValue(forKey: key)
         }
-        localUserDataKeyStore?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
+        try await keychainRepository.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
     }
 
-    func setLocalUserDataKeyState(id: String, value: UserKeyData, userId: String) async {
-        var states = localUserDataKeyStore?.localUserDataKeyStates(userId: userId) ?? [:]
+    func setLocalUserDataKeyState(id: String, value: UserKeyData, userId: String) async throws {
+        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
         states[id] = value
-        localUserDataKeyStore?.setLocalUserDataKeyStates(states, userId: userId)
+        try await keychainRepository.setLocalUserDataKeyStates(states, userId: userId)
     }
 
-    func setBulkLocalUserDataKeyStates(_ values: [String: UserKeyData], userId: String) async {
-        var states = localUserDataKeyStore?.localUserDataKeyStates(userId: userId) ?? [:]
+    func setBulkLocalUserDataKeyStates(_ values: [String: UserKeyData], userId: String) async throws {
+        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
         for (id, value) in values {
             states[id] = value
         }
-        localUserDataKeyStore?.setLocalUserDataKeyStates(states, userId: userId)
+        try await keychainRepository.setLocalUserDataKeyStates(states, userId: userId)
     }
 }
