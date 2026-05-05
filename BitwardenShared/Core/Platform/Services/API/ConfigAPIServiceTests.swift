@@ -1,48 +1,43 @@
 import BitwardenKit
 import BitwardenKitMocks
+import Security
+import Testing
 import TestHelpers
-import XCTest
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
 @MainActor
-class ConfigAPIServiceTests: BitwardenTestCase {
+struct ConfigAPIServiceTests {
     // MARK: Properties
 
-    var activeAccountStateProvider: MockActiveAccountStateProvider!
-    var client: MockHTTPClient!
-    var stateService: MockStateService!
-    var subject: ConfigAPIService!
+    let accountTokenProvider: MockAccountTokenProvider
+    let activeAccountStateProvider: MockActiveAccountStateProvider
+    let client: MockHTTPClient
+    let stateService: MockStateService
+    let subject: ConfigAPIService
 
-    // MARK: Setup & Teardown
+    // MARK: Initialization
 
-    override func setUp() {
-        super.setUp()
-
+    init() {
+        accountTokenProvider = MockAccountTokenProvider()
+        accountTokenProvider.getTokenReturnValue = "ACCESS_TOKEN"
         activeAccountStateProvider = MockActiveAccountStateProvider()
         client = MockHTTPClient()
         stateService = MockStateService()
         subject = APIService(
+            accountTokenProvider: accountTokenProvider,
             activeAccountStateProvider: activeAccountStateProvider,
             client: client,
             stateService: stateService,
         )
     }
 
-    override func tearDown() async throws {
-        try await super.tearDown()
-
-        activeAccountStateProvider = nil
-        client = nil
-        stateService = nil
-        subject = nil
-    }
-
     // MARK: Tests
 
     /// `getConfig()` performs the config request authenticated.
-    func test_getConfig() async throws {
+    @Test
+    func getConfig() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.isAuthenticated[account.profile.userId] = true
@@ -50,15 +45,16 @@ class ConfigAPIServiceTests: BitwardenTestCase {
 
         _ = try await subject.getConfig()
 
-        let request = try XCTUnwrap(client.requests.last)
-        XCTAssertEqual(request.method, .get)
-        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/config")
-        XCTAssertNil(request.body)
-        XCTAssertNotNil(request.headers["Authorization"])
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/api/config")
+        #expect(request.body == nil)
+        #expect(request.headers["Authorization"] != nil)
     }
 
     /// `getConfig()` performs the config request unauthenticated.
-    func test_getConfig_unauthenticated() async throws {
+    @Test
+    func getConfig_unauthenticated() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.isAuthenticated[account.profile.userId] = false
@@ -66,23 +62,76 @@ class ConfigAPIServiceTests: BitwardenTestCase {
 
         _ = try await subject.getConfig()
 
-        let request = try XCTUnwrap(client.requests.last)
-        XCTAssertEqual(request.method, .get)
-        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/config")
-        XCTAssertNil(request.body)
-        XCTAssertNil(request.headers["Authorization"])
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/api/config")
+        #expect(request.body == nil)
+        #expect(request.headers["Authorization"] == nil)
     }
 
     /// `getConfig()` performs the config request unauthenticated because there is no active account.
-    func test_getConfig_unauthenticatedNoAccount() async throws {
+    @Test
+    func getConfig_unauthenticatedNoAccount() async throws {
         client.result = .httpSuccess(testData: .validServerConfig)
 
         _ = try await subject.getConfig()
 
-        let request = try XCTUnwrap(client.requests.last)
-        XCTAssertEqual(request.method, .get)
-        XCTAssertEqual(request.url.absoluteString, "https://example.com/api/config")
-        XCTAssertNil(request.body)
-        XCTAssertNil(request.headers["Authorization"])
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/api/config")
+        #expect(request.body == nil)
+        #expect(request.headers["Authorization"] == nil)
+    }
+
+    /// `getConfig()` falls back to the unauthenticated endpoint when the token provider throws
+    /// `KeychainServiceError.osStatusError(errSecItemNotFound)`, covering the race condition where
+    /// the user logs out between the `isAuthenticated` check and the actual token lookup.
+    @Test
+    func getConfig_keychainItemNotFound_fallsBackToUnauthenticated() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.isAuthenticated[account.profile.userId] = true
+        client.result = .httpSuccess(testData: .validServerConfig)
+        accountTokenProvider.getTokenThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+
+        _ = try await subject.getConfig()
+
+        let request = try #require(client.requests.last)
+        #expect(request.url.absoluteString == "https://example.com/api/config")
+        #expect(request.headers["Authorization"] == nil)
+    }
+
+    /// `getConfig()` falls back to the unauthenticated endpoint when the token provider throws
+    /// `KeychainServiceError.keyNotFound`, covering the race condition where the user logs out
+    /// between the `isAuthenticated` check and the actual token lookup.
+    @Test
+    func getConfig_keychainKeyNotFound_fallsBackToUnauthenticated() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.isAuthenticated[account.profile.userId] = true
+        client.result = .httpSuccess(testData: .validServerConfig)
+        accountTokenProvider.getTokenThrowableError = KeychainServiceError.keyNotFound(
+            MockKeychainItem(unformattedKey: "accessToken"),
+        )
+
+        _ = try await subject.getConfig()
+
+        let request = try #require(client.requests.last)
+        #expect(request.url.absoluteString == "https://example.com/api/config")
+        #expect(request.headers["Authorization"] == nil)
+    }
+
+    /// `getConfig()` propagates errors from the token provider that are not keychain item-not-found
+    /// errors, ensuring unrelated failures are not accidentally swallowed.
+    @Test
+    func getConfig_nonKeychainError_propagates() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.isAuthenticated[account.profile.userId] = true
+        accountTokenProvider.getTokenThrowableError = KeychainServiceError.accessControlFailed(nil)
+
+        await #expect(throws: KeychainServiceError.accessControlFailed(nil)) {
+            _ = try await subject.getConfig()
+        }
     }
 }

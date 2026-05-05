@@ -1281,7 +1281,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture()
 
         deviceAuthKeySubject.send(["1": true])
-        waitFor(identityStore.replaceCredentialIdentitiesCalled == true)
+        waitFor(identityStore.replaceCredentialIdentitiesIdentities?.isEmpty == false)
 
         XCTAssertEqual(
             identityStore.replaceCredentialIdentitiesIdentities,
