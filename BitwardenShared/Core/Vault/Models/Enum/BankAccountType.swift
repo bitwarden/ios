@@ -19,7 +19,7 @@ public enum BankAccountType: String, CaseIterable, Codable, Equatable, Hashable,
     /// A money market account.
     case moneyMarket
 
-    /// Any other account type not covered by the above.
+    /// Any account type not covered by the other options.
     case other
 
     /// A savings account.
