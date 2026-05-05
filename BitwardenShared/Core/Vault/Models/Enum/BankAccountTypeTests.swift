@@ -3,7 +3,7 @@ import Testing
 
 @testable import BitwardenShared
 
-class BankAccountTypeTests {
+struct BankAccountTypeTests {
     // MARK: Tests
 
     /// Raw values match the server contract.
