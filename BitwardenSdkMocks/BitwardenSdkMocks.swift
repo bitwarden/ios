@@ -13,4 +13,5 @@ extension ClientManagedTokens {}
 extension CollectionsClientProtocol {}
 extension FoldersClientProtocol {}
 extension PasswordHistoryClientProtocol {}
+extension RegistrationClientProtocol {}
 extension SendClientProtocol {}

@@ -89,6 +89,7 @@ struct ErrorReportBuilderTests {
             BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
+            BitwardenSdkMocks:           0x0000000000000000
             """#
         }
         // swiftlint:enable line_length
@@ -128,6 +129,7 @@ struct ErrorReportBuilderTests {
             BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
+            BitwardenSdkMocks:           0x0000000000000000
             """
         }
     }
@@ -166,6 +168,7 @@ struct ErrorReportBuilderTests {
             BitwardenSdk_0000000000000000_PackageProduct: 0x0000000000000000
             BitwardenResources:          0x0000000000000000
             AuthenticatorBridgeKit:      0x0000000000000000
+            BitwardenSdkMocks:           0x0000000000000000
             """
         }
     }
