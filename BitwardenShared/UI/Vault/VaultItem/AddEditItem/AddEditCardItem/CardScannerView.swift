@@ -77,6 +77,8 @@ struct CardScannerView: UIViewControllerRepresentable {
 
     // MARK: Static methods for UIViewControllerRepresentable
 
+    /// Stops scanning and clears the delegate when SwiftUI removes this representable from the hierarchy,
+    /// releasing the AVFoundation camera session held internally by `DataScannerViewController`.
     static func dismantleUIViewController(_ uiViewController: DataScannerViewController, coordinator: Coordinator) {
         uiViewController.stopScanning()
         uiViewController.delegate = nil
