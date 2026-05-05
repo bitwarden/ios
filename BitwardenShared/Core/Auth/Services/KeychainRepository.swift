@@ -298,6 +298,10 @@ class DefaultKeychainRepository: KeychainRepository {
     ///
     let keychainServiceFacade: KeychainServiceFacade
 
+    /// Serializes concurrent mutations to local user data key states per user ID.
+    ///
+    let localUserDataKeyStateMutationSerializer = LocalUserDataKeyStateMutationSerializer()
+
     // MARK: Initialization
 
     init(

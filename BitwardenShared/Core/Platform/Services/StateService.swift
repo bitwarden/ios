@@ -1853,7 +1853,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
-        try? await keychainRepository.setLocalUserDataKeyStates(nil, userId: knownUserId)
+        try await keychainRepository.clearLocalUserDataKeyStates(userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
     }

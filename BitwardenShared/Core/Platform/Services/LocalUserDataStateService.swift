@@ -58,34 +58,34 @@ extension DefaultStateService: LocalUserDataStateService {
     }
 
     func removeLocalUserDataKeyState(id: String, userId: String) async throws {
-        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
-        states.removeValue(forKey: id)
-        try await keychainRepository.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
+        try await keychainRepository.mutateLocalUserDataKeyStates(userId: userId) { states in
+            states.removeValue(forKey: id)
+        }
     }
 
     func removeAllLocalUserDataKeyStates(userId: String) async throws {
-        try await keychainRepository.setLocalUserDataKeyStates(nil, userId: userId)
+        try await keychainRepository.clearLocalUserDataKeyStates(userId: userId)
     }
 
     func removeBulkLocalUserDataKeyStates(keys: [String], userId: String) async throws {
-        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
-        for key in keys {
-            states.removeValue(forKey: key)
+        try await keychainRepository.mutateLocalUserDataKeyStates(userId: userId) { states in
+            for key in keys {
+                states.removeValue(forKey: key)
+            }
         }
-        try await keychainRepository.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
     }
 
     func setLocalUserDataKeyState(id: String, value: UserKeyData, userId: String) async throws {
-        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
-        states[id] = value
-        try await keychainRepository.setLocalUserDataKeyStates(states, userId: userId)
+        try await keychainRepository.mutateLocalUserDataKeyStates(userId: userId) { states in
+            states[id] = value
+        }
     }
 
     func setBulkLocalUserDataKeyStates(_ values: [String: UserKeyData], userId: String) async throws {
-        var states = try await keychainRepository.getLocalUserDataKeyStates(userId: userId) ?? [:]
-        for (id, value) in values {
-            states[id] = value
+        try await keychainRepository.mutateLocalUserDataKeyStates(userId: userId) { states in
+            for (id, value) in values {
+                states[id] = value
+            }
         }
-        try await keychainRepository.setLocalUserDataKeyStates(states, userId: userId)
     }
 }

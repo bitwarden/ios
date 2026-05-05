@@ -27,7 +27,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
         sdkRepositoryFactory = MockSdkRepositoryFactory()
-        sdkRepositoryFactory.makeCipherRepositoriesReturnValue = BitwardenSdk.Repositories(
+        sdkRepositoryFactory.makeRepositoriesReturnValue = BitwardenSdk.Repositories(
             cipher: nil,
             folder: nil,
             userKeyState: nil,
@@ -237,7 +237,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         let auth = try await subject.auth()
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertIdentical(auth, client.authClient)
-        XCTAssertTrue(sdkRepositoryFactory.makeCipherRepositoriesCalled)
+        XCTAssertTrue(sdkRepositoryFactory.makeRepositoriesCalled)
         XCTAssertNotNil(client.platformClient.stateMock.registerClientManagedRepositoriesReceivedRepositories)
     }
 

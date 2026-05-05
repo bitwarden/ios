@@ -39,9 +39,9 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `makeCipherRepositories(userId:)` returns repositories with a cipher and local user data key state repository.
-    func test_makeCipherRepositories() {
-        let repositories = subject.makeCipherRepositories(userId: "1")
+    /// `makeRepositories(userId:)` returns repositories with a cipher and local user data key state repository.
+    func test_makeRepositories() {
+        let repositories = subject.makeRepositories(userId: "1")
         XCTAssertNotNil(repositories.cipher)
         XCTAssertNil(repositories.folder)
         XCTAssertNil(repositories.userKeyState)

@@ -3,10 +3,9 @@ import BitwardenSdk
 /// A factory to create SDK repositories.
 protocol SdkRepositoryFactory { // sourcery: AutoMockable
     /// Makes a `BitwardenSdk.Repositories` for the given `userId`.
-    /// - Parameter userId: The user ID to use in the repository which belongs to the SDK instance
-    /// the repository will be registered in.
+    /// - Parameter userId: The user ID whose SDK client instance will register these repositories.
     /// - Returns: The repositories for the given `userId`.
-    func makeCipherRepositories(userId: String) -> BitwardenSdk.Repositories
+    func makeRepositories(userId: String) -> BitwardenSdk.Repositories
 
     /// Makes a `BitwardenSdk.ServerCommunicationConfigRepository`.
     /// - Returns: The repository to use for server communication config.
@@ -45,7 +44,7 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
 
     // MARK: Methods
 
-    func makeCipherRepositories(userId: String) -> BitwardenSdk.Repositories {
+    func makeRepositories(userId: String) -> BitwardenSdk.Repositories {
         Repositories(
             cipher: makeCipherRepository(userId: userId),
             folder: nil,
@@ -57,7 +56,7 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
         )
     }
 
-    func makeCipherRepository(userId: String) -> BitwardenSdk.CipherRepository {
+    private func makeCipherRepository(userId: String) -> BitwardenSdk.CipherRepository {
         SdkCipherRepository(
             cipherDataStore: cipherDataStore,
             userId: userId,
