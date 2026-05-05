@@ -280,6 +280,33 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     // MARK: Private Methods
 
+    /// Applies a parsed card scan result to the item state, dismissing the scanner on success.
+    /// Only applies if both a card number and expiration month were detected.
+    ///
+    /// - Parameters:
+    ///   - data: The parsed card data returned by the card text parser.
+    ///   - state: The item state to update.
+    private func applyCardScanResult(_ data: ScannedCardData) {
+        guard data.cardNumber != nil,
+              data.expirationMonth != nil else {
+            return
+        }
+
+        state.cardItemState.isCardScannerPresented = false
+        state.cardItemState.shouldFocusCardholderNameAfterScan = true
+        if let number = data.cardNumber {
+            state.cardItemState.cardNumber = number
+            state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
+        }
+        if let month = data.expirationMonth,
+           let cardMonth = CardComponent.Month(rawValue: month) {
+            state.cardItemState.expirationMonth = .custom(cardMonth)
+        }
+        if let year = data.expirationYear {
+            state.cardItemState.expirationYear = year
+        }
+    }
+
     /// Archives a cipher.
     ///
     private func archiveItem() async {
@@ -467,24 +494,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.isCardScannerPresented = false
             state.cardItemState.shouldFocusCardholderNameAfterScan = false
         case let .cardScannerLinesUpdated(lines):
-            let data = services.cardTextParser.parseCard(lines: lines)
-            guard data.cardNumber != nil,
-                  data.expirationMonth != nil else {
-                break
-            }
-            state.cardItemState.isCardScannerPresented = false
-            state.cardItemState.shouldFocusCardholderNameAfterScan = true
-            if let number = data.cardNumber {
-                state.cardItemState.cardNumber = number
-                state.cardItemState.brand = .custom(CardComponent.Brand.detect(from: number))
-            }
-            if let month = data.expirationMonth,
-               let cardMonth = CardComponent.Month(rawValue: month) {
-                state.cardItemState.expirationMonth = .custom(cardMonth)
-            }
-            if let year = data.expirationYear {
-                state.cardItemState.expirationYear = year
-            }
+            applyCardScanResult(services.cardTextParser.parseCard(lines: lines))
         case let .cardSecurityCodeChanged(code):
             state.cardItemState.cardSecurityCode = code
         case let .expirationMonthChanged(month):

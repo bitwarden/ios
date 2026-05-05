@@ -75,6 +75,13 @@ struct CardScannerView: UIViewControllerRepresentable {
     /// When `true`, scanning is active; when `false`, scanning is stopped.
     @Binding var isScanning: Bool
 
+    // MARK: Static methods for UIViewControllerRepresentable
+
+    static func dismantleUIViewController(_ uiViewController: DataScannerViewController, coordinator: Coordinator) {
+        uiViewController.stopScanning()
+        uiViewController.delegate = nil
+    }
+
     // MARK: Factory
 
     /// Creates and configures a `DataScannerViewController` ready to scan card text.
