@@ -136,15 +136,17 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             return
         }
 
-        await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipher) {
-            await self.performOperationAndShowToast(
-                handleDisplayToast: handleDisplayToast,
-                loadingTitle: Localizations.sendingToArchive,
-                toastTitle: Localizations.itemMovedToArchive,
-            ) {
-                try await self.services.vaultRepository.archiveCipher(cipher)
+        coordinator.showAlert(Alert.confirmArchiveItem {
+            await self.masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipher) {
+                await self.performOperationAndShowToast(
+                    handleDisplayToast: handleDisplayToast,
+                    loadingTitle: Localizations.sendingToArchive,
+                    toastTitle: Localizations.itemMovedToArchive,
+                ) {
+                    try await self.services.vaultRepository.archiveCipher(cipher)
+                }
             }
-        }
+        })
     }
 
     /// Generates and copies a TOTP code for the cipher's TOTP key.

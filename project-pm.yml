@@ -94,6 +94,10 @@ schemes:
         - path: TestPlans/Bitwarden-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/Bitwarden-Unit.xctestplan
+  BitwardenNotificationExtension:
+    build:
+      targets:
+        BitwardenNotificationExtension: all
   BitwardenShareExtension:
     build:
       targets:
@@ -170,6 +174,7 @@ targets:
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
+      - target: BitwardenNotificationExtension
       - target: BitwardenShareExtension
       - target: BitwardenWatchApp
       - target: BitwardenKit/AuthenticatorBridgeKit
@@ -293,6 +298,23 @@ targets:
       - target: BitwardenShared
       - target: BitwardenKit/TestHelpers
     randomExecutionOrder: true
+
+  BitwardenNotificationExtension:
+    type: app-extension
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenNotificationExtension.xcconfig
+      Release: Configs/BitwardenNotificationExtension.xcconfig
+    settings:
+      base:
+        CODE_SIGN_ENTITLEMENTS: BitwardenNotificationExtension/Application/Support/BitwardenNotificationExtension.entitlements
+        INFOPLIST_FILE: BitwardenNotificationExtension/Application/Support/Info.plist
+    templates:
+      - CommonTarget
+    templateAttributes:
+      sourcesPath: BitwardenNotificationExtension
+    dependencies:
+      - target: BitwardenShared
 
   BitwardenShareExtension:
     type: app-extension

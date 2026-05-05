@@ -189,6 +189,23 @@
         <string>%d Wochen</string>
       </dict>
     </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Bitte begleiche die überfälligen Rechnungen bis zum **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <key>other</key>
+        <string>Du hast eine Nachfrist von %1$d Tagen ab dem Ablaufdatum deines Abonnements.</string>
+      </dict>
+    </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>

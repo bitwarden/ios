@@ -3,6 +3,62 @@ import XCTest
 @testable import BitwardenShared
 
 class PushNotificationDataTests: BitwardenTestCase {
+    // MARK: init(userInfo:) Tests
+
+    /// `init(userInfo:)` successfully decodes a `PushNotificationData` from a valid `userInfo` dictionary.
+    func test_initUserInfo() throws {
+        let userInfo: [AnyHashable: Any] = [
+            "data": [
+                "contextId": "context-123",
+                "payload": "test-payload",
+                "type": 1,
+            ] as [AnyHashable: Any],
+        ]
+
+        let subject = try PushNotificationData(userInfo: userInfo)
+
+        XCTAssertEqual(subject.contextId, "context-123")
+        XCTAssertEqual(subject.payload, "test-payload")
+        XCTAssertEqual(subject.type, .syncCipherCreate)
+    }
+
+    /// `init(userInfo:)` throws `missingDataDictionary` when the `userInfo` dictionary is empty.
+    func test_initUserInfo_emptyDictionary() {
+        XCTAssertThrowsError(try PushNotificationData(userInfo: [:])) { error in
+            guard case PushNotificationDataError.missingDataDictionary = error else {
+                XCTFail("Expected PushNotificationDataError.missingDataDictionary, got \(error)")
+                return
+            }
+        }
+    }
+
+    /// `init(userInfo:)` throws a decoding error when the `"data"` value cannot be decoded.
+    func test_initUserInfo_invalidData() {
+        let userInfo: [AnyHashable: Any] = [
+            "data": [
+                "type": "not-a-number",
+            ] as [AnyHashable: Any],
+        ]
+
+        XCTAssertThrowsError(try PushNotificationData(userInfo: userInfo)) { error in
+            XCTAssertTrue(error is DecodingError)
+        }
+    }
+
+    /// `init(userInfo:)` throws `missingDataDictionary` when the `"data"` key is absent.
+    func test_initUserInfo_missingDataKey() {
+        let userInfo: [AnyHashable: Any] = ["other": "value"]
+
+        XCTAssertThrowsError(try PushNotificationData(userInfo: userInfo)) { error in
+            guard case PushNotificationDataError.missingDataDictionary = error else {
+                XCTFail("Expected PushNotificationDataError.missingDataDictionary, got \(error)")
+                return
+            }
+        }
+    }
+
+    // MARK: data Tests
+
     /// `data` decodes the payload as expected.
     func test_data() throws {
         let subject = PushNotificationData(
