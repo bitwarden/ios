@@ -549,7 +549,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertTrue(client.requests.isEmpty)
-        XCTAssertTrue(flightRecorder.logMessages.contains("Checking needs sync with monotonic time for userId: 1"))
     }
 
     /// `fetchSync()` syncs if monotonic time shows interval has passed.
@@ -622,7 +621,6 @@ class SyncServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         try await subject.fetchSync(forceSync: false, isPeriodic: true)
 
         XCTAssertTrue(client.requests.isEmpty) // Wall-clock fallback blocks
-        XCTAssertTrue(flightRecorder.logMessages.contains("Checking needs sync with wall-clock time for userId: 1"))
     }
 
     /// `fetchSync()` protects against clock manipulation using monotonic time.

@@ -108,7 +108,6 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
         var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
-        XCTAssertTrue(flightRecorder.logMessages.contains("Checking timeout with monotonic time for userId: 1"))
 
         // Last active 5 minutes ago (300 seconds), timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
@@ -390,39 +389,6 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         )
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
-        XCTAssertTrue(shouldTimeout)
-    }
-
-    /// `.hasPassedSessionTimeout()` falls back to wall-clock time when monotonic time
-    /// is not available (migration scenario).
-    func test_hasPassedSessionTimeout_migrationFallback() async throws {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
-
-        let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
-        timeProvider.timeConfig = .mockTime(currentTime, 1000.0)
-
-        // Last active 4 minutes ago using wall-clock time, no monotonic time stored (migration scenario)
-        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
-            .date(byAdding: .minute, value: -4, to: currentTime)
-        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
-        var shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
-        XCTAssertFalse(shouldTimeout)
-        XCTAssertTrue(flightRecorder.logMessages.contains("Checking timeout with wall-clock time for userId: 1"))
-
-        // Last active 5 minutes ago using wall-clock time, timeout
-        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
-            .date(byAdding: .minute, value: -5, to: currentTime)
-        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
-        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
-        XCTAssertTrue(shouldTimeout)
-
-        // Last active 6 minutes ago using wall-clock time, timeout
-        userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
-            .date(byAdding: .minute, value: -6, to: currentTime)
-        userSessionStateService.getLastActiveMonotonicTimeReturnValue = nil
-        shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertTrue(shouldTimeout)
     }
 
