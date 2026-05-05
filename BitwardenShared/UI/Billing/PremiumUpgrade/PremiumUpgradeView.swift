@@ -46,10 +46,15 @@ struct PremiumUpgradeView: View {
                     .padding(.bottom, 16)
             }
 
+            if store.state.showPricingErrorBanner {
+                pricingErrorBanner
+                    .padding(.bottom, 16)
+            }
+
             premiumCard
                 .padding(.bottom, 24)
 
-            if !store.state.isSelfHosted {
+            if !store.state.isSelfHosted, !store.state.showPricingErrorBanner {
                 upgradeButton
                     .padding(.bottom, 12)
 
@@ -71,8 +76,10 @@ struct PremiumUpgradeView: View {
                     .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
                     .padding(.bottom, 16)
             } else {
-                priceSection
-                    .padding(.bottom, 4)
+                if store.state.premiumPrice != nil {
+                    priceSection
+                        .padding(.bottom, 4)
+                }
 
                 Text(Localizations.unlockMoreAdvancedFeaturesWithPremiumPlan)
                     .styleGuide(.body)
@@ -91,13 +98,30 @@ struct PremiumUpgradeView: View {
     /// The price display section.
     private var priceSection: some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text(store.state.premiumPrice)
+            Text(store.state.premiumPrice ?? "")
                 .styleGuide(.largeTitle, weight: .semibold)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textPrimary))
 
             Text(Localizations.perMonth)
                 .styleGuide(.body)
                 .foregroundColor(Color(asset: SharedAsset.Colors.textSecondary))
+        }
+    }
+
+    /// The pricing error banner shown when the premium price cannot be fetched.
+    private var pricingErrorBanner: some View {
+        ActionCard(
+            title: Localizations.pricingUnavailable,
+            message: Localizations.checkYourConnectionAndTryAgain,
+            actionButtonState: ActionCard.ButtonState(title: Localizations.tryAgain) {
+                await store.perform(.retryFetchPriceTapped)
+            },
+            dismissButtonState: ActionCard.ButtonState(title: Localizations.close) {
+                store.send(.dismissPricingErrorBannerTapped)
+            },
+        ) {
+            SharedAsset.Icons.informationCircle24.swiftUIImage
+                .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
         }
     }
 

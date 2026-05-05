@@ -32,7 +32,6 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     // MARK: Types
 
     typealias Services = HasAuthRepository
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -88,13 +87,11 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             let canEdit = cipherView.deletedDate == nil
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
-            let isArchiveVaultItemsFFEnabled: Bool = await services.configService.getFeatureFlag(.archiveVaultItems)
-
             coordinator.showAlert(.moreOptions(
                 context: MoreOptionsAlertContext(
-                    canArchive: isArchiveVaultItemsFFEnabled && cipherView.canBeArchived,
+                    canArchive: cipherView.canBeArchived,
                     canCopyTotp: hasPremium || cipherView.organizationUseTotp,
-                    canUnarchive: isArchiveVaultItemsFFEnabled && cipherView.canBeUnarchived,
+                    canUnarchive: cipherView.canBeUnarchived,
                     cipherView: cipherView,
                     id: item.id,
                     showEdit: canEdit,
@@ -139,15 +136,17 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             return
         }
 
-        await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipher) {
-            await self.performOperationAndShowToast(
-                handleDisplayToast: handleDisplayToast,
-                loadingTitle: Localizations.sendingToArchive,
-                toastTitle: Localizations.itemMovedToArchive,
-            ) {
-                try await self.services.vaultRepository.archiveCipher(cipher)
+        coordinator.showAlert(Alert.confirmArchiveItem {
+            await self.masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipher) {
+                await self.performOperationAndShowToast(
+                    handleDisplayToast: handleDisplayToast,
+                    loadingTitle: Localizations.sendingToArchive,
+                    toastTitle: Localizations.itemMovedToArchive,
+                ) {
+                    try await self.services.vaultRepository.archiveCipher(cipher)
+                }
             }
-        }
+        })
     }
 
     /// Generates and copies a TOTP code for the cipher's TOTP key.

@@ -73,7 +73,7 @@ struct PremiumSubscription: Equatable {
         gracePeriod = response.gracePeriod
         nextCharge = response.nextCharge
         self.seatsCost = seatsCost
-        self.status = PremiumPlanStatus(response.status)
+        status = PremiumPlanStatus(subscriptionStatus: response.status)
         self.storageCost = storageCost
         suspension = response.suspension
     }

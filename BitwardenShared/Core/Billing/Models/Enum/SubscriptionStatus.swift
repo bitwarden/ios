@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - SubscriptionStatus
 
-/// The status of a subscription as returned by the API.
+/// The raw subscription status values returned by the Stripe API.
 ///
 enum SubscriptionStatus: String, Codable, Equatable, Sendable {
     /// The subscription is active.
@@ -11,8 +11,20 @@ enum SubscriptionStatus: String, Codable, Equatable, Sendable {
     /// The subscription has been canceled.
     case canceled
 
+    /// The subscription is incomplete.
+    case incomplete
+
+    /// The subscription is incomplete and expired.
+    case incompleteExpired = "incomplete_expired"
+
+    /// The subscription is paused.
+    case paused
+
     /// The subscription is past due.
     case pastDue = "past_due"
+
+    /// The subscription is in a trial period.
+    case trialing
 
     /// An unknown status not yet supported by the app.
     case unknown

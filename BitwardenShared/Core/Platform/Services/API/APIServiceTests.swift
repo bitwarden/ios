@@ -3,6 +3,7 @@ import XCTest
 
 @testable import BitwardenKit
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 @testable import Networking
 
 class APIServiceTests: BitwardenTestCase {
@@ -77,7 +78,7 @@ class APIServiceTests: BitwardenTestCase {
     /// `setupAccountTokenProviderDelegate(:)` sets up the delegate in the account token provider.
     func test_setupAccountTokenProviderDelegate() async {
         await subject.setAccountTokenProviderDelegate(delegate: MockAccountTokenProviderDelegate())
-        let delegate = await accountTokenProvider.delegate
+        let delegate = accountTokenProvider.setDelegateReceivedDelegate
         XCTAssertNotNil(delegate)
     }
 }

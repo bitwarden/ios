@@ -78,10 +78,11 @@ SwiftLint and SwiftFormat run automatically as post-compile scripts (configured 
 Run automatically in pre-build phases; trigger manually when needed:
 
 ```bash
-# Mock generation
-mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml
-mint run sourcery --config AuthenticatorShared/Sourcery/sourcery.yml
-mint run sourcery --config BitwardenKit/Sourcery/sourcery.yml
+# Mock generation — run from an Xcode build phase (BUILD_DIR is set automatically by Xcode)
+# To run standalone, supply BUILD_DIR manually — see the script header for the one-liner
+./Scripts/generate-mocks.sh BitwardenShared    # default if argument omitted
+./Scripts/generate-mocks.sh AuthenticatorShared
+./Scripts/generate-mocks.sh BitwardenKit
 
 # Asset/localization code generation
 mint run swiftgen config run --config swiftgen-bwr.yml   # BitwardenResources (most common)

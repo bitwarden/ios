@@ -4,6 +4,7 @@ import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 // MARK: - RefreshableAPIServiceTests
 
@@ -48,6 +49,8 @@ class RefreshableAPIServiceTests: BitwardenTestCase {
     /// `refreshAccessToken()` calls the token provider to refresh the token.
     @MainActor
     func test_refreshAccessToken() async throws {
+        accountTokenProvider.refreshTokenReturnValue = "ACCESS_TOKEN"
+
         try await subject.refreshAccessToken()
 
         XCTAssertTrue(accountTokenProvider.refreshTokenCalled)
@@ -56,7 +59,7 @@ class RefreshableAPIServiceTests: BitwardenTestCase {
     /// `refreshAccessToken()` throws when the token provider to refresh the token throws.
     @MainActor
     func test_refreshAccessToken_throws() async throws {
-        accountTokenProvider.refreshTokenResult = .failure(BitwardenTestError.example)
+        accountTokenProvider.refreshTokenThrowableError = BitwardenTestError.example
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.refreshAccessToken()
         }

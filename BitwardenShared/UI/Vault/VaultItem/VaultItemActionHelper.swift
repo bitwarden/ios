@@ -77,13 +77,15 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
             return
         }
 
-        await performOperation(
-            loadingTitle: Localizations.sendingToArchive,
-            operation: {
-                try await self.services.vaultRepository.archiveCipher(cipher)
-            },
-            completionHandler: completionHandler,
-        )
+        await coordinator.showAlert(Alert.confirmArchiveItem {
+            await self.performOperation(
+                loadingTitle: Localizations.sendingToArchive,
+                operation: {
+                    try await self.services.vaultRepository.archiveCipher(cipher)
+                },
+                completionHandler: completionHandler,
+            )
+        })
     }
 
     func unarchive(

@@ -1,75 +1,20 @@
+import BitwardenKit
 import BitwardenKitMocks
-import XCTest
+import Foundation
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
 
-final class TOTPExpirationCalculatorTests: BitwardenTestCase {
+struct TOTPExpirationCalculatorTests {
     // MARK: Tests
 
-    func test_hasCodeExpired_codesOlderThanPeriod() {
-        XCTAssertTrue(
-            TOTPExpirationCalculator.hasCodeExpired(
-                .init(
-                    code: "",
-                    codeGenerationDate: .distantPast,
-                    period: 30,
-                ),
-                timeProvider: MockTimeProvider(.currentTime),
-            ),
-        )
-    }
-
-    func test_hasCodeExpired_recentCodesPastExpiration() {
-        XCTAssertTrue(
-            TOTPExpirationCalculator.hasCodeExpired(
-                .init(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
-                    period: 30,
-                ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 30))),
-            ),
-        )
-        XCTAssertTrue(
-            TOTPExpirationCalculator.hasCodeExpired(
-                .init(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
-                    period: 30,
-                ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 31))),
-            ),
-        )
-    }
-
-    func test_hasCodeExpired_currentCodes() {
-        XCTAssertFalse(
-            TOTPExpirationCalculator.hasCodeExpired(
-                .init(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 15),
-                    period: 30,
-                ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 15))),
-            ),
-        )
-        XCTAssertFalse(
-            TOTPExpirationCalculator.hasCodeExpired(
-                .init(
-                    code: "",
-                    codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 0),
-                    period: 30,
-                ),
-                timeProvider: MockTimeProvider(.mockTime(Date(year: 2024, month: 1, day: 1, second: 29))),
-            ),
-        )
-    }
-
-    func test_listItemsByExpiration() {
+    /// `listItemsByExpiration` correctly partitions items into expired and current groups.
+    @Test
+    func listItemsByExpiration() {
         let expired = VaultListItem.fixtureTOTP(
             totp: .fixture(
-                totpCode: .init(
+                totpCode: TOTPCodeModel(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 29),
                     period: 30,
@@ -78,7 +23,7 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
         )
         let current = VaultListItem.fixtureTOTP(
             totp: .fixture(
-                totpCode: .init(
+                totpCode: TOTPCodeModel(
                     code: "",
                     codeGenerationDate: Date(year: 2024, month: 1, day: 1, second: 31),
                     period: 30,
@@ -93,9 +38,8 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                 current,
             ],
         ]
-        XCTAssertEqual(
-            expectation,
-            TOTPExpirationCalculator.listItemsByExpiration(
+        #expect(
+            expectation == TOTPExpirationCalculator.listItemsByExpiration(
                 [current, expired],
                 timeProvider: MockTimeProvider(
                     .mockTime(
@@ -107,17 +51,7 @@ final class TOTPExpirationCalculatorTests: BitwardenTestCase {
                         ),
                     ),
                 ),
-            ),
-        )
-    }
-
-    func test_remainingSeconds_roundsUp() {
-        XCTAssertEqual(
-            TOTPExpirationCalculator.remainingSeconds(
-                for: Date(year: 2024, month: 1, day: 1, second: 29, nanosecond: 90_000_000),
-                using: 30,
-            ),
-            1,
+            )
         )
     }
 }

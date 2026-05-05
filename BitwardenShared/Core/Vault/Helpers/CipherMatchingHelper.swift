@@ -10,10 +10,8 @@ protocol CipherMatchingHelper { // sourcery: AutoMockable
     ///
     /// - Parameters:
     ///   - cipher: The cipher to check if it matches the URI.
-    ///   - archiveVaultItemsFF: The `FeatureFlag.archiveVaultItems` flag value.
     func doesCipherMatch(
         cipher: CipherListView,
-        archiveVaultItemsFF: Bool,
     ) -> CipherMatchResult
 
     /// Prepares the cipher matching helper given the URI.
@@ -61,11 +59,11 @@ class DefaultCipherMatchingHelper: CipherMatchingHelper {
 
     // MARK: Methods
 
-    func doesCipherMatch(cipher: CipherListView, archiveVaultItemsFF: Bool) -> CipherMatchResult {
+    func doesCipherMatch(cipher: CipherListView) -> CipherMatchResult {
         guard let uriToMatch,
               let login = cipher.type.loginListView,
               let loginUris = login.uris,
-              !cipher.isHiddenWithArchiveFF(flag: archiveVaultItemsFF) else {
+              !cipher.isHidden else {
             return .none
         }
 

@@ -6,5 +6,4 @@ enum PremiumPlanAction: Equatable {
 
     /// The URL has been opened and should be cleared.
     case clearUrl
-
 }

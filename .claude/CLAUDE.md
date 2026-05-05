@@ -155,6 +155,7 @@ See `build-test-verify` skill for project generation, build commands, test execu
 | `implementing-ios-code` | "implement", "write code", "add screen", "create feature" |
 | `testing-ios-code` | "write tests", "add test coverage", "unit test" |
 | `converting-xctest-to-swift-testing` | "convert to Swift Testing", "migrate XCTest", "xctest to swift testing" |
+| `converting-mocks-to-automockable` | "convert mock", "migrate mock to AutoMockable", "replace bespoke mock" |
 | `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
 | `perform-ios-preflight-checklist` | "preflight", "self review", "ready to commit" |
 | `committing-ios-changes` | "commit", "stage changes", "create commit" |
@@ -166,4 +167,3 @@ See `build-test-verify` skill for project generation, build commands, test execu
 |---------|-------|
 | `/plan-ios-work <PM-XXXXX>` | Use the `ios-architect` agent (or this command) to fetch ticket → refine requirements → design implementation approach |
 | `/work-on-ios <PM-XXXXX>` | Use the `ios-implementer` agent (or this command) for full workflow: implement → test → verify → preflight → commit → review → PR |
-
