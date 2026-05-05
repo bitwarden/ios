@@ -229,7 +229,13 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             let storedBootEpoch = try await userSessionStateService.getLastActiveBootEpoch(userId: userId)
             let currentBootEpoch = timeProvider.presentTime.timeIntervalSinceReferenceDate
                 - timeProvider.monotonicTime
-            if let storedBootEpoch, !result.isReboot {
+            // Boot epoch must always co-exist with lastActiveMonotonicTime — both are written
+            // atomically in setLastActiveTime. A missing boot epoch after the guard above means
+            // partial or manipulated state, so fail closed.
+            guard let storedBootEpoch else {
+                return true
+            }
+            if !result.isReboot {
                 let epochDrift = abs(currentBootEpoch - storedBootEpoch)
                 if epochDrift > 5.0 {
                     return true

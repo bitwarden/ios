@@ -94,6 +94,9 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let currentMonotonicTime: TimeInterval = 1000.0
         timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
 
+        userSessionStateService.getLastActiveBootEpochReturnValue = currentTime.timeIntervalSinceReferenceDate
+            - currentMonotonicTime
+
         // Last active 4 minutes ago (240 seconds), no timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -4, to: currentTime)
@@ -192,6 +195,9 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let currentTime = Date(year: 2024, month: 1, day: 2, hour: 6, minute: 0)
         let currentMonotonicTime: TimeInterval = 10000.0
         timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
+
+        userSessionStateService.getLastActiveBootEpochReturnValue = currentTime.timeIntervalSinceReferenceDate
+            - currentMonotonicTime
 
         // Last active 119 minutes ago (7140 seconds), no timeout.
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
@@ -344,6 +350,9 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         let currentMonotonicTime: TimeInterval = 1000.0
         timeProvider.timeConfig = .mockTime(currentTime, currentMonotonicTime)
 
+        userSessionStateService.getLastActiveBootEpochReturnValue = currentTime.timeIntervalSinceReferenceDate
+            - currentMonotonicTime
+
         // Last active 2 minutes ago, within timeout threshold
         userSessionStateService.getLastActiveTimeReturnValue = Calendar.current
             .date(byAdding: .minute, value: -2, to: currentTime)
@@ -431,7 +440,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
 
     /// `.hasPassedSessionTimeout()` does not force timeout when boot epoch is nil
     /// (first session after upgrading to a build that introduced boot epoch tracking).
-    func test_hasPassedSessionTimeout_bootEpochNil_noForcedTimeout() async throws {
+    func test_hasPassedSessionTimeout_bootEpochNil_forcesTimeout() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
         userSessionStateService.getVaultTimeoutReturnValue = .fiveMinutes
@@ -454,11 +463,12 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             tamperingDetected: false,
         )
 
-        // Boot epoch not yet stored (upgrade scenario) → check must be silently skipped
+        // Boot epoch not stored while lastActiveMonotonic is present → inconsistent state,
+        // must fail closed regardless of elapsed time.
         userSessionStateService.getLastActiveBootEpochReturnValue = nil
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
-        XCTAssertFalse(shouldTimeout)
+        XCTAssertTrue(shouldTimeout)
     }
 
     /// `isPinUnlockAvailable` throws errors.
