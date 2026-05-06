@@ -163,28 +163,34 @@ struct FillScript: Codable {
             }
         }
 
-        // Override heuristic results with explicit opId mappings if provided.
-        if let usernameOpId, !fillUsername.isEmpty,
-           let field = pageDetails.fields.first(where: { $0.opId == usernameOpId }) {
-            usernames = [field]
-        }
-        if let passwordOpId, !fillPassword.isEmpty,
-           let field = pageDetails.fields.first(where: { $0.opId == passwordOpId }) {
-            passwords = [field]
+        // When explicit Autofill Assist targets are provided, build fill commands directly rather
+        // than relying on heuristic field detection. CSS-selector targets (non-opId) use
+        // fill_by_query so they are resolved at JavaScript execution time — this handles pages
+        // that reveal the password field only after the username is filled.
+        let hasAssistUsername = usernameOpId != nil && !fillUsername.isEmpty
+        let hasAssistPassword = passwordOpId != nil && !fillPassword.isEmpty
+
+        if hasAssistUsername || hasAssistPassword {
+            if hasAssistUsername {
+                appendFillCommand(target: usernameOpId!, value: fillUsername)
+            }
+            // Delay before filling the password gives dynamic pages time to reveal the
+            // password field in response to the username input event.
+            if hasAssistUsername, hasAssistPassword {
+                script.append(["delay", "300"])
+            }
+            if hasAssistPassword {
+                appendFillCommand(target: passwordOpId!, value: fillPassword)
+            }
+            setFillScriptForFocus(filledFields: filledFields)
+            return
         }
 
+        // Heuristic path (no explicit Autofill Assist mapping).
         for username in usernames where !filledFields.keys.contains(username.opId) {
             filledFields[username.opId] = username
             script.append(["click_on_opid", username.opId])
             script.append(["fill_by_opid", username.opId, fillUsername])
-        }
-
-        // When both fields are explicitly mapped (Autofill Assist), insert a delay between the
-        // username and password fills. Dynamic pages (React/Vue/Angular) may reveal the password
-        // field asynchronously after reacting to the username input event. Without a delay the
-        // password fill command can execute before the element is available.
-        if usernameOpId != nil, passwordOpId != nil, !usernames.isEmpty, !passwords.isEmpty {
-            script.append(["delay", "300"])
         }
 
         for password in passwords where !filledFields.keys.contains(password.opId) {
@@ -304,6 +310,25 @@ struct FillScript: Codable {
     private func fuzzyMatch(options: [String], value: String) -> Bool {
         guard !options.isEmpty, !value.isEmpty else { return false }
         return options.contains { value.contains($0) }
+    }
+
+    /// Appends the appropriate fill command for a given target.
+    ///
+    /// - If `target` is a CSS selector (does not start with `__`): uses `fill_by_query` which
+    ///   evaluates the selector at JavaScript execution time, supporting dynamically revealed fields.
+    /// - If `target` is an opId (starts with `__`): uses `click_on_opid` + `fill_by_opid`.
+    ///
+    /// - Parameters:
+    ///   - target: A CSS selector string or a `__N`-style opId.
+    ///   - value: The value to fill into the matched field.
+    ///
+    private mutating func appendFillCommand(target: String, value: String) {
+        if target.hasPrefix("__") {
+            script.append(["click_on_opid", target])
+            script.append(["fill_by_opid", target, value])
+        } else {
+            script.append(["fill_by_query", target, value])
+        }
     }
 
     /// Adds a script element to focus on a field.

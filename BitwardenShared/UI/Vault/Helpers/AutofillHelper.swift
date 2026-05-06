@@ -172,19 +172,40 @@ class AutofillHelper {
         return try? await services.autofillAssistService.getMapping(forHost: host, userId: userId)
     }
 
-    /// Resolves a saved mapping to `(usernameOpId, passwordOpId)` using the current page fields.
+    /// Resolves a saved mapping to fill targets: either a CSS selector (for stable DOM attributes)
+    /// or an opId (fallback for fields without stable attributes). CSS selectors are resolved at
+    /// JavaScript execution time, so they work even when a field appears dynamically after the
+    /// username is filled. opId targets require the field to be present during `collect`.
     ///
     private func resolveAutofillAssistOpIds(
         from mapping: AutofillAssistMapping?,
     ) -> (String?, String?) {
-        guard let mapping, let pageDetails = appExtensionDelegate?.pageDetails else {
-            return (nil, nil)
-        }
-        let resolved = services.autofillAssistService.resolveOpIds(
-            mapping: mapping,
-            fields: pageDetails.fields,
+        guard let mapping else { return (nil, nil) }
+        return (
+            buildFillTarget(from: mapping.usernameFieldIdentifier),
+            buildFillTarget(from: mapping.passwordFieldIdentifier),
         )
-        return (resolved.usernameOpId, resolved.passwordOpId)
+    }
+
+    /// Builds a fill target from a stored identifier: a CSS selector when the identifier is a
+    /// stable DOM attribute (htmlId/htmlName/placeholder), or the raw opId as a fallback.
+    ///
+    private func buildFillTarget(from identifier: String?) -> String? {
+        guard let identifier, !identifier.isEmpty else { return nil }
+        // opId-style identifiers (e.g. "__3") cannot be turned into stable CSS selectors.
+        // Return as-is; FillScript will use fill_by_opid for these.
+        if identifier.hasPrefix("__") {
+            // Verify the field actually exists in the current page before including it.
+            guard let pageDetails = appExtensionDelegate?.pageDetails,
+                  pageDetails.fields.contains(where: { $0.opId == identifier }) else {
+                return nil
+            }
+            return identifier
+        }
+        // Build a multi-attribute CSS selector. fill_by_query executes this at fill time, so
+        // the field can appear after the username fill without being present during collect.
+        let escaped = identifier.replacingOccurrences(of: "\"", with: "\\\"")
+        return "input[id=\"\(escaped)\"],input[name=\"\(escaped)\"],input[placeholder=\"\(escaped)\"]"
     }
 
     /// Handles the case where the username or password is missing for the cipher which prevents it
