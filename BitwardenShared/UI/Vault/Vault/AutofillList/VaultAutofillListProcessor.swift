@@ -209,14 +209,14 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 pageDetails: pageDetails,
                 uri: appExtensionDelegate?.uri,
             ))
+        case .cancelTapped:
+            appExtensionDelegate?.didCancel()
         case .clearAutofillAssistMappingsTapped:
             coordinator.showAlert(.clearAutofillAssistMappingsConfirmation {
                 Task { [weak self] in
                     await self?.perform(.clearAutofillAssistMappings)
                 }
             })
-        case .cancelTapped:
-            appExtensionDelegate?.didCancel()
         case let .profileSwitcher(action):
             handle(action)
         case let .searchStateChanged(isSearching: isSearching):

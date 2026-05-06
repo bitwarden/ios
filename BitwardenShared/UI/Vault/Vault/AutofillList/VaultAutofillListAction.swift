@@ -12,11 +12,11 @@ enum VaultAutofillListAction: Equatable {
     /// The autofill assist setup button was tapped.
     case autofillAssistSetupTapped
 
-    /// The remove all autofill assist mappings button was tapped.
-    case clearAutofillAssistMappingsTapped
-
     /// The cancel button was tapped.
     case cancelTapped
+
+    /// The remove all autofill assist mappings button was tapped.
+    case clearAutofillAssistMappingsTapped
 
     /// A forwarded profile switcher action.
     case profileSwitcher(ProfileSwitcherAction)
