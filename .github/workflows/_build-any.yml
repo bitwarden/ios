@@ -256,6 +256,25 @@ jobs:
           ${_APP_STORE_CONNECT_AUTH_KEY}
           EOF
 
+      - name: Create secrets for Fastlane
+        if: env._BUILD_MODE == 'Device'
+        env:
+          _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
+        run: |
+          brew install gsed
+
+          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' "$APP_STORE_CONNECT_AUTH_KEY_PATH")
+
+          cat << EOF > ~/secrets/appstoreconnect-fastlane.json
+          {
+            "issuer_id": "$_APP_STORE_CONNECT_TEAM_ISSUER",
+            "key_id": "$_APP_STORE_CONNECT_AUTH_KEY_ID",
+            "key": "$KEY_WITHOUT_NEWLINES"
+          }
+          EOF
+
       - name: Validate app with App Store Connect
         if: env._BUILD_MODE == 'Device' && false # Set to true to debug failing submissions
         env:
@@ -282,9 +301,6 @@ jobs:
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
         env:
           _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
-          _API_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
-          _API_KEY_ISSUER_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          _API_KEY_CONTENT: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
@@ -294,8 +310,6 @@ jobs:
 
           bundle exec fastlane upload_build \
             --env "$_BW_ENV" \
-            api_key_id:"$_API_KEY_ID" \
-            api_key_issuer_id:"$_API_KEY_ISSUER_ID" \
-            api_key_content:"$_API_KEY_CONTENT" \
+            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
             ipa_path:"$_EXPORT_FILEPATH"
