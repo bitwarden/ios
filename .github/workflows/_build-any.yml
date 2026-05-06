@@ -260,9 +260,8 @@ jobs:
         env:
           _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/auth_key.p8
         run: |
-          KEY_WITHOUT_NEWLINES=$(perl -0777 -pe 's/\r?\n/\\n/g' "$APP_STORE_CONNECT_AUTH_KEY_PATH")
+          KEY_WITHOUT_NEWLINES=$(perl -0777 -pe 's/\r?\n/\\n/g' ~/private_keys/auth_key.p8)
 
           cat << EOF > ~/secrets/appstoreconnect-fastlane.json
           {
