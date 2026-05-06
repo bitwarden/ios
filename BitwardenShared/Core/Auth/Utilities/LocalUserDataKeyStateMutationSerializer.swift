@@ -1,14 +1,10 @@
 import Foundation
 
-/// Serializes concurrent mutations to local user data key states per user ID using task chaining.
+/// Serializes concurrent mutations to local user data per user ID using task chaining.
 /// Each mutation awaits the previous one before reading from keychain, eliminating read/write race
 /// conditions that would otherwise occur across actor suspension points.
-public actor LocalUserDataKeyStateMutationSerializer {
-    // MARK: Properties
-
+public actor LocalUserDataMutationSerializer {
     private var pendingMutationsByUserId: [String: Task<Void, Error>] = [:]
-
-    // MARK: Methods
 
     /// Serializes `operation` after any in-progress mutation for `userId`.
     func serialize(userId: String, operation: @escaping @Sendable () async throws -> Void) async throws {

@@ -4,11 +4,11 @@ import Testing
 
 @testable import BitwardenShared
 
-struct LocalUserDataKeyStateMutationSerializerTests {
-    let subject: LocalUserDataKeyStateMutationSerializer
+struct LocalUserDataMutationSerializerTests {
+    let subject: LocalUserDataMutationSerializer
 
     init() {
-        subject = LocalUserDataKeyStateMutationSerializer()
+        subject = LocalUserDataMutationSerializer()
     }
 
     // MARK: Tests - serialize
