@@ -16,6 +16,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasAutofillAssistService
         & HasAutofillCredentialService
         & HasCipherOwnershipHelper
         & HasClientService
@@ -106,6 +107,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
         super.init(state: state)
 
+        self.state.pageDetails = appExtensionDelegate?.pageDetails
+
         switch autofillListMode {
         case .all:
             self.state.isAutofillingTextToInsertList = true
@@ -131,6 +134,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
+        case .clearAutofillAssistMappings:
+            await clearAutofillAssistMappings()
         case .excludedCredentialFoundChanged:
             if let cipherIdFound = state.excludedCredentialIdFound {
                 await updateExcludedCredentialSection(from: cipherIdFound)
@@ -168,6 +173,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case .loadData:
             await refreshProfileState()
             await fetchInitialSyncIfNecessary()
+            await loadSavedAutofillAssistMappingStatus()
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
         case let .search(text):
@@ -197,6 +203,18 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             Task {
                 await saveFido2CredentialAsNewLogin()
             }
+        case .autofillAssistSetupTapped:
+            guard let pageDetails = appExtensionDelegate?.pageDetails else { return }
+            coordinator.navigate(to: .autofillAssistSetup(
+                pageDetails: pageDetails,
+                uri: appExtensionDelegate?.uri,
+            ))
+        case .clearAutofillAssistMappingsTapped:
+            coordinator.showAlert(.clearAutofillAssistMappingsConfirmation {
+                Task { [weak self] in
+                    await self?.perform(.clearAutofillAssistMappings)
+                }
+            })
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
         case let .profileSwitcher(action):
@@ -235,6 +253,32 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             )
         }
         return NewCipherOptions(uri: appExtensionDelegate?.uri)
+    }
+
+    /// Removes all saved Autofill Assist mappings for the active user.
+    ///
+    private func clearAutofillAssistMappings() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            try await services.autofillAssistService.deleteAllMappings(userId: userId)
+            state.hasSavedAutofillAssistMappings = false
+            state.toast = Toast(title: Localizations.autofillAssistMappingsCleared)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
+    }
+
+    /// Loads whether the active user has any saved Autofill Assist mappings and updates state.
+    ///
+    private func loadSavedAutofillAssistMappingStatus() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            let mappings = try await services.autofillAssistService.getAllMappings(userId: userId)
+            state.hasSavedAutofillAssistMappings = !mappings.isEmpty
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Fetches initial sync if necessary, checking if the user has synced before.

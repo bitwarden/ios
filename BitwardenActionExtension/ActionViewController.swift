@@ -86,6 +86,8 @@ extension ActionViewController: AppExtensionDelegate {
         actionExtensionHelper.isProviderSaveLogin
     }
 
+    var pageDetails: PageDetails? { actionExtensionHelper.pageDetails }
+
     var uri: String? { actionExtensionHelper.uri }
 
     func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {
@@ -93,6 +95,23 @@ extension ActionViewController: AppExtensionDelegate {
             username: username,
             password: password,
             fields: fields ?? [],
+        )
+        completeRequest(itemData: itemData)
+    }
+
+    func completeAutofillRequest(
+        username: String,
+        password: String,
+        fields: [(String, String)]?,
+        usernameOpId: String?,
+        passwordOpId: String?
+    ) {
+        let itemData = actionExtensionHelper.itemDataToCompleteRequest(
+            username: username,
+            password: password,
+            fields: fields ?? [],
+            usernameOpId: usernameOpId,
+            passwordOpId: passwordOpId,
         )
         completeRequest(itemData: itemData)
     }

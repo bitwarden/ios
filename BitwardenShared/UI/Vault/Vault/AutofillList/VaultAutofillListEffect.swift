@@ -5,6 +5,9 @@ import BitwardenSdk
 /// Actions that can be processed by a `VaultAutofillListProcessor`.
 ///
 enum VaultAutofillListEffect: Equatable {
+    /// Clears all saved Autofill Assist mappings for the active user.
+    case clearAutofillAssistMappings
+
     /// Triggered when `excludedCredentialFound` state changed.
     case excludedCredentialFoundChanged
 

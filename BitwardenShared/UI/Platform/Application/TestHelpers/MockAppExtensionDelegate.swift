@@ -10,6 +10,7 @@ class MockAppExtensionDelegate: AppExtensionDelegate {
     var didCompleteAutofillRequestUsername: String?
     var isInAppExtension = false
     var isInAppExtensionSaveLoginFlow = false
+    var pageDetails: PageDetails?
     var uri: String?
 
     func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {

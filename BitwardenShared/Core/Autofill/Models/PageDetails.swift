@@ -4,44 +4,93 @@ import Foundation
 
 /// The parsed details of a HTML web page used to determine the fields to autofill.
 ///
-struct PageDetails: Codable, Equatable {
+public struct PageDetails: Codable, Equatable, Hashable {
     // MARK: Types
 
     // MARK: Properties
 
     /// The timestamp when the page details where collected.
-    let collectedTimestamp: Date
+    public let collectedTimestamp: Date
 
     /// The UUID of the document.
-    let documentUUID: String
+    public let documentUUID: String
 
     /// The document URL.
-    let documentUrl: String
+    public let documentUrl: String
 
     /// A list of fields in the page.
-    let fields: [Field]
+    public let fields: [Field]
 
     /// A list of forms in the page.
-    let forms: [String: Form]
+    public let forms: [String: Form]
 
     /// The tab URL.
-    let tabUrl: String
+    public let tabUrl: String
 
     /// The page's title.
-    let title: String
+    public let title: String
 
     /// The page's URL.
-    let url: String
+    public let url: String
 
     // MARK: Computed Properties
 
     /// Whether the list of fields contains a password field.
-    var hasPasswordField: Bool {
+    public var hasPasswordField: Bool {
         fields.contains(where: { $0.type == "password" })
+    }
+
+    // MARK: Hashable
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(documentUUID)
     }
 }
 
-extension PageDetails {
+extension PageDetails.Field {
+    /// A human-readable label for display in the Autofill Assist picker.
+    ///
+    /// Uses the following fallback chain: `labelTag` → `placeholder` → `htmlName` → `htmlId` → `opId`.
+    ///
+    var displayLabel: String {
+        if let labelTag = labelTag?.trimmingCharacters(in: .whitespacesAndNewlines), !labelTag.isEmpty {
+            return labelTag
+        }
+        if let placeholder, !placeholder.isEmpty {
+            return placeholder
+        }
+        if let htmlName, !htmlName.isEmpty {
+            return htmlName
+        }
+        if let htmlId, !htmlId.isEmpty {
+            return htmlId
+        }
+        return opId
+    }
+
+    /// The most stable DOM identifier for this field, used for persistent URL-based mappings.
+    ///
+    /// Uses the fallback chain: `htmlId` → `htmlName` → `labelTag` → `placeholder`.
+    /// Returns `nil` if no stable identifier is available.
+    ///
+    var stableIdentifier: String? {
+        if let htmlId = htmlId?.trimmingCharacters(in: .whitespacesAndNewlines), !htmlId.isEmpty {
+            return htmlId
+        }
+        if let htmlName = htmlName?.trimmingCharacters(in: .whitespacesAndNewlines), !htmlName.isEmpty {
+            return htmlName
+        }
+        if let labelTag = labelTag?.trimmingCharacters(in: .whitespacesAndNewlines), !labelTag.isEmpty {
+            return labelTag
+        }
+        if let placeholder = placeholder?.trimmingCharacters(in: .whitespacesAndNewlines), !placeholder.isEmpty {
+            return placeholder
+        }
+        return nil
+    }
+}
+
+public extension PageDetails {
     /// A data model for a form within a web page.
     ///
     struct Form: Codable, Equatable {
@@ -54,19 +103,19 @@ extension PageDetails {
         }
 
         /// The action of the form.
-        let htmlAction: String
+        public let htmlAction: String
 
         /// The form's HTML ID.
-        let htmlId: String
+        public let htmlId: String
 
         /// The form's HTML method.
-        let htmlMethod: String
+        public let htmlMethod: String
 
         /// The form's HTML name.
-        let htmlName: String
+        public let htmlName: String
 
         /// The form's OP ID.
-        let opId: String
+        public let opId: String
     }
 
     /// A data model for a field within a web page.
@@ -93,54 +142,54 @@ extension PageDetails {
         }
 
         /// Whether the field is disabled.
-        let disabled: Bool?
+        public let disabled: Bool?
 
         /// The element number of the field.
-        let elementNumber: Int
+        public let elementNumber: Int
 
         /// The identifier of the form this field is in.
-        let form: String?
+        public let form: String?
 
         /// The field's HTML class.
-        let htmlClass: String?
+        public let htmlClass: String?
 
         /// The field's HTML ID.
-        let htmlId: String?
+        public let htmlId: String?
 
         /// The field's HTML name.
-        let htmlName: String?
+        public let htmlName: String?
 
         /// The left-aligned label of the field.
-        let labelLeft: String?
+        public let labelLeft: String?
 
         /// The right-aligned label of the field.
-        let labelRight: String?
+        public let labelRight: String?
 
         /// The label's tag.
-        let labelTag: String?
+        public let labelTag: String?
 
         /// The field's type.
-        let onepasswordFieldType: String?
+        public let onepasswordFieldType: String?
 
         /// The OP ID.
-        let opId: String
+        public let opId: String
 
         /// The field's placeholder value.
-        let placeholder: String?
+        public let placeholder: String?
 
         /// Whether the field is read-only.
-        let readOnly: Bool?
+        public let readOnly: Bool?
 
         /// The field's type.
-        let type: String?
+        public let type: String?
 
         /// The field's value.
-        let value: String?
+        public let value: String?
 
         /// Whether the field is viewable.
-        let viewable: Bool
+        public let viewable: Bool
 
         /// Whether the field is visible.
-        let visible: Bool
+        public let visible: Bool
     }
 }

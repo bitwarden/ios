@@ -25,6 +25,14 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The group filter.
     var group: VaultListGroup?
 
+    /// Whether there are page fields available for Autofill Assist setup.
+    var hasAutofillAssistFields: Bool {
+        !AutofillAssistFieldOption.from(pageDetails: pageDetails).isEmpty
+    }
+
+    /// Whether the user has any saved Autofill Assist mappings.
+    var hasSavedAutofillAssistMappings: Bool = false
+
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
@@ -42,6 +50,9 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// The loading state of the autofill list screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
+
+    /// Page details from the Action Extension. Used to determine if Autofill Assist setup is available.
+    var pageDetails: PageDetails?
 
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)

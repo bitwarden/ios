@@ -54,6 +54,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to sync TOTP codes with the Authenticator app.
     let authenticatorSyncService: AuthenticatorSyncService?
 
+    /// The service for managing URL-based autofill assist mappings.
+    let autofillAssistService: AutofillAssistService
+
     /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
     let autofillCredentialService: AutofillCredentialService
 
@@ -386,6 +389,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.authRepository = authRepository
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
+        autofillAssistService = DefaultAutofillAssistService(appSettingsStore: appSettingsStore)
         self.autofillCredentialService = autofillCredentialService
         self.billingService = billingService
         self.biometricsRepository = biometricsRepository

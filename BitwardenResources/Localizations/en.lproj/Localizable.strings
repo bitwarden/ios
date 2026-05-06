@@ -1086,3 +1086,14 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+
+"AutofillAssist" = "Autofill Assist";
+"AutofillAssistNone" = "None (Auto)";
+"AutofillAssistSelectPageField" = "Select page field";
+"AutofillAssistSetupPageUrl" = "Page URL";
+"AutofillAssistSetupUsernameField" = "Username field";
+"AutofillAssistSetupPasswordField" = "Password field";
+"AddAutofillAssist" = "Add Autofill Assist";
+"AutofillAssistClearMappings" = "Remove All Autofill Assist";
+"AutofillAssistClearMappingsConfirmation" = "Are you sure you want to remove all saved Autofill Assist mappings?";
+"AutofillAssistMappingsCleared" = "Autofill Assist mappings removed";

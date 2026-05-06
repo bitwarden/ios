@@ -108,6 +108,21 @@ protocol AppSettingsStore: AnyObject {
     ///
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress?
 
+    /// Returns autofill assist mappings for the given user.
+    ///
+    /// - Parameter userId: The user ID associated with the mappings.
+    /// - Returns: The user's autofill assist mappings.
+    ///
+    func autofillAssistMappings(userId: String) -> [AutofillAssistMapping]
+
+    /// Sets autofill assist mappings for the given user.
+    ///
+    /// - Parameters:
+    ///   - mappings: The autofill assist mappings to store.
+    ///   - userId: The user ID associated with the mappings.
+    ///
+    func setAutofillAssistMappings(_ mappings: [AutofillAssistMapping], userId: String)
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameter userId: The user ID associated with the sync on refresh setting.
@@ -750,6 +765,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case appRehydrationState(userId: String)
         case appTheme
         case archiveOnboardingShown
+        case autofillAssistMappings(userId: String)
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
@@ -824,6 +840,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "theme"
             case .archiveOnboardingShown:
                 "archiveOnboardingShown"
+            case let .autofillAssistMappings(userId):
+                "autofillAssistMappings_\(userId)"
             case let .biometricAuthEnabled(userId):
                 "biometricUnlock_\(userId)"
             case let .clearClipboardValue(userId):
@@ -1039,6 +1057,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .accountSetupVaultUnlock(userId: userId))
     }
 
+    func autofillAssistMappings(userId: String) -> [AutofillAssistMapping] {
+        fetch(for: .autofillAssistMappings(userId: userId)) ?? []
+    }
+
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
@@ -1167,6 +1189,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
         store(vaultUnlockSetup, for: .accountSetupVaultUnlock(userId: userId))
+    }
+
+    func setAutofillAssistMappings(_ mappings: [AutofillAssistMapping], userId: String) {
+        store(mappings, for: .autofillAssistMappings(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {

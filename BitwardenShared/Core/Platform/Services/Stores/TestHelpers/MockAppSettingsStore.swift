@@ -20,6 +20,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
     var archiveOnboardingShown = false
+    var autofillAssistMappingsByUserId = [String: [AutofillAssistMapping]]()
     var cachedActiveUserId: String?
     var disableWebIcons = false
     var flightRecorderData: FlightRecorderData?
@@ -96,6 +97,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
         accountSetupVaultUnlock[userId]
+    }
+
+    func autofillAssistMappings(userId: String) -> [AutofillAssistMapping] {
+        autofillAssistMappingsByUserId[userId] ?? []
     }
 
     func allowSyncOnRefresh(userId: String) -> Bool {
@@ -225,6 +230,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
         accountSetupVaultUnlock[userId] = vaultUnlockSetup
+    }
+
+    func setAutofillAssistMappings(_ mappings: [AutofillAssistMapping], userId: String) {
+        autofillAssistMappingsByUserId[userId] = mappings
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {

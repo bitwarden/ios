@@ -44,12 +44,16 @@ struct FillScript: Codable {
     ///   - fillUsername: The username to autofill.
     ///   - fillPassword: The password to autofill.
     ///   - fillFields: Additional fields to autofill.
+    ///   - usernameOpId: An explicit page field opId to use for the username, bypassing heuristic detection.
+    ///   - passwordOpId: An explicit page field opId to use for the password, bypassing heuristic detection.
     ///
     init( // swiftlint:disable:this cyclomatic_complexity function_body_length
         pageDetails: PageDetails?,
         fillUsername: String,
         fillPassword: String,
         fillFields: [(String, String)],
+        usernameOpId: String? = nil,
+        passwordOpId: String? = nil,
     ) {
         guard let pageDetails else { documentUUID = ""; return }
 
@@ -73,8 +77,8 @@ struct FillScript: Codable {
             }
         }
 
-        if fillPassword.isEmpty {
-            // No password for this login. Maybe they just wanted to auto-fill some custom fields?
+        // When there are no explicit opId overrides and no password, there is nothing left to fill.
+        if fillPassword.isEmpty, usernameOpId == nil, passwordOpId == nil {
             setFillScriptForFocus(filledFields: filledFields)
             return
         }
@@ -159,10 +163,28 @@ struct FillScript: Codable {
             }
         }
 
+        // Override heuristic results with explicit opId mappings if provided.
+        if let usernameOpId, !fillUsername.isEmpty,
+           let field = pageDetails.fields.first(where: { $0.opId == usernameOpId }) {
+            usernames = [field]
+        }
+        if let passwordOpId, !fillPassword.isEmpty,
+           let field = pageDetails.fields.first(where: { $0.opId == passwordOpId }) {
+            passwords = [field]
+        }
+
         for username in usernames where !filledFields.keys.contains(username.opId) {
             filledFields[username.opId] = username
             script.append(["click_on_opid", username.opId])
             script.append(["fill_by_opid", username.opId, fillUsername])
+        }
+
+        // When both fields are explicitly mapped (Autofill Assist), insert a delay between the
+        // username and password fills. Dynamic pages (React/Vue/Angular) may reveal the password
+        // field asynchronously after reacting to the username input event. Without a delay the
+        // password fill command can execute before the element is available.
+        if usernameOpId != nil, passwordOpId != nil, !usernames.isEmpty, !passwords.isEmpty {
+            script.append(["delay", "300"])
         }
 
         for password in passwords where !filledFields.keys.contains(password.opId) {

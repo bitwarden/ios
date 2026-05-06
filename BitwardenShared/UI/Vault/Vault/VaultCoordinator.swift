@@ -77,6 +77,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillAssistService
         & HasAutofillCredentialService
         & HasBillingService
         & HasCameraService
@@ -218,6 +219,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                     delegate: context as? CipherItemOperationDelegate,
                 )
             }
+        case let .autofillAssistSetup(pageDetails, uri):
+            showAutofillAssistSetup(pageDetails: pageDetails, uri: uri)
         case .autofillList:
             showAutofillList()
         case let .autofillListForGroup(group):
@@ -299,6 +302,24 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         coordinator.navigate(to: .addEditFolder(folder: nil))
 
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the Autofill Assist setup screen.
+    ///
+    /// - Parameters:
+    ///   - pageDetails: The parsed web page details.
+    ///   - uri: The URI of the page, used to pre-populate the URL field.
+    ///
+    private func showAutofillAssistSetup(pageDetails: PageDetails, uri: String?) {
+        let processor = AutofillAssistSetupProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: AutofillAssistSetupState(
+                pageFields: AutofillAssistFieldOption.from(pageDetails: pageDetails),
+                url: uri ?? "",
+            ),
+        )
+        stackNavigator?.present(AutofillAssistSetupView(store: Store(processor: processor)))
     }
 
     /// Shows the autofill list screen.

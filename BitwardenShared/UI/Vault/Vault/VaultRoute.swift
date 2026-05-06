@@ -27,6 +27,9 @@ public enum VaultRoute: Equatable, Hashable {
     )
 
     /// A route to the autofill list screen.
+    case autofillAssistSetup(pageDetails: PageDetails, uri: String?)
+
+    /// A route to the autofill list screen.
     case autofillList
 
     /// A route to the autofill list screen with a specified group.

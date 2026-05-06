@@ -46,6 +46,11 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
         return context.pageDetails?.hasPasswordField ?? false
     }
 
+    /// The page details parsed from the web page, if available.
+    public var pageDetails: PageDetails? {
+        context.pageDetails
+    }
+
     /// Whether the app extension setup provider was included in the input items.
     public var isAppExtensionSetup: Bool {
         context.providerType == Constants.UTType.appExtensionSetup
@@ -115,12 +120,18 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
     ///   - username: The username of cipher that the user selected to autofill.
     ///   - password: The password of cipher that the user selected to autofill.
     ///   - fields: A list of additional fields to fill.
+    ///   - usernameOpId: An explicit page field opId to fill with the username, or `nil` for
+    ///     heuristic detection.
+    ///   - passwordOpId: An explicit page field opId to fill with the password, or `nil` for
+    ///     heuristic detection.
     /// - Returns: A dictionary of the item data used to complete the extension request.
     ///
     public func itemDataToCompleteRequest(
         username: String,
         password: String,
         fields: [(String, String)],
+        usernameOpId: String? = nil,
+        passwordOpId: String? = nil,
     ) -> [String: Any] {
         var itemData = [String: Any]()
 
@@ -130,6 +141,8 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 fillUsername: username,
                 fillPassword: password,
                 fillFields: fields,
+                usernameOpId: usernameOpId,
+                passwordOpId: passwordOpId,
             )
             do {
                 let scriptJsonData = try JSONEncoder().encode(fillScript)
@@ -151,6 +164,8 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                 fillUsername: username,
                 fillPassword: password,
                 fillFields: fields,
+                usernameOpId: usernameOpId,
+                passwordOpId: passwordOpId,
             )
             do {
                 let scriptJsonData = try JSONEncoder().encode(fillScript)

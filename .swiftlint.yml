@@ -41,10 +41,12 @@ opt_in_rules:
   - yoda_condition
 
 excluded:
+  - .claude
   - BitwardenShared/UI/Platform/Application/Support/Generated
   - BitwardenWatchApp
   - BitwardenWatchShared
   - build
+  - export
   - vendor/bundle
   - '**/Generated'
 

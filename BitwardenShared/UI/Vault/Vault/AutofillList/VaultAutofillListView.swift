@@ -123,6 +123,36 @@ private struct VaultAutofillListSearchableView: View {
 
     // MARK: Private Views
 
+    /// A menu FAB that offers "New Item", "Add Autofill Assist", and optionally "Remove All
+    /// Autofill Assist" options.
+    private var autofillAssistMenu: some View {
+        Menu {
+            Button(Localizations.newItem) {
+                store.send(.addTapped(fromFAB: true))
+            }
+            Button(Localizations.addAutofillAssist) {
+                store.send(.autofillAssistSetupTapped)
+            }
+            if store.state.hasSavedAutofillAssistMappings {
+                Button(Localizations.autofillAssistClearMappings, role: .destructive) {
+                    store.send(.clearAutofillAssistMappingsTapped)
+                }
+            }
+        } label: {
+            SharedAsset.Icons.plus32.swiftUIImage
+                .imageStyle(.floatingActionButton)
+                .background(
+                    Circle()
+                        .fill(SharedAsset.Colors.buttonFilledBackground.swiftUIColor)
+                        .frame(width: 50, height: 50),
+                )
+                .frame(width: 50, height: 50)
+        }
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+        .padding(16)
+    }
+
     /// A view for displaying a list of ciphers.
     @ViewBuilder
     private func cipherListView(_ sections: [VaultListSection]) -> some View {
@@ -272,8 +302,12 @@ private struct VaultAutofillListSearchableView: View {
                 errorViewWithRetry(errorMessage: errorMessage)
             }
             .overlay(alignment: .bottomTrailing) {
-                addItemFloatingActionButton(hidden: !store.state.showAddItemButton) {
-                    store.send(.addTapped(fromFAB: true))
+                if store.state.hasAutofillAssistFields, store.state.showAddItemButton {
+                    autofillAssistMenu
+                } else {
+                    addItemFloatingActionButton(hidden: !store.state.showAddItemButton) {
+                        store.send(.addTapped(fromFAB: true))
+                    }
                 }
             }
             .hidden(isSearching)

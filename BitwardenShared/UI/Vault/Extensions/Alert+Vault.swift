@@ -94,6 +94,22 @@ extension Alert {
     ///   - action: A closure to execute when the user confirms archiving.
     /// - Returns: An alert confirming the archive action.
     ///
+    /// Returns an alert confirming removal of all Autofill Assist mappings.
+    ///
+    /// - Parameter action: The action to perform if the user confirms.
+    /// - Returns: A confirmation alert for clearing all Autofill Assist mappings.
+    ///
+    static func clearAutofillAssistMappingsConfirmation(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.autofillAssist,
+            message: Localizations.autofillAssistClearMappingsConfirmation,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+    }
+
     static func confirmArchiveItem(action: @escaping () async -> Void) -> Alert {
         Alert(
             title: Localizations.archiveItem,

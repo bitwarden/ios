@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
+import Foundation
 
 /// A helper class to handle when a cipher is selected for autofill.
 ///
@@ -9,9 +10,11 @@ class AutofillHelper {
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasAutofillAssistService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
+        & HasStateService
         & HasVaultRepository
 
     // MARK: Properties
@@ -117,9 +120,17 @@ class AutofillHelper {
                 return
             }
 
-            guard appExtensionDelegate?.canAutofill ?? false,
-                  let username = cipherView.login?.username, !username.isEmpty,
-                  let password = cipherView.login?.password, !password.isEmpty else {
+            let username = cipherView.login?.username ?? ""
+            let password = cipherView.login?.password ?? ""
+
+            let canStandardAutofill = (appExtensionDelegate?.canAutofill ?? false)
+                && !username.isEmpty
+                && !password.isEmpty
+
+            let savedMapping = await loadAutofillAssistMapping()
+
+            guard canStandardAutofill
+                || (savedMapping != nil && (!username.isEmpty || !password.isEmpty)) else {
                 await handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
                 return
             }
@@ -136,15 +147,44 @@ class AutofillHelper {
                 cipherId: cipherView.id,
             )
 
+            let (usernameOpId, passwordOpId) = resolveAutofillAssistOpIds(from: savedMapping)
             appExtensionDelegate?.completeAutofillRequest(
                 username: username,
                 password: password,
                 fields: fields,
+                usernameOpId: usernameOpId,
+                passwordOpId: passwordOpId,
             )
         } catch {
             services.errorReporter.log(error: error)
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
+    }
+
+    /// Loads a saved Autofill Assist mapping for the current page URL, if one exists.
+    ///
+    private func loadAutofillAssistMapping() async -> AutofillAssistMapping? {
+        guard let uri = appExtensionDelegate?.uri,
+              let host = URL(string: uri)?.host,
+              let userId = try? await services.stateService.getActiveAccountId() else {
+            return nil
+        }
+        return try? await services.autofillAssistService.getMapping(forHost: host, userId: userId)
+    }
+
+    /// Resolves a saved mapping to `(usernameOpId, passwordOpId)` using the current page fields.
+    ///
+    private func resolveAutofillAssistOpIds(
+        from mapping: AutofillAssistMapping?,
+    ) -> (String?, String?) {
+        guard let mapping, let pageDetails = appExtensionDelegate?.pageDetails else {
+            return (nil, nil)
+        }
+        let resolved = services.autofillAssistService.resolveOpIds(
+            mapping: mapping,
+            fields: pageDetails.fields,
+        )
+        return (resolved.usernameOpId, resolved.passwordOpId)
     }
 
     /// Handles the case where the username or password is missing for the cipher which prevents it
