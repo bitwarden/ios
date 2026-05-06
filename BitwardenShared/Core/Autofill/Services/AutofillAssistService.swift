@@ -6,22 +6,11 @@ import Foundation
 /// A service for managing URL-based autofill assist mappings.
 ///
 protocol AutofillAssistService {
-    /// Returns the saved mapping for the given URL host, or `nil` if none exists.
+    /// Removes all saved mappings for the given user.
     ///
-    /// - Parameters:
-    ///   - host: The URL host to look up.
-    ///   - userId: The user ID associated with the mappings.
-    /// - Returns: The saved mapping for the host, if any.
+    /// - Parameter userId: The user ID associated with the mappings.
     ///
-    func getMapping(forHost host: String, userId: String) async throws -> AutofillAssistMapping?
-
-    /// Saves (upserts) a mapping for its URL host.
-    ///
-    /// - Parameters:
-    ///   - mapping: The mapping to save.
-    ///   - userId: The user ID associated with the mappings.
-    ///
-    func saveMapping(_ mapping: AutofillAssistMapping, userId: String) async throws
+    func deleteAllMappings(userId: String) async throws
 
     /// Returns all saved mappings for the given user.
     ///
@@ -30,11 +19,14 @@ protocol AutofillAssistService {
     ///
     func getAllMappings(userId: String) async throws -> [AutofillAssistMapping]
 
-    /// Removes all saved mappings for the given user.
+    /// Returns the saved mapping for the given URL host, or `nil` if none exists.
     ///
-    /// - Parameter userId: The user ID associated with the mappings.
+    /// - Parameters:
+    ///   - host: The URL host to look up.
+    ///   - userId: The user ID associated with the mappings.
+    /// - Returns: The saved mapping for the host, if any.
     ///
-    func deleteAllMappings(userId: String) async throws
+    func getMapping(forHost host: String, userId: String) async throws -> AutofillAssistMapping?
 
     /// Resolves the stored stable field identifiers to current `opId` values by scanning page fields.
     ///
@@ -47,6 +39,14 @@ protocol AutofillAssistService {
         mapping: AutofillAssistMapping,
         fields: [PageDetails.Field],
     ) -> (usernameOpId: String?, passwordOpId: String?)
+
+    /// Saves (upserts) a mapping for its URL host.
+    ///
+    /// - Parameters:
+    ///   - mapping: The mapping to save.
+    ///   - userId: The user ID associated with the mappings.
+    ///
+    func saveMapping(_ mapping: AutofillAssistMapping, userId: String) async throws
 }
 
 // MARK: - HasAutofillAssistService
@@ -79,25 +79,18 @@ class DefaultAutofillAssistService: AutofillAssistService {
 
     // MARK: AutofillAssistService
 
-    func getMapping(forHost host: String, userId: String) async throws -> AutofillAssistMapping? {
-        appSettingsStore
-            .autofillAssistMappings(userId: userId)
-            .first { $0.urlHost == host }
-    }
-
-    func saveMapping(_ mapping: AutofillAssistMapping, userId: String) async throws {
-        var mappings = appSettingsStore.autofillAssistMappings(userId: userId)
-        mappings.removeAll { $0.urlHost == mapping.urlHost }
-        mappings.append(mapping)
-        appSettingsStore.setAutofillAssistMappings(mappings, userId: userId)
+    func deleteAllMappings(userId: String) async throws {
+        appSettingsStore.setAutofillAssistMappings([], userId: userId)
     }
 
     func getAllMappings(userId: String) async throws -> [AutofillAssistMapping] {
         appSettingsStore.autofillAssistMappings(userId: userId)
     }
 
-    func deleteAllMappings(userId: String) async throws {
-        appSettingsStore.setAutofillAssistMappings([], userId: userId)
+    func getMapping(forHost host: String, userId: String) async throws -> AutofillAssistMapping? {
+        appSettingsStore
+            .autofillAssistMappings(userId: userId)
+            .first { $0.urlHost == host }
     }
 
     func resolveOpIds(
@@ -122,5 +115,12 @@ class DefaultAutofillAssistService: AutofillAssistService {
             usernameOpId: mapping.usernameFieldIdentifier.flatMap(findOpId),
             passwordOpId: mapping.passwordFieldIdentifier.flatMap(findOpId),
         )
+    }
+
+    func saveMapping(_ mapping: AutofillAssistMapping, userId: String) async throws {
+        var mappings = appSettingsStore.autofillAssistMappings(userId: userId)
+        mappings.removeAll { $0.urlHost == mapping.urlHost }
+        mappings.append(mapping)
+        appSettingsStore.setAutofillAssistMappings(mappings, userId: userId)
     }
 }
