@@ -3,7 +3,7 @@ import Foundation
 /// Serializes concurrent mutations to local user data per user ID using task chaining.
 /// Each mutation awaits the previous one before reading from keychain, eliminating read/write race
 /// conditions that would otherwise occur across actor suspension points.
-public actor LocalUserDataMutationSerializer {
+actor LocalUserDataMutationSerializer {
     private var pendingMutationsByUserId: [String: Task<Void, Error>] = [:]
 
     /// Serializes `operation` after any in-progress mutation for `userId`.
