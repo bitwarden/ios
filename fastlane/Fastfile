@@ -12,6 +12,14 @@
 
 default_platform(:ios)
 
+def resolve_api_key(options)
+  app_store_connect_api_key(
+    key_id: options[:api_key_id],
+    issuer_id: options[:api_key_issuer_id],
+    key_content: options[:api_key_content]
+  )
+end
+
 APP_CONFIG_MAP = {
   "password_manager" => {
     project_filepath: "project-pm.yml",
@@ -167,7 +175,7 @@ platform :ios do |options|
             changelog: options[:changelog],
             skip_waiting_for_build_processing: true,
             notify_external_testers: false,
-            api_key_path: options[:api_key_path],
+            api_key: resolve_api_key(options),
             ipa: options[:ipa_path],
             app_identifier: bundle_id,
             localized_build_info: {
@@ -514,7 +522,7 @@ platform :ios do |options|
       skip_screenshots: true,
       automatic_release: true,
       phased_release: options[:phased_release],
-      api_key_path: options[:api_key_path],
+      api_key: resolve_api_key(options),
       run_precheck_before_submit: false,
       metadata_path: options[:metadata_path],
       release_notes: notes
@@ -523,7 +531,7 @@ platform :ios do |options|
     desc "Get latest published version"
     lane :get_latest_version do |options|
         app_store_build_number(
-            api_key_path: options[:api_key_path],
+            api_key: resolve_api_key(options),
             app_identifier: options[:app_identifier]
         )
         latest_version_name = lane_context[SharedValues::LATEST_VERSION]
