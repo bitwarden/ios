@@ -1535,7 +1535,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
-        XCTAssertTrue(((keychainRepository?.clearLocalUserDataKeyStatesCalled) != nil))
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
 
         let context = dataStore.persistentContainer.viewContext
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
@@ -2358,7 +2358,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `removeAllLocalUserDataKeyStates(userId:)` clears all stored states.
     func test_removeAllLocalUserDataKeyStates() async {
         try? await subject.removeAllLocalUserDataKeyStates(userId: "1")
-        XCTAssertTrue(((keychainRepository?.clearLocalUserDataKeyStatesCalled) != nil))
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
     }
 
     /// `setLoginRequest()` sets the pending login requests.
