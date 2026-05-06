@@ -2295,13 +2295,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `setLocalUserDataKeyState(id:value:userId:)` stores a single key state.
-    func test_setLocalUserDataKeyState() async {
+    func test_setLocalUserDataKeyState() async throws {
         keychainRepository?.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             try await keychainRepository?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
         }
-        try? await subject.setLocalUserDataKeyState(id: "k1", value: UserKeyData(wrappedKey: "key1"), userId: "1")
+        try await subject.setLocalUserDataKeyState(id: "k1", value: UserKeyData(wrappedKey: "key1"), userId: "1")
         XCTAssertEqual(
             keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states,
             ["k1": UserKeyData(wrappedKey: "key1")]
@@ -2310,7 +2310,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `setBulkLocalUserDataKeyStates(_:userId:)` merges multiple key states atomically.
-    func test_setBulkLocalUserDataKeyStates() async {
+    func test_setBulkLocalUserDataKeyStates() async throws {
         keychainRepository?.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
@@ -2320,24 +2320,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             "k1": UserKeyData(wrappedKey: "key1"),
             "k2": UserKeyData(wrappedKey: "key2"),
         ]
-        try? await subject.setBulkLocalUserDataKeyStates(values, userId: "1")
+        try await subject.setBulkLocalUserDataKeyStates(values, userId: "1")
         XCTAssertEqual(keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states, values)
     }
 
     /// `removeLocalUserDataKeyState(id:userId:)` removes a single key state.
-    func test_removeLocalUserDataKeyState() async {
+    func test_removeLocalUserDataKeyState() async throws {
         keychainRepository?.getLocalUserDataKeyStatesReturnValue = ["k1": UserKeyData(wrappedKey: "key1")]
         keychainRepository?.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             try await keychainRepository?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
         }
-        try? await subject.removeLocalUserDataKeyState(id: "k1", userId: "1")
+        try await subject.removeLocalUserDataKeyState(id: "k1", userId: "1")
         XCTAssertNil(keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states)
     }
 
     /// `removeBulkLocalUserDataKeyStates(keys:userId:)` removes multiple key states atomically.
-    func test_removeBulkLocalUserDataKeyStates() async {
+    func test_removeBulkLocalUserDataKeyStates() async throws {
         keychainRepository?.getLocalUserDataKeyStatesReturnValue = [
             "k1": UserKeyData(wrappedKey: "key1"),
             "k2": UserKeyData(wrappedKey: "key2"),
@@ -2348,7 +2348,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             transform(&states)
             try await keychainRepository?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
         }
-        try? await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
+        try await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
         XCTAssertEqual(
             keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states,
             ["k3": UserKeyData(wrappedKey: "key3")]
@@ -2356,8 +2356,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `removeAllLocalUserDataKeyStates(userId:)` clears all stored states.
-    func test_removeAllLocalUserDataKeyStates() async {
-        try? await subject.removeAllLocalUserDataKeyStates(userId: "1")
+    func test_removeAllLocalUserDataKeyStates() async throws {
+        try await subject.removeAllLocalUserDataKeyStates(userId: "1")
         XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
     }
 
