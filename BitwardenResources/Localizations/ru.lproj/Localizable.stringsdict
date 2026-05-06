@@ -233,6 +233,27 @@
         <string>%d недели</string>
       </dict>
     </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Пожалуйста, оплатите просроченные счета **%2$@**.</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>one</key>
+        <string>У вас есть льготный период продолжительностью %1$d день с даты истечения срока действия подписки.</string>
+        <key>few</key>
+        <string>У вас есть льготный период продолжительностью %1$d дня с даты истечения срока действия подписки.</string>
+        <key>many</key>
+        <string>У вас есть льготный период продолжительностью %1$d дней с даты истечения срока действия подписки.</string>
+        <key>other</key>
+        <string>У вас есть льготный период продолжительностью %1$d дня с даты истечения срока действия подписки.</string>
+      </dict>
+    </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>

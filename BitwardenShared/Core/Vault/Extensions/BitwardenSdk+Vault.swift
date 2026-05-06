@@ -63,6 +63,7 @@ extension CipherDetailsResponseModel {
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
+            bankAccount: nil,
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
