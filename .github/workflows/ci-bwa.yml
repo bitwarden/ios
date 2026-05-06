@@ -66,7 +66,7 @@ jobs:
       contents: read
       id-token: write
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.build-mode != 'CI' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@bre-1851_fix-mobile-builds
     with:
       bw-env: bwa_prod
       build-mode: ${{ inputs.build-mode }}
@@ -84,7 +84,7 @@ jobs:
       contents: read
       id-token: write
     if: ${{ github.event_name == 'push' || inputs.build-mode == 'CI' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@bre-1851_fix-mobile-builds
     strategy:
       matrix:
         include:
