@@ -72,7 +72,7 @@ jobs:
           xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Install simulators for specific Xcode version
-        if: env._XCODE_VERSION == '26.0-beta'
+        if: ${{ env._XCODE_VERSION == '26.0-beta' }}
         run: |
           xcodebuild -downloadPlatform iOS
           xcodebuild -downloadPlatform watchOS
@@ -88,9 +88,22 @@ jobs:
           brew bundle
           bundle exec fastlane load_dotenv_file --env "$_BW_ENV"
 
+      - name: Cache Mint packages
+        id: mint-cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
+
+      - name: Install Mint packages
+        if: steps.mint-cache.outputs.cache-hit != 'true'
+        run: |
+          mint bootstrap
 
       - name: Log in to Azure
-        if: env._BUILD_MODE == 'Device'
+        if: ${{ env._BUILD_MODE == 'Device' }}
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -99,14 +112,14 @@ jobs:
 
       - name: Get Azure Key Vault secrets
         id: get-kv-secrets
-        if: env._BUILD_MODE == 'Device'
+        if: ${{ env._BUILD_MODE == 'Device' }}
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-ios
           secrets: "APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Setup secrets
-        if: env._BUILD_MODE == 'Device'
+        if: ${{ env._BUILD_MODE == 'Device' }}
         run: |
           az_download() {
             local container_name=$1
@@ -150,11 +163,11 @@ jobs:
           echo "✅ All secrets downloaded!"
 
       - name: Log out from Azure
-        if: env._BUILD_MODE == 'Device'
+        if: ${{ env._BUILD_MODE == 'Device' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Configure Keychain Access
-        if: env._BUILD_MODE == 'Device'
+        if: ${{ env._BUILD_MODE == 'Device' }}
         run: |
           KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -183,20 +196,6 @@ jobs:
             ci_run_number:"$GITHUB_RUN_ID" \
             ci_run_attempt:"$GITHUB_RUN_ATTEMPT" \
             compiler_flags:"$_COMPILER_FLAGS"
-
-      - name: Cache Mint packages
-        id: mint-cache
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
-        with:
-          path: .mint
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-          restore-keys: |
-            ${{ runner.os }}-mint-
-
-      - name: Install Mint packages
-        if: steps.mint-cache.outputs.cache-hit != 'true'
-        run: |
-          mint bootstrap
 
       - name: Build ${{ inputs.bw-env }}
         run: |
@@ -247,7 +246,7 @@ jobs:
           if-no-files-found: error
 
       - name: Set up private auth key
-        if: env._BUILD_MODE == 'Device'
+        if: ${{ env._BUILD_MODE == 'Device' }}
         env:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
@@ -257,15 +256,13 @@ jobs:
           EOF
 
       - name: Create secrets for Fastlane
-        if: env._BUILD_MODE == 'Device'
+        if: ${{ env._BUILD_MODE == 'Device' }}
         env:
           _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/auth_key.p8
         run: |
-          brew install gsed
-
-          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' "$APP_STORE_CONNECT_AUTH_KEY_PATH")
+          KEY_WITHOUT_NEWLINES=$(perl -0777 -pe 's/\r?\n/\\n/g' "$APP_STORE_CONNECT_AUTH_KEY_PATH")
 
           cat << EOF > ~/secrets/appstoreconnect-fastlane.json
           {
@@ -276,7 +273,7 @@ jobs:
           EOF
 
       - name: Validate app with App Store Connect
-        if: env._BUILD_MODE == 'Device' && false # Set to true to debug failing submissions
+        if: ${{ env._BUILD_MODE == 'Device' && false }} # Set to true to debug failing submissions
         env:
           _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
           _API_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
