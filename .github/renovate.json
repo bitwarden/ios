@@ -3,6 +3,7 @@
   "extends": [
     "github>bitwarden/renovate-config"
   ],
+  "labels": ["t:deps"],
   "enabledManagers": [
     "bundler",
     "github-actions",
@@ -25,16 +26,6 @@
     }
   ],
   "packageRules": [
-    {
-      "groupName": "bundler minor",
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "matchManagers": [
-        "bundler"
-      ]
-    },
     {
       "groupName": "gh minor",
       "matchManagers": [

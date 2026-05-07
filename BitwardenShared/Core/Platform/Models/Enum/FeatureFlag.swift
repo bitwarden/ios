@@ -20,6 +20,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
 
+    /// Flag to enable/disable the new vault item types (Bank Account, Driver's License, Passport).
+    static let newItemTypes = FeatureFlag(rawValue: "pm-32009-new-item-types")
+
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
@@ -33,6 +36,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
             .migrateMyVaultToMyItems,
+            .newItemTypes,
             .noLogoutOnKdfChange,
             .premiumUpgradePath,
         ]
