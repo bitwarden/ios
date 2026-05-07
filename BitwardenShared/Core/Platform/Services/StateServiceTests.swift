@@ -875,7 +875,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// `getLocalUserDataKeyStates(userId:)` returns stored key states for a user.
     func test_getLocalUserDataKeyStates() async throws {
         let states: [String: UserKeyData] = ["k1": UserKeyData(wrappedKey: "key1")]
-        keychainRepository?.getLocalUserDataKeyStatesReturnValue = states
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = states
         let result = try await subject.getLocalUserDataKeyStates(userId: "1")
         XCTAssertEqual(result, states)
     }
@@ -1399,12 +1399,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
 
-        keychainRepository?.getAccessTokenThrowableError = KeychainServiceError.keyNotFound(BitwardenKeychainItem.accessToken(userId: "1"))
+        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.keyNotFound(BitwardenKeychainItem.accessToken(userId: "1"))
         var authenticationState = try await subject.isAuthenticated()
         XCTAssertFalse(authenticationState)
 
-        keychainRepository?.getAccessTokenThrowableError = nil
-        keychainRepository?.getAccessTokenReturnValue = "ACCESS_TOKEN"
+        keychainRepository.getAccessTokenThrowableError = nil
+        keychainRepository.getAccessTokenReturnValue = "ACCESS_TOKEN"
         authenticationState = try await subject.isAuthenticated()
         XCTAssertTrue(authenticationState)
     }
@@ -1413,7 +1413,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated_keychainError() async throws {
         await subject.addAccount(.fixture())
         let error = KeychainServiceError.osStatusError(errSecParam)
-        keychainRepository?.getAccessTokenThrowableError = error
+        keychainRepository.getAccessTokenThrowableError = error
 
         await assertAsyncThrows(error: error) {
             _ = try await subject.isAuthenticated()
@@ -2296,22 +2296,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `setLocalUserDataKeyState(id:value:userId:)` stores a single key state.
     func test_setLocalUserDataKeyState() async throws {
-        keychainRepository?.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             try await keychainRepository?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
         }
         try await subject.setLocalUserDataKeyState(id: "k1", value: UserKeyData(wrappedKey: "key1"), userId: "1")
         XCTAssertEqual(
-            keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states,
+            keychainRepository.setLocalUserDataKeyStatesReceivedArguments?.states,
             ["k1": UserKeyData(wrappedKey: "key1")]
         )
-        XCTAssertEqual(keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.userId, "1")
+        XCTAssertEqual(keychainRepository.setLocalUserDataKeyStatesReceivedArguments?.userId, "1")
     }
 
     /// `setBulkLocalUserDataKeyStates(_:userId:)` merges multiple key states atomically.
     func test_setBulkLocalUserDataKeyStates() async throws {
-        keychainRepository?.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             try await keychainRepository?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
@@ -2321,36 +2321,36 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             "k2": UserKeyData(wrappedKey: "key2"),
         ]
         try await subject.setBulkLocalUserDataKeyStates(values, userId: "1")
-        XCTAssertEqual(keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states, values)
+        XCTAssertEqual(keychainRepository.setLocalUserDataKeyStatesReceivedArguments?.states, values)
     }
 
     /// `removeLocalUserDataKeyState(id:userId:)` removes a single key state.
     func test_removeLocalUserDataKeyState() async throws {
-        keychainRepository?.getLocalUserDataKeyStatesReturnValue = ["k1": UserKeyData(wrappedKey: "key1")]
-        keychainRepository?.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = ["k1": UserKeyData(wrappedKey: "key1")]
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             try await keychainRepository?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
         }
         try await subject.removeLocalUserDataKeyState(id: "k1", userId: "1")
-        XCTAssertNil(keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states)
+        XCTAssertNil(keychainRepository.setLocalUserDataKeyStatesReceivedArguments?.states)
     }
 
     /// `removeBulkLocalUserDataKeyStates(keys:userId:)` removes multiple key states atomically.
     func test_removeBulkLocalUserDataKeyStates() async throws {
-        keychainRepository?.getLocalUserDataKeyStatesReturnValue = [
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = [
             "k1": UserKeyData(wrappedKey: "key1"),
             "k2": UserKeyData(wrappedKey: "key2"),
             "k3": UserKeyData(wrappedKey: "key3"),
         ]
-        keychainRepository?.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
             var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
             transform(&states)
             try await keychainRepository?.setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
         }
         try await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
         XCTAssertEqual(
-            keychainRepository?.setLocalUserDataKeyStatesReceivedArguments?.states,
+            keychainRepository.setLocalUserDataKeyStatesReceivedArguments?.states,
             ["k3": UserKeyData(wrappedKey: "key3")]
         )
     }
