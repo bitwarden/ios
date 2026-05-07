@@ -97,10 +97,10 @@ jobs:
           - bw-env: bwpm_prod
             build-mode: Simulator
             distribute: false
-          # - bw-env: bwpm_beta
-          #   build-mode: Device
-          #   compiler-flags: DEBUG_MENU
-          #   distribute: true
+          - bw-env: bwpm_beta
+            build-mode: Device
+            compiler-flags: DEBUG_MENU
+            distribute: true
     with:
       bw-env: ${{ matrix.bw-env }}
       build-mode: ${{ matrix.build-mode }}
