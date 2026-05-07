@@ -27,8 +27,17 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
     /// The keychain item for device key.
     case deviceKey(userId: String)
 
+    /// The keychain item for a user's last active boot epoch.
+    ///
+    /// The boot epoch is `wallTime − monotonicTime` and is used to detect the reboot-timing attack.
+    ///
+    case lastActiveBootEpoch(userId: String)
+
     /// The keychain item for a user's last active time.
     case lastActiveTime(userId: String)
+
+    /// The keychain item for a user's last active monotonic time.
+    case lastActiveMonotonicTime(userId: String)
 
     /// The keychain item for the neverLock user auth key.
     case neverLock(userId: String)
@@ -58,6 +67,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .clientCertificateIdentity,
              .deviceAuthKeyMetadata,
              .deviceKey,
+             .lastActiveBootEpoch,
+             .lastActiveMonotonicTime,
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
@@ -79,6 +90,8 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
              .deviceAuthKey,
              .deviceAuthKeyMetadata,
              .deviceKey,
+             .lastActiveBootEpoch,
+             .lastActiveMonotonicTime,
              .lastActiveTime,
              .neverLock,
              .pendingAdminLoginRequest,
@@ -112,6 +125,10 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
             "deviceAuthKey_" + id
         case let .deviceAuthKeyMetadata(userId: id):
             "deviceAuthKeyMetadata_" + id
+        case let .lastActiveBootEpoch(userId):
+            "lastActiveBootEpoch_\(userId)"
+        case let .lastActiveMonotonicTime(userId):
+            "lastActiveMonotonicTime_\(userId)"
         case let .lastActiveTime(userId):
             "lastActiveTime_\(userId)"
         case let .neverLock(userId: id):
@@ -333,6 +350,8 @@ extension DefaultKeychainRepository {
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
             // Also exclude `deviceAuthKey` and `deviceAuthKeyMetadata` since they are used to log back into an account.
+            .lastActiveBootEpoch(userId: userId),
+            .lastActiveMonotonicTime(userId: userId),
             .lastActiveTime(userId: userId),
             .neverLock(userId: userId),
             // Exclude `pendingAdminLoginRequest` since if a TDE user is logged out before the request
@@ -527,6 +546,58 @@ extension DefaultKeychainRepository: UserSessionKeychainRepository {
     func setLastActiveTime(_ date: Date?, userId: String) async throws {
         let value = date.map { String($0.timeIntervalSince1970) } ?? ""
         try await keychainServiceFacade.setValue(value, for: BitwardenKeychainItem.lastActiveTime(userId: userId))
+    }
+
+    func getLastActiveMonotonicTime(userId: String) async throws -> TimeInterval? {
+        do {
+            let stored = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
+            )
+            return TimeInterval(stored)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
+    }
+
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) async throws {
+        let value = monotonicTime.map { String($0) }
+        guard let value else {
+            try await keychainServiceFacade.deleteValue(
+                for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
+            )
+            return
+        }
+
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.lastActiveMonotonicTime(userId: userId),
+        )
+    }
+
+    func getLastActiveBootEpoch(userId: String) async throws -> TimeInterval? {
+        do {
+            let stored = try await keychainServiceFacade.getValue(
+                for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),
+            )
+            return TimeInterval(stored)
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
+            return nil
+        }
+    }
+
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String) async throws {
+        let value = bootEpoch.map { String($0) }
+        guard let value else {
+            try await keychainServiceFacade.deleteValue(
+                for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),
+            )
+            return
+        }
+
+        try await keychainServiceFacade.setValue(
+            value,
+            for: BitwardenKeychainItem.lastActiveBootEpoch(userId: userId),
+        )
     }
 
     // MARK: Unsuccessful Unlock Attempts

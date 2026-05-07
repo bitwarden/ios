@@ -1,5 +1,6 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -44,6 +45,12 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_addPasswordHistory() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
+        var encryptedPasswordHistoryView = [PasswordHistoryView]()
+        clientService.mockVault.clientPasswordHistory.encryptClosure = { passwordHistoryView in
+            encryptedPasswordHistoryView.append(passwordHistoryView)
+            return PasswordHistory(passwordHistoryView: passwordHistoryView)
+        }
+
         let passwordHistory1 = PasswordHistoryView.fixture(password: "PASSWORD")
         try await subject.addPasswordHistory(passwordHistory1)
 
@@ -61,7 +68,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
             [passwordHistory1, passwordHistory2, passwordHistory3].map(PasswordHistory.init),
         )
         XCTAssertEqual(
-            clientService.mockVault.clientPasswordHistory.encryptedPasswordHistory,
+            encryptedPasswordHistoryView,
             [passwordHistory1, passwordHistory2, passwordHistory3],
         )
     }
