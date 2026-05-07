@@ -103,11 +103,12 @@ jobs:
             APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
             APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           run: |
+            mkdir -p ~/secrets
             KEY_WITHOUT_NEWLINES=$(perl -0777 -pe 's/\r?\n/\\n/g' ~/private_keys/auth_key.p8)
             cat << EOF > ~/secrets/appstoreconnect-fastlane.json
             {
-              "issuer_id": "$_APP_STORE_CONNECT_TEAM_ISSUER",
-              "key_id": "$_APP_STORE_CONNECT_AUTH_KEY_ID",
+              "issuer_id": "$APP_STORE_CONNECT_TEAM_ISSUER",
+              "key_id": "$APP_STORE_CONNECT_AUTH_KEY_ID",
               "key": "$KEY_WITHOUT_NEWLINES"
             }
             EOF
