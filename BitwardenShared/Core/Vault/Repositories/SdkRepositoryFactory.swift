@@ -16,15 +16,16 @@ protocol SdkRepositoryFactory { // sourcery: AutoMockable
 struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
     // MARK: Properties
 
+    /// The data store for managing the persisted ciphers for the user.
     private let cipherDataStore: CipherDataStore
+
     /// The service that provides state management functionality for the
     /// server communication configuration.
     private let serverCommunicationConfigStateService: ServerCommunicationConfigStateService
 
     /// The service for managing account state.
-    /// The data store for managing the persisted ciphers for the user.
     private let stateService: LocalUserDataStateService
-    
+
     // MARK: Init
 
     /// Initializes a `DefaultSdkRepositoryFactory`.

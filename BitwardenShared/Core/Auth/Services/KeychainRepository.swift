@@ -139,6 +139,7 @@ enum BitwardenKeychainItem: Equatable, KeychainItem {
 
 // MARK: - KeychainRepository
 
+// swiftlint:disable:next line_length
 protocol KeychainRepository: AnyObject, ServerCommunicationConfigKeychainRepository, LocalUserDataKeychainRepository { // sourcery: AutoMockable
     /// Deletes all items stored in the keychain.
     ///
@@ -300,7 +301,7 @@ class DefaultKeychainRepository: KeychainRepository {
 
     /// Serializes concurrent mutations to local user data key states per user ID.
     ///
-    let localUserDataKeyStateMutationSerializer = LocalUserDataMutationSerializer()
+    let localUserDataKeyStateMutationSerializer = SerialWorker()
 
     // MARK: Initialization
 

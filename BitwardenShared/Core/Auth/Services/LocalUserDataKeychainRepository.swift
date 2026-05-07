@@ -66,14 +66,17 @@ extension DefaultKeychainRepository: LocalUserDataKeychainRepository {
     }
 
     func clearLocalUserDataKeyStates(userId: String) async throws {
-        try await localUserDataKeyStateMutationSerializer.serialize(userId: userId) { [weak self] in
+        try await localUserDataKeyStateMutationSerializer.enqueue(userId: userId) { [weak self] in
             guard let self else { return }
             try await setLocalUserDataKeyStates(nil, userId: userId)
         }
     }
 
-    func mutateLocalUserDataKeyStates(userId: String, _ transform: @escaping @Sendable (inout [String: UserKeyData]) -> Void) async throws {
-        try await localUserDataKeyStateMutationSerializer.serialize(userId: userId) { [weak self] in
+    func mutateLocalUserDataKeyStates(
+        userId: String,
+        _ transform: @escaping @Sendable (inout [String: UserKeyData]) -> Void
+    ) async throws {
+        try await localUserDataKeyStateMutationSerializer.enqueue(userId: userId) { [weak self] in
             guard let self else { return }
             var states = try await getLocalUserDataKeyStates(userId: userId) ?? [:]
             transform(&states)

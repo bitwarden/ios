@@ -4,61 +4,61 @@ import Testing
 
 @testable import BitwardenShared
 
-struct LocalUserDataMutationSerializerTests {
-    let subject: LocalUserDataMutationSerializer
+struct SerialWorkerTests {
+    let subject: SerialWorker
 
     init() {
-        subject = LocalUserDataMutationSerializer()
+        subject = SerialWorker()
     }
 
-    // MARK: Tests - serialize
+    // MARK: Tests - enqueue
 
-    /// `serialize` executes the provided operation.
+    /// `enqueue` executes the provided operation.
     ///
     @Test
     func serialize_executesOperation() async throws {
         var executed = false
 
-        try await subject.serialize(userId: "u1") {
+        try await subject.enqueue(userId: "u1") {
             executed = true
         }
 
         #expect(executed)
     }
 
-    /// `serialize` runs the next operation for the same user even when the previous one threw.
+    /// `enqueue` runs the next operation for the same user even when the previous one threw.
     ///
     @Test
     func serialize_failingPreviousOperation_nextOperationStillRuns() async throws {
         struct TestError: Error, Equatable {}
 
         await #expect(throws: TestError()) {
-            try await subject.serialize(userId: "u1") { throw TestError() }
+            try await subject.enqueue(userId: "u1") { throw TestError() }
         }
 
         var executed = false
-        try await subject.serialize(userId: "u1") {
+        try await subject.enqueue(userId: "u1") {
             executed = true
         }
 
         #expect(executed)
     }
 
-    /// `serialize` runs operations for different users independently.
+    /// `enqueue` runs operations for different users independently.
     ///
     @Test
     func serialize_differentUsers_bothOperationsRun() async throws {
         var u1Ran = false
         var u2Ran = false
 
-        try await subject.serialize(userId: "u1") { u1Ran = true }
-        try await subject.serialize(userId: "u2") { u2Ran = true }
+        try await subject.enqueue(userId: "u1") { u1Ran = true }
+        try await subject.enqueue(userId: "u2") { u2Ran = true }
 
         #expect(u1Ran)
         #expect(u2Ran)
     }
 
-    /// `serialize` for the same user runs operations in serial order.
+    /// `enqueue` for the same user runs operations in serial order.
     ///
     @Test
     func serialize_sameUser_operationsRunInSubmissionOrder() async throws {
@@ -67,7 +67,7 @@ struct LocalUserDataMutationSerializerTests {
         nonisolated(unsafe) var op1Continuation: CheckedContinuation<Void, Never>?
 
         let task1 = Task {
-            try await subject.serialize(userId: "u1") {
+            try await subject.enqueue(userId: "u1") {
                 await withCheckedContinuation { cont in
                     op1Continuation = cont
                 }
@@ -82,7 +82,7 @@ struct LocalUserDataMutationSerializerTests {
 
         // Submit op2 while op1 is still in-flight.
         let task2 = Task {
-            try await subject.serialize(userId: "u1") {
+            try await subject.enqueue(userId: "u1") {
                 log.append(2)
             }
         }
