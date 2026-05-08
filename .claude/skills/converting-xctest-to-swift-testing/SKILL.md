@@ -171,28 +171,6 @@ func test_perform_appeared_loadsData() async throws { ... }
 func perform_appeared_loadsData() async throws { ... }
 ```
 
-### Add DocC comments
-
-Every `@Test` function must have a `///` doc comment. The comment must **start with the backtick-wrapped symbol name** of the function under test (including parameter labels), followed by a plain-English description of the behaviour being verified:
-
-```swift
-/// `receive(_:)` updates the state when the value changes.
-@Test
-func receive_valueChanged_updatesState() { ... }
-
-/// `perform(_:)` loads data when the view appears.
-@Test
-func perform_appeared_loadsData() async throws { ... }
-```
-
-For parameterized tests the same rule applies — the symbol name comes first:
-
-```swift
-/// `parseCard(lines:)` extracts card numbers across space-separated, dash-separated, and multi-segment formats.
-@Test(arguments: zip(inputs, expectedNumbers))
-func parseCard_extractsCardNumber(lines: [String], expectedNumber: String) { ... }
-```
-
 ## Step 6: Convert Assertions
 
 Replace the entire `XCTAssert` family with two powerful, expressive macros. They accept regular Swift expressions, eliminating the need for dozens of specialized `XCTAssert` functions.
