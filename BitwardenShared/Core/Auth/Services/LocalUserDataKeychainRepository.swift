@@ -11,15 +11,6 @@ protocol LocalUserDataKeychainRepository { // sourcery: AutoMockable
     ///
     func getLocalUserDataKeyStates(userId: String) async throws -> [String: UserKeyData]?
 
-    /// Sets the local user data key states for a user in the keychain.
-    /// Passing `nil` removes the stored states.
-    ///
-    /// - Parameters:
-    ///   - states: The key states to store, or `nil` to remove.
-    ///   - userId: The user ID associated with the local `UserKeyData` states.
-    ///
-    func setLocalUserDataKeyStates(_ states: [String: UserKeyData]?, userId: String) async throws
-
     /// Atomically clears all local user data key states for a user.
     /// Serialized against any in-flight mutations for `userId`, so a concurrent
     /// `mutateLocalUserDataKeyStates` cannot resurrect cleared state.
@@ -52,19 +43,6 @@ extension DefaultKeychainRepository: LocalUserDataKeychainRepository {
         }
     }
 
-    func setLocalUserDataKeyStates(_ states: [String: UserKeyData]?, userId: String) async throws {
-        if let states {
-            try await keychainServiceFacade.setValue(
-                states,
-                for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
-            )
-        } else {
-            try await keychainServiceFacade.deleteValue(
-                for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
-            )
-        }
-    }
-
     func clearLocalUserDataKeyStates(userId: String) async throws {
         try await localUserDataKeyStateMutationSerializer.enqueue(userId: userId) { [weak self] in
             guard let self else { return }
@@ -81,6 +59,19 @@ extension DefaultKeychainRepository: LocalUserDataKeychainRepository {
             var states = try await getLocalUserDataKeyStates(userId: userId) ?? [:]
             transform(&states)
             try await setLocalUserDataKeyStates(states.nilIfEmpty, userId: userId)
+        }
+    }
+
+    private func setLocalUserDataKeyStates(_ states: [String: UserKeyData]?, userId: String) async throws {
+        if let states {
+            try await keychainServiceFacade.setValue(
+                states,
+                for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
+            )
+        } else {
+            try await keychainServiceFacade.deleteValue(
+                for: BitwardenKeychainItem.localUserDataKeyStates(userId: userId),
+            )
         }
     }
 }
