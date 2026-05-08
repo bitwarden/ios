@@ -284,9 +284,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Only applies if both a card number and expiration month were detected.
     ///
     /// - Parameters:
-    ///   - data: The parsed card data returned by the card text parser.
     ///   - state: The item state to update.
-    private func applyCardScanResult(_ data: ScannedCardData) {
+    ///   - data: The parsed card data returned by the card text parser.
+    private func applyCardScanResult(_ state: inout AddEditItemState, data: ScannedCardData) {
         guard data.cardNumber != nil,
               data.expirationMonth != nil else {
             return
@@ -493,7 +493,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.cardItemState.isCardScannerPresented = false
             state.cardItemState.shouldFocusCardholderNameAfterScan = false
         case let .cardScannerLinesUpdated(lines):
-            applyCardScanResult(services.cardTextParser.parseCard(lines: lines))
+            applyCardScanResult(&state, data: services.cardTextParser.parseCard(lines: lines))
         case let .cardSecurityCodeChanged(code):
             state.cardItemState.cardSecurityCode = code
         case let .expirationMonthChanged(month):
