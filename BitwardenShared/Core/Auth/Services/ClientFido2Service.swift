@@ -4,7 +4,7 @@ import Foundation
 /// A protocol for a service that handles Fido2 tasks. This is similar to
 /// `ClientFido2Protocol` but returns the protocols so they can be mocked for testing.
 ///
-protocol ClientFido2Service: AnyObject {
+protocol ClientFido2Service: AnyObject { // sourcery: AutoMockable
     /// Returns the `ClientFido2Client` to perform Fido2 client tasks.
     /// - Parameters:
     ///   - userInterface: `Fido2UserInterface` with necessary platform side logic related to UI.

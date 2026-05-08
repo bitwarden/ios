@@ -2,6 +2,7 @@ import BitwardenSdk
 import BitwardenSdkMocks
 
 @testable import BitwardenShared
+@testable import BitwardenSharedMocks
 
 class MockPlatformClientService: PlatformClientService {
     var fido2Mock = MockClientFido2Service()
