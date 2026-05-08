@@ -52,7 +52,7 @@ extension DefaultKeychainRepository: LocalUserDataKeychainRepository {
 
     func mutateLocalUserDataKeyStates(
         userId: String,
-        _ transform: @escaping @Sendable (inout [String: UserKeyData]) -> Void
+        _ transform: @escaping @Sendable (inout [String: UserKeyData]) -> Void,
     ) async throws {
         try await localUserDataKeyStateMutationSerializer.enqueue(userId: userId) { [weak self] in
             guard let self else { return }

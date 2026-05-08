@@ -173,49 +173,20 @@ struct LocalUserDataKeychainRepositoryTests {
         }
     }
 
-    // MARK: Tests - setLocalUserDataKeyStates
-
-    /// `setLocalUserDataKeyStates(_:userId:)` stores JSON-encoded states via the facade.
+    /// `mutateLocalUserDataKeyStates(userId:_:)` rethrows errors from storing the updated states.
     ///
     @Test
-    func setLocalUserDataKeyStates_withStates_storesValue() async throws {
-        let states: [String: UserKeyData] = ["key1": UserKeyData(wrappedKey: "encKey1")]
-
-        try await subject.setLocalUserDataKeyStates(states, userId: "1")
-
-        let receivedUnformattedKey = keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey
-        let expectedUnformattedKey = BitwardenKeychainItem.localUserDataKeyStates(userId: "1").unformattedKey
-        #expect(receivedUnformattedKey == expectedUnformattedKey)
-        let storedJSON = try #require(keychainServiceFacade.setValueReceivedArguments?.value)
-        let stored = try JSONDecoder.defaultDecoder.decode(
-            [String: UserKeyData].self,
-            from: #require(storedJSON.data(using: .utf8)),
+    func mutateLocalUserDataKeyStates_setError_rethrows() async {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.localUserDataKeyStates(userId: "1"),
         )
-        #expect(stored == states)
-    }
-
-    /// `setLocalUserDataKeyStates(_:userId:)` deletes the keychain item when passed `nil`.
-    ///
-    @Test
-    func setLocalUserDataKeyStates_withNil_deletesItem() async throws {
-        try await subject.setLocalUserDataKeyStates(nil, userId: "1")
-
-        let receivedUnformattedKey = keychainServiceFacade.deleteValueReceivedItem?.unformattedKey
-        let expectedUnformattedKey = BitwardenKeychainItem.localUserDataKeyStates(userId: "1").unformattedKey
-        #expect(receivedUnformattedKey == expectedUnformattedKey)
-        #expect(!keychainServiceFacade.setValueCalled)
-    }
-
-    /// `setLocalUserDataKeyStates(_:userId:)` rethrows errors from the facade.
-    ///
-    @Test
-    func setLocalUserDataKeyStates_error_rethrows() async {
         let error = KeychainServiceError.osStatusError(-1)
         keychainServiceFacade.setValueThrowableError = error
 
-        let states: [String: UserKeyData] = ["key1": UserKeyData(wrappedKey: "encKey1")]
         await #expect(throws: error) {
-            try await subject.setLocalUserDataKeyStates(states, userId: "1")
+            try await subject.mutateLocalUserDataKeyStates(userId: "1") { states in
+                states["key1"] = UserKeyData(wrappedKey: "encKey1")
+            }
         }
     }
 }
