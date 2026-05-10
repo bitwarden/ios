@@ -14,6 +14,9 @@ struct CardItemState: Equatable {
     /// The number of the card.
     var cardNumber: String = ""
 
+    /// Whether card scanning is enabled.
+    var cardScannerEnabled: Bool = false
+
     /// The security code of the card.
     var cardSecurityCode: String = ""
 
@@ -22,6 +25,12 @@ struct CardItemState: Equatable {
 
     /// The expiration year of the card.
     var expirationYear: String = ""
+
+    /// Whether the card scanner sheet is currently presented.
+    var isCardScannerPresented: Bool = false
+
+    /// Whether the cardholder name field should receive focus after a successful scan.
+    var shouldFocusCardholderNameAfterScan: Bool = false
 
     /// The visibility of the security code.
     var isCodeVisible: Bool = false

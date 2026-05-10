@@ -28,6 +28,33 @@ public func waitForAsync(
     #expect(condition(), failureMessage, sourceLocation: sourceLocation)
 }
 
+// MARK: - waitFor
+
+/// Synchronously spins the main run loop until `condition` returns `true` or
+/// the timeout elapses. Use this (instead of `waitForAsync`) when the code
+/// under test uses `Timer.scheduledTimer`, which requires the run loop to tick
+/// and is not driven by Swift Concurrency's task scheduler.
+///
+/// - Parameters:
+///   - condition: Return `true` to stop waiting, `false` to keep spinning.
+///   - timeout: How long to spin before failing. Defaults to 10 seconds.
+///   - failureMessage: The message recorded on timeout.
+///   - sourceLocation: The source location of the call site.
+///
+@MainActor
+public func waitFor(
+    _ condition: @autoclosure () -> Bool,
+    timeout: TimeInterval = 10.0,
+    failureMessage: Comment = "waitFor condition wasn't met within the time limit",
+    sourceLocation: SourceLocation = #_sourceLocation,
+) {
+    let deadline = Date(timeIntervalSinceNow: timeout)
+    while !condition(), Date() < deadline {
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.05))
+    }
+    #expect(condition(), failureMessage, sourceLocation: sourceLocation)
+}
+
 // MARK: - withContinuationTimeout
 
 /// Waits for a callback-based async operation to call its `resume` closure, recording a test
