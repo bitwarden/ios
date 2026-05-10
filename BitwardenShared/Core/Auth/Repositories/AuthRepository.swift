@@ -1273,7 +1273,9 @@ extension DefaultAuthRepository: AuthRepository {
         return try await stateService.getActiveAccountId()
     }
 
-    /// Configures biometric unlock if the user requires master password or PIN after an app restart.
+    /// Restores the biometric unlock keychain entry after a successful vault unlock when the
+    /// biometric preference is enabled. The preference survives logout but the keychain entry
+    /// is cleared; this rewrites it so biometric unlock works without re-enabling in settings.
     ///
     private func configureBiometricUnlockIfNeeded() async {
         do {
