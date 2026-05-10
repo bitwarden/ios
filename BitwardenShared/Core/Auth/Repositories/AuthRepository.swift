@@ -610,7 +610,7 @@ extension DefaultAuthRepository: AuthRepository {
                     && !account.canBeLocked // Doesn't have an unlock method
                     && !account.isLoggedOut // Isn't already logged out (soft-logout)
 
-                if shouldTimeout || shouldLogoutDueToNoUnlockMethod {
+                if (shouldTimeout && !account.isLoggedOut) || shouldLogoutDueToNoUnlockMethod {
                     if userId == activeUserId {
                         await handleActiveUser?(activeUserId)
                     } else {

@@ -12,6 +12,12 @@ enum AddEditCardItemAction: Equatable, Sendable {
     /// The number of the card changed.
     case cardNumberChanged(String)
 
+    /// The card scanner sheet was dismissed without completing a scan.
+    case cardScannerDismissed
+
+    /// The OCR scanner produced an updated set of recognized text lines.
+    case cardScannerLinesUpdated([String])
+
     /// The security code of the card changed.
     case cardSecurityCodeChanged(String)
 
@@ -20,6 +26,9 @@ enum AddEditCardItemAction: Equatable, Sendable {
 
     /// The expiration year of the card changed.
     case expirationYearChanged(String)
+
+    /// The user tapped the Scan Card button.
+    case scanCardButtonTapped
 
     /// Toggle for code visibility changed.
     case toggleCodeVisibilityChanged(Bool)

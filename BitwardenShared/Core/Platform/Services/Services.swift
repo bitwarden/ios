@@ -19,6 +19,7 @@ typealias Services = HasAPIService
     & HasBillingService
     & HasBiometricsRepository
     & HasCameraService
+    & HasCardTextParser
     & HasChangeKdfService
     & HasCipherOwnershipHelper
     & HasClientCertificateService
@@ -174,6 +175,13 @@ protocol HasBiometricsRepository {
 protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
     var cameraService: CameraService { get }
+}
+
+/// Protocol for an object that provides a `CardTextParser`.
+///
+protocol HasCardTextParser {
+    /// The service used to parse card text from OCR results.
+    var cardTextParser: CardTextParser { get }
 }
 
 /// Protocol for an object that provides a `CipherOwnershipHelper`.

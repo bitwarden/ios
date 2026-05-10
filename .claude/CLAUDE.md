@@ -133,10 +133,10 @@ See `build-test-verify` skill for project generation, build commands, test execu
 
 **You MUST use the following skills for code delivery tasks** — invoke via the Skill tool:
 
-- **Before committing**: Run `perform-ios-preflight-checklist` to verify architecture, security, testing, and style compliance
-- **When committing**: Use `committing-ios-changes` for commit message format, staging guidance, and commit creation
-- **When creating a PR**: Use `creating-ios-pull-request` for PR title/body format, draft creation, and AI review label prompt
-- **When labeling a PR**: Use `labeling-ios-changes` for change type (`t:*`) and app context (`app:*`) label selection
+- **Before committing**: Run `bitwarden-delivery-tools:perform-preflight` to verify architecture, security, testing, and style compliance
+- **When committing**: Use `bitwarden-delivery-tools:committing-changes` for commit message format, staging guidance, and commit creation
+- **When creating a PR**: Use `bitwarden-delivery-tools:creating-pull-request` for PR title/body format, draft creation, and AI review label prompt
+- **When labeling a PR**: Use `bitwarden-delivery-tools:labeling-changes` for change type (`t:*`) and app context (`app:*`) label selection
 - **When reviewing code**: Use `reviewing-changes` for architecture, style, compilation, testing, and security review
 
 ## References
@@ -157,10 +157,10 @@ See `build-test-verify` skill for project generation, build commands, test execu
 | `converting-xctest-to-swift-testing` | "convert to Swift Testing", "migrate XCTest", "xctest to swift testing" |
 | `converting-mocks-to-automockable` | "convert mock", "migrate mock to AutoMockable", "replace bespoke mock" |
 | `build-test-verify` | "build", "run tests", "lint", "format", "verify build" |
-| `perform-ios-preflight-checklist` | "preflight", "self review", "ready to commit" |
-| `committing-ios-changes` | "commit", "stage changes", "create commit" |
-| `creating-ios-pull-request` | "create PR", "open pull request", "submit PR" |
-| `labeling-ios-changes` | "label PR", "add labels", "categorize changes" |
+| `bitwarden-delivery-tools:perform-preflight` | "preflight", "self review", "ready to commit" |
+| `bitwarden-delivery-tools:committing-changes` | "commit", "stage changes", "create commit" |
+| `bitwarden-delivery-tools:creating-pull-request` | "create PR", "open pull request", "submit PR" |
+| `bitwarden-delivery-tools:labeling-changes` | "label PR", "add labels", "categorize changes" |
 | `reviewing-changes` | "review", "code review", "check PR" |
 
 | Command | Usage |

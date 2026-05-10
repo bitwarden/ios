@@ -92,6 +92,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
                 BitwardenKeychainItem.accessToken(userId: "1").unformattedKey,
                 BitwardenKeychainItem.authenticatorVaultKey(userId: "1").unformattedKey,
                 BitwardenKeychainItem.biometrics(userId: "1").unformattedKey,
+                BitwardenKeychainItem.lastActiveBootEpoch(userId: "1").unformattedKey,
+                BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
                 BitwardenKeychainItem.lastActiveTime(userId: "1").unformattedKey,
                 BitwardenKeychainItem.neverLock(userId: "1").unformattedKey,
                 BitwardenKeychainItem.refreshToken(userId: "1").unformattedKey,
