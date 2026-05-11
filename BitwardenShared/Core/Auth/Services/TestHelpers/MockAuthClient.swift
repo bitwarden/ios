@@ -142,6 +142,7 @@ class MockAuthClient: AuthClientProtocol {
     }
 
     func registration() -> BitwardenSdk.RegistrationClient {
+        // TODO: PM-37072 Add RegistrationClientProtocolMock
         fatalError()
     }
 
