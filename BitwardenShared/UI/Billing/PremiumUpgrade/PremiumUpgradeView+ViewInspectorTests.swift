@@ -41,6 +41,13 @@ class PremiumUpgradeViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .cancelTapped)
     }
 
+    /// The cancel button is hidden when `showCancelButton` is `false`.
+    @MainActor
+    func test_cancelButton_hidden_whenShowCancelButtonFalse() throws {
+        processor.state.showCancelButton = false
+        XCTAssertThrowsError(try subject.inspect().findCancelToolbarButton())
+    }
+
     /// Tapping the upgrade now button dispatches the `.upgradeNowTapped` effect.
     @MainActor
     func test_upgradeNowButton_tap() async throws {

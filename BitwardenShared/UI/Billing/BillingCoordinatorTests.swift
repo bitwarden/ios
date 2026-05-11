@@ -84,7 +84,8 @@ struct BillingCoordinatorTests {
         #expect(action.type == .pushed)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` pushes the premium upgrade view when not presenting (settings push flow).
+    /// `navigate(to:)` with `.premiumUpgrade` pushes the premium upgrade view when not presenting (settings push flow)
+    /// and hides the cancel button.
     @Test
     func navigate_premiumUpgrade_push() throws {
         stackNavigator.isPresenting = false
@@ -93,10 +94,12 @@ struct BillingCoordinatorTests {
         #expect(stackNavigator.actions.count == 1)
         let action = try #require(stackNavigator.actions.last)
         #expect(action.type == .pushed)
-        #expect(action.view is PremiumUpgradeView)
+        let viewController = try #require(action.view as? UIHostingController<PremiumUpgradeView>)
+        #expect(viewController.rootView.store.state.showCancelButton == false)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` replaces the stack when the navigator is presenting (vault modal flow).
+    /// `navigate(to:)` with `.premiumUpgrade` replaces the stack when the navigator is presenting (vault modal flow)
+    /// and shows the cancel button.
     @Test
     func navigate_premiumUpgrade_replace() throws {
         stackNavigator.isPresenting = true
@@ -105,6 +108,7 @@ struct BillingCoordinatorTests {
         #expect(stackNavigator.actions.count == 1)
         let action = try #require(stackNavigator.actions.last)
         #expect(action.type == .replaced)
-        #expect(action.view is PremiumUpgradeView)
+        let view = try #require(action.view as? PremiumUpgradeView)
+        #expect(view.store.state.showCancelButton == true)
     }
 }
