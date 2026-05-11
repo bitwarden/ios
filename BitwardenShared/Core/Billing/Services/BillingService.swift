@@ -143,7 +143,7 @@ class DefaultBillingService: BillingService {
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
         premiumCheckoutStatusSubject
             .compactMap(\.self)
-            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .debounce(for: .milliseconds(Constants.premiumCheckoutStatusDebounceTimeInMS), scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
