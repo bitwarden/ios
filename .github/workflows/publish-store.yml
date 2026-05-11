@@ -84,17 +84,7 @@ jobs:
           uses: bitwarden/gh-actions/get-keyvault-secrets@main
           with:
             keyvault: "gh-ios"
-            secrets: "APP-STORE-CONNECT-AUTH-KEY"
-
-        - name: Download Fastlane credentials
-          env:
-            ACCOUNT_NAME: bitwardenci
-            CONTAINER_NAME: mobile
-            FILE: appstoreconnect-fastlane.json
-          run: |
-            mkdir -p "$HOME/secrets"
-            az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" --name "$FILE" \
-              --file "$HOME/secrets/$FILE" --output none
+            secrets: "APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
 
         - name: Log out from Azure
           uses: bitwarden/gh-actions/azure-logout@main
@@ -104,8 +94,23 @@ jobs:
             AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           run: |
             mkdir ~/private_keys
-            cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
+            cat << EOF > ~/private_keys/auth_key.p8
             $AUTH_KEY
+            EOF
+
+        - name: Create secrets for Fastlane
+          env:
+            APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+            APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          run: |
+            mkdir -p ~/secrets
+            KEY_WITHOUT_NEWLINES=$(perl -0777 -pe 's/\r?\n/\\n/g' ~/private_keys/auth_key.p8)
+            cat << EOF > ~/secrets/appstoreconnect-fastlane.json
+            {
+              "issuer_id": "$APP_STORE_CONNECT_TEAM_ISSUER",
+              "key_id": "$APP_STORE_CONNECT_AUTH_KEY_ID",
+              "key": "$KEY_WITHOUT_NEWLINES"
+            }
             EOF
 
         - name: Upload app to with Fastlane

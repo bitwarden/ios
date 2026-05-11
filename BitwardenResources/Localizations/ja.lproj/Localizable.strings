@@ -208,6 +208,7 @@
 "August" = "8月";
 "Brand" = "ブランド";
 "CardholderName" = "カードの名義人名";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "市町村";
 "Company" = "会社名";
 "Country" = "国";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "自動入力を設定";
 "AppInfo" = "アプリ情報";
 "Browse" = "検索";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "言語を選択";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn 認証の完了に進みます。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn 2要素認証の開始時にエラーが発生しました";
@@ -916,6 +918,7 @@
 "NoAskMe" = "いいえ、毎回確認します";
 "NoCodes" = "表示するコードがありません";
 "None" = "なし";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "桁数";
 "OtpType" = "OTPの種類";
 "RefreshPeriod" = "更新頻度";
@@ -924,6 +927,8 @@
 "SaveHere" = "ここに保存";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "この認証キーをここに保存するか、Bitwarden アプリでログイン情報に追加してください。";
 "SaveToBitwarden" = "Bitwarden に保存";
+"ScanCard" = "カードをスキャン";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "スキャン完了";
 "ScanTheQRCodeInYourSettings" = "各種アカウントの2段階認証の設定時に表示される、QRコードを読み取ります。";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Bitwarden Authenticator でアカウントを保護しましょう";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "アーカイブは空です";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ArchiveItem" = "アイテムをアーカイブ";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "アーカイブすると、このアイテムは検索結果と自動入力の候補から除外されます。";
 "ArchiveUnavailable" = "アーカイブは利用できません";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Upgrade to premium";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "プレミアムサブスクリプションを管理するには、PC でウェブ保管庫にログインしてください。";
 "CheckYourConnectionAndTryAgain" = "接続を確認して再試行してください。";
 "PricingUnavailable" = "料金が利用できません";
+"BankAccount" = "銀行口座";

@@ -5,6 +5,9 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
+    /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
+    static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
+
     /// Flag to enable/disable individual cipher encryption configured remotely.
     static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
 
@@ -31,6 +34,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
+            .cardScanner,
             .cipherKeyEncryption,
             .deviceAuthKey,
             .enableCipherKeyEncryption,

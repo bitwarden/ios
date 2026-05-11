@@ -208,6 +208,7 @@
 "August" = "kolovoz";
 "Brand" = "Vrsta kartice";
 "CardholderName" = "Vlasnik kartice";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Grad / Mjesto";
 "Company" = "Tvrtka";
 "Country" = "Zemlja";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Podesi auto-ispunu";
 "AppInfo" = "Informacije o aplikaciji";
 "Browse" = "Pregledaj";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Odaberi jezik";
 "ContinueToCompleteWebAuthnVerification" = "Nastavi na dovršetak WebAuthn potvrde.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Došlo je do greške kod pokretanja WebAuthn dvostruke autentifikacije";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Ne, pitaj me";
 "NoCodes" = "Nema kodova za prikaz";
 "None" = "Nijedno";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Broj znamenki";
 "OtpType" = "Vrsta OTP-a";
 "RefreshPeriod" = "Vrijeme osvježavanja";
@@ -924,6 +927,8 @@
 "SaveHere" = "Spremi ovdje";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Ovdje spremi autentifikatorski ključ ili ga dodaj prijavi u Bitwarden aplikaciji.";
 "SaveToBitwarden" = "Spremi u Bitwarden";
+"ScanCard" = "Skeniraj karticu";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Skeniranje završeno";
 "ScanTheQRCodeInYourSettings" = "Skeniraj QR kôd u postavkama dvostruke autentifikacije za bilo koji račun.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Osiguraj svoje račune Bitwarden Authenticatorom";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Stavke prenesene";
 "ArchiveIsEmpty" = "Arhiva je prazna";
 "ArchiveEmptyDescriptionLong" = "Ispuni svoju arhivu stavkama koje ne želiš vidjeti u rezultatima pretraživanja i prijedlozima auto-ispune, ali bi ti jednog dana ipak mogle zatrebati.";
+"ArchiveItem" = "Arhiviraj stavki";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune.";
 "ArchiveUnavailable" = "Arhiva nedostupna";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Arhiviranje je Premium značajka. Tvoj trenutni paket ne uključuje pristup ovoj značajki.";
 "UpgradeToPremium" = "Nadogradnja na premium";
@@ -1044,18 +1051,18 @@
 "BillingAmount" = "Iznos za naplatu";
 "StorageCost" = "Trošak pohrane";
 "Discount" = "Popust";
-"EstimatedTax" = "Estimated tax";
+"EstimatedTax" = "Procijenjeni porez";
 "ManagePlan" = "Upravljaj paketom";
 "CancelPremium" = "Otkaži Premium";
-"CancelNow" = "Cancel now";
+"CancelNow" = "Otkaži odmah";
 "YourNextChargeIsForXDueOnY" = "Tvoja sljedeća naplata je za **%1$@**, dospijeva na **%2$@**.";
 "WeCouldNotProcessYourPaymentUpdateYourPaymentMethodDescriptionLong" = "Nismo mogli obraditi tvoju uplatu. Ažuriraj način plaćanja prije nego pretplata završi **%1$@**.";
 "YourSubscriptionWasCanceledOnXResubscribeToContinueUsingDescriptionLong" = "Tvoja je preplata otkazana **%1$@**. Ponovno se pretplati za nastavak korištenja Premium značajki.";
 "PerMonth" = "/ mj.";
-"PerYear" = "/ year";
-"XAmountPerCadence" = "%1$@ %2$@";
+"PerYear" = " godišnje";
+"XAmountPerCadence" = "%1$@%2$@";
 "NegativeX" = "-%1$@";
-"UnknownStatus" = "Unknown";
+"UnknownStatus" = "Nepoznato";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "Your subscription status could not be determined. Please visit the web app for more details or update to the latest version.";
 "AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "At the moment premium plan is not available, please try again later.";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "Otključaj više naprednig mogućnosti s paketom Premium.";
@@ -1072,7 +1079,7 @@
 "OpeningCheckout" = "Otvaranje kupnje…";
 "UpgradePending" = "Nadogradnja čeka";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
-"UpgradedToPremium" = "Upgraded to Premium";
+"UpgradedToPremium" = " Nadogradi na Premium";
 "ViewPlanDetails" = "View plan details";
 "WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Kupnju ćeš dovršiti na sigurnoj blagajni Stripe-a.";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Za upravljanje svojom Premium pretplatom, prijavi se u svoj web trezor na računalu.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Cijene nisu dostupne";
+"BankAccount" = "Bank account";

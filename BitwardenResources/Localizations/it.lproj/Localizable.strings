@@ -208,6 +208,7 @@
 "August" = "Agosto";
 "Brand" = "Marca";
 "CardholderName" = "Titolare della carta";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Città / Comune";
 "Company" = "Azienda";
 "Country" = "Nazione";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Configura il riempimento automatico";
 "AppInfo" = "Info app";
 "Browse" = "Sfoglia";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Seleziona lingua";
 "ContinueToCompleteWebAuthnVerification" = "Continua per completare la verifica WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Si è verificato un errore con l'autenticazione a due fattori WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "No, chiedimelo";
 "NoCodes" = "Non hai nessun codice da visualizzare";
 "None" = "Niente";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Numero di cifre";
 "OtpType" = "Tipo di OTP";
 "RefreshPeriod" = "Periodo di aggiornamento";
@@ -924,6 +927,8 @@
 "SaveHere" = "Salva qui";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Salva qui questa chiave di autenticazione, o aggiungila ad un login su Bitwarden.";
 "SaveToBitwarden" = "Salva su Bitwarden";
+"ScanCard" = "Scan card";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Scansione completata";
 "ScanTheQRCodeInYourSettings" = "Scansiona il codice QR nelle impostazioni di verifica in 2 passaggi per qualsiasi account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Proteggi i tuoi account con Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Elementi trasferiti";
 "ArchiveIsEmpty" = "L'archivio è vuoto";
 "ArchiveEmptyDescriptionLong" = "Sposta in Archivio gli elementi che non vuoi vedere nei risultati di ricerca e nei suggerimenti, ma potrebbero servirti in seguito.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Archivio non disponibile";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archiviazione è una funzionalità Premium. Il tuo piano attuale non include questa funzionalità.";
 "UpgradeToPremium" = "Passa a Premium";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";
