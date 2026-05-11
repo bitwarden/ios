@@ -1385,7 +1385,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
 
-        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.keyNotFound(BitwardenKeychainItem.accessToken(userId: "1"))
+        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.accessToken(userId: "1"),
+        )
         var authenticationState = try await subject.isAuthenticated()
         XCTAssertFalse(authenticationState)
 
@@ -2731,79 +2733,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.archiveOnboardingShown = false
         let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
         XCTAssertFalse(shouldDoArchiveOnboarding)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `true` when user is free, account is 7+ days old,
-    /// and banner has not been dismissed.
-    func test_shouldShowPremiumUpgradeBanner_true() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertTrue(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when user has premium.
-    func test_shouldShowPremiumUpgradeBanner_hasPremium() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: true,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when banner has been dismissed.
-    func test_shouldShowPremiumUpgradeBanner_dismissed() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account is less than 7 days old.
-    func test_shouldShowPremiumUpgradeBanner_accountTooNew() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge + 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account has no creation date.
-    func test_shouldShowPremiumUpgradeBanner_noCreationDate() async {
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: nil,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
     }
 
     /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.

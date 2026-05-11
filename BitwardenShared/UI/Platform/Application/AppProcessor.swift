@@ -446,8 +446,8 @@ extension AppProcessor {
             return false
         }
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        let result = components?.queryItems?.first(where: {
-            $0.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
+        let result = components?.queryItems?.first(where: { item in
+            item.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
         })?.value
         if result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
             await services.billingService.premiumStatusChanged()
