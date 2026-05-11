@@ -25,7 +25,7 @@ on:
         description: "Distribute to TestFlight"
         type: boolean
 env:
-  _BW_ENV: ${{ inputs.bw-env || 'bwpm-prod' }}
+  _BW_ENV: ${{ inputs.bw-env || 'bwpm_prod' }}
   _BUILD_VARIANT: ${{ inputs.bw-env == 'bwpm_prod' && 'Production' || 'Beta' }}
   _BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
@@ -278,12 +278,8 @@ jobs:
             -gsp "$_CRASHLYTICS_PATH" \
             -p ios -- {} +
 
-      - name: Upload app to TestFlight
+      - name: Resolve Apple ID
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
-        env:
-          _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
-          _KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
-          _ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
         run: |
           case "$_BUNDLE_ID" in
             "com.8bit.bitwarden")          APPLE_ID="1137397744" ;;
@@ -294,7 +290,15 @@ jobs:
               exit 1
               ;;
           esac
+          echo "APPLE_ID=$APPLE_ID" >> "$GITHUB_ENV"
 
+      - name: Upload app to TestFlight
+        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
+        env:
+          _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
+          _KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          _ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+        run: |
           ALTOOL_OUTPUT=$(xcrun altool --upload-app \
             --type ios \
             --file "$_EXPORT_FILEPATH" \
@@ -311,13 +315,6 @@ jobs:
         id: build-trigger-data
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
         run: |
-          case "$_BUNDLE_ID" in
-            "com.8bit.bitwarden")          APPLE_ID="1137397744" ;;
-            "com.8bit.bitwarden.beta")     APPLE_ID="6477551146" ;;
-            "com.bitwarden.authenticator") APPLE_ID="6497335175" ;;
-            *)                             APPLE_ID="" ;;
-          esac
-
           CHANGELOG="$_GITHUB_ACTION_RUN_URL
           $(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
@@ -354,4 +351,4 @@ jobs:
 
       - name: Clean up auth key
         if: ${{ always() && env._BUILD_MODE == 'Device' }}
-        run: rm -f ~/private_keys/AuthKey_*.p8
+        run: rm -rf ~/private_keys
