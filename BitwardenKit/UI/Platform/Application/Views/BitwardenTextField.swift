@@ -30,6 +30,10 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
     /// post-fill verification doesn't see a binding-driven re-evaluation as a rejection.
     @State private var localText: String = ""
 
+    /// Tracks every value sent outward so that store echoes arriving out of order can be
+    /// identified and dropped rather than overwriting localText with a stale value.
+    @State private var pendingEchoes: [String: Int] = [:]
+
     /// Whether the placeholder text should be shown in the text field.
     private var showPlaceholder: Bool {
         !isFocused && localText.isEmpty
@@ -87,9 +91,15 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
         .onChange(of: localText) { newValue in
+            guard text != newValue else { return }
+            pendingEchoes[newValue, default: 0] += 1
             text = newValue
         }
         .onChange(of: text) { newValue in
+            if let count = pendingEchoes[newValue], count > 0 {
+                pendingEchoes[newValue] = count == 1 ? nil : count - 1
+                return
+            }
             guard newValue != localText else { return }
             localText = newValue
         }
