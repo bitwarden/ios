@@ -9,8 +9,10 @@ import Testing
 
 // MARK: - BillingServiceTests
 
+// swiftlint:disable file_length
+
 @MainActor
-struct BillingServiceTests {
+struct BillingServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var billingAPIService: MockBillingAPIService!
@@ -35,6 +37,7 @@ struct BillingServiceTests {
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
             configService: configService,
+            debounceInterval: .milliseconds(100),
             environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -376,7 +379,7 @@ struct BillingServiceTests {
         var lateStatuses = [PremiumCheckoutStatus]()
         let lateCancellable = subject.premiumCheckoutStatusPublisher()
             .sink { lateStatuses.append($0) }
-        
+
         try await waitForAsync { lateStatuses.isEmpty }
     }
 

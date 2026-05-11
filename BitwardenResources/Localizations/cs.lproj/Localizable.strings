@@ -208,6 +208,7 @@
 "August" = "srpen";
 "Brand" = "Vydavatel";
 "CardholderName" = "Jméno držitele karty";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Našli jsme více shod. Vyberte správné.";
 "CityTown" = "Město";
 "Company" = "Společnost";
 "Country" = "Země";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Nastavit automatické vyplňování";
 "AppInfo" = "Informace o aplikaci";
 "Browse" = "Procházet";
+"SelectCardholderName" = "Vyberte jméno držitele karty";
 "SelectLanguage" = "Zvolit jazyk";
 "ContinueToCompleteWebAuthnVerification" = "Pokračujte pro dokončení ověření WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Při spouštění dvoufaktorového ověření WebAuthn došlo k chybě";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Ne, zeptat se mě";
 "NoCodes" = "Nemáte žádné kódy k zobrazení";
 "None" = "Žádné";
+"NoneOfTheAbove" = "Nic z výše uvedeného";
 "NumberOfDigits" = "Počet číslic";
 "OtpType" = "Typ OTP";
 "RefreshPeriod" = "Doba obnovení";
@@ -924,6 +927,8 @@
 "SaveHere" = "Uložit zde";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Uložte tento ověřovací klíč zde nebo ho přidejte do Vaší aplikace Bitwarden.";
 "SaveToBitwarden" = "Uložit do Bitwardenu";
+"ScanCard" = "Naskenovat kartu";
+"PositionYourCardInTheFrameToScanIt" = "Pro naskenování umístěte svou kartu do rámečku";
 "ScanComplete" = "Skenování dokončeno";
 "ScanTheQRCodeInYourSettings" = "Naskenujte QR kód v nastavení dvoufázového ověření pro jakýkoli účet.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Zabezpečte své účty pomocí Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Převedené položky";
 "ArchiveIsEmpty" = "Archiv je prázdný";
 "ArchiveEmptyDescriptionLong" = "Naplňte archiv položkami, které nechcete vidět ve výsledcích vyhledávání a v návrzích automatického vyplňování, ale možná je jednou budete potřebovat.";
+"ArchiveItem" = "Archivovat položku";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Jakmile bude tato položka archivována, bude vyloučena z výsledků vyhledávání a z návrhů automatického vyplňování.";
 "ArchiveUnavailable" = "Archiv je nedostupný";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archivace položek je prémiová funkce. Váš aktuální plán nezahrnuje přístup k této funkci.";
 "UpgradeToPremium" = "Aktualizovat na Premium";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Pro správu předplatného Premium se přihlaste do svého webového trezoru na počítači.";
 "CheckYourConnectionAndTryAgain" = "Zkontroluj připojení k síti a opakujte akci.";
 "PricingUnavailable" = "Cena není k dispozici";
+"BankAccount" = "Bankovní účet";

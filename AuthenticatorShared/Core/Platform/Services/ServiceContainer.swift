@@ -14,7 +14,7 @@ import UIKit
 ///             & HasExampleRepository
 ///     }
 ///
-public class ServiceContainer: Services {
+public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.

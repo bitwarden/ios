@@ -65,7 +65,12 @@ public struct ActionCard<LeadingContent: View>: View {
                 VStack(alignment: .leading, spacing: 4) {
                     if let title {
                         Text(title)
-                            .styleGuide(.title2, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
+                            .styleGuide(
+                                .title2,
+                                weight: .semibold,
+                                includeLinePadding: false,
+                                includeLineSpacing: false,
+                            )
                     }
 
                     if let message {

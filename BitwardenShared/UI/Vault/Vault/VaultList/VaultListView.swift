@@ -8,7 +8,7 @@ import SwiftUI
 // MARK: - SearchableVaultListView
 
 /// The main view of the vault.
-private struct SearchableVaultListView: View {
+private struct SearchableVaultListView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
