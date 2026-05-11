@@ -11,22 +11,20 @@ struct TOTPCountdownTimerTests {
     /// `onExpiration` is called when the timer fires for a code whose generation date is in the past.
     @Test
     @MainActor
-    func onExpiration_oldDate() async {
+    func onExpiration_oldDate() {
         let expiredCode = TOTPCodeModel(
             code: "123456",
             codeGenerationDate: .distantPast,
             period: 3,
         )
-        // `subject` needs to be held strongly outside the block so it doesn't get deallocated
-        var subject: TOTPCountdownTimer?
-        await withContinuationTimeout { resume in
-            subject = TOTPCountdownTimer(
-                timeProvider: CurrentTime(),
-                timerInterval: 0.1,
-                totpCode: expiredCode,
-                onExpiration: { resume() },
-            )
-        }
+        var didExpire = false
+        let subject = TOTPCountdownTimer(
+            timeProvider: CurrentTime(),
+            timerInterval: 0.1,
+            totpCode: expiredCode,
+            onExpiration: { didExpire = true },
+        )
+        waitFor(didExpire)
         _ = subject
     }
 

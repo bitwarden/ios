@@ -43,11 +43,13 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: BillingRoute, context: AnyObject?) {
         switch route {
         case .dismiss:
-            if stackNavigator?.isPresenting == false {
-                stackNavigator?.pop()
-            } else {
+            if stackNavigator?.isPresenting == true {
+                stackNavigator?.dismiss()
+            } else if stackNavigator?.pop() == nil {
                 stackNavigator?.dismiss()
             }
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeComplete()
         case .premiumPlan:
             showPremiumPlan()
         case .premiumUpgrade:
@@ -58,6 +60,14 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     func start() {}
 
     // MARK: Private Methods
+
+    /// Shows the premium upgrade complete screen.
+    ///
+    private func showPremiumUpgradeComplete() {
+        let processor = PremiumUpgradeCompleteProcessor(coordinator: asAnyCoordinator())
+        let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
+        stackNavigator?.present(view)
+    }
 
     /// Shows the premium plan screen.
     ///

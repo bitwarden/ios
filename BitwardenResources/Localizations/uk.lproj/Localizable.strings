@@ -208,6 +208,7 @@
 "August" = "Серпень";
 "Brand" = "Тип картки";
 "CardholderName" = "Ім'я власника картки";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Місто / Селище";
 "Company" = "Компанія";
 "Country" = "Країна";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Налаштувати автозаповнення";
 "AppInfo" = "Про програму";
 "Browse" = "Огляд";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Обрати мову";
 "ContinueToCompleteWebAuthnVerification" = "Продовжуйте, щоб завершити перевірку WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Сталася помилка під час запуску двоетапної перевірки WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Ні, запитувати щоразу";
 "NoCodes" = "У вас немає кодів для показу";
 "None" = "Немає";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Кількість цифр";
 "OtpType" = "Тип OTP";
 "RefreshPeriod" = "Період оновлення";
@@ -924,6 +927,8 @@
 "SaveHere" = "Зберегти тут";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Збережіть цей ключ автентифікації тут, або додайте його до запису в програмі Bitwarden.";
 "SaveToBitwarden" = "Зберегти в Bitwarden";
+"ScanCard" = "Сканувати картку";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Сканування завершено";
 "ScanTheQRCodeInYourSettings" = "Скануйте QR-код у налаштуваннях двоетапної перевірки будь-якого облікового запису.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Захистіть свої облікові записи за допомогою Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Записи переміщено";
 "ArchiveIsEmpty" = "Архів порожній";
 "ArchiveEmptyDescriptionLong" = "Заповніть архів записами, які ви не хочете бачити в результатах пошуку і пропозиціях автозаповнення, але які можуть колись знадобитися.";
+"ArchiveItem" = "Архівувати запис";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення.";
 "ArchiveUnavailable" = "Архів недоступний";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архівування записів є функцією Premium. Ваш поточний тарифний план не передбачає доступ до цієї функції.";
 "UpgradeToPremium" = "Покращити до Premium";
@@ -1072,7 +1079,7 @@
 "OpeningCheckout" = "Opening checkout…";
 "UpgradePending" = "Покращення в очікуванні";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
-"UpgradedToPremium" = "Upgraded to Premium";
+"UpgradedToPremium" = "Покращено до Premium";
 "ViewPlanDetails" = "View plan details";
 "WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Для керувати вашою передплатою Premium, увійдіть у своє сховище на комп'ютері.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Ціни недоступні";
+"BankAccount" = "Bank account";

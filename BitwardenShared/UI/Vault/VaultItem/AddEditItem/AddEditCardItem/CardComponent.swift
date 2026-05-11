@@ -119,6 +119,47 @@ enum CardComponent {
     }
 }
 
+extension CardComponent.Brand {
+    /// Infers the card brand from the leading digits of a card number.
+    ///
+    /// - Parameter number: The card number (digits only, no spaces).
+    /// - Returns: The detected brand, or `.other` if unrecognized.
+    static func detect(from number: String) -> CardComponent.Brand { // swiftlint:disable:this cyclomatic_complexity
+        guard !number.isEmpty else { return .other }
+
+        if number.hasPrefix("4") { return .visa }
+
+        if number.hasPrefix("34") || number.hasPrefix("37") { return .americanExpress }
+
+        if let prefix2 = Int(number.prefix(2)) {
+            if (51 ... 55).contains(prefix2) { return .mastercard }
+            if prefix2 == 36 || prefix2 == 38 { return .dinersClub }
+            if prefix2 == 35 { return .jcb }
+        }
+
+        if let prefix4 = Int(number.prefix(4)) {
+            if prefix4 == 6011 { return .discover }
+            if [5018, 5020, 5038, 6304, 6759].contains(prefix4) { return .maestro }
+            if (3528 ... 3589).contains(prefix4) { return .jcb }
+            if (2221 ... 2720).contains(prefix4) { return .mastercard }
+            if (3000 ... 3059).contains(prefix4) { return .dinersClub }
+        }
+
+        if let prefix6 = Int(number.prefix(6)) {
+            if (622_126 ... 622_925).contains(prefix6) { return .discover }
+        }
+
+        if let prefix2 = Int(number.prefix(2)) {
+            if prefix2 == 62 { return .unionPay }
+            if prefix2 == 60 { return .ruPay }
+            if (64 ... 65).contains(prefix2) { return .discover }
+            if (56 ... 58).contains(prefix2) { return .maestro }
+        }
+
+        return .other
+    }
+}
+
 extension CardComponent.Brand: CaseIterable {}
 extension CardComponent.Brand: Menuable {
     /// default state title for title type

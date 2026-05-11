@@ -1,16 +1,36 @@
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import Foundation
 
 @testable import AuthenticatorShared
 
 class MockVaultClientService: VaultClientService {
-    var clientAttachments = MockClientAttachments()
+    var clientAttachments = MockAttachmentsClientProtocol()
     var clientCiphers = MockClientCiphers()
-    var clientCollections = MockClientCollections()
-    var clientFolders = MockClientFolders()
-    var clientPasswordHistory = MockClientPasswordHistory()
+    var clientCollections: MockCollectionsClientProtocol = {
+        let mock = MockCollectionsClientProtocol()
+        mock.decryptClosure = { CollectionView(collection: $0) }
+        mock.decryptListClosure = { $0.map(CollectionView.init) }
+        return mock
+    }()
+
+    var clientFolders: MockFoldersClientProtocol = {
+        let mock = MockFoldersClientProtocol()
+        mock.decryptClosure = { FolderView(folder: $0) }
+        mock.decryptListClosure = { $0.map(FolderView.init) }
+        mock.encryptClosure = { Folder(folderView: $0) }
+        return mock
+    }()
+
+    var clientPasswordHistory: MockPasswordHistoryClientProtocol = {
+        let mock = MockPasswordHistoryClientProtocol()
+        mock.encryptClosure = { PasswordHistory(passwordHistoryView: $0) }
+        mock.decryptListClosure = { $0.map(PasswordHistoryView.init) }
+        return mock
+    }()
+
     var generateTOTPCodeResult: Result<String, Error> = .success("123456")
     var timeProvider = MockTimeProvider(.currentTime)
     var totpPeriod: UInt32 = 30
@@ -42,46 +62,6 @@ class MockVaultClientService: VaultClientService {
 
     func passwordHistory() -> PasswordHistoryClientProtocol {
         clientPasswordHistory
-    }
-}
-
-// MARK: - MockClientAttachments
-
-class MockClientAttachments: AttachmentsClientProtocol {
-    var encryptedFilePaths = [String]()
-    var decryptedBuffers = [Data]()
-    var encryptedBuffers = [Data]()
-
-    func decryptBuffer(cipher _: Cipher, attachment _: AttachmentView, buffer: Data) throws -> Data {
-        decryptedBuffers.append(buffer)
-        return buffer
-    }
-
-    func decryptFile(
-        cipher _: Cipher,
-        attachment _: AttachmentView,
-        encryptedFilePath: String,
-        decryptedFilePath _: String,
-    ) throws {
-        encryptedFilePaths.append(encryptedFilePath)
-    }
-
-    func encryptBuffer(
-        cipher _: Cipher,
-        attachment: AttachmentView,
-        buffer: Data,
-    ) throws -> AttachmentEncryptResult {
-        encryptedBuffers.append(buffer)
-        return AttachmentEncryptResult(attachment: Attachment(attachmentView: attachment), contents: buffer)
-    }
-
-    func encryptFile(
-        cipher _: Cipher,
-        attachment: AttachmentView,
-        decryptedFilePath _: String,
-        encryptedFilePath _: String,
-    ) throws -> Attachment {
-        Attachment(attachmentView: attachment)
     }
 }
 
@@ -150,113 +130,5 @@ class MockClientCiphers: CiphersClientProtocol {
         collectionIds: [CollectionId],
     ) async throws -> [EncryptionContext] {
         try prepareCiphersForBulkShareResult.get()
-    }
-}
-
-// MARK: - MockClientCollections
-
-class MockClientCollections: CollectionsClientProtocol {
-    var decryptResult: (Collection) throws -> CollectionView = { collection in
-        CollectionView(collection: collection)
-    }
-
-    var getCollectionTreeReceivedCollection = [BitwardenSdk.CollectionView]()
-    var getCollectionTreeReturnValue: BitwardenSdk.CollectionViewTree?
-
-    func decrypt(collection: Collection) throws -> CollectionView {
-        try decryptResult(collection)
-    }
-
-    func decryptList(collections: [Collection]) throws -> [CollectionView] {
-        collections.map(CollectionView.init)
-    }
-
-    func getCollectionTree(collections: [BitwardenSdk.CollectionView]) -> BitwardenSdk.CollectionViewTree {
-        getCollectionTreeReceivedCollection = collections
-        return getCollectionTreeReturnValue ?? BitwardenSdk.CollectionViewTree(noHandle: .init())
-    }
-}
-
-// MARK: - MockClientFolders
-
-class MockClientFolders: FoldersClientProtocol {
-    var decryptFolderValueToDecrypt: Folder?
-    var decryptFolderResult: Result<FolderView?, Error> = .success(nil)
-
-    var decryptedFolders = [Folder]()
-
-    var encryptError: Error?
-    var encryptedFolders = [FolderView]()
-
-    func decrypt(folder: Folder) throws -> FolderView {
-        decryptFolderValueToDecrypt = folder
-        return try decryptFolderResult.get() ?? FolderView(folder: folder)
-    }
-
-    func decryptList(folders: [Folder]) throws -> [FolderView] {
-        decryptedFolders = folders
-        return folders.map(FolderView.init)
-    }
-
-    func encrypt(folder: FolderView) throws -> Folder {
-        encryptedFolders.append(folder)
-        if let encryptError {
-            throw encryptError
-        }
-        return Folder(folderView: folder)
-    }
-}
-
-// MARK: - MockClientPasswordHistory
-
-class MockClientPasswordHistory: PasswordHistoryClientProtocol {
-    var encryptedPasswordHistory = [PasswordHistoryView]()
-
-    func decryptList(list: [PasswordHistory]) throws -> [PasswordHistoryView] {
-        list.map(PasswordHistoryView.init)
-    }
-
-    func encrypt(passwordHistory: PasswordHistoryView) throws -> PasswordHistory {
-        encryptedPasswordHistory.append(passwordHistory)
-        return PasswordHistory(passwordHistoryView: passwordHistory)
-    }
-}
-
-// MARK: - MockSendClient
-
-class MockSendClient: SendClientProtocol {
-    var decryptedSends: [Send] = []
-    var encryptedSendViews: [SendView] = []
-    var encryptedBuffers: [Data] = []
-
-    func decrypt(send: Send) throws -> SendView {
-        decryptedSends.append(send)
-        return SendView(send: send)
-    }
-
-    func decryptBuffer(send _: Send, buffer _: Data) throws -> Data {
-        fatalError("Not implemented yet")
-    }
-
-    func decryptFile(send _: Send, encryptedFilePath _: String, decryptedFilePath _: String) throws {
-        fatalError("Not implemented yet")
-    }
-
-    func decryptList(sends _: [Send]) throws -> [BitwardenSdk.SendListView] {
-        fatalError("Not implemented yet")
-    }
-
-    func encrypt(send sendView: SendView) throws -> Send {
-        encryptedSendViews.append(sendView)
-        return Send(sendView: sendView)
-    }
-
-    func encryptBuffer(send _: Send, buffer: Data) throws -> Data {
-        encryptedBuffers.append(buffer)
-        return buffer
-    }
-
-    func encryptFile(send _: Send, decryptedFilePath _: String, encryptedFilePath _: String) throws {
-        fatalError("Not implemented yet")
     }
 }

@@ -1179,7 +1179,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(rehydrationHelper.saveRehydrationStateIfNeededCalled)
     }
 
-    /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.landing`
+    /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.landingSoftLoggedOut`
     ///     if the account session has timed out and the action is logout.
     func test_handleAndRoute_didTimeout_sessionExpired_logout() async {
         let account = Account.fixture()
@@ -1187,6 +1187,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             account,
         ]
         stateService.activeAccount = account
+        authRepository.activeAccount = account
         vaultTimeoutService.vaultTimeout = [
             account.profile.userId: .fiveMinutes,
         ]
@@ -1197,7 +1198,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let route = await subject.handleAndRoute(.didTimeout(userId: account.profile.userId))
         XCTAssertEqual(
             route,
-            .landing,
+            .landingSoftLoggedOut(email: account.profile.email),
         )
     }
 

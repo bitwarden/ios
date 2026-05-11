@@ -51,7 +51,7 @@ struct TOTPExpirationCalculatorTests {
                         ),
                     ),
                 ),
-            )
+            ),
         )
     }
 }

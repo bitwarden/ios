@@ -33,6 +33,174 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
         subject = nil
     }
 
+    // MARK: Tests - Last Active Monotonic Time
+
+    /// `getLastActiveMonotonicTime(userId:)` returns the stored last active monotonic time.
+    ///
+    func test_getLastActiveMonotonicTime() async throws {
+        keychainServiceFacade.getValueReturnValue = "12345.67"
+
+        let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: "1")
+
+        XCTAssertEqual(monotonicTime, 12345.67)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
+        )
+    }
+
+    /// `getLastActiveMonotonicTime(userId:)` returns nil when the item is not found.
+    ///
+    func test_getLastActiveMonotonicTime_notFound() async throws {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+
+        let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: "1")
+
+        XCTAssertNil(monotonicTime)
+    }
+
+    /// `getLastActiveMonotonicTime(userId:)` returns nil when the keychain item is not found.
+    ///
+    func test_getLastActiveMonotonicTime_keyNotFound() async throws {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1")
+        )
+
+        let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: "1")
+
+        XCTAssertNil(monotonicTime)
+    }
+
+    /// `getLastActiveMonotonicTime(userId:)` rethrows non-notFound errors.
+    ///
+    func test_getLastActiveMonotonicTime_error() async {
+        let error = KeychainServiceError.osStatusError(errSecInvalidItemRef)
+        keychainServiceFacade.getValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getLastActiveMonotonicTime(userId: "1")
+        }
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` stores the last active monotonic time via the facade.
+    ///
+    func test_setLastActiveMonotonicTime() async throws {
+        try await subject.setLastActiveMonotonicTime(98765.43, userId: "1")
+
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "98765.43")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` deletes the keychain item when nil is passed.
+    ///
+    func test_setLastActiveMonotonicTime_nil() async throws {
+        try await subject.setLastActiveMonotonicTime(nil, userId: "1")
+
+        XCTAssertNil(keychainServiceFacade.setValueReceivedArguments)
+        XCTAssertEqual(
+            keychainServiceFacade.deleteValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1").unformattedKey,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` rethrows errors from the facade.
+    ///
+    func test_setLastActiveMonotonicTime_error() async {
+        let error = KeychainServiceError.accessControlFailed(nil)
+        keychainServiceFacade.setValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            try await subject.setLastActiveMonotonicTime(12345.0, userId: "1")
+        }
+    }
+
+    // MARK: Tests - Last Active Boot Epoch
+
+    /// `getLastActiveBootEpoch(userId:)` returns the stored last active boot epoch.
+    ///
+    func test_getLastActiveBootEpoch() async throws {
+        keychainServiceFacade.getValueReturnValue = "1700000000.5"
+
+        let bootEpoch = try await subject.getLastActiveBootEpoch(userId: "1")
+
+        XCTAssertEqual(bootEpoch, 1_700_000_000.5)
+        XCTAssertEqual(
+            keychainServiceFacade.getValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.lastActiveBootEpoch(userId: "1").unformattedKey,
+        )
+    }
+
+    /// `getLastActiveBootEpoch(userId:)` returns nil when the item is not found.
+    ///
+    func test_getLastActiveBootEpoch_notFound() async throws {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+
+        let bootEpoch = try await subject.getLastActiveBootEpoch(userId: "1")
+
+        XCTAssertNil(bootEpoch)
+    }
+
+    /// `getLastActiveBootEpoch(userId:)` returns nil when the keychain item is not found.
+    ///
+    func test_getLastActiveBootEpoch_keyNotFound() async throws {
+        keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.lastActiveBootEpoch(userId: "1")
+        )
+
+        let bootEpoch = try await subject.getLastActiveBootEpoch(userId: "1")
+
+        XCTAssertNil(bootEpoch)
+    }
+
+    /// `getLastActiveBootEpoch(userId:)` rethrows non-notFound errors.
+    ///
+    func test_getLastActiveBootEpoch_error() async {
+        let error = KeychainServiceError.osStatusError(errSecInvalidItemRef)
+        keychainServiceFacade.getValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            _ = try await subject.getLastActiveBootEpoch(userId: "1")
+        }
+    }
+
+    /// `setLastActiveBootEpoch(_:userId:)` stores the boot epoch via the facade.
+    ///
+    func test_setLastActiveBootEpoch() async throws {
+        try await subject.setLastActiveBootEpoch(1_700_000_000.5, userId: "1")
+
+        XCTAssertEqual(keychainServiceFacade.setValueReceivedArguments?.value, "1700000000.5")
+        XCTAssertEqual(
+            keychainServiceFacade.setValueReceivedArguments?.item.unformattedKey,
+            BitwardenKeychainItem.lastActiveBootEpoch(userId: "1").unformattedKey,
+        )
+    }
+
+    /// `setLastActiveBootEpoch(_:userId:)` deletes the keychain item when nil is passed.
+    ///
+    func test_setLastActiveBootEpoch_nil() async throws {
+        try await subject.setLastActiveBootEpoch(nil, userId: "1")
+
+        XCTAssertNil(keychainServiceFacade.setValueReceivedArguments)
+        XCTAssertEqual(
+            keychainServiceFacade.deleteValueReceivedItem?.unformattedKey,
+            BitwardenKeychainItem.lastActiveBootEpoch(userId: "1").unformattedKey,
+        )
+    }
+
+    /// `setLastActiveBootEpoch(_:userId:)` rethrows errors from the facade.
+    ///
+    func test_setLastActiveBootEpoch_error() async {
+        let error = KeychainServiceError.accessControlFailed(nil)
+        keychainServiceFacade.setValueThrowableError = error
+
+        await assertAsyncThrows(error: error) {
+            try await subject.setLastActiveBootEpoch(1_700_000_000.5, userId: "1")
+        }
+    }
+
     // MARK: Tests - Last Active Time
 
     /// `getLastActiveTime(userId:)` returns the stored last active time.

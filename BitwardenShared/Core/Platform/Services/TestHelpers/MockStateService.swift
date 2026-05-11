@@ -56,6 +56,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var isInitialSyncRequiredByUserId = [String: Bool]()
+    var isPremiumUpgradeBannerDismissedResult: Bool = false
+    var isPremiumUpgradeEligibleResult: Bool = false
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
@@ -66,6 +68,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var getActiveAccountIdError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var lastRequestToTurnOnCredentialProvider: Date?
+    var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
@@ -105,7 +108,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
-    var shouldShowPremiumUpgradeBannerResult: Bool = false
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
@@ -325,6 +327,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return lastSyncTimeByUserId[userId]
     }
 
+    func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try unwrapUserId(userId)
+        return lastSyncMonotonicTimeByUserId[userId] ?? nil
+    }
+
     func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
         learnGeneratorActionCardStatus
     }
@@ -443,6 +450,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func isInitialSyncRequired(userId: String?) async -> Bool {
         guard let userId = try? unwrapUserId(userId) else { return false }
         return isInitialSyncRequiredByUserId[userId] ?? false
+    }
+
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        isPremiumUpgradeBannerDismissedResult
+    }
+
+    func isPremiumUpgradeEligible() async -> Bool {
+        isPremiumUpgradeEligibleResult
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
@@ -637,6 +652,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         lastRequestToTurnOnCredentialProvider = date
     }
 
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        lastSyncMonotonicTimeByUserId[userId] = monotonicTime
+    }
+
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         lastSyncTimeByUserId[userId] = date
@@ -777,10 +797,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.usesKeyConnector[userId] = usesKeyConnector
-    }
-
-    func shouldShowPremiumUpgradeBanner() async -> Bool {
-        shouldShowPremiumUpgradeBannerResult
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

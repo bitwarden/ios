@@ -8,7 +8,7 @@
 "Lock up all accounts in ${applicationName}" = "Lock up all accounts in ${applicationName}";
 "Enable total ${applicationName} security" = "Enable total ${applicationName} security";
 "${applicationName}, secure all profiles" = "${applicationName}, secure all profiles";
-"Global lock for ${applicationName}" = "Global lock for ${applicationName}";
+"Global lock for ${applicationName}" = "Καθολικό κλείδωμα για το ${applicationName}";
 "Log out all ${applicationName} accounts" = "Log out all ${applicationName} accounts";
 "Sign out of every ${applicationName} session" = "Sign out of every ${applicationName} session";
 "${applicationName}, log out all users" = "${applicationName}, log out all users";

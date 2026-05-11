@@ -6,6 +6,7 @@ extension CipherDetailsResponseModel {
     static func fixture(
         archivedDate: Date? = nil,
         attachments: [AttachmentResponseModel]? = nil,
+        bankAccount: CipherBankAccountModel? = nil,
         card: CipherCardModel? = nil,
         collectionIds: [String] = [],
         creationDate: Date = Date(),
@@ -34,6 +35,7 @@ extension CipherDetailsResponseModel {
         self.init(
             archivedDate: archivedDate,
             attachments: attachments,
+            bankAccount: bankAccount,
             card: card,
             collectionIds: collectionIds,
             creationDate: creationDate,

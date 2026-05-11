@@ -1,6 +1,7 @@
 import BitwardenKit
 import BitwardenResources
 import SwiftUI
+import VisionKit
 
 // MARK: - AddEditCardItemView
 
@@ -24,11 +25,17 @@ struct AddEditCardItemView: View {
     /// The currently focused field.
     @FocusState private var focusedField: FocusedField?
 
+    /// Pre-warmed scanner created the moment the button is tapped so hardware init
+    /// overlaps the sheet presentation animation rather than happening after it.
+    /// Typed as `AnyObject?` to avoid placing `@available` on a stored property.
+    @SwiftUI.State private var preWarmedScanner: AnyObject?
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<any AddEditCardItemState, AddEditCardItemAction, AddEditItemEffect>
 
     var body: some View {
         SectionView(Localizations.cardDetails, contentSpacing: 8) {
+            scanCardButton
             ContentBlock {
                 BitwardenTextField(
                     title: Localizations.cardholderName,
@@ -114,6 +121,42 @@ struct AddEditCardItemView: View {
                 .focused($focusedField, equals: .securityCode)
                 .onSubmit { focusNextField($focusedField) }
             }
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { store.state.isCardScannerPresented },
+                set: { _ in
+                    preWarmedScanner = nil
+                    store.send(.cardScannerDismissed)
+                },
+            ),
+        ) {
+            if #available(iOS 16.0, *), let scanner = preWarmedScanner as? DataScannerViewController {
+                CardScannerWrapperView(scanner: scanner) { lines in
+                    store.send(.cardScannerLinesUpdated(lines))
+                }
+            }
+        }
+        .onChange(of: store.state.shouldFocusCardholderNameAfterScan) { shouldFocus in
+            guard shouldFocus else { return }
+            focusedField = .cardholderName
+        }
+    }
+
+    // MARK: Private Views
+
+    /// A button that opens the card scanner. Only shown on iOS 16+ devices with camera support
+    /// and ``FeatureFlag.cardScanner`` enabled.
+    @ViewBuilder private var scanCardButton: some View {
+        if #available(iOS 16.0, *), DataScannerViewController.isSupported, store.state.cardScannerEnabled {
+            Button {
+                preWarmedScanner = CardScannerView.makeScanner()
+                store.send(.scanCardButtonTapped)
+            } label: {
+                Label(Localizations.scanCard, image: SharedAsset.Icons.camera16.swiftUIImage)
+            }
+            .accessibilityIdentifier("ScanCardButton")
+            .buttonStyle(.secondary())
         }
     }
 }
