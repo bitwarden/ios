@@ -22,6 +22,9 @@ struct PremiumUpgradeState: Equatable {
     /// The raw premium seat price. `nil` until successfully fetched from the API.
     var premiumSeatPrice: Decimal?
 
+    /// Whether the cancel (X) toolbar button should be shown.
+    var showCancelButton = true
+
     /// Whether the pricing error banner is visible.
     var showPricingErrorBanner = false
 
