@@ -208,6 +208,7 @@
 "August" = "August";
 "Brand" = "Merke";
 "CardholderName" = "Kortholderens navn";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "By / Tettsted";
 "Company" = "Firma";
 "Country" = "Land";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Sett opp auto-utfylling";
 "AppInfo" = "App info";
 "Browse" = "Bla rundt";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Velg språk";
 "ContinueToCompleteWebAuthnVerification" = "Fortsett til å fullføre WebAuthn-verifisering.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Nei, spør meg";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "Ingen";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Antall sifre";
 "OtpType" = "OTP-type";
 "RefreshPeriod" = "Refresh period";
@@ -924,6 +927,8 @@
 "SaveHere" = "Lagre her";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Save this authenticator key here, or add it to a login in your Bitwarden app.";
 "SaveToBitwarden" = "Lagre til Bitwarden";
+"ScanCard" = "Scan card";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Skanning fullført";
 "ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "Archive is empty";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Upgrade to premium";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";

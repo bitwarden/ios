@@ -171,7 +171,7 @@
     <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
-      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** Please resolve the past due invoices by **%2$@**.</string>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** 請於 **%2$@** 前完成逾期帳單付款。</string>
       <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
       <dict>
         <key>NSStringFormatSpecTypeKey</key>
@@ -179,7 +179,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>other</key>
-        <string>You have a grace period of %1$d days from your subscription expiration date.</string>
+        <string>自訂閱到期日起，您有 %1$d 天的寬限期。</string>
       </dict>
     </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
