@@ -84,9 +84,22 @@ struct BillingCoordinatorTests {
         #expect(action.type == .pushed)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` replaces the stack with the premium upgrade view.
+    /// `navigate(to:)` with `.premiumUpgrade` pushes the premium upgrade view when not presenting (settings push flow).
     @Test
-    func navigate_premiumUpgrade() throws {
+    func navigate_premiumUpgrade_push() throws {
+        stackNavigator.isPresenting = false
+        subject.navigate(to: .premiumUpgrade)
+
+        #expect(stackNavigator.actions.count == 1)
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .pushed)
+        #expect(action.view is PremiumUpgradeView)
+    }
+
+    /// `navigate(to:)` with `.premiumUpgrade` replaces the stack when the navigator is presenting (vault modal flow).
+    @Test
+    func navigate_premiumUpgrade_replace() throws {
+        stackNavigator.isPresenting = true
         subject.navigate(to: .premiumUpgrade)
 
         #expect(stackNavigator.actions.count == 1)

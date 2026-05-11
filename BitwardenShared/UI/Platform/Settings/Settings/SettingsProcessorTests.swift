@@ -152,9 +152,19 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
-    /// Receiving `.planPressed` navigates to the premium plan screen.
+    /// Receiving `.planPressed` navigates to the premium upgrade screen for a free user.
     @MainActor
-    func test_receive_planPressed() {
+    func test_receive_planPressed_freeUser() {
+        subject.state.hasPremium = false
+        subject.receive(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+    }
+
+    /// Receiving `.planPressed` navigates to the premium plan screen for a premium user.
+    @MainActor
+    func test_receive_planPressed_hasPremium() {
+        subject.state.hasPremium = true
         subject.receive(.planPressed)
 
         XCTAssertEqual(coordinator.routes.last, .premiumPlan)
@@ -179,15 +189,16 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.showPlanRow)
     }
 
-    /// `perform(.appeared)` hides the plan row when the user does not have premium.
+    /// `perform(.appeared)` shows the plan row for a free user when the feature flag is enabled.
     @MainActor
-    func test_perform_appeared_hidesPlanRow_noPremium() async {
+    func test_perform_appeared_showsPlanRow_freeUser() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = false
 
         await subject.perform(.appeared)
 
-        XCTAssertFalse(subject.state.showPlanRow)
+        XCTAssertTrue(subject.state.showPlanRow)
+        XCTAssertFalse(subject.state.hasPremium)
     }
 
     /// `perform(.appeared)` hides the plan row when the user is self-hosted.
@@ -204,7 +215,7 @@ class SettingsProcessorTests: BitwardenTestCase {
 
     /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has premium.
     @MainActor
-    func test_perform_appeared_showsPlanRow() async {
+    func test_perform_appeared_showsPlanRow_hasPremium() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = true
         environmentService.region = .unitedStates
@@ -212,6 +223,7 @@ class SettingsProcessorTests: BitwardenTestCase {
         await subject.perform(.appeared)
 
         XCTAssertTrue(subject.state.showPlanRow)
+        XCTAssertTrue(subject.state.hasPremium)
     }
 }
 
