@@ -208,6 +208,7 @@
 "August" = "Август";
 "Brand" = "Произвођач";
 "CardholderName" = "Име Власника Картице";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Град";
 "Company" = "Предузеће";
 "Country" = "Земља";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Подесити ауто-пуњење";
 "AppInfo" = "Информације о апликацији";
 "Browse" = "Потражи";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Изабери језик";
 "ContinueToCompleteWebAuthnVerification" = "Наставите са довршавањем WebAuthn верификације.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Дошло је до грешке при покретању WebAuthn двофакторске аутентификације";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Не, питај ме";
 "NoCodes" = "Немате никакве кодове за приказ";
 "None" = "Ниједан";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Број цифара";
 "OtpType" = "Тип ОТП";
 "RefreshPeriod" = "Период освежавања";
@@ -924,6 +927,8 @@
 "SaveHere" = "Сачувај овде";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Сачувајте овај кључ за аутентификацију овде или га додајте у пријаву у своју Bitwarden апликацију.";
 "SaveToBitwarden" = "Сачувај у Bitwarden";
+"ScanCard" = "Скенирај картицу";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Скенирање је завршено";
 "ScanTheQRCodeInYourSettings" = "Скенирајте QR кôд у подешавањима верификације у 2 корака за било који налог.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Осигурајте своје налоге помоћу Bitwarden Authenticator-а";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Пренете ставке";
 "ArchiveIsEmpty" = "Архива је празна";
 "ArchiveEmptyDescriptionLong" = "Напуните своју архиву ставкама које не желите да видите у резултатима претраге и предлозима за аутоматско попуњавање, али које вам можда једног дана затребају.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Пређите на Премијум";
@@ -1072,7 +1079,7 @@
 "OpeningCheckout" = "Отварање наплате…";
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
-"UpgradedToPremium" = "Upgraded to Premium";
+"UpgradedToPremium" = "Надограђено на премијум";
 "ViewPlanDetails" = "View plan details";
 "WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Ићи ћете на Stripe-ову сигурну наплату да бисте довршили своју куповину.";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";
