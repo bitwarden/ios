@@ -21,10 +21,8 @@ struct PremiumUpgradeView: View {
         content
             .navigationBar(title: Localizations.upgradeToPremium, titleDisplayMode: .inline)
             .toolbar {
-                if store.state.showCancelButton {
-                    cancelToolbarItem {
-                        store.send(.cancelTapped)
-                    }
+                cancelToolbarItem(hidden: !store.state.showCancelButton) {
+                    store.send(.cancelTapped)
                 }
             }
             .onChange(of: store.state.checkoutURL) { url in
