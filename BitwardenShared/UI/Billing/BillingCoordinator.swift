@@ -92,7 +92,13 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
             state: PremiumUpgradeState(),
         )
         let view = PremiumUpgradeView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+        if stackNavigator?.isPresenting == true {
+            stackNavigator?.replace(view)
+        } else {
+            let viewController = UIHostingController(rootView: view)
+            viewController.navigationItem.largeTitleDisplayMode = .never
+            stackNavigator?.push(viewController, navigationTitle: Localizations.upgradeToPremium)
+        }
     }
 }
 
