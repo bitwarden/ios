@@ -37,6 +37,7 @@ struct BillingServiceTests { // swiftlint:disable:this type_body_length
         subject = DefaultBillingService(
             billingAPIService: billingAPIService,
             configService: configService,
+            debounceInterval: .milliseconds(100),
             environmentService: environmentService,
             errorReporter: errorReporter,
             stateService: stateService,
