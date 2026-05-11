@@ -85,6 +85,20 @@ mint run swiftlint                      # Lint
 typos                                   # Spell check
 ```
 
+### Line Wrapping
+When a call exceeds the line length limit, use Xcode's ⌃M "Format to Multiple Lines" style — opening delimiter stays on the first line, each argument on its own indented line with a trailing comma, closing delimiter on its own line:
+```swift
+// ✅ Correct
+someFunction(
+    argumentOne: valueOne,
+    argumentTwo: valueTwo,
+)
+
+// ❌ Wrong — aligning to opening delimiter
+someFunction(argumentOne: valueOne,
+             argumentTwo: valueTwo)
+```
+
 ### Naming Conventions
 - `camelCase` for: variables, functions, properties
 - `PascalCase` for: types, protocols, enums, structs, classes
