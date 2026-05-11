@@ -12,10 +12,6 @@ import WatchConnectivity
 
 // MARK: - WatchServiceTests
 
-/// Tests create `DefaultWatchService` instances that run background tasks on the cooperative thread
-/// pool. Running tests in parallel causes thread contention that can push async chains past the
-/// CI 1-second per-test time limit, so the suite is serialized.
-@Suite(.serialized)
 @MainActor
 struct WatchServiceTests { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -429,22 +425,6 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
 
         // Each emission syncs; the second emission produces at least one additional sync.
         #expect(watchSession.updateApplicationContextCallsCount == 2)
-    }
-
-    // MARK: Time Limit Experiments
-
-    /// Sleeps for 30 seconds — expected to pass under a 1-minute `.timeLimit`.
-    @available(iOS 16.0, *)
-    @Test(.timeLimit(.minutes(1)))
-    func timeLimitExperiment_30SecondSleep_passes() async throws {
-        try await Task.sleep(for: .seconds(30))
-    }
-
-    /// Sleeps for 90 seconds — expected to fail under a 1-minute `.timeLimit`.
-    @available(iOS 16.0, *)
-    @Test(.timeLimit(.minutes(1)))
-    func timeLimitExperiment_90SecondSleep_fails() async throws {
-        try await Task.sleep(for: .seconds(90))
     }
 
     // MARK: Helpers
