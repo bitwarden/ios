@@ -48,6 +48,17 @@ struct BillingCoordinatorTests {
         #expect(action.type == .dismissed)
     }
 
+    /// `navigate(to:)` with `.premiumUpgradeComplete` presents the premium upgrade complete view.
+    @Test
+    func navigate_premiumUpgradeComplete() throws {
+        subject.navigate(to: .premiumUpgradeComplete)
+
+        #expect(stackNavigator.actions.count == 1)
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .presented)
+        #expect(action.view is PremiumUpgradeCompleteView)
+    }
+
     /// `navigate(to:)` with `.premiumPlan` pushes the premium plan view.
     @Test
     func navigate_premiumPlan() throws {

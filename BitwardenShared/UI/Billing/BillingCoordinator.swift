@@ -48,6 +48,8 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
             } else {
                 stackNavigator?.dismiss()
             }
+        case .premiumUpgradeComplete:
+            showPremiumUpgradeComplete()
         case .premiumPlan:
             showPremiumPlan()
         case .premiumUpgrade:
@@ -58,6 +60,14 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     func start() {}
 
     // MARK: Private Methods
+
+    /// Shows the premium upgrade complete screen.
+    ///
+    private func showPremiumUpgradeComplete() {
+        let processor = PremiumUpgradeCompleteProcessor(coordinator: asAnyCoordinator())
+        let view = PremiumUpgradeCompleteView(store: Store(processor: processor))
+        stackNavigator?.present(view)
+    }
 
     /// Shows the premium plan screen.
     ///
