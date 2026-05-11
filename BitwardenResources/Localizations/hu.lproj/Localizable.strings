@@ -208,6 +208,7 @@
 "August" = "augusztus";
 "Brand" = "Márka";
 "CardholderName" = "Kártyatulajdonos neve";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Több egyezés is található. Válasszuk ki a megfelelőt.";
 "CityTown" = "Település";
 "Company" = "Cég";
 "Country" = "Ország";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Automata-kitöltés beállítása";
 "AppInfo" = "App infó";
 "Browse" = "Böngészés";
+"SelectCardholderName" = "Válasszuk ki a kártyabirtokos nevét.";
 "SelectLanguage" = "Nyelv kiválasztása";
 "ContinueToCompleteWebAuthnVerification" = "Tovább a WebAuthn megerősítés befejezéséhez.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Hiba lépett fel a WebAuthn kétfaktoros hitelesítés indítása során";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Nem, rákérdezés";
 "NoCodes" = "Nincs megjeleníthető kód.";
 "None" = "Nincs";
+"NoneOfTheAbove" = "A fentiek közül egyik sem";
 "NumberOfDigits" = "Számjegyek száma";
 "OtpType" = "OTP típus";
 "RefreshPeriod" = "Frissítési gyakoriság";
@@ -924,6 +927,8 @@
 "SaveHere" = "Mentés ide";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Mentseükel ezt a hitelesítő kulcsot ide vagy adjuk hozzá a Bitwarden alkalmazásba a bejelentkezéshez.";
 "SaveToBitwarden" = "Mentés a Bitwardenbe";
+"ScanCard" = "Kártya átvizsgálása";
+"PositionYourCardInTheFrameToScanIt" = "Helyezzük a kártyát a keretbe az átvizsgáláshoz.";
 "ScanComplete" = "Az átvizsgálás befejeződött.";
 "ScanTheQRCodeInYourSettings" = "Olvassuk be a QR kódot a kétlépcsős ellenőrzési beállításokban bármely fiókhoz.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Biztosítsuk a fiókokat a Bitwarden Authenticator segítségével.";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Az elemek átvitelre kerültek.";
 "ArchiveIsEmpty" = "Az archívum üres.";
 "ArchiveEmptyDescriptionLong" = "Töltsük ki az archívumot olyan elemekkel, amelyeket nem szeretnénk látni a keresési eredményekben és az automatikus kitöltési javaslatokban, de egy nap szükség lehet rá.";
+"ArchiveItem" = "Elem archiválása";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Az archiválás után ez az elem kizárásra kerül a keresési eredményekből és az automatikus kitöltési javaslatokból.";
 "ArchiveUnavailable" = "Az archívum nem elérhető.";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Az elemek archiválása prémium funkció. A jelenlegi csomag nem tartalmazza a hozzáférést ehhez a funkcióhoz.";
 "UpgradeToPremium" = "Áttérés Prémium csomagra";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "A Prémium előfizetés kezeléséhez jelentkezzünk be a webes széfbe a számítógépen.";
 "CheckYourConnectionAndTryAgain" = "Ellenőrizzük a hálózati kapcsolatot és próbáljuk újra.";
 "PricingUnavailable" = "Az árazás nem érhető el.";
+"BankAccount" = "Bankszámla";

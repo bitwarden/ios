@@ -201,7 +201,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>d</string>
         <key>one</key>
-        <string>You have a grace period of %1$d day from your subscription expiration date.</string>
+        <string>Du hast eine Nachfrist von %1$d Tag ab dem Ablaufdatum deines Abonnements.</string>
         <key>other</key>
         <string>Du hast eine Nachfrist von %1$d Tagen ab dem Ablaufdatum deines Abonnements.</string>
       </dict>

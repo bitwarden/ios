@@ -208,6 +208,7 @@
 "August" = "Tháng 8";
 "Brand" = "Thương hiệu";
 "CardholderName" = "Tên chủ thẻ";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Xã / Phường";
 "Company" = "Công ty";
 "Country" = "Quốc gia";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Thiết lập tự động điền";
 "AppInfo" = "Thông tin ứng dụng";
 "Browse" = "Duyệt";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Chọn ngôn ngữ";
 "ContinueToCompleteWebAuthnVerification" = "Tiếp tục hoàn tất quá trình xác minh WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Xảy ra lỗi khi khởi động xác thực hai bước với WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Không, hãy hỏi tôi";
 "NoCodes" = "Bạn không có mã nào để hiển thị";
 "None" = "Không có";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Số lượng chữ số";
 "OtpType" = "Loại OTP";
 "RefreshPeriod" = "Chu kỳ làm mới";
@@ -924,6 +927,8 @@
 "SaveHere" = "Lưu tại đây";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Lưu khóa xác thực này tại đây hoặc thêm nó vào tài khoản đăng nhập trong ứng dụng Bitwarden của bạn.";
 "SaveToBitwarden" = "Lưu vào Bitwarden";
+"ScanCard" = "Quét thẻ";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Quét hoàn tất";
 "ScanTheQRCodeInYourSettings" = "Quét mã QR trong các cài đặt xác minh hai bước của bạn cho bất kỳ tài khoản nào.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Bảo mật tài khoản của bạn với Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Các mục đã chuyển";
 "ArchiveIsEmpty" = "Lưu trữ trống";
 "ArchiveEmptyDescriptionLong" = "Thêm vào kho lưu trữ các mục bạn không muốn thấy trong kết quả tìm kiếm và gợi ý tự động điền nhưng có thể cần dùng sau này.";
+"ArchiveItem" = "Lưu trữ mục";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Khi đã lưu trữ, mục này sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền.";
 "ArchiveUnavailable" = "Lưu trữ không khả dụng";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Lưu trữ mục là một tính năng Cao cấp. Gói hiện tại của bạn không bao gồm quyền truy cập tính năng này.";
 "UpgradeToPremium" = "Nâng cấp lên bản cao cấp";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";

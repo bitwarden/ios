@@ -208,6 +208,7 @@
 "August" = "Augusti";
 "Brand" = "Märke";
 "CardholderName" = "Kortinnehavarens namn";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Ort";
 "Company" = "Företag";
 "Country" = "Land";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Ställ in autofyllning";
 "AppInfo" = "Appinfo";
 "Browse" = "Bläddra";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Välj språk";
 "ContinueToCompleteWebAuthnVerification" = "Fortsätt för att slutföra WebAuthn verifieringen.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Det uppstod ett fel vid start av WebAuthn tvåfaktorsautentisering";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Nej, fråga mig";
 "NoCodes" = "Du har inga koder att visa";
 "None" = "Ingen";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Antal siffror";
 "OtpType" = "OTP-typ";
 "RefreshPeriod" = "Uppdateringstid";
@@ -924,6 +927,8 @@
 "SaveHere" = "Spara här";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Spara denna autentiseringsnyckel här eller lägg till den i en inloggning i din Bitwarden-app.";
 "SaveToBitwarden" = "Spara till Bitwarden";
+"ScanCard" = "Scan card";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Skanningen är färdig";
 "ScanTheQRCodeInYourSettings" = "Skanna QR-koden i inställningarna för din tvåstegsverifiering för alla konton.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Säkra dina konton med Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Objekt överförda";
 "ArchiveIsEmpty" = "Arkivet är tomt";
 "ArchiveEmptyDescriptionLong" = "Fyll i ditt arkiv med objekt som du inte vill se i sökresultat och förslag på autofyll men kanske behöver en dag.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Arkivet inte tillgängligt";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Arkivering av objekt är en Premium-funktion. Din nuvarande plan inkluderar inte tillgång till denna funktion.";
 "UpgradeToPremium" = "Uppgradera till premium";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";
