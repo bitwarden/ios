@@ -1217,31 +1217,31 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
-    /// when a non-nil hostname is emitted.
+    /// when a non-nil vault URL is emitted.
     @MainActor
-    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async throws {
+    func test_start_acquireCookiesPublisher_withVaultURL_navigatesToSyncWithBrowser() async throws {
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send("example.com")
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send("https://example.com")
 
         try await waitForAsync { [weak self] in
-            self?.coordinator.routes.contains(.syncWithBrowser) == true
+            self?.coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")) == true
         }
 
-        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
 
     /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
-    /// `.syncWithBrowser` when a nil hostname is emitted.
+    /// `.syncWithBrowser` when a nil vault URL is emitted.
     @MainActor
-    func test_start_acquireCookiesPublisher_withNilHostname_doesNotNavigate() async {
+    func test_start_acquireCookiesPublisher_withNilVaultURL_doesNotNavigate() async {
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
 
-        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser))
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
 
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and

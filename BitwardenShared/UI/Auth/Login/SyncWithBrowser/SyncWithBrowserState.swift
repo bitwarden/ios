@@ -7,6 +7,7 @@ import Foundation
 struct SyncWithBrowserState: Equatable, Sendable {
     // MARK: Properties
 
-    /// The environment URL the user is trying to connect to.
-    var environmentUrl: String = ""
+    /// The vault URL from the SSO cookie config, used to construct the browser redirect URL
+    /// and displayed to the user.
+    var vaultUrl: String
 }
