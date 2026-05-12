@@ -208,6 +208,7 @@
 "August" = "Ağustos";
 "Brand" = "Marka";
 "CardholderName" = "Kart sahibinin adı";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Birden fazla eşleşme bulduk. Doğru olanı seçin.";
 "CityTown" = "Şehir";
 "Company" = "Şirket";
 "Country" = "Ülke";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Otomatik doldurmayı ayarla";
 "AppInfo" = "Uygulama bilgileri";
 "Browse" = "Gözat";
+"SelectCardholderName" = "Kart sahibi adını seçin";
 "SelectLanguage" = "Dil seçin";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn doğrulamasını tamamlamak için devam edin.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn iki faktörlü kimlik doğrulamayı başlatırken bir hata oluştu";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Hayır, bana sor";
 "NoCodes" = "Görüntülenecek hiç kodunuz yok";
 "None" = "Yok";
+"NoneOfTheAbove" = "Hiçbiri";
 "NumberOfDigits" = "Basamak sayısı";
 "OtpType" = "OTP türü";
 "RefreshPeriod" = "Yenileme süresi";
@@ -924,6 +927,8 @@
 "SaveHere" = "Buraya kaydet";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Bu kimlik doğrulayıcı anahtarını buraya kaydedebilir veya Bitwarden uygulamanızdaki bir hesaba ekleyebilirsiniz.";
 "SaveToBitwarden" = "Bitwarden’a kaydet";
+"ScanCard" = "Kartı tara";
+"PositionYourCardInTheFrameToScanIt" = "Kartınızı taramak için çerçevenin içine yerleştirin";
 "ScanComplete" = "Tarama tamamlandı";
 "ScanTheQRCodeInYourSettings" = "Eklemek istediğiniz hesabın iki aşamalı doğrulama ayarlarında görünen QR kodunu tarayın.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Hesaplarınızı Bitwarden Authenticator ile güvence altına alın";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Kayıtlar aktarıldı";
 "ArchiveIsEmpty" = "Arşiv boş";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ArchiveItem" = "Kaydı arşivle";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Arşiv kullanılamıyor";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Premium’a yükselt";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Bağlantınızı kontrol edip yeniden deneyin.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Banka hesabı";

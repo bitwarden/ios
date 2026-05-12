@@ -354,33 +354,23 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `passwordHistoryPublisher()` returns a publisher that the user's password history as it changes.
     @MainActor
-    func test_passwordHistoryPublisher() {
+    func test_passwordHistoryPublisher() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        var passwordHistoryValues = [[PasswordHistoryView]]()
-        let task = Task {
-            for try await passwordHistory in try await subject.passwordHistoryPublisher() {
-                passwordHistoryValues.append(passwordHistory)
-            }
-        }
-        waitFor { passwordHistoryValues.count == 1 }
+        var iterator = try await subject.passwordHistoryPublisher().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         let passwordHistory1 = PasswordHistoryView.fixture(password: "PASSWORD")
-        Task {
-            try await subject.addPasswordHistory(passwordHistory1)
-        }
-        waitFor { passwordHistoryValues.count == 2 }
+        try await subject.addPasswordHistory(passwordHistory1)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, [passwordHistory1])
 
         let passwordHistory2 = PasswordHistoryView.fixture(password: "PASSWORD2")
-        Task {
-            try await subject.addPasswordHistory(passwordHistory2)
-        }
-        waitFor { passwordHistoryValues.count == 3 }
-        task.cancel()
-
-        XCTAssertTrue(passwordHistoryValues[0].isEmpty)
-        XCTAssertEqual(passwordHistoryValues[1], [passwordHistory1])
-        XCTAssertEqual(passwordHistoryValues[2], [passwordHistory2, passwordHistory1])
+        try await subject.addPasswordHistory(passwordHistory2)
+        let thirdValue = try await iterator.next()
+        XCTAssertEqual(thirdValue, [passwordHistory2, passwordHistory1])
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for the active account.

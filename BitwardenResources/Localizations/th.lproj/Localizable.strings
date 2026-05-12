@@ -208,6 +208,7 @@
 "August" = "สิงหาคม";
 "Brand" = "แบรนด์";
 "CardholderName" = "ชื่อผู้ถือบัตร";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "เมือง / อำเภอ";
 "Company" = "บริษัท";
 "Country" = "ประเทศ";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "ตั้งค่าป้อนอัตโนมัติ";
 "AppInfo" = "ข้อมูลแอป";
 "Browse" = "เรียกดู";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "เลือกภาษา";
 "ContinueToCompleteWebAuthnVerification" = "ดำเนินการต่อเพื่อเสร็จสิ้นการยืนยัน WebAuthn";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "เกิดข้อผิดพลาดในการเริ่มการยืนยันตัวตนสองขั้นตอนแบบ WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "ไม่ ถามฉัน";
 "NoCodes" = "คุณไม่มีรหัสที่จะแสดง";
 "None" = "ไม่มี";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "จำนวนหลัก";
 "OtpType" = "ประเภท OTP";
 "RefreshPeriod" = "ระยะเวลารีเฟรช";
@@ -924,6 +927,8 @@
 "SaveHere" = "บันทึกที่นี่";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "บันทึกคีย์ยืนยันตัวตนนี้ที่นี่ หรือเพิ่มลงในข้อมูลเข้าสู่ระบบในแอป Bitwarden ของคุณ";
 "SaveToBitwarden" = "บันทึกไปที่ Bitwarden";
+"ScanCard" = "Scan card";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "สแกนเสร็จสมบูรณ์";
 "ScanTheQRCodeInYourSettings" = "สแกน QR Code ในการตั้งค่าการยืนยันตัวตนแบบ 2 ขั้นตอนสำหรับบัญชีใดก็ได้";
 "SecureYourAssetsWithBitwardenAuthenticator" = "รักษาความปลอดภัยบัญชีของคุณด้วย Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "ถ่ายโอนรายการแล้ว";
 "ArchiveIsEmpty" = "ไม่มีรายการเก็บถาวร";
 "ArchiveEmptyDescriptionLong" = "ย้ายรายการที่คุณไม่อยากให้เห็นในผลการค้นหาและคำแนะนำป้อนอัตโนมัติ แต่เผื่อต้องใช้ในอนาคต มาไว้ในรายการเก็บถาวร";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "รายการเก็บถาวรไม่พร้อมใช้งาน";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "การเก็บถาวรรายการเป็นฟีเจอร์พรีเมียม แผนปัจจุบันของคุณไม่สามารถใช้งานฟีเจอร์นี้ได้";
 "UpgradeToPremium" = "อัปเกรดเป็นพรีเมียม";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";

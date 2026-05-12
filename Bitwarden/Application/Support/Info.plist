@@ -124,7 +124,7 @@
 	<key>NFCReaderUsageDescription</key>
 	<string>Use Yubikeys for two-factor authentication.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Scan QR codes</string>
+	<string>Scan QR codes and payment cards</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to unlock your vault.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

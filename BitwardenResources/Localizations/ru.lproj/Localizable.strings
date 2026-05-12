@@ -208,6 +208,7 @@
 "August" = "Август";
 "Brand" = "Тип карты";
 "CardholderName" = "Имя владельца карты";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Мы нашли несколько совпадений. Выберите правильное.";
 "CityTown" = "Город / Поселок";
 "Company" = "Компания";
 "Country" = "Страна";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Настроить автозаполнение";
 "AppInfo" = "Информация о приложении";
 "Browse" = "Обзор";
+"SelectCardholderName" = "Выберите имя владельца карты";
 "SelectLanguage" = "Выбрать язык";
 "ContinueToCompleteWebAuthnVerification" = "Перейти к завершению верификации WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Возникла ошибка при запуске двухэтапной аутентификации WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Нет, спросить меня";
 "NoCodes" = "У вас нет кодов для отображения";
 "None" = "Нет";
+"NoneOfTheAbove" = "Ни одно из вышеперечисленных";
 "NumberOfDigits" = "Количество цифр";
 "OtpType" = "Тип OTP";
 "RefreshPeriod" = "Период обновления";
@@ -924,6 +927,8 @@
 "SaveHere" = "Сохранить здесь";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Сохраните этот ключ аутентификатора здесь или добавьте его к логину в приложении Bitwarden.";
 "SaveToBitwarden" = "Сохранить в Bitwarden";
+"ScanCard" = "Сканировать карту";
+"PositionYourCardInTheFrameToScanIt" = "Поместите карту в рамку для сканирования";
 "ScanComplete" = "Сканирование завершено";
 "ScanTheQRCodeInYourSettings" = "Сосканируйте QR-код в настройках двухэтапной аутентификации для любого аккаунта.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Защитите ваши аккаунты с помощью Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Элементы переданы";
 "ArchiveIsEmpty" = "Архив пуст";
 "ArchiveEmptyDescriptionLong" = "Заполните архив элементами, которые вы не хотите видеть в результатах поиска и автозаполнения, но которые когда-нибудь могут понадобиться.";
+"ArchiveItem" = "Архивировать элемент";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "После архивации этот элемент будет исключен из результатов поиска и предложений по автозаполнению.";
 "ArchiveUnavailable" = "Архив недоступен";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирование элементов является Премиум функцией. Она не входит в ваш текущий тарифный план.";
 "UpgradeToPremium" = "Обновить до Премиум";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Чтобы управлять своей подпиской Premium, войдите в свой веб-хранилище с компьютера.";
 "CheckYourConnectionAndTryAgain" = "Проверьте подключение и повторите попытку.";
 "PricingUnavailable" = "Цены недоступны";
+"BankAccount" = "Банковский счет";

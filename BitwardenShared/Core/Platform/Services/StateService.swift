@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject {
+protocol StateService: AnyObject, BillingStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -835,12 +835,6 @@ protocol StateService: AnyObject {
     ///
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never>
 
-    /// Whether the user should see the premium upgrade banner based on account criteria.
-    ///
-    /// - Returns: `true` if user is free, account is 7+ days old, and banner not dismissed.
-    ///
-    func shouldShowPremiumUpgradeBanner() async -> Bool
-
     /// A publisher for whether or not to show the web icons.
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
@@ -1444,7 +1438,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     private let dataStore: DataStore
 
     /// The service used by the application to report non-fatal errors.
-    private let errorReporter: ErrorReporter
+    let errorReporter: ErrorReporter
 
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
@@ -1453,7 +1447,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     let keychainRepository: KeychainRepository
 
     /// Provides the present time for time-based calculations.
-    private let timeProvider: TimeProvider
+    let timeProvider: TimeProvider
 
     /// A service used to access user session data in the keychain.
     private let userSessionKeychainRepository: UserSessionKeychainRepository
@@ -2215,22 +2209,6 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setUsesKeyConnector(usesKeyConnector, userId: userId)
-    }
-
-    func shouldShowPremiumUpgradeBanner() async -> Bool {
-        guard await !doesActiveAccountHavePremium() else { return false }
-
-        let dismissed = await ((try? getPremiumUpgradeBannerDismissed()) ?? false)
-        guard !dismissed else { return false }
-
-        // Check account age >= 7 days
-        guard let account = try? await getActiveAccount(),
-              let creationDate = account.profile.creationDate else { return false }
-        guard timeProvider.timeSince(creationDate) >= Constants.premiumUpgradeBannerAccountAge else {
-            return false
-        }
-
-        return true
     }
 
     func updateProfile(from response: ProfileResponseModel, userId: String) async {

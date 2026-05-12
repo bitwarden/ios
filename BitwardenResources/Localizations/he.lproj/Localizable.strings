@@ -208,6 +208,7 @@
 "August" = "אוגוסט";
 "Brand" = "מותג";
 "CardholderName" = "שם בעל הכרטיס";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "עיר \\ ישוב";
 "Company" = "חברה";
 "Country" = "מדינה";
@@ -606,6 +607,7 @@
 "SetUpAutofill" = "הגדר מילוי אוטומטי";
 "AppInfo" = "פרטי יישום";
 "Browse" = "עיון";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "בחר שפה";
 "ContinueToCompleteWebAuthnVerification" = "המשך להשלים אימות WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "אירעה שגיאה בהתחלת אימות דו־גורמי של WebAuthn";
@@ -917,6 +919,7 @@
 "NoAskMe" = "לא, שאל אותי";
 "NoCodes" = "אין לך קודים כלשהם להציג";
 "None" = "ללא";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "מספר ספרות";
 "OtpType" = "סוג OTP";
 "RefreshPeriod" = "תקופת רענון";
@@ -925,6 +928,8 @@
 "SaveHere" = "שמור כאן";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "שמור מפתח מאמת זה כאן, או הוסף אותו לכניסה ביישום ה־Bitwarden שלך.";
 "SaveToBitwarden" = "שמור ב־Bitwarden";
+"ScanCard" = "Scan card";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "הסריקה הושלמה";
 "ScanTheQRCodeInYourSettings" = "סרוק את קוד ה־QR בהגדרות האימות הדו־שלבי שלך עבור כל חשבון.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "אבטח את החשבונות שלך עם מאמת Bitwarden";
@@ -995,6 +1000,8 @@
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "הארכיב ריק";
 "ArchiveEmptyDescriptionLong" = "מלאו את הארכיב שלכם בפריטים שאינכם רוצים לראות בתוצאות החיפוש ובהצעות המילוי האוטומטי אבל עשויים להזדקק להם מתישהו.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "הארכיב אינו זמין";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "ארכוב פריטים היא תכולת פרמיום. התכנית הנוכחית שלך אינה כוללת גישה לתכולה זו.";
 "UpgradeToPremium" = "שדרוג לפרמיום";
@@ -1085,3 +1092,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";
