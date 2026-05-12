@@ -138,7 +138,7 @@ BitwardenShared/UI/Auth/Login/LoginProcessorTests.swift  ← same directory
 
 New protocols need mocks:
 1. Add `// sourcery: AutoMockable` as a trailing comment on the protocol declaration line
-2. Run `mint run sourcery --config BitwardenShared/Sourcery/sourcery.yml`
+2. Run `./Scripts/generate-mocks.sh <Framework>` where `<Framework>` matches the target (e.g. `BitwardenShared`, `AuthenticatorShared`, `BitwardenKit`, `AuthenticatorBridgeKit`) — requires `BUILD_DIR`, see script header
 3. Or just build — Sourcery runs automatically in pre-build phase
 
 See `references/mock-generation.md` for full details.

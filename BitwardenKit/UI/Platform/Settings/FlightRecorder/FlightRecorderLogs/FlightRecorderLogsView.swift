@@ -80,15 +80,18 @@ struct FlightRecorderLogsView: View {
                 Text(log.formattedLoggingDateRange)
                     .styleGuide(.body)
                     .foregroundStyle(SharedAsset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("FlightRecorderLogDateRangeLabel")
                     .accessibilityLabel(log.loggingDateRangeAccessibilityLabel)
 
                 HStack(spacing: 16) {
                     Text(log.fileSize)
+                        .accessibilityIdentifier("FlightRecorderLogFileSizeLabel")
 
                     if let formattedExpiration = log.formattedExpiration(currentDate: timeProvider.presentTime) {
                         Text(formattedExpiration)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .multilineTextAlignment(.trailing)
+                            .accessibilityIdentifier("FlightRecorderLogExpirationLabel")
                     }
                 }
                 .styleGuide(.subheadline)
@@ -109,10 +112,11 @@ struct FlightRecorderLogsView: View {
                 SharedAsset.Icons.ellipsisHorizontal24.swiftUIImage
                     .foregroundStyle(SharedAsset.Colors.textSecondary.swiftUIColor)
             }
-            .accessibilityLabel(Localizations.moreOptions)
             .accessibilityIdentifier("FlightRecorderLogOptionsButton")
+            .accessibilityLabel(Localizations.moreOptions)
         }
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("FlightRecorderLogRow")
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
     }

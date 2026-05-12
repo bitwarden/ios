@@ -54,6 +54,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = AddEditFolderModule
         & AuthModule
+        & BillingModule
         & ExportCXFModule
         & FlightRecorderModule
         & ImportLoginsModule
@@ -149,7 +150,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         }
     }
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .about:
             showAbout()
@@ -189,6 +190,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
             showPendingLoginRequests()
+        case .premiumPlan:
+            showPremiumPlan()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case let .settings(presentationMode):
@@ -342,15 +345,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
     }
 
-    /// Shows the share sheet to share one or more items.
-    ///
-    /// - Parameter items: The items to share.
-    ///
-    private func showShareSheet(_ items: [Any]) {
-        let activityVC = UIActivityViewController(activityItems: items, applicationActivities: nil)
-        stackNavigator?.present(activityVC)
-    }
-
     /// Shows the export vault screen.
     ///
     @MainActor
@@ -362,16 +356,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.push(viewController, navigationTitle: Localizations.exportVault)
     }
 
-    /// Shows the export vault to file screen.
-    ///
-    private func showExportVaultToFile() {
-        let processor = ExportVaultProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-        )
-        stackNavigator?.present(ExportVaultView(store: Store(processor: processor)))
-    }
-
     /// Shows the export vault to another app screen (Credential Exchange flow).
     ///
     private func showExportVaultToApp() {
@@ -381,6 +365,16 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         )
         coordinator.start()
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the export vault to file screen.
+    ///
+    private func showExportVaultToFile() {
+        let processor = ExportVaultProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+        )
+        stackNavigator?.present(ExportVaultView(store: Store(processor: processor)))
     }
 
     /// Shows a flight recorder view.
@@ -474,6 +468,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
     }
 
+    /// Shows the premium plan screen.
+    ///
+    private func showPremiumPlan() {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
+        coordinator.navigate(to: .premiumPlan)
+    }
+
     /// Shows the select language screen.
     ///
     private func showSelectLanguage(
@@ -499,6 +501,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         )
         let view = SettingsView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: false)
+    }
+
+    /// Shows the share sheet to share one or more items.
+    ///
+    /// - Parameter items: The items to share.
+    ///
+    private func showShareSheet(_ items: [Any]) {
+        let activityVC = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        stackNavigator?.present(activityVC)
     }
 
     /// Shows the vault screen.

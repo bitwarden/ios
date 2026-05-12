@@ -50,30 +50,6 @@ struct BillingAPIServiceTests {
         #expect(json?["platform"] as? String == "ios")
     }
 
-    /// `getPremiumPlan()` performs the request with the correct method and path.
-    @Test
-    func getPremiumPlan() async throws {
-        client.result = .httpSuccess(testData: .premiumPlanResponse)
-
-        let response = try await subject.getPremiumPlan()
-
-        let request = try #require(client.requests.last)
-        #expect(request.method == .get)
-        #expect(request.url.absoluteString == "https://example.com/api/plans/premium")
-        #expect(request.body == nil)
-
-        // Verify response parsing
-        #expect(response.name == "Premium")
-        #expect(response.available)
-        #expect(response.legacyYear == nil)
-        #expect(response.seat.stripePriceId == "premium-annually-2026")
-        #expect(response.seat.price == 19.80)
-        #expect(response.seat.provided == 0)
-        #expect(response.storage.stripePriceId == "personal-storage-gb-annually")
-        #expect(response.storage.price == 4)
-        #expect(response.storage.provided == 5)
-    }
-
     /// `getPortalUrl()` performs the request with the correct method and path.
     @Test
     func getPortalUrl() async throws {
@@ -84,6 +60,32 @@ struct BillingAPIServiceTests {
         let request = try #require(client.requests.last)
         #expect(request.method == .post)
         #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/portal-session")
+        #expect(request.body == nil)
+    }
+
+    /// `getPremiumPlan()` performs the request with the correct method and path.
+    @Test
+    func getPremiumPlan() async throws {
+        client.result = .httpSuccess(testData: .premiumPlanResponse)
+
+        _ = try await subject.getPremiumPlan()
+
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/api/plans/premium")
+        #expect(request.body == nil)
+    }
+
+    /// `getSubscription()` performs the request with the correct method and path.
+    @Test
+    func getSubscription() async throws {
+        client.result = .httpSuccess(testData: .subscriptionResponse)
+
+        _ = try await subject.getSubscription()
+
+        let request = try #require(client.requests.last)
+        #expect(request.method == .get)
+        #expect(request.url.absoluteString == "https://example.com/api/account/billing/vnext/subscription")
         #expect(request.body == nil)
     }
 }

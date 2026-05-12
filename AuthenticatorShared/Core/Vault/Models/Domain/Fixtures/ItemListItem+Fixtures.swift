@@ -1,5 +1,6 @@
 import AuthenticatorBridgeKit
 import AuthenticatorBridgeKitMocks
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 

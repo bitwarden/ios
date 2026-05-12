@@ -57,6 +57,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service which manages the ciphers exposed to the system for AutoFill suggestions.
     let autofillCredentialService: AutofillCredentialService
 
+    /// The repository used by the application to manage billing data for the UI layer.
+    let billingRepository: BillingRepository
+
     /// The service used by the application to manage billing operations.
     let billingService: BillingService
 
@@ -68,6 +71,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The service used by the application to manage camera use.
     let cameraService: CameraService
+
+    /// The service used to parse card text from OCR results.
+    let cardTextParser: CardTextParser
 
     /// The service used to change the user's KDF settings.
     let changeKdfService: ChangeKdfService
@@ -181,6 +187,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage account state.
     let stateService: StateService
 
+    /// The service used by the application to retrieve App Store storefront information.
+    let storefrontService: StorefrontService
+
     /// The service used to handle syncing vault data with the API.
     let syncService: SyncService
 
@@ -241,10 +250,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - authenticatorSyncService: The service used by the application to sync TOTP codes with the Authenticator app.
     ///   - autofillCredentialService: The service which manages the ciphers exposed to the system
     ///     for AutoFill suggestions.
+    ///   - billingRepository: The repository used by the application to manage billing data for the UI layer.
+    ///   - billingService: The service used by the application to manage billing operations.
     ///   - biometricsRepository: The repository to manage biometric unlock policies and access
     ///     controls for the user.
     ///   - biometricsService: The service used to obtain device biometrics status & data.
     ///   - cameraService: The service used by the application to manage camera use.
+    ///   - cardTextParser: The service used to parse card text from OCR results.
     ///   - changeKdfService: The service used to change the user's KDF settings.
     ///   - cipherOwnershipHelper: A helper to create cipher views with proper ownership based on policies.
     ///   - clientCertificateService: The service used by the application to manage client certificates
@@ -287,6 +299,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - storefrontService: The service used by the application to retrieve App Store storefront information.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - textAutofillHelperFactory: Factory to create `TextAutofillHelper`s.
@@ -315,10 +328,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         authService: AuthService,
         authenticatorSyncService: AuthenticatorSyncService,
         autofillCredentialService: AutofillCredentialService,
+        billingRepository: BillingRepository,
         billingService: BillingService,
         biometricsRepository: BiometricsRepository,
         biometricsService: BiometricsService,
         cameraService: CameraService,
+        cardTextParser: CardTextParser,
         changeKdfService: ChangeKdfService,
         cipherOwnershipHelper: CipherOwnershipHelper,
         clientCertificateService: ClientCertificateService,
@@ -356,6 +371,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         settingsRepository: SettingsRepository,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
+        storefrontService: StorefrontService,
         syncService: SyncService,
         systemDevice: SystemDevice,
         textAutofillHelperFactory: TextAutofillHelperFactory,
@@ -382,10 +398,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.authService = authService
         self.authenticatorSyncService = authenticatorSyncService
         self.autofillCredentialService = autofillCredentialService
+        self.billingRepository = billingRepository
         self.billingService = billingService
         self.biometricsRepository = biometricsRepository
         self.biometricsService = biometricsService
         self.cameraService = cameraService
+        self.cardTextParser = cardTextParser
         self.changeKdfService = changeKdfService
         self.cipherOwnershipHelper = cipherOwnershipHelper
         self.clientCertificateService = clientCertificateService
@@ -423,6 +441,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.settingsRepository = settingsRepository
         self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
+        self.storefrontService = storefrontService
         self.syncService = syncService
         self.systemDevice = systemDevice
         self.textAutofillHelperFactory = textAutofillHelperFactory
@@ -555,6 +574,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             )
         }
 
+        let userAgentBuilder = UserAgentBuilder(
+            appName: "Bitwarden_Mobile",
+            appVersion: Bundle.main.appVersion,
+            systemDevice: UIDevice.current,
+        )
         let apiService = APIService(
             activeAccountStateProvider: stateService,
             client: certificateHttpClient,
@@ -564,6 +588,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             serverCommunicationConfigClientSingleton: { serverCommConfigClientSingletonHolder },
             stateService: stateService,
             tokenService: tokenService,
+            userAgentBuilder: userAgentBuilder,
         )
 
         let errorReportBuilder = DefaultErrorReportBuilder(
@@ -589,13 +614,15 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let clientBuilder = DefaultClientBuilder(
-            errorReporter: errorReporter,
-            tokenProvider: tokenService,
+            appIDService: appIDService,
+            environmentService: environmentService,
+            tokenProvider: apiService.accountTokenProvider,
+            userAgentBuilder: userAgentBuilder,
         )
         let sdkRepositoryFactory = DefaultSdkRepositoryFactory(
             cipherDataStore: dataStore,
-            errorReporter: errorReporter,
             serverCommunicationConfigStateService: stateService,
+            stateService: stateService,
         )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
@@ -665,7 +692,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let exportVaultService = DefaultExportVaultService(
             cipherService: cipherService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             folderService: folderService,
             policyService: policyService,
@@ -709,6 +735,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             policyService: policyService,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
@@ -719,7 +746,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let watchService = DefaultWatchService(
             cipherService: cipherService,
             clientService: clientService,
-            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             organizationService: organizationService,
@@ -739,6 +765,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionService: collectionService,
             configService: configService,
+            flightRecorder: flightRecorder,
             folderService: folderService,
             keyConnectorService: keyConnectorService,
             organizationService: organizationService,
@@ -837,10 +864,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             userSessionStateService: stateService,
         )
 
+        let billingService = DefaultBillingService(
+            billingAPIService: apiService,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            syncService: syncService,
+        )
+
         let notificationService = DefaultNotificationService(
             appIDService: appIDService,
             authRepository: authRepository,
             authService: authService,
+            billingService: billingService,
             configService: configService,
             errorReporter: errorReporter,
             flightRecorder: flightRecorder,
@@ -897,7 +934,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
                 clientService: clientService,
                 collectionHelper: collectionHelper,
-                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
             ),
@@ -911,7 +947,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                     errorReporter: errorReporter,
                 ),
                 clientService: clientService,
-                configService: configService,
                 errorReporter: errorReporter,
                 policyService: policyService,
                 stateService: stateService,
@@ -937,7 +972,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             collectionHelper: collectionHelper,
             collectionService: collectionService,
-            configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
             folderService: folderService,
@@ -952,6 +986,16 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
         )
 
+        let storefrontService = DefaultStorefrontService()
+
+        let billingRepository = DefaultBillingRepository(
+            configService: configService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            storefrontService: storefrontService,
+            vaultRepository: vaultRepository,
+        )
+
         let cipherOwnershipHelper = DefaultCipherOwnershipHelper(
             policyService: policyService,
             timeProvider: timeProvider,
@@ -963,7 +1007,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2CredentialStore: Fido2CredentialStoreService(
                 cipherService: cipherService,
                 clientService: clientService,
-                configService: configService,
                 errorReporter: errorReporter,
                 stateService: stateService,
                 syncService: syncService,
@@ -973,7 +1016,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let fido2CredentialStore = Fido2CredentialStoreService(
             cipherService: cipherService,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             syncService: syncService,
@@ -1074,8 +1116,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             sdkRepositoryFactory: DefaultSdkRepositoryFactory(
                 cipherDataStore: dataStore,
-                errorReporter: errorReporter,
                 serverCommunicationConfigStateService: stateService,
+                stateService: stateService,
             ),
             stateService: stateService,
         )
@@ -1084,7 +1126,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authenticatorClientService: authenticatorClientService,
             cipherDataStore: dataStore,
             clientService: clientService,
-            configService: configService,
             errorReporter: errorReporter,
             keychainRepository: keychainRepository,
             organizationService: organizationService,
@@ -1106,10 +1147,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             authService: authService,
             authenticatorSyncService: authenticatorSyncService,
             autofillCredentialService: autofillCredentialService,
-            billingService: DefaultBillingService(billingAPIService: apiService),
+            billingRepository: billingRepository,
+            billingService: billingService,
             biometricsRepository: biometricsRepository,
             biometricsService: biometricsService,
             cameraService: DefaultCameraService(),
+            cardTextParser: DefaultCardTextParser(),
             changeKdfService: changeKdfService,
             cipherOwnershipHelper: cipherOwnershipHelper,
             clientCertificateService: clientCertificateService,
@@ -1147,6 +1190,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             settingsRepository: settingsRepository,
             sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
+            storefrontService: storefrontService,
             syncService: syncService,
             systemDevice: UIDevice.current,
             textAutofillHelperFactory: textAutofillHelperFactory,

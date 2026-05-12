@@ -93,6 +93,9 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     /// The service used by the application to handle authentication tasks.
     private let authService: AuthService
 
+    /// The service used by the application to manage billing operations.
+    private let billingService: BillingService
+
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
@@ -122,6 +125,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     ///   - appIDService: The service used by the application to manage the app's ID.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - authService: The service used by the application to handle authentication tasks.
+    ///   - billingService: The service used by the application to manage billing operations.
     ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
@@ -133,6 +137,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
         appIDService: AppIDService,
         authRepository: AuthRepository,
         authService: AuthService,
+        billingService: BillingService,
         configService: ConfigService,
         errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
@@ -144,6 +149,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
         self.appIDService = appIDService
         self.authRepository = authRepository
         self.authService = authService
+        self.billingService = billingService
         self.configService = configService
         self.errorReporter = errorReporter
         self.flightRecorder = flightRecorder
@@ -271,6 +277,8 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
                 break
             case .policyChanged:
                 try await syncService.fetchSync(forceSync: false)
+            case .premiumStatusChanged:
+                await billingService.premiumStatusChanged()
             }
         } catch {
             errorReporter.log(error: error)
@@ -316,10 +324,7 @@ class DefaultNotificationService: NotificationService { // swiftlint:disable:thi
     ///
     private func decodePayload(_ message: [AnyHashable: Any]) async throws -> PushNotificationData? {
         // Decode the content of the message.
-        guard let messageContent = message["data"] as? [AnyHashable: Any]
-        else { return nil }
-        let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
-        let notificationData = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
+        let notificationData = try PushNotificationData(userInfo: message)
 
         // Verify that the payload is not empty and that the context is correct.
         let appId = await appIDService.getOrCreateAppID()

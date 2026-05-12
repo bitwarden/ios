@@ -1,16 +1,18 @@
 import BitwardenKit
 import BitwardenKitMocks
+import Foundation
 import InlineSnapshotTesting
 import TestHelpers
-import XCTest
+import Testing
 
-class ErrorReportBuilderTests: BitwardenTestCase {
+@Suite
+struct ErrorReportBuilderTests {
     // MARK: Properties
 
-    var appInfoService: MockAppInfoService!
-    var activeAccountStateProvider: MockActiveAccountStateProvider!
-    var subject: ErrorReportBuilder!
-    var timeProvider: MockTimeProvider!
+    var appInfoService: MockAppInfoService
+    var activeAccountStateProvider: MockActiveAccountStateProvider
+    var subject: ErrorReportBuilder
+    var timeProvider: MockTimeProvider
 
     let exampleCallStack: String = """
     0   BitwardenShared    0x00000000 AnyCoordinator.showErrorAlert(error:)
@@ -19,10 +21,13 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
     """
 
-    // MARK: Setup & Teardown
+    // MARK: Setup
 
-    override func setUp() {
-        super.setUp()
+    @MainActor
+    init() {
+        UI.applyDefaultAppearances()
+        UI.animated = false
+        UI.sizeCategory = .large
 
         activeAccountStateProvider = MockActiveAccountStateProvider()
         appInfoService = MockAppInfoService()
@@ -35,19 +40,10 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
-
-        activeAccountStateProvider = nil
-        appInfoService = nil
-        subject = nil
-        timeProvider = nil
-    }
-
     // MARK: Tests
 
-    /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `DecodingError`.
-    func test_buildShareErrorLog_decodingError() async {
+    @Test("buildShareErrorLog(for:callStack:) builds an error report to share for a DecodingError")
+    func buildShareErrorLog_decodingError() async {
         enum TestKeys: CodingKey {
             case ciphers
         }
@@ -98,9 +94,8 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         // swiftlint:enable line_length
     }
 
-    /// `buildShareErrorLog(for:callStack:)` builds an error report to share and handles there being
-    /// no active account.
-    func test_buildShareErrorLog_noActiveUser() async {
+    @Test("buildShareErrorLog(for:callStack:) builds an error report and handles no active account")
+    func buildShareErrorLog_noActiveUser() async {
         activeAccountStateProvider.getActiveAccountIdClosure = { throw BitwardenTestError.example }
         let errorReport = await subject.buildShareErrorLog(
             for: BitwardenTestError.example,
@@ -137,8 +132,8 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         }
     }
 
-    /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `StateServiceError`.
-    func test_buildShareErrorLog_stateServiceError() async {
+    @Test("buildShareErrorLog(for:callStack:) builds an error report for a StateServiceError")
+    func buildShareErrorLog_stateServiceError() async {
         activeAccountStateProvider.getActiveAccountIdReturnValue = "1"
         let errorReport = await subject.buildShareErrorLog(
             for: BitwardenTestError.example,
@@ -173,6 +168,22 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             AuthenticatorBridgeKit:      0x0000000000000000
             """
         }
+    }
+
+    @Test("getUserID() returns nil when ActiveAccountStateProvider throws an error")
+    func getUserID_returnsNilWhenAccountStateProviderThrowsError() async {
+        let mockError = BitwardenTestError.mock("test_getUserId_returnsNilWhenAccountStateProviderThrowsError")
+        activeAccountStateProvider.getActiveAccountIdThrowableError = mockError
+        let userId = await subject.getUserID()
+        #expect(userId == nil)
+    }
+
+    @Test("getUserID() returns a valid user ID when one exists")
+    func getUserID_returnsValidID() async {
+        let expectation = "1234567890"
+        activeAccountStateProvider.getActiveAccountIdReturnValue = expectation
+        let userId = await subject.getUserID()
+        #expect(userId == expectation)
     }
 }
 

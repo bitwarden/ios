@@ -12,6 +12,9 @@ protocol AddEditCardItemState: Equatable, Sendable {
     /// The number of the card.
     var cardNumber: String { get set }
 
+    /// Whether card scanning is enabled.
+    var cardScannerEnabled: Bool { get set }
+
     /// The security code of the card.
     var cardSecurityCode: String { get set }
 
@@ -21,9 +24,15 @@ protocol AddEditCardItemState: Equatable, Sendable {
     /// The expiration year of the card.
     var expirationYear: String { get set }
 
+    /// Whether the card scanner sheet is currently presented.
+    var isCardScannerPresented: Bool { get set }
+
     /// The visibility of the security code.
     var isCodeVisible: Bool { get set }
 
     /// The visibility of the card number.
     var isNumberVisible: Bool { get set }
+
+    /// Whether the cardholder name field should receive focus after a successful scan.
+    var shouldFocusCardholderNameAfterScan: Bool { get set }
 }

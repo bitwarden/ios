@@ -50,7 +50,7 @@ struct AppCoordinatorTests {
 
         let presentedVC = (mockRootNavigator.rootViewController as? MockUIViewController)?.presentedView
         #expect(presentedVC?.isModalInPresentation == true)
-        #expect(presentedVC?.modalPresentationStyle == .fullScreen)
+        #expect(presentedVC?.modalPresentationStyle == .overFullScreen)
     }
 
     /// `handleEvent(.vaultTimeout)` presents the auth overlay with `isModalInPresentation` set
@@ -70,7 +70,7 @@ struct AppCoordinatorTests {
 
         let presentedVC = (mockRootNavigator.rootViewController as? MockUIViewController)?.presentedView
         #expect(presentedVC?.isModalInPresentation == true)
-        #expect(presentedVC?.modalPresentationStyle == .fullScreen)
+        #expect(presentedVC?.modalPresentationStyle == .overFullScreen)
     }
 
     /// `switchToSettingsTab(route:)` navigates to the settings tab with the specified route.

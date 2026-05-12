@@ -23,4 +23,106 @@ class CardComponentBrandTests: BitwardenTestCase {
         XCTAssertEqual(CardComponent.Brand.ruPay.icon.name, SharedAsset.Icons.Cards.ruPay.name)
         XCTAssertEqual(CardComponent.Brand.other.icon.name, SharedAsset.Icons.card24.name)
     }
+
+    // MARK: Tests – detect(from:)
+
+    /// `detect(from:)` returns `.visa` for numbers starting with 4.
+    func test_detect_visa() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "4111111111111111"), .visa)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "4"), .visa)
+    }
+
+    /// `detect(from:)` returns `.americanExpress` for numbers starting with 34 or 37.
+    func test_detect_americanExpress() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "378282246310005"), .americanExpress)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "371449635398431"), .americanExpress)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "341111111111111"), .americanExpress)
+    }
+
+    /// `detect(from:)` returns `.mastercard` for numbers starting with 51–55.
+    func test_detect_mastercard_prefix51to55() { // swiftlint:disable:this inclusive_language
+        XCTAssertEqual(CardComponent.Brand.detect(from: "5100000000000000"), .mastercard)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "5555555555554444"), .mastercard)
+    }
+
+    /// `detect(from:)` returns `.mastercard` for numbers in the 2221–2720 range.
+    func test_detect_mastercard_prefix2221to2720() { // swiftlint:disable:this inclusive_language
+        XCTAssertEqual(CardComponent.Brand.detect(from: "2221000000000000"), .mastercard)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "2720000000000000"), .mastercard)
+    }
+
+    /// `detect(from:)` returns `.discover` for numbers starting with 6011.
+    func test_detect_discover_prefix6011() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6011111111111117"), .discover)
+    }
+
+    /// `detect(from:)` returns `.discover` for numbers in the 622126–622925 range.
+    func test_detect_discover_prefix622126to622925() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6221260000000000"), .discover)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6229250000000000"), .discover)
+    }
+
+    /// `detect(from:)` returns `.discover` for numbers starting with 64 or 65.
+    func test_detect_discover_prefix64to65() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6400000000000000"), .discover)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6500000000000000"), .discover)
+    }
+
+    /// `detect(from:)` returns `.dinersClub` for numbers starting with 36 or 38.
+    func test_detect_dinersClub_prefix36_38() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "36000000000000"), .dinersClub)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "38000000000000"), .dinersClub)
+    }
+
+    /// `detect(from:)` returns `.dinersClub` for numbers in the 3000–3059 range.
+    func test_detect_dinersClub_prefix3000to3059() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "3000000000000000"), .dinersClub)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "3059000000000000"), .dinersClub)
+    }
+
+    /// `detect(from:)` returns `.jcb` for numbers starting with 35.
+    func test_detect_jcb_prefix35() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "3530111333300000"), .jcb)
+    }
+
+    /// `detect(from:)` returns `.jcb` for numbers in the 3528–3589 range.
+    func test_detect_jcb_prefix3528to3589() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "3528000000000000"), .jcb)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "3589000000000000"), .jcb)
+    }
+
+    /// `detect(from:)` returns `.maestro` for the specific 4-digit prefixes 5018, 5020, 5038, 6304, 6759.
+    func test_detect_maestro_specificPrefixes() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "5018000000000000"), .maestro)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "5020000000000000"), .maestro)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "5038000000000000"), .maestro)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6304000000000000"), .maestro)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6759000000000000"), .maestro)
+    }
+
+    /// `detect(from:)` returns `.maestro` for numbers starting with 56–58.
+    func test_detect_maestro_prefix56to58() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "5600000000000000"), .maestro)
+        XCTAssertEqual(CardComponent.Brand.detect(from: "5800000000000000"), .maestro)
+    }
+
+    /// `detect(from:)` returns `.unionPay` for numbers starting with 62.
+    func test_detect_unionPay() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6200000000000000"), .unionPay)
+    }
+
+    /// `detect(from:)` returns `.ruPay` for numbers starting with 60.
+    func test_detect_ruPay() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "6000000000000000"), .ruPay)
+    }
+
+    /// `detect(from:)` returns `.other` for an unrecognized prefix.
+    func test_detect_other_unrecognized() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: "9999999999999999"), .other)
+    }
+
+    /// `detect(from:)` returns `.other` for an empty string.
+    func test_detect_other_emptyString() {
+        XCTAssertEqual(CardComponent.Brand.detect(from: ""), .other)
+    }
 }

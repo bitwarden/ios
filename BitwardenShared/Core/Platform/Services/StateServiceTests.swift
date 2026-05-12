@@ -872,6 +872,20 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
     }
 
+    /// `getLocalUserDataKeyStates(userId:)` returns stored key states for a user.
+    func test_getLocalUserDataKeyStates() async throws {
+        let states: [String: UserKeyData] = ["k1": UserKeyData(wrappedKey: "key1")]
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = states
+        let result = try await subject.getLocalUserDataKeyStates(userId: "1")
+        XCTAssertEqual(result, states)
+    }
+
+    /// `getLocalUserDataKeyStates(userId:)` returns `nil` when no states are stored.
+    func test_getLocalUserDataKeyStates_notSet() async throws {
+        let result = try await subject.getLocalUserDataKeyStates(userId: "1")
+        XCTAssertNil(result)
+    }
+
     /// `getLastRequestToTurnOnCredentialProvider()` returns the date of the last request
     /// to turn on the credential provider.
     func test_getLastRequestToTurnOnCredentialProvider() async {
@@ -1385,7 +1399,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
 
-        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.osStatusError(errSecItemNotFound)
+        keychainRepository.getAccessTokenThrowableError = KeychainServiceError.keyNotFound(
+            BitwardenKeychainItem.accessToken(userId: "1"),
+        )
         var authenticationState = try await subject.isAuthenticated()
         XCTAssertFalse(authenticationState)
 
@@ -1521,6 +1537,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.defaultUriMatchTypeByUserId, [:])
         XCTAssertEqual(appSettingsStore.disableAutoTotpCopyByUserId, [:])
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions, [:])
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
 
         let context = dataStore.persistentContainer.viewContext
         try XCTAssertEqual(context.count(for: CipherData.fetchByUserIdRequest(userId: "1")), 0)
@@ -2261,6 +2278,79 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(appSettingsStore.hasPerformedSyncAfterLogin["1"]!)
     }
 
+    /// `setLastActiveMonotonicTime(_:userId:)` sets the last active monotonic time for a user.
+    func test_setLastActiveMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime: TimeInterval = 54321.98
+
+        try await subject.setLastActiveMonotonicTime(monotonicTime, userId: account.profile.userId)
+
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime,
+            monotonicTime,
+        )
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.userId,
+            account.profile.userId,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` sets nil to clear the monotonic time.
+    func test_setLastActiveMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        try await subject.setLastActiveMonotonicTime(nil, userId: nil)
+
+        XCTAssertNil(userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.monotonicTime)
+        XCTAssertEqual(
+            userSessionKeychainRepository.setLastActiveMonotonicTimeReceivedArguments?.userId,
+            account.profile.userId,
+        )
+    }
+
+    /// `setLastActiveMonotonicTime(_:userId:)` throws an error if there's no active account.
+    func test_setLastActiveMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setLastActiveMonotonicTime(1000.0, userId: nil)
+        }
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` sets the last sync monotonic time for a user.
+    func test_setLastSyncMonotonicTime() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        let monotonicTime: TimeInterval = 11111.22
+
+        try await subject.setLastSyncMonotonicTime(monotonicTime, userId: account.profile.userId)
+
+        XCTAssertEqual(appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId], monotonicTime)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` sets nil to clear the monotonic time.
+    func test_setLastSyncMonotonicTime_nil() async throws {
+        let account = Account.fixture()
+        await subject.addAccount(account)
+
+        // First set a value
+        appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] = 12345.0
+
+        // Then clear it
+        try await subject.setLastSyncMonotonicTime(nil, userId: nil)
+
+        XCTAssertNil(appSettingsStore.lastSyncMonotonicTimeByUserId[account.profile.userId] ?? nil)
+    }
+
+    /// `setLastSyncMonotonicTime(_:userId:)` throws an error if there's no active account.
+    func test_setLastSyncMonotonicTime_noActiveAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setLastSyncMonotonicTime(2000.0, userId: nil)
+        }
+    }
+
     /// `setLearnGeneratorActionCardStatus(_:)` sets the learn generator action card status.
     func test_setLearnGeneratorActionCardStatus() async {
         await subject.setLearnGeneratorActionCardStatus(.incomplete)
@@ -2277,6 +2367,58 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setLearnNewLoginActionCardStatus(.complete)
         XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .complete)
+    }
+
+    /// `setBulkLocalUserDataKeyStates(_:userId:)` merges multiple key states atomically.
+    func test_setBulkLocalUserDataKeyStates() async throws {
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        let values: [String: UserKeyData] = [
+            "k1": UserKeyData(wrappedKey: "key1"),
+            "k2": UserKeyData(wrappedKey: "key2"),
+        ]
+        try await subject.setBulkLocalUserDataKeyStates(values, userId: "1")
+        XCTAssertEqual(keychainRepository.getLocalUserDataKeyStatesReturnValue, values)
+    }
+
+    /// `removeLocalUserDataKeyState(id:userId:)` removes a single key state.
+    func test_removeLocalUserDataKeyState() async throws {
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = ["k1": UserKeyData(wrappedKey: "key1")]
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] _, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        try await subject.removeLocalUserDataKeyState(id: "k1", userId: "1")
+        XCTAssertNil(keychainRepository.getLocalUserDataKeyStatesReturnValue)
+    }
+
+    /// `removeBulkLocalUserDataKeyStates(keys:userId:)` removes multiple key states atomically.
+    func test_removeBulkLocalUserDataKeyStates() async throws {
+        keychainRepository.getLocalUserDataKeyStatesReturnValue = [
+            "k1": UserKeyData(wrappedKey: "key1"),
+            "k2": UserKeyData(wrappedKey: "key2"),
+            "k3": UserKeyData(wrappedKey: "key3"),
+        ]
+        keychainRepository.mutateLocalUserDataKeyStatesClosure = { [keychainRepository] userId, transform in
+            var states = keychainRepository?.getLocalUserDataKeyStatesReturnValue ?? [:]
+            transform(&states)
+            keychainRepository?.getLocalUserDataKeyStatesReturnValue = states.nilIfEmpty
+        }
+        try await subject.removeBulkLocalUserDataKeyStates(keys: ["k1", "k2"], userId: "1")
+        XCTAssertEqual(
+            keychainRepository.getLocalUserDataKeyStatesReturnValue,
+            ["k3": UserKeyData(wrappedKey: "key3")]
+        )
+    }
+
+    /// `removeAllLocalUserDataKeyStates(userId:)` clears all stored states.
+    func test_removeAllLocalUserDataKeyStates() async throws {
+        try await subject.removeAllLocalUserDataKeyStates(userId: "1")
+        XCTAssertTrue(keychainRepository.clearLocalUserDataKeyStatesCalled)
     }
 
     /// `setLoginRequest()` sets the pending login requests.
@@ -2658,79 +2800,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.archiveOnboardingShown = false
         let shouldDoArchiveOnboarding = await subject.shouldDoArchiveOnboarding()
         XCTAssertFalse(shouldDoArchiveOnboarding)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `true` when user is free, account is 7+ days old,
-    /// and banner has not been dismissed.
-    func test_shouldShowPremiumUpgradeBanner_true() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertTrue(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when user has premium.
-    func test_shouldShowPremiumUpgradeBanner_hasPremium() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: true,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when banner has been dismissed.
-    func test_shouldShowPremiumUpgradeBanner_dismissed() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge - 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = true
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account is less than 7 days old.
-    func test_shouldShowPremiumUpgradeBanner_accountTooNew() async {
-        let fixedDate = Date(timeIntervalSince1970: 1_000_000_000)
-        timeProvider.timeConfig = .mockTime(fixedDate)
-        let creationDate = fixedDate.addingTimeInterval(-Constants.premiumUpgradeBannerAccountAge + 1)
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: creationDate,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
-    }
-
-    /// `shouldShowPremiumUpgradeBanner()` returns `false` when account has no creation date.
-    func test_shouldShowPremiumUpgradeBanner_noCreationDate() async {
-        await subject.addAccount(.fixture(profile: .fixture(
-            creationDate: nil,
-            hasPremiumPersonally: false,
-        )))
-        appSettingsStore.premiumUpgradeBannerDismissedByUserId["1"] = false
-
-        let shouldShow = await subject.shouldShowPremiumUpgradeBanner()
-        XCTAssertFalse(shouldShow)
     }
 
     /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.

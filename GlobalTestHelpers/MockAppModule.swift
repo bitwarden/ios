@@ -10,6 +10,7 @@ class MockAppModule:
     AddEditFolderModule,
     AppModule,
     AuthModule,
+    BillingModule,
     DebugMenuModule,
     ExportCXFModule,
     ExtensionSetupModule,
@@ -23,7 +24,6 @@ class MockAppModule:
     NavigatorBuilderModule,
     PasswordAutoFillModule,
     PasswordHistoryModule,
-    PremiumUpgradeModule,
     ProfileSwitcherModule,
     SelectLanguageModule,
     SendModule,
@@ -36,6 +36,7 @@ class MockAppModule:
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
+    var billingCoordinator = MockCoordinator<BillingRoute, Void>()
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var debugMenuCoordinatorDelegate: DebugMenuCoordinatorDelegate?
     var exportCXFCoordinator = MockCoordinator<ExportCXFRoute, Void>()
@@ -53,7 +54,6 @@ class MockAppModule:
     // swiftlint:disable:next weak_navigator identifier_name
     var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
-    var premiumUpgradeCoordinator = MockCoordinator<PremiumUpgradeRoute, Void>()
     var profileSwitcherCoordinator = MockCoordinator<ProfileSwitcherRoute, Void>()
     var selectLanguageCoordinator = MockCoordinator<SelectLanguageRoute, Void>()
     // swiftlint:disable:next weak_navigator
@@ -89,6 +89,12 @@ class MockAppModule:
 
     func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
         authRouter.asAnyRouter()
+    }
+
+    func makeBillingCoordinator(
+        stackNavigator _: StackNavigator,
+    ) -> AnyCoordinator<BillingRoute, Void> {
+        billingCoordinator.asAnyCoordinator()
     }
 
     func makeDebugMenuCoordinator(
@@ -172,12 +178,6 @@ class MockAppModule:
         stackNavigator _: StackNavigator,
     ) -> AnyCoordinator<PasswordHistoryRoute, Void> {
         passwordHistoryCoordinator.asAnyCoordinator()
-    }
-
-    func makePremiumUpgradeCoordinator(
-        stackNavigator _: StackNavigator,
-    ) -> AnyCoordinator<PremiumUpgradeRoute, Void> {
-        premiumUpgradeCoordinator.asAnyCoordinator()
     }
 
     func makeProfileSwitcherCoordinator(

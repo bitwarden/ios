@@ -17,11 +17,14 @@ protocol SettingsProcessorDelegate: AnyObject {
 
 /// The processor used to manage state and handle actions for the settings screen.
 ///
-final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Void> {
+final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasEnvironmentService
+        & HasErrorReporter
         & HasStateService
+        & HasVaultRepository
 
     // MARK: Private Properties
 
@@ -80,6 +83,17 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
 
     // MARK: Methods
 
+    override func perform(_ effect: SettingsEffect) async {
+        switch effect {
+        case .appeared:
+            let featureEnabled = await services.configService
+                .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
+            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            let isSelfHosted = services.environmentService.region == .selfHosted
+            state.showPlanRow = featureEnabled && hasPremium && !isSelfHosted
+        }
+    }
+
     override func receive(_ action: SettingsAction) {
         switch action {
         case .aboutPressed:
@@ -94,6 +108,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
             coordinator.navigate(to: .dismiss)
         case .otherPressed:
             coordinator.navigate(to: .other)
+        case .planPressed:
+            coordinator.navigate(to: .premiumPlan)
         case .vaultPressed:
             coordinator.navigate(to: .vault)
         }

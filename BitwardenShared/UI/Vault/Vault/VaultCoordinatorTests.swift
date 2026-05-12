@@ -181,9 +181,53 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// navigator.
     @MainActor
     func test_navigate_dismiss() throws {
-        subject.navigate(to: .dismiss)
+        subject.navigate(to: .dismiss())
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` and a `DismissAction` passes the completion to
+    /// the underlying dismiss call and invokes it when dismissal completes.
+    @MainActor
+    func test_navigate_dismiss_withDismissAction() throws {
+        var completionCalled = false
+
+        subject.navigate(to: .dismiss(DismissAction { completionCalled = true }))
+
+        // MockStackNavigator calls the completion immediately.
+        XCTAssertTrue(completionCalled)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` and a `DismissAction` passes the completion to
+    /// the presented view controller's dismiss call when one is present.
+    @MainActor
+    func test_navigate_dismiss_withDismissAction_andPresentedViewController() {
+        let mockNavController = MockUINavigationController()
+        let presentedVC = MockUIViewController()
+        mockNavController.presentedView = presentedVC
+        subject = VaultCoordinator(
+            appExtensionDelegate: MockAppExtensionDelegate(),
+            delegate: delegate,
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
+            module: module,
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository,
+            ),
+            stackNavigator: mockNavController,
+        )
+        var completionCalled = false
+
+        subject.navigate(to: .dismiss(DismissAction { completionCalled = true }))
+
+        XCTAssertTrue(presentedVC.dismissCalled)
+        XCTAssertNotNil(presentedVC.dismissCompletion)
+
+        // Simulate UIKit calling the completion after animation.
+        presentedVC.dismissCompletion?()
+        XCTAssertTrue(completionCalled)
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses only the presented view controller when the stack
@@ -205,7 +249,7 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             stackNavigator: mockNavController,
         )
 
-        subject.navigate(to: .dismiss)
+        subject.navigate(to: .dismiss())
 
         XCTAssertTrue(presentedVC.dismissCalled)
         XCTAssertFalse(mockNavController.dismissCalled)
@@ -217,6 +261,13 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_navigateTo_flightRecorderSettings() throws {
         subject.navigate(to: .flightRecorderSettings)
         XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
+    }
+
+    /// `navigate(to:)` with `.viewPlanDetails` delegates to the settings tab with `.premiumPlan`.
+    @MainActor
+    func test_navigateTo_viewPlanDetails() throws {
+        subject.navigate(to: .viewPlanDetails)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .premiumPlan)
     }
 
     /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
@@ -349,6 +400,16 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         task.cancel()
         let userInitiated = try XCTUnwrap(delegate.userInitiated)
         XCTAssertFalse(userInitiated)
+    }
+
+    /// `navigate(to:)` with `.premiumUpgrade` presents the premium upgrade view via the billing coordinator.
+    @MainActor
+    func test_navigateTo_premiumUpgrade() throws {
+        subject.navigate(to: .premiumUpgrade)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertEqual(module.billingCoordinator.routes, [.premiumUpgrade])
     }
 
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.

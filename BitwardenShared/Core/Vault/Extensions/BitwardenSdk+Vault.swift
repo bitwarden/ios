@@ -63,6 +63,7 @@ extension CipherDetailsResponseModel {
         self.init(
             archivedDate: cipher.archivedDate,
             attachments: cipher.attachments?.map(AttachmentResponseModel.init),
+            bankAccount: nil,
             card: cipher.card.map(CipherCardModel.init),
             collectionIds: cipher.collectionIds,
             creationDate: cipher.creationDate,
@@ -596,6 +597,12 @@ extension BitwardenSdk.Identity {
             passportNumber: model.passportNumber,
             licenseNumber: model.licenseNumber,
         )
+    }
+}
+
+extension BitwardenSdk.LocalUserDataKeyState {
+    init(_ value: UserKeyData) {
+        self.init(wrappedKey: value.wrappedKey)
     }
 }
 

@@ -16,9 +16,11 @@ typealias Services = HasAPIService
     & HasAuthService
     & HasAutofillCredentialService
     & HasBillingAPIService
+    & HasBillingRepository
     & HasBillingService
     & HasBiometricsRepository
     & HasCameraService
+    & HasCardTextParser
     & HasChangeKdfService
     & HasCipherOwnershipHelper
     & HasClientCertificateService
@@ -56,6 +58,7 @@ typealias Services = HasAPIService
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
+    & HasStorefrontService
     & HasSyncService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
@@ -154,6 +157,13 @@ protocol HasBillingAPIService {
     var billingAPIService: BillingAPIService { get }
 }
 
+/// Protocol for an object that provides a `BillingRepository`.
+///
+protocol HasBillingRepository {
+    /// The repository used by the application to manage billing data for the UI layer.
+    var billingRepository: BillingRepository { get }
+}
+
 /// Protocol for an object that provides a `BillingService`.
 ///
 protocol HasBillingService {
@@ -173,6 +183,13 @@ protocol HasBiometricsRepository {
 protocol HasCameraService {
     /// The service used by the application to query for and request camera authorization.
     var cameraService: CameraService { get }
+}
+
+/// Protocol for an object that provides a `CardTextParser`.
+///
+protocol HasCardTextParser {
+    /// The service used to parse card text from OCR results.
+    var cardTextParser: CardTextParser { get }
 }
 
 /// Protocol for an object that provides a `CipherOwnershipHelper`.
@@ -374,6 +391,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that provides a `StorefrontService`.
+///
+protocol HasStorefrontService {
+    /// The service used by the application to retrieve App Store storefront information.
+    var storefrontService: StorefrontService { get }
 }
 
 /// Protocol for an object that provides a `UserSessionStateService`.

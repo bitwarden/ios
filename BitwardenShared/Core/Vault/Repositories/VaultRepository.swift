@@ -338,9 +338,6 @@ class DefaultVaultRepository {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
-    /// The service to get server-specified configuration.
-    private let configService: ConfigService
-
     /// The helper functions for collections.
     private let collectionHelper: CollectionHelper
 
@@ -393,7 +390,6 @@ class DefaultVaultRepository {
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - collectionHelper: The helper functions for collections.
     ///   - collectionService: The service for managing the collections for the user.
-    ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - folderService: The service used to manage syncing and updates to the user's folders.
@@ -413,7 +409,6 @@ class DefaultVaultRepository {
         clientService: ClientService,
         collectionHelper: CollectionHelper,
         collectionService: CollectionService,
-        configService: ConfigService,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
@@ -432,7 +427,6 @@ class DefaultVaultRepository {
         self.clientService = clientService
         self.collectionHelper = collectionHelper
         self.collectionService = collectionService
-        self.configService = configService
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.folderService = folderService
@@ -1057,10 +1051,9 @@ extension DefaultVaultRepository: VaultRepository {
             return false
         }
 
-        let archiveItemsFF: Bool = await configService.getFeatureFlag(.archiveVaultItems)
         let hasPremium = await stateService.doesActiveAccountHavePremium()
 
-        return archiveItemsFF && !hasPremium
+        return !hasPremium
     }
 }
 
