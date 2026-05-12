@@ -156,6 +156,9 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
         case let .itemPressed(item):
             handleItemTapped(item)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -177,9 +180,6 @@ final class VaultListProcessor: StateProcessor<
             upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
-        case .viewPlanDetails:
-            coordinator.navigate(to: .viewPlanDetails)
-            state.shouldShowUpgradedToPremiumActionCard = false
         }
     }
 }
