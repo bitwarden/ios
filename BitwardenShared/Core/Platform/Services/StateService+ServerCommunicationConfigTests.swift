@@ -64,6 +64,7 @@ class StateServiceServerCommunicationConfigTests: BitwardenTestCase {
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "bwauth",
                     cookieDomain: "example.com",
+                    vaultUrl: "https://example.com",
                     cookieValue: [AcquiredCookie(name: "session", value: "token")],
                 ),
             ),
@@ -81,6 +82,7 @@ class StateServiceServerCommunicationConfigTests: BitwardenTestCase {
         XCTAssertEqual(savedSsoConfig.cookieName, "bwauth")
         XCTAssertEqual(savedSsoConfig.cookieDomain, "example.com")
         XCTAssertNil(savedSsoConfig.cookieValue)
+        XCTAssertEqual(savedSsoConfig.vaultUrl, "https://example.com")
         XCTAssertEqual(keychainRepository.setServerCommunicationConfigReceivedArguments?.hostname, hostname)
     }
 
