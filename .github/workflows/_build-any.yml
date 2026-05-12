@@ -311,9 +311,12 @@ jobs:
             exit 1
           fi
 
+      # Changelog trigger is limited to non-beta builds for now — trigger-actions hardcodes artifact name "trigger-context"
+      # (overwrite: false), so running it from two matrix jobs in the same run causes a 409 collision.
+      # bwpm_beta (external/experimental channel) intentionally omitted until trigger-actions supports unique names.
       - name: Build TestFlight trigger data
         id: build-trigger-data
-        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
+        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' && (env._BW_ENV == 'bwpm_prod' || env._BW_ENV == 'bwa_prod') }}
         run: |
           CHANGELOG="$_GITHUB_ACTION_RUN_URL
           $(git show -s --format=%s)
