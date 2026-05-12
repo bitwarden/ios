@@ -2203,6 +2203,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithPassword(password: "password")
         }
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
