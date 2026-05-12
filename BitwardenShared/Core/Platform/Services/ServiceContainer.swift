@@ -622,6 +622,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let sdkRepositoryFactory = DefaultSdkRepositoryFactory(
             cipherDataStore: dataStore,
             serverCommunicationConfigStateService: stateService,
+            stateService: stateService,
         )
         let clientService = DefaultClientService(
             clientBuilder: clientBuilder,
@@ -1116,6 +1117,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             sdkRepositoryFactory: DefaultSdkRepositoryFactory(
                 cipherDataStore: dataStore,
                 serverCommunicationConfigStateService: stateService,
+                stateService: stateService,
             ),
             stateService: stateService,
         )
