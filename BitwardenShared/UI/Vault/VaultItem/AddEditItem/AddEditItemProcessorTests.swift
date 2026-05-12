@@ -693,14 +693,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.cardItemState.cardScannerEnabled)
     }
 
-    /// `perform(_:)` with `.appeared` loads the card scanner feature flag.
-    @MainActor
-    func test_perform_appeared_featureFlags_cardScanner() async {
-        configService.featureFlagsBool[.cardScanner] = true
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.cardItemState.cardScannerEnabled)
-    }
-
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
     @MainActor
     func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
