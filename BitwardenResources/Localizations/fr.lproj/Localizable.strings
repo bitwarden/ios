@@ -208,6 +208,7 @@
 "August" = "Août";
 "Brand" = "Réseau de paiement";
 "CardholderName" = "Nom du titulaire de la carte";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Ville";
 "Company" = "Entreprise";
 "Country" = "Pays";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Configurer la saisie automatique";
 "AppInfo" = "Infos sur l'application";
 "Browse" = "Parcourir";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Sélectionner la langue";
 "ContinueToCompleteWebAuthnVerification" = "Continuer pour compléter la vérification WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Une erreur s'est produite lors du démarrage de l'authentification en deux étapes WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Non, me demander";
 "NoCodes" = "Il n'y a aucun code à afficher";
 "None" = "Aucun";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Nombre de chiffres";
 "OtpType" = "Type OTP";
 "RefreshPeriod" = "Fréquence de mise à jour";
@@ -924,6 +927,8 @@
 "SaveHere" = "Enregistrer ici";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Enregistrez cette clé d'authentification ici ou ajoutez-la à une connexion dans votre application Bitwarden.";
 "SaveToBitwarden" = "Enregistrer sur Bitwarden";
+"ScanCard" = "Scanner la carte";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Scan terminé";
 "ScanTheQRCodeInYourSettings" = "Scanner le code QR dans les paramètres de double authentification pour n'importe quel compte.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Sécurisez vos comptes avec Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Éléments transférés";
 "ArchiveIsEmpty" = "L'archive est vide";
 "ArchiveEmptyDescriptionLong" = "Remplissez votre archive avec des éléments que vous ne voulez pas voir dans les résultats de recherche et les suggestions de saisie automatique, mais qui pourraient avoir besoin d'un jour.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Archive indisponible";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "L'archivage est une fonctionnalité Premium. Votre abonnement actuel n'inclut pas l'accès à cette fonctionnalité.";
 "UpgradeToPremium" = "Passer à la version premium";
@@ -1072,7 +1079,7 @@
 "OpeningCheckout" = "Lancement du paiement";
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
-"UpgradedToPremium" = "Upgraded to Premium";
+"UpgradedToPremium" = "Passer à la version Premium";
 "ViewPlanDetails" = "View plan details";
 "WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Vous allez passer au paiement sécurisé Stripe pour compléter votre achat.";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";

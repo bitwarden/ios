@@ -25,8 +25,8 @@ on:
         description: "Distribute to TestFlight"
         type: boolean
 env:
-  _BW_ENV: ${{ inputs.bw-env || 'bwpm-prod' }}
-  _BUILD_VARIANT: ${{ inputs.bw-env == 'bwpm-prod' && 'Production' || 'Beta' }}
+  _BW_ENV: ${{ inputs.bw-env || 'bwpm_prod' }}
+  _BUILD_VARIANT: ${{ inputs.bw-env == 'bwpm_prod' && 'Production' || 'Beta' }}
   _BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
   _VERSION_NAME: ${{ inputs.version-name }}
@@ -248,41 +248,26 @@ jobs:
       - name: Set up private auth key
         if: ${{ env._BUILD_MODE == 'Device' }}
         env:
+          _KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
-          mkdir ~/private_keys
-          cat << EOF > ~/private_keys/auth_key.p8
-          ${_APP_STORE_CONNECT_AUTH_KEY}
-          EOF
-
-      - name: Create secrets for Fastlane
-        if: ${{ env._BUILD_MODE == 'Device' }}
-        env:
-          _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
-        run: |
-          KEY_WITHOUT_NEWLINES=$(perl -0777 -pe 's/\r?\n/\\n/g' ~/private_keys/auth_key.p8)
-
-          cat << EOF > ~/secrets/appstoreconnect-fastlane.json
-          {
-            "issuer_id": "$_APP_STORE_CONNECT_TEAM_ISSUER",
-            "key_id": "$_APP_STORE_CONNECT_AUTH_KEY_ID",
-            "key": "$KEY_WITHOUT_NEWLINES"
-          }
-          EOF
+          mkdir -p ~/private_keys
+          chmod 700 ~/private_keys
+          printf '%s\n' "$_APP_STORE_CONNECT_AUTH_KEY" > ~/private_keys/AuthKey_${_KEY_ID:?missing APP-STORE-CONNECT-AUTH-ID}.p8
+          chmod 600 ~/private_keys/AuthKey_${_KEY_ID}.p8
 
       - name: Validate app with App Store Connect
         if: ${{ env._BUILD_MODE == 'Device' && false }} # Set to true to debug failing submissions
         env:
           _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
-          _API_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          _KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           _ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
         run: |
           xcrun altool --validate-app \
             --type ios \
             --file "$_EXPORT_FILEPATH" \
-            --apiKey "${_API_KEY}" \
-            --apiIssuer "${_ISSUER}"
+            --apiKey "$_KEY_ID" \
+            --apiIssuer "$_ISSUER"
 
       - name: Upload dSYM files to Crashlytics
         if: ${{ env._BUILD_MODE == 'Device' }}
@@ -293,19 +278,77 @@ jobs:
             -gsp "$_CRASHLYTICS_PATH" \
             -p ios -- {} +
 
-      - name: Upload app to TestFlight with Fastlane
+      - name: Resolve Apple ID
+        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
+        run: |
+          case "$_BUNDLE_ID" in
+            "com.8bit.bitwarden")          APPLE_ID="1137397744" ;;
+            "com.8bit.bitwarden.beta")     APPLE_ID="6477551146" ;;
+            "com.bitwarden.authenticator") APPLE_ID="6497335175" ;;
+            *)
+              echo "::error::No Apple ID mapping for bundle ID: $_BUNDLE_ID"
+              exit 1
+              ;;
+          esac
+          echo "APPLE_ID=$APPLE_ID" >> "$GITHUB_ENV"
+
+      - name: Upload app to TestFlight
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
         env:
           _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
+          _KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          _ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
         run: |
-          CHANGELOG="$(git show -s --format=%s)
-          $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
-          Xcode $_XCODE_VERSION
-          Compiler Flags: $_COMPILER_FLAGS
-          $_GITHUB_ACTION_RUN_URL"
+          ALTOOL_OUTPUT=$(xcrun altool --upload-app \
+            --type ios \
+            --file "$_EXPORT_FILEPATH" \
+            --apiKey "$_KEY_ID" \
+            --apiIssuer "$_ISSUER" \
+            --apple-id "$APPLE_ID" 2>&1)
+          echo "$ALTOOL_OUTPUT"
+          if echo "$ALTOOL_OUTPUT" | grep -q "ERROR:"; then
+            echo "::error::xcrun altool reported errors — upload failed"
+            exit 1
+          fi
 
-          bundle exec fastlane upload_build \
-            --env "$_BW_ENV" \
-            api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-            changelog:"$CHANGELOG" \
-            ipa_path:"$_EXPORT_FILEPATH"
+      - name: Build TestFlight trigger data
+        id: build-trigger-data
+        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
+        run: |
+          CHANGELOG="$_GITHUB_ACTION_RUN_URL
+          $(git show -s --format=%s)
+          $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
+          Xcode $_XCODE_VERSION"
+          [[ -n "$_COMPILER_FLAGS" ]] && CHANGELOG="$CHANGELOG
+          Compiler Flags: $_COMPILER_FLAGS"
+
+          CHANGELOG_B64=$(printf '%s' "$CHANGELOG" | base64 | tr -d '\n')
+
+          TRIGGER_DATA=$(jq -nc \
+            --arg bundle_id "$_BUNDLE_ID" \
+            --arg version_number "$_VERSION_NUMBER" \
+            --arg version_name "$_VERSION_NAME" \
+            --arg apple_id "$APPLE_ID" \
+            --arg changelog_b64 "$CHANGELOG_B64" \
+            '{bundle_id: $bundle_id, version_number: $version_number, version_name: $version_name, apple_id: $apple_id, changelog_b64: $changelog_b64}')
+
+          DELIM="EOF_$(openssl rand -hex 16)"
+          {
+            echo "trigger-data<<$DELIM"
+            echo "$TRIGGER_DATA"
+            echo "$DELIM"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Trigger TestFlight changelog update
+        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
+        uses: bitwarden/gh-actions/trigger-actions@main
+        with:
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          task: ios-testflight-changelog
+          data: ${{ steps.build-trigger-data.outputs.trigger-data }}
+
+      - name: Clean up auth key
+        if: ${{ always() && env._BUILD_MODE == 'Device' }}
+        run: rm -rf ~/private_keys

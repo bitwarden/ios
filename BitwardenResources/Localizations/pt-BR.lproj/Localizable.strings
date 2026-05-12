@@ -208,6 +208,7 @@
 "August" = "Agosto";
 "Brand" = "Bandeira";
 "CardholderName" = "Nome do titular do cartão";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Cidade / Localidade";
 "Company" = "Empresa";
 "Country" = "País";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Configurar preenchimento automático";
 "AppInfo" = "Informações do app";
 "Browse" = "Navegar";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Selecionar idioma";
 "ContinueToCompleteWebAuthnVerification" = "Continue para concluir a verificação do WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Houve um erro ao iniciar a autenticação de dois fatores do WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Não, me pergunte";
 "NoCodes" = "Você não tem nenhum código para exibir";
 "None" = "Nenhum";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Número de dígitos";
 "OtpType" = "Tipo de OTP";
 "RefreshPeriod" = "Período de recarregamento";
@@ -924,6 +927,8 @@
 "SaveHere" = "Salvar aqui";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Salve esta chave de autenticador aqui, ou adicione-a a uma credencial no seu aplicativo do Bitwarden.";
 "SaveToBitwarden" = "Salvar no Bitwarden";
+"ScanCard" = "Ler cartão";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Busca concluída";
 "ScanTheQRCodeInYourSettings" = "Escaneie o código QR nas configurações de verificação em duas etapas de qualquer conta.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Proteja suas contas com o Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Itens transferidos";
 "ArchiveIsEmpty" = "O arquivo está vazio";
 "ArchiveEmptyDescriptionLong" = "Encha seu arquivo com itens que não deseja ver nos resultados de busca ou sugestões de preenchimento, mas que possa precisar algum dia.";
+"ArchiveItem" = "Arquivar item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Ao arquivar, o item será excluído dos resultados de busca e das sugestões de preenchimento automático.";
 "ArchiveUnavailable" = "Arquivo indisponível";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "O arquivamento de itens é um recurso do Premium. O seu plano atual não inclui o acesso a este recurso.";
 "UpgradeToPremium" = "Fazer upgrade ao Premium";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Para gerenciar sua assinatura Premium, conecte-se ao seu cofre web em um computador.";
 "CheckYourConnectionAndTryAgain" = "Confira sua conexão e tente novamente.";
 "PricingUnavailable" = "Preços indisponíveis";
+"BankAccount" = "Conta bancária";

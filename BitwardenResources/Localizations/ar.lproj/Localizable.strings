@@ -208,6 +208,7 @@
 "August" = "أغسطس";
 "Brand" = "العلامة التجارية";
 "CardholderName" = "اسم حامل البطاقة";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "المدينة / البلدة";
 "Company" = "الشركة";
 "Country" = "الدولة";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "إعداد الملء التلقائي";
 "AppInfo" = "معلومات التطبيق";
 "Browse" = "تصفّح";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "اختار اللغة";
 "ContinueToCompleteWebAuthnVerification" = "مواصلة لإكمال التحقق من WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "حدث خطأ أثناء بدء المصادقة من عاملين لـ WebAuthn";
@@ -917,6 +919,7 @@
 "NoAskMe" = "لا، اسألني";
 "NoCodes" = "ليس لديك أي رموز لعرضها";
 "None" = "لا شَيْء";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "عدد الأرقام";
 "OtpType" = "نوع OTP";
 "RefreshPeriod" = "فترة التحديث";
@@ -925,6 +928,8 @@
 "SaveHere" = "حفظ هنا";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "احفظ مفتاح المصادقة هذا هنا، أو أضفه إلى تسجيل الدخول في تطبيق Bitwarden الخاص بك.";
 "SaveToBitwarden" = "حفظ إلى Bitwarden";
+"ScanCard" = "مسح البطاقة";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "اكتمل الفحص";
 "ScanTheQRCodeInYourSettings" = "امسح رمز QR في إعدادات التحقق من خطوتين لأي حساب.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "تأمين حساباتك مع مصادق Bitwarden";
@@ -995,6 +1000,8 @@
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "الأرشيف فارغ";
 "ArchiveEmptyDescriptionLong" = "املأ أرشيفك بالعناصر التي لا تريد رؤيتها في نتائج البحث واقتراحات التعبئة التلقائية ولكن قد تحتاج يوما ما.";
+"ArchiveItem" = "أرشفة العنصر";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "بمجرد الأرشفة، سيتم استبعاد هذا العنصر من نتائج البحث واقتراحات التعبئة التلقائية.";
 "ArchiveUnavailable" = "الأرشيف غير متوفر";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "أرشفة العناصر ميزة بريميوم. خطتك الحالية لا تشمل الوصول إلى هذه الميزة.";
 "UpgradeToPremium" = "Upgrade to premium";
@@ -1073,7 +1080,7 @@
 "OpeningCheckout" = "فتح الدفع…";
 "UpgradePending" = "الترقية قيد الانتظار";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
-"UpgradedToPremium" = "Upgraded to Premium";
+"UpgradedToPremium" = "الترقية إلى بريميوم";
 "ViewPlanDetails" = "View plan details";
 "WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
@@ -1085,3 +1092,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "السعر غير متوفر";
+"BankAccount" = "Bank account";

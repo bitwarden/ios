@@ -208,6 +208,7 @@
 "August" = "八月";
 "Brand" = "品牌";
 "CardholderName" = "持卡人姓名";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "市 / 镇";
 "Company" = "公司";
 "Country" = "国家";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "设置自动填充";
 "AppInfo" = "App 信息";
 "Browse" = "浏览";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "选择语言";
 "ContinueToCompleteWebAuthnVerification" = "继续完成 WebAuthn 验证。";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "启动 WebAuthn 双重身份验证时出错";
@@ -916,6 +918,7 @@
 "NoAskMe" = "不，询问我";
 "NoCodes" = "您没有任何可显示的代码";
 "None" = "无";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "位数";
 "OtpType" = "OTP 类型";
 "RefreshPeriod" = "刷新周期";
@@ -924,6 +927,8 @@
 "SaveHere" = "保存到这里";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "将此验证器密钥保存到此处，或将其添加到您的 Bitwarden App 的登录中。";
 "SaveToBitwarden" = "保存到 Bitwarden";
+"ScanCard" = "扫描支付卡";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "扫描完成";
 "ScanTheQRCodeInYourSettings" = "在任何账户的两步验证设置中扫描二维码。";
 "SecureYourAssetsWithBitwardenAuthenticator" = "使用 Bitwarden Authenticator 保护您的账户";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "项目已转移";
 "ArchiveIsEmpty" = "归档为空";
 "ArchiveEmptyDescriptionLong" = "将您不希望在搜索结果和自动填充建议中看到，但将来可能需要的项目添加到您的归档中。";
+"ArchiveItem" = "归档项目";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "归档后，此项目将被排除在一般搜索结果和自动填充建议之外。";
 "ArchiveUnavailable" = "归档功能不可用";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "归档项目是高级版功能。您的当前方案不包含对此功能的访问权限。";
 "UpgradeToPremium" = "升级到高级版";
@@ -1057,7 +1064,7 @@
 "NegativeX" = "-%1$@";
 "UnknownStatus" = "未知";
 "YourSubscriptionStatusIsUnknownVisitTheWebAppDescriptionLong" = "您的订阅状态无法确定。请访问网页 App 了解更多详细信息或更新到最新版本。";
-"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "高级版方案当前不可用。请稍后再试。";
+"AtTheMomentPremiumPlanIsNotAvailableDescriptionLong" = "高级版方案当前不可用，请稍后再试。";
 "UnlockMoreAdvancedFeaturesWithPremiumPlan" = "使用高级版方案解锁更多高级功能。";
 "BuiltInAuthenticator" = "内置身份验证器";
 "EmergencyAccess" = "紧急访问";
@@ -1074,9 +1081,9 @@
 "YourUpgradeIsBeingProcessedDescriptionLong" = "您的升级正在处理中。完成之前，您将继续使用免费版方案。立即同步以检查升级进度，或继续操作，它将自动更新。";
 "UpgradedToPremium" = "升级到高级版";
 "ViewPlanDetails" = "查看方案详细信息";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "欢迎使用高级版！您现在拥有高级安全功能访问权限了。";
+"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "欢迎使用高级版！您现在拥有所有高级安全功能访问权限了。";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "您将前往 Stripe 的安全结账页面完成购买。";
-"YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
+"YoullContinueToHavePremiumAccessUntilX" = "在 %1$@ 之前，您将继续拥有高级版访问权限。";
 "UserIDCopiedToTheClipboard" = "用户 ID 已复制到剪贴板";
 "UserID" = "用户 ID";
 "CopyUserID" = "复制用户 ID";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "如需管理你的高级会员订阅，请在电脑端登录网页版密码库。";
 "CheckYourConnectionAndTryAgain" = "检查您的连接，然后重试。";
 "PricingUnavailable" = "定价不可用";
+"BankAccount" = "银行账户";

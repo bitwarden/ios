@@ -208,6 +208,7 @@
 "August" = "Augusts";
 "Brand" = "Zīmols";
 "CardholderName" = "Kartes īpašnieka vārds";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Pilsēta / ciems";
 "Company" = "Uzņēmums";
 "Country" = "Valsts";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Iestatīt automātisko aizpildi";
 "AppInfo" = "Par lietotni";
 "Browse" = "Pārlūkot";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Atlasīt valodu";
 "ContinueToCompleteWebAuthnVerification" = "Turpināt, lai pabeigtu WebAuthn apliecināšanu.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Atgadījās kļūda WebAuth divpakāpju autentifikācijas uzsākšanā";
@@ -916,6 +918,7 @@
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "None";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Ciparu skaits";
 "OtpType" = "OTP Type";
 "RefreshPeriod" = "Atsvaidzināšanas laika posms";
@@ -924,6 +927,8 @@
 "SaveHere" = "Save here";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Save this authenticator key here, or add it to a login in your Bitwarden app.";
 "SaveToBitwarden" = "Saglabāt Bitwarden";
+"ScanCard" = "Scan card";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Scan complete";
 "ScanTheQRCodeInYourSettings" = "Jānolasa kvadrātkods jebkura konta divpakāpju apliecināšanas iestatījumos.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Aizsargā savus kontus ar Bitwarden autentificētāju";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Vienumi pārcelti";
 "ArchiveIsEmpty" = "Arhīvs ir tukšs";
 "ArchiveEmptyDescriptionLong" = "Arhīvs ir aizpildāms ar vienumiem, kurus nav vēlēšanās redzēt meklēšanas iznākumā un automātiskās aizpildes ieteikumos, bet kaut kad varētu būt nepieciešami.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Arhīvs nav pieejams";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Vienumu ievietošana arhīvā ir Premium iespēja. Pašreizējais plāns neiekļauj piekļuvi tai.";
 "UpgradeToPremium" = "Uzlabot uz Premium";
@@ -1072,7 +1079,7 @@
 "OpeningCheckout" = "Opening checkout…";
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
-"UpgradedToPremium" = "Upgraded to Premium";
+"UpgradedToPremium" = "Uzlabots uz Premium";
 "ViewPlanDetails" = "View plan details";
 "WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";
