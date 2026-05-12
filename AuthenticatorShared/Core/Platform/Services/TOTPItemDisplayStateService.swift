@@ -5,7 +5,6 @@ import Combine
 /// A protocol for a service that manages how TOTP items are displayed in the item list.
 ///
 protocol TOTPItemDisplayStateService: AnyObject { // sourcery: AutoMockable
-
     // MARK: Show Next TOTP Code
 
     /// Get whether to show the next TOTP code preview when the current code is about to expire.

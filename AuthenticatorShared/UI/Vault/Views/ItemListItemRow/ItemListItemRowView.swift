@@ -119,6 +119,12 @@ struct ItemListItemRowView: View {
     }
 
     /// The HStack showing the TOTP countdown timer and code(s).
+    ///
+    /// - Parameters:
+    ///   - model: The current TOTP code model to display.
+    ///   - nextCode: The upcoming TOTP code model to preview, if available.
+    ///   - remaining: The number of seconds remaining before the current code expires.
+    ///
     @ViewBuilder
     private func totpCountdownRow(
         model: TOTPCodeModel,
