@@ -84,11 +84,11 @@ struct BillingCoordinatorTests {
         #expect(action.type == .pushed)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` pushes the premium upgrade view when not presenting (settings push flow)
-    /// and hides the cancel button.
+    /// `navigate(to:)` with `.premiumUpgrade` pushes the premium upgrade view when the stack is non-empty
+    /// (settings push flow) and hides the cancel button.
     @Test
     func navigate_premiumUpgrade_push() throws {
-        stackNavigator.isPresenting = false
+        stackNavigator.isEmpty = false
         subject.navigate(to: .premiumUpgrade)
 
         #expect(stackNavigator.actions.count == 1)
@@ -98,11 +98,11 @@ struct BillingCoordinatorTests {
         #expect(viewController.rootView.store.state.showCancelButton == false)
     }
 
-    /// `navigate(to:)` with `.premiumUpgrade` replaces the stack when the navigator is presenting (vault modal flow)
-    /// and shows the cancel button.
+    /// `navigate(to:)` with `.premiumUpgrade` replaces the stack when the navigator is empty
+    /// (vault modal flow) and shows the cancel button.
     @Test
     func navigate_premiumUpgrade_replace() throws {
-        stackNavigator.isPresenting = true
+        stackNavigator.isEmpty = true
         subject.navigate(to: .premiumUpgrade)
 
         #expect(stackNavigator.actions.count == 1)

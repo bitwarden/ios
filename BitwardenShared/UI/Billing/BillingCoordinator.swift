@@ -86,16 +86,16 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     /// Shows the premium upgrade screen.
     ///
     private func showPremiumUpgrade() {
-        let isPresenting = stackNavigator?.isPresenting == true
+        let isModalFlow = stackNavigator?.isEmpty == true
         var state = PremiumUpgradeState()
-        state.showCancelButton = isPresenting
+        state.showCancelButton = isModalFlow
         let processor = PremiumUpgradeProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: state,
         )
         let view = PremiumUpgradeView(store: Store(processor: processor))
-        if isPresenting {
+        if isModalFlow {
             stackNavigator?.replace(view)
         } else {
             let viewController = UIHostingController(rootView: view)
