@@ -343,7 +343,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Trigger TestFlight changelog update
-        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
+        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' && (env._BW_ENV == 'bwpm_prod' || env._BW_ENV == 'bwa_prod') }}
         uses: bitwarden/gh-actions/trigger-actions@main
         with:
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
