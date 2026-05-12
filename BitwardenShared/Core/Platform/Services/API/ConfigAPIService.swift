@@ -13,7 +13,7 @@ extension APIService: ConfigAPIService {
         do {
             return try await apiService.send(ConfigRequest())
         } catch KeychainServiceError.osStatusError(errSecItemNotFound),
-                KeychainServiceError.keyNotFound {
+            KeychainServiceError.keyNotFound {
             // The access token was removed between the isAuthenticated check and the
             // actual request (e.g., logout during a background config refresh).
             // Fall back to the unauthenticated endpoint.
