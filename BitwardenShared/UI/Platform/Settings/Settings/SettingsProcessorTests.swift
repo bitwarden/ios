@@ -183,6 +183,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     func test_perform_appeared_hidesPlanRow_featureFlagOff() async {
         configService.featureFlagsBool[.premiumUpgradePath] = false
         vaultRepository.doesActiveAccountHavePremiumResult = true
+        environmentService.region = .unitedStates
 
         await subject.perform(.appeared)
 
@@ -194,6 +195,7 @@ class SettingsProcessorTests: BitwardenTestCase {
     func test_perform_appeared_showsPlanRow_freeUser() async {
         configService.featureFlagsBool[.premiumUpgradePath] = true
         vaultRepository.doesActiveAccountHavePremiumResult = false
+        environmentService.region = .unitedStates
 
         await subject.perform(.appeared)
 
