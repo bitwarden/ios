@@ -525,8 +525,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     )
                 }
             }
-        case .scanCardButtonTapped:
-            state.cardItemState.isCardScannerPresented = true
         }
     }
 
