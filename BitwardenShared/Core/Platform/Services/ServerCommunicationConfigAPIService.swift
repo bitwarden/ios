@@ -6,7 +6,7 @@ import Foundation
 /// A service that bridges server communication configuration requests from the SDK,
 /// allowing the app to acquire cookies on behalf of the SDK and deliver the results back.
 public protocol ServerCommunicationConfigAPIService: ServerCommunicationConfigPlatformApi {
-    /// Returns a publisher that emits the hostname whenever `acquireCookies(hostname:)` is called,
+    /// Returns a publisher that emits the vault URL whenever `acquireCookies(vaultUrl:)` is called,
     /// before the continuation is awaited. Starts with `nil`.
     func acquireCookiesPublisher() async -> AnyPublisher<String?, Never>
 
@@ -50,7 +50,7 @@ final actor DefaultServerCommunicationConfigAPIService: ServerCommunicationConfi
         self.notificationCenterService = notificationCenterService
     }
 
-    func acquireCookies(hostname: String) async -> [BitwardenSdk.AcquiredCookie]? {
+    func acquireCookies(vaultUrl: String) async -> [BitwardenSdk.AcquiredCookie]? {
         // Drop concurrent calls: an acquisition is already in flight.
         guard acquireCookiesContinuation == nil else {
             return nil
@@ -66,7 +66,7 @@ final actor DefaultServerCommunicationConfigAPIService: ServerCommunicationConfi
             }
         }
 
-        acquireCookiesSubject.send(hostname)
+        acquireCookiesSubject.send(vaultUrl)
         do {
             return try await withCheckedThrowingContinuation { continuation in
                 self.acquireCookiesContinuation = continuation

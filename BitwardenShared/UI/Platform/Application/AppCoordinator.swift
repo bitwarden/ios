@@ -129,8 +129,8 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
             showMigrateToMyItems(organizationId: organizationId)
         case let .sendItem(sendItemRoute):
             showSendItem(route: sendItemRoute)
-        case .syncWithBrowser:
-            showSyncWithBrowser()
+        case let .syncWithBrowser(vaultUrl):
+            showSyncWithBrowser(vaultUrl: vaultUrl)
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         case let .vault(vaultRoute):
@@ -319,7 +319,9 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
 
     /// Show the sync with browser screen.
     ///
-    private func showSyncWithBrowser() {
+    /// - Parameter vaultUrl: The vault URL used to construct the browser redirect URL.
+    ///
+    private func showSyncWithBrowser(vaultUrl: String) {
         // Make sure that the user is not currently viewing the migrate to my items view.
         let currentView = rootNavigator?.rootViewController?.topmostViewController()
         guard !(currentView is UIHostingController<SyncWithBrowserView>) else { return }
@@ -329,7 +331,7 @@ class AppCoordinator: Coordinator, HasRootNavigator { // swiftlint:disable:this 
         navigationController.modalPresentationStyle = .fullScreen
         let globalModalCoordinator = module.makeGlobalModalCoordinator(stackNavigator: navigationController)
         globalModalCoordinator.start()
-        globalModalCoordinator.navigate(to: .syncWithBrowser, context: self)
+        globalModalCoordinator.navigate(to: .syncWithBrowser(vaultUrl: vaultUrl), context: self)
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             navigationController,
