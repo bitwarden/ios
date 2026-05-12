@@ -1857,16 +1857,17 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
 
         appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
+        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
-        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
+        try await keychainRepository.clearLocalUserDataKeyStates(userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
     }

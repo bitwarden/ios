@@ -27,7 +27,12 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
         sdkRepositoryFactory = MockSdkRepositoryFactory()
-        sdkRepositoryFactory.makeCipherRepositoryReturnValue = MockSdkCipherRepository()
+        sdkRepositoryFactory.makeRepositoriesReturnValue = BitwardenSdk.Repositories(
+            cipher: nil,
+            folder: nil,
+            userKeyState: nil,
+            localUserDataKeyState: nil,
+        )
         stateService = MockStateService()
         subject = DefaultClientService(
             clientBuilder: clientBuilder,
@@ -225,15 +230,15 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
-    /// `client(for:)` registers the SDK cipher repository.
-    func test_client_registersCipherRepository() async throws {
+    /// `client(for:)` registers the SDK client managed repositories.
+    func test_client_registersClientManagedRepositories() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let auth = try await subject.auth()
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertIdentical(auth, client.authClient)
-        XCTAssertTrue(sdkRepositoryFactory.makeCipherRepositoryCalled)
-        XCTAssertNotNil(client.platformClient.stateMock.registerCipherRepositoryReceivedStore)
+        XCTAssertTrue(sdkRepositoryFactory.makeRepositoriesCalled)
+        XCTAssertNotNil(client.platformClient.stateMock.registerClientManagedRepositoriesReceivedRepositories)
     }
 
     /// `configPublisher` loads flags into the SDK.
