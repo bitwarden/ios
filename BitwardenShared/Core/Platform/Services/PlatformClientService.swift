@@ -15,7 +15,7 @@ protocol PlatformClientService: AnyObject {
 
     /// Load feature flags into the client.
     /// - Parameter flags: Flags to load.
-    func loadFlags(_ flags: [String: Bool]) throws
+    func loadFlags(_ flags: [String: Bool]) async throws
 
     /// Server communication configuration operations.
     /// - Parameters:
@@ -47,8 +47,8 @@ extension PlatformClient: PlatformClientService {
         try fingerprint(req: req)
     }
 
-    func loadFlags(_ flags: [String: Bool]) throws {
-        try loadFlags(flags: flags)
+    func loadFlags(_ flags: [String: Bool]) async throws {
+        try await loadFlags(flags: flags)
     }
 
     func serverCommunicationConfig(

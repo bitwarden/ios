@@ -43,9 +43,9 @@ class BillingCoordinator: Coordinator, HasStackNavigator {
     func navigate(to route: BillingRoute, context: AnyObject?) {
         switch route {
         case .dismiss:
-            if stackNavigator?.isPresenting == false {
-                stackNavigator?.pop()
-            } else {
+            if stackNavigator?.isPresenting == true {
+                stackNavigator?.dismiss()
+            } else if stackNavigator?.pop() == nil {
                 stackNavigator?.dismiss()
             }
         case .premiumUpgradeComplete:

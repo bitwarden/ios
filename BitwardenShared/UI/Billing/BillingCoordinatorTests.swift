@@ -26,10 +26,11 @@ struct BillingCoordinatorTests {
 
     // MARK: Tests
 
-    /// `navigate(to:)` with `.dismiss` pops the view when not presenting.
+    /// `navigate(to:)` with `.dismiss` pops the view when there's a view controller to pop.
     @Test
     func navigate_dismiss_pops() throws {
         stackNavigator.isPresenting = false
+        stackNavigator.viewControllersToPop = [UIViewController()]
 
         subject.navigate(to: .dismiss)
 
@@ -41,6 +42,20 @@ struct BillingCoordinatorTests {
     @Test
     func navigate_dismiss_dismisses() throws {
         stackNavigator.isPresenting = true
+
+        subject.navigate(to: .dismiss)
+
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .dismissed)
+    }
+
+    /// `navigate(to:)` with `.dismiss` dismisses the navigator when it is the root (nothing to pop).
+    /// This handles the vault upsell flow where the premium upgrade view is the root of a presented
+    /// navigation controller.
+    @Test
+    func navigate_dismiss_dismisses_when_root() throws {
+        stackNavigator.isPresenting = false
+        // viewControllersToPop is empty by default, so pop() returns nil
 
         subject.navigate(to: .dismiss)
 

@@ -10,6 +10,7 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
     var cipherDataStore: MockCipherDataStore!
     var serverCommunicationConfigStateService: MockServerCommunicationConfigStateService!
+    var stateService: MockLocalUserDataStateService!
     var subject: SdkRepositoryFactory!
 
     // MARK: Setup & Teardown
@@ -19,9 +20,11 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
         cipherDataStore = MockCipherDataStore()
         serverCommunicationConfigStateService = MockServerCommunicationConfigStateService()
+        stateService = MockLocalUserDataStateService()
         subject = DefaultSdkRepositoryFactory(
             cipherDataStore: cipherDataStore,
             serverCommunicationConfigStateService: serverCommunicationConfigStateService,
+            stateService: stateService,
         )
     }
 
@@ -30,15 +33,19 @@ class SdkRepositoryFactoryTests: BitwardenTestCase {
 
         cipherDataStore = nil
         serverCommunicationConfigStateService = nil
+        stateService = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `makeCipherRepository(userId:)` makes a cipher repository for the given user ID.
-    func test_makeCipherRepository() {
-        let repository = subject.makeCipherRepository(userId: "1")
-        XCTAssertTrue(repository is SdkCipherRepository)
+    /// `makeRepositories(userId:)` returns repositories with a cipher and local user data key state repository.
+    func test_makeRepositories() {
+        let repositories = subject.makeRepositories(userId: "1")
+        XCTAssertNotNil(repositories.cipher)
+        XCTAssertNil(repositories.folder)
+        XCTAssertNil(repositories.userKeyState)
+        XCTAssertNotNil(repositories.localUserDataKeyState)
     }
 
     /// `makeServerCommunicationConfigRepository()` makes a server communication config repository.
