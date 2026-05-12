@@ -56,6 +56,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var isInitialSyncRequiredByUserId = [String: Bool]()
+    var isPremiumUpgradeBannerDismissedResult: Bool = false
+    var isPremiumUpgradeEligibleResult: Bool = false
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
@@ -106,7 +108,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
-    var shouldShowPremiumUpgradeBannerResult: Bool = false
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
@@ -451,6 +452,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return isInitialSyncRequiredByUserId[userId] ?? false
     }
 
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        isPremiumUpgradeBannerDismissedResult
+    }
+
+    func isPremiumUpgradeEligible() async -> Bool {
+        isPremiumUpgradeEligibleResult
+    }
+
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
@@ -788,10 +797,6 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.usesKeyConnector[userId] = usesKeyConnector
-    }
-
-    func shouldShowPremiumUpgradeBanner() async -> Bool {
-        shouldShowPremiumUpgradeBannerResult
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

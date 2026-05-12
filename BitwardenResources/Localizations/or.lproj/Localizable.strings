@@ -208,6 +208,7 @@
 "August" = "August";
 "Brand" = "Brand";
 "CardholderName" = "Cardholder name";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "City / Town";
 "Company" = "Company";
 "Country" = "Country";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Set up autofill";
 "AppInfo" = "App info";
 "Browse" = "Browse";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Select language";
 "ContinueToCompleteWebAuthnVerification" = "Continue to complete WebAuthn verification.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "There was an error starting WebAuthn two factor authentication";
@@ -916,6 +918,7 @@
 "NoAskMe" = "No, ask me";
 "NoCodes" = "You don’t have any codes to display";
 "None" = "None";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Number of digits";
 "OtpType" = "OTP Type";
 "RefreshPeriod" = "Refresh period";
@@ -924,6 +927,8 @@
 "SaveHere" = "Save here";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Save this authenticator key here, or add it to a login in your Bitwarden app.";
 "SaveToBitwarden" = "Save to Bitwarden";
+"ScanCard" = "Scan card";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Scan complete";
 "ScanTheQRCodeInYourSettings" = "Scan the QR code in your 2-step verification settings for any account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Secure your accounts with Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Items transferred";
 "ArchiveIsEmpty" = "Archive is empty";
 "ArchiveEmptyDescriptionLong" = "Fill your archive with items you don’t want to see in search results and autofill suggestions but might need someday.";
+"ArchiveItem" = "Archive item";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Once archived, this item will be excluded from search results and autofill suggestions.";
 "ArchiveUnavailable" = "Archive unavailable";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Archiving items is a Premium feature. Your current plan does not include access to this feature.";
 "UpgradeToPremium" = "Upgrade to premium";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "To manage your Premium subscription, please log in to your web vault on a computer.";
 "CheckYourConnectionAndTryAgain" = "Check your connection and try again.";
 "PricingUnavailable" = "Pricing unavailable";
+"BankAccount" = "Bank account";

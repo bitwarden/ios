@@ -128,7 +128,14 @@ class MakeCredentialRequestTests: BitwardenTestCase {
                 ),
             ],
             options: Options(rk: true, uv: .preferred),
-            extensions: "some extension",
+            extensions: MakeCredentialExtensionsInput(
+                prf: MakeCredentialPrfInput(
+                    eval: PrfInputValues(
+                        first: Data(repeating: 1, count: 32),
+                        second: nil,
+                    ),
+                ),
+            ),
         )
 
         // swiftlint:disable line_length
@@ -144,7 +151,7 @@ class MakeCredentialRequestTests: BitwardenTestCase {
             ExcludeList: [BitwardenSdk.PublicKeyCredentialDescriptor(ty: \"public-key\", id: 32 bytes, transports: Optional([\"transport\"]))]
             Options -> RK: true
             Options -> UV: preferred
-            Extensions: some extension
+            Extensions: MakeCredentialExtensionsInput(prf: Optional(BitwardenSdk.MakeCredentialPrfInput(eval: Optional(BitwardenSdk.PrfInputValues(first: 32 bytes, second: nil)))))
             """
         // swiftlint:enable line_length
 
@@ -163,6 +170,15 @@ class MakeCredentialResultTests: BitwardenTestCase {
             authenticatorData: Data(repeating: 1, count: 40),
             attestationObject: Data(repeating: 2, count: 42),
             credentialId: Data(repeating: 3, count: 32),
+            extensions: MakeCredentialExtensionsOutput(
+                prf: MakeCredentialPrfOutput(
+                    enabled: true,
+                    results: PrfOutputValues(
+                        first: Data(repeating: 1, count: 32),
+                        second: nil,
+                    ),
+                ),
+            ),
         )
 
         let expectedResult =
@@ -170,7 +186,8 @@ class MakeCredentialResultTests: BitwardenTestCase {
             AuthenticatorData: 01010101010101010101010101010101010101010101010101010101010101010101010101010101
             AttestationObject: 020202020202020202020202020202020202020202020202020202020202020202020202020202020202
             CredentialId: 0303030303030303030303030303030303030303030303030303030303030303
-            """
+            Extensions: MakeCredentialExtensionsOutput(prf: Optional(BitwardenSdk.MakeCredentialPrfOutput(enabled: true, results: Optional(BitwardenSdk.PrfOutputValues(first: 32 bytes, second: nil)))))
+            """ // swiftlint:disable:previous line_length
 
         XCTAssertEqual(String(reflecting: result), expectedResult)
     }

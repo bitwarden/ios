@@ -214,6 +214,7 @@ targets:
       - target: AuthenticatorShared
       - target: BitwardenKit/AuthenticatorBridgeKitMocks
       - target: BitwardenKit/TestHelpers
+      - package: BitwardenSdk
   AuthenticatorSharedTests:
     type: bundle.unit-test
     platform: iOS

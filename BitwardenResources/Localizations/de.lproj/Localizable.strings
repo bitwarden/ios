@@ -208,6 +208,7 @@
 "August" = "August";
 "Brand" = "Marke";
 "CardholderName" = "Name des Karteninhabers";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Wir haben mehrere Übereinstimmungen gefunden. Wähle die richtige aus.";
 "CityTown" = "Stadt oder Ort";
 "Company" = "Firma";
 "Country" = "Land";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Automatisches Ausfüllen einrichten";
 "AppInfo" = "App-Info";
 "Browse" = "Durchsuchen";
+"SelectCardholderName" = "Karteninhaber auswählen";
 "SelectLanguage" = "Sprache auswählen";
 "ContinueToCompleteWebAuthnVerification" = "Fortfahren, um die WebAuthn-Verifizierung abzuschließen.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Es gab einen Fehler beim Starten der WebAuthn Zwei-Faktor-Authentifizierung";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Nein, frag mich";
 "NoCodes" = "Keine Codes zum Anzeigen vorhanden";
 "None" = "Keine";
+"NoneOfTheAbove" = "Keine der oben genannten";
 "NumberOfDigits" = "Anzahl der Ziffern";
 "OtpType" = "OTP-Typ";
 "RefreshPeriod" = "Aktualisierungszeitraum";
@@ -924,6 +927,8 @@
 "SaveHere" = "Hier speichern";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Speichere diesen Authentifizierungsschlüssel hier oder füge ihn zu Zugangsdaten in deiner Bitwarden App hinzu.";
 "SaveToBitwarden" = "In Bitwarden speichern";
+"ScanCard" = "Karte scannen";
+"PositionYourCardInTheFrameToScanIt" = "Positioniere deine Karte innerhalb des Rahmens, um sie zu scannen.";
 "ScanComplete" = "Scan abgeschlossen";
 "ScanTheQRCodeInYourSettings" = "Scanne den QR-Code für jedes Konto in deinen Einstellungen für die 2-Faktor-Authentifizierung.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Schütze deine Konten mit dem Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Einträge wurden übertragen";
 "ArchiveIsEmpty" = "Das Archiv ist leer";
 "ArchiveEmptyDescriptionLong" = "Fülle dein Archiv mit Einträgen, die du nicht in Suchergebnissen und Auto-Ausfüllen-Vorschlägen sehen möchtest, aber möglicherweise eines Tages benötigst.";
+"ArchiveItem" = "Eintrag archivieren";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Nach der Archivierung wird dieser Eintrag aus den Suchergebnissen und Auto-Ausfüllen-Vorschlägen ausgeschlossen.";
 "ArchiveUnavailable" = "Archiv nicht verfügbar";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Das Archivieren von Einträgen ist eine Premium-Funktion. Dein aktueller Tarif umfasst keinen Zugriff auf diese Funktion.";
 "UpgradeToPremium" = "Auf Premium upgraden";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Um dein Premium-Abonnement zu verwalten, melde dich bitte auf einem Computer bei deinem Web-Tresor an.";
 "CheckYourConnectionAndTryAgain" = "Prüfe deine Verbindung und versuche es erneut.";
 "PricingUnavailable" = "Preise nicht verfügbar";
+"BankAccount" = "Bankkonto";

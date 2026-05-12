@@ -67,6 +67,9 @@ class DefaultBillingService: BillingService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// The debounce interval applied to the premium checkout status publisher.
+    private let debounceInterval: DispatchQueue.SchedulerTimeType.Stride
+
     /// Subject that emits the premium checkout sync status.
     private let premiumCheckoutStatusSubject = CurrentValueSubject<PremiumCheckoutStatus?, Never>(nil)
 
@@ -83,6 +86,8 @@ class DefaultBillingService: BillingService {
     /// - Parameters:
     ///   - billingAPIService: The API service used for billing requests.
     ///   - configService: The service used to manage feature flags.
+    ///   - debounceInterval: The debounce interval for the status publisher. Defaults to
+    ///     `Constants.premiumCheckoutStatusDebounceInterval`.
     ///   - environmentService: The service used to manage the app's environment URLs.
     ///   - errorReporter: The service used to report non-fatal errors.
     ///   - stateService: The service used to manage the app's state.
@@ -91,6 +96,7 @@ class DefaultBillingService: BillingService {
     init(
         billingAPIService: BillingAPIService,
         configService: ConfigService,
+        debounceInterval: DispatchQueue.SchedulerTimeType.Stride = Constants.premiumCheckoutStatusDebounceInterval,
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         stateService: StateService,
@@ -98,6 +104,7 @@ class DefaultBillingService: BillingService {
     ) {
         self.billingAPIService = billingAPIService
         self.configService = configService
+        self.debounceInterval = debounceInterval
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.stateService = stateService
@@ -143,7 +150,7 @@ class DefaultBillingService: BillingService {
     func premiumCheckoutStatusPublisher() -> AnyPublisher<PremiumCheckoutStatus, Never> {
         premiumCheckoutStatusSubject
             .compactMap(\.self)
-            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .debounce(for: debounceInterval, scheduler: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 

@@ -16,6 +16,7 @@ typealias Services = HasAPIService
     & HasAuthService
     & HasAutofillCredentialService
     & HasBillingAPIService
+    & HasBillingRepository
     & HasBillingService
     & HasBiometricsRepository
     & HasCameraService
@@ -154,6 +155,13 @@ protocol HasAutofillCredentialService {
 protocol HasBillingAPIService {
     /// The service used by the application to make billing-related API requests.
     var billingAPIService: BillingAPIService { get }
+}
+
+/// Protocol for an object that provides a `BillingRepository`.
+///
+protocol HasBillingRepository {
+    /// The repository used by the application to manage billing data for the UI layer.
+    var billingRepository: BillingRepository { get }
 }
 
 /// Protocol for an object that provides a `BillingService`.

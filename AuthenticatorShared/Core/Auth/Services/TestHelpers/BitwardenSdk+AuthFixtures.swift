@@ -56,6 +56,7 @@ extension BitwardenSdk.GetAssertionResult {
         signature: Data = Data(capacity: 64),
         userHandle: Data = Data(capacity: 64),
         selectedCredential: SelectedCredential = .fixture(),
+        extensions: GetAssertionExtensionsOutput = .init(prf: nil),
     ) -> BitwardenSdk.GetAssertionResult {
         .init(
             credentialId: credentialId,
@@ -63,6 +64,7 @@ extension BitwardenSdk.GetAssertionResult {
             signature: signature,
             userHandle: userHandle,
             selectedCredential: selectedCredential,
+            extensions: extensions,
         )
     }
 }
@@ -72,11 +74,13 @@ extension BitwardenSdk.MakeCredentialResult {
         authenticatorData: Data = Data(capacity: 37),
         attestationObject: Data = Data(capacity: 37),
         credentialId: Data = Data(capacity: 16),
+        extensions: MakeCredentialExtensionsOutput = .init(prf: nil),
     ) -> BitwardenSdk.MakeCredentialResult {
         .init(
             authenticatorData: authenticatorData,
             attestationObject: attestationObject,
             credentialId: credentialId,
+            extensions: extensions,
         )
     }
 }

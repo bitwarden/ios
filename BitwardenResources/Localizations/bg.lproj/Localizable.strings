@@ -208,6 +208,7 @@
 "August" = "август";
 "Brand" = "Вид";
 "CardholderName" = "Име на притежателя на картата";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Открити са няколко съвпадения. Изберете правилното.";
 "CityTown" = "Населено място";
 "Company" = "Фирма";
 "Country" = "Държава";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Настройка на автоматичното попълване";
 "AppInfo" = "Информация за приложението";
 "Browse" = "Разглеждане";
+"SelectCardholderName" = "Изберете името на картодържателя";
 "SelectLanguage" = "Изберете език";
 "ContinueToCompleteWebAuthnVerification" = "Продължете, за да завършите проверката чрез WebAuthn.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Имаше грешка при стартирането на двустепенното удостоверяване чрез WebAuthn";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Не, питайте ме";
 "NoCodes" = "Нямате кодове за показване";
 "None" = "Няма";
+"NoneOfTheAbove" = "Нито едно от изброените";
 "NumberOfDigits" = "Брой цифри";
 "OtpType" = "Вид еднократна парола";
 "RefreshPeriod" = "Период на опресняване";
@@ -924,6 +927,8 @@
 "SaveHere" = "Запазване тук";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Запазете този удостоверителен ключ тук, или го добавете към елемент в приложението на Битуорден.";
 "SaveToBitwarden" = "Запазване в Битуорден";
+"ScanCard" = "Сканиране на картата";
+"PositionYourCardInTheFrameToScanIt" = "Поставете картата си в рамката, за да я сканирате";
 "ScanComplete" = "Сканирането е завършено";
 "ScanTheQRCodeInYourSettings" = "Сканирайте QR кода в настройките си за двустепенно удостоверяване на всеки акаунт.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Защитете акаунтите си с Удостоверителя на Битуорден";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Елементите са прехвърлени";
 "ArchiveIsEmpty" = "Архивът е празен";
 "ArchiveEmptyDescriptionLong" = "Попълнете архива си с елементи, които не искате да виждате в резултатите от търсене и в предложенията за автоматично попълване, но може все пак да Ви потрябват в бъдеще.";
+"ArchiveItem" = "Архивиране на елемента";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "След като бъде архивиран, този елемент няма да се показва в резултатите при търсене, нито в предложенията за автоматично попълване.";
 "ArchiveUnavailable" = "Архивирането не е налично";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Архивирането на елементи е платена функционалност. Текущият Ви план не включва достъп до нея.";
 "UpgradeToPremium" = "Надградете до Платения план";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "За да управлявате своя платен абонамент, моля, впишете се в трезора си чрез уеб браузър на компютър.";
 "CheckYourConnectionAndTryAgain" = "Проверете връзката си и опитайте отново.";
 "PricingUnavailable" = "Няма налично таксуване";
+"BankAccount" = "Банкова сметка";
