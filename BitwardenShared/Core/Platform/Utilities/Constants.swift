@@ -87,8 +87,14 @@ extension Constants {
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
 
+    /// The premium checkout status publisher debounce interval.
+    static let premiumCheckoutStatusDebounceInterval: DispatchQueue.SchedulerTimeType.Stride = .milliseconds(300)
+
     /// The minimum account age required to show the premium upgrade banner.
     static let premiumUpgradeBannerAccountAge: TimeInterval = 7 * 24 * 60 * 60
+
+    /// The path component appended to a vault URL to reach the SSO cookie redirect page.
+    static let proxyCookieRedirectConnectorPath = "proxy-cookie-redirect-connector.html"
 
     /// The time to wait until we can request again to turn on credential provider extension.
     ///

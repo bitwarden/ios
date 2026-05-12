@@ -74,6 +74,7 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
             idpLoginUrl: "https://idp.example.com",
             cookieName: "auth",
             cookieDomain: "example.com",
+            vaultUrl: "https://example.com",
             cookieValue: nil,
         )
         serverCommunicationConfigClient.getConfigResult = .success(
@@ -94,6 +95,7 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
             idpLoginUrl: "https://idp.example.com",
             cookieName: "auth",
             cookieDomain: "example.com",
+            vaultUrl: "https://example.com",
             cookieValue: nil,
         )
         serverCommunicationConfigClient.getConfigResult = .success(
@@ -115,6 +117,7 @@ class SSOCookieVendorRequestHandlerTests: BitwardenTestCase {
             idpLoginUrl: "https://idp.example.com",
             cookieName: "auth",
             cookieDomain: "example.com",
+            vaultUrl: "https://example.com",
             cookieValue: nil,
         )
         serverCommunicationConfigClient.getConfigResult = .success(

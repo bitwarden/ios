@@ -710,6 +710,14 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             signature: Data(repeating: 2, count: 5),
             userHandle: Data(repeating: 2, count: 6),
             selectedCredential: SelectedCredential.fixture(),
+            extensions: GetAssertionExtensionsOutput(
+                prf: GetAssertionPrfOutput(
+                    results: PrfOutputValues(
+                        first: Data(repeating: 1, count: 32),
+                        second: nil,
+                    ),
+                ),
+            ),
         )
 
         deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
@@ -760,6 +768,7 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
             signature: Data(repeating: 2, count: 5),
             userHandle: Data(repeating: 2, count: 6),
             selectedCredential: SelectedCredential.fixture(),
+            extensions: GetAssertionExtensionsOutput(prf: nil),
         )
 
         deviceAuthKeyService.getDeviceAuthKeyMetadataReturnValue = DeviceAuthKeyMetadata.fixture(
