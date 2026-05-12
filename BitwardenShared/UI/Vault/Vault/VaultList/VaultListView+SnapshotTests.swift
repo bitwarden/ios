@@ -164,6 +164,16 @@ class VaultListViewTests: BitwardenTestCase {
     }
 
     @MainActor
+    func disabletest_snapshot_myVaultUpgradedToPremium() {
+        processor.state.shouldShowUpgradedToPremiumActionCard = true
+        processor.state.loadingState = .data(VaultListViewTests.defaultVaultData)
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    @MainActor
     func disabletest_snapshot_withSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [

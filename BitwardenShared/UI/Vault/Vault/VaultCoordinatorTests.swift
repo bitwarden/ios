@@ -263,13 +263,6 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
     }
 
-    /// `navigate(to:)` with `.viewPlanDetails` delegates to the settings tab with `.premiumPlan`.
-    @MainActor
-    func test_navigateTo_viewPlanDetails() throws {
-        subject.navigate(to: .viewPlanDetails)
-        XCTAssertEqual(delegate.switchToSettingsTabRoute, .premiumPlan)
-    }
-
     /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
     /// onto the stack navigator filtered by a group.
     @MainActor

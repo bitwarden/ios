@@ -752,12 +752,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
     }
 
-    /// `receive(_:)` with `.viewPlanDetails` navigates to the view plan details route.
+    /// `receive(_:)` with `.learnMoreAboutPremium` opens the learn more about premium URL and hides the card.
     @MainActor
-    func test_receive_viewPlanDetails() {
-        subject.receive(.viewPlanDetails)
+    func test_receive_learnMoreAboutPremium() {
+        subject.state.shouldShowUpgradedToPremiumActionCard = true
+        subject.receive(.learnMoreAboutPremium)
 
-        XCTAssertEqual(coordinator.routes.last, .viewPlanDetails)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.learnMoreAboutPremium)
+        XCTAssertFalse(subject.state.shouldShowUpgradedToPremiumActionCard)
     }
 
     /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
