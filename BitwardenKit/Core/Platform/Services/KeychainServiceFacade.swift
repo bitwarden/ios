@@ -35,9 +35,15 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
     // MARK: Value
 
     /// Returns whether a value exists for the given keychain item without triggering biometric
-    /// authentication. Uses `LAContext` with `interactionNotAllowed` set to `true` so that
-    /// items protected by biometrics return `errSecInteractionNotAllowed` (item present, needs
-    /// auth) rather than prompting the user.
+    /// authentication.
+    ///
+    /// Two query options work together to make this safe:
+    /// - `kSecUseAuthenticationContext` with `interactionNotAllowed = true`: suppresses the Face ID
+    ///   prompt. When a biometric-protected item is found, iOS returns `errSecInteractionNotAllowed`
+    ///   instead of prompting, which this method catches and treats as "item exists".
+    /// - `kSecReturnAttributes: true`: causes a successful match to return a non-nil attribute
+    ///   dictionary, confirming existence without reading the secret. Without any `kSecReturn*` key, `SecItemCopyMatching`
+    ///   returns `errSecSuccess` with a nil result even when an item exists.
     ///
     /// - Parameter item: The keychain item to check.
     /// - Returns: `true` if the item exists in the keychain, `false` otherwise.
