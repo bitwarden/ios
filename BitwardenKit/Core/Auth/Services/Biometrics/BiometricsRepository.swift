@@ -43,16 +43,6 @@ public protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
     ///
     func getUserAuthKey() async throws -> String
 
-    /// Sets the biometric unlock preference for a user.
-    ///
-    /// If permissions have not been requested, this request should trigger the system permissions dialog.
-    ///
-    /// - Parameters:
-    ///   - authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
-    ///   - userId: The user ID for the user to set biometric unlock. Defaults to the active user if nil.
-    ///
-    func setBiometricUnlockKey(authKey: String?, userId: String?) async throws
-
     /// Restores the biometric unlock key after a trusted vault unlock (e.g., master password unlock),
     /// without prompting for biometric authentication. If biometrics is no longer available on the device,
     /// the stored preference is cleared.
@@ -62,6 +52,16 @@ public protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
     ///   - userId: The user ID for the user to restore biometric unlock. Defaults to the active user if nil.
     ///
     func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws
+    
+    /// Sets the biometric unlock preference for a user.
+    ///
+    /// If permissions have not been requested, this request should trigger the system permissions dialog.
+    ///
+    /// - Parameters:
+    ///   - authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
+    ///   - userId: The user ID for the user to set biometric unlock. Defaults to the active user if nil.
+    ///
+    func setBiometricUnlockKey(authKey: String?, userId: String?) async throws
 }
 
 public extension BiometricsRepository {
@@ -73,6 +73,14 @@ public extension BiometricsRepository {
         try await getBiometricUnlockStatus(userId: nil)
     }
 
+    /// Restores the biometric unlock key for the active user after a trusted vault unlock.
+    ///
+    /// - Parameter authKey: The user auth key to store in the keychain.
+    ///
+    func restoreBiometricUnlockKey(authKey: String) async throws {
+        try await restoreBiometricUnlockKey(authKey: authKey, userId: nil)
+    }
+
     /// Sets the biometric unlock preference for the active user.
     ///
     /// If permissions have not been requested, this request should trigger the system permissions dialog.
@@ -81,14 +89,6 @@ public extension BiometricsRepository {
     ///
     func setBiometricUnlockKey(authKey: String?) async throws {
         try await setBiometricUnlockKey(authKey: authKey, userId: nil)
-    }
-
-    /// Restores the biometric unlock key for the active user after a trusted vault unlock.
-    ///
-    /// - Parameter authKey: The user auth key to store in the keychain.
-    ///
-    func restoreBiometricUnlockKey(authKey: String) async throws {
-        try await restoreBiometricUnlockKey(authKey: authKey, userId: nil)
     }
 }
 
@@ -131,36 +131,6 @@ public class DefaultBiometricsRepository: BiometricsRepository {
 
     public func getBiometricAuthenticationType() -> BiometricAuthenticationType? {
         biometricsService.getBiometricAuthenticationType()
-    }
-
-    public func setBiometricUnlockKey(authKey: String?, userId: String?) async throws {
-        let userId = try await stateService.userIdOrActive(userId)
-        guard let authKey,
-              try await biometricsService.evaluateBiometricPolicy() else {
-            try await stateService.setBiometricAuthenticationEnabled(false, userId: userId)
-            try? await deleteUserAuthKey(userId: userId)
-            return
-        }
-
-        try await setUserBiometricAuthKey(value: authKey, userId: userId)
-        try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
-    }
-
-    public func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws {
-        let userId = try await stateService.userIdOrActive(userId)
-        switch biometricsService.getBiometricAuthStatus() {
-        case .authorized:
-            try await setUserBiometricAuthKey(value: authKey, userId: userId)
-            try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
-        case .denied,
-             .noBiometrics,
-             .notEnrolled,
-             .unknownError:
-            try await stateService.setBiometricAuthenticationEnabled(false, userId: userId)
-        case .lockedOut,
-             .notDetermined:
-            break
-        }
     }
 
     public func getBiometricUnlockStatus(userId: String?) async throws -> BiometricsUnlockStatus {
@@ -216,6 +186,36 @@ public class DefaultBiometricsRepository: BiometricsRepository {
                 }
             }
         }
+    }
+
+    public func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws {
+        let userId = try await stateService.userIdOrActive(userId)
+        switch biometricsService.getBiometricAuthStatus() {
+        case .authorized:
+            try await setUserBiometricAuthKey(value: authKey, userId: userId)
+            try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
+        case .denied,
+                .noBiometrics,
+                .notEnrolled,
+                .unknownError:
+            try await stateService.setBiometricAuthenticationEnabled(false, userId: userId)
+        case .lockedOut,
+                .notDetermined:
+            break
+        }
+    }
+    
+    public func setBiometricUnlockKey(authKey: String?, userId: String?) async throws {
+        let userId = try await stateService.userIdOrActive(userId)
+        guard let authKey,
+              try await biometricsService.evaluateBiometricPolicy() else {
+            try await stateService.setBiometricAuthenticationEnabled(false, userId: userId)
+            try? await deleteUserAuthKey(userId: userId)
+            return
+        }
+        
+        try await setUserBiometricAuthKey(value: authKey, userId: userId)
+        try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
     }
 }
 
