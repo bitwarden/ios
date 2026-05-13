@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared
@@ -5,6 +6,7 @@ import XCTest
 class ReviewPromptServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appInfoService: MockAppInfoService!
     var identityStore: MockCredentialIdentityStore!
     var stateService: MockStateService!
     var subject: ReviewPromptService!
@@ -13,13 +15,14 @@ class ReviewPromptServiceTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+        appInfoService = MockAppInfoService()
         identityStore = MockCredentialIdentityStore()
         stateService = MockStateService()
 
         subject = DefaultReviewPromptService(
+            appInfoService: appInfoService,
             appVersion: "1.0",
             identityStore: identityStore,
-            isBetaBuild: false,
             stateService: stateService,
         )
     }
@@ -27,6 +30,7 @@ class ReviewPromptServiceTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        appInfoService = nil
         identityStore = nil
         stateService = nil
         subject = nil
@@ -49,12 +53,7 @@ class ReviewPromptServiceTests: BitwardenTestCase {
 
     /// `isEligibleForReviewPrompt()` returns false on beta builds even when all other criteria are met.
     func test_isEligibleForReviewPrompt_betaBuild() async {
-        subject = DefaultReviewPromptService(
-            appVersion: "1.0",
-            identityStore: identityStore,
-            isBetaBuild: true,
-            stateService: stateService,
-        )
+        appInfoService.isBetaBuild = true
         identityStore.state.mockIsEnabled = true
         stateService.reviewPromptData = ReviewPromptData(
             userActions: [UserActionItem(userAction: .addedNewItem, count: 3)],
