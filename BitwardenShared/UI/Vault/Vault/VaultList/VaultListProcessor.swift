@@ -615,18 +615,15 @@ extension VaultListProcessor {
                     break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.hideLoadingOverlay()
-                            Task {
-                                await self.refreshVault(syncWithPeriodicCheck: false)
-                                self.state.hasPremium = await self.services.stateService.doesActiveAccountHavePremium()
-                                self.state.shouldShowPremiumUpgradeActionCard = false
-                                self.state.shouldShowUpgradedToPremiumActionCard = true
-                            }
-                        }),
-                    )
+                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
+                    // Refresh vault in the background so it's ready when the user returns.
+                    Task { [weak self] in
+                        guard let self else { return }
+                        await refreshVault(syncWithPeriodicCheck: false)
+                        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+                        state.shouldShowPremiumUpgradeActionCard = false
+                        state.shouldShowUpgradedToPremiumActionCard = true
+                    }
                 case .pending:
                     coordinator.navigate(
                         to: .dismiss(DismissAction { [weak self] in
@@ -638,14 +635,8 @@ extension VaultListProcessor {
                         }),
                     )
                 case .syncing:
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.showLoadingOverlay(
-                                title: Localizations.confirmingYourUpgrade,
-                            )
-                        }),
-                    )
+                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
+                    break
                 }
             }
     }

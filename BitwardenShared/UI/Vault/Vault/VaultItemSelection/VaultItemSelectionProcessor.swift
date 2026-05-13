@@ -174,12 +174,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                     break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.hideLoadingOverlay()
-                        }),
-                    )
+                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
                 case .pending:
                     coordinator.navigate(
                         to: .dismiss(DismissAction { [weak self] in
@@ -191,14 +186,8 @@ class VaultItemSelectionProcessor: StateProcessor<
                         }),
                     )
                 case .syncing:
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.showLoadingOverlay(
-                                title: Localizations.confirmingYourUpgrade,
-                            )
-                        }),
-                    )
+                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
+                    break
                 }
             }
     }

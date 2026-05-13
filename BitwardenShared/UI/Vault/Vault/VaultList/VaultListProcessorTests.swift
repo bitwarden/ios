@@ -679,8 +679,8 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await waitForAsync { self.coordinator.routes.count == routeCountBeforeSend }
     }
 
-    /// When the billing service emits `.confirmed`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion hides the overlay and refreshes the vault.
+    /// When the billing service emits `.confirmed`, the processor refreshes the vault and updates
+    /// state without dismissing (PremiumUpgradeProcessor owns the navigation to PremiumUpgradeComplete).
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_confirmed() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
@@ -688,19 +688,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         stateService.doesActiveAccountHavePremiumResult = true
         subject.state.shouldShowPremiumUpgradeActionCard = true
         subject.receive(.upgradeToPremium)
+        let routeCountBefore = coordinator.routes.count
 
         statusSubject.send(.confirmed)
 
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
         try await waitForAsync { self.subject.state.shouldShowUpgradedToPremiumActionCard }
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
         XCTAssertTrue(subject.state.hasPremium)
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
     }
 
     /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
@@ -723,23 +718,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
 
-    /// When the billing service emits `.syncing`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion shows the loading overlay.
+    /// When the billing service emits `.syncing`, the processor does nothing (PremiumUpgradeProcessor
+    /// shows the loading overlay on the upgrade screen).
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_syncing() async throws {
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
         subject.receive(.upgradeToPremium)
+        let routeCountBefore = coordinator.routes.count
 
         statusSubject.send(.syncing)
 
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
-        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.confirmingYourUpgrade)
+        try await waitForAsync { self.coordinator.routes.count == routeCountBefore }
+        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
     }
 
     /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to premium card.

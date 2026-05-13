@@ -244,13 +244,9 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                     break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.hideLoadingOverlay()
-                            Task { await self.refreshVaultGroup() }
-                        }),
-                    )
+                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
+                    // Refresh vault group in the background so it's ready when the user returns.
+                    Task { [weak self] in await self?.refreshVaultGroup() }
                 case .pending:
                     coordinator.navigate(
                         to: .dismiss(DismissAction { [weak self] in
@@ -262,14 +258,8 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                         }),
                     )
                 case .syncing:
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.showLoadingOverlay(
-                                LoadingOverlayState(title: Localizations.confirmingYourUpgrade),
-                            )
-                        }),
-                    )
+                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
+                    break
                 }
             }
     }
