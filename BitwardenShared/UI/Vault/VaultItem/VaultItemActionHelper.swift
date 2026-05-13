@@ -69,7 +69,7 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
         guard await services.vaultRepository.doesActiveAccountHavePremium() else {
             await coordinator.showAlert(
                 Alert.archiveUnavailable(action: {
-                    Task {
+                    Task { @MainActor in
                         await handleNavigateToPremiumUpgrade()
                     }
                 }),

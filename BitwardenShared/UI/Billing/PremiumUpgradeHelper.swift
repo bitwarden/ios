@@ -129,7 +129,7 @@ class DefaultPremiumUpgradeHelper: PremiumUpgradeHelper {
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
                     if let onConfirmed {
-                        Task { await onConfirmed() }
+                        Task { @MainActor in await onConfirmed() }
                     }
                 case .pending:
                     navigateToDismiss(DismissAction { [weak self] in
