@@ -32,11 +32,11 @@ struct ItemListItemRowView: View {
                 .accessibilityHidden(true)
 
                 HStack {
-                    if let totpCodeModel = store.state.item.totpCodeModel {
+                    if let currentCode = store.state.item.totpCodeModel {
                         totpCodeRow(
                             name: store.state.item.name,
                             accountName: store.state.item.accountName,
-                            model: totpCodeModel,
+                            currentCode: currentCode,
                             nextCode: store.state.item.nextTotpCodeModel,
                         )
                     } else {
@@ -80,7 +80,7 @@ struct ItemListItemRowView: View {
     private func totpCodeRow(
         name: String,
         accountName: String?,
-        model: TOTPCodeModel,
+        currentCode: TOTPCodeModel,
         nextCode: TOTPCodeModel?,
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -106,7 +106,7 @@ struct ItemListItemRowView: View {
         }
         Spacer()
         TOTPCodeDisplay(
-            currentCode: model,
+            currentCode: currentCode,
             nextCode: nextCode,
             showNextTOTPCode: store.state.showNextTOTPCode,
             timeProvider: timeProvider,
