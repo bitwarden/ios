@@ -1974,6 +1974,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.cardItemState.cardNumber, "12345")
     }
 
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` strips spaces from the formatted
+    /// display value before storing, keeping `cardNumber` as digits only.
+    @MainActor
+    func test_receive_cardFieldChanged_cardNumberChanged_stripsSpaces() {
+        subject.receive(.cardFieldChanged(.cardNumberChanged("4111 1111 1111 1111")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "4111111111111111")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` strips spaces from a partial
+    /// formatted number correctly.
+    @MainActor
+    func test_receive_cardFieldChanged_cardNumberChanged_stripsSpacesPartial() {
+        subject.receive(.cardFieldChanged(.cardNumberChanged("4111 11")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "411111")
+    }
+
     /// `receive(_:)` with `.cardFieldChanged(.cardSecurityCodeChanged)` with a value updates the state correctly.
     @MainActor
     func test_receive_cardFieldChanged_cardSecurityCodeChanged() {

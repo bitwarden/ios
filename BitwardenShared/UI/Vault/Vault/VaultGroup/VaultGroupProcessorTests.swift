@@ -347,8 +347,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await waitForAsync { self.coordinator.routes.count == routeCountBeforeSend }
     }
 
-    /// When the billing service emits `.confirmed`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion hides the overlay and refreshes the vault group.
+    /// When the billing service emits `.confirmed`, the processor refreshes the vault group without
+    /// dismissing (PremiumUpgradeProcessor owns the navigation to PremiumUpgradeComplete).
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_confirmed() async throws {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -357,22 +357,20 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.perform(.morePressed(.fixture()))
         let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
         await navigate()
+        let routeCountBefore = coordinator.routes.count
 
         statusSubject.send(.confirmed)
 
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        try await waitForAsync { self.vaultRepository.fetchSyncCalled }
+        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
     }
 
     /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion shows the upgrade pending alert.
+    /// `DismissAction` whose completion hides the overlay, dismisses the action card, and shows
+    /// the upgrade pending alert.
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_pending() async throws {
+        stateService.activeAccount = .fixture()
         billingRepository.isInAppUpgradeAvailableReturnValue = true
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
@@ -388,12 +386,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
         guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
         action?.action()
+        try await waitForAsync { self.stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false }
+        XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
 
-    /// When the billing service emits `.syncing`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion shows the confirming-upgrade loading overlay.
+    /// When the billing service emits `.syncing`, the processor does nothing (PremiumUpgradeProcessor
+    /// shows the loading overlay on the upgrade screen).
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_syncing() async throws {
         billingRepository.isInAppUpgradeAvailableReturnValue = true
@@ -402,16 +402,12 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.perform(.morePressed(.fixture()))
         let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
         await navigate()
+        let routeCountBefore = coordinator.routes.count
 
         statusSubject.send(.syncing)
 
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
-        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.confirmingYourUpgrade)
+        try await waitForAsync { self.coordinator.routes.count == routeCountBefore }
+        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.

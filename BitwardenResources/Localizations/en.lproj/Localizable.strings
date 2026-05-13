@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Invalid password";
 "MasterPasswordPolicyValidationMessage" = "Password does not meet organization requirements. Please check the policy information and try again.";
 "Loading" = "Loading";
+"LoadingSubscription" = "Loading subscription...";
 "AcceptPoliciesError" = "Terms of Service and Privacy Policy have not been acknowledged.";
 "PrivacyPolicy" = "Privacy Policy";
 "PersonalOwnershipPolicyInEffect" = "An organization policy is affecting your ownership options.";
