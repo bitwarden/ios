@@ -755,6 +755,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let reviewPromptService = DefaultReviewPromptService(
             appVersion: Bundle.main.appVersion,
+            isBetaBuild: Bundle.main.bundleIdentifier?.hasSuffix(".beta") == true,
             stateService: stateService,
         )
 

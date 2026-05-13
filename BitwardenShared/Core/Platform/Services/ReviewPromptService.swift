@@ -39,6 +39,9 @@ class DefaultReviewPromptService: ReviewPromptService {
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
 
+    /// Whether the running build is a beta build. Beta builds suppress the review prompt.
+    private let isBetaBuild: Bool
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -49,16 +52,19 @@ class DefaultReviewPromptService: ReviewPromptService {
     /// - Parameters:
     ///   - appVersion: The current app version.
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
+    ///   - isBetaBuild: Whether the running build is a beta build.
     ///   - stateService: The service used by the application to manage account state.
     ///
     init(
         appVersion: String,
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
+        isBetaBuild: Bool,
         stateService: StateService,
     ) {
         self.appVersion = appVersion
-        self.stateService = stateService
         self.identityStore = identityStore
+        self.isBetaBuild = isBetaBuild
+        self.stateService = stateService
     }
 
     func clearUserActions() async {
@@ -69,6 +75,7 @@ class DefaultReviewPromptService: ReviewPromptService {
     }
 
     func isEligibleForReviewPrompt() async -> Bool {
+        guard !isBetaBuild else { return false }
         let isAutofillEnabled = await identityStore.isAutofillEnabled()
         guard isAutofillEnabled, let reviewPromptData = await stateService.getReviewPromptData(),
               reviewPromptData.reviewPromptShownForVersion != appVersion else {
