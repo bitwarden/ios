@@ -218,6 +218,16 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
     }
 
+    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    ///
+    private func dismissPremiumUpgradeActionCard() async {
+        do {
+            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
@@ -252,6 +262,7 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                         to: .dismiss(DismissAction { [weak self] in
                             guard let self else { return }
                             coordinator.hideLoadingOverlay()
+                            Task { await self.dismissPremiumUpgradeActionCard() }
                             coordinator.showAlert(.upgradePending {
                                 await self.services.billingService.premiumStatusChanged()
                             })

@@ -249,7 +249,8 @@ struct PremiumUpgradeProcessorTests {
     }
 
     /// When the billing service emits `.pending` after checkout, the processor cancels the
-    /// subscription without navigating (vault processors own dismiss + alert for .pending).
+    /// subscription, hides the loading overlay, and does not navigate (vault processors own
+    /// dismiss + alert for .pending).
     @Test
     func perform_upgradeNowTapped_checkoutStatus_pending() async throws {
         let expectedURL = URL(string: "https://checkout.stripe.com/session")!
@@ -259,11 +260,13 @@ struct PremiumUpgradeProcessorTests {
 
         await subject.perform(.upgradeNowTapped)
         let routeCountBefore = coordinator.routes.count
+        statusSubject.send(.syncing)
+        await Task.yield()
         statusSubject.send(.pending)
 
-        // Yield to the main actor so the .pending sink can fire;
-        // there's no observable side effect to poll on this code path.
+        // Yield to the main actor so the .pending sink can fire.
         await Task.yield()
         #expect(coordinator.routes.count == routeCountBefore)
+        #expect(!coordinator.isLoadingOverlayShowing)
     }
 }

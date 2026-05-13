@@ -124,6 +124,7 @@ final class PremiumUpgradeProcessor: StateProcessor<
                     coordinator.navigate(to: .premiumUpgradeComplete)
                 case .pending:
                     premiumStatusChangedCancellable = nil
+                    coordinator.hideLoadingOverlay()
                     // Vault processors own the dismiss and alert for .pending.
                 }
             }
