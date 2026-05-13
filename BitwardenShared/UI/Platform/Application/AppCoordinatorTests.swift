@@ -755,7 +755,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         // Test.
         let task = Task {
-            subject.navigate(to: .syncWithBrowser)
+            subject.navigate(to: .syncWithBrowser(vaultUrl: "https://example.com"))
         }
         waitFor((rootNavigator.rootViewController as? MockUIViewController)?.presentCalled == true)
         task.cancel()
@@ -765,6 +765,6 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             (rootNavigator.rootViewController as? MockUIViewController)?.presentedView is UINavigationController,
         )
         XCTAssertTrue(module.globalModalCoordinator.isStarted)
-        XCTAssertEqual(module.globalModalCoordinator.routes.last, .syncWithBrowser)
+        XCTAssertEqual(module.globalModalCoordinator.routes.last, .syncWithBrowser(vaultUrl: "https://example.com"))
     }
 } // swiftlint:disable:this file_length

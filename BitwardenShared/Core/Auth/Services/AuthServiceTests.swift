@@ -173,6 +173,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
     func test_generateSingleSignOnUrl() async throws {
         // Set up the mock data.
         client.result = .httpSuccess(testData: .preValidateSingleSignOn)
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
 
         // Generate the url.
         let result = try await subject.generateSingleSignOnUrl(from: "TeamLivefront")

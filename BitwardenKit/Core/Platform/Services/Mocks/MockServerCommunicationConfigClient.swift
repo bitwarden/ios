@@ -23,7 +23,7 @@ public final class MockServerCommunicationConfigClient: ServerCommunicationConfi
 
     public var setCommunicationTypeCallsCount = 0
     public var setCommunicationTypeReceivedHostname: String?
-    public var setCommunicationTypeReceivedConfig: ServerCommunicationConfig?
+    public var setCommunicationTypeReceivedRequest: SetCommunicationTypeRequest?
     public var setCommunicationTypeError: Error?
 
     public init() {}
@@ -51,10 +51,10 @@ public final class MockServerCommunicationConfigClient: ServerCommunicationConfi
         return needsBootstrapResult
     }
 
-    public func setCommunicationType(hostname: String, config: ServerCommunicationConfig) async throws {
+    public func setCommunicationType(hostname: String, request: SetCommunicationTypeRequest) async throws {
         setCommunicationTypeCallsCount += 1
         setCommunicationTypeReceivedHostname = hostname
-        setCommunicationTypeReceivedConfig = config
+        setCommunicationTypeReceivedRequest = request
         if let setCommunicationTypeError {
             throw setCommunicationTypeError
         }

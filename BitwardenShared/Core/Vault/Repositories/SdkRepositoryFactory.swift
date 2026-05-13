@@ -55,6 +55,8 @@ struct DefaultSdkRepositoryFactory: SdkRepositoryFactory {
                 stateService: stateService,
                 userId: userId,
             ),
+            ephemeralPinEnvelopeState: nil,
+            organizationSharedKey: nil,
         )
     }
 

@@ -156,6 +156,9 @@ final class VaultListProcessor: StateProcessor<
             coordinator.navigate(to: .group(.archive, filter: state.vaultFilterType))
         case let .itemPressed(item):
             handleItemTapped(item)
+        case .learnMoreAboutPremium:
+            state.url = ExternalLinksConstants.learnMoreAboutPremium
+            state.shouldShowUpgradedToPremiumActionCard = false
         case .navigateToFlightRecorderSettings:
             coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
@@ -177,9 +180,6 @@ final class VaultListProcessor: StateProcessor<
             upgradeToPremium()
         case let .vaultFilterChanged(newValue):
             state.vaultFilterType = newValue
-        case .viewPlanDetails:
-            coordinator.navigate(to: .viewPlanDetails)
-            state.shouldShowUpgradedToPremiumActionCard = false
         }
     }
 }
@@ -615,37 +615,29 @@ extension VaultListProcessor {
                     break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.hideLoadingOverlay()
-                            Task {
-                                await self.refreshVault(syncWithPeriodicCheck: false)
-                                self.state.hasPremium = await self.services.stateService.doesActiveAccountHavePremium()
-                                self.state.shouldShowPremiumUpgradeActionCard = false
-                                self.state.shouldShowUpgradedToPremiumActionCard = true
-                            }
-                        }),
-                    )
+                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
+                    // Refresh vault in the background so it's ready when the user returns.
+                    Task { [weak self] in
+                        guard let self else { return }
+                        await refreshVault(syncWithPeriodicCheck: false)
+                        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+                        state.shouldShowPremiumUpgradeActionCard = false
+                        state.shouldShowUpgradedToPremiumActionCard = true
+                    }
                 case .pending:
                     coordinator.navigate(
                         to: .dismiss(DismissAction { [weak self] in
                             guard let self else { return }
                             coordinator.hideLoadingOverlay()
+                            Task { await self.dismissPremiumUpgradeActionCard() }
                             coordinator.showAlert(.upgradePending {
                                 await self.services.billingService.premiumStatusChanged()
                             })
                         }),
                     )
                 case .syncing:
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.showLoadingOverlay(
-                                title: Localizations.confirmingYourUpgrade,
-                            )
-                        }),
-                    )
+                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
+                    break
                 }
             }
     }
