@@ -62,21 +62,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The helper used to navigate to the premium upgrade flow.
     lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
         services: services,
-        navigateToPremiumRoute: { [weak self] in
-            self?.coordinator.navigate(to: .premiumUpgrade)
-        },
-        setURL: { [weak self] url in
-            self?.state.url = url
-        },
-        navigateToDismiss: { [weak self] action in
-            self?.coordinator.navigate(to: .dismiss(action))
-        },
-        showAlert: { [weak self] alert in
-            self?.coordinator.showAlert(alert)
-        },
-        hideLoadingOverlay: { [weak self] in
-            self?.coordinator.hideLoadingOverlay()
-        },
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
     )
 
     /// The task that streams cipher details.

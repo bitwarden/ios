@@ -3,6 +3,24 @@ import BitwardenResources
 import Combine
 import Foundation
 
+// MARK: - PremiumUpgradeRoute
+
+/// A route type that supports premium upgrade navigation.
+///
+protocol PremiumUpgradeRoute {
+    /// The route to the premium upgrade screen.
+    static var premiumUpgrade: Self { get }
+
+    /// The route to dismiss the current screen with an optional action.
+    ///
+    /// - Parameter action: The action to perform on dismiss.
+    ///
+    static func dismiss(_ action: DismissAction?) -> Self
+}
+
+extension VaultItemRoute: PremiumUpgradeRoute {}
+extension VaultRoute: PremiumUpgradeRoute {}
+
 // MARK: - PremiumUpgradeHelper
 
 /// A helper that centralizes the premium upgrade navigation flow.
@@ -35,7 +53,7 @@ extension PremiumUpgradeHelper {
 /// The default implementation of `PremiumUpgradeHelper`.
 ///
 @MainActor
-class DefaultPremiumUpgradeHelper: PremiumUpgradeHelper {
+class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpgradeHelper {
     // MARK: Types
 
     typealias Services = HasBillingRepository
@@ -47,14 +65,8 @@ class DefaultPremiumUpgradeHelper: PremiumUpgradeHelper {
     /// A cancellable for the premium checkout status subscription.
     private var premiumStatusChangedCancellable: AnyCancellable?
 
-    /// A closure called to hide the loading overlay.
-    private let hideLoadingOverlay: () -> Void
-
-    /// A closure called to navigate to a dismiss route.
-    private let navigateToDismiss: (DismissAction) -> Void
-
-    /// A closure called to navigate to the premium upgrade screen.
-    private let navigateToPremiumRoute: () -> Void
+    /// The coordinator used for navigation.
+    private let coordinator: any Coordinator<Route, Event>
 
     /// An optional closure called inside the pending dismiss action before showing the upgrade
     /// pending alert. Use to dismiss action cards or perform other per-screen cleanup.
@@ -66,37 +78,25 @@ class DefaultPremiumUpgradeHelper: PremiumUpgradeHelper {
     /// A closure called to open a URL (used for the web-based upgrade fallback).
     private let setURL: (URL) -> Void
 
-    /// A closure called to show an alert.
-    private let showAlert: (Alert) -> Void
-
     // MARK: Initialization
 
     /// Creates a new `DefaultPremiumUpgradeHelper`.
     ///
     /// - Parameters:
     ///   - services: The services used by this helper.
-    ///   - navigateToPremiumRoute: Navigates to the premium upgrade screen.
+    ///   - coordinator: The coordinator used for navigation.
     ///   - setURL: Opens a URL (used for the web-based upgrade fallback).
-    ///   - navigateToDismiss: Navigates to a dismiss route with an action.
-    ///   - showAlert: Shows an alert.
-    ///   - hideLoadingOverlay: Hides the loading overlay.
     ///   - onPendingDismiss: Called when a pending upgrade is dismissed, before the pending alert.
     ///
     init(
         services: Services,
-        navigateToPremiumRoute: @escaping () -> Void,
+        coordinator: any Coordinator<Route, Event>,
         setURL: @escaping (URL) -> Void,
-        navigateToDismiss: @escaping (DismissAction) -> Void,
-        showAlert: @escaping (Alert) -> Void,
-        hideLoadingOverlay: @escaping () -> Void,
         onPendingDismiss: (() -> Void)? = nil,
     ) {
         self.services = services
-        self.navigateToPremiumRoute = navigateToPremiumRoute
+        self.coordinator = coordinator
         self.setURL = setURL
-        self.navigateToDismiss = navigateToDismiss
-        self.showAlert = showAlert
-        self.hideLoadingOverlay = hideLoadingOverlay
         self.onPendingDismiss = onPendingDismiss
     }
 
@@ -112,7 +112,7 @@ class DefaultPremiumUpgradeHelper: PremiumUpgradeHelper {
 
     func startInAppPremiumUpgrade(onConfirmed: (() async -> Void)? = nil) {
         subscribeToPremiumCheckoutStatus(onConfirmed: onConfirmed)
-        navigateToPremiumRoute()
+        coordinator.navigate(to: .premiumUpgrade)
     }
 
     // MARK: Private Methods
@@ -132,14 +132,14 @@ class DefaultPremiumUpgradeHelper: PremiumUpgradeHelper {
                         Task { @MainActor in await onConfirmed() }
                     }
                 case .pending:
-                    navigateToDismiss(DismissAction { [weak self] in
+                    coordinator.navigate(to: .dismiss(DismissAction { [weak self] in
                         guard let self else { return }
-                        hideLoadingOverlay()
+                        coordinator.hideLoadingOverlay()
                         onPendingDismiss?()
-                        showAlert(.upgradePending {
+                        coordinator.showAlert(.upgradePending {
                             await self.services.billingService.premiumStatusChanged()
                         })
-                    })
+                    }))
                 case .syncing:
                     // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
                     break
