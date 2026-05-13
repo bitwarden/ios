@@ -1,6 +1,5 @@
 import BitwardenKit
 import BitwardenResources
-import BitwardenSdk
 import SwiftUI
 
 // MARK: - ItemListItemRowView
@@ -106,49 +105,12 @@ struct ItemListItemRowView: View {
             }
         }
         Spacer()
-        TimelineView(.periodic(from: .now, by: 0.1)) { _ in
-            totpCountdownRow(
-                model: model,
-                nextCode: nextCode,
-                remaining: TOTPExpirationCalculator.remainingSeconds(
-                    for: timeProvider.presentTime,
-                    using: Int(model.period),
-                ),
-            )
-        }
-    }
-
-    /// The HStack showing the TOTP countdown timer and code(s).
-    ///
-    /// - Parameters:
-    ///   - model: The current TOTP code model to display.
-    ///   - nextCode: The upcoming TOTP code model to preview, if available.
-    ///   - remaining: The number of seconds remaining before the current code expires.
-    ///
-    @ViewBuilder
-    private func totpCountdownRow(
-        model: TOTPCodeModel,
-        nextCode: TOTPCodeModel?,
-        remaining: Int,
-    ) -> some View {
-        HStack(spacing: 8) {
-            VStack(alignment: .trailing, spacing: 0) {
-                Text(model.displayCode)
-                    .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                if remaining <= Constants.nextTOTPCodePreviewThreshold, let nextCode, store.state.showNextTOTPCode {
-                    Text(nextCode.displayCode)
-                        .styleGuide(.caption2Monospaced, monoSpacedDigit: true)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .accessibilityLabel(Localizations.nextCode)
-                }
-            }
-            TOTPCountdownTimerView(
-                timeProvider: timeProvider,
-                totpCode: model,
-                onExpiration: nil,
-            )
-        }
+        TOTPCodeDisplay(
+            currentCode: model,
+            nextCode: nextCode,
+            showNextTOTPCode: store.state.showNextTOTPCode,
+            timeProvider: timeProvider,
+        )
     }
 }
 
