@@ -482,13 +482,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     ///   - state: The parent `AddEditCardState` to be updated.
     ///   - action: The `AddEditCardItemAction` received.
     private func updateCardState(_ state: inout AddEditItemState, for action: AddEditCardItemAction) {
+        // swiftlint:disable:previous function_body_length
         switch action {
         case let .brandChanged(brand):
             state.cardItemState.brand = brand
         case let .cardholderNameChanged(name):
             state.cardItemState.cardholderName = name
         case let .cardNumberChanged(number):
-            state.cardItemState.cardNumber = number
+            state.cardItemState.cardNumber = number.filter(\.isNumber)
         case .cardScannerDismissed:
             state.cardItemState.isCardScannerPresented = false
             state.cardItemState.shouldFocusCardholderNameAfterScan = false
