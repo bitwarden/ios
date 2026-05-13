@@ -629,6 +629,7 @@ extension VaultListProcessor {
                         to: .dismiss(DismissAction { [weak self] in
                             guard let self else { return }
                             coordinator.hideLoadingOverlay()
+                            Task { await self.dismissPremiumUpgradeActionCard() }
                             coordinator.showAlert(.upgradePending {
                                 await self.services.billingService.premiumStatusChanged()
                             })

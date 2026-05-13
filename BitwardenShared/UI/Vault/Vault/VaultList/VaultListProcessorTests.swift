@@ -699,11 +699,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion shows the upgrade pending alert.
+    /// `DismissAction` whose completion hides the overlay, dismisses the action card, and shows
+    /// the upgrade pending alert.
     @MainActor
     func test_subscribeToPremiumCheckoutStatus_pending() async throws {
+        stateService.activeAccount = .fixture()
         let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
         billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        subject.state.shouldShowPremiumUpgradeActionCard = true
         subject.receive(.upgradeToPremium)
 
         statusSubject.send(.pending)
@@ -714,6 +717,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
         guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
         action?.action()
+        try await waitForAsync { !self.subject.state.shouldShowPremiumUpgradeActionCard }
+        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
+        XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
         XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
     }
