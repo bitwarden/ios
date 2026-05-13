@@ -174,7 +174,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                     break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
-                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
+                // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
                 case .pending:
                     coordinator.navigate(
                         to: .dismiss(DismissAction { [weak self] in
