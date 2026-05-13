@@ -114,12 +114,15 @@ final class PremiumUpgradeProcessor: StateProcessor<
                     coordinator.showAlert(.paymentNotReceivedYet {
                         self.state.checkoutURL = self.lastCheckoutURL
                     })
-                case .confirmed,
-                     .pending,
-                     .syncing:
-                    // VaultListProcessor owns the dismiss and all post-dismiss actions
-                    // via DismissAction for each of these states.
+                case .syncing:
+                    coordinator.showLoadingOverlay(title: Localizations.confirmingYourUpgrade)
+                case .confirmed:
                     premiumStatusChangedCancellable = nil
+                    coordinator.hideLoadingOverlay()
+                    coordinator.navigate(to: .premiumUpgradeComplete)
+                case .pending:
+                    premiumStatusChangedCancellable = nil
+                    // Vault processors own the dismiss and alert for .pending.
                 }
             }
     }

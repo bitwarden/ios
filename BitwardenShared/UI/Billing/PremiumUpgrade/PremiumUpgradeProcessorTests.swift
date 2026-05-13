@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenResources
 import Combine
 import Foundation
 import TestHelpers
@@ -208,5 +209,57 @@ struct PremiumUpgradeProcessorTests {
 
         try await waitForAsync { coordinator.errorAlertsShown.count == 1 }
         #expect(coordinator.errorAlertsShown.first as? BillingError == .unableToOpenCheckout)
+    }
+
+    /// When the billing service emits `.syncing` after checkout, the processor shows the
+    /// confirming-upgrade loading overlay on the upgrade screen.
+    @Test
+    func perform_upgradeNowTapped_checkoutStatus_syncing() async throws {
+        let expectedURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = expectedURL
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+
+        await subject.perform(.upgradeNowTapped)
+        statusSubject.send(.syncing)
+
+        try await waitForAsync { coordinator.loadingOverlaysShown.count > 1 }
+        #expect(coordinator.loadingOverlaysShown.last?.title == Localizations.confirmingYourUpgrade)
+    }
+
+    /// When the billing service emits `.confirmed` after checkout, the processor hides the loading
+    /// overlay and navigates to `.premiumUpgradeComplete`.
+    @Test
+    func perform_upgradeNowTapped_checkoutStatus_confirmed() async throws {
+        let expectedURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = expectedURL
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+
+        await subject.perform(.upgradeNowTapped)
+        statusSubject.send(.confirmed)
+
+        try await waitForAsync { coordinator.routes.last == .premiumUpgradeComplete }
+        #expect(coordinator.routes.last == .premiumUpgradeComplete)
+        #expect(coordinator.isLoadingOverlayShowing == false)
+    }
+
+    /// When the billing service emits `.pending` after checkout, the processor cancels the
+    /// subscription without navigating (vault processors own dismiss + alert for .pending).
+    @Test
+    func perform_upgradeNowTapped_checkoutStatus_pending() async throws {
+        let expectedURL = URL(string: "https://checkout.stripe.com/session")!
+        billingService.createCheckoutSessionReturnValue = expectedURL
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+
+        await subject.perform(.upgradeNowTapped)
+        let routeCountBefore = coordinator.routes.count
+        statusSubject.send(.pending)
+
+        // Yield to the main actor so the .pending sink can fire;
+        // there's no observable side effect to poll on this code path.
+        await Task.yield()
+        #expect(coordinator.routes.count == routeCountBefore)
     }
 }
