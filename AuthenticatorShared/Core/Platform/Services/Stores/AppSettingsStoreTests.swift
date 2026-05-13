@@ -278,19 +278,21 @@ struct AppSettingsStoreTests {
     }
 
     /// `showNextTOTPCode` returns `false` if there isn't a previously stored value.
-    func test_showNextTOTPCode_isInitiallyFalse() {
-        XCTAssertFalse(subject.showNextTOTPCode)
+    @Test
+    func showNextTOTPCode_isInitiallyFalse() {
+        #expect(subject.showNextTOTPCode == false)
     }
 
     /// `showNextTOTPCode` can be used to get and set the persisted value in user defaults.
-    func test_showNextTOTPCode_withValue() {
+    @Test
+    func showNextTOTPCode_withValue() {
         subject.showNextTOTPCode = true
-        XCTAssertTrue(subject.showNextTOTPCode)
-        XCTAssertTrue(userDefaults.bool(forKey: "bwaPreferencesStorage:showNextTOTPCode"))
+        #expect(subject.showNextTOTPCode == true)
+        #expect(userDefaults.bool(forKey: "bwaPreferencesStorage:showNextTOTPCode") == true)
 
         subject.showNextTOTPCode = false
-        XCTAssertFalse(subject.showNextTOTPCode)
-        XCTAssertFalse(userDefaults.bool(forKey: "bwaPreferencesStorage:showNextTOTPCode"))
+        #expect(subject.showNextTOTPCode == false)
+        #expect(userDefaults.bool(forKey: "bwaPreferencesStorage:showNextTOTPCode") == false)
     }
 
     /// `.vaultTimeout(userId:)` returns the correct vault timeout value.
