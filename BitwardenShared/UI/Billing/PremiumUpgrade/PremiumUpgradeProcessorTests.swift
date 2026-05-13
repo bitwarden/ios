@@ -61,6 +61,8 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.premiumPrice != nil)
         #expect(subject.state.showPricingErrorBanner == false)
         #expect(billingService.getPremiumPlanCalled)
+        #expect(coordinator.loadingOverlaysShown.last?.title == Localizations.loading)
+        #expect(coordinator.isLoadingOverlayShowing == false)
     }
 
     /// `perform(_:)` with `.appeared` shows the pricing error banner on failure.
@@ -74,6 +76,8 @@ struct PremiumUpgradeProcessorTests {
         #expect(subject.state.premiumPrice == nil)
         #expect(subject.state.showPricingErrorBanner == true)
         #expect(errorReporter.errors.first as? BitwardenTestError == .example)
+        #expect(coordinator.loadingOverlaysShown.last?.title == Localizations.loading)
+        #expect(coordinator.isLoadingOverlayShowing == false)
     }
 
     /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `false` when the environment is not self-hosted.

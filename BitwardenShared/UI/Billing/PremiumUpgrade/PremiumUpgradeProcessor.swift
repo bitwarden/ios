@@ -91,6 +91,8 @@ final class PremiumUpgradeProcessor: StateProcessor<
     /// Shows the pricing error banner on failure.
     ///
     private func fetchPremiumPrice() async {
+        defer { coordinator.hideLoadingOverlay() }
+        coordinator.showLoadingOverlay(title: Localizations.loading)
         do {
             let plan = try await services.billingService.getPremiumPlan()
             state.premiumSeatPrice = plan.seat.price
