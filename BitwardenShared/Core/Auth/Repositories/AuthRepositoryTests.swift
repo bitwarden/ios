@@ -2251,6 +2251,26 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
+    /// `unlockVaultWithBiometrics` does not call restoreBiometricUnlockKey — the key was just
+    /// retrieved to unlock, so writing it again would trigger a second Face ID prompt.
+    func test_unlockVaultWithBiometrics_doesNotRestoreKeyWhenKeyAlreadyExists() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = true
+
+        try await subject.unlockVaultWithBiometrics()
+
+        XCTAssertFalse(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.getUserEncryptionKeyCalled)
+    }
+
     /// `unlockVaultWithBiometrics()` clears the PIN if enrolling the PIN fails.
     func test_unlockVaultWithBiometrics_enrollPinWithEncryptedPinError() async throws {
         let account = Account.fixture()
@@ -2696,6 +2716,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
         let restoredKey = "RESTORED_ENCRYPTION_KEY"
         clientService.mockCrypto.getUserEncryptionKeyResult = .success(restoredKey)
 
@@ -2861,6 +2882,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
 
         try await subject.unlockVaultFromLoginWithDevice(
@@ -3181,12 +3203,40 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             ),
         ]
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
 
         try await subject.unlockVaultWithPassword(password: "password")
 
         XCTAssertTrue(biometricsRepository.restoreBiometricUnlockKeyCalled)
         XCTAssertEqual(biometricsRepository.restoreBiometricUnlockKeyReceivedArguments?.authKey, "ENC_KEY")
+    }
+
+    /// `unlockVaultWithPassword` skips key generation and restore when the biometric key already exists.
+    func test_unlockVaultWithPassword_doesNotRestoreWhenBiometricKeyAlreadyExists() async throws {
+        let account = Account.fixture(profile: .fixture(
+            userDecryptionOptions: UserDecryptionOptions(
+                hasMasterPassword: true,
+                masterPasswordUnlock: .fixture(),
+                keyConnectorOption: nil,
+                trustedDeviceOption: nil,
+            ),
+        ))
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = true
+
+        try await subject.unlockVaultWithPassword(password: "password")
+
+        XCTAssertFalse(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.getUserEncryptionKeyCalled)
     }
 
     /// `unlockVaultWithPassword` does not call restoreBiometricUnlockKey when biometrics is not enabled.
@@ -3227,12 +3277,34 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = false
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
 
         try await subject.unlockVaultWithPIN(pin: "1234")
 
         XCTAssertTrue(biometricsRepository.restoreBiometricUnlockKeyCalled)
         XCTAssertEqual(biometricsRepository.restoreBiometricUnlockKeyReceivedArguments?.authKey, "ENC_KEY")
+    }
+
+    /// `unlockVaultWithPIN` skips key generation and restore when the biometric key already exists.
+    func test_unlockVaultWithPIN_doesNotRestoreWhenBiometricKeyAlreadyExists() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accountEncryptionKeys = [
+            "1": AccountEncryptionKeys(
+                accountKeys: .fixtureFilled(),
+                encryptedPrivateKey: "PRIVATE_KEY",
+                encryptedUserKey: "USER_KEY",
+            ),
+        ]
+        stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
+        biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
+        biometricsRepository.hasBiometricUnlockKeyReturnValue = true
+
+        try await subject.unlockVaultWithPIN(pin: "1234")
+
+        XCTAssertFalse(biometricsRepository.restoreBiometricUnlockKeyCalled)
+        XCTAssertFalse(clientService.mockCrypto.getUserEncryptionKeyCalled)
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.

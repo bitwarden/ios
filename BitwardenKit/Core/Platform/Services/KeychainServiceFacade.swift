@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 import Security
 
 // MARK: - KeychainServiceFacade
@@ -32,6 +33,16 @@ public protocol KeychainServiceFacade { // sourcery: AutoMockable
     func setIdentity(_ identity: SecIdentity, for item: any KeychainItem) async throws
 
     // MARK: Value
+
+    /// Returns whether a value exists for the given keychain item without triggering biometric
+    /// authentication. Uses `LAContext` with `interactionNotAllowed` set to `true` so that
+    /// items protected by biometrics return `errSecInteractionNotAllowed` (item present, needs
+    /// auth) rather than prompting the user.
+    ///
+    /// - Parameter item: The keychain item to check.
+    /// - Returns: `true` if the item exists in the keychain, `false` otherwise.
+    ///
+    func containsValue(for item: any KeychainItem) async -> Bool
 
     /// Deletes the value in the keychain for the given item.
     ///
@@ -220,6 +231,27 @@ public class DefaultKeychainServiceFacade: KeychainServiceFacade {
     }
 
     // MARK: Value
+
+    public func containsValue(for item: any KeychainItem) async -> Bool {
+        let context = LAContext()
+        context.interactionNotAllowed = true
+        let query = await keychainQueryValues(
+            for: item,
+            adding: [
+                kSecMatchLimit: kSecMatchLimitOne,
+                kSecReturnAttributes: true,
+                kSecUseAuthenticationContext: context,
+            ],
+        )
+        do {
+            let result = try keychainService.search(query: query)
+            return result != nil
+        } catch KeychainServiceError.osStatusError(errSecInteractionNotAllowed) {
+            return true
+        } catch {
+            return false
+        }
+    }
 
     public func deleteValue(for item: any KeychainItem) async throws {
         try await keychainService.delete(

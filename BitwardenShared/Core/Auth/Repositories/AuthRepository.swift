@@ -1280,6 +1280,7 @@ extension DefaultAuthRepository: AuthRepository {
     private func configureBiometricUnlockIfNeeded() async {
         do {
             guard try await biometricsRepository.getBiometricUnlockStatus().isEnabled else { return }
+            guard await !biometricsRepository.hasBiometricUnlockKey() else { return }
             let authKey = try await clientService.crypto().getUserEncryptionKey()
             try await biometricsRepository.restoreBiometricUnlockKey(authKey: authKey)
         } catch {

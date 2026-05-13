@@ -43,16 +43,23 @@ public protocol BiometricsRepository: AnyObject { // sourcery: AutoMockable
     ///
     func getUserAuthKey() async throws -> String
 
-    /// Restores the biometric unlock key after a trusted vault unlock (e.g., master password unlock),
-    /// without prompting for biometric authentication. If biometrics is no longer available on the device,
-    /// the stored preference is cleared.
+    /// Returns whether the biometric unlock key exists in the keychain for the given user,
+    /// without triggering a biometric authentication prompt.
+    ///
+    /// - Parameter userId: The user ID to check. Defaults to the active user if nil.
+    /// - Returns: `true` if the key is present, `false` if absent or if the user ID cannot be resolved.
+    ///
+    func hasBiometricUnlockKey(userId: String?) async -> Bool
+
+    /// Restores the biometric unlock key after a trusted vault unlock (e.g., master password unlock).
+    /// If biometrics is no longer available on the device, the stored preference is cleared.
     ///
     /// - Parameters:
     ///   - authKey: The user auth key to store in the keychain.
     ///   - userId: The user ID for the user to restore biometric unlock. Defaults to the active user if nil.
     ///
     func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws
-    
+
     /// Sets the biometric unlock preference for a user.
     ///
     /// If permissions have not been requested, this request should trigger the system permissions dialog.
@@ -71,6 +78,15 @@ public extension BiometricsRepository {
     ///
     func getBiometricUnlockStatus() async throws -> BiometricsUnlockStatus {
         try await getBiometricUnlockStatus(userId: nil)
+    }
+
+    /// Returns whether the biometric unlock key exists for the active user, without triggering a
+    /// biometric authentication prompt.
+    ///
+    /// - Returns: `true` if the key is present, `false` if absent or if no active user is found.
+    ///
+    func hasBiometricUnlockKey() async -> Bool {
+        await hasBiometricUnlockKey(userId: nil)
     }
 
     /// Restores the biometric unlock key for the active user after a trusted vault unlock.
@@ -188,6 +204,11 @@ public class DefaultBiometricsRepository: BiometricsRepository {
         }
     }
 
+    public func hasBiometricUnlockKey(userId: String?) async -> Bool {
+        guard let userId = try? await stateService.userIdOrActive(userId) else { return false }
+        return await keychainRepository.userBiometricAuthKeyExists(userId: userId)
+    }
+
     public func restoreBiometricUnlockKey(authKey: String, userId: String?) async throws {
         let userId = try await stateService.userIdOrActive(userId)
         switch biometricsService.getBiometricAuthStatus() {
@@ -195,16 +216,16 @@ public class DefaultBiometricsRepository: BiometricsRepository {
             try await setUserBiometricAuthKey(value: authKey, userId: userId)
             try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
         case .denied,
-                .noBiometrics,
-                .notEnrolled,
-                .unknownError:
+             .noBiometrics,
+             .notEnrolled,
+             .unknownError:
             try await stateService.setBiometricAuthenticationEnabled(false, userId: userId)
         case .lockedOut,
-                .notDetermined:
+             .notDetermined:
             break
         }
     }
-    
+
     public func setBiometricUnlockKey(authKey: String?, userId: String?) async throws {
         let userId = try await stateService.userIdOrActive(userId)
         guard let authKey,
@@ -213,7 +234,7 @@ public class DefaultBiometricsRepository: BiometricsRepository {
             try? await deleteUserAuthKey(userId: userId)
             return
         }
-        
+
         try await setUserBiometricAuthKey(value: authKey, userId: userId)
         try await stateService.setBiometricAuthenticationEnabled(true, userId: userId)
     }
