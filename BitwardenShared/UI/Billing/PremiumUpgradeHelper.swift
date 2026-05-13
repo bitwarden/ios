@@ -117,6 +117,11 @@ class DefaultPremiumUpgradeHelper<Route: PremiumUpgradeRoute, Event>: PremiumUpg
 
     // MARK: Private Methods
 
+    /// Subscribes to checkout status updates. On `.confirmed`, calls `onConfirmed`.
+    /// On `.pending`, navigates to dismiss and shows the upgrade pending alert.
+    ///
+    /// - Parameter onConfirmed: An optional closure called when the upgrade is confirmed.
+    ///
     private func subscribeToPremiumCheckoutStatus(onConfirmed: (() async -> Void)?) {
         premiumStatusChangedCancellable = services.billingService
             .premiumCheckoutStatusPublisher()

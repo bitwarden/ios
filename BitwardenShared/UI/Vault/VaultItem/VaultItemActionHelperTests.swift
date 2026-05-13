@@ -59,8 +59,6 @@ struct VaultItemActionHelperTests {
         #expect(!completionCalled)
 
         try await alert.tapAction(title: Localizations.upgradeToPremium)
-        // The alert action fires a Task; yield to let it complete.
-        await Task.yield()
         #expect(navigatedToPremiumUpgrade)
     }
 
