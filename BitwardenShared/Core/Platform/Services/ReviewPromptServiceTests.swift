@@ -51,19 +51,6 @@ class ReviewPromptServiceTests: BitwardenTestCase {
         XCTAssertTrue(stateService.reviewPromptData?.userActions.isEmpty ?? false)
     }
 
-    /// `isEligibleForReviewPrompt()` returns false on beta builds even when all other criteria are met.
-    func test_isEligibleForReviewPrompt_betaBuild() async {
-        appInfoService.isBetaBuild = true
-        identityStore.state.mockIsEnabled = true
-        stateService.reviewPromptData = ReviewPromptData(
-            userActions: [UserActionItem(userAction: .addedNewItem, count: 3)],
-        )
-
-        let isEligible = await subject.isEligibleForReviewPrompt()
-
-        XCTAssertFalse(isEligible)
-    }
-
     /// `isEligibleForReviewPrompt()` returns false if auto-fill is disabled.
     func test_isEligibleForReviewPrompt_autoFillDisabled() async throws {
         identityStore.state.mockIsEnabled = false
@@ -75,6 +62,19 @@ class ReviewPromptServiceTests: BitwardenTestCase {
                 ),
             ],
         )
+        let isEligible = await subject.isEligibleForReviewPrompt()
+
+        XCTAssertFalse(isEligible)
+    }
+
+    /// `isEligibleForReviewPrompt()` returns false on beta builds even when all other criteria are met.
+    func test_isEligibleForReviewPrompt_betaBuild() async {
+        appInfoService.isBetaBuild = true
+        identityStore.state.mockIsEnabled = true
+        stateService.reviewPromptData = ReviewPromptData(
+            userActions: [UserActionItem(userAction: .addedNewItem, count: 3)],
+        )
+
         let isEligible = await subject.isEligibleForReviewPrompt()
 
         XCTAssertFalse(isEligible)
