@@ -218,6 +218,16 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
         state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
     }
 
+    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    ///
+    private func dismissPremiumUpgradeActionCard() async {
+        do {
+            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
@@ -244,32 +254,23 @@ final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_b
                     break
                 case .confirmed:
                     premiumStatusChangedCancellable = nil
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.hideLoadingOverlay()
-                            Task { await self.refreshVaultGroup() }
-                        }),
-                    )
+                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
+                    // Refresh vault group in the background so it's ready when the user returns.
+                    Task { [weak self] in await self?.refreshVaultGroup() }
                 case .pending:
                     coordinator.navigate(
                         to: .dismiss(DismissAction { [weak self] in
                             guard let self else { return }
                             coordinator.hideLoadingOverlay()
+                            Task { await self.dismissPremiumUpgradeActionCard() }
                             coordinator.showAlert(.upgradePending {
                                 await self.services.billingService.premiumStatusChanged()
                             })
                         }),
                     )
                 case .syncing:
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.showLoadingOverlay(
-                                LoadingOverlayState(title: Localizations.confirmingYourUpgrade),
-                            )
-                        }),
-                    )
+                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
+                    break
                 }
             }
     }

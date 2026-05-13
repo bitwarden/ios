@@ -63,7 +63,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     ///
     func test_getLastActiveMonotonicTime_keyNotFound() async throws {
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
-            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1")
+            BitwardenKeychainItem.lastActiveMonotonicTime(userId: "1"),
         )
 
         let monotonicTime = try await subject.getLastActiveMonotonicTime(userId: "1")
@@ -147,7 +147,7 @@ final class KeychainRepositoryUserSessionTests: BitwardenTestCase {
     ///
     func test_getLastActiveBootEpoch_keyNotFound() async throws {
         keychainServiceFacade.getValueThrowableError = KeychainServiceError.keyNotFound(
-            BitwardenKeychainItem.lastActiveBootEpoch(userId: "1")
+            BitwardenKeychainItem.lastActiveBootEpoch(userId: "1"),
         )
 
         let bootEpoch = try await subject.getLastActiveBootEpoch(userId: "1")

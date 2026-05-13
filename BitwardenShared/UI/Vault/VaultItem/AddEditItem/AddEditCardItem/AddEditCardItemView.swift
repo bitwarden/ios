@@ -52,7 +52,7 @@ struct AddEditCardItemView: View {
                 BitwardenTextField(
                     title: Localizations.number,
                     text: store.binding(
-                        get: \.cardNumber,
+                        get: \.formattedCardNumber,
                         send: AddEditCardItemAction.cardNumberChanged,
                     ),
                     accessibilityIdentifier: "CardNumberEntry",

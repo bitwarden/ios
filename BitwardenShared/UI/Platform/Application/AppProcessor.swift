@@ -501,13 +501,13 @@ extension AppProcessor {
     }
 
     /// Subscribes to the server communication cookie-acquisition publisher and navigates to the
-    /// sync-with-browser flow whenever a non-nil hostname is received.
+    /// sync-with-browser flow whenever a non-nil vault URL is received.
     ///
     private func listenForAcquireCookies() {
         Task {
-            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
-                guard hostname != nil else { continue }
-                coordinator?.navigate(to: .syncWithBrowser)
+            for await vaultURL in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard let vaultURL else { continue }
+                coordinator?.navigate(to: .syncWithBrowser(vaultUrl: vaultURL))
             }
         }
     }

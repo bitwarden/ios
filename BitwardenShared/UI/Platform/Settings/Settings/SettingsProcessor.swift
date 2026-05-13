@@ -90,7 +90,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
                 .getFeatureFlag(.premiumUpgradePath, defaultValue: false)
             let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
             let isSelfHosted = services.environmentService.region == .selfHosted
-            state.showPlanRow = featureEnabled && hasPremium && !isSelfHosted
+            state.hasPremium = hasPremium
+            state.showPlanRow = featureEnabled && !isSelfHosted
         }
     }
 
@@ -109,7 +110,11 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         case .otherPressed:
             coordinator.navigate(to: .other)
         case .planPressed:
-            coordinator.navigate(to: .premiumPlan)
+            if state.hasPremium {
+                coordinator.navigate(to: .premiumPlan)
+            } else {
+                coordinator.navigate(to: .premiumUpgrade)
+            }
         case .vaultPressed:
             coordinator.navigate(to: .vault)
         }
