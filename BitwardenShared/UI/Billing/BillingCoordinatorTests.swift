@@ -38,7 +38,7 @@ struct BillingCoordinatorTests {
         #expect(action.type == .popped)
     }
 
-    /// `navigate(to:)` with `.dismiss` dismisses the view when presenting.
+    /// `navigate(to:)` with `.dismiss` dismisses the view when presenting, using a completion handler.
     @Test
     func navigate_dismiss_dismisses() throws {
         stackNavigator.isPresenting = true
@@ -46,7 +46,50 @@ struct BillingCoordinatorTests {
         subject.navigate(to: .dismiss)
 
         let action = try #require(stackNavigator.actions.last)
-        #expect(action.type == .dismissed)
+        #expect(action.type == .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` after `.premiumUpgradeComplete` (vault context) dismisses
+    /// PremiumUpgradeComplete and then dismisses the billing navController via the completion handler.
+    @Test
+    func navigate_dismiss_afterPremiumUpgradeComplete_vault() throws {
+        stackNavigator.isEmpty = true
+        subject.navigate(to: .premiumUpgrade)
+        stackNavigator.actions.removeAll()
+
+        stackNavigator.isPresenting = true
+        subject.navigate(to: .premiumUpgradeComplete)
+        stackNavigator.actions.removeAll()
+
+        stackNavigator.isPresenting = true
+        subject.navigate(to: .dismiss)
+
+        // Should use dismissedWithCompletionHandler (dismiss PremiumUpgradeComplete +
+        // fire onClose that dismisses the billing navController).
+        let action = try #require(stackNavigator.actions.last)
+        #expect(action.type == .dismissedWithCompletionHandler)
+    }
+
+    /// `navigate(to:)` with `.dismiss` after `.premiumUpgradeComplete` (settings context) dismisses
+    /// PremiumUpgradeComplete and then navigates to PremiumPlanView via the completion handler.
+    @Test
+    func navigate_dismiss_afterPremiumUpgradeComplete_settings() throws {
+        stackNavigator.isEmpty = false
+        subject.navigate(to: .premiumUpgrade)
+        stackNavigator.actions.removeAll()
+
+        stackNavigator.isPresenting = true
+        subject.navigate(to: .premiumUpgradeComplete)
+        stackNavigator.actions.removeAll()
+
+        stackNavigator.isPresenting = true
+        subject.navigate(to: .dismiss)
+
+        // Completion fires synchronously: pop PremiumUpgradeView, push PremiumPlanView, then record dismissal.
+        #expect(stackNavigator.actions.count == 3)
+        #expect(stackNavigator.actions[0].type == .popped)
+        #expect(stackNavigator.actions[1].type == .pushed)
+        #expect(stackNavigator.actions[2].type == .dismissedWithCompletionHandler)
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the navigator when it is the root (nothing to pop).
