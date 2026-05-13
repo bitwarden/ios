@@ -34,12 +34,6 @@ ARTIFACT_EXTENSION = {
     "device" => "ipa",
 }
 
-APPLE_ID_MAP = {
-    "com.8bit.bitwarden" => "1137397744",
-    "com.8bit.bitwarden.beta" => "6477551146",
-    "com.bitwarden.authenticator" => "6497335175",
-}
-
 platform :ios do |options|
     before_all do
         # Support running independent lanes without --env argument
