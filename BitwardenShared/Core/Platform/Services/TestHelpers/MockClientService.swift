@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import BitwardenSdkMocks
 
@@ -44,7 +46,7 @@ class MockClientService: ClientService {
         mockVault = vault
     }
 
-    func auth(for userId: String?, isPreAuth: Bool) -> AuthClientProtocol {
+    func auth(for userId: String?, isPreAuth: Bool) -> AuthClientService {
         mockAuthIsPreAuth = isPreAuth
         mockAuthUserId = userId
         return mockAuth

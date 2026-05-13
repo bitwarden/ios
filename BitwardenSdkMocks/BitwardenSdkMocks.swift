@@ -14,4 +14,5 @@ extension CollectionsClientProtocol {}
 extension FoldersClientProtocol {}
 extension GeneratorClientsProtocol {}
 extension PasswordHistoryClientProtocol {}
+extension RegistrationClientProtocol {}
 extension SendClientProtocol {}

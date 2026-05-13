@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import BitwardenSdkMocks
 
@@ -26,7 +28,7 @@ class MockClient: BitwardenSdkClient {
     var sendClient = MockSendClientProtocol()
     var vaultClient = MockVaultClientService()
 
-    func auth() -> any AuthClientProtocol {
+    func auth() -> any AuthClientService {
         authClient
     }
 
