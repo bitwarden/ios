@@ -208,6 +208,65 @@ extension CardComponent.Brand {
     }
 }
 
+extension CardComponent.Brand {
+    /// Returns the digit-group block sizes to use when formatting this brand for display.
+    ///
+    /// - Parameter digitCount: The number of digits in the card number being formatted.
+    ///   Used for length-sensitive brands (Maestro, UnionPay).
+    /// - Returns: An array of block widths, where each element is the number of digits in one
+    ///   space-separated group.
+    ///
+    func formattingBlocks(for digitCount: Int) -> [Int] {
+        switch self {
+        case .americanExpress:
+            [4, 6, 5]
+        case .dinersClub:
+            [4, 6, 4]
+        case .maestro:
+            switch digitCount {
+            case 13: [4, 4, 5]
+            case 15: [4, 6, 5]
+            case 19: [4, 4, 4, 4, 3]
+            default: [4, 4, 4, 4]
+            }
+        case .unionPay:
+            digitCount == 19 ? [6, 13] : [4, 4, 4, 4]
+        default:
+            [4, 4, 4, 4]
+        }
+    }
+
+    /// Formats a card number string with brand-appropriate digit grouping.
+    ///
+    /// Partial numbers (e.g. while the user is typing) are handled greedily: blocks are filled
+    /// left-to-right until the digits run out. Any digits beyond the defined blocks are appended
+    /// as a trailing group to prevent silent data loss.
+    ///
+    /// Returns the input unchanged if it contains non-digit characters.
+    ///
+    /// - Parameter number: The raw card number containing only digit characters.
+    /// - Returns: A display string with spaces between digit groups.
+    ///
+    func formattedCardNumber(_ number: String) -> String {
+        guard !number.isEmpty, number.allSatisfy(\.isNumber) else { return number }
+        let digits = Array(number)
+        let blocks = formattingBlocks(for: digits.count)
+        var result = ""
+        var position = 0
+        for (iPos, size) in blocks.enumerated() {
+            guard position < digits.count else { break }
+            if iPos > 0 { result += " " }
+            let end = min(position + size, digits.count)
+            result += String(digits[position ..< end])
+            position = end
+        }
+        if position < digits.count {
+            result += " " + String(digits[position...])
+        }
+        return result
+    }
+}
+
 extension CardComponent.Month: CaseIterable {}
 extension CardComponent.Month: Menuable {
     /// default state title for title type
