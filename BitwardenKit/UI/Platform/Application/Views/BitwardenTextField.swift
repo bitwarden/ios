@@ -39,6 +39,22 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         !isFocused && localText.isEmpty
     }
 
+    /// A binding for the native text fields that propagates user input outward inline in the
+    /// setter, rather than via `onChange`, so that test environments (e.g. ViewInspector) that
+    /// call the setter directly without triggering SwiftUI's observation cycle still dispatch
+    /// actions correctly.
+    private var textFieldBinding: Binding<String> {
+        Binding(
+            get: { localText },
+            set: { newValue in
+                guard localText != newValue else { return }
+                localText = newValue
+                pendingEchoes[newValue, default: 0] += 1
+                text = newValue
+            },
+        )
+    }
+
     // MARK: Properties
 
     /// The title of the text field.
@@ -90,11 +106,6 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
-        .onChange(of: localText) { newValue in
-            guard text != newValue else { return }
-            pendingEchoes[newValue, default: 0] += 1
-            text = newValue
-        }
         .onChange(of: text) { newValue in
             if let count = pendingEchoes[newValue], count > 0 {
                 pendingEchoes[newValue] = count == 1 ? nil : count - 1
@@ -179,7 +190,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                 let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
                 let isPasswordMasked = !isPasswordVisible && isPassword
-                TextField("", text: $localText)
+                TextField("", text: textFieldBinding)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     // After some investigation, we found that .accessibilityIdentifier(..)
@@ -201,7 +212,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     )
                     .disabled(isTextFieldDisabled)
                 if isPasswordMasked {
-                    SecureField("", text: $localText)
+                    SecureField("", text: textFieldBinding)
                         .focused($isSecureFieldFocused)
                         .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
