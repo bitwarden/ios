@@ -9,9 +9,11 @@
 import BitwardenSdk
 
 extension AttachmentsClientProtocol {}
+extension CiphersClientProtocol {}
 extension ClientManagedTokens {}
 extension CollectionsClientProtocol {}
 extension FoldersClientProtocol {}
 extension GeneratorClientsProtocol {}
 extension PasswordHistoryClientProtocol {}
+extension RegistrationClientProtocol {}
 extension SendClientProtocol {}

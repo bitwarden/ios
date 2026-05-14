@@ -163,6 +163,7 @@ targets:
     dependencies:
       - target: BitwardenKit
       - package: BitwardenSdk
+      - target: BitwardenSdkMocks
       - target: TestHelpers
   BitwardenKitTests:
     type: bundle.unit-test

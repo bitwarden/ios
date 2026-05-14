@@ -1,4 +1,5 @@
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -46,9 +47,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     func test_encryptAndUpdateCipher_cipherViewHasNoKey_encryptionAddsKey_updatesWithServer() async throws {
         let cipherView = CipherView.fixture(key: nil)
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
 
         let result = try await subject.encryptAndUpdateCipher(cipherView)
 
@@ -65,7 +66,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
         let result = try await subject.encryptAndUpdateCipher(cipherView)
 
         XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers, [cipherView])
+        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptReceivedCipherView, cipherView)
         XCTAssertNotNil(result)
     }
 
@@ -74,9 +75,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     func test_encryptAndUpdateCipher_cipherViewHasNoKey_encryptedCipherHasNoKey_doesNotUpdateWithServer() async throws {
         let cipherView = CipherView.fixture(key: nil)
         let encryptedCipher = Cipher.fixture(key: nil)
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
 
         let result = try await subject.encryptAndUpdateCipher(cipherView)
 
@@ -87,7 +88,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     /// `encryptAndUpdateCipher(_:)` rethrows errors from the SDK encryption call.
     func test_encryptAndUpdateCipher_encryptThrows_throwsError() async throws {
         let cipherView = CipherView.fixture(key: nil)
-        clientService.mockVault.clientCiphers.encryptError = BitwardenTestError.example
+        clientService.mockVault.clientCiphers.encryptThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await self.subject.encryptAndUpdateCipher(cipherView)
@@ -98,9 +99,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     func test_encryptAndUpdateCipher_updateWithServerThrows_throwsError() async throws {
         let cipherView = CipherView.fixture(key: nil)
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
         cipherService.updateCipherWithServerResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
@@ -117,7 +118,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
         let result = try await subject.updateCipherKeyIfNeeded(cipherView)
 
         XCTAssertEqual(result, cipherView)
-        XCTAssertTrue(clientService.mockVault.clientCiphers.encryptedCiphers.isEmpty)
+        XCTAssertFalse(clientService.mockVault.clientCiphers.encryptCalled)
         XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
     }
 
@@ -128,7 +129,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
         let result = try await subject.updateCipherKeyIfNeeded(cipherView)
 
         XCTAssertEqual(result, cipherView)
-        XCTAssertTrue(clientService.mockVault.clientCiphers.encryptedCiphers.isEmpty)
+        XCTAssertFalse(clientService.mockVault.clientCiphers.encryptCalled)
         XCTAssertTrue(cipherService.updateCipherWithServerCiphers.isEmpty)
     }
 
@@ -137,9 +138,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     func test_updateCipherKeyIfNeeded_encryptedCipherHasNoKey_returnsOriginal() async throws {
         let cipherView = CipherView.fixture(id: "1", key: nil)
         let encryptedCipher = Cipher.fixture(key: nil)
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
 
         let result = try await subject.updateCipherKeyIfNeeded(cipherView)
 
@@ -153,9 +154,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
         let cipherView = CipherView.fixture(id: "1", key: nil)
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
         let updatedCipherView = CipherView.fixture(id: "1", key: "decryptedKey")
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
         delegate.fetchCipherReturnValue = updatedCipherView
         subject.setDelegate(delegate)
 
@@ -172,9 +173,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     func test_updateCipherKeyIfNeeded_encryptionAddsKey_delegateReturnsNil_returnsOriginal() async throws {
         let cipherView = CipherView.fixture(id: "1", key: nil)
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
         delegate.fetchCipherReturnValue = nil
         subject.setDelegate(delegate)
 
@@ -187,9 +188,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     func test_updateCipherKeyIfNeeded_encryptionAddsKey_noDelegate_returnsOriginal() async throws {
         let cipherView = CipherView.fixture(id: "1", key: nil)
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
 
         let result = try await subject.updateCipherKeyIfNeeded(cipherView)
 
@@ -200,7 +201,7 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     /// `updateCipherKeyIfNeeded(_:)` rethrows errors from the SDK encryption call.
     func test_updateCipherKeyIfNeeded_encryptThrows_throwsError() async throws {
         let cipherView = CipherView.fixture(id: "1", key: nil)
-        clientService.mockVault.clientCiphers.encryptError = BitwardenTestError.example
+        clientService.mockVault.clientCiphers.encryptThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await self.subject.updateCipherKeyIfNeeded(cipherView)
@@ -211,9 +212,9 @@ class CipherEncryptionMediatorTests: BitwardenTestCase {
     func test_updateCipherKeyIfNeeded_updateWithServerThrows_throwsError() async throws {
         let cipherView = CipherView.fixture(id: "1", key: nil)
         let encryptedCipher = Cipher.fixture(key: "encryptedKey")
-        clientService.mockVault.clientCiphers.encryptCipherResult = .success(
-            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher),
-        )
+        clientService.mockVault.clientCiphers.encryptClosure = { _ in
+            EncryptionContext(encryptedFor: "userId", cipher: encryptedCipher)
+        }
         cipherService.updateCipherWithServerResult = .failure(BitwardenTestError.example)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {

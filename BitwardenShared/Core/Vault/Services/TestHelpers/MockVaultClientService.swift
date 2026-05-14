@@ -8,7 +8,22 @@ import Foundation
 
 class MockVaultClientService: VaultClientService {
     var clientAttachments = MockAttachmentsClientProtocol()
-    var clientCiphers = MockClientCiphers()
+    var clientCiphers: MockCiphersClientProtocol = {
+        let mock = MockCiphersClientProtocol()
+        mock.decryptClosure = { CipherView(cipher: $0) }
+        mock.decryptFido2CredentialsReturnValue = []
+        mock.decryptListClosure = { $0.map { CipherListView(cipher: $0) } }
+        mock.decryptListWithFailuresClosure = { ciphers in
+            DecryptCipherListResult(successes: ciphers.map { CipherListView(cipher: $0) }, failures: [])
+        }
+        mock.encryptClosure = { cipherView in
+            EncryptionContext(encryptedFor: "1", cipher: Cipher(cipherView: cipherView))
+        }
+        mock.moveToOrganizationReturnValue = .fixture()
+        mock.prepareCiphersForBulkShareReturnValue = []
+        return mock
+    }()
+
     var clientCollections: MockCollectionsClientProtocol = {
         let mock = MockCollectionsClientProtocol()
         mock.decryptClosure = { CollectionView(collection: $0) }
@@ -76,96 +91,5 @@ class MockVaultClientService: VaultClientService {
 
     func passwordHistory() -> PasswordHistoryClientProtocol {
         clientPasswordHistory
-    }
-}
-
-// MARK: - MockClientCiphers
-
-class MockClientCiphers: CiphersClientProtocol {
-    var decryptResult: (Cipher) throws -> CipherView = { cipher in
-        CipherView(cipher: cipher)
-    }
-
-    var decryptFido2CredentialsResult = [BitwardenSdk.Fido2CredentialView]()
-    var decryptListError: Error?
-    var decryptListErrorWhenCiphers: (([Cipher]) -> Error?)?
-    var decryptListReceivedCiphersInvocations: [[Cipher]] = []
-    var decryptListWithFailuresReceivedCiphersInvocations: [[Cipher]] = [] // swiftlint:disable:this identifier_name
-    var decryptListWithFailuresResult: DecryptCipherListResult?
-    var decryptListWithFailuresResultClosure: (([Cipher]) -> DecryptCipherListResult)?
-    var encryptCipherResult: Result<EncryptionContext, Error>?
-    var encryptError: Error?
-    var encryptedCiphers = [CipherView]()
-    var moveToOrganizationCipher: CipherView?
-    var moveToOrganizationOrganizationId: String?
-    var moveToOrganizationCalled: Bool?
-    var moveToOrganizationResult: Result<CipherView, Error> = .success(.fixture())
-    var prepareCiphersForBulkShareCiphers: [CipherView]?
-    var prepareCiphersForBulkShareOrganizationId: String?
-    var prepareCiphersForBulkShareCollectionIds: [String]?
-    var prepareCiphersForBulkShareResult: Result<[EncryptionContext], Error> = .success([])
-
-    func decrypt(cipher: Cipher) throws -> CipherView {
-        try decryptResult(cipher)
-    }
-
-    func decryptFido2Credentials(cipherView: BitwardenSdk.CipherView) throws -> [BitwardenSdk.Fido2CredentialView] {
-        guard cipherView.login?.fido2Credentials != nil else {
-            return []
-        }
-        return decryptFido2CredentialsResult
-    }
-
-    func decryptList(ciphers: [Cipher]) throws -> [CipherListView] {
-        if let decryptListError {
-            throw decryptListError
-        }
-        if let decryptListErrorWhenCiphers, let error = decryptListErrorWhenCiphers(ciphers) {
-            throw error
-        }
-        decryptListReceivedCiphersInvocations.append(ciphers)
-        return ciphers.map { CipherListView(cipher: $0) }
-    }
-
-    func decryptListWithFailures(ciphers: [Cipher]) -> DecryptCipherListResult {
-        decryptListWithFailuresReceivedCiphersInvocations.append(ciphers)
-        if let decryptListWithFailuresResultClosure {
-            return decryptListWithFailuresResultClosure(ciphers)
-        }
-        return decryptListWithFailuresResult ?? DecryptCipherListResult(
-            successes: ciphers.map { CipherListView(cipher: $0) },
-            failures: [],
-        )
-    }
-
-    func encrypt(cipherView: CipherView) throws -> EncryptionContext {
-        encryptedCiphers.append(cipherView)
-        if let encryptError {
-            throw encryptError
-        }
-        return try encryptCipherResult?.get() ?? EncryptionContext(
-            encryptedFor: "1",
-            cipher: Cipher(cipherView: cipherView),
-        )
-    }
-
-    func moveToOrganization(
-        cipher: CipherView,
-        organizationId: Uuid,
-    ) throws -> CipherView {
-        moveToOrganizationCipher = cipher
-        moveToOrganizationOrganizationId = organizationId
-        return try moveToOrganizationResult.get()
-    }
-
-    func prepareCiphersForBulkShare(
-        ciphers: [CipherView],
-        organizationId: OrganizationId,
-        collectionIds: [CollectionId],
-    ) async throws -> [EncryptionContext] {
-        prepareCiphersForBulkShareCiphers = ciphers
-        prepareCiphersForBulkShareOrganizationId = organizationId
-        prepareCiphersForBulkShareCollectionIds = collectionIds
-        return try prepareCiphersForBulkShareResult.get()
     }
 }
