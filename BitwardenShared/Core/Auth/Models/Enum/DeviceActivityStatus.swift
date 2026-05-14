@@ -25,6 +25,26 @@ enum DeviceActivityStatus: Equatable, Sendable {
     /// The device's activity status is unknown.
     case unknown
 
+    // MARK: Properties
+
+    /// The localized display string for the activity status.
+    var localizedString: String {
+        switch self {
+        case .lastWeek:
+            Localizations.lastWeek
+        case .overThirtyDaysAgo:
+            Localizations.overThirtyDaysAgo
+        case .thisMonth:
+            Localizations.thisMonth
+        case .thisWeek:
+            Localizations.thisWeek
+        case .today:
+            Localizations.today
+        case .unknown:
+            Localizations.unknown
+        }
+    }
+
     // MARK: Initialization
 
     /// Initializes a `DeviceActivityStatus` from an optional date.
@@ -60,26 +80,6 @@ enum DeviceActivityStatus: Equatable, Sendable {
             self = .thisMonth
         default:
             self = .overThirtyDaysAgo
-        }
-    }
-
-    // MARK: Properties
-
-    /// The localized display string for the activity status.
-    var localizedString: String {
-        switch self {
-        case .lastWeek:
-            Localizations.lastWeek
-        case .overThirtyDaysAgo:
-            Localizations.overThirtyDaysAgo
-        case .thisMonth:
-            Localizations.thisMonth
-        case .thisWeek:
-            Localizations.thisWeek
-        case .today:
-            Localizations.today
-        case .unknown:
-            Localizations.unknown
         }
     }
 }
