@@ -85,6 +85,9 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case passwordHistory(_ passwordHistory: [PasswordHistoryView])
 
+    /// A route to the premium upgrade screen.
+    case premiumUpgrade
+
     /// A route to the file saving view.
     ///
     /// - Parameter temporaryUrl: The url where the file is currently stored.

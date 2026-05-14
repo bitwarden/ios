@@ -12,6 +12,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
@@ -56,6 +58,13 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     /// The services used by this processor.
     private let services: Services
+
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The task that streams cipher details.
     private(set) var streamCipherDetailsTask: Task<Void, Never>?
@@ -223,11 +232,18 @@ private extension ViewItemProcessor {
     ///
     private func archiveItem() async {
         guard case let .data(cipherState) = state.loadingState else { return }
-        await vaultItemActionHelper.archive(cipher: cipherState.cipher) { [weak self] url in
-            self?.state.url = url
+        await vaultItemActionHelper.archive(cipher: cipherState.cipher) { [weak self] in
+            await self?.navigateToPremiumUpgrade()
         } completionHandler: { [weak self, delegate] in
             self?.dismiss { delegate?.itemArchived() }
         }
+    }
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        await premiumUpgradeHelper.navigateToPremiumUpgrade()
     }
 
     /// Navigates to the clone item view. If the cipher contains FIDO2 credentials, an alert is

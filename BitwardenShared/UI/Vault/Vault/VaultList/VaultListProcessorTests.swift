@@ -32,6 +32,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var reviewPromptService: MockReviewPromptService!
     var searchProcessorMediator: MockSearchProcessorMediator!
     var searchProcessorMediatorFactory: MockSearchProcessorMediatorFactory!
@@ -78,6 +79,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         storefrontService = MockStorefrontService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
@@ -109,6 +111,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             state: VaultListState(),
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper,
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
@@ -127,6 +130,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         masterPasswordRepromptHelper = nil
         pasteboardService = nil
         policyService = nil
+        premiumUpgradeHelper = nil
         reviewPromptService = nil
         searchProcessorMediator = nil
         searchProcessorMediatorFactory = nil
@@ -663,80 +667,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
         XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
-    }
-
-    /// When the billing service emits `.canceled`, the processor does not navigate,
-    /// keeping the subscription alive so a cancel-and-retry can still be observed.
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_canceled() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        subject.receive(.upgradeToPremium)
-        let routeCountBeforeSend = coordinator.routes.count
-
-        statusSubject.send(.canceled)
-
-        try await waitForAsync { self.coordinator.routes.count == routeCountBeforeSend }
-    }
-
-    /// When the billing service emits `.confirmed`, the processor refreshes the vault and updates
-    /// state without dismissing (PremiumUpgradeProcessor owns the navigation to PremiumUpgradeComplete).
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_confirmed() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        stateService.doesActiveAccountHavePremiumResult = true
-        subject.state.shouldShowPremiumUpgradeActionCard = true
-        subject.receive(.upgradeToPremium)
-        let routeCountBefore = coordinator.routes.count
-
-        statusSubject.send(.confirmed)
-
-        try await waitForAsync { self.subject.state.shouldShowUpgradedToPremiumActionCard }
-        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
-        XCTAssertTrue(subject.state.hasPremium)
-        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
-    }
-
-    /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
-    /// `DismissAction` whose completion hides the overlay, dismisses the action card, and shows
-    /// the upgrade pending alert.
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_pending() async throws {
-        stateService.activeAccount = .fixture()
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        subject.state.shouldShowPremiumUpgradeActionCard = true
-        subject.receive(.upgradeToPremium)
-
-        statusSubject.send(.pending)
-
-        try await waitForAsync {
-            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
-            return action != nil
-        }
-        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
-        action?.action()
-        try await waitForAsync { !self.subject.state.shouldShowPremiumUpgradeActionCard }
-        XCTAssertFalse(subject.state.shouldShowPremiumUpgradeActionCard)
-        XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
-        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-    }
-
-    /// When the billing service emits `.syncing`, the processor does nothing (PremiumUpgradeProcessor
-    /// shows the loading overlay on the upgrade screen).
-    @MainActor
-    func test_subscribeToPremiumCheckoutStatus_syncing() async throws {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-        subject.receive(.upgradeToPremium)
-        let routeCountBefore = coordinator.routes.count
-
-        statusSubject.send(.syncing)
-
-        try await waitForAsync { self.coordinator.routes.count == routeCountBefore }
-        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
     }
 
     /// `perform(_:)` with `.dismissUpgradedToPremiumActionCard` hides the upgraded to premium card.
@@ -2105,14 +2035,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
-    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert and navigates to the
-    /// premium upgrade screen when the in-app upgrade path is available.
+    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert and delegates to the
+    /// premium upgrade helper when the action is tapped.
     @MainActor
-    func test_receive_itemPressed_archiveGroup_noPremium_noItems_actionTapped_inAppUpgradeEnabled() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-
+    func test_receive_itemPressed_archiveGroup_noPremium_noItems_actionTapped() async throws {
         subject.state.hasPremium = false
         let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
 
@@ -2123,58 +2049,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(alert.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
 
         try await alert.tapAction(title: Localizations.upgradeToPremium)
-        try await waitForAsync { self.coordinator.routes.last == .premiumUpgrade }
+        try await waitForAsync { self.premiumUpgradeHelper.navigateToPremiumUpgradeCalled }
 
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
-        XCTAssertNil(subject.state.url)
-        XCTAssertTrue(billingService.premiumCheckoutStatusPublisherCalled)
-    }
-
-    /// `receive(_:)` with `.itemPressed` navigates to the premium upgrade screen even when the
-    /// banner has been dismissed, since the archive entry point bypasses the dismissal check.
-    @MainActor
-    func test_receive_itemPressed_archiveGroup_noPremium_noItems_actionTapped_bannerDismissed() async throws {
-        stateService.isPremiumUpgradeBannerDismissedResult = true
-        billingRepository.isInAppUpgradeAvailableReturnValue = true
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-
-        subject.state.hasPremium = false
-        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
-
-        subject.receive(.itemPressed(item: archiveItem))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.upgradeToPremium)
-        try await waitForAsync { self.coordinator.routes.last == .premiumUpgrade }
-
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
-        XCTAssertNil(subject.state.url)
-    }
-
-    /// `receive(_:)` with `.itemPressed` shows archive unavailable alert and opens the web vault
-    /// upgrade URL when the in-app upgrade path is not available.
-    @MainActor
-    func test_receive_itemPressed_archiveGroup_noPremium_noItems_actionTapped_inAppUpgradeDisabled() async throws {
-        billingRepository.isInAppUpgradeAvailableReturnValue = false
-
-        subject.state.hasPremium = false
-        let archiveItem = VaultListItem(id: "Archive", hasPremium: false, itemType: .group(.archive, 0))
-
-        subject.receive(.itemPressed(item: archiveItem))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.title, Localizations.archiveUnavailable)
-        XCTAssertEqual(alert.message, Localizations.archivingItemsIsAPremiumFeatureDescriptionLong)
-
-        try await alert.tapAction(title: Localizations.upgradeToPremium)
-        try await waitForAsync { self.subject.state.url != nil }
-
-        XCTAssertEqual(
-            subject.state.url,
-            URL(string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium"),
-        )
-        XCTAssertNotEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to archive when user has premium.
@@ -2334,28 +2211,12 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state, initialState)
     }
 
-    /// `receive(_:)` with `.upgradeToPremium` navigates to the premium upgrade route and
-    /// sets up the billing service status subscription.
+    /// `receive(_:)` with `.upgradeToPremium` delegates to the premium upgrade helper.
     @MainActor
     func test_receive_upgradeToPremium() {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-
         subject.receive(.upgradeToPremium)
 
-        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
-        XCTAssertTrue(billingService.premiumCheckoutStatusPublisherCalled)
-    }
-
-    /// `receive(_:)` with `.upgradeToPremium` subscribes to the billing service status publisher.
-    @MainActor
-    func test_receive_upgradeToPremium_subscribesToBillingService() {
-        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
-        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
-
-        subject.receive(.upgradeToPremium)
-
-        XCTAssertTrue(billingService.premiumCheckoutStatusPublisherCalled)
+        XCTAssertTrue(premiumUpgradeHelper.startInAppPremiumUpgradeCalled)
     }
 
     /// `receive(_:)` with `.vaultFilterChanged` updates the state correctly.

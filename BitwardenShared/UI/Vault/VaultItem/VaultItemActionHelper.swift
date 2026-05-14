@@ -9,11 +9,11 @@ protocol VaultItemActionHelper { // sourcery: AutoMockable
     ///
     /// - Parameters:
     ///   - cipher: The cipher to archive.
-    ///   - handleOpenURL: A closure to open a link.
+    ///   - handleNavigateToPremiumUpgrade: A closure called to navigate to the premium upgrade flow.
     ///   - completionHandler: The closure to execute when completing the archive process.
     func archive(
         cipher: CipherView,
-        handleOpenURL: @escaping (URL) -> Void,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         completionHandler: @escaping () -> Void,
     ) async
 
@@ -32,8 +32,7 @@ protocol VaultItemActionHelper { // sourcery: AutoMockable
 class DefaultVaultItemActionHelper: VaultItemActionHelper {
     // MARK: Types
 
-    typealias Services = HasEnvironmentService
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -64,14 +63,13 @@ class DefaultVaultItemActionHelper: VaultItemActionHelper {
 
     func archive(
         cipher: CipherView,
-        handleOpenURL: @escaping (URL) -> Void,
+        handleNavigateToPremiumUpgrade: @escaping () async -> Void,
         completionHandler: @escaping () -> Void,
     ) async {
         guard await services.vaultRepository.doesActiveAccountHavePremium() else {
             await coordinator.showAlert(
-                Alert.archiveUnavailable(action: { [weak self] in
-                    guard let self else { return }
-                    handleOpenURL(services.environmentService.upgradeToPremiumURL)
+                Alert.archiveUnavailable(action: {
+                    await handleNavigateToPremiumUpgrade()
                 }),
             )
             return

@@ -30,8 +30,12 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
-    /// A cancellable for the premium checkout status subscription.
-    private var premiumStatusChangedCancellable: AnyCancellable?
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+    )
 
     /// The mediator between processors and search publisher/subscription behavior.
     private let searchProcessorMediator: SearchProcessorMediator
@@ -152,44 +156,7 @@ class VaultItemSelectionProcessor: StateProcessor<
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
-        guard await services.billingRepository.isInAppUpgradeAvailable() else {
-            state.url = services.environmentService.upgradeToPremiumURL
-            return
-        }
-        subscribeToPremiumCheckoutStatus()
-        coordinator.navigate(to: .premiumUpgrade)
-    }
-
-    /// Subscribes to premium checkout status updates. On `.confirmed`, dismisses the upgrade modal.
-    /// On `.pending`, shows an upgrade pending alert.
-    ///
-    private func subscribeToPremiumCheckoutStatus() {
-        premiumStatusChangedCancellable = services.billingService
-            .premiumCheckoutStatusPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] status in
-                guard let self else { return }
-                switch status {
-                case .canceled:
-                    break
-                case .confirmed:
-                    premiumStatusChangedCancellable = nil
-                // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
-                case .pending:
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.hideLoadingOverlay()
-                            coordinator.showAlert(.upgradePending {
-                                await self.services.billingService.premiumStatusChanged()
-                            })
-                        }),
-                    )
-                case .syncing:
-                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
-                    break
-                }
-            }
+        await premiumUpgradeHelper.navigateToPremiumUpgrade()
     }
 
     /// Handles receiving a `ProfileSwitcherAction`.
@@ -396,4 +363,4 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
     func showProfileSwitcher() {
         coordinator.navigate(to: .viewProfileSwitcher, context: self)
     }
-} // swiftlint:disable:this file_length
+}
