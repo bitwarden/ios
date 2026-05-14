@@ -10,9 +10,11 @@ class SettingsProcessorTests: BitwardenTestCase {
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var delegate: MockSettingsProcessorDelegate!
+    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var subject: SettingsProcessor!
     var stateService: MockStateService!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
@@ -22,8 +24,10 @@ class SettingsProcessorTests: BitwardenTestCase {
         configService = MockConfigService()
         coordinator = MockCoordinator()
         delegate = MockSettingsProcessorDelegate()
+        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
+        vaultRepository = MockVaultRepository()
 
         setUpSubject()
     }
@@ -34,9 +38,11 @@ class SettingsProcessorTests: BitwardenTestCase {
         configService = nil
         coordinator = nil
         delegate = nil
+        environmentService = nil
         errorReporter = nil
         subject = nil
         stateService = nil
+        vaultRepository = nil
     }
 
     @MainActor
@@ -46,8 +52,10 @@ class SettingsProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 configService: configService,
+                environmentService: environmentService,
                 errorReporter: errorReporter,
                 stateService: stateService,
+                vaultRepository: vaultRepository,
             ),
             state: SettingsState(),
         )
@@ -144,12 +152,80 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .other)
     }
 
+    /// Receiving `.planPressed` navigates to the premium upgrade screen for a free user.
+    @MainActor
+    func test_receive_planPressed_freeUser() {
+        subject.state.hasPremium = false
+        subject.receive(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+    }
+
+    /// Receiving `.planPressed` navigates to the premium plan screen for a premium user.
+    @MainActor
+    func test_receive_planPressed_hasPremium() {
+        subject.state.hasPremium = true
+        subject.receive(.planPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .premiumPlan)
+    }
+
     /// Receiving `.vaultPressed` navigates to the vault settings screen.
     @MainActor
     func test_receive_vaultPressed() {
         subject.receive(.vaultPressed)
 
         XCTAssertEqual(coordinator.routes.last, .vault)
+    }
+
+    /// `perform(.appeared)` hides the plan row when the feature flag is disabled.
+    @MainActor
+    func test_perform_appeared_hidesPlanRow_featureFlagOff() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = false
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        environmentService.region = .unitedStates
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.showPlanRow)
+    }
+
+    /// `perform(.appeared)` shows the plan row for a free user when the feature flag is enabled.
+    @MainActor
+    func test_perform_appeared_showsPlanRow_freeUser() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        vaultRepository.doesActiveAccountHavePremiumResult = false
+        environmentService.region = .unitedStates
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.showPlanRow)
+        XCTAssertFalse(subject.state.hasPremium)
+    }
+
+    /// `perform(.appeared)` hides the plan row when the user is self-hosted.
+    @MainActor
+    func test_perform_appeared_hidesPlanRow_selfHosted() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        environmentService.region = .selfHosted
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(subject.state.showPlanRow)
+    }
+
+    /// `perform(.appeared)` shows the plan row when the feature flag is enabled and the user has premium.
+    @MainActor
+    func test_perform_appeared_showsPlanRow_hasPremium() async {
+        configService.featureFlagsBool[.premiumUpgradePath] = true
+        vaultRepository.doesActiveAccountHavePremiumResult = true
+        environmentService.region = .unitedStates
+
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(subject.state.showPlanRow)
+        XCTAssertTrue(subject.state.hasPremium)
     }
 }
 

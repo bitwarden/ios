@@ -22,7 +22,7 @@ public struct EmptyInputValidator: InputValidator {
 
     // MARK: InputValidator
 
-    public func validate(input: String?) throws {
+    public func validate(input: String?) throws(InputValidationError) {
         guard input?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false else {
             throw InputValidationError(message: Localizations.validationFieldRequired(fieldName))
         }

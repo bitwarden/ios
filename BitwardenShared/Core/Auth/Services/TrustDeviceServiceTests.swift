@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -11,8 +13,8 @@ import XCTest
 class TrustDeviceServiceTests: BitwardenTestCase {
     // MARK: Properties
 
-    var appIdService: AppIdService!
-    var appSettingsStore: MockAppSettingsStore!
+    var appIDService: AppIDService!
+    var appIDSettingsStore: MockAppIDSettingsStore!
     var authAPIService: AuthAPIService!
     var clientService: MockClientService!
     var keychainRepository: MockKeychainRepository!
@@ -26,15 +28,15 @@ class TrustDeviceServiceTests: BitwardenTestCase {
         super.setUp()
 
         client = MockHTTPClient()
-        appSettingsStore = MockAppSettingsStore()
-        appIdService = AppIdService(appSettingStore: appSettingsStore)
+        appIDSettingsStore = MockAppIDSettingsStore()
+        appIDService = AppIDService(appIDSettingsStore: appIDSettingsStore)
         authAPIService = APIService(client: client)
         clientService = MockClientService()
         keychainRepository = MockKeychainRepository()
         stateService = MockStateService()
 
         subject = DefaultTrustDeviceService(
-            appIdService: appIdService,
+            appIDService: appIDService,
             authAPIService: authAPIService,
             clientService: clientService,
             keychainRepository: keychainRepository,
@@ -45,7 +47,8 @@ class TrustDeviceServiceTests: BitwardenTestCase {
 
     override func tearDown() async throws {
         try await super.tearDown()
-        appIdService = nil
+        appIDService = nil
+        appIDSettingsStore = nil
         authAPIService = nil
         client = nil
         clientService = nil
@@ -59,7 +62,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
     /// `getDeviceKey()` get the deviceKey of the trusted device.
     func test_getDeviceKey() async throws {
         // Set up the mock data.
-        try await keychainRepository.setDeviceKey("DEVICE_KEY", userId: stateService.getActiveAccountId())
+        keychainRepository.getDeviceKeyReturnValue = "DEVICE_KEY"
 
         // Test.
         let deviceKey = try await subject.getDeviceKey()
@@ -79,15 +82,14 @@ class TrustDeviceServiceTests: BitwardenTestCase {
         )
         client.results = [.httpSuccess(testData: .emptyResponse)]
         clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
 
         // Test.
         let result = try await subject.trustDevice()
 
         // Confirm the results.
-        let storedDeviceKey = try await keychainRepository.getDeviceKey(userId: stateService.getActiveAccountId())
-        XCTAssertEqual(appSettingsStore.appId, "App id")
-        XCTAssertEqual(storedDeviceKey, "DEVICE_KEY")
+        XCTAssertEqual(appIDSettingsStore.appID, "App ID")
+        XCTAssertEqual(keychainRepository.setDeviceKeyReceivedArguments?.value, "DEVICE_KEY")
         XCTAssertEqual(trustDeviceResponse, result)
     }
 
@@ -105,15 +107,14 @@ class TrustDeviceServiceTests: BitwardenTestCase {
         )
         clientService.mockAuth.trustDeviceResult = .success(trustDeviceResponse)
         stateService.shouldTrustDevice[userId] = true
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
 
         // Test.
         let result = try await subject.trustDeviceIfNeeded()
 
         // Confirm the results.
-        let storedDeviceKey = try await keychainRepository.getDeviceKey(userId: userId)
-        XCTAssertEqual(appSettingsStore.appId, "App id")
-        XCTAssertEqual(storedDeviceKey, "DEVICE_KEY")
+        XCTAssertEqual(appIDSettingsStore.appID, "App ID")
+        XCTAssertEqual(keychainRepository.setDeviceKeyReceivedArguments?.value, "DEVICE_KEY")
         XCTAssertEqual(trustDeviceResponse, result)
     }
 
@@ -129,28 +130,26 @@ class TrustDeviceServiceTests: BitwardenTestCase {
             protectedDevicePrivateKey: "DEVICE_PRIVATE_KEY",
             protectedDevicePublicKey: "DEVICE_PUBLIC_KEY",
         )
-        appSettingsStore.appId = "App id"
+        appIDSettingsStore.appID = "App ID"
 
         // Test.
         try await subject.trustDeviceWithExistingKeys(keys: trustDeviceResponse)
 
         // Confirm the results.
-        let storedDeviceKey = try await keychainRepository.getDeviceKey(userId: userId)
-        XCTAssertEqual(appSettingsStore.appId, "App id")
-        XCTAssertEqual(storedDeviceKey, "DEVICE_KEY")
+        XCTAssertEqual(appIDSettingsStore.appID, "App ID")
+        XCTAssertEqual(keychainRepository.setDeviceKeyReceivedArguments?.value, "DEVICE_KEY")
     }
 
     /// `removeTrustedDevice()` set current device locally as not trusted.
     func test_removeTrustedDevice() async throws {
         // Set up the mock data.
-        try await keychainRepository.setDeviceKey("DEVICE_KEY", userId: stateService.getActiveAccountId())
+        keychainRepository.getDeviceKeyReturnValue = "DEVICE_KEY"
 
         // Test.
         try await subject.removeTrustedDevice()
 
         // Confirm the results.
-        let isDeviceTrusted = try await subject.isDeviceTrusted()
-        XCTAssertFalse(isDeviceTrusted)
+        XCTAssertTrue(keychainRepository.deleteDeviceKeyCalled)
     }
 
     /// `getShouldTrustDevice(:true)` get if device should be trusted.
@@ -206,7 +205,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
     /// `isDeviceTrusted(:true)` check if device is trusted.
     func test_isDeviceTrusted_true() async throws {
         // Set up the mock data.
-        try await keychainRepository.setDeviceKey("DEVICE_KEY", userId: stateService.getActiveAccountId())
+        keychainRepository.getDeviceKeyReturnValue = "DEVICE_KEY"
 
         // Test.
         let result = try await subject.isDeviceTrusted()

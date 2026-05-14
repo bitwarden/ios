@@ -10,7 +10,7 @@ import Foundation
 
 /// A protocol for a `StateService` which manages the state of the accounts in the app.
 ///
-protocol StateService: AnyObject {
+protocol StateService: AnyObject, BillingStateService {
     /// The language option currently selected for the app.
     var appLanguage: LanguageOption { get set }
 
@@ -231,6 +231,13 @@ protocol StateService: AnyObject {
     ///
     func getLastSyncTime(userId: String?) async throws -> Date?
 
+    /// Gets the monotonic time of the last sync for a user.
+    ///
+    /// - Parameter userId: The user ID associated with the last sync monotonic time.
+    /// - Returns: The user's last sync monotonic time as a `TimeInterval` since system boot.
+    ///
+    func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval?
+
     /// The last value of the connect to watch setting, ignoring the user id. Used for
     /// sending the status to the watch if the user is logged out.
     ///
@@ -285,6 +292,14 @@ protocol StateService: AnyObject {
     /// - Returns: The environment URLs used prior to user authentication.
     ///
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
+
+    /// Gets whether the premium upgrade banner has been dismissed.
+    ///
+    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///   Defaults to the active account if `nil`.
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool
 
     /// Gets the environment URLs for a given email during account creation.
     ///
@@ -523,6 +538,15 @@ protocol StateService: AnyObject {
     ///
     func setArchiveOnboardingShown(_ shown: Bool) async
 
+    /// Sets whether the premium upgrade banner has been dismissed.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///     Defaults to the active account if `nil`.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws
+
     /// Sets the clear clipboard value for an account.
     ///
     /// - Parameters:
@@ -588,6 +612,14 @@ protocol StateService: AnyObject {
     /// - Parameter shown: Whether the intro carousel screen has been shown.
     ///
     func setIntroCarouselShown(_ shown: Bool) async
+
+    /// Sets the monotonic time of the last successful sync for an account.
+    ///
+    /// - Parameters:
+    ///   - monotonicTime: The monotonic time of the last successful sync.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws
 
     /// Sets the time of the last sync for a user ID.
     ///
@@ -1015,6 +1047,14 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
+    /// Gets whether the premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func getPremiumUpgradeBannerDismissed() async throws -> Bool {
+        try await getPremiumUpgradeBannerDismissed(userId: nil)
+    }
+
     /// Gets whether Siri & Shortcuts access is enabled for the active account.
     /// - Returns: Whether Siri & Shortcuts access is enabled.
     func getSiriAndShortcutsAccess() async throws -> Bool {
@@ -1263,6 +1303,14 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+    /// Sets whether the premium upgrade banner has been dismissed for the active account.
+    ///
+    /// - Parameter dismissed: Whether the premium upgrade banner has been dismissed.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool) async throws {
+        try await setPremiumUpgradeBannerDismissed(dismissed, userId: nil)
+    }
+
     /// Sets the app rehydration state for the active account.
     ///
     /// - Parameter rehydrationState: The app rehydration state.
@@ -1390,13 +1438,16 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     private let dataStore: DataStore
 
     /// The service used by the application to report non-fatal errors.
-    private let errorReporter: ErrorReporter
+    let errorReporter: ErrorReporter
 
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
     /// A service used to access data in the keychain.
     let keychainRepository: KeychainRepository
+
+    /// Provides the present time for time-based calculations.
+    let timeProvider: TimeProvider
 
     /// A service used to access user session data in the keychain.
     private let userSessionKeychainRepository: UserSessionKeychainRepository
@@ -1422,18 +1473,22 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     ///  - dataStore: The data store that handles performing data requests.
     ///  - errorReporter: The service used by the application to report non-fatal errors.
     ///  - keychainRepository: A service used to access data in the keychain.
+    ///  - timeProvider: Provides the present time for time-based calculations.
+    ///  - userSessionKeychainRepository: A service used to access user session data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository,
+        timeProvider: TimeProvider,
         userSessionKeychainRepository: UserSessionKeychainRepository,
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
         self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
+        self.timeProvider = timeProvider
         self.userSessionKeychainRepository = userSessionKeychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -1584,6 +1639,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.archiveOnboardingShown
     }
 
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.premiumUpgradeBannerDismissed(userId: userId)
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -1640,6 +1700,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.lastSyncTime(userId: userId)
+    }
+
+    func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.lastSyncMonotonicTime(userId: userId)
     }
 
     func getLastUserShouldConnectToWatch() async -> Bool {
@@ -1763,7 +1828,7 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
             return false
         } catch StateServiceError.noAccounts {
             return false
-        } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
+        } catch KeychainServiceError.osStatusError(errSecItemNotFound), KeychainServiceError.keyNotFound {
             return false
         }
     }
@@ -1792,16 +1857,17 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         }
 
         appSettingsStore.setAccessTokenExpirationDate(nil, userId: knownUserId)
+        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
-        appSettingsStore.setAccountKeys(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
         appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
+        try await keychainRepository.clearLocalUserDataKeyStates(userId: knownUserId)
 
         try await dataStore.deleteDataForUser(userId: knownUserId)
     }
@@ -1930,6 +1996,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         appSettingsStore.archiveOnboardingShown = shown
     }
 
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setPremiumUpgradeBannerDismissed(dismissed, userId: userId)
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setClearClipboardValue(clearClipboardValue, userId: userId)
@@ -1990,6 +2061,11 @@ actor DefaultStateService: StateService, ActiveAccountStateProvider, ConfigState
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
         lastSyncTimeByUserIdSubject.value[userId] = date
+    }
+
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setLastSyncMonotonicTime(monotonicTime, userId: userId)
     }
 
     func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async {
@@ -2308,6 +2384,26 @@ extension DefaultStateService: UserSessionStateService {
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         try await userSessionKeychainRepository.setLastActiveTime(date, userId: userId)
+    }
+
+    func getLastActiveMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveMonotonicTime(userId: userId)
+    }
+
+    func setLastActiveMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveMonotonicTime(monotonicTime, userId: userId)
+    }
+
+    func getLastActiveBootEpoch(userId: String?) async throws -> TimeInterval? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return try await userSessionKeychainRepository.getLastActiveBootEpoch(userId: userId)
+    }
+
+    func setLastActiveBootEpoch(_ bootEpoch: TimeInterval?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        try await userSessionKeychainRepository.setLastActiveBootEpoch(bootEpoch, userId: userId)
     }
 
     // MARK: Unsuccessful Unlock Attempts

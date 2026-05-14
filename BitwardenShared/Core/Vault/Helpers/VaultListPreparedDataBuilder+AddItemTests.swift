@@ -19,6 +19,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     var stateService: MockStateService!
     var subject: DefaultVaultListPreparedDataBuilder!
     var timeProvider: MockTimeProvider!
+    var totpService: MockTOTPService!
 
     // MARK: Setup & Teardown
 
@@ -30,12 +31,14 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.currentTime)
+        totpService = MockTOTPService()
         subject = DefaultVaultListPreparedDataBuilder(
             cipherService: cipherService,
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider,
+            totpService: totpService,
         )
     }
 
@@ -47,6 +50,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
         errorReporter = nil
         stateService = nil
         timeProvider = nil
+        totpService = nil
         subject = nil
     }
 
@@ -208,7 +212,7 @@ class VaultListPreparedDataBuilderAddItemTests: BitwardenTestCase {
     /// `addItem(forGroup:with:)` does not add a TOTP item when user does not have access.
     func test_addItem_doesNotAddTotpItemWhenNoAccess() async {
         let cipher = CipherListView.fixture(id: "1", type: .login(.fixture(totp: "123456")), organizationUseTotp: false)
-        stateService.doesActiveAccountHavePremiumResult = false
+        totpService.isTotpAuthorizedResult = false
 
         let preparedData = await subject.addItem(forGroup: .totp, with: cipher).build()
 

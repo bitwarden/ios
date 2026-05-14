@@ -5,14 +5,8 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
-    /// A feature flag to enable/disable ciphers archive option.
-    static let archiveVaultItems = FeatureFlag(rawValue: "pm-19148-innovation-archive")
-
-    /// Flag to enable/disable Credential Exchange export flow.
-    static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
-
-    /// Flag to enable/disable Credential Exchange import flow.
-    static let cxpImportMobile = FeatureFlag(rawValue: "cxp-import-mobile")
+    /// A feature flag to enable/disable scanning a card to autocomplete its details in add/edit cipher.
+    static let cardScanner = FeatureFlag(rawValue: "pm-34171-card-scanner")
 
     /// Flag to enable/disable individual cipher encryption configured remotely.
     static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
@@ -32,29 +26,27 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
 
+    /// Flag to enable/disable the new vault item types (Bank Account, Driver's License, Passport).
+    static let newItemTypes = FeatureFlag(rawValue: "pm-32009-new-item-types")
+
     /// Flag to enable/disable not logging out when a user's KDF settings are changed.
     static let noLogoutOnKdfChange = FeatureFlag(rawValue: "pm-23995-no-logout-on-kdf-change")
 
     /// Flag to enable/disable premium upgrade path.
     static let premiumUpgradePath = FeatureFlag(rawValue: "pm-31697-premium-upgrade-path")
 
-    /// Flag to enable/disable sends email verification feature.
-    static let sendEmailVerification = FeatureFlag(rawValue: "pm-19051-send-email-verification")
-
     public static var allCases: [FeatureFlag] {
         [
-            .archiveVaultItems,
-            .cxpExportMobile,
-            .cxpImportMobile,
+            .cardScanner,
             .cipherKeyEncryption,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
             .manageDevices,
             .migrateMyVaultToMyItems,
+            .newItemTypes,
             .noLogoutOnKdfChange,
             .premiumUpgradePath,
-            .sendEmailVerification,
         ]
     }
 }

@@ -8,7 +8,7 @@ import SwiftUI
 // MARK: - SearchableVaultListView
 
 /// The main view of the vault.
-private struct SearchableVaultListView: View {
+private struct SearchableVaultListView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -75,7 +75,7 @@ private struct SearchableVaultListView: View {
 
     // MARK: Private Properties
 
-    /// The action card for importing login items.
+    /// The action card for archive onboarding.
     @ViewBuilder private var archiveOnboardingActionCard: some View {
         if store.state.shouldShowArchiveOnboardingActionCard {
             ActionCard(
@@ -89,6 +89,41 @@ private struct SearchableVaultListView: View {
                 },
             ) {
                 SharedAsset.Icons.archive24.swiftUIImage.foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
+            }
+        }
+    }
+
+    /// The action card for premium upgrade.
+    @ViewBuilder private var premiumUpgradeActionCard: some View {
+        if store.state.shouldShowPremiumUpgradeActionCard {
+            ActionCard(
+                title: Localizations.unlockAdvancedSecurityFeatures,
+                message: Localizations.aPremiumPlanGivesYouMoreToolsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.upgradeToPremium) {
+                    store.send(.upgradeToPremium)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissPremiumUpgradeActionCard)
+                },
+            )
+        }
+    }
+
+    /// The action card for the upgraded to premium confirmation.
+    @ViewBuilder private var upgradedToPremiumActionCard: some View {
+        if store.state.shouldShowUpgradedToPremiumActionCard {
+            ActionCard(
+                title: Localizations.upgradedToPremium,
+                message: Localizations.youNowHaveAccessToAllAdvancedSecurityFeatures,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
+                    store.send(.learnMoreAboutPremium)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissUpgradedToPremiumActionCard)
+                },
+            ) {
+                SharedAsset.Icons.star24.swiftUIImage
+                    .foregroundStyle(SharedAsset.Colors.iconSecondary.swiftUIColor)
             }
         }
     }
@@ -268,6 +303,10 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         VStack(spacing: 20) {
+            premiumUpgradeActionCard
+
+            upgradedToPremiumActionCard
+
             archiveOnboardingActionCard
 
             vaultFilterRow

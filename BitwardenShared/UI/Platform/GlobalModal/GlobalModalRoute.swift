@@ -9,5 +9,9 @@ public enum GlobalModalRoute: Equatable, Hashable {
     case dismissWithAction(_ action: DismissAction? = nil)
 
     /// A route to show the sync with browser screen.
-    case syncWithBrowser
+    ///
+    /// - Parameter vaultUrl: The vault URL from the SSO cookie config, used to construct
+    ///   the browser redirect URL.
+    ///
+    case syncWithBrowser(vaultUrl: String)
 }

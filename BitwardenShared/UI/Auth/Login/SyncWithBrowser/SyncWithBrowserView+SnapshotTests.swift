@@ -18,7 +18,7 @@ class SyncWithBrowserViewSnapshotTests: BitwardenTestCase {
         super.setUp()
 
         processor = MockProcessor(state: SyncWithBrowserState(
-            environmentUrl: "https://example.bitwarden.com",
+            vaultUrl: "https://example.bitwarden.com",
         ))
         let store = Store(processor: processor)
 

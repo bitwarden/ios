@@ -25,6 +25,7 @@
       "Bitwarden/",
       "BitwardenActionExtension/",
       "BitwardenAutoFillExtension/",
+      "BitwardenNotificationExtension/",
       "BitwardenShareExtension/",
       "BitwardenShared/",
       "BitwardenWatchApp/",

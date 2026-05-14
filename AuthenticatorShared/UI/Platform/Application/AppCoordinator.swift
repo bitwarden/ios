@@ -109,7 +109,12 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: authRoute)
         } else {
             guard let rootNavigator else { return }
+
             let navigationController = module.makeNavigationController()
+            navigationController.isModalInPresentation = true
+            navigationController.isNavigationBarHidden = true
+            navigationController.modalPresentationStyle = .overFullScreen
+
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
@@ -117,8 +122,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             )
 
             coordinator.start()
-            navigationController.modalPresentationStyle = .overFullScreen
-            navigationController.isNavigationBarHidden = true
             rootNavigator.rootViewController?.present(navigationController, animated: false)
         }
     }

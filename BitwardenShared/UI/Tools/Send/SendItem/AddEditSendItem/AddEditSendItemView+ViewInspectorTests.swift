@@ -229,7 +229,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.accessType = .specificPeople
         processor.state.recipientEmails = [""]
         let textField = try subject.inspect()
-            .find(viewWithAccessibilityIdentifier: "SendRecipientEmailEntry0")
+            .find(viewWithAccessibilityIdentifier: "SendRecipientEmailEntry")
             .find(ViewType.TextField.self)
         try textField.setInput("test@example.com")
         XCTAssertEqual(processor.dispatchedActions.last, .recipientEmailChanged(index: 0, value: "test@example.com"))
@@ -241,7 +241,7 @@ class AddEditSendItemViewTests: BitwardenTestCase {
         processor.state.accessType = .specificPeople
         processor.state.recipientEmails = ["test@example.com", "another@example.com"]
         let button = try subject.inspect()
-            .find(viewWithAccessibilityIdentifier: "RemoveRecipientEmailButton0")
+            .find(viewWithAccessibilityIdentifier: "RemoveRecipientEmailButton")
             .button()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .removeRecipientEmail(index: 0))

@@ -106,8 +106,6 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
     let ciphersClientWrapperService: CiphersClientWrapperService
     /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
-    /// The service to get server-specified configuration.
-    let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
     /// The service for managing the polices for the user.
@@ -131,22 +129,19 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
             preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
-                  decryptedCipher.deletedDate == nil,
+                  !decryptedCipher.isHidden,
                   decryptedCipher.canBeUsedInBasicLoginAutofill else {
                 return
             }
 
             let matchResult = cipherMatchingHelper.doesCipherMatch(
                 cipher: decryptedCipher,
-                archiveVaultItemsFF: archiveItemsFeatureFlagEnabled,
             )
 
             preparedDataBuilder = await preparedDataBuilder.addItem(
@@ -171,26 +166,17 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
             preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
-                  decryptedCipher.deletedDate == nil else {
+                  !decryptedCipher.isHidden else {
                 return
             }
 
-            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
-                return
-            }
-
-            let matchResult = cipherMatchingHelper.doesCipherMatch(
-                cipher: decryptedCipher,
-                archiveVaultItemsFF: archiveItemsFeatureFlagEnabled,
-            )
+            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
             guard matchResult != .none else {
                 return
             }
@@ -216,26 +202,17 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
             preparedDataBuilder: preparedDataBuilder,
         ) { decryptedCipher in
             guard decryptedCipher.type.isLogin,
-                  decryptedCipher.deletedDate == nil else {
+                  !decryptedCipher.isHidden else {
                 return
             }
 
-            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
-                return
-            }
-
-            let matchResult = cipherMatchingHelper.doesCipherMatch(
-                cipher: decryptedCipher,
-                archiveVaultItemsFF: archiveItemsFeatureFlagEnabled,
-            )
+            let matchResult = cipherMatchingHelper.doesCipherMatch(cipher: decryptedCipher)
             guard matchResult != .none else {
                 return
             }
@@ -268,8 +245,6 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
             .prepareFolders(folders: folders, filterType: filter.filterType)
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -280,7 +255,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 return
             }
 
-            if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
+            if decryptedCipher.isArchived {
                 preparedDataBuilder = preparedDataBuilder.incrementCipherArchivedCount()
                 return
             }
@@ -315,8 +290,6 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
             .prepareFolders(folders: folders, filterType: filter.filterType)
             .prepareCollections(collections: collections, filterType: filter.filterType)
 
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -326,8 +299,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 return
             }
 
-            if archiveItemsFeatureFlagEnabled,
-               filter.group != .archive,
+            if filter.group != .archive,
                filter.group != .trash,
                decryptedCipher.isArchived {
                 return
@@ -362,8 +334,6 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -372,7 +342,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 filterEncryptedCipherByDeletedAndGroup(cipher: cipher, filter: filter)
             },
             onCipher: { decryptedCipher in
-                if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
+                if decryptedCipher.isArchived {
                     return
                 }
 
@@ -401,8 +371,6 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
 
         var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         await decryptAndProcessCiphersInBatch(
             ciphers: ciphers,
             filter: filter,
@@ -411,7 +379,7 @@ struct DefaultVaultListDataPreparator: VaultListDataPreparator { // swiftlint:di
                 filterEncryptedCipherByDeletedAndGroup(cipher: cipher, filter: filter)
             },
             onCipher: { decryptedCipher in
-                if archiveItemsFeatureFlagEnabled, decryptedCipher.isArchived {
+                if decryptedCipher.isArchived {
                     guard let group = filter.group, group == .archive else {
                         return
                     }

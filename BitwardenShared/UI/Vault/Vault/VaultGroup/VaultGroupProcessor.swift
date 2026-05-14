@@ -1,12 +1,13 @@
 import BitwardenKit
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import Foundation
 
 // MARK: - VaultGroupProcessor
 
 /// A `Processor` that can process `VaultGroupAction`s and `VaultGroupEffect`s.
-final class VaultGroupProcessor: StateProcessor<
+final class VaultGroupProcessor: StateProcessor<// swiftlint:disable:this type_body_length
     VaultGroupState,
     VaultGroupAction,
     VaultGroupEffect,
@@ -14,6 +15,8 @@ final class VaultGroupProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
@@ -34,6 +37,9 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
+    /// A cancellable for the premium checkout status subscription.
+    private var premiumStatusChangedCancellable: AnyCancellable?
 
     /// The services for this processor.
     private var services: Services
@@ -119,6 +125,9 @@ final class VaultGroupProcessor: StateProcessor<
                 for: item,
                 handleDisplayToast: { [weak self] toast in
                     self?.state.toast = toast
+                },
+                handleNavigateToPremiumUpgrade: { [weak self] in
+                    await self?.navigateToPremiumUpgrade()
                 },
                 handleOpenURL: { [weak self] url in
                     self?.state.url = url
@@ -207,6 +216,63 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     private func loadItemTypesUserCanCreate() async {
         state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
+    }
+
+    /// Dismisses the premium upgrade action card and persists the banner-dismissed preference.
+    ///
+    private func dismissPremiumUpgradeActionCard() async {
+        do {
+            try await services.stateService.setPremiumUpgradeBannerDismissed(true)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
+    /// otherwise opens the web vault upgrade URL as a fallback.
+    ///
+    private func navigateToPremiumUpgrade() async {
+        guard await services.billingRepository.isInAppUpgradeAvailable() else {
+            state.url = services.environmentService.upgradeToPremiumURL
+            return
+        }
+        subscribeToPremiumCheckoutStatus()
+        coordinator.navigate(to: .premiumUpgrade)
+    }
+
+    /// Subscribes to premium checkout status updates. On `.confirmed`, reloads the vault group
+    /// to update the premium state. On `.pending`, shows an upgrade pending alert.
+    ///
+    private func subscribeToPremiumCheckoutStatus() {
+        premiumStatusChangedCancellable = services.billingService
+            .premiumCheckoutStatusPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                guard let self else { return }
+                switch status {
+                case .canceled:
+                    break
+                case .confirmed:
+                    premiumStatusChangedCancellable = nil
+                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
+                    // Refresh vault group in the background so it's ready when the user returns.
+                    Task { [weak self] in await self?.refreshVaultGroup() }
+                case .pending:
+                    coordinator.navigate(
+                        to: .dismiss(DismissAction { [weak self] in
+                            guard let self else { return }
+                            coordinator.hideLoadingOverlay()
+                            Task { await self.dismissPremiumUpgradeActionCard() }
+                            coordinator.showAlert(.upgradePending {
+                                await self.services.billingService.premiumStatusChanged()
+                            })
+                        }),
+                    )
+                case .syncing:
+                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
+                    break
+                }
+            }
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master
@@ -366,4 +432,4 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
             await perform(.refresh)
         }
     }
-}
+} // swiftlint:disable:this file_length

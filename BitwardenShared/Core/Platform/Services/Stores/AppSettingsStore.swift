@@ -13,9 +13,6 @@ protocol AppSettingsStore: AnyObject {
     /// Whether the autofill info prompt has been shown.
     var addSitePromptShown: Bool { get set }
 
-    /// The app's unique identifier.
-    var appId: String? { get set }
-
     /// The app's locale.
     var appLocale: String? { get set }
 
@@ -218,6 +215,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func lastSyncTime(userId: String) -> Date?
 
+    /// Gets the monotonic time of the last sync for the user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the last sync monotonic time.
+    /// - Returns: The monotonic time of the last sync for the user as a `TimeInterval` since system boot.
+    ///
+    func lastSyncMonotonicTime(userId: String) -> TimeInterval?
+
     /// Gets whether the account belonging to the user Id has been manually locked.
     /// - Parameter userId: The user ID associated with the account.
     /// - Returns: `true` if manually locked, `false` otherwise.
@@ -259,6 +263,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The pin protected user key envelope.
     ///
     func pinProtectedUserKeyEnvelope(userId: String) -> String?
+
+    /// Whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the premium upgrade banner dismissed value.
+    /// - Returns: Whether the premium upgrade banner has been dismissed.
+    ///
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool
 
     /// Gets the environment URLs used to start the account creation flow.
     ///
@@ -434,6 +445,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setLastSyncTime(_ date: Date?, userId: String)
 
+    /// Sets the monotonic time of the last sync for the user ID.
+    ///
+    /// - Parameters:
+    ///   - monotonicTime: The monotonic time of the last sync as a `TimeInterval` since system boot.
+    ///   - userId: The user ID associated with the last sync monotonic time.
+    ///
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String)
+
     /// Sets whether the account belonging to the user Id has been manually locked.
     /// - Parameters
     ///   - isLocked: Whether the account has been locked manually.
@@ -481,6 +500,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String)
+
+    /// Sets whether the premium upgrade banner has been dismissed for the user.
+    ///
+    /// - Parameters:
+    ///   - dismissed: Whether the premium upgrade banner has been dismissed.
+    ///   - userId: The user ID associated with the premium upgrade banner dismissed value.
+    ///
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String)
 
     /// Sets the environment URLs used to start the account creation flow.
     ///
@@ -733,7 +760,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case allowUniversalClipboard(userId: String)
-        case appId
+        case appID
         case appLocale
         case appRehydrationState(userId: String)
         case appTheme
@@ -755,6 +782,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case learnNewLoginActionCardStatus
         case lastRequestToTurnOnCredentialProvider
         case lastSync(userId: String)
+        case lastSyncMonotonic(userId: String)
         case lastUserShouldConnectToWatch
         case learnGeneratorActionCardStatus
         case loginRequest
@@ -769,6 +797,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
+        case premiumUpgradeBannerDismissed(userId: String)
         case rememberedEmail
         case rememberedOrgIdentifier
         case reviewPromptData
@@ -801,7 +830,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "syncOnRefresh_\(userId)"
             case let .allowUniversalClipboard(userId):
                 "allowUniversalClipboard_\(userId)"
-            case .appId:
+            case .appID:
                 "appId"
             case .appLocale:
                 "appLocale"
@@ -845,6 +874,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "lastRequestToTurnOnCredentialProvider"
             case let .lastSync(userId):
                 "lastSync_\(userId)"
+            case let .lastSyncMonotonic(userId):
+                "lastSyncMonotonic_\(userId)"
             case .learnGeneratorActionCardStatus:
                 "learnGeneratorActionCardStatus"
             case .lastUserShouldConnectToWatch:
@@ -873,6 +904,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 "preAuthServerConfig"
+            case let .premiumUpgradeBannerDismissed(userId):
+                "premiumUpgradeBannerDismissed_\(userId)"
             case .rememberedEmail:
                 "rememberedEmail"
             case .rememberedOrgIdentifier:
@@ -905,11 +938,6 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     var addSitePromptShown: Bool {
         get { fetch(for: .addSitePromptShown) }
         set { store(newValue, for: .addSitePromptShown) }
-    }
-
-    var appId: String? {
-        get { fetch(for: .appId) }
-        set { store(newValue, for: .appId) }
     }
 
     var appLocale: String? {
@@ -1097,6 +1125,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func lastSyncMonotonicTime(userId: String) -> TimeInterval? {
+        fetch(for: .lastSyncMonotonic(userId: userId))
+    }
+
     func manuallyLockedAccount(userId: String) -> Bool {
         fetch(for: .manuallyLockedAccount(userId: userId))
     }
@@ -1123,6 +1155,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func pinProtectedUserKeyEnvelope(userId: String) -> String? {
         fetch(for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool {
+        fetch(for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
@@ -1215,6 +1251,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
 
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) {
+        store(monotonicTime, for: .lastSyncMonotonic(userId: userId))
+    }
+
     func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
         store(isLocked, for: .manuallyLockedAccount(userId: userId))
     }
@@ -1237,6 +1277,10 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         store(key, for: .pinProtectedUserKeyEnvelope(userId: userId))
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
+        store(dismissed, for: .premiumUpgradeBannerDismissed(userId: userId))
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
@@ -1305,5 +1349,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func shouldTrustDevice(userId: String) -> Bool? {
         fetch(for: .shouldTrustDevice(userId: userId))
+    }
+}
+
+// MARK: AppIDSettingsStore
+
+extension DefaultAppSettingsStore: AppIDSettingsStore {
+    var appID: String? {
+        get { fetch(for: .appID) }
+        set { store(newValue, for: .appID) }
     }
 }

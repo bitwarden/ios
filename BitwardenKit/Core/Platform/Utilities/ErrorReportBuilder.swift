@@ -6,7 +6,7 @@ import MachO // dyld
 /// A helper object to build error reports to provide detailed error information to share about the
 /// error that occurred.
 ///
-public protocol ErrorReportBuilder {
+public protocol ErrorReportBuilder { // sourcery: AutoMockable
     /// Returns a string containing detailed error information to share about an error that occurred.
     ///
     /// - Parameters:
@@ -16,6 +16,12 @@ public protocol ErrorReportBuilder {
     ///     occurred.
     ///
     func buildShareErrorLog(for error: Error, callStack: String) async -> String
+
+    /// Gets the active account's user ID.
+    ///
+    /// - Returns: An optional string containing the user ID.
+    ///
+    func getUserID() async -> String?
 }
 
 // MARK: - DefaultErrorReportBuilder
@@ -111,5 +117,9 @@ extension DefaultErrorReportBuilder: ErrorReportBuilder {
         Binary images:
         \(binaryImageAddresses())
         """
+    }
+
+    public func getUserID() async -> String? {
+        try? await activeAccountStateProvider.getActiveAccountId()
     }
 }

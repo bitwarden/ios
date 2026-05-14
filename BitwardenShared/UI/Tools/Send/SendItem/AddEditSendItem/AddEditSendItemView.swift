@@ -324,7 +324,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             BitwardenMenuField(
                 title: Localizations.whoCanView,
                 accessibilityIdentifier: "SendAccessTypePicker",
-                options: store.state.availableAccessTypes,
+                options: SendAccessType.allCases,
                 selection: store.binding(
                     get: \.accessType,
                     send: AddEditSendItemAction.accessTypeChanged,
@@ -406,7 +406,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         },
                         send: { .recipientEmailChanged(index: index, value: $0) },
                     ),
-                    accessibilityIdentifier: "SendRecipientEmailEntry\(index)",
+                    accessibilityIdentifier: "SendRecipientEmailEntry",
                 ) {
                     if store.state.shouldShowTrashIcon(for: index) {
                         Button {
@@ -416,11 +416,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                 .imageStyle(.rowIcon(color: SharedAsset.Colors.error.swiftUIColor))
                         }
                         .accessibilityLabel(Localizations.delete)
-                        .accessibilityIdentifier("RemoveRecipientEmailButton\(index)")
+                        .accessibilityIdentifier("RemoveRecipientEmailButton")
                     }
                 }
                 .focused($focusedRecipientEmailIndex, equals: index)
                 .textFieldConfiguration(.email)
+                .accessibilityIdentifier("EmailRecipientCell")
 
                 Divider()
                     .padding(.leading, 16)
@@ -589,7 +590,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     state: AddEditSendItemState(
                         accessType: .specificPeople,
                         hasPremium: true,
-                        isSendEmailVerificationEnabled: true,
                         name: "Sendy",
                         recipientEmails: ["test@example.com", ""],
                         text: "Example text",

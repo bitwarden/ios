@@ -94,7 +94,7 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             ],
             activeUserId: "1",
         )
-        keychainRepository.setAccessTokenResult = .failure(KeychainServiceError.osStatusError(-1))
+        keychainRepository.setAccessTokenThrowableError = KeychainServiceError.osStatusError(-1)
 
         await subject.performMigrations()
 
@@ -129,6 +129,11 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
             appSettingsStore.notificationsLastRegistrationDates[userId] = Date()
         }
 
+        var accessTokensByUserId = [String: String]()
+        keychainRepository.setAccessTokenClosure = { value, userId in accessTokensByUserId[userId] = value }
+        var refreshTokensByUserId = [String: String]()
+        keychainRepository.setRefreshTokenClosure = { value, userId in refreshTokensByUserId[userId] = value }
+
         try await subject.performMigration(version: 1)
 
         XCTAssertEqual(appSettingsStore.migrationVersion, 1)
@@ -138,10 +143,10 @@ class MigrationServiceTests: BitwardenTestCase { // swiftlint:disable:this type_
         let account2 = try XCTUnwrap(appSettingsStore.state?.accounts["2"])
         XCTAssertNil(account2._tokens)
 
-        try XCTAssertEqual(keychainRepository.getValue(for: .accessToken(userId: "1")), "ACCESS_TOKEN_1")
-        try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "1")), "REFRESH_TOKEN_1")
-        try XCTAssertEqual(keychainRepository.getValue(for: .accessToken(userId: "2")), "ACCESS_TOKEN_2")
-        try XCTAssertEqual(keychainRepository.getValue(for: .refreshToken(userId: "2")), "REFRESH_TOKEN_2")
+        XCTAssertEqual(accessTokensByUserId["1"], "ACCESS_TOKEN_1")
+        XCTAssertEqual(refreshTokensByUserId["1"], "REFRESH_TOKEN_1")
+        XCTAssertEqual(accessTokensByUserId["2"], "ACCESS_TOKEN_2")
+        XCTAssertEqual(refreshTokensByUserId["2"], "REFRESH_TOKEN_2")
 
         for userId in ["1", "2"] {
             XCTAssertNil(appSettingsStore.lastSyncTime(userId: userId))

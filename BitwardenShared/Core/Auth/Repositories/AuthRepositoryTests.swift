@@ -18,6 +18,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var biometricsRepository: MockBiometricsRepository!
     var changeKdfService: MockChangeKdfService!
     var client: MockHTTPClient!
+    var clientCertificateService: MockClientCertificateService!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var environmentService: MockEnvironmentService!
@@ -101,6 +102,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         authService = MockAuthService()
         biometricsRepository = MockBiometricsRepository()
         changeKdfService = MockChangeKdfService()
+        clientCertificateService = MockClientCertificateService()
         configService = MockConfigService()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -125,6 +127,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             authService: authService,
             biometricsRepository: biometricsRepository,
             changeKdfService: changeKdfService,
+            clientCertificateService: clientCertificateService,
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
@@ -152,6 +155,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository = nil
         changeKdfService = nil
         client = nil
+        clientCertificateService = nil
         clientService = nil
         configService = nil
         environmentService = nil
@@ -511,6 +515,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = beeAccount
         stateService.timeoutAction = [anneAccount.profile.userId: .lock]
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
         await subject.checkSessionTimeouts(handleActiveUser: nil)
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
     }
@@ -522,6 +527,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.timeoutAction = [anneAccount.profile.userId: .logout]
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
         vaultTimeoutService.sessionTimeoutAction[anneAccount.profile.userId] = .logout
+        stateService.isAuthenticated[anneAccount.profile.userId] = true
         await subject.checkSessionTimeouts(handleActiveUser: nil)
         XCTAssertTrue(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
         XCTAssertTrue(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
@@ -539,15 +545,18 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `checkSessionTimeout()` calls `handleActiveUser` closure when the active account is timed out.
-    /// closure is nil.
     func test_checkSessionTimeout_timedOut_activeAccount_handleActiveUser() async {
         stateService.accounts = [anneAccount, beeAccount]
         stateService.activeAccount = beeAccount
         stateService.timeoutAction = [beeAccount.profile.userId: .lock]
         vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        stateService.isAuthenticated[beeAccount.profile.userId] = true
+        var handleActiveUserCalled = false
         await subject.checkSessionTimeouts { [beeAccount] userId in
             XCTAssertEqual(userId, beeAccount.profile.userId)
+            handleActiveUserCalled = true
         }
+        XCTAssertTrue(handleActiveUserCalled)
     }
 
     /// `checkSessionTimeout()` takes no action to an active account is not timed out.
@@ -622,6 +631,24 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         // Should NOT attempt to log out an already logged out account
         XCTAssertFalse(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
         XCTAssertFalse(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeouts()` does not invoke `handleActiveUser` for an active account that is
+    /// already soft-logged-out, even when the time-based timeout condition is met.
+    func test_checkSessionTimeout_timedOut_alreadyLoggedOut_activeAccount_skipsTimeout() async {
+        stateService.accounts = [beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .logout]
+        // Simulate Immediate timeout condition (time elapsed >= 0 seconds).
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        // Account is already soft-logged-out (no access token in keychain).
+        stateService.isAuthenticated[beeAccount.profile.userId] = false
+
+        await subject.checkSessionTimeouts { _ in
+            XCTFail("handleActiveUser must not be called for an already-logged-out account")
+        }
+
+        XCTAssertFalse(stateService.accountsLoggedOut.contains(beeAccount.profile.userId))
     }
 
     /// `checkSessionTimeout()` doesn't log out an inactive account that is unlocked.
@@ -993,7 +1020,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getProfilesState()` can return locked accounts correctly on timeout `.never`.
-    func test_getProfilesState_lockedOnNeverLock() async {
+    func test_getProfilesState_lockedOnNeverLock() async { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount,
             beeAccount,
@@ -1489,6 +1516,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
     }
@@ -1572,7 +1600,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `setMasterPassword()` sets the user's master password, saves their encryption keys and
     /// unlocks the vault.
-    func test_setMasterPassword_TDE() async throws {
+    func test_setMasterPassword_TDE() async throws { // swiftlint:disable:this function_body_length
         var account = Account.fixtureWithTDE()
         account.profile.userDecryptionOptions?.masterPasswordUnlock = .fixture()
         client.result = .httpSuccess(testData: .emptyResponse)
@@ -1631,6 +1659,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
     }
@@ -1667,7 +1696,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.vaultTimeout = [
             active.profile.userId: .never,
         ]
-        keychainService.deleteResult = .failure(BitwardenTestError.example)
+        keychainService.deleteUserAuthKeyThrowableError = BitwardenTestError.example
         try await subject.setVaultTimeout(value: .fiveMinutes)
         XCTAssertEqual(vaultTimeoutService.vaultTimeout["1"], .fiveMinutes)
     }
@@ -1679,17 +1708,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.vaultTimeout = [
             active.profile.userId: .never,
         ]
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: KeychainItem.neverLock(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
-        keychainService.deleteResult = .success(())
         try await subject.setVaultTimeout(value: .fiveMinutes)
-        XCTAssertTrue(keychainService.mockStorage.isEmpty)
+        XCTAssertTrue(keychainService.deleteUserAuthKeyCalled)
     }
 
     /// `setVaultTimeout` correctly configures the user's timeout value.
@@ -1699,28 +1719,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.getUserEncryptionKeyResult = .success("pasta")
         try await subject.setVaultTimeout(value: .never)
         XCTAssertEqual(vaultTimeoutService.vaultTimeout[active.profile.userId], .never)
+        XCTAssertEqual(keychainService.setUserAuthKeyReceivedArguments?.value, "pasta")
         XCTAssertEqual(
-            keychainService.mockStorage,
-            [
-                keychainService.formattedKey(
-                    for: KeychainItem.neverLock(userId: active.profile.userId),
-                ):
-                    "pasta",
-            ],
+            keychainService.setUserAuthKeyReceivedArguments?.item,
+            BitwardenKeychainItem.neverLock(userId: active.profile.userId),
         )
     }
 
     /// `unlockVaultWithNeverlockKey` attempts to unlock the vault using an auth key from the keychain.
     func test_unlockVaultWithNeverlockKey_error() async throws {
         let active = Account.fixture()
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: KeychainItem.neverLock(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getUserAuthKeyValueReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -1739,14 +1748,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithNeverlockKey_success() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: KeychainItem.neverLock(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getUserAuthKeyValueReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -1767,14 +1769,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithDeviceKey_success() async throws {
         let active = Account.fixtureWithTDE()
         stateService.activeAccount = active
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: KeychainItem.deviceKey(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getDeviceKeyReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -1795,14 +1790,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_unlockVaultWithDeviceKey_error() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        keychainService.mockStorage = [
-            keychainService.formattedKey(
-                for: KeychainItem.deviceKey(
-                    userId: active.profile.userId,
-                ),
-            ):
-                "pasta",
-        ]
+        keychainService.getDeviceKeyReturnValue = "pasta"
         stateService.accountEncryptionKeys = [
             active.profile.userId: .init(
                 accountKeys: .fixture(),
@@ -2122,6 +2110,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2293,6 +2282,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     securityState: "SECURITY_STATE",
                 ),
                 method: .decryptedKey(decryptedUserKey: "DECRYPTED_USER_KEY"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2338,6 +2328,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v1(privateKey: "private"),
                 method: .keyConnector(masterKey: "key", userKey: "user"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(keyConnectorService.convertNewUserToKeyConnectorCalled)
@@ -2390,6 +2381,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: "user@bitwarden.com",
                 accountCryptographicState: .v1(privateKey: "private"),
                 method: .keyConnector(masterKey: "key", userKey: "user"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
@@ -2498,6 +2490,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2558,6 +2551,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2613,6 +2607,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2673,7 +2668,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
         XCTAssertEqual(setArguments?.userId, "1")
         XCTAssertNil(setArguments?.authKey)
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
+        XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
+        XCTAssertEqual(clientCertificateService.removeCertificateUserIdReceivedUserId, account.profile.userId)
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
@@ -2698,7 +2695,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let setArguments = biometricsRepository.setBiometricUnlockKeyReceivedArguments
         XCTAssertEqual(setArguments?.userId, "1")
         XCTAssertNil(setArguments?.authKey)
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertEqual(keychainService.deleteItemsCallsCount, 1)
+        XCTAssertEqual(keychainService.deleteItemsReceivedUserId, "1")
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
@@ -2722,7 +2720,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([], stateService.accountsLoggedOut)
         XCTAssertFalse(biometricsRepository.setBiometricUnlockKeyCalled)
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, [])
+        XCTAssertEqual(keychainService.deleteItemsCallsCount, 0)
         XCTAssertFalse(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
@@ -2769,6 +2767,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY"),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -2808,6 +2807,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .userKey(protectedUserKey: "KEY"),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
@@ -2860,6 +2860,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2928,6 +2929,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -2996,6 +2998,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                         salt: "SALT",
                     ),
                 ),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -3047,6 +3050,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     securityState: "SECURITY_STATE",
                 ),
                 method: .pin(pin: "123", pinProtectedUserKey: "pinProtectedUserKey"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
@@ -3091,6 +3095,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     securityState: "SECURITY_STATE",
                 ),
                 method: .pinEnvelope(pin: "123", pinProtectedUserKeyEnvelope: "pinProtectedUserKeyEnvelope"),
+                upgradeToken: nil,
             ),
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))

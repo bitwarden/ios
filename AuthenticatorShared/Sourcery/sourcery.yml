@@ -1,5 +1,8 @@
 sources:
   - ..
+  - ../../Networking/Sources/Networking
+  # SDK SPM checkout — machine-specific DerivedData path injected by Scripts/generate-mocks.sh
+  - ${BITWARDEN_SDK_PATH}
 
 templates:
   - ../../Sourcery/Templates/AutoMockable.stencil

@@ -12,7 +12,7 @@ import XCTest
 class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<SettingsState, SettingsAction, Void>!
+    var processor: MockProcessor<SettingsState, SettingsAction, SettingsEffect>!
     var subject: SettingsView!
 
     // MARK: Setup & Teardown
@@ -55,6 +55,16 @@ class SettingsViewTests: BitwardenTestCase {
             importLoginsSetupProgress: .setUpLater,
             vaultUnlockSetupProgress: .setUpLater,
         )
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],
+        )
+    }
+
+    /// Tests the view renders correctly with the plan row visible.
+    @MainActor
+    func disabletest_snapshot_viewRender_withPlanRow() {
+        processor.state.showPlanRow = true
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5],

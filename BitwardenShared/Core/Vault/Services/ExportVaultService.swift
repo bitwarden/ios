@@ -117,9 +117,6 @@ class DefaultExportVaultService: ExportVaultService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
-    /// The service to get server-specified configuration.
-    private let configService: ConfigService
-
     /// The error reporter used by this service.
     private let errorReporter: ErrorReporter
 
@@ -145,7 +142,6 @@ class DefaultExportVaultService: ExportVaultService {
     /// - Parameters:
     ///   - cipherService: The service for managing ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
-    ///   - configService: The service to get server-specified configuration.
     ///   - errorReporter: The service for handling errors.
     ///   - folderService: The service for managing folders.
     ///   - policyService: The service used by the application to manage the policy.
@@ -155,7 +151,6 @@ class DefaultExportVaultService: ExportVaultService {
     init(
         cipherService: CipherService,
         clientService: ClientService,
-        configService: ConfigService,
         errorReporter: ErrorReporter,
         folderService: FolderService,
         policyService: PolicyService,
@@ -164,7 +159,6 @@ class DefaultExportVaultService: ExportVaultService {
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
-        self.configService = configService
         self.errorReporter = errorReporter
         self.folderService = folderService
         self.stateService = stateService
@@ -216,8 +210,6 @@ class DefaultExportVaultService: ExportVaultService {
 
     func fetchAllCiphersToExport(includeArchivedItems: Bool) async throws -> [Cipher] {
         let restrictedTypes = await policyService.getRestrictedItemCipherTypes()
-        let archiveItemsFeatureFlagEnabled: Bool = await configService.getFeatureFlag(.archiveVaultItems)
-
         return try await cipherService.fetchAllCiphers().filter { cipher in
             // Always exclude deleted items
             if cipher.deletedDate != nil {
@@ -225,7 +217,7 @@ class DefaultExportVaultService: ExportVaultService {
             }
 
             // Handle archived items based on includeArchivedItems parameter
-            if cipher.archivedDate != nil, !includeArchivedItems, archiveItemsFeatureFlagEnabled {
+            if cipher.archivedDate != nil, !includeArchivedItems {
                 return false
             }
 

@@ -85,6 +85,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "bwauth",
                     cookieDomain: "example.com",
+                    vaultUrl: "https://example.com",
                     cookieValue: nil,
                 ),
             ),
@@ -95,6 +96,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
                     idpLoginUrl: "https://idp.example.com",
                     cookieName: "bwauth",
                     cookieDomain: "example.com",
+                    vaultUrl: "https://example.com",
                     cookieValue: [AcquiredCookie(name: "session", value: "token123")],
                 ),
             ),
@@ -113,6 +115,7 @@ class SdkServerCommunicationConfigRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(savedSsoConfig.cookieDomain, "example.com")
         XCTAssertEqual(savedSsoConfig.cookieValue?.first?.name, "session")
         XCTAssertEqual(savedSsoConfig.cookieValue?.first?.value, "token123")
+        XCTAssertEqual(savedSsoConfig.vaultUrl, "https://example.com")
     }
 
     /// `save(hostname:config:)` throws when `getServerCommunicationConfig` throws.

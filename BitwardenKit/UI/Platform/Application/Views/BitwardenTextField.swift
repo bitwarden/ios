@@ -157,6 +157,7 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
             ZStack {
                 let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
+                let isPasswordMasked = !isPasswordVisible && isPassword
                 TextField("", text: $text)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
@@ -164,20 +165,21 @@ public struct BitwardenTextField<FooterContent: View, TrailingContent: View>: Vi
                     // calls should be placed before setting an id
                     // or hiding the field to avoid breaking accessibilityIds used on our mobile automation test suite
                     .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
-                    .hidden(!isPasswordVisible && isPassword)
+                    .hidden(isPasswordMasked)
                     .id(title)
                     .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                         textField.smartQuotesType = isPassword ? .no : .default
                     }
                     .accessibilityLabel(title ?? "")
+                    .accessibilityHidden(isPasswordMasked)
                     .foregroundStyle(
                         isEnabled && !isTextFieldDisabled
                             ? SharedAsset.Colors.textPrimary.swiftUIColor
                             : SharedAsset.Colors.textDisabled.swiftUIColor,
                     )
                     .disabled(isTextFieldDisabled)
-                if isPassword, !isPasswordVisible {
+                if isPasswordMasked {
                     SecureField("", text: $text)
                         .focused($isSecureFieldFocused)
                         .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")

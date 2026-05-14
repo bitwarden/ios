@@ -2,6 +2,15 @@ import BitwardenKit
 import BitwardenResources
 import Foundation
 
+// MARK: - SyncWithBrowserProcessorError
+
+/// Errors thrown from a `SyncWithBrowserProcessor`.
+///
+enum SyncWithBrowserProcessorError: Error {
+    /// The vault URL from the SSO cookie config could not be parsed into a valid URL.
+    case invalidVaultURL
+}
+
 // MARK: - SyncWithBrowserProcessorDelegate
 
 /// A delegate for the `SyncWithBrowserProcessor` to communicate events back to the coordinator.
@@ -33,8 +42,7 @@ final class SyncWithBrowserProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasEnvironmentService
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
         & HasServerCommunicationConfigAPIService
 
     // MARK: Private Properties
@@ -74,12 +82,15 @@ final class SyncWithBrowserProcessor: StateProcessor<
 
     override func perform(_ effect: SyncWithBrowserEffect) async {
         switch effect {
-        case .appeared:
-            loadEnvironmentUrl()
         case .launchBrowserTapped:
-            let callbackURL = await delegate?.performWebAuthSession(
-                url: services.environmentService.proxyCookieRedirectConnectorURL,
-            )
+            guard let baseUrl = URL(string: state.vaultUrl), baseUrl.scheme != nil else {
+                let error = SyncWithBrowserProcessorError.invalidVaultURL
+                services.errorReporter.log(error: error)
+                await coordinator.showErrorAlert(error: error)
+                return
+            }
+            let url = baseUrl.appendingPathComponent(Constants.proxyCookieRedirectConnectorPath)
+            let callbackURL = await delegate?.performWebAuthSession(url: url)
 
             // Dismiss the modal first; deliver cookies via the DismissAction so the origin
             // view/processor receives the result after the sheet is gone.
@@ -111,12 +122,5 @@ final class SyncWithBrowserProcessor: StateProcessor<
                 }
             })
         }
-    }
-
-    // MARK: Private methods
-
-    /// Loads the environment URL.
-    func loadEnvironmentUrl() {
-        state.environmentUrl = services.environmentService.webVaultURL.absoluteString
     }
 }

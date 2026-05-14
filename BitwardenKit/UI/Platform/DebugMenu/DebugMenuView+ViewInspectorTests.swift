@@ -43,12 +43,28 @@ class DebugMenuViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// Test that the clear SSO Cookies button sends the correct effect.
+    @MainActor
+    func test_clearSSOCookies_tapped() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.clearSsoCookies)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .clearSsoCookies)
+    }
+
     /// Tapping the close button dispatches the `.dismissTapped` action.
     @MainActor
     func test_closeButton_tap() throws {
         let button = try subject.inspect().findCloseToolbarButton()
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
+    }
+
+    /// Tapping the copy user ID button dispatches the `.copyUserID` action.
+    @MainActor
+    func test_copyUserID_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.copyUserID)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .copyUserID)
     }
 
     /// Tests that the toggle fires off the correct effect.

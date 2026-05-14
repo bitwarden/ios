@@ -201,6 +201,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     func test_perform_continueTapped_iOS18_cantRequest() async {
         guard #available(iOS 18, *) else { return }
 
+        // swiftlint:disable:next line_length
         asSettingsMediator.requestToTurnOnCredentialProviderExtensionThrowableError = ASSettingsMediatorError.cantRequest
 
         await subject.perform(.continueTapped)
