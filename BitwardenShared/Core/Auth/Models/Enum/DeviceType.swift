@@ -7,31 +7,34 @@ import Foundation
 /// The category of a device type.
 ///
 enum DeviceTypeCategory: String, Sendable {
-    case mobile
-    case `extension`
-    case webApp
-    case desktop
     case cli
+    case desktop
+    case `extension`
+    case mobile
     case sdk
     case server
+    case unknown
+    case webApp
 
     /// The localized display name for the category.
     var displayName: String {
         switch self {
-        case .mobile:
-            Localizations.mobile
-        case .extension:
-            Localizations.browserExtension
-        case .webApp:
-            Localizations.webVault
-        case .desktop:
-            Localizations.desktop
         case .cli:
             Localizations.cli
+        case .desktop:
+            Localizations.desktop
+        case .extension:
+            Localizations.browserExtension
+        case .mobile:
+            Localizations.mobile
         case .sdk:
             Localizations.sdk
         case .server:
             Localizations.server
+        case .unknown:
+            Localizations.unknown
+        case .webApp:
+            Localizations.webVault
         }
     }
 }
@@ -91,7 +94,7 @@ extension DeviceType {
         case Self.server:
             .server
         default:
-            .mobile
+            .unknown
         }
     }
 
