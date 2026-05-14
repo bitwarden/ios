@@ -596,16 +596,21 @@ extension VaultListProcessor {
         )
     }
 
+    /// Handles state updates after a premium upgrade is confirmed.
+    ///
+    private func handlePremiumUpgradeConfirmed() async {
+        await refreshVault(syncWithPeriodicCheck: false)
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+        state.shouldShowPremiumUpgradeActionCard = !state.hasPremium
+        state.shouldShowUpgradedToPremiumActionCard = state.hasPremium
+    }
+
     /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
         await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
-            guard let self else { return }
-            await refreshVault(syncWithPeriodicCheck: false)
-            state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
-            state.shouldShowPremiumUpgradeActionCard = false
-            state.shouldShowUpgradedToPremiumActionCard = true
+            await self?.handlePremiumUpgradeConfirmed()
         })
     }
 
@@ -700,11 +705,7 @@ extension VaultListProcessor {
     /// Subscribes to premium checkout status and navigates to the upgrade screen.
     private func upgradeToPremium() {
         premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
-            guard let self else { return }
-            await refreshVault(syncWithPeriodicCheck: false)
-            state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
-            state.shouldShowPremiumUpgradeActionCard = !state.hasPremium
-            state.shouldShowUpgradedToPremiumActionCard = state.hasPremium
+            await self?.handlePremiumUpgradeConfirmed()
         })
     }
 }
