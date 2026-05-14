@@ -15,7 +15,6 @@ struct VaultItemActionHelperTests {
     // MARK: Properties
 
     let coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>
-    let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let vaultRepository: MockVaultRepository
     let subject: VaultItemActionHelper
@@ -24,13 +23,11 @@ struct VaultItemActionHelperTests {
 
     init() {
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
-        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
         subject = DefaultVaultItemActionHelper(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                environmentService: environmentService,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository,
             ),
@@ -39,22 +36,19 @@ struct VaultItemActionHelperTests {
 
     // MARK: Tests
 
-    /// `archive(cipher:handleOpenURL:completionHandler:)` shows the archive unavailable alert
-    /// when the user does not have premium.
+    /// `archive(cipher:handleNavigateToPremiumUpgrade:completionHandler:)` shows the archive
+    /// unavailable alert when the user does not have premium.
     @Test
     func archive_noPremium() async throws {
-        var openedURL: URL?
+        var navigatedToPremiumUpgrade = false
         var completionCalled = false
         let cipher = CipherView.loginFixture(id: "123")
 
         vaultRepository.doesActiveAccountHavePremiumResult = false
-        environmentService.upgradeToPremiumURL = URL(
-            string: "https://example.com/someURLToUpgradeToPremium",
-        )!
 
         await subject.archive(
             cipher: cipher,
-            handleOpenURL: { openedURL = $0 },
+            handleNavigateToPremiumUpgrade: { navigatedToPremiumUpgrade = true },
             completionHandler: { completionCalled = true },
         )
 
@@ -65,11 +59,11 @@ struct VaultItemActionHelperTests {
         #expect(!completionCalled)
 
         try await alert.tapAction(title: Localizations.upgradeToPremium)
-        #expect(openedURL == URL(string: "https://example.com/someURLToUpgradeToPremium"))
+        #expect(navigatedToPremiumUpgrade)
     }
 
-    /// `archive(cipher:handleOpenURL:completionHandler:)` shows the confirmation alert and
-    /// archives the cipher when the user has premium and confirms.
+    /// `archive(cipher:handleNavigateToPremiumUpgrade:completionHandler:)` shows the confirmation
+    /// alert and archives the cipher when the user has premium and confirms.
     @Test
     func archive_success() async throws {
         var completionCalled = false
@@ -79,7 +73,7 @@ struct VaultItemActionHelperTests {
 
         await subject.archive(
             cipher: cipher,
-            handleOpenURL: { _ in },
+            handleNavigateToPremiumUpgrade: {},
             completionHandler: { completionCalled = true },
         )
 
@@ -97,8 +91,8 @@ struct VaultItemActionHelperTests {
         #expect(errorReporter.errors.isEmpty)
     }
 
-    /// `archive(cipher:handleOpenURL:completionHandler:)` does not archive when the user cancels
-    /// the confirmation alert.
+    /// `archive(cipher:handleNavigateToPremiumUpgrade:completionHandler:)` does not archive when
+    /// the user cancels the confirmation alert.
     @Test
     func archive_confirmationCancel() async throws {
         var completionCalled = false
@@ -108,7 +102,7 @@ struct VaultItemActionHelperTests {
 
         await subject.archive(
             cipher: cipher,
-            handleOpenURL: { _ in },
+            handleNavigateToPremiumUpgrade: {},
             completionHandler: { completionCalled = true },
         )
 
@@ -121,7 +115,8 @@ struct VaultItemActionHelperTests {
         #expect(!completionCalled)
     }
 
-    /// `archive(cipher:handleOpenURL:completionHandler:)` shows an error alert when archiving fails.
+    /// `archive(cipher:handleNavigateToPremiumUpgrade:completionHandler:)` shows an error alert
+    /// when archiving fails.
     @Test
     func archive_error() async throws {
         var completionCalled = false
@@ -132,7 +127,7 @@ struct VaultItemActionHelperTests {
 
         await subject.archive(
             cipher: cipher,
-            handleOpenURL: { _ in },
+            handleNavigateToPremiumUpgrade: {},
             completionHandler: { completionCalled = true },
         )
 

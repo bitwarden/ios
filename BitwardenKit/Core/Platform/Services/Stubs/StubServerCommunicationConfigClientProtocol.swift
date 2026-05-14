@@ -22,7 +22,7 @@ public final class StubServerCommunicationConfigClientProtocol: ServerCommunicat
         false
     }
 
-    public func setCommunicationType(hostname: String, config: BitwardenSdk.ServerCommunicationConfig) async throws {
+    public func setCommunicationType(hostname: String, request: BitwardenSdk.SetCommunicationTypeRequest) async throws {
         // no-op
     }
 }

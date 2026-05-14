@@ -12,6 +12,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     // MARK: Types
 
     typealias Module = AddEditFolderModule
+        & BillingModule
         & FileSelectionModule
         & GeneratorModule
         & NavigatorBuilderModule
@@ -23,6 +24,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & HasAPIService
         & HasAppContextHelper
         & HasAuthRepository
+        & HasBillingRepository
+        & HasBillingService
         & HasCardTextParser
         & HasConfigService
         & HasEnvironmentService
@@ -138,6 +141,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             showMoveToOrganization(cipher: cipher, delegate: context as? MoveToOrganizationProcessorDelegate)
         case let .passwordHistory(passwordHistory):
             showPasswordHistory(passwordHistory)
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .saveFile(temporaryUrl):
             showSaveFile(temporaryUrl)
         case .setupTotpManual:
@@ -445,6 +450,15 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgrade)
         stackNavigator?.present(navigationController)
     }
 

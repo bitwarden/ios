@@ -125,4 +125,106 @@ class CardComponentBrandTests: BitwardenTestCase {
     func test_detect_other_emptyString() {
         XCTAssertEqual(CardComponent.Brand.detect(from: ""), .other)
     }
+
+    // MARK: Tests – formattingBlocks(for:)
+
+    /// `formattingBlocks(for:)` returns `[4, 6, 5]` for American Express.
+    func test_formattingBlocks_americanExpress() {
+        XCTAssertEqual(CardComponent.Brand.americanExpress.formattingBlocks(for: 15), [4, 6, 5])
+    }
+
+    /// `formattingBlocks(for:)` returns `[4, 6, 4]` for Diners Club.
+    func test_formattingBlocks_dinersClub() {
+        XCTAssertEqual(CardComponent.Brand.dinersClub.formattingBlocks(for: 14), [4, 6, 4])
+    }
+
+    /// `formattingBlocks(for:)` returns the correct blocks for each Maestro card length.
+    func test_formattingBlocks_maestro() {
+        XCTAssertEqual(CardComponent.Brand.maestro.formattingBlocks(for: 13), [4, 4, 5])
+        XCTAssertEqual(CardComponent.Brand.maestro.formattingBlocks(for: 15), [4, 6, 5])
+        XCTAssertEqual(CardComponent.Brand.maestro.formattingBlocks(for: 16), [4, 4, 4, 4])
+        XCTAssertEqual(CardComponent.Brand.maestro.formattingBlocks(for: 19), [4, 4, 4, 4, 3])
+    }
+
+    /// `formattingBlocks(for:)` returns the correct blocks for each UnionPay card length.
+    func test_formattingBlocks_unionPay() {
+        XCTAssertEqual(CardComponent.Brand.unionPay.formattingBlocks(for: 16), [4, 4, 4, 4])
+        XCTAssertEqual(CardComponent.Brand.unionPay.formattingBlocks(for: 19), [6, 13])
+    }
+
+    /// `formattingBlocks(for:)` returns `[4, 4, 4, 4]` for all standard 16-digit brands.
+    func test_formattingBlocks_standard16DigitBrands() {
+        for brand: CardComponent.Brand in [.visa, .mastercard, .discover, .jcb, .ruPay, .other] {
+            XCTAssertEqual(brand.formattingBlocks(for: 16), [4, 4, 4, 4], "Expected [4,4,4,4] for \(brand)")
+        }
+    }
+
+    // MARK: Tests – formattedCardNumber(_:)
+
+    /// `formattedCardNumber(_:)` formats a full Visa number with 4-4-4-4 grouping.
+    func test_formattedCardNumber_visa_full() {
+        XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber("4111111111111111"), "4111 1111 1111 1111")
+    }
+
+    /// `formattedCardNumber(_:)` formats a partial Visa number greedily.
+    func test_formattedCardNumber_visa_partial() {
+        XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber("411111"), "4111 11")
+        XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber("4"), "4")
+        XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber(""), "")
+    }
+
+    /// `formattedCardNumber(_:)` formats a full Amex number with 4-6-5 grouping.
+    func test_formattedCardNumber_amex_full() {
+        XCTAssertEqual(CardComponent.Brand.americanExpress.formattedCardNumber("378282246310005"), "3782 822463 10005")
+    }
+
+    /// `formattedCardNumber(_:)` formats a partial Amex number greedily.
+    func test_formattedCardNumber_amex_partial() {
+        XCTAssertEqual(CardComponent.Brand.americanExpress.formattedCardNumber("37828"), "3782 8")
+        XCTAssertEqual(CardComponent.Brand.americanExpress.formattedCardNumber("3782822"), "3782 822")
+    }
+
+    /// `formattedCardNumber(_:)` formats a full Diners Club number with 4-6-4 grouping.
+    func test_formattedCardNumber_dinersClub_full() {
+        XCTAssertEqual(CardComponent.Brand.dinersClub.formattedCardNumber("36000000000000"), "3600 000000 0000")
+    }
+
+    /// `formattedCardNumber(_:)` formats a Maestro 13-digit number with 4-4-5 grouping.
+    func test_formattedCardNumber_maestro_13digits() {
+        XCTAssertEqual(CardComponent.Brand.maestro.formattedCardNumber("6304000000000"), "6304 0000 00000")
+    }
+
+    /// `formattedCardNumber(_:)` formats a Maestro 15-digit number with 4-6-5 grouping.
+    func test_formattedCardNumber_maestro_15digits() {
+        XCTAssertEqual(CardComponent.Brand.maestro.formattedCardNumber("630400000000000"), "6304 000000 00000")
+    }
+
+    /// `formattedCardNumber(_:)` formats a Maestro 16-digit number with 4-4-4-4 grouping.
+    func test_formattedCardNumber_maestro_16digits() {
+        XCTAssertEqual(CardComponent.Brand.maestro.formattedCardNumber("6304000000000000"), "6304 0000 0000 0000")
+    }
+
+    /// `formattedCardNumber(_:)` formats a Maestro 19-digit number with 4-4-4-4-3 grouping.
+    func test_formattedCardNumber_maestro_19digits() {
+        XCTAssertEqual(
+            CardComponent.Brand.maestro.formattedCardNumber("6304000000000000000"),
+            "6304 0000 0000 0000 000",
+        )
+    }
+
+    /// `formattedCardNumber(_:)` formats a UnionPay 16-digit number with 4-4-4-4 grouping.
+    func test_formattedCardNumber_unionPay_16digits() {
+        XCTAssertEqual(CardComponent.Brand.unionPay.formattedCardNumber("6200000000000000"), "6200 0000 0000 0000")
+    }
+
+    /// `formattedCardNumber(_:)` formats a UnionPay 19-digit number with 6-13 grouping.
+    func test_formattedCardNumber_unionPay_19digits() {
+        XCTAssertEqual(CardComponent.Brand.unionPay.formattedCardNumber("6200000000000000000"), "620000 0000000000000")
+    }
+
+    /// `formattedCardNumber(_:)` returns the input unchanged when it contains non-digit characters.
+    func test_formattedCardNumber_nonDigitInput_returnsUnchanged() {
+        XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber("4111-1111-1111-1111"), "4111-1111-1111-1111")
+        XCTAssertEqual(CardComponent.Brand.visa.formattedCardNumber("abcd"), "abcd")
+    }
 }

@@ -18,6 +18,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     var authRepository: MockAuthRepository!
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var billingRepository: MockBillingRepository!
+    var billingService: MockBillingService!
     var cameraService: MockCameraService!
     var cardTextParser: MockCardTextParser!
     var client: MockHTTPClient!
@@ -30,6 +32,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var reviewPromptService: MockReviewPromptService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var premiumUpgradeHelper: MockPremiumUpgradeHelper!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var totpService: MockTOTPService!
@@ -46,6 +49,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         authRepository = MockAuthRepository()
         appExtensionDelegate = MockAppExtensionDelegate()
+        billingRepository = MockBillingRepository()
+        billingService = MockBillingService()
         cameraService = MockCameraService()
         cardTextParser = MockCardTextParser()
         client = MockHTTPClient()
@@ -61,6 +66,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         totpService = MockTOTPService()
+        premiumUpgradeHelper = MockPremiumUpgradeHelper()
         vaultItemActionHelper = MockVaultItemActionHelper()
         vaultRepository = MockVaultRepository()
         subject = AddEditItemProcessor(
@@ -69,6 +75,8 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                billingRepository: billingRepository,
+                billingService: billingService,
                 cameraService: cameraService,
                 cardTextParser: cardTextParser,
                 configService: configService,
@@ -96,12 +104,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ),
             vaultItemActionHelper: vaultItemActionHelper,
         )
+        subject.premiumUpgradeHelper = premiumUpgradeHelper
     }
 
     override func tearDown() {
         super.tearDown()
         authRepository = nil
         appExtensionDelegate = nil
+        billingRepository = nil
+        billingService = nil
         cameraService = nil
         cardTextParser = nil
         client = nil
@@ -739,9 +750,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(vaultItemActionHelper.archiveReceivedArguments?.cipher.id, "123")
     }
 
-    /// `perform(_:)` with `.archivedPressed` handles URL opening and completion.
+    /// `perform(_:)` with `.archivedPressed` delegates to the premium upgrade helper.
     @MainActor
-    func test_perform_archivedPressed_withURLAndCompletion() async {
+    func test_perform_archivedPressed_navigateToPremiumUpgrade() async {
         subject.state = CipherItemState(
             existing: .loginFixture(id: "123"),
             hasPremium: false,
@@ -750,12 +761,24 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.archivedPressed)
 
         XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
-        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL)
-        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.handleNavigateToPremiumUpgrade)
 
-        let testURL = URL(string: "https://vault.bitwarden.com")!
-        vaultItemActionHelper.archiveReceivedArguments?.handleOpenURL(testURL)
-        XCTAssertEqual(subject.state.url, testURL)
+        await vaultItemActionHelper.archiveReceivedArguments?.handleNavigateToPremiumUpgrade()
+        XCTAssertTrue(premiumUpgradeHelper.navigateToPremiumUpgradeCalled)
+    }
+
+    /// `perform(_:)` with `.archivedPressed` handles completion.
+    @MainActor
+    func test_perform_archivedPressed_withCompletion() async {
+        subject.state = CipherItemState(
+            existing: .loginFixture(id: "123"),
+            hasPremium: false,
+        )!
+
+        await subject.perform(.archivedPressed)
+
+        XCTAssertEqual(vaultItemActionHelper.archiveCalled, true)
+        XCTAssertNotNil(vaultItemActionHelper.archiveReceivedArguments?.completionHandler)
 
         vaultItemActionHelper.archiveReceivedArguments?.completionHandler()
 
@@ -1972,6 +1995,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.cardItemState.cardNumber = "123"
         subject.receive(.cardFieldChanged(.cardNumberChanged("12345")))
         XCTAssertEqual(subject.state.cardItemState.cardNumber, "12345")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` strips spaces from the formatted
+    /// display value before storing, keeping `cardNumber` as digits only.
+    @MainActor
+    func test_receive_cardFieldChanged_cardNumberChanged_stripsSpaces() {
+        subject.receive(.cardFieldChanged(.cardNumberChanged("4111 1111 1111 1111")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "4111111111111111")
+    }
+
+    /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` strips spaces from a partial
+    /// formatted number correctly.
+    @MainActor
+    func test_receive_cardFieldChanged_cardNumberChanged_stripsSpacesPartial() {
+        subject.receive(.cardFieldChanged(.cardNumberChanged("4111 11")))
+        XCTAssertEqual(subject.state.cardItemState.cardNumber, "411111")
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardSecurityCodeChanged)` with a value updates the state correctly.
