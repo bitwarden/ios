@@ -11,24 +11,24 @@ public struct DeviceResponse: JSONResponse, Equatable, Sendable, Identifiable, H
 
     // MARK: Properties
 
+    /// The date the device was first registered.
+    let creationDate: Date
+
     /// The unique identifier of the device.
     public let id: String
 
-    /// The name of the device.
-    let name: String?
-
     /// The unique identifier for this device instance.
     let identifier: String
-
-    /// The numeric type of the device (maps to DeviceType).
-    let type: Int
-
-    /// The date the device was first registered.
-    let creationDate: Date
 
     /// Whether the device is trusted.
     let isTrusted: Bool
 
     /// The date of the last activity on this device.
     let lastActivityDate: Date?
+
+    /// The name of the device.
+    let name: String?
+
+    /// The numeric type of the device (maps to DeviceType).
+    let type: Int
 }

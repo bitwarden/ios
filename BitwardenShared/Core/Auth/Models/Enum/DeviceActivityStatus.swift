@@ -7,20 +7,20 @@ import Foundation
 /// An enumeration representing the activity status of a device based on its last activity date.
 ///
 enum DeviceActivityStatus: Equatable, Sendable {
-    /// The device was active today.
-    case today
-
-    /// The device was active this week (but not today).
-    case thisWeek
-
     /// The device was active last week.
     case lastWeek
+
+    /// The device was active over 30 days ago.
+    case overThirtyDaysAgo
 
     /// The device was active this month (but not this or last week).
     case thisMonth
 
-    /// The device was active over 30 days ago.
-    case overThirtyDaysAgo
+    /// The device was active this week (but not today).
+    case thisWeek
+
+    /// The device was active today.
+    case today
 
     /// The device's activity status is unknown.
     case unknown
@@ -48,7 +48,9 @@ enum DeviceActivityStatus: Equatable, Sendable {
         }
 
         switch daysDifference {
-        case ...0:
+        case ..<0:
+            self = .unknown
+        case 0:
             self = .today
         case 1 ... 7:
             self = .thisWeek
@@ -66,16 +68,16 @@ enum DeviceActivityStatus: Equatable, Sendable {
     /// The localized display string for the activity status.
     var localizedString: String {
         switch self {
-        case .today:
-            Localizations.today
-        case .thisWeek:
-            Localizations.thisWeek
         case .lastWeek:
             Localizations.lastWeek
-        case .thisMonth:
-            Localizations.thisMonth
         case .overThirtyDaysAgo:
             Localizations.overThirtyDaysAgo
+        case .thisMonth:
+            Localizations.thisMonth
+        case .thisWeek:
+            Localizations.thisWeek
+        case .today:
+            Localizations.today
         case .unknown:
             Localizations.unknown
         }
