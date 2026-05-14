@@ -703,8 +703,8 @@ extension VaultListProcessor {
             guard let self else { return }
             await refreshVault(syncWithPeriodicCheck: false)
             state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
-            state.shouldShowPremiumUpgradeActionCard = false
-            state.shouldShowUpgradedToPremiumActionCard = true
+            state.shouldShowPremiumUpgradeActionCard = !state.hasPremium
+            state.shouldShowUpgradedToPremiumActionCard = state.hasPremium
         })
     }
 }
