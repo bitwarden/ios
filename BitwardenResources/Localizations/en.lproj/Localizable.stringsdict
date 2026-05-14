@@ -19,6 +19,23 @@
 			<string>Bitwarden could not decrypt %d vault items.</string>
 		</dict>
 	</dict>
+	<!-- Number of pending requests for device management. -->
+	<key>PendingRequests</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@PendingRequests@</string>
+		<key>PendingRequests</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d Pending request</string>
+			<key>other</key>
+			<string>%d Pending requests</string>
+		</dict>
+	</dict>
 	<!-- A message indicating the minimum length of a master password in characters. -->
 	<key>MasterPasswordMustBeAtLeastXCharactersLong</key>
 	<dict>
