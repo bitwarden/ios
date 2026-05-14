@@ -310,6 +310,14 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `copyrightString` returns the app's formatted copyright string.
+    func test_copyrightString() {
+        XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015–2025")
+
+        timeProvider.timeConfig = .mockTime(Date(year: 2020, month: 1, day: 2))
+        XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015–2020")
+    }
+
     /// `isBetaBuild` is `false` for production bundle identifiers.
     func test_isBetaBuild_false() {
         bundle.bundleIdentifier = "com.8bit.bitwarden"
@@ -326,14 +334,6 @@ class AppInfoServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_isBetaBuild_true() {
         bundle.bundleIdentifier = "com.8bit.bitwarden.beta"
         XCTAssertTrue(subject.isBetaBuild)
-    }
-
-    /// `copyrightString` returns the app's formatted copyright string.
-    func test_copyrightString() {
-        XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015–2025")
-
-        timeProvider.timeConfig = .mockTime(Date(year: 2020, month: 1, day: 2))
-        XCTAssertEqual(subject.copyrightString, "© Bitwarden Inc. 2015–2020")
     }
 
     /// `versionString` returns the app's formatted version string.
