@@ -2126,33 +2126,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
-    /// `unlockVaultWithPassword(password:)` throws `missingMasterPasswordUnlockData` when sync
-    /// does not populate `masterPasswordUnlock`.
-    func test_unlockVault_missingMasterPasswordUnlockData() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(
-            userDecryptionOptions: UserDecryptionOptions(
-                hasMasterPassword: true,
-                masterPasswordUnlock: nil,
-                keyConnectorOption: nil,
-                trustedDeviceOption: nil,
-            ),
-        ))
-        stateService.accountEncryptionKeys = [
-            "1": AccountEncryptionKeys(
-                accountKeys: .fixtureFilled(),
-                encryptedPrivateKey: "PRIVATE_KEY",
-                encryptedUserKey: "USER_KEY",
-            ),
-        ]
-        stateService.encryptedPinByUserId["1"] = "ENCRYPTED_PIN"
-
-        await assertAsyncThrows(error: AuthError.missingMasterPasswordUnlockData) {
-            try await subject.unlockVaultWithPassword(password: "password")
-        }
-
-        XCTAssertEqual(syncService.fetchSyncForceSync, true)
-    }
-
     /// `unlockVaultWithPassword(password:)` triggers a force sync when `masterPasswordUnlock` is nil.
     func test_unlockVaultWithPassword_syncTriggeredWhenMasterPasswordUnlockNil() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(
@@ -2209,9 +2182,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(syncService.fetchSyncForceSync, true)
     }
 
-    /// `unlockVaultWithPassword(password:)` logs the sync error and throws
-    /// `missingMasterPasswordUnlockData` when sync fails.
-    func test_unlockVaultWithPassword_syncError_logsAndThrowsMissingData() async throws {
+    /// `unlockVaultWithPassword(password:)` rethrows the sync error when sync fails,
+    /// so the caller can surface it to the user.
+    func test_unlockVaultWithPassword_syncError_rethrows() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(
             userDecryptionOptions: UserDecryptionOptions(
                 hasMasterPassword: true,
@@ -2222,12 +2195,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ))
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
 
-        await assertAsyncThrows(error: AuthError.missingMasterPasswordUnlockData) {
+        await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.unlockVaultWithPassword(password: "password")
         }
 
         XCTAssertTrue(syncService.didFetchSync)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.

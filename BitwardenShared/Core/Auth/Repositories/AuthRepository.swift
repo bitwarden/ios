@@ -1047,12 +1047,11 @@ extension DefaultAuthRepository: AuthRepository {
         var account = try await stateService.getActiveAccount()
 
         if account.profile.userDecryptionOptions?.masterPasswordUnlock == nil {
-            do {
-                try await syncService.fetchSync(forceSync: true)
-                account = try await stateService.getActiveAccount()
-            } catch {
-                errorReporter.log(error: error)
-            }
+            // masterPasswordUnlock can be missing if the account data was stored before the server
+            // added it. Force a sync to refresh it.
+            // TODO: PM-37535
+            try await syncService.fetchSync(forceSync: true)
+            account = try await stateService.getActiveAccount()
         }
 
         guard let masterPasswordUnlock = account.profile.userDecryptionOptions?.masterPasswordUnlock else {
