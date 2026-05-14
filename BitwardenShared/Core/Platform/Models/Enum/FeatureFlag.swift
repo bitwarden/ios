@@ -26,6 +26,9 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable forced KDF updates.
     static let forceUpdateKdfSettings = FeatureFlag(rawValue: "pm-18021-force-update-kdf-settings")
 
+    /// Feature flag for device management screen.
+    static let manageDevices = FeatureFlag(rawValue: "pm-4516-manage-devices")
+
     /// Flag to enable/disable migration from My Vault Items to My Items.
     static let migrateMyVaultToMyItems = FeatureFlag(rawValue: "pm-20558-migrate-myvault-to-myitems")
 
@@ -47,6 +50,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .deviceAuthKey,
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,
+            .manageDevices,
             .migrateMyVaultToMyItems,
             .noLogoutOnKdfChange,
             .premiumUpgradePath,
