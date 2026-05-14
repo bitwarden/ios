@@ -1,5 +1,5 @@
 {
-  "originHash" : "3d26d1dff4320a8d4334578492afd3876a3e1f07cd993cfa2aa03843457744c5",
+  "originHash" : "bde128d30b1cfe9a2a1705335aa08196602e4a15eef690d93c4edbbb654cf005",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -123,7 +123,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bitwarden/sdk-swift",
       "state" : {
-        "revision" : "02747b1758a9d59c5e5ff2903308df50b73c5a9f"
+        "revision" : "52edf0ac71d0ef0c890f5bd3d68fc72df3fa2798"
       }
     },
     {
