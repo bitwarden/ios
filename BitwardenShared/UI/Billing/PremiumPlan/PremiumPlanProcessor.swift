@@ -102,7 +102,7 @@ final class PremiumPlanProcessor: StateProcessor<
     ///
     private func loadPremiumPlan() async {
         defer { coordinator.hideLoadingOverlay() }
-        coordinator.showLoadingOverlay(title: Localizations.loading)
+        coordinator.showLoadingOverlay(title: Localizations.loadingSubscription)
 
         do {
             let plan = try await services.billingService.getPremiumPlan()

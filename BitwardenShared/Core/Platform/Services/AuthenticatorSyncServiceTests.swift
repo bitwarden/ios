@@ -3,6 +3,7 @@ import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import Combine
 import TestHelpers
 import XCTest
@@ -1020,9 +1021,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             self.keychainRepository.setAuthenticatorVaultKeyCalled
         }
 
-        authenticatorClientService.mockVault.clientCiphers.decryptResult = { _ in
-            throw BitwardenTestError.example
-        }
+        authenticatorClientService.mockVault.clientCiphers.decryptThrowableError = BitwardenTestError.example
         vaultTimeoutService.isClientLocked["1"] = true
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
             .fixture(

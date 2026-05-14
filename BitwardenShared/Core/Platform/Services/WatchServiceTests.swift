@@ -1,5 +1,6 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import Combine
 import TestHelpers
 import Testing
@@ -79,7 +80,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
     /// When a `triggerSync` message is received, the service re-syncs.
     @Test
     func handleMessage_triggerSync_syncsCalled() async throws {
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
+        clientService.mockVault.clientCiphers.decryptClosure = { _ in
             .fixture(id: "cipher-1", login: .fixture(totp: "totp-secret"))
         }
         stateService.connectToWatchByUserId["1"] = true
@@ -269,7 +270,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
     /// connect to watch enabled.
     @Test
     func syncWithWatch_validState_sendsWatchData() async throws {
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
+        clientService.mockVault.clientCiphers.decryptClosure = { _ in
             .fixture(id: "cipher-1", login: .fixture(totp: "totp-secret"))
         }
 
@@ -295,7 +296,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
     /// `syncWithWatch()` re-syncs with new data when ciphers update.
     @Test
     func syncWithWatch_ciphersUpdate_resyncs() async throws {
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
+        clientService.mockVault.clientCiphers.decryptClosure = { _ in
             .fixture(id: "cipher-1", login: .fixture(totp: "totp-secret"))
         }
 
@@ -329,7 +330,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
     @Test
     func syncWithWatch_vaultLocked_skipsCipherSync() async throws {
         var decryptCallCount = 0
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
+        clientService.mockVault.clientCiphers.decryptClosure = { _ in
             decryptCallCount += 1
             return .fixture(id: "cipher-1", login: .fixture(totp: "totp-secret"))
         }
@@ -357,7 +358,7 @@ struct WatchServiceTests { // swiftlint:disable:this type_body_length
     /// `syncWithWatch()` syncs ciphers after the vault becomes unlocked.
     @Test
     func syncWithWatch_vaultUnlocked_syncsAfterUnlock() async throws {
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
+        clientService.mockVault.clientCiphers.decryptClosure = { _ in
             .fixture(id: "cipher-1", login: .fixture(totp: "totp-secret"))
         }
 

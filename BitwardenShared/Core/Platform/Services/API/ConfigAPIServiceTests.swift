@@ -1,8 +1,8 @@
 import BitwardenKit
 import BitwardenKitMocks
 import Security
-import Testing
 import TestHelpers
+import Testing
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks

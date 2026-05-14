@@ -124,6 +124,7 @@ typos                                   # Spell check
 - ❌ Log or persist unencrypted vault data — zero-knowledge architecture must be preserved
 - ❌ Use `any` type for protocol-based dependencies — use generics or `Has*` composition
 - ❌ Create TODO comments without JIRA tickets — SwiftLint enforces `todo_without_jira`
+- ❌ Hardcode magic numbers or timing values inline — put them in `Constants` (`BitwardenKit` for cross-app values, `BitwardenShared` extension for PM-specific values)
 
 ## Build & Deploy
 

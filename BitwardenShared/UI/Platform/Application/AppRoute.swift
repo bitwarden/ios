@@ -25,7 +25,11 @@ public enum AppRoute: Equatable {
     case sendItem(SendItemRoute)
 
     /// A route to the sync with browser screen.
-    case syncWithBrowser
+    ///
+    /// - Parameter vaultUrl: The vault URL from the SSO cookie config, used to construct
+    ///   the browser redirect URL.
+    ///
+    case syncWithBrowser(vaultUrl: String)
 
     /// A route to the tab interface.
     case tab(TabRoute)

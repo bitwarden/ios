@@ -9,7 +9,6 @@ public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNaviga
 
     typealias Services = HasAuthService
         & HasConfigService
-        & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasServerCommunicationConfigAPIService
@@ -59,8 +58,8 @@ public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNaviga
                     onDismiss?.action()
                 })
             }
-        case .syncWithBrowser:
-            showSyncWithBrowser()
+        case let .syncWithBrowser(vaultUrl):
+            showSyncWithBrowser(vaultUrl: vaultUrl)
         }
     }
 
@@ -70,12 +69,15 @@ public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNaviga
     // MARK: Private Methods
 
     /// Configures and displays the sync with browser screen.
-    private func showSyncWithBrowser() {
+    ///
+    /// - Parameter vaultUrl: The vault URL used to construct the browser redirect URL.
+    ///
+    private func showSyncWithBrowser(vaultUrl: String) {
         let processor = SyncWithBrowserProcessor(
             coordinator: asAnyCoordinator(),
             delegate: self,
             services: services,
-            state: SyncWithBrowserState(),
+            state: SyncWithBrowserState(vaultUrl: vaultUrl),
         )
 
         let view = SyncWithBrowserView(store: Store(processor: processor))

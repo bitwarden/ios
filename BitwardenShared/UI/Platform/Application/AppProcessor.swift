@@ -446,8 +446,8 @@ extension AppProcessor {
             return false
         }
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
-        let result = components?.queryItems?.first(where: {
-            $0.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
+        let result = components?.queryItems?.first(where: { item in
+            item.name == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.parameterName
         })?.value
         if result == BitwardenDeepLinkConstants.PremiumCheckoutResultQuery.successValue {
             await services.billingService.premiumStatusChanged()
@@ -501,13 +501,13 @@ extension AppProcessor {
     }
 
     /// Subscribes to the server communication cookie-acquisition publisher and navigates to the
-    /// sync-with-browser flow whenever a non-nil hostname is received.
+    /// sync-with-browser flow whenever a non-nil vault URL is received.
     ///
     private func listenForAcquireCookies() {
         Task {
-            for await hostname in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
-                guard hostname != nil else { continue }
-                coordinator?.navigate(to: .syncWithBrowser)
+            for await vaultURL in await services.serverCommunicationConfigAPIService.acquireCookiesPublisher().values {
+                guard let vaultURL else { continue }
+                coordinator?.navigate(to: .syncWithBrowser(vaultUrl: vaultURL))
             }
         }
     }

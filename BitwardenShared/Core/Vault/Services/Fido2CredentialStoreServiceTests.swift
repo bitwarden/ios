@@ -1,5 +1,6 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import TestHelpers
 import XCTest
 
@@ -100,7 +101,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 type: .login,
             ),
         ])
-        clientService.mockVault.clientCiphers.decryptListError = BitwardenTestError.example
+        clientService.mockVault.clientCiphers.decryptListThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.allCredentials()
@@ -370,7 +371,7 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 type: .login,
             ),
         ])
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
+        clientService.mockVault.clientCiphers.decryptClosure = { _ in
             throw BitwardenTestError.example
         }
 

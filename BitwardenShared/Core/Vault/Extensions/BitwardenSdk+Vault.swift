@@ -600,6 +600,12 @@ extension BitwardenSdk.Identity {
     }
 }
 
+extension BitwardenSdk.LocalUserDataKeyState {
+    init(_ value: UserKeyData) {
+        self.init(wrappedKey: value.wrappedKey)
+    }
+}
+
 extension BitwardenSdk.Login {
     init(cipherLoginModel model: CipherLoginModel) {
         self.init(

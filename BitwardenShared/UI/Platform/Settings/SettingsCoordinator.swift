@@ -150,7 +150,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         }
     }
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .about:
             showAbout()
@@ -192,6 +192,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPendingLoginRequests()
         case .premiumPlan:
             showPremiumPlan()
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case let .settings(presentationMode):
@@ -474,6 +476,14 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         guard let stackNavigator else { return }
         let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
         coordinator.navigate(to: .premiumPlan)
+    }
+
+    /// Shows the premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeBillingCoordinator(stackNavigator: stackNavigator)
+        coordinator.navigate(to: .premiumUpgrade)
     }
 
     /// Shows the select language screen.

@@ -208,6 +208,7 @@
 "August" = "augustus";
 "Brand" = "Merk";
 "CardholderName" = "Naam kaarthouder";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
 "CityTown" = "Stad / gemeente";
 "Company" = "Bedrijf";
 "Country" = "Land";
@@ -605,6 +606,7 @@
 "SetUpAutofill" = "Automatisch invullen instellen";
 "AppInfo" = "App informatie";
 "Browse" = "Blader";
+"SelectCardholderName" = "Select cardholder name";
 "SelectLanguage" = "Selecteer taal";
 "ContinueToCompleteWebAuthnVerification" = "Ga verder om WebAuthn verificatie te voltooien.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Er is een fout opgetreden bij het starten van WebAuthn twee factor authenticatie";
@@ -916,6 +918,7 @@
 "NoAskMe" = "Nee, vraag het me";
 "NoCodes" = "Je hebt geen codes om weer te geven";
 "None" = "Geen";
+"NoneOfTheAbove" = "None of the above";
 "NumberOfDigits" = "Aantal cijfers";
 "OtpType" = "OTP-type";
 "RefreshPeriod" = "Verversperiode";
@@ -924,6 +927,8 @@
 "SaveHere" = "Hier opslaan";
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Sla deze authenticatorsleutel hier op of voeg hem toe aan een login in je Bitwarden-app.";
 "SaveToBitwarden" = "Opslaan in Bitwarden";
+"ScanCard" = "Kaart scannen";
+"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
 "ScanComplete" = "Scan voltooid";
 "ScanTheQRCodeInYourSettings" = "Scan de QR-code in je instellingen voor tweestapsverificatie voor elk account.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Beveilig je accounts met Bitwarden Authenticator";
@@ -994,6 +999,8 @@
 "ItemsTransferred" = "Items overgedragen";
 "ArchiveIsEmpty" = "Archief is leeg";
 "ArchiveEmptyDescriptionLong" = "Vul je archief in met items die je niet wilt zien in de zoekresultaten en suggesties voor automatisch invullen maar op een gegeven moment nodig kunt hebben.";
+"ArchiveItem" = "Item archiveren";
+"OnceArchivedThisItemWillBeExcludedDescriptionLong" = "Eenmaal gearchiveerd wordt dit item uitgesloten van zoekresultaten en suggesties voor automatisch invullen.";
 "ArchiveUnavailable" = "Archief niet beschikbaar";
 "ArchivingItemsIsAPremiumFeatureDescriptionLong" = "Het archiveren van items is een Premium-functie. Toegang tot deze functie is niet inbegrepen in je huidige abonnement.";
 "UpgradeToPremium" = "Naar Premium upgraden";
@@ -1084,3 +1091,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Meld je aan bij je webkluis op een computer om je Premium-abonnement te beheren.";
 "CheckYourConnectionAndTryAgain" = "Controleer je verbinding en probeer het opnieuw.";
 "PricingUnavailable" = "Prijzen niet beschikbaar";
+"BankAccount" = "Bankrekening";
