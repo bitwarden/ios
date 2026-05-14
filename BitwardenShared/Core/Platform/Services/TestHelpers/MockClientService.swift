@@ -1,4 +1,7 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 
 @testable import BitwardenShared
 
@@ -8,12 +11,12 @@ class MockClientService: ClientService {
     var mockAuthUserId: String?
     var mockCrypto: MockCryptoClient
     var mockExporters: MockExporterClient
-    var mockGenerators: MockGeneratorClient
+    var mockGenerators: MockGeneratorClientsProtocol
     var mockGeneratorsIsPreAuth = false
     var mockGeneratorsUserId: String?
     var mockPlatform: MockPlatformClientService
     var mockPlatformIsPreAuth = false
-    var mockSends: MockSendClient
+    var mockSends: MockSendClientProtocol
     var mockVault: MockVaultClientService
     var platformCallCount = 0
     var platformError: Error?
@@ -23,9 +26,15 @@ class MockClientService: ClientService {
         auth: MockAuthClient = MockAuthClient(),
         crypto: MockCryptoClient = MockCryptoClient(),
         exporters: MockExporterClient = MockExporterClient(),
-        generators: MockGeneratorClient = MockGeneratorClient(),
+        generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
         platform: MockPlatformClientService = MockPlatformClientService(),
-        sends: MockSendClient = MockSendClient(),
+        sends: MockSendClientProtocol = {
+            let mock = MockSendClientProtocol()
+            mock.decryptClosure = { SendView(send: $0) }
+            mock.encryptClosure = { Send(sendView: $0) }
+            mock.encryptBufferClosure = { _, buffer in buffer }
+            return mock
+        }(),
         vault: MockVaultClientService = MockVaultClientService(),
     ) {
         mockAuth = auth
@@ -37,7 +46,7 @@ class MockClientService: ClientService {
         mockVault = vault
     }
 
-    func auth(for userId: String?, isPreAuth: Bool) -> AuthClientProtocol {
+    func auth(for userId: String?, isPreAuth: Bool) -> AuthClientService {
         mockAuthIsPreAuth = isPreAuth
         mockAuthUserId = userId
         return mockAuth

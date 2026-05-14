@@ -10,7 +10,6 @@ import XCTest
 class ImportCXFProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var configService: MockConfigService!
     var coordinator: MockCoordinator<ImportCXFRoute, Void>!
     var errorReporter: MockErrorReporter!
     var importCiphersRepository: MockImportCiphersRepository!
@@ -24,7 +23,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        configService = MockConfigService()
         coordinator = MockCoordinator<ImportCXFRoute, Void>()
         errorReporter = MockErrorReporter()
         importCiphersRepository = MockImportCiphersRepository()
@@ -34,7 +32,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
         subject = ImportCXFProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                configService: configService,
                 errorReporter: errorReporter,
                 importCiphersRepository: importCiphersRepository,
                 policyService: policyService,
@@ -47,7 +44,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        configService = nil
         coordinator = nil
         errorReporter = nil
         importCiphersRepository = nil
@@ -59,10 +55,28 @@ class ImportCXFProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.appeared` sets the status as `.failure` with a message
-    /// when the feature flag `.cxpImportMobile` is not enabled.
+    /// `perform(_:)` with `.appeared` doesn't set the status as `.failure`
+    /// when the device supports CXP import and `.personalOwnership`
+    /// policy doesn't apply to user.
     @MainActor
-    func test_perform_appearedNoFeatureFlag() async {
+    func test_perform_appeared() async throws {
+        guard #available(iOS 26.0, *) else {
+            throw XCTSkip("CXP Import feature is not available on this device")
+        }
+
+        await subject.perform(.appeared)
+        if case .failure = subject.state.status {
+            XCTFail("Status shouldn't be failure when CXP import is enabled")
+        }
+    }
+
+    /// `perform(_:)` with `.appeared` sets the status as `.failure` with a message
+    /// when the device is running iOS < 26.0 (CXP Import not available).
+    @MainActor
+    func test_perform_appearedNotAvailableOnDevice() async throws {
+        if #available(iOS 26.0, *) {
+            throw XCTSkip("CXP Import is available on this device")
+        }
         await subject.perform(.appeared)
         guard case let .failure(message) = subject.state.status else {
             XCTFail("Status should be failure")
@@ -72,15 +86,13 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` sets the status as `.failure` with a message
-    /// when the feature flag `.cxpImportMobile` is enabled. but `.personalOwnership`
-    /// policy applies to user.
+    /// when `.personalOwnership` policy applies to user.
     @MainActor
     func test_perform_appearedPersonalOwnership() async throws {
         guard #available(iOS 26.0, *) else {
             throw XCTSkip("CXP Import feature is not available on this device")
         }
 
-        configService.featureFlagsBool[.cxpImportMobile] = true
         policyService.policyAppliesToUserResult[.personalOwnership] = true
 
         await subject.perform(.appeared)
@@ -91,22 +103,6 @@ class ImportCXFProcessorTests: BitwardenTestCase {
         }
         XCTAssertEqual(message, Localizations.personalOwnershipPolicyInEffect)
         XCTAssertTrue(subject.state.isFeatureUnavailable)
-    }
-
-    /// `perform(_:)` with `.appeared` doesn't set the status as `.failure`
-    /// when the feature flag `.cxpImportMobile` is enabled and `.personalOwnership`
-    /// policy doesn't apply to user.
-    @MainActor
-    func test_perform_appearedFeatureFlagEnabled() async throws {
-        guard #available(iOS 26.0, *) else {
-            throw XCTSkip("CXP Import feature is not available on this device")
-        }
-
-        configService.featureFlagsBool[.cxpImportMobile] = true
-        await subject.perform(.appeared)
-        if case .failure = subject.state.status {
-            XCTFail("Status shouldn't be failure when CXP import is enabled")
-        }
     }
 
     /// `perform(_:)` with `.cancel` with feature available shows confirmation and navigates to dismiss.

@@ -167,6 +167,21 @@
         <string>%d 週</string>
       </dict>
     </dict>
+    <!-- A message indicating the grace period for a past due subscription, with pluralized days and the date. -->
+    <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionDescriptionLong</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>**%1$#@YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate@** 請於 **%2$@** 前完成逾期帳單付款。</string>
+      <key>YouHaveAGracePeriodOfXDaysFromYourSubscriptionExpirationDate</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>d</string>
+        <key>other</key>
+        <string>自訂閱到期日起，您有 %1$d 天的寬限期。</string>
+      </dict>
+    </dict>
     <!-- A message indicating the minimum length of a PIN in characters. -->
     <key>YourPINMustBeAtLeastXCharactersDescriptionLong</key>
     <dict>

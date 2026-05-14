@@ -12,7 +12,6 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
     // MARK: Properties
 
     var clientService: MockClientService!
-    var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultListSectionsBuilder!
@@ -23,7 +22,6 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         super.setUp()
 
         clientService = MockClientService()
-        configService = MockConfigService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
     }
@@ -32,7 +30,6 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         super.tearDown()
 
         clientService = nil
-        configService = nil
         errorReporter = nil
         stateService = nil
         subject = nil
@@ -368,28 +365,9 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         }
     }
 
-    /// `addHiddenItemsSection()` adds the hidden items section to the list of sections with the count
-    /// of deleted ciphers when the archive feature flag is off.
+    /// `addHiddenItemsSection()` adds the hidden items section with archive when the user has premium.
     @MainActor
-    func test_addHiddenItemsSection_archiveFeatureFlagDisabled() async {
-        configService.featureFlagsBool[.archiveVaultItems] = false
-        setUpSubject(withData: VaultListPreparedData(ciphersDeletedCount: 10))
-
-        let vaultListData = await subject.addHiddenItemsSection().build()
-
-        assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
-            """
-            Section[HiddenItems]: Hidden items
-              - Group[Trash]: Trash (10)
-            """
-        }
-    }
-
-    /// `addHiddenItemsSection()` adds the hidden items section with archive when the feature flag is on
-    /// and the user has premium.
-    @MainActor
-    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_hasPremium() async {
-        configService.featureFlagsBool[.archiveVaultItems] = true
+    func test_addHiddenItemsSection_hasPremium() async {
         stateService.doesActiveAccountHavePremiumResult = true
         setUpSubject(withData: VaultListPreparedData(
             ciphersArchivedCount: 5,
@@ -411,11 +389,10 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(archiveItem?.hasPremium, true)
     }
 
-    /// `addHiddenItemsSection()` adds archive when the feature flag is on even if the user
-    /// does not have premium and there are no archived items, showing premium required UI.
+    /// `addHiddenItemsSection()` adds archive if the user does not have premium and there are no
+    /// archived items, showing premium required UI.
     @MainActor
-    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_noArchivedItems() async {
-        configService.featureFlagsBool[.archiveVaultItems] = true
+    func test_addHiddenItemsSection_noPremium_noArchivedItems() async {
         stateService.doesActiveAccountHavePremiumResult = false
         setUpSubject(withData: VaultListPreparedData(
             ciphersArchivedCount: 0,
@@ -441,11 +418,10 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(archiveItem?.accessoryIcon?.name, SharedAsset.Icons.locked24.name)
     }
 
-    /// `addHiddenItemsSection()` adds archive when the feature flag is on and the user
-    /// does not have premium but there are archived items.
+    /// `addHiddenItemsSection()` adds archive when the user does not have premium but there are
+    /// archived items.
     @MainActor
-    func test_addHiddenItemsSection_archiveFeatureFlagEnabled_noPremium_hasArchivedItems() async {
-        configService.featureFlagsBool[.archiveVaultItems] = true
+    func test_addHiddenItemsSection_noPremium_hasArchivedItems() async {
         stateService.doesActiveAccountHavePremiumResult = false
         setUpSubject(withData: VaultListPreparedData(
             ciphersArchivedCount: 3,
@@ -815,6 +791,7 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         assertInlineSnapshot(of: vaultListData.sections.dump(), as: .lines) {
             """
             Section[HiddenItems]: Hidden items
+              - Group[Archive]: Archive (0)
               - Group[Trash]: Trash (10)
             Section[Collections]: Collections
               - Group[1]: Collection 1 (5)
@@ -846,7 +823,6 @@ class VaultListSectionsBuilderTests: BitwardenTestCase { // swiftlint:disable:th
         subject = DefaultVaultListSectionsBuilder(
             clientService: clientService,
             collectionHelper: collectionHelper,
-            configService: configService,
             errorReporter: errorReporter,
             stateService: stateService,
             withData: withData,

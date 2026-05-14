@@ -1,9 +1,12 @@
 import BitwardenKitMocks
 import BitwardenSdk
+import BitwardenSdkMocks
 import XCTest
 
 @testable import BitwardenShared
 @testable import BitwardenSharedMocks
+
+// swiftlint:disable file_length
 
 class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
@@ -44,6 +47,12 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_addPasswordHistory() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
+        var encryptedPasswordHistoryView = [PasswordHistoryView]()
+        clientService.mockVault.clientPasswordHistory.encryptClosure = { passwordHistoryView in
+            encryptedPasswordHistoryView.append(passwordHistoryView)
+            return PasswordHistory(passwordHistoryView: passwordHistoryView)
+        }
+
         let passwordHistory1 = PasswordHistoryView.fixture(password: "PASSWORD")
         try await subject.addPasswordHistory(passwordHistory1)
 
@@ -61,7 +70,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
             [passwordHistory1, passwordHistory2, passwordHistory3].map(PasswordHistory.init),
         )
         XCTAssertEqual(
-            clientService.mockVault.clientPasswordHistory.encryptedPasswordHistory,
+            encryptedPasswordHistoryView,
             [passwordHistory1, passwordHistory2, passwordHistory3],
         )
     }
@@ -150,11 +159,12 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generateMasterPassword` returns the generated master password.
     func test_generateMasterPassword() async throws {
+        clientService.mockGenerators.passphraseReturnValue = "PASSPHRASE"
         let masterPassword = try await subject.generateMasterPassword()
         XCTAssertEqual(masterPassword, "PASSPHRASE")
         XCTAssertTrue(clientService.mockGeneratorsIsPreAuth)
         XCTAssertEqual(
-            clientService.mockGenerators.passphraseGeneratorRequest,
+            clientService.mockGenerators.passphraseReceivedSettings,
             PassphraseGeneratorRequest(
                 numWords: 3,
                 wordSeparator: "-",
@@ -166,6 +176,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generatePassphrase` returns the generated passphrase.
     func test_generatePassphrase() async throws {
+        clientService.mockGenerators.passphraseReturnValue = "PASSPHRASE"
+
         let passphrase = try await subject.generatePassphrase(
             settings: PassphraseGeneratorRequest(
                 numWords: 3,
@@ -182,7 +194,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassphrase_error() async {
         struct GeneratePassphraseError: Error, Equatable {}
 
-        clientService.mockGenerators.passphraseResult = .failure(GeneratePassphraseError())
+        clientService.mockGenerators.passphraseThrowableError = GeneratePassphraseError()
 
         await assertAsyncThrows(error: GeneratePassphraseError()) {
             _ = try await subject.generatePassphrase(
@@ -198,6 +210,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generatePassword` returns the generated password.
     func test_generatePassword() async throws {
+        clientService.mockGenerators.passwordReturnValue = "PASSWORD"
+
         let password = try await subject.generatePassword(
             settings: PasswordGeneratorRequest(
                 lowercase: true,
@@ -220,7 +234,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generatePassword_error() async {
         struct GeneratePasswordError: Error, Equatable {}
 
-        clientService.mockGenerators.passwordResult = .failure(GeneratePasswordError())
+        clientService.mockGenerators.passwordThrowableError = GeneratePasswordError()
 
         await assertAsyncThrows(error: GeneratePasswordError()) {
             _ = try await subject.generatePassword(
@@ -242,6 +256,8 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `generateUsername()` returns the generated username.
     func test_generateUsername() async throws {
+        clientService.mockGenerators.usernameReturnValue = "USERNAME"
+
         let username = try await subject.generateUsername(
             settings: UsernameGeneratorRequest.subaddress(type: .random, email: "user@bitwarden.com"),
         )
@@ -253,7 +269,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generateUsername_error() async {
         struct GenerateUsernameError: Error, Equatable {}
 
-        clientService.mockGenerators.usernameResult = .failure(GenerateUsernameError())
+        clientService.mockGenerators.usernameThrowableError = GenerateUsernameError()
 
         await assertAsyncThrows(error: GenerateUsernameError()) {
             _ = try await subject.generateUsername(
@@ -347,33 +363,23 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `passwordHistoryPublisher()` returns a publisher that the user's password history as it changes.
     @MainActor
-    func test_passwordHistoryPublisher() {
+    func test_passwordHistoryPublisher() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        var passwordHistoryValues = [[PasswordHistoryView]]()
-        let task = Task {
-            for try await passwordHistory in try await subject.passwordHistoryPublisher() {
-                passwordHistoryValues.append(passwordHistory)
-            }
-        }
-        waitFor { passwordHistoryValues.count == 1 }
+        var iterator = try await subject.passwordHistoryPublisher().makeAsyncIterator()
+
+        let firstValue = try await iterator.next()
+        XCTAssertEqual(firstValue, [])
 
         let passwordHistory1 = PasswordHistoryView.fixture(password: "PASSWORD")
-        Task {
-            try await subject.addPasswordHistory(passwordHistory1)
-        }
-        waitFor { passwordHistoryValues.count == 2 }
+        try await subject.addPasswordHistory(passwordHistory1)
+        let secondValue = try await iterator.next()
+        XCTAssertEqual(secondValue, [passwordHistory1])
 
         let passwordHistory2 = PasswordHistoryView.fixture(password: "PASSWORD2")
-        Task {
-            try await subject.addPasswordHistory(passwordHistory2)
-        }
-        waitFor { passwordHistoryValues.count == 3 }
-        task.cancel()
-
-        XCTAssertTrue(passwordHistoryValues[0].isEmpty)
-        XCTAssertEqual(passwordHistoryValues[1], [passwordHistory1])
-        XCTAssertEqual(passwordHistoryValues[2], [passwordHistory2, passwordHistory1])
+        try await subject.addPasswordHistory(passwordHistory2)
+        let thirdValue = try await iterator.next()
+        XCTAssertEqual(thirdValue, [passwordHistory2, passwordHistory1])
     }
 
     /// `setUsernameGenerationOptions` sets the username generation options for the active account.

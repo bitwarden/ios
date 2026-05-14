@@ -7,9 +7,9 @@ import UIKit
 ///
 @MainActor
 public protocol SearchHandler<State, Action, Effect>: NSObjectProtocol, UISearchResultsUpdating {
-    associatedtype Action: Sendable
-    associatedtype Effect: Sendable
-    associatedtype State: Sendable
+    associatedtype Action
+    associatedtype Effect
+    associatedtype State
 
     // MARK: Properties
 

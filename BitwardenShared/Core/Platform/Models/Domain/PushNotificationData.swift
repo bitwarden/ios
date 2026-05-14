@@ -6,7 +6,7 @@ import Foundation
 struct PushNotificationData: Codable {
     // MARK: Properties
 
-    /// The context Id, which should match the app id.
+    /// The context Id, which should match the app ID.
     let contextId: String?
 
     /// The payload of the push notification.
@@ -34,11 +34,33 @@ struct PushNotificationData: Codable {
     }
 }
 
+// MARK: - PushNotificationData + userInfo
+
+extension PushNotificationData {
+    /// Decodes a `PushNotificationData` from a notification's `userInfo` dictionary.
+    ///
+    /// - Parameter userInfo: The notification's `userInfo` dictionary.
+    /// - Returns: The decoded `PushNotificationData`.
+    /// - Throws: `PushNotificationDataError.missingDataDictionary` if the `"data"` key is absent,
+    ///   or an error if JSON serialization or decoding fails.
+    ///
+    init(userInfo: [AnyHashable: Any]) throws {
+        guard let messageContent = userInfo["data"] as? [AnyHashable: Any] else {
+            throw PushNotificationDataError.missingDataDictionary
+        }
+        let jsonData = try JSONSerialization.data(withJSONObject: messageContent)
+        self = try JSONDecoder().decode(PushNotificationData.self, from: jsonData)
+    }
+}
+
 // MARK: - PushNotificationDataError
 
 /// An error thrown when a push notification payload cannot be decoded.
 ///
 enum PushNotificationDataError: Error, CustomNSError {
+    /// Thrown when the notification's `userInfo` dictionary does not contain a `"data"` key.
+    case missingDataDictionary
+
     /// Thrown when the push notification payload cannot be decoded into the expected type.
     case payloadDecodingFailed(type: NotificationType?, underlyingError: Error)
 
@@ -47,6 +69,7 @@ enum PushNotificationDataError: Error, CustomNSError {
         // incremented integer. This ensures the code for existing errors doesn't change.
         switch self {
         case .payloadDecodingFailed: 1
+        case .missingDataDictionary: 2
         }
     }
 
@@ -56,6 +79,8 @@ enum PushNotificationDataError: Error, CustomNSError {
         ]
 
         switch self {
+        case .missingDataDictionary:
+            break
         case let .payloadDecodingFailed(type, underlyingError):
             userInfo[NSUnderlyingErrorKey] = underlyingError
             if let type {
@@ -168,8 +193,14 @@ struct LoginRequestNotification: Codable, Equatable {
 
 // MARK: - LoginRequestPushNotification
 
+// TODO: PM-33817 - Remove `LoginRequestPushNotification` once the server fully switches to alert-style
+// push notifications and local notification banners are no longer created for auth requests.
+
 /// The data structure of the information attached to the in-app foreground notification.
 struct LoginRequestPushNotification: Codable, Equatable {
+    /// The id of the login request.
+    let id: String?
+
     /// How long until the request times out.
     let timeoutInMinutes: Int
 

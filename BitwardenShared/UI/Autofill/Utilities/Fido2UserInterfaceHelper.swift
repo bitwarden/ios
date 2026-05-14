@@ -203,10 +203,12 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     func pickedCredentialForAuthentication(result: Result<CipherView, Error>) {
         credentialForAuthenticationContinuation?.resume(with: result)
+        credentialForAuthenticationContinuation = nil
     }
 
     func pickedCredentialForCreation(result: Result<CheckUserAndPickCredentialForCreationResult, Error>) {
         credentialForCreationContinuation?.resume(with: result)
+        credentialForCreationContinuation = nil
     }
 
     func setupDelegate(fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate) {

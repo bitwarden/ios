@@ -144,6 +144,7 @@ class AutofillCredentialServiceAppExtensionTests: BitwardenTestCase { // swiftli
             return identityStore.saveCredentialIdentitiesCalled
         }
 
+        XCTAssertTrue(stateService.doesActiveAccountHavePremiumCalled)
         XCTAssertTrue(identityStore.saveCredentialIdentitiesCalled)
         XCTAssertEqual(
             identityStore.saveCredentialIdentitiesIdentities,

@@ -5,6 +5,9 @@ import BitwardenSdk
 
 /// Errors thrown by `CipherOwnershipHelper`.
 enum CipherOwnershipHelperError: Error, Equatable {
+    /// No default collection is available for the organization when personal ownership is disabled.
+    case noDefaultCollection
+
     /// No eligible organization is available for cipher ownership when personal ownership is disabled.
     case noEligibleOrganization
 }
@@ -90,11 +93,16 @@ class DefaultCipherOwnershipHelper: CipherOwnershipHelper {
             let collections = try await vaultRepository.fetchCollections(includeReadOnly: false)
             let collectionsForOwner = collections.filter { $0.organizationId == ownerOrgId }
 
-            if let defaultCollection = collectionsForOwner.first(where: {
-                $0.type == .defaultUserCollection
+            if let defaultCollection = collectionsForOwner.first(where: { col in
+                col.type == .defaultUserCollection
             }),
                 let defaultCollectionId = defaultCollection.id {
                 collectionIds = [defaultCollectionId]
+            }
+
+            guard !collectionIds.isEmpty else {
+                // No default collection available - abort with error
+                throw CipherOwnershipHelperError.noDefaultCollection
             }
         }
 

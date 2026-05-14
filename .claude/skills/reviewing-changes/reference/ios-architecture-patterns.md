@@ -26,7 +26,7 @@ Bitwarden-specific structural constraints that reviewers must verify. These are 
 ## Domain Folder Constraints
 
 - [ ] No new top-level subdirectories added to `Core/` or `UI/`
-- [ ] Fixed subdirectories only: `Auth/`, `Autofill/`, `Platform/`, `Tools/`, `Vault/`
+- [ ] Fixed subdirectories only (see `Docs/Architecture.md` Architecture Structure for canonical list)
 - [ ] New files placed in the correct domain folder (Auth vs Vault vs Platform)
 
 ## File-Set Completeness

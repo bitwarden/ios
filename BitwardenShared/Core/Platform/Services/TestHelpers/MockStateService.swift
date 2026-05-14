@@ -28,6 +28,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var archiveOnboardingShown = false
+    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
+    var premiumUpgradeBannerDismissedResult: Result<Void, Error> = .success(())
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -54,6 +56,8 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var isInitialSyncRequiredByUserId = [String: Bool]()
+    var isPremiumUpgradeBannerDismissedResult: Bool = false
+    var isPremiumUpgradeEligibleResult: Bool = false
     var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
@@ -64,6 +68,7 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     var getActiveAccountIdError: Error?
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var lastRequestToTurnOnCredentialProvider: Date?
+    var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
@@ -244,6 +249,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         archiveOnboardingShown
     }
 
+    func getPremiumUpgradeBannerDismissed(userId: String?) async throws -> Bool {
+        try premiumUpgradeBannerDismissedResult.get()
+        let userId = try unwrapUserId(userId)
+        return premiumUpgradeBannerDismissedByUserId[userId] ?? false
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
@@ -314,6 +325,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
         return lastSyncTimeByUserId[userId]
+    }
+
+    func getLastSyncMonotonicTime(userId: String?) async throws -> TimeInterval? {
+        let userId = try unwrapUserId(userId)
+        return lastSyncMonotonicTimeByUserId[userId] ?? nil
     }
 
     func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
@@ -436,6 +452,14 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         return isInitialSyncRequiredByUserId[userId] ?? false
     }
 
+    func isPremiumUpgradeBannerDismissed() async -> Bool {
+        isPremiumUpgradeBannerDismissedResult
+    }
+
+    func isPremiumUpgradeEligible() async -> Bool {
+        isPremiumUpgradeEligibleResult
+    }
+
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
@@ -550,6 +574,12 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
         archiveOnboardingShown = shown
     }
 
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String?) async throws {
+        try premiumUpgradeBannerDismissedResult.get()
+        let userId = try unwrapUserId(userId)
+        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
@@ -620,6 +650,11 @@ class MockStateService: StateService, ActiveAccountStateProvider, AutofillStateS
 
     func setLastRequestToTurnOnCredentialProvider(_ date: Date?) async {
         lastRequestToTurnOnCredentialProvider = date
+    }
+
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        lastSyncMonotonicTimeByUserId[userId] = monotonicTime
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {

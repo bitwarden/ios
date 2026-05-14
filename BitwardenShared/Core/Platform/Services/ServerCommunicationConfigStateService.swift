@@ -37,6 +37,7 @@ extension DefaultStateService: ServerCommunicationConfigStateService {
                     idpLoginUrl: vendorConfig.idpLoginUrl,
                     cookieName: vendorConfig.cookieName,
                     cookieDomain: vendorConfig.cookieDomain,
+                    vaultUrl: vendorConfig.vaultUrl,
                     cookieValue: nil,
                 ),
             ),

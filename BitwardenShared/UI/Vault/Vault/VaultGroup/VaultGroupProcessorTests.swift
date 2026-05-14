@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenResources
 import BitwardenSdk
+import Combine
 import InlineSnapshotTesting
 import TestHelpers
 import XCTest
@@ -17,6 +18,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var billingRepository: MockBillingRepository!
+    var billingService: MockBillingService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
@@ -38,6 +41,9 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         authRepository = MockAuthRepository()
+        billingRepository = MockBillingRepository()
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+        billingService = MockBillingService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -60,6 +66,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                billingRepository: billingRepository,
+                billingService: billingService,
                 configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -81,6 +89,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.tearDown()
 
         authRepository = nil
+        billingRepository = nil
+        billingService = nil
         configService = nil
         coordinator = nil
         errorReporter = nil
@@ -281,6 +291,123 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         let url = URL.example
         vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL?(url)
         XCTAssertEqual(subject.state.url, url)
+    }
+
+    /// `perform(_:)` with `.morePressed` navigates to the premium upgrade screen via in-app flow
+    /// when `isInAppUpgradeAvailable` returns `true`.
+    @MainActor
+    func test_perform_morePressed_navigateToPremiumUpgrade_inAppUpgradeAvailable() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+
+        await subject.perform(.morePressed(.fixture()))
+
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+        try await waitForAsync { self.coordinator.routes.last == .premiumUpgrade }
+
+        XCTAssertEqual(coordinator.routes.last, .premiumUpgrade)
+        XCTAssertNil(subject.state.url)
+        XCTAssertTrue(billingService.premiumCheckoutStatusPublisherCalled)
+    }
+
+    /// `perform(_:)` with `.morePressed` opens the web upgrade URL when `isInAppUpgradeAvailable`
+    /// returns `false`.
+    @MainActor
+    func test_perform_morePressed_navigateToPremiumUpgrade_inAppUpgradeNotAvailable() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = false
+
+        await subject.perform(.morePressed(.fixture()))
+
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+        try await waitForAsync { self.subject.state.url != nil }
+
+        XCTAssertEqual(
+            subject.state.url,
+            URL(string: "https://example.com/#/settings/subscription/premium?callToAction=upgradeToPremium"),
+        )
+        XCTAssertNotEqual(coordinator.routes.last, .premiumUpgrade)
+    }
+
+    /// When the billing service emits `.canceled`, no new route is navigated.
+    @MainActor
+    func test_subscribeToPremiumCheckoutStatus_canceled() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        await subject.perform(.morePressed(.fixture()))
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+        let routeCountBeforeSend = coordinator.routes.count
+
+        statusSubject.send(.canceled)
+
+        try await waitForAsync { self.coordinator.routes.count == routeCountBeforeSend }
+    }
+
+    /// When the billing service emits `.confirmed`, the processor refreshes the vault group without
+    /// dismissing (PremiumUpgradeProcessor owns the navigation to PremiumUpgradeComplete).
+    @MainActor
+    func test_subscribeToPremiumCheckoutStatus_confirmed() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        await subject.perform(.morePressed(.fixture()))
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+        let routeCountBefore = coordinator.routes.count
+
+        statusSubject.send(.confirmed)
+
+        try await waitForAsync { self.vaultRepository.fetchSyncCalled }
+        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
+    }
+
+    /// When the billing service emits `.pending`, the processor navigates to `.dismiss` with a
+    /// `DismissAction` whose completion hides the overlay, dismisses the action card, and shows
+    /// the upgrade pending alert.
+    @MainActor
+    func test_subscribeToPremiumCheckoutStatus_pending() async throws {
+        stateService.activeAccount = .fixture()
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        await subject.perform(.morePressed(.fixture()))
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+
+        statusSubject.send(.pending)
+
+        try await waitForAsync {
+            guard case let .dismiss(action) = self.coordinator.routes.last else { return false }
+            return action != nil
+        }
+        guard case let .dismiss(action) = coordinator.routes.last else { return XCTFail("Expected .dismiss route") }
+        action?.action()
+        try await waitForAsync { self.stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false }
+        XCTAssertTrue(stateService.premiumUpgradeBannerDismissedByUserId["1"] ?? false)
+        XCTAssertEqual(coordinator.alertShown.last?.title, Localizations.upgradePending)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+    }
+
+    /// When the billing service emits `.syncing`, the processor does nothing (PremiumUpgradeProcessor
+    /// shows the loading overlay on the upgrade screen).
+    @MainActor
+    func test_subscribeToPremiumCheckoutStatus_syncing() async throws {
+        billingRepository.isInAppUpgradeAvailableReturnValue = true
+        let statusSubject = PassthroughSubject<PremiumCheckoutStatus, Never>()
+        billingService.premiumCheckoutStatusPublisherReturnValue = statusSubject.eraseToAnyPublisher()
+        await subject.perform(.morePressed(.fixture()))
+        let navigate = try XCTUnwrap(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandlePremiumUpgrade)
+        await navigate()
+        let routeCountBefore = coordinator.routes.count
+
+        statusSubject.send(.syncing)
+
+        try await waitForAsync { self.coordinator.routes.count == routeCountBefore }
+        XCTAssertEqual(coordinator.routes.count, routeCountBefore)
     }
 
     /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.

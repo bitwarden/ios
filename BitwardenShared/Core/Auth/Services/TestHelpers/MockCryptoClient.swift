@@ -37,6 +37,9 @@ class MockCryptoClient: CryptoClientProtocol {
         ),
     )
 
+    var getUpgradedUserKeyUpgradeToken: V2UpgradeToken?
+    var getUpgradedUserKeyResult: Result<B64, Error> = .success("UPGRADED_USER_KEY")
+
     var getUserEncryptionKeyCalled = false
     var getUserEncryptionKeyResult: Result<String, Error> = .success("USER_ENCRYPTION_KEY")
 
@@ -112,6 +115,11 @@ class MockCryptoClient: CryptoClientProtocol {
     func enrollPinWithEncryptedPin(encryptedPin: EncString) throws -> EnrollPinResponse {
         enrollPinWithEncryptedPinEncryptedPin = encryptedPin
         return try enrollPinWithEncryptedPinResult.get()
+    }
+
+    func getUpgradedUserKey(upgradeToken: V2UpgradeToken?) throws -> B64 {
+        getUpgradedUserKeyUpgradeToken = upgradeToken
+        return try getUpgradedUserKeyResult.get()
     }
 
     func getUserEncryptionKey() async throws -> String {

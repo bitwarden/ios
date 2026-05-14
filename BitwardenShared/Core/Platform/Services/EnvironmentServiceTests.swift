@@ -41,6 +41,19 @@ class EnvironmentServiceTests: XCTestCase {
 
     // MARK: Tests
 
+    /// Concurrent reads and writes to environment properties should not produce a data race.
+    func test_concurrentReadWrite_noDataRace() async {
+        let urls = EnvironmentURLData(base: .example)
+
+        await withTaskGroup(of: Void.self) { group in
+            for _ in 0 ..< 50 {
+                group.addTask { await self.subject.setPreAuthURLs(urls: urls) }
+                group.addTask { _ = self.subject.apiURL }
+                group.addTask { _ = self.subject.clientCertificateFingerprint }
+            }
+        }
+    }
+
     /// The default US URLs are returned if the URLs haven't been loaded.
     func test_defaultUrls() {
         XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
@@ -89,6 +102,18 @@ class EnvironmentServiceTests: XCTestCase {
 
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, false)
+    }
+
+    /// `loadURLsForActiveAccount()` loads the client certificate fingerprint from the account URLs.
+    func test_loadURLsForActiveAccount_clientCertificateFingerprint() async {
+        let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
+        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
+        stateService.activeAccount = account
+        stateService.environmentURLs = [account.profile.userId: urls]
+
+        await subject.loadURLsForActiveAccount()
+
+        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
     }
 
     /// `loadURLsForActiveAccount()` handles EU URLs
@@ -270,5 +295,14 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(stateService.preAuthEnvironmentURLs, urls)
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
         XCTAssertEqual(errorReporter.region?.isPreAuth, true)
+    }
+
+    /// `setPreAuthURLs(urls:)` sets the client certificate fingerprint from the pre-auth URLs.
+    func test_setPreAuthURLs_clientCertificateFingerprint() async {
+        let urls = EnvironmentURLData(base: .example, clientCertificateFingerprint: "test-fingerprint")
+
+        await subject.setPreAuthURLs(urls: urls)
+
+        XCTAssertEqual(subject.clientCertificateFingerprint, "test-fingerprint")
     }
 }

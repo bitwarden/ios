@@ -8,11 +8,11 @@ enum VaultListAction: Equatable {
     /// Navigate to add a new folder.
     case addFolder
 
-    /// The app review prompt was attempted to be shown.
-    case appReviewPromptShown
-
     /// The add item button was pressed.
     case addItemPressed(CipherType)
+
+    /// The app review prompt was attempted to be shown.
+    case appReviewPromptShown
 
     /// The url has been opened so clear the value in the state.
     case clearURL
@@ -30,6 +30,9 @@ enum VaultListAction: Equatable {
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
 
+    /// The "Learn more" button on the upgraded to premium action card was tapped.
+    case learnMoreAboutPremium
+
     /// The user tapped the go to settings button in the flight recorder banner.
     case navigateToFlightRecorderSettings
 
@@ -41,6 +44,9 @@ enum VaultListAction: Equatable {
 
     /// The text in the search bar was changed.
     case searchTextChanged(String)
+
+    /// The selected vault filter for search changed.
+    case searchVaultFilterChanged(VaultFilterType)
 
     /// The user tapped the get started button on the import logins action card.
     case showImportLogins
@@ -54,9 +60,9 @@ enum VaultListAction: Equatable {
     ///
     case totpCodeExpired(_ item: VaultListItem)
 
+    /// The upgrade to premium button was tapped.
+    case upgradeToPremium
+
     /// The selected vault filter changed.
     case vaultFilterChanged(VaultFilterType)
-
-    /// The selected vault filter for search changed.
-    case searchVaultFilterChanged(VaultFilterType)
 }

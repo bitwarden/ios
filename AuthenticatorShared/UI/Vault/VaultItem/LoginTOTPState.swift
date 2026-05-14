@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - LoginTOTPState
 
 /// A model defining the state of a TOTP key/code pair along with a TimeProvider to calculate expiration.

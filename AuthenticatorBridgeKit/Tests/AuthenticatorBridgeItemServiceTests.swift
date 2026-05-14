@@ -8,7 +8,7 @@ import XCTest
 
 // swiftlint:disable file_length type_body_length
 
-final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
+final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase, @unchecked Sendable {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden-authenticator"
@@ -66,8 +66,6 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
             forUserId: "userID 2",
         )
 
-        keychainRepository.authenticatorKey = keychainRepository.generateMockKeyData()
-
         try await subject.deleteAll()
 
         // Verify items were deleted
@@ -79,7 +77,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertNotNil(fetchResultTwo)
         XCTAssertEqual(fetchResultTwo.count, 0)
 
-        XCTAssertNil(keychainRepository.authenticatorKey)
+        XCTAssertTrue(keychainRepository.deleteAuthenticatorKeyCalled)
     }
 
     /// `deleteAll()` rethrows errors.
@@ -95,7 +93,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
             forUserId: "userID 2",
         )
 
-        keychainRepository.errorToThrow = BitwardenTestError.example
+        keychainRepository.deleteAuthenticatorKeyThrowableError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.deleteAll()
@@ -262,7 +260,8 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// Verify that `isSyncOn` returns false when the key is not present in the keychain.
     ///
     func test_isSyncOn_false() async throws {
-        try keychainRepository.deleteAuthenticatorKey()
+        let error = KeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        keychainRepository.getAuthenticatorKeyThrowableError = error
         let sync = await subject.isSyncOn()
         XCTAssertFalse(sync)
     }
@@ -270,8 +269,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// Verify that `isSyncOn` returns true when the key is present in the keychain.
     ///
     func test_isSyncOn_true() async throws {
-        let key = keychainRepository.generateMockKeyData()
-        try await keychainRepository.setAuthenticatorKey(key)
+        keychainRepository.getAuthenticatorKeyReturnValue = keychainRepository.generateMockKeyData()
         let sync = await subject.isSyncOn()
         XCTAssertTrue(sync)
     }

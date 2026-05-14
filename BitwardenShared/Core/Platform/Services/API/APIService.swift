@@ -41,34 +41,38 @@ class APIService {
     /// - Parameters:
     ///   - accountTokenProvider: The `AccountTokenProvider` to use. This is helpful for testing.
     ///   The default will be built by default.
+    ///   - activeAccountStateProvider: The provider for the active account state.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - serverCommunicationConfigClientSingleton: The service to get the server communication client
     ///   used to break circular dependency.
     ///   - stateService: The service used by the application to manage account state.
     ///   - tokenService: The `TokenService` which manages accessing and updating the active
     ///     account's tokens.
+    ///   - userAgentBuilder: Builds the user agent string from app and device information.
     ///
     init(
         accountTokenProvider: AccountTokenProvider? = nil,
+        activeAccountStateProvider: ActiveAccountStateProvider,
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
+        errorReporter: ErrorReporter,
         flightRecorder: FlightRecorder,
         serverCommunicationConfigClientSingleton: @escaping () -> ServerCommunicationConfigClientSingleton?,
         stateService: StateService,
         tokenService: TokenService,
+        userAgentBuilder: UserAgentBuilder,
     ) {
         self.stateService = stateService
 
         httpServiceBuilder = HTTPServiceBuilder(
             client: client,
             defaultHeadersRequestHandler: DefaultHeadersRequestHandler(
-                appName: "Bitwarden_Mobile",
                 appVersion: Bundle.main.appVersion,
-                buildNumber: Bundle.main.buildNumber,
-                systemDevice: UIDevice.current,
+                userAgentBuilder: userAgentBuilder,
             ),
             loggers: [
                 FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
@@ -83,6 +87,8 @@ class APIService {
         )
 
         self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
+            activeAccountStateProvider: activeAccountStateProvider,
+            errorReporter: errorReporter,
             httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
             tokenService: tokenService,
         )

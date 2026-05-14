@@ -47,6 +47,7 @@ class IdentityItemStateTests: XCTestCase {
               - passportNumber: "passportNumber"
               - phone: "phone"
               - postalCode: "postalCode"
+              - showSocialSecurityNumber: false
               - socialSecurityNumber: "socialSecurityNumber"
               - state: "state"
               ▿ title: DefaultableType<TitleType>

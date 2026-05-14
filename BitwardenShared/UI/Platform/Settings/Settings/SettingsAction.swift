@@ -19,6 +19,9 @@ enum SettingsAction: Equatable {
     /// The other button was pressed.
     case otherPressed
 
+    /// The plan button was pressed.
+    case planPressed
+
     /// The vault button was pressed.
     case vaultPressed
 }

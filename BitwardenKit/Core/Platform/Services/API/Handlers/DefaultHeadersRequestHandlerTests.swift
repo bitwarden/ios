@@ -15,10 +15,12 @@ class DefaultHeadersRequestHandlerTests: BitwardenTestCase {
         super.setUp()
 
         subject = DefaultHeadersRequestHandler(
-            appName: "Bitwarden",
             appVersion: "2023.8.0",
-            buildNumber: "123",
-            systemDevice: MockSystemDevice(),
+            userAgentBuilder: UserAgentBuilder(
+                appName: "Bitwarden",
+                appVersion: "2023.8.0",
+                systemDevice: MockSystemDevice(),
+            ),
         )
     }
 
