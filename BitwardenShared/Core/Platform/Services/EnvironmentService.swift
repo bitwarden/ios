@@ -19,8 +19,26 @@ class DefaultEnvironmentService: EnvironmentService {
 
     // MARK: Private Properties
 
+    /// Backing store for `currentClientCertificateFingerprint`. Access via the computed property.
+    private nonisolated(unsafe) var _currentClientCertificateFingerprint: String?
+
+    /// Backing store for `environmentURLs`. Access via the computed property.
+    private nonisolated(unsafe) var _environmentURLs: EnvironmentURLs
+
+    /// The SHA-256 fingerprint of the client certificate for the current environment.
+    private var currentClientCertificateFingerprint: String? {
+        get { lock.withLock { _currentClientCertificateFingerprint } }
+        set { lock.withLock { _currentClientCertificateFingerprint = newValue } }
+    }
+
     /// The app's current environment URLs.
-    private var environmentURLs: EnvironmentURLs
+    private var environmentURLs: EnvironmentURLs {
+        get { lock.withLock { _environmentURLs } }
+        set { lock.withLock { _environmentURLs = newValue } }
+    }
+
+    /// Lock protecting mutable environment state accessed from concurrent async tasks.
+    private let lock = NSLock()
 
     /// The shared UserDefaults instance (NOTE: this should be the standard one just for the app,
     /// not one in the app group).
@@ -40,7 +58,7 @@ class DefaultEnvironmentService: EnvironmentService {
         self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
 
-        environmentURLs = EnvironmentURLs(environmentURLData: .defaultUS)
+        _environmentURLs = EnvironmentURLs(environmentURLData: .defaultUS)
     }
 
     // MARK: EnvironmentService
@@ -59,6 +77,7 @@ class DefaultEnvironmentService: EnvironmentService {
         }
 
         await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
+        currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
@@ -69,6 +88,7 @@ class DefaultEnvironmentService: EnvironmentService {
 
     func setPreAuthURLs(urls: EnvironmentURLData) async {
         await stateService.setPreAuthEnvironmentURLs(urls)
+        currentClientCertificateFingerprint = urls.clientCertificateFingerprint
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
@@ -97,6 +117,10 @@ class DefaultEnvironmentService: EnvironmentService {
 extension DefaultEnvironmentService {
     var apiURL: URL {
         environmentURLs.apiURL
+    }
+
+    var clientCertificateFingerprint: String? {
+        currentClientCertificateFingerprint
     }
 
     var baseURL: URL {

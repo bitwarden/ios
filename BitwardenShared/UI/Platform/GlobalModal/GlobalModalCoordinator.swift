@@ -9,7 +9,6 @@ public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNaviga
 
     typealias Services = HasAuthService
         & HasConfigService
-        & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasServerCommunicationConfigAPIService
@@ -51,11 +50,16 @@ public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNaviga
     ) {
         switch route {
         case let .dismissWithAction(onDismiss):
-            stackNavigator?.dismiss(animated: true, completion: {
-                onDismiss?.action()
-            })
-        case .syncWithBrowser:
-            showSyncWithBrowser()
+            // PM-34062 Sometimes it doesn't get dismissed because it tries to do it before coming back
+            // from the browser to the view. So we wait a bit here and execute this on
+            // main thread to handle the edge case.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) { [weak self] in
+                self?.stackNavigator?.dismiss(animated: true, completion: {
+                    onDismiss?.action()
+                })
+            }
+        case let .syncWithBrowser(vaultUrl):
+            showSyncWithBrowser(vaultUrl: vaultUrl)
         }
     }
 
@@ -65,12 +69,15 @@ public final class GlobalModalCoordinator: NSObject, Coordinator, HasStackNaviga
     // MARK: Private Methods
 
     /// Configures and displays the sync with browser screen.
-    private func showSyncWithBrowser() {
+    ///
+    /// - Parameter vaultUrl: The vault URL used to construct the browser redirect URL.
+    ///
+    private func showSyncWithBrowser(vaultUrl: String) {
         let processor = SyncWithBrowserProcessor(
             coordinator: asAnyCoordinator(),
             delegate: self,
             services: services,
-            state: SyncWithBrowserState(),
+            state: SyncWithBrowserState(vaultUrl: vaultUrl),
         )
 
         let view = SyncWithBrowserView(store: Store(processor: processor))

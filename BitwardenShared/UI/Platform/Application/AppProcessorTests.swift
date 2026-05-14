@@ -20,6 +20,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
     var autofillCredentialService: MockAutofillCredentialService!
+    var billingService: MockBillingService!
     var clientService: MockClientService!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
@@ -55,6 +56,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
         autofillCredentialService = MockAutofillCredentialService()
+        billingService = MockBillingService()
         clientService = MockClientService()
         configService = MockConfigService()
         coordinator = MockCoordinator()
@@ -85,6 +87,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 authRepository: authRepository,
                 authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
+                billingService: billingService,
                 clientService: clientService,
                 configService: configService,
                 environmentService: environmentService,
@@ -112,6 +115,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appModule = nil
         authRepository = nil
         autofillCredentialService = nil
+        billingService = nil
         clientService = nil
         configService = nil
         coordinator = nil
@@ -894,6 +898,38 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(coordinator.routes, [])
     }
 
+    /// `openUrl(_:)` with a premium checkout success URL calls `billingService.premiumStatusChanged()`.
+    @MainActor
+    func test_openUrl_premiumCheckoutResult_success() async throws {
+        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=success"))
+
+        await subject.openUrl(url)
+
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 1)
+    }
+
+    /// `openUrl(_:)` with a premium checkout canceled URL calls `premiumCheckoutCanceled()`.
+    @MainActor
+    func test_openUrl_premiumCheckoutResult_canceled() async throws {
+        let url = try XCTUnwrap(URL(string: "bitwarden://premium-checkout-result?result=canceled"))
+
+        await subject.openUrl(url)
+
+        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 1)
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
+    }
+
+    /// `openUrl(_:)` with a non-premium-checkout URL is not handled by `handlePremiumCheckoutResult`.
+    @MainActor
+    func test_openUrl_premiumCheckoutResult_unrelatedUrl() async throws {
+        let url = try XCTUnwrap(URL(string: "bitwarden://other-path"))
+
+        await subject.openUrl(url)
+
+        XCTAssertEqual(billingService.premiumStatusChangedCallsCount, 0)
+        XCTAssertEqual(billingService.premiumCheckoutCanceledCallsCount, 0)
+    }
+
     /// `provideCredential(for:)` returns the credential with the specified identifier.
     func test_provideCredential() async throws {
         let credential = ASPasswordCredential(user: "user@bitwarden.com", password: "password123")
@@ -1181,31 +1217,31 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and navigates to `.syncWithBrowser`
-    /// when a non-nil hostname is emitted.
+    /// when a non-nil vault URL is emitted.
     @MainActor
-    func test_start_acquireCookiesPublisher_withHostname_navigatesToSyncWithBrowser() async throws {
+    func test_start_acquireCookiesPublisher_withVaultURL_navigatesToSyncWithBrowser() async throws {
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
-        serverCommunicationConfigAPIService.acquireCookiesSubject.send("example.com")
+        serverCommunicationConfigAPIService.acquireCookiesSubject.send("https://example.com")
 
         try await waitForAsync { [weak self] in
-            self?.coordinator.routes.contains(.syncWithBrowser) == true
+            self?.coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")) == true
         }
 
-        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser))
+        XCTAssertTrue(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
 
     /// `start(navigator:)` subscribes to `acquireCookiesPublisher` and does not navigate to
-    /// `.syncWithBrowser` when a nil hostname is emitted.
+    /// `.syncWithBrowser` when a nil vault URL is emitted.
     @MainActor
-    func test_start_acquireCookiesPublisher_withNilHostname_doesNotNavigate() async {
+    func test_start_acquireCookiesPublisher_withNilVaultURL_doesNotNavigate() async {
         let rootNavigator = MockRootNavigator()
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         serverCommunicationConfigAPIService.acquireCookiesSubject.send(nil)
 
-        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser))
+        XCTAssertFalse(coordinator.routes.contains(.syncWithBrowser(vaultUrl: "https://example.com")))
     }
 
     /// `start(navigator:)` completes the user's autofill setup progress if autofill is enabled and

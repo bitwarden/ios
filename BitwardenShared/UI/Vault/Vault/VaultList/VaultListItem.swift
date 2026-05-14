@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenResources
 @preconcurrency import BitwardenSdk
 import Foundation
@@ -41,7 +42,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
     public let id: String
 
     /// Whether the user has premium subscription.
-    /// This is only used on Archive group for now, so it's not being set for any other occassions.
+    /// This is only used on Archive group for now, so it's not being set for any other occasions.
     public let hasPremium: Bool
 
     /// The type of item being displayed by this item.

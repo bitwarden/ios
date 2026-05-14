@@ -9,9 +9,6 @@ import Foundation
 struct VaultListState: Equatable {
     // MARK: Properties
 
-    /// List of available item type for creation.
-    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
-
     /// Whether the vault filter can be shown.
     var canShowVaultFilter = true
 
@@ -27,11 +24,14 @@ struct VaultListState: Equatable {
     /// The user's import logins setup progress.
     var importLoginsSetupProgress: AccountSetupProgress?
 
+    /// Whether the user is eligible for an app review prompt.
+    var isEligibleForAppReview: Bool = false
+
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
-    /// Whether the user is eligible for an app review prompt.
-    var isEligibleForAppReview: Bool = false
+    /// List of available item type for creation.
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
 
     /// The loading state of the My Vault screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
@@ -92,6 +92,17 @@ struct VaultListState: Equatable {
         importLoginsSetupProgress == .incomplete
     }
 
+    /// Whether the Premium Upgrade action card should be shown.
+    var shouldShowPremiumUpgradeActionCard: Bool = false
+
+    /// Whether the Upgraded to Premium action card should be shown.
+    var shouldShowUpgradedToPremiumActionCard: Bool = false
+
+    /// The user's initials.
+    var userInitials: String {
+        profileSwitcherState.activeAccountInitials
+    }
+
     /// The state for showing the vault filter.
     var vaultFilterState: SearchVaultFilterRowState {
         SearchVaultFilterRowState(
@@ -100,10 +111,5 @@ struct VaultListState: Equatable {
             organizations: organizations,
             searchVaultFilterType: vaultFilterType,
         )
-    }
-
-    /// The user's initials.
-    var userInitials: String {
-        profileSwitcherState.activeAccountInitials
     }
 }

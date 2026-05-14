@@ -88,6 +88,23 @@ extension Alert {
         )
     }
 
+    /// Returns an alert asking the user to confirm archiving a vault item.
+    ///
+    /// - Parameters:
+    ///   - action: A closure to execute when the user confirms archiving.
+    /// - Returns: An alert confirming the archive action.
+    ///
+    static func confirmArchiveItem(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.archiveItem,
+            message: Localizations.onceArchivedThisItemWillBeExcludedDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.archive, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ],
+        )
+    }
+
     /// Returns an alert confirming cancelling the Credential Exchange export process.
     /// - Parameter action: The action to perform if the user confirms.
     /// - Returns: An alert confirming cancelling the Credential Exchange export process.

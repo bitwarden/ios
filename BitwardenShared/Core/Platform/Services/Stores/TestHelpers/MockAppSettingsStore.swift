@@ -50,6 +50,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastRequestToTurnOnCredentialProviderDate: Date? // swiftlint:disable:this identifier_name
+    var lastSyncMonotonicTimeByUserId = [String: TimeInterval?]()
     var lastSyncTimeByUserId = [String: Date]()
     var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
@@ -57,6 +58,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
     var pinProtectedUserKeyEnvelope = [String: String]()
+    var premiumUpgradeBannerDismissedByUserId = [String: Bool]()
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
@@ -161,6 +163,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         lastSyncTimeByUserId[userId]
     }
 
+    func lastSyncMonotonicTime(userId: String) -> TimeInterval? {
+        lastSyncMonotonicTimeByUserId[userId] ?? nil
+    }
+
     func manuallyLockedAccount(userId: String) -> Bool {
         manuallyLockedAccounts[userId] ?? false
     }
@@ -188,6 +194,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func pinProtectedUserKeyEnvelope(userId: String) -> String? {
         pinProtectedUserKeyEnvelope[userId]
+    }
+
+    func premiumUpgradeBannerDismissed(userId: String) -> Bool {
+        premiumUpgradeBannerDismissedByUserId[userId] ?? false
     }
 
     func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
@@ -298,6 +308,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         lastSyncTimeByUserId[userId] = date
     }
 
+    func setLastSyncMonotonicTime(_ monotonicTime: TimeInterval?, userId: String) {
+        lastSyncMonotonicTimeByUserId[userId] = monotonicTime
+    }
+
     func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
         manuallyLockedAccounts[userId] = isLocked
     }
@@ -324,6 +338,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setPinProtectedUserKeyEnvelope(key: String?, userId: String) {
         pinProtectedUserKeyEnvelope[userId] = key
+    }
+
+    func setPremiumUpgradeBannerDismissed(_ dismissed: Bool, userId: String) {
+        premiumUpgradeBannerDismissedByUserId[userId] = dismissed
     }
 
     func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {

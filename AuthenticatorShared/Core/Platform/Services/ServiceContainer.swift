@@ -14,7 +14,7 @@ import UIKit
 ///             & HasExampleRepository
 ///     }
 ///
-public class ServiceContainer: Services {
+public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
@@ -194,7 +194,7 @@ public class ServiceContainer: Services {
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!,
         )
 
-        let appIdService = AppIdService(appSettingStore: appSettingsStore)
+        let appIDService = AppIDService(appIDSettingsStore: appSettingsStore)
 
         // Create holder for breaking circular dependency.
         // This is set later in this initializer, after configService is created.
@@ -215,9 +215,18 @@ public class ServiceContainer: Services {
         let keychainService = DefaultKeychainService()
         let timeProvider = CurrentTime()
 
-        let keychainRepository = DefaultKeychainRepository(
-            appIdService: appIdService,
+        let keychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.groupIdentifier,
             keychainService: keychainService,
+            namespacing: .appScoped(
+                appIDService: appIDService,
+                appSecAttrService: Bundle.main.appIdentifier,
+                storageKeyPrefix: "bwaKeychainStorage",
+            ),
+        )
+
+        let keychainRepository = DefaultKeychainRepository(
+            keychainServiceFacade: keychainServiceFacade,
         )
 
         let stateService = DefaultStateService(
@@ -238,6 +247,11 @@ public class ServiceContainer: Services {
         let apiService = APIService(
             environmentService: environmentService,
             flightRecorder: flightRecorder,
+            userAgentBuilder: UserAgentBuilder(
+                appName: "Bitwarden_Authenticator_Mobile",
+                appVersion: Bundle.main.appVersion,
+                systemDevice: UIDevice.current,
+            ),
         )
 
         let errorReportBuilder = DefaultErrorReportBuilder(
@@ -301,13 +315,14 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore,
         )
 
-        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+        let sharedKeychainServiceFacade = DefaultKeychainServiceFacade(
+            appSecAttrAccessGroup: Bundle.main.sharedAppGroupIdentifier,
             keychainService: keychainService,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
+            namespacing: .shared,
         )
 
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage,
+            keychainServiceFacade: sharedKeychainServiceFacade,
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(

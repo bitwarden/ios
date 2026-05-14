@@ -7,7 +7,7 @@ typealias Services = HasAPIService
     & HasASSettingsMediator
     & HasAccountAPIService
     & HasAppContextHelper
-    & HasAppIdService
+    & HasAppIDService
     & HasAppInfoService
     & HasAppSettingsStore
     & HasApplication
@@ -15,10 +15,15 @@ typealias Services = HasAPIService
     & HasAuthRepository
     & HasAuthService
     & HasAutofillCredentialService
+    & HasBillingAPIService
+    & HasBillingRepository
+    & HasBillingService
     & HasBiometricsRepository
     & HasCameraService
+    & HasCardTextParser
     & HasChangeKdfService
     & HasCipherOwnershipHelper
+    & HasClientCertificateService
     & HasClientService
     & HasConfigService
     & HasDeviceAPIService
@@ -53,6 +58,7 @@ typealias Services = HasAPIService
     & HasSettingsRepository
     & HasSharedTimeoutService
     & HasStateService
+    & HasStorefrontService
     & HasSyncService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
@@ -88,11 +94,11 @@ protocol HasAppContextHelper {
     var appContextHelper: AppContextHelper { get }
 }
 
-/// Protocol for an object that provides an `AppIdService`.
+/// Protocol for an object that provides an `AppIDService`.
 ///
-protocol HasAppIdService {
+protocol HasAppIDService {
     /// The service used by the application to manage the app's ID.
-    var appIdService: AppIdService { get }
+    var appIDService: AppIDService { get }
 }
 
 /// Protocol for an object that provides an `AppSettingsStore`.
@@ -144,6 +150,27 @@ protocol HasAutofillCredentialService {
     var autofillCredentialService: AutofillCredentialService { get }
 }
 
+/// Protocol for an object that provides a `BillingAPIService`.
+///
+protocol HasBillingAPIService {
+    /// The service used by the application to make billing-related API requests.
+    var billingAPIService: BillingAPIService { get }
+}
+
+/// Protocol for an object that provides a `BillingRepository`.
+///
+protocol HasBillingRepository {
+    /// The repository used by the application to manage billing data for the UI layer.
+    var billingRepository: BillingRepository { get }
+}
+
+/// Protocol for an object that provides a `BillingService`.
+///
+protocol HasBillingService {
+    /// The service used by the application to manage billing operations.
+    var billingService: BillingService { get }
+}
+
 /// Protocol for obtaining the device's biometric authentication type.
 ///
 protocol HasBiometricsRepository {
@@ -158,6 +185,13 @@ protocol HasCameraService {
     var cameraService: CameraService { get }
 }
 
+/// Protocol for an object that provides a `CardTextParser`.
+///
+protocol HasCardTextParser {
+    /// The service used to parse card text from OCR results.
+    var cardTextParser: CardTextParser { get }
+}
+
 /// Protocol for an object that provides a `CipherOwnershipHelper`.
 ///
 protocol HasCipherOwnershipHelper {
@@ -170,6 +204,13 @@ protocol HasCipherOwnershipHelper {
 protocol HasChangeKdfService {
     /// The service used to change the user's KDF settings.
     var changeKdfService: ChangeKdfService { get }
+}
+
+/// Protocol for an object that provides a `ClientCertificateService`.
+///
+protocol HasClientCertificateService {
+    /// The service used by the application to manage client certificates for mTLS authentication.
+    var clientCertificateService: ClientCertificateService { get }
 }
 
 /// Protocol for an object that provides a `ClientService`.
@@ -350,6 +391,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that provides a `StorefrontService`.
+///
+protocol HasStorefrontService {
+    /// The service used by the application to retrieve App Store storefront information.
+    var storefrontService: StorefrontService { get }
 }
 
 /// Protocol for an object that provides a `UserSessionStateService`.

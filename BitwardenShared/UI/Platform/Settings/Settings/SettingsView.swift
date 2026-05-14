@@ -10,7 +10,7 @@ struct SettingsView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<SettingsState, SettingsAction, Void>
+    @ObservedObject var store: Store<SettingsState, SettingsAction, SettingsEffect>
 
     // MARK: View
 
@@ -18,6 +18,9 @@ struct SettingsView: View {
         settingsItems
             .scrollView()
             .navigationBar(title: Localizations.settings, titleDisplayMode: .inline)
+            .task {
+                await store.perform(.appeared)
+            }
             .toolbar {
                 closeToolbarItem(hidden: store.state.presentationMode != .preLogin) {
                     store.send(.dismiss)
@@ -48,6 +51,9 @@ struct SettingsView: View {
                 accountSecurityRow
                 autofillRow
                 vaultRow
+                if store.state.showPlanRow {
+                    planRow
+                }
                 appearanceRow
                 otherRow
                 aboutRow
@@ -116,6 +122,19 @@ struct SettingsView: View {
             chevron
         }
         .accessibilityIdentifier("OtherSettingsButton")
+    }
+
+    /// The plan settings row.
+    private var planRow: some View {
+        SettingsListItem(
+            Localizations.plan,
+            icon: SharedAsset.Icons.card24,
+        ) {
+            store.send(.planPressed)
+        } trailingContent: {
+            chevron
+        }
+        .accessibilityIdentifier("PlanSettingsButton")
     }
 
     /// The vault settings row.

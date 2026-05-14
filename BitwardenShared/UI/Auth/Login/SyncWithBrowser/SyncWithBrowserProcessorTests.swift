@@ -11,7 +11,6 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
     var coordinator: MockCoordinator<GlobalModalRoute, Void>!
     var delegate: MockSyncWithBrowserProcessorDelegate!
-    var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var serverCommunicationConfigAPIService: MockServerCommunicationConfigAPIService!
     var subject: SyncWithBrowserProcessor!
@@ -23,7 +22,6 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         coordinator = MockCoordinator()
         delegate = MockSyncWithBrowserProcessorDelegate()
-        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         serverCommunicationConfigAPIService = MockServerCommunicationConfigAPIService()
 
@@ -31,11 +29,10 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
-                environmentService: environmentService,
                 errorReporter: errorReporter,
                 serverCommunicationConfigAPIService: serverCommunicationConfigAPIService,
             ),
-            state: SyncWithBrowserState(),
+            state: SyncWithBrowserState(vaultUrl: "https://example.com"),
         )
     }
 
@@ -44,26 +41,16 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         coordinator = nil
         delegate = nil
-        environmentService = nil
         errorReporter = nil
         serverCommunicationConfigAPIService = nil
         subject = nil
     }
 
-    // MARK: Tests - Appeared Effect
-
-    /// `perform(_:)` with `.appeared` sets the environment URL from the environment service.
-    @MainActor
-    func test_perform_appeared_setsEnvironmentUrl() async {
-        await subject.perform(.appeared)
-
-        XCTAssertEqual(subject.state.environmentUrl, environmentService.webVaultURL.absoluteString)
-    }
-
     // MARK: Tests - LaunchBrowserTapped Effect
 
-    /// `perform(_:)` with `.launchBrowserTapped` starts an ASWA session with the connector URL and,
-    /// on success, dismisses with an action that delivers the acquired cookies.
+    /// `perform(_:)` with `.launchBrowserTapped` starts an ASWA session with the connector URL
+    /// constructed from `state.vaultUrl` and, on success, dismisses with an action that delivers
+    /// the acquired cookies.
     @MainActor
     func test_perform_launchBrowserTapped_success() async throws {
         let callbackURL = URL(string: "bitwarden://sso-cookie-vendor?cookie1=value1")!
@@ -71,7 +58,10 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         await subject.perform(.launchBrowserTapped)
 
-        XCTAssertEqual(delegate.performWebAuthSessionURL, environmentService.proxyCookieRedirectConnectorURL)
+        XCTAssertEqual(
+            delegate.performWebAuthSessionURL,
+            URL(string: "https://example.com/proxy-cookie-redirect-connector.html"),
+        )
         XCTAssertTrue(delegate.dismissCalled)
         let dismissAction = try XCTUnwrap(delegate.dismissAction)
 
@@ -90,7 +80,10 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
 
         await subject.perform(.launchBrowserTapped)
 
-        XCTAssertEqual(delegate.performWebAuthSessionURL, environmentService.proxyCookieRedirectConnectorURL)
+        XCTAssertEqual(
+            delegate.performWebAuthSessionURL,
+            URL(string: "https://example.com/proxy-cookie-redirect-connector.html"),
+        )
         XCTAssertTrue(delegate.dismissCalled)
         let dismissAction = try XCTUnwrap(delegate.dismissAction)
 
@@ -99,6 +92,22 @@ class SyncWithBrowserProcessorTests: BitwardenTestCase {
         try await waitForAsync { self.serverCommunicationConfigAPIService.cookiesAcquiredFromCalled }
 
         XCTAssertNil(serverCommunicationConfigAPIService.cookiesAcquiredFromURL)
+    }
+
+    /// `perform(_:)` with `.launchBrowserTapped` logs an error and shows an alert when the vault URL
+    /// cannot be parsed into a valid URL.
+    @MainActor
+    func test_perform_launchBrowserTapped_invalidVaultUrl() async {
+        subject.state.vaultUrl = "example.com"
+
+        await subject.perform(.launchBrowserTapped)
+
+        XCTAssertNil(delegate.performWebAuthSessionURL)
+        XCTAssertFalse(delegate.dismissCalled)
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        XCTAssertEqual(errorReporter.errors as? [SyncWithBrowserProcessorError], [.invalidVaultURL])
+        XCTAssertEqual(coordinator.errorAlertsShown.count, 1)
+        XCTAssertEqual(coordinator.errorAlertsShown as? [SyncWithBrowserProcessorError], [.invalidVaultURL])
     }
 
     // MARK: Tests - ContinueWithoutSyncingTapped Action

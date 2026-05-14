@@ -66,6 +66,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     // MARK: Types
 
     typealias Module = AddEditFolderModule
+        & BillingModule
         & GeneratorModule
         & ImportCXFModule
         & ImportLoginsModule
@@ -77,6 +78,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
+        & HasBillingRepository
+        & HasBillingService
         & HasCameraService
         & HasChangeKdfService
         & HasCipherOwnershipHelper
@@ -94,6 +97,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasSearchProcessorMediatorFactory
         & HasSettingsRepository
         & HasStateService
+        & HasStorefrontService
         & HasSyncService
         & HasTOTPExpirationManagerFactory
         & HasTextAutofillHelperFactory
@@ -238,14 +242,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                     services.errorReporter.log(error: error)
                 }
             }
-        case .dismiss:
+        case let .dismiss(action):
             // If we're presenting a more complicated stack of view controllers (in particular, this could happen
             // if the user goes to the change profile sheet in the VaultItemSelection modal) then we only want to
             // dismiss the presented one, not the full stack.
+            let completion = action?.action
             if let presentedViewController = stackNavigator?.rootViewController?.presentedViewController {
-                presentedViewController.dismiss(animated: UI.animated)
+                presentedViewController.dismiss(animated: UI.animated, completion: completion)
             } else {
-                stackNavigator?.dismiss()
+                stackNavigator?.dismiss(completion: completion)
             }
         case .flightRecorderSettings:
             delegate?.switchToSettingsTab(route: .about)
@@ -259,6 +264,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case .premiumUpgrade:
+            showPremiumUpgrade()
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id, masterPasswordRepromptCheckCompleted):
@@ -406,6 +413,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         )
         coordinator.start()
         coordinator.navigate(to: .importLogins(.vault))
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the premium upgrade screen.
+    ///
+    private func showPremiumUpgrade() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeBillingCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .premiumUpgrade)
         stackNavigator?.present(navigationController)
     }
 

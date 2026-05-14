@@ -54,7 +54,7 @@ class DefaultASSettingsMediator: ASSettingsMediator {
     init(
         asSettingsHelperProxy: ASSettingsHelperProxy,
         stateService: AutofillStateService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
     ) {
         self.asSettingsHelperProxy = asSettingsHelperProxy
         self.stateService = stateService

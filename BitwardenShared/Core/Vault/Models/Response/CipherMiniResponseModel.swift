@@ -16,6 +16,9 @@ struct CipherMiniResponseModel: JSONResponse, Equatable {
     /// The cipher's list of attachments.
     let attachments: [AttachmentResponseModel]?
 
+    /// Bank account data if the cipher is a bank account.
+    let bankAccount: CipherBankAccountModel?
+
     /// Card data if the cipher is a card.
     let card: CipherCardModel?
 

@@ -64,22 +64,6 @@ public extension String {
         self == "bitwarden"
     }
 
-    /// Validates whether the string is a valid email address.
-    ///
-    /// - Parameter useStrictValidation: If `true`, validates against a regex pattern requiring
-    ///   a properly formatted email (e.g., `user@domain.com`). If `false`, only checks for
-    ///   the presence of an `@` symbol. Defaults to `true`.
-    /// - Returns: `true` if the string is a valid email according to the validation mode.
-    ///
-    func isValidEmail(useStrictValidation: Bool = true) -> Bool {
-        if useStrictValidation {
-            let emailRegex = "^[A-Za-z0-9._%+-/*]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-            return range(of: emailRegex, options: .regularExpression) != nil
-        } else {
-            return contains("@")
-        }
-    }
-
     /// Returns `true` if the URL is valid.
     var isValidURL: Bool {
         guard rangeOfCharacter(from: .whitespaces) == nil else { return false }
@@ -129,6 +113,22 @@ public extension String {
         }
 
         return result
+    }
+
+    /// Validates whether the string is a valid email address.
+    ///
+    /// - Parameter useStrictValidation: If `true`, validates against a regex pattern requiring
+    ///   a properly formatted email (e.g., `user@domain.com`). If `false`, only checks for
+    ///   the presence of an `@` symbol. Defaults to `true`.
+    /// - Returns: `true` if the string is a valid email according to the validation mode.
+    ///
+    func isValidEmail(useStrictValidation: Bool = true) -> Bool {
+        if useStrictValidation {
+            let emailRegex = "^[A-Za-z0-9._%+-/*]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+            return range(of: emailRegex, options: .regularExpression) != nil
+        } else {
+            return contains("@")
+        }
     }
 
     /// Returns a copy of the string, padded to the specified length on the left side with the

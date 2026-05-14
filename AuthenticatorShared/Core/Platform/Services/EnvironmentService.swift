@@ -41,6 +41,10 @@ extension DefaultEnvironmentService {
         environmentURLs.changeEmailURL
     }
 
+    var clientCertificateFingerprint: String? {
+        nil
+    }
+
     var eventsURL: URL {
         environmentURLs.eventsURL
     }

@@ -32,6 +32,12 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the autofill list screen with a specified group.
     case autofillListForGroup(_ group: VaultListGroup)
 
+    /// A route to dismiss the screen currently presented modally.
+    ///
+    /// - Parameter action: An optional `DismissAction` that is executed after the screen has been dismissed.
+    ///
+    case dismiss(_ action: DismissAction? = nil)
+
     /// A route to edit an item.
     ///
     /// - Parameter cipher: The `CipherView` to edit.
@@ -43,9 +49,6 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter id: The ID of the cipher to edit.
     ///
     case editItemFrom(id: String)
-
-    /// A route to dismiss the screen currently presented modally.
-    case dismiss
 
     /// A route to the flight recorder settings in the settings tab.
     case flightRecorderSettings
@@ -67,6 +70,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter loginRequest: The login request to display.
     ///
     case loginRequest(_ loginRequest: LoginRequest)
+
+    /// A route to the premium upgrade view.
+    case premiumUpgrade
 
     /// A route to switch accounts.
     ///

@@ -1,56 +1,36 @@
 import Networking
-import UIKit
 
 /// A `RequestHandler` that applies default headers (user agent, client type & name, etc) to requests.
 ///
 public final class DefaultHeadersRequestHandler: RequestHandler {
     // MARK: Properties
 
-    /// The app's name.
-    let appName: String
-
     /// The app's version number.
     let appVersion: String
 
-    /// The app's build number.
-    let buildNumber: String
-
-    /// A `SystemDevice` instance used to get device details.
-    let systemDevice: SystemDevice
+    /// Builds the user agent string from app and device information.
+    let userAgentBuilder: UserAgentBuilder
 
     // MARK: Initialization
 
     /// Initializes a `DefaultHeadersRequestHandler`.
     ///
     /// - Parameters:
-    ///   - appName: The app's name.
     ///   - appVersion: The app's version number.
-    ///   - buildNumber: The app's build number.
-    ///   - systemDevice: A `SystemDevice` instance used to get device details.
+    ///   - userAgentBuilder: Builds the user agent string from app and device information.
     ///
-    public init(
-        appName: String,
-        appVersion: String,
-        buildNumber: String,
-        systemDevice: SystemDevice,
-    ) {
-        self.appName = appName
+    public init(appVersion: String, userAgentBuilder: UserAgentBuilder) {
         self.appVersion = appVersion
-        self.buildNumber = buildNumber
-        self.systemDevice = systemDevice
+        self.userAgentBuilder = userAgentBuilder
     }
 
     // MARK: Request Handler
 
     public func handle(_ request: inout HTTPRequest) async throws -> HTTPRequest {
-        let osVersion = systemDevice.systemVersion
-        let systemName = systemDevice.systemName
-        let model = systemDevice.model
-
         request.headers["Bitwarden-Client-Name"] = Constants.clientType
         request.headers["Bitwarden-Client-Version"] = appVersion
         request.headers["Device-Type"] = String(Constants.deviceType)
-        request.headers["User-Agent"] = "\(appName)/\(appVersion) (\(systemName) \(osVersion); Model \(model))"
+        request.headers["User-Agent"] = userAgentBuilder.value
 
         return request
     }

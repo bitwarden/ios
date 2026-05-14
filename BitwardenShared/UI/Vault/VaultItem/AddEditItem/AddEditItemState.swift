@@ -68,9 +68,6 @@ protocol AddEditItemState: Sendable {
     /// Whether the additional options section is expanded.
     var isAdditionalOptionsExpanded: Bool { get set }
 
-    /// Whether archive vault items feature flag is enabled.
-    var isArchiveVaultItemsFFEnabled: Bool { get set }
-
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }
 

@@ -123,7 +123,6 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
             collectionIds: ["2", "3"],
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.isArchiveVaultItemsFFEnabled = true
         state.allUserCollections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -231,7 +230,6 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `getter:shouldDisplayFolder` returns `false` when cipher should display as archived.
     func test_shouldDisplayFolder_falseDisplayedAsArchived() throws {
         var state = try XCTUnwrap(CipherItemState(existing: .fixture(archivedDate: .now), hasPremium: true))
-        state.isArchiveVaultItemsFFEnabled = true
         state.folderName = "Folder"
         XCTAssertFalse(state.shouldDisplayFolder)
     }
@@ -279,7 +277,6 @@ class CipherItemStateHeaderTests: BitwardenTestCase { // swiftlint:disable:this 
     /// `getter:shouldDisplayNoFolder` returns `false` when cipher should display as archived.
     func test_shouldDisplayNoFolder_falseDisplayedAsArchived() throws {
         var state = try XCTUnwrap(CipherItemState(existing: .fixture(archivedDate: .now), hasPremium: true))
-        state.isArchiveVaultItemsFFEnabled = true
         XCTAssertFalse(state.shouldDisplayNoFolder)
     }
 

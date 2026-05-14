@@ -341,7 +341,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
         XCTAssertEqual(coordinator.events.last, .switchAccount(isAutomatic: false, userId: "1"))
     }
 
@@ -366,7 +366,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
         XCTAssertNil(coordinator.events.last)
     }
 
@@ -664,7 +664,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         subject.receive(.profileSwitcher(.backgroundTapped))
 
-        XCTAssertTrue(coordinator.routes.contains(.dismiss))
+        XCTAssertTrue(coordinator.routes.contains(.dismiss()))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.logout)` does nothing.
@@ -699,7 +699,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         subject.receive(.searchStateChanged(isSearching: true))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `receive(_:)` with `.searchTextChanged` updates the state's search text value.
@@ -744,7 +744,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_dismissProfileSwitcher() {
         subject.dismissProfileSwitcher()
 
-        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertEqual(coordinator.routes, [.dismiss()])
     }
 
     /// `showProfileSwitcher` calls the coordinator to show the profile switcher.
