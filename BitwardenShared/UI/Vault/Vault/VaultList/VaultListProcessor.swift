@@ -49,8 +49,15 @@ final class VaultListProcessor: StateProcessor<
     /// The helper to handle master password reprompts.
     private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
 
-    /// Cancellable for the premium checkout status subscription.
-    private var premiumStatusChangedCancellable: AnyCancellable?
+    /// The helper used to navigate to the premium upgrade flow.
+    lazy var premiumUpgradeHelper: PremiumUpgradeHelper = DefaultPremiumUpgradeHelper(
+        services: services,
+        coordinator: coordinator,
+        setURL: { [weak self] url in self?.state.url = url },
+        onPendingDismiss: { [weak self] in
+            Task { @MainActor in await self?.dismissPremiumUpgradeActionCard() }
+        },
+    )
 
     /// The task that schedules the app review prompt.
     private(set) var reviewPromptTask: Task<Void, Never>?
@@ -589,57 +596,22 @@ extension VaultListProcessor {
         )
     }
 
+    /// Handles state updates after a premium upgrade is confirmed.
+    ///
+    private func handlePremiumUpgradeConfirmed() async {
+        await refreshVault(syncWithPeriodicCheck: false)
+        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
+        state.shouldShowPremiumUpgradeActionCard = !state.hasPremium
+        state.shouldShowUpgradedToPremiumActionCard = state.hasPremium
+    }
+
     /// Navigates to the premium upgrade flow. Uses the in-app upgrade path when available;
     /// otherwise opens the web vault upgrade URL as a fallback.
     ///
     private func navigateToPremiumUpgrade() async {
-        guard await services.billingRepository.isInAppUpgradeAvailable() else {
-            state.url = services.environmentService.upgradeToPremiumURL
-            return
-        }
-        subscribeToPremiumCheckoutStatus()
-        coordinator.navigate(to: .premiumUpgrade)
-    }
-
-    /// Subscribes to premium checkout status updates. On `.confirmed`, reloads the vault list
-    /// to update the premium state. On `.pending`, shows an upgrade pending alert.
-    ///
-    private func subscribeToPremiumCheckoutStatus() {
-        premiumStatusChangedCancellable = services.billingService
-            .premiumCheckoutStatusPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] status in
-                guard let self else { return }
-                switch status {
-                case .canceled:
-                    break
-                case .confirmed:
-                    premiumStatusChangedCancellable = nil
-                    // PremiumUpgradeProcessor navigates to PremiumUpgradeComplete.
-                    // Refresh vault in the background so it's ready when the user returns.
-                    Task { [weak self] in
-                        guard let self else { return }
-                        await refreshVault(syncWithPeriodicCheck: false)
-                        state.hasPremium = await services.stateService.doesActiveAccountHavePremium()
-                        state.shouldShowPremiumUpgradeActionCard = false
-                        state.shouldShowUpgradedToPremiumActionCard = true
-                    }
-                case .pending:
-                    coordinator.navigate(
-                        to: .dismiss(DismissAction { [weak self] in
-                            guard let self else { return }
-                            coordinator.hideLoadingOverlay()
-                            Task { await self.dismissPremiumUpgradeActionCard() }
-                            coordinator.showAlert(.upgradePending {
-                                await self.services.billingService.premiumStatusChanged()
-                            })
-                        }),
-                    )
-                case .syncing:
-                    // PremiumUpgradeProcessor shows the loading overlay on the upgrade screen.
-                    break
-                }
-            }
+        await premiumUpgradeHelper.navigateToPremiumUpgrade(onConfirmed: { [weak self] in
+            await self?.handlePremiumUpgradeConfirmed()
+        })
     }
 
     /// Streams the user's account setup progress.
@@ -732,8 +704,9 @@ extension VaultListProcessor {
 
     /// Subscribes to premium checkout status and navigates to the upgrade screen.
     private func upgradeToPremium() {
-        subscribeToPremiumCheckoutStatus()
-        coordinator.navigate(to: .premiumUpgrade)
+        premiumUpgradeHelper.startInAppPremiumUpgrade(onConfirmed: { [weak self] in
+            await self?.handlePremiumUpgradeConfirmed()
+        })
     }
 }
 
