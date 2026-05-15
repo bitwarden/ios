@@ -20,7 +20,7 @@ jobs:
           persist-credentials: true
 
       - name: Run fix-localizable-strings
-        run: bash Scripts/fix-localizable-strings.sh
+        run: bash Scripts/fix-localizable-strings.sh | tee /tmp/fix-output.txt
 
       - name: Check for changes
         id: check-changes
@@ -57,7 +57,14 @@ jobs:
             --json number \
             --jq '.[0].number // empty')
 
-          PR_BODY="Automated cleanup of Localizable.strings files: removes duplicate and unused string keys."
+          SCRIPT_OUTPUT=$(cat /tmp/fix-output.txt)
+          PR_BODY="Automated cleanup of Localizable.strings files: removes duplicate and unused string keys.
+
+## Script output
+
+\`\`\`
+$SCRIPT_OUTPUT
+\`\`\`"
 
           if [ -n "$EXISTING_PR" ]; then
             echo -e "$PR_BODY" | gh pr edit "$EXISTING_PR" \
