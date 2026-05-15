@@ -50,6 +50,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          {
+            echo "Automated cleanup of Localizable.strings files."
+            echo ""
+            echo "## Script output"
+            echo ""
+            printf '```\n'
+            cat /tmp/fix-output.txt
+            printf '```\n'
+          } > /tmp/pr-body.md
+
           EXISTING_PR=$(gh pr list \
             --head "$BRANCH_NAME" \
             --base main \
@@ -57,24 +67,15 @@ jobs:
             --json number \
             --jq '.[0].number // empty')
 
-          SCRIPT_OUTPUT=$(cat /tmp/fix-output.txt)
-          PR_BODY="Automated cleanup of Localizable.strings files.
-
-## Script output
-
-\`\`\`
-$SCRIPT_OUTPUT
-\`\`\`"
-
           if [ -n "$EXISTING_PR" ]; then
-            echo -e "$PR_BODY" | gh pr edit "$EXISTING_PR" \
+            gh pr edit "$EXISTING_PR" \
               --title "chore: Fix Localizable.strings file" \
-              --body-file -
+              --body-file /tmp/pr-body.md
             echo "Updated existing PR #$EXISTING_PR"
           else
-            echo -e "$PR_BODY" | gh pr create \
+            gh pr create \
               --title "chore: Fix Localizable.strings file" \
-              --body-file - \
+              --body-file /tmp/pr-body.md \
               --base main \
               --head "$BRANCH_NAME" \
               --label "automated-pr" \
