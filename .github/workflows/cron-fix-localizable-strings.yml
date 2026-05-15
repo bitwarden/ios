@@ -78,5 +78,5 @@ $SCRIPT_OUTPUT
               --base main \
               --head "$BRANCH_NAME" \
               --label "automated-pr" \
-              --label "t:ci"
+              --label "t:tech-debt"
           fi
