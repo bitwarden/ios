@@ -1,11 +1,10 @@
-import BitwardenKit
 import BitwardenSdk
 import Foundation
 
 /// A protocol for a service that handles platform tasks. This is similar to
 /// `PlatformClientProtocol` but returns the protocols so they can be mocked for testing.
 ///
-protocol PlatformClientService: AnyObject {
+public protocol PlatformClientService: AnyObject { // sourcery: AutoMockable
     /// Returns an object to handle Fido2 operations.
     func fido2() -> ClientFido2Service
 
@@ -40,19 +39,19 @@ protocol PlatformClientService: AnyObject {
 // MARK: PlatformClient
 
 extension PlatformClient: PlatformClientService {
-    func fido2() -> ClientFido2Service {
+    public func fido2() -> ClientFido2Service {
         fido2() as ClientFido2
     }
 
-    func fingerprint(request req: FingerprintRequest) throws -> String {
+    public func fingerprint(request req: FingerprintRequest) throws -> String {
         try fingerprint(req: req)
     }
 
-    func loadFlags(_ flags: [String: Bool]) async throws {
+    public func loadFlags(_ flags: [String: Bool]) async throws {
         try await loadFlags(flags: flags)
     }
 
-    func serverCommunicationConfig(
+    public func serverCommunicationConfig(
         repository: ServerCommunicationConfigRepository,
         platformApi: ServerCommunicationConfigPlatformApi,
     ) -> ServerCommunicationConfigClientProtocol {
@@ -63,11 +62,11 @@ extension PlatformClient: PlatformClientService {
         return client
     }
 
-    func state() -> StateClientProtocol {
+    public func state() -> StateClientProtocol {
         state() as StateClient
     }
 
-    func userFingerprint(material fingerprintMaterial: String) throws -> String {
+    public func userFingerprint(material fingerprintMaterial: String) throws -> String {
         try userFingerprint(fingerprintMaterial: fingerprintMaterial)
     }
 }
