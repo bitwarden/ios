@@ -58,7 +58,7 @@ jobs:
             --jq '.[0].number // empty')
 
           SCRIPT_OUTPUT=$(cat /tmp/fix-output.txt)
-          PR_BODY="Automated cleanup of Localizable.strings files: removes duplicate and unused string keys.
+          PR_BODY="Automated cleanup of Localizable.strings files.
 
 ## Script output
 
