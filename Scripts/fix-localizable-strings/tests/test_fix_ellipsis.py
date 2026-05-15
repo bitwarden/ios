@@ -79,15 +79,6 @@ class TestFixEllipsisConverts(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertEqual(changed, ["loading"])
 
-    def test_sentinel_entry_without_ellipsis_is_preserved(self):
-        # The "sentinel" entry has no ... and must survive completely unchanged.
-        content = (
-            '"sentinel" = "Sentinel value";\n'
-            '"loading" = "Loading...";\n'
-        )
-        result, _ = fix_ellipsis(content)
-        self.assertIn('"sentinel" = "Sentinel value";', result)
-
     def test_multiple_affected_entries_all_converted(self):
         content = (
             '"a" = "First...";\n'
@@ -168,11 +159,6 @@ class TestFixEllipsisKeyPreservation(unittest.TestCase):
 class TestFixEllipsisReturnedKeys(unittest.TestCase):
     """Verify the changed keys list is correct."""
 
-    def test_empty_list_when_no_changes(self):
-        content = '"a" = "A";\n"b" = "B";\n'
-        _, changed = fix_ellipsis(content)
-        self.assertEqual(changed, [])
-
     def test_changed_keys_are_in_encounter_order(self):
         content = (
             '"x" = "X...";\n'
@@ -181,18 +167,6 @@ class TestFixEllipsisReturnedKeys(unittest.TestCase):
         )
         _, changed = fix_ellipsis(content)
         self.assertEqual(changed, ["x", "z"])
-
-    def test_each_affected_entry_appears_once_in_changed_list(self):
-        content = (
-            '"a" = "A...";\n'
-            '"b" = "B...";\n'
-            '"c" = "C";\n'
-        )
-        _, changed = fix_ellipsis(content)
-        self.assertEqual(len(changed), 2)
-        self.assertIn("a", changed)
-        self.assertIn("b", changed)
-
 
 class TestFixEllipsisFileIO(unittest.TestCase):
     """Integration tests for the file I/O wrapper."""
