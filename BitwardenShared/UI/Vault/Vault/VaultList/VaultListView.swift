@@ -114,9 +114,9 @@ private struct SearchableVaultListView: View { // swiftlint:disable:this type_bo
         if store.state.shouldShowUpgradedToPremiumActionCard {
             ActionCard(
                 title: Localizations.upgradedToPremium,
-                message: Localizations.welcomeToPremiumYouNowHaveAccessDescriptionLong,
-                actionButtonState: ActionCard.ButtonState(title: Localizations.viewPlanDetails) {
-                    store.send(.viewPlanDetails)
+                message: Localizations.youNowHaveAccessToAllAdvancedSecurityFeatures,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.learnMore) {
+                    store.send(.learnMoreAboutPremium)
                 },
                 dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                     await store.perform(.dismissUpgradedToPremiumActionCard)
