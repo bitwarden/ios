@@ -1273,9 +1273,9 @@ extension DefaultAuthRepository: AuthRepository {
         return try await stateService.getActiveAccountId()
     }
 
-    /// Restores the biometric unlock keychain entry after a successful vault unlock when the
+    /// Restores the biometric unlock keychain entry after a vault unlock when the
     /// biometric preference is enabled. The preference survives logout but the keychain entry
-    /// is cleared; this rewrites it so biometric unlock works without re-enabling in settings.
+    /// is cleared; this rewrites the key so biometric unlock works without re-enabling in settings.
     ///
     private func configureBiometricUnlockIfNeeded() async {
         do {
@@ -1283,6 +1283,8 @@ extension DefaultAuthRepository: AuthRepository {
             guard await !biometricsRepository.hasBiometricUnlockKey() else { return }
             let authKey = try await clientService.crypto().getUserEncryptionKey()
             try await biometricsRepository.restoreBiometricUnlockKey(authKey: authKey)
+        } catch BiometricsServiceError.biometryLocked {
+            // Lockout is a transient state; do nothing and let the user retry later.
         } catch {
             errorReporter.log(error: error)
         }
