@@ -60,6 +60,12 @@ enum DeviceActivityStatus: Equatable, Sendable {
         }
 
         let now = timeProvider.presentTime
+
+        guard date <= now else {
+            self = .unknown
+            return
+        }
+
         let calendar = Calendar.current
 
         guard let daysDifference = calendar.dateComponents([.day], from: date, to: now).day else {
@@ -68,8 +74,6 @@ enum DeviceActivityStatus: Equatable, Sendable {
         }
 
         switch daysDifference {
-        case ..<0:
-            self = .unknown
         case 0:
             self = .today
         case 1 ... 7:
