@@ -53,6 +53,9 @@ public protocol AppInfoService {
     /// The app's formatted copyright string.
     var copyrightString: String { get }
 
+    /// Whether the running build is the Beta variant of the app.
+    var isBetaBuild: Bool { get }
+
     /// The app's formatted version string.
     var versionString: String { get }
 }
@@ -150,6 +153,11 @@ public extension DefaultAppInfoService {
     /// The copyright information for the app.
     var copyrightString: String {
         "© Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: timeProvider.presentTime))"
+    }
+
+    /// Whether the running build is the Beta variant, derived from the bundle identifier.
+    var isBetaBuild: Bool {
+        bundle.bundleIdentifier?.hasSuffix(".beta") == true
     }
 
     /// A string providing the app version.
