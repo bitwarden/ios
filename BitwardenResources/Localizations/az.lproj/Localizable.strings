@@ -208,7 +208,7 @@
 "August" = "Avqust";
 "Brand" = "Brend";
 "CardholderName" = "Kart sahibinin adı";
-"WeFoundMultipleMatchesChooseTheCorrectOne" = "We found multiple matches. Choose the correct one.";
+"WeFoundMultipleMatchesChooseTheCorrectOne" = "Bir neçə uyuşma tapdıq. Doğru olanı seçin.";
 "CityTown" = "Şəhər/Rayon";
 "Company" = "Şirkət";
 "Country" = "Ölkə";
@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Yararsız parol";
 "MasterPasswordPolicyValidationMessage" = "Parol, şirkət tələblərini qarşılamır. Lütfən siyasət məlumatlarını yoxlayıb yenidən sınayın.";
 "Loading" = "Yüklənir";
+"LoadingSubscription" = "Abunəlik yüklənir…";
 "AcceptPoliciesError" = "Xidmət Şərtləri və Məxfilik Siyasəti qəbul edilməyib.";
 "PrivacyPolicy" = "Məxfilik Siyasəti";
 "PersonalOwnershipPolicyInEffect" = "Bir təşkilat siyasəti, sahiblik seçimlərinizə təsir edir.";
@@ -606,7 +607,7 @@
 "SetUpAutofill" = "Avto-doldurmanı quraşdır";
 "AppInfo" = "Tətbiq məlumatı";
 "Browse" = "Nəzər sal";
-"SelectCardholderName" = "Select cardholder name";
+"SelectCardholderName" = "Kart sahibinin adını seçin";
 "SelectLanguage" = "Dili seç";
 "ContinueToCompleteWebAuthnVerification" = "WebAuthn doğrulamasını tamamlamaq üçün davam edin.";
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "WebAuthn iki faktorlu kimlik doğrulama başladılarkən bir xəta baş verdi";
@@ -918,7 +919,7 @@
 "NoAskMe" = "Xeyr, məndən soruş";
 "NoCodes" = "Göstəriləcək heç bir kodunuz yoxdur";
 "None" = "Yoxdur";
-"NoneOfTheAbove" = "None of the above";
+"NoneOfTheAbove" = "Heç biri";
 "NumberOfDigits" = "Rəqəm sayı";
 "OtpType" = "OTP növü";
 "RefreshPeriod" = "Təzələmə periodu";
@@ -928,7 +929,7 @@
 "SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Bu kimlik doğrulayıcı açarı burada saxlayın, ya da onu Bitwarden tətbiqində bir girişə əlavə edin.";
 "SaveToBitwarden" = "\"Bitwarden\"də saxla";
 "ScanCard" = "Kartı skan et";
-"PositionYourCardInTheFrameToScanIt" = "Position your card in the frame to scan it";
+"PositionYourCardInTheFrameToScanIt" = "Skan etmək üçün kartınızı çərçivəyə yerləşdirin";
 "ScanComplete" = "Skan tamamlandı";
 "ScanTheQRCodeInYourSettings" = "İstənilən hesab üçün 2 addımlı doğrulama ayarlarınızdakı QR kodu skan edin.";
 "SecureYourAssetsWithBitwardenAuthenticator" = "Hesablarınızı Bitwarden Authenticator ilə qoruyun";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Yüksəltmə gözlənilir";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Yüksəltmə prosesiniz emal olunur. Tamamlanana qədər ödənişsiz planda qalacaqsınız. Yoxlamaq üçün indi sinxronlaşdırın və ya davam edin və özü avtomatik güncəllənəcək.";
 "UpgradedToPremium" = "\"Premium\"a yüksəldildi";
-"ViewPlanDetails" = "Plan məlumatlarına bax";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "\"Premium\"a xoş gəlmisiniz! Artıq bütün qabaqcıl təhlükəsizlik özəlliklərinə erişiminiz var.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artıq qabaqcıl təhlükəsizlik özəlliklərinə erişə bilərsiniz. Nələrin Premium-a daxil olduğunu öyrənin.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artıq bütün qabaqcıl təhlükəsizlik özəlliklərinə erişiminiz var.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "Satın almanı tamamlamaq üçün Stripe-ın güvənli ödəniş səhifəsinə yönləndiriləcəksiniz.";
 "YoullContinueToHavePremiumAccessUntilX" = "Premium erişiminiz bu tarixə qədər davam edəcək: %1$@.";
 "UserIDCopiedToTheClipboard" = "İstifadəçi kimliyi lövhəyə kopyalandı";
@@ -1091,4 +1092,4 @@
 "ToManageYourPremiumSubscriptionDescriptionLong" = "Premium abunəliyinizi idarə etmək üçün lütfən kompüterdə veb seyfinizə giriş edin.";
 "CheckYourConnectionAndTryAgain" = "Bağlantınızı yoxlayıb yenidən sınayın.";
 "PricingUnavailable" = "Qiymət mövcud deyil";
-"BankAccount" = "Bank account";
+"BankAccount" = "Bank hesabı";
