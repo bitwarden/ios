@@ -2718,7 +2718,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         biometricsRepository.hasBiometricUnlockKeyReturnValue = false
         let restoredKey = "RESTORED_ENCRYPTION_KEY"
-        clientService.mockCrypto.getUserEncryptionKeyResult = .success(restoredKey)
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = restoredKey
 
         // Step 1: logout — must NOT call setBiometricUnlockKey, which was clearing the preference.
         try await subject.logout(userInitiated: true)
@@ -2883,7 +2883,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         biometricsRepository.hasBiometricUnlockKeyReturnValue = false
-        clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "ENC_KEY"
 
         try await subject.unlockVaultFromLoginWithDevice(
             privateKey: "AUTH_REQUEST_PRIVATE_KEY",
@@ -3198,7 +3198,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ]
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         biometricsRepository.hasBiometricUnlockKeyReturnValue = false
-        clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "ENC_KEY"
 
         try await subject.unlockVaultWithPassword(password: "password")
 
@@ -3272,7 +3272,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.pinProtectedUserKeyEnvelopeValue[account.profile.userId] = "pinProtectedUserKeyEnvelope"
         biometricsRepository.getBiometricUnlockStatusReturnValue = .available(.faceID, enabled: true)
         biometricsRepository.hasBiometricUnlockKeyReturnValue = false
-        clientService.mockCrypto.getUserEncryptionKeyResult = .success("ENC_KEY")
+        clientService.mockCrypto.getUserEncryptionKeyReturnValue = "ENC_KEY"
 
         try await subject.unlockVaultWithPIN(pin: "1234")
 
