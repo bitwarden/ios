@@ -10,7 +10,7 @@ class MockClientService: ClientService {
     var mockAuthIsPreAuth = false
     var mockAuthUserId: String?
     var mockCrypto: MockCryptoClient
-    var mockExporters: MockExporterClient
+    var mockExporters: MockExporterClientProtocol
     var mockGenerators: MockGeneratorClientsProtocol
     var mockGeneratorsIsPreAuth = false
     var mockGeneratorsUserId: String?
@@ -22,7 +22,7 @@ class MockClientService: ClientService {
     init(
         auth: MockAuthClient = MockAuthClient(),
         crypto: MockCryptoClient = MockCryptoClient(),
-        exporters: MockExporterClient = MockExporterClient(),
+        exporters: MockExporterClientProtocol = MockExporterClientProtocol(),
         generators: MockGeneratorClientsProtocol = MockGeneratorClientsProtocol(),
         platform: MockPlatformClientService = MockPlatformClientService(),
         sends: MockSendClientProtocol = MockSendClientProtocol(),
