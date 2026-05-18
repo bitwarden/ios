@@ -103,6 +103,8 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var convertNewUserToKeyConnectorKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
+    var unlockVaultWithSessionKeyCalled = false
+    var unlockVaultWithSessionKeyResult: Result<Bool, Error> = .success(false)
     var verifyOtpOpt: String?
     var verifyOtpResult: Result<Void, Error> = .success(())
 
@@ -412,6 +414,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     func unlockVaultWithNeverlockKey() async throws {
         unlockVaultWithNeverlockKeyCalled = true
         return try unlockVaultWithNeverlockResult.get()
+    }
+
+    func unlockVaultWithSessionKey() async throws -> Bool {
+        unlockVaultWithSessionKeyCalled = true
+        return try unlockVaultWithSessionKeyResult.get()
     }
 
     /// Attempts to convert a possible user id into a known account id.

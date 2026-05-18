@@ -94,6 +94,7 @@ public class AppProcessor {
 
         listenForWillEnterForeground(debugWillEnterForeground: debugWillEnterForeground)
         listenForDidEnterBackground(debugDidEnterBackground: debugDidEnterBackground)
+        listenForWillResignActive()
         listenForPendingAppIntentActions()
         listenForAcquireCookies()
     }
@@ -534,6 +535,25 @@ extension AppProcessor {
                 #if DEBUG
                 debugDidEnterBackground?()
                 #endif
+            }
+        }
+    }
+
+    /// Subscribes to the will-resign-active notification and records the last active time for
+    /// the current user. This covers the foreground-to-app-switcher-kill path where the app is
+    /// terminated before `didEnterBackground` fires.
+    ///
+    private func listenForWillResignActive() {
+        Task {
+            for await _ in services.notificationCenterService.willResignActivePublisher() {
+                do {
+                    let userId = try await self.services.stateService.getActiveAccountId()
+                    try await services.vaultTimeoutService.setLastActiveTime(userId: userId)
+                } catch StateServiceError.noActiveAccount {
+                    // No-op: nothing to do if there's no active account.
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
             }
         }
     }
