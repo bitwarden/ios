@@ -294,6 +294,10 @@
 "CheckingPassword" = "Checking password…";
 "CheckPassword" = "Check if password has been exposed.";
 "PasswordSafe" = "This password was not found in any known data breaches. It should be safe to use.";
+"PasswordHealth" = "Password health";
+"ReusedPasswords" = "Reused passwords";
+"NoReusedPasswords" = "No reused passwords detected.";
+"XAccountsUseThisPassword" = "%1$d accounts use this password";
 "IdentityName" = "Identity name";
 "Value" = "Value";
 "PasswordHistory" = "Password history";

@@ -111,6 +111,14 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .exportVault)
     }
 
+    /// `receive(_:)` with `.passwordHealthTapped` navigates to the password health screen.
+    @MainActor
+    func test_receive_passwordHealthTapped() {
+        subject.receive(.passwordHealthTapped)
+
+        XCTAssertEqual(coordinator.routes.last, .passwordHealth)
+    }
+
     /// `receive(_:)` with  `.foldersTapped` navigates to the folders screen.
     @MainActor
     func test_receive_foldersTapped() {

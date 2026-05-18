@@ -55,6 +55,8 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
             state.url = nil
         case .exportVaultTapped:
             coordinator.navigate(to: .exportVault)
+        case .passwordHealthTapped:
+            coordinator.navigate(to: .passwordHealth)
         case .foldersTapped:
             coordinator.navigate(to: .folders)
         case .importItemsTapped:

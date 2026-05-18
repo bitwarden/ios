@@ -69,6 +69,11 @@ struct VaultSettingsView: View {
             }
             .accessibilityIdentifier("ExportVaultLabel")
 
+            SettingsListItem(Localizations.passwordHealth) {
+                store.send(.passwordHealthTapped)
+            }
+            .accessibilityIdentifier("PasswordHealthLabel")
+
             SettingsListItem(Localizations.importItems) {
                 store.send(.importItemsTapped)
             } trailingContent: {

@@ -187,6 +187,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showLoginRequest(loginRequest, delegate: context as? LoginRequestDelegate)
         case .other:
             showOtherScreen()
+        case .passwordHealth:
+            showPasswordHealth()
         case .passwordAutoFill:
             showPasswordAutoFill(delegate: context as? PasswordAutoFillProcessorDelegate)
         case .pendingLoginRequests:
@@ -458,6 +460,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         )
         coordinator.start()
         coordinator.navigate(to: .passwordAutofill(mode: .settings), context: delegate)
+    }
+
+    /// Shows the password health screen.
+    ///
+    private func showPasswordHealth() {
+        let processor = PasswordHealthProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: PasswordHealthState(),
+        )
+        let view = PasswordHealthView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator?.push(viewController, navigationTitle: Localizations.passwordHealth)
     }
 
     /// Shows the pending login requests screen.

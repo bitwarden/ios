@@ -9,6 +9,9 @@ enum VaultSettingsAction {
     /// The export vault button was tapped.
     case exportVaultTapped
 
+    /// The password health button was tapped.
+    case passwordHealthTapped
+
     /// The folders button was tapped.
     case foldersTapped
 
