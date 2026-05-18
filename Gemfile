@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 ruby file: '.ruby-version'
 
-gem 'dotenv', '2.8.1', groups: [:bwpm_prod, :bwpm_beta, :bwa_prod]
+gem 'dotenv', '3.2.0', groups: [:bwpm_prod, :bwpm_beta, :bwa_prod]
 gem 'fastlane', '2.233.1'
 
 # Since ruby 3.4.0 these are not included in the standard library
