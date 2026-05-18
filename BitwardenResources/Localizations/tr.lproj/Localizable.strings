@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Geçersiz parola";
 "MasterPasswordPolicyValidationMessage" = "Parolanız kuruluş gereksinimlerini karşılamıyor.  Lütfen parola politikasını kontrol edip yeniden deneyin.";
 "Loading" = "Yükleniyor";
+"LoadingSubscription" = "Abonelik yükleniyor...";
 "AcceptPoliciesError" = "Hizmet Koşulları ve Gizlilik Politikası kabul edilmemiş.";
 "PrivacyPolicy" = "Gizlilik Politikası";
 "PersonalOwnershipPolicyInEffect" = "Bir kuruluş ilkesi sahiplik seçeneklerinizi etkiliyor.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Upgrade pending";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Upgraded to Premium";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz. Premium pakete nelerin dahil olduğunu öğrenin.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Artık tüm gelişmiş güvenlik özelliklerine ulaşabilirsiniz.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
 "YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "Kullanıcı kimliği panoya kopyalandı";

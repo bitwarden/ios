@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Érvénytelen jelszó.";
 "MasterPasswordPolicyValidationMessage" = "A jelszó nem egyezik a szervezeti követelményekhez. Ellenőrizzük a szabály információt és próbáljuk újra.";
 "Loading" = "A betöltés folyamatban van.";
+"LoadingSubscription" = "Előfizetés betöltése...";
 "AcceptPoliciesError" = "A szolgáltatási feltételeket és az adatvédelmi irányelveket nem vették figyelembe.";
 "PrivacyPolicy" = "Adatvédelmi Irányelvek";
 "PersonalOwnershipPolicyInEffect" = "Egy szervezeti házirend befolyásolja a tulajdonjog beállításait.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Függő áttérés";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Az áttérés feldolgozása folyamatban van. Az ingyenes csomag marad, amíg az be nem fejeződik. Szinkronizáljunk most az ellenőrzéshez vagy a folytatáshoz, és az áttérés automatikus.";
 "UpgradedToPremium" = "Áttérés Prémium csomagra";
-"ViewPlanDetails" = "Csomag részletek megtekintése";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Üdvözölet a Premiumban! Most már hozzáférhetünk az összes fejlett biztonsági funkcióhoz.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "Most már hozzáférhetünk a fejlett biztonsági funkciókhoz. Tudjunk meg többet arról, hogy mit tartalmaz a Premium csomag.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "Most már hozzáférhetünk az összes fejlett biztonsági funkcióhoz.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "A vásárlás befejezéséhez keressük fel a Stripe biztonságos pénztárát.";
 "YoullContinueToHavePremiumAccessUntilX" = "Továbbra is prémium hozzáféréssel rendelkezünkk %1$@ időpontig.";
 "UserIDCopiedToTheClipboard" = "A felhasználói azonosító a vágólapra került.";
