@@ -11,6 +11,11 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// Flag to enable/disable individual cipher encryption configured remotely.
     static let cipherKeyEncryption = FeatureFlag(rawValue: "cipher-key-encryption")
 
+    /// Debug flag to disable self-hosted checks in premium upgrade flows for QA testing.
+    static let debugDisableSelfHostPremiumCheck = FeatureFlag(
+        rawValue: "debug-disable-self-host-premium-check"
+    )
+
     /// Flag to enable/disable Device Auth Key flows.
     static let deviceAuthKey = FeatureFlag(rawValue: "pm-27581-device-auth-key")
 
@@ -36,6 +41,7 @@ extension FeatureFlag: @retroactive CaseIterable {
         [
             .cardScanner,
             .cipherKeyEncryption,
+            .debugDisableSelfHostPremiumCheck,
             .deviceAuthKey,
             .enableCipherKeyEncryption,
             .forceUpdateKdfSettings,

@@ -22,6 +22,7 @@ typealias Services = HasAppInfoService
     & HasServerCommunicationConfigClientSingleton
     & HasStateService
     & HasTOTPExpirationManagerFactory
+    & HasTOTPItemDisplayStateService
     & HasTOTPService
     & HasTimeProvider
 
@@ -99,6 +100,13 @@ protocol HasPasteboardService {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that provides a `TOTPItemDisplayStateService`.
+///
+protocol HasTOTPItemDisplayStateService {
+    /// The service used by the application to manage TOTP item display state.
+    var totpItemDisplayStateService: TOTPItemDisplayStateService { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.

@@ -17,7 +17,6 @@ struct PremiumUpgradeProcessorTests {
 
     let billingService: MockBillingService
     let coordinator: MockCoordinator<BillingRoute, Void>
-    let environmentService: MockEnvironmentService
     let errorReporter: MockErrorReporter
     let subject: PremiumUpgradeProcessor
 
@@ -25,6 +24,7 @@ struct PremiumUpgradeProcessorTests {
 
     init() {
         billingService = MockBillingService()
+        billingService.isSelfHostedReturnValue = false
         billingService.getPremiumPlanReturnValue = PremiumPlanResponseModel(
             available: true,
             legacyYear: nil,
@@ -35,11 +35,9 @@ struct PremiumUpgradeProcessorTests {
         billingService.premiumCheckoutStatusPublisherReturnValue = PassthroughSubject<PremiumCheckoutStatus, Never>()
             .eraseToAnyPublisher()
         coordinator = MockCoordinator<BillingRoute, Void>()
-        environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         let services = ServiceContainer.withMocks(
             billingService: billingService,
-            environmentService: environmentService,
             errorReporter: errorReporter,
         )
         subject = PremiumUpgradeProcessor(
@@ -54,8 +52,6 @@ struct PremiumUpgradeProcessorTests {
     /// `perform(_:)` with `.appeared` fetches the premium price and sets it in state on success.
     @Test
     func perform_appeared_fetchesPremiumPrice_success() async {
-        environmentService.region = .unitedStates
-
         await subject.perform(.appeared)
 
         #expect(subject.state.premiumPrice != nil)
@@ -68,7 +64,6 @@ struct PremiumUpgradeProcessorTests {
     /// `perform(_:)` with `.appeared` shows the pricing error banner on failure.
     @Test
     func perform_appeared_fetchesPremiumPrice_failure() async {
-        environmentService.region = .unitedStates
         billingService.getPremiumPlanThrowableError = BitwardenTestError.example
 
         await subject.perform(.appeared)
@@ -80,25 +75,34 @@ struct PremiumUpgradeProcessorTests {
         #expect(coordinator.isLoadingOverlayShowing == false)
     }
 
-    /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `false` when the environment is not self-hosted.
+    /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `false` when the billing service reports not self-hosted.
     @Test
     func perform_appeared_notSelfHosted() async {
-        environmentService.region = .unitedStates
-
         await subject.perform(.appeared)
 
         #expect(subject.state.isSelfHosted == false)
     }
 
-    /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `true` when the environment is self-hosted.
+    /// `perform(_:)` with `.appeared` sets `isSelfHosted` to `true` and skips price fetch when self-hosted.
     @Test
     func perform_appeared_selfHosted() async {
-        environmentService.region = .selfHosted
+        billingService.isSelfHostedReturnValue = true
 
         await subject.perform(.appeared)
 
         #expect(subject.state.isSelfHosted == true)
         #expect(!billingService.getPremiumPlanCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` fetches price when billing service overrides self-hosted for QA.
+    @Test
+    func perform_appeared_selfHosted_debugOverrideEnabled_fetchesPremiumPrice() async {
+        billingService.isSelfHostedReturnValue = false
+
+        await subject.perform(.appeared)
+
+        #expect(subject.state.isSelfHosted == false)
+        #expect(billingService.getPremiumPlanCalled)
     }
 
     /// `perform(_:)` with `.retryFetchPriceTapped` hides the banner and shows price on success.

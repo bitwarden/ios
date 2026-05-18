@@ -381,6 +381,7 @@
 "MasterPasswordPolicyValidationTitle" = "Mật khẩu không đúng";
 "MasterPasswordPolicyValidationMessage" = "Mật khẩu không đáp ứng yêu cầu của tổ chức. Vui lòng kiểm tra chính sách mật khẩu và thử lại.";
 "Loading" = "Đang tải";
+"LoadingSubscription" = "Loading subscription...";
 "AcceptPoliciesError" = "Bạn chưa đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật.";
 "PrivacyPolicy" = "Chính sách Bảo mật";
 "PersonalOwnershipPolicyInEffect" = "Chính sách của tổ chức đang ảnh hưởng đến các tùy chọn quyền sở hữu của bạn.";
@@ -1080,8 +1081,8 @@
 "UpgradePending" = "Đang nâng cấp";
 "YourUpgradeIsBeingProcessedDescriptionLong" = "Your upgrade is being processed. You'll remain on the free plan until it's complete. Sync now to check, or continue and it will update automatically.";
 "UpgradedToPremium" = "Upgraded to Premium";
-"ViewPlanDetails" = "View plan details";
-"WelcomeToPremiumYouNowHaveAccessDescriptionLong" = "Welcome to Premium! You now have access to all advanced security features.";
+"YouNowHaveAccessToAdvancedSecurityDescriptionLong" = "You now have access to advanced security features. Learn more about what's included with Premium.";
+"YouNowHaveAccessToAllAdvancedSecurityFeatures" = "You now have access to all advanced security features.";
 "YoullGoToStripeSecureCheckoutToCompleteYourPurchase" = "You´ll go to Stripe´s secure checkout to complete your purchase.";
 "YoullContinueToHavePremiumAccessUntilX" = "You'll continue to have Premium access until %1$@.";
 "UserIDCopiedToTheClipboard" = "User ID copied to the clipboard";

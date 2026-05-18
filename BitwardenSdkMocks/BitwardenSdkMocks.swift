@@ -12,6 +12,7 @@ extension AttachmentsClientProtocol {}
 extension CiphersClientProtocol {}
 extension ClientManagedTokens {}
 extension CollectionsClientProtocol {}
+extension ExporterClientProtocol {}
 extension FoldersClientProtocol {}
 extension GeneratorClientsProtocol {}
 extension PasswordHistoryClientProtocol {}

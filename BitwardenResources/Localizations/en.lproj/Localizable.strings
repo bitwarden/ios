@@ -50,6 +50,7 @@
 "Move" = "Move";
 "Saving" = "Saving…";
 "Settings" = "Settings";
+"ShowNextCode" = "Show next code";
 "ItemDeleted" = "Item deleted";
 "Submit" = "Submit";
 "UseFingerprintToUnlock" = "Use fingerprint to unlock";
@@ -771,6 +772,7 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
 "Next" = "Next";
+"NextCode" = "Next code";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
